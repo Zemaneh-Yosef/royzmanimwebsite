@@ -9339,7 +9339,7 @@ article.post .limelight_video_cap {
   }
 }
 .logo {
-  background-image: url('/RabbiOvadiahYosefCalendar/icon.png');
+  background-image: url('/icon.png');
   background-size: 47px 50px;
   background-repeat: no-repeat;
   background-position: center;
@@ -9356,13 +9356,13 @@ article.post .limelight_video_cap {
 }
 @media (min-width: 980px) {
   .logo {
-    background-image: url('/RabbiOvadiahYosefCalendar/ro_watermark.png');
+    background-image: url('/ro_watermark.png');
     min-width: 135px;
     width: 60px;
     background-size: 120px 34px;
   }
   .logo.aDarkMode {
-    background-image: url('/RabbiOvadiahYosefCalendar/ro_watermark_light.png');
+    background-image: url('/ro_watermark_light.png');
     min-width: 135px;
     width: 60px;
     background-size: 120px 34px;
