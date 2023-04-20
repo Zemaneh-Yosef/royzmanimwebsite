@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css" />
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+        <meta
+          name="Description"
+          content="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/index.html is an online calendar for all Zmanim and Davening according to Rabbi Ovadiah Yosef Zt'l for everywhere in the world."
+        />
+        <meta
+          name="Keywords"
+          content="Rabbi, Ovadia, Ovadiah, Yosef, Calendar, Zmanim, Daven, Davening"
+        />
+        <link href="ic_launcher-playstore.ico" rel="icon" type="image/x-icon" />
+        <link rel="stylesheet" href="lessphp_ad1b8ffc00d80736ec84e56b70cc9fdaa1655030.css" />
+        <script src="/RabbiOvadiahYosefCalendar/jquery.min.js"></script>
+        <header id="hd" class="hdReg"><!-- Top page navigator starts here -->
+          <div class="main-nav" role="navigation">
+            <div class="main-nav__toogle">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+    
+            <a class="logo" href="/RabbiOvadiahYosefCalendar/index.html"
+              ><img
+              id="logo"
+                src="/RabbiOvadiahYosefCalendar/ro_flag.png"
+                alt="elyahu41.github.io/RabbiOvadiahYosefCalendar/index.html"
+              />Rabbi Ovadiah Yosef Calendar</a>
+              
+    
+            <nav class="main-nav__nav">
+              <ul class="main-nav__list">
+                <li><a id="shabbatMode" href="#">Shabbat Mode</a></li>
+                <li class="dropdown-parent">
+                  <a>Languages <i class="fa fa-caret-down"></i></a>
+                            <nav class="main-nav__megamenu">
+                    <ul class="main-nav__megamenu-list">
+                      <div class="btn-group">
+                        <button
+                          id="hebrewZmanim"
+                          style="width: 33%; height: auto"
+                          class="button-18"
+                        >
+                          Hebrew
+                        </button>
+                        <button
+                          id="defaultZmanim"
+                          style="width: 33%; height: auto"
+                          class="button-18"
+                        >
+                          Default
+                        </button>
+                        <button
+                          id="englishZmanim"
+                          style="width: 33%; height: auto"
+                          class="button-18"
+                        >
+                          English
+                        </button>
+                      </div></ul>
+                  </nav>
+                          </li>
+                <li><a href="/RabbiOvadiahYosefCalendar/moladCalculator.html" target="_blank" rel="noopener noreferrer">Molad Calculator</a></li>
+                <li><a href="/RabbiOvadiahYosefCalendar/settings.html" rel="noopener noreferrer">Settings</a></li>
+                <li><a href="/RabbiOvadiahYosefCalendar/about.html" target="_blank" rel="noopener noreferrer">About</a></li>
+                <li><a href="#" class="dark-mode-link" id="darkMode">Dark Mode&nbsp;<i class="fas fa-moon"></i></a></li>
+              </ul>
+            </nav>
+          </div>
+    
+          <script type="text/javascript">
+            jQuery(document).ready(function ($) {
+              $(".main-nav__toogle").on("click", function () {
+                $(".main-nav__nav").toggleClass("open");
+              });
+            });
+          </script>
+        </header>
+    
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link href="banner.ico" rel="icon" type="image/x-icon" />
+        <title>Rabbi Ovadiah Yosef Calendar</title>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+          integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
+          crossorigin="anonymous"
+        />
+      </head>
+<body>
+
+  <p class="border">
+    Settings are under construction. Please check back later.
+  </p><!--TODO-->
+
+    <script>
+function toggleDarkMode() {
+  if (
+    document
+      .getElementById("logo")
+      .src.includes("/RabbiOvadiahYosefCalendar/ro_flag.png")
+  ) {
+    document.getElementById("logo").src =
+      "/RabbiOvadiahYosefCalendar/ro_flag_light.png";
+  } else if (
+    document
+      .getElementById("logo")
+      .src.includes("/RabbiOvadiahYosefCalendar/ro_flag_light.png")
+  ) {
+    document.getElementById("logo").src =
+      "/RabbiOvadiahYosefCalendar/ro_flag.png";
+  }
+  document.getElementById("hd").classList.toggle("hdDarkMode");
+  var as = document.getElementsByTagName("a");
+  for (var i = 0; i < as.length; i++) {
+    as[i].classList.toggle("aDarkMode");
+  }
+  document
+    .getElementsByClassName("main-nav__megamenu")[0]
+    .classList.toggle("darkMode");
+  document
+    .getElementsByClassName("main-nav__toogle")[0]
+    .classList.toggle("darkMode");
+  if (
+    document.getElementsByClassName("main-nav__nav")[0].style.backgroundColor ==
+    "rgb(59, 57, 57)"
+  ) {
+    document.getElementsByClassName("main-nav__nav")[0].style.backgroundColor =
+      "rgb(229, 232, 233)";
+  } else {
+    document.getElementsByClassName("main-nav__nav")[0].style.backgroundColor =
+      "rgb(59, 57, 57)";
+  }
+  document.querySelector("title").classList.toggle("titleDarkMode");
+  document.querySelector("body").classList.toggle("bodyDarkMode");
+  var borders = document.getElementsByClassName("border");
+  for (var i = 0; i < borders.length; i++) {
+    borders[i].classList.toggle("borderDarkMode");
+  }
+  var bordersSplit = document.getElementsByClassName("border-split");
+  for (var i = 0; i < bordersSplit.length; i++) {
+    bordersSplit[i].classList.toggle("border-splitDarkMode");
+  }
+  document.addEventListener("DOMContentLoaded", function (event) {
+    document.getElementById("footer").classList.toggle("footerDarkMode");
+    var links = document.getElementsByClassName("sourceCode");
+    for (var i = 0; i < links.length; i++) {
+      links[i].classList.toggle("sourceCodeDarkMode");
+    }
+  });
+  if (document.getElementById("footer") !== null) {
+    document.getElementById("footer").classList.toggle("footerDarkMode");
+  }
+  var links = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < links.length; i++) {
+    links[i].classList.toggle("sourceCodeDarkMode");
+  }
+}
+        var darkModeButton = document.getElementById("darkMode");
+        var isDarkMode = localStorage.getItem("isDarkMode");
+        if (isDarkMode == "true") {
+          toggleDarkMode();
+          darkModeButton.innerHTML =
+            "Light Mode&nbsp;<i class='fas fa-lightbulb'></i>";
+        }
+        darkModeButton.addEventListener("click", function () {
+          toggleDarkMode();
+          var isDarkMode = localStorage.getItem("isDarkMode");
+          if (isDarkMode == "false") {
+            darkModeButton.innerHTML =
+              "Light Mode&nbsp;<i class='fas fa-lightbulb'></i>";
+            isDarkMode = "true";
+          } else {
+            darkModeButton.innerHTML = "Dark Mode&nbsp;<i class='fas fa-moon'></i>";
+            isDarkMode = "false";
+          }
+          localStorage.setItem("isDarkMode", isDarkMode);
+        });
+      </script>
+</body>
+<footer id="footer">
+  Source code 
+    <a
+      class="sourceCode"
+      href="https://github.com/Elyahu41/Elyahu41.github.io/tree/master/RabbiOvadiahYosefCalendar">
+      HERE <i class="fas fa-code"></i></a>
+      <br /><br />Made by Elyahu Jacobi.<br>
+  Email:
+  <a class="sourceCode" href="mailto:ElyahuJacobi@gmail.com"> <i
+      class="fas fa-envelope"></i>
+     ElyahuJacobi@gmail.com
+  </a>
+</footer>
+
+</html>

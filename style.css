@@ -1,0 +1,517 @@
+/* Global */
+* {
+    box-sizing: border-box;
+}
+
+.marquee {
+  background-color: #0A66C2;
+  color: #f6f6f6;
+  margin: 0 auto;
+  overflow: clip;
+  padding: 12px;
+  white-space: nowrap;
+  position: fixed;
+  width: 100%;
+  display: none;
+  /* marquee animation should always be on top */
+  z-index: 100000;
+}
+.marquee span {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: bold;
+  position: relative;
+  left: 100%;
+  animation: marquee 16s linear infinite;
+  
+}
+
+.marquee span:nth-child(1) {
+  animation-delay: 0s;
+}
+.marquee span:nth-child(2) {
+  animation-delay: 0.8s;
+}
+.marquee span:nth-child(3) {
+  animation-delay: 1.6s;
+}
+.marquee span:nth-child(4) {
+  animation-delay: 2.4s;
+}
+.marquee span:nth-child(5) {
+  animation-delay: 3.2s;
+}
+
+@keyframes marquee {
+  0%   { left: 100%; }
+  100% { left: -100%; }
+}
+
+.hdReg {
+  width: 100%;
+    position: initial;
+    z-index: 9999;
+    background: #E5E8E9;/* #E5E8E9 is equivalent to rgb( 229, 232, 233 ) */
+    border-bottom: 1px solid #BBB;
+    margin-bottom: 10px;
+    display: block;
+    box-sizing: border-box;
+    color: #333333;
+    font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    --ind-menu-main-color: #0A7DA4;
+    --ind-menu-hover-color: #48565b;
+    --ind-menu-active-color: #0A7DA4;
+    --ind-color-picker: #0A7DA4;
+    --ind-color-bg-picker: #0A7DA4;
+    --ind-color-text-picker: #0A7DA4;
+    --ind-color-heading-picker: #0A7DA4;
+    --ind-color-heading-picker-default: #0A7DA4;
+    --wp--preset--font-size--normal: 16px;
+    --wp--preset--font-size--huge: 42px;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-text-size-adjust: 100%;
+}
+
+.hdDarkMode {
+  width: 100%;
+    position: initial;
+    z-index: 9999;
+    background: #3b3939;/* #3b3939 is equivalent to rgb( 59, 57, 57 ) */
+    border-bottom: 1px solid #BBB;
+    margin-bottom: 10px;
+    display: block;
+    box-sizing: border-box;
+    color: #ffffff;
+    font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    --ind-menu-main-color: #0A7DA4;
+    --ind-menu-hover-color: #48565b;
+    --ind-menu-active-color: #0A7DA4;
+    --ind-color-picker: #0A7DA4;
+    --ind-color-bg-picker: #0A7DA4;
+    --ind-color-text-picker: #0A7DA4;
+    --ind-color-heading-picker: #0A7DA4;
+    --ind-color-heading-picker-default: #0A7DA4;
+    --wp--preset--font-size--normal: 16px;
+    --wp--preset--font-size--huge: 42px;
+    -webkit-tap-highlight-color: rgba(255, 244, 244, 0);
+    -webkit-text-size-adjust: 100%;
+}
+
+.main-nav__toogle.darkMode span {
+  display: block;
+  height: 4px;
+  width: 100%;
+  background: #fff;
+  border-radius: 10px;
+}
+
+.main-nav__megamenu.darkMode {
+  background: #3b3939;
+}
+ 
+body,
+html {
+    height: 100%;
+    min-height: 100%;
+    margin: auto;
+    /*box-shadow: 30px 0px 40px rgba(0, 0, 0, 0.1), -30px 0px 40px rgba(0, 0, 0, 0.1);*/
+}
+
+.liDarkMode {
+    color: #fff;
+}
+
+title {
+  font-size: 18px;
+  margin: 0;
+  color: rgb(0, 0, 0);
+}
+
+.titleDarkMode {
+    font-size: 18px;
+    margin: 0;
+    color: #fff;
+}
+
+h2 {
+  font-family: 'Roboto',
+  sans-serif;
+  align-content: center;
+  max-width: 900px;
+  text-align: center;
+  margin-top: 100px;
+  margin: 1px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.h2DarkMode {
+    font-family: 'Roboto',
+    sans-serif;
+    align-content: center;
+    max-width: 900px;
+    text-align: center;
+    margin-top: 100px;
+    margin: 1px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #fff;
+}
+
+h5 {
+  font-family: 'Roboto',
+  sans-serif;
+  align-content: center;
+  max-width: 900px;
+  text-align: center;
+  margin-top: 0px;
+  margin: 8px;
+  margin-left: auto;
+  margin-right: auto;
+  color: rgb(0, 0, 0);
+}
+ 
+.h5DarkMode {
+    font-family: 'Roboto',
+    sans-serif;
+    align-content: center;
+    max-width: 900px;
+    text-align: center;
+    margin-top: 0px;
+    margin: 8px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #fff;
+}
+
+body {
+  font-family: 'Roboto',
+  sans-serif;
+  margin: 0;
+  background-color: #e5e5e5;
+}
+
+.bodyDarkMode {
+    font-family: 'Roboto',
+    sans-serif;
+    margin: 0;
+    background-color: #303030;
+}
+
+.aDarkMode {
+    color: #fff;
+}
+.aDarkMode:hover {
+  background-color: #000000;
+    color: #fff;
+}
+.aDarkMode:focus {
+  background-color: #000000;
+    color: #fff;
+}
+
+#Main {
+    background-image: url('/RabbiOvadiahYosefCalendar/searchicon.png'); /* Add a search icon to input */
+    background-position: 10px 12px; /* Position the search icon */
+    background-repeat: no-repeat; /* Do not repeat the icon image */
+    width: 100%; /* Full-width */
+    max-width: 800px; /* Set a specific width */
+    display: block;
+    margin: 0 auto;
+    font-size: 16px; /* Increase font-size */
+    padding: 12px 20px 12px 40px; /* Add some padding */
+    border: 2px solid #ddd; /* Add a grey border */
+    margin-bottom: 12px; /* Add some space below the input */
+}
+
+#list {
+    /* Remove default list styling */
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  #list li a {
+    border: 1px solid #ddd; /* Add a border to all links */
+    margin-top: -1px; /* Prevent double borders */
+    background-color: #f6f6f6; /* Grey background color */
+    padding: 12px; /* Add some padding */
+    max-width: 800px;
+    margin: 0 auto;
+    text-decoration: none; /* Remove default text underline */
+    font-size: 18px; /* Increase the font-size */
+    color: black; /* Add a black text color */
+    display: block; /* Make it into a block element to fill the whole list */
+  }
+  
+  #list li a:hover:not(.header) {
+    background-color: #eee; /* Add a hover effect to all links, except for headers */
+  }
+
+  .borderAlert {
+    font-family: 'Roboto',
+    sans-serif;
+    align-content: center;
+    max-width: 400px;
+    text-align: center;
+    margin-top: 100px;
+    margin: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    color: rgb(0, 0, 0);
+    border: solid 1px #ff0909;
+    padding: 6px;
+    display: none;
+}
+
+.borderAlertDarkMode {
+  font-family: 'Roboto',
+  sans-serif;
+  align-content: center;
+  max-width: 400px;
+  text-align: center;
+  margin-top: 100px;
+  margin: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #fff;
+  border: solid 1px #ff0909;
+  padding: 6px;
+  display: none;
+}
+
+.border {
+    font-family: 'Roboto',
+    sans-serif;
+    align-content: center;
+    max-width: 400px;
+    text-align: center;
+    margin-top: 100px;
+    margin: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    color: rgb(0, 0, 0);
+    border: solid 1px #000000;
+    padding: 6px;
+}
+
+.borderDarkMode {
+    font-family: 'Roboto',
+    sans-serif;
+    align-content: center;
+    max-width: 400px;
+    text-align: center;
+    margin-top: 100px;
+    margin: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #fff;
+    border: solid 1px #cfd8e4;
+    padding: 6px;
+}
+
+.border-split {
+  font-family: 'Roboto',
+  sans-serif;
+  align-content: center;;
+  max-width: 400px;
+  text-align: left;
+  margin-top: 100px;
+  margin: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  color: rgb(0, 0, 0);
+  border: solid 1px #000000;
+  padding: 6px;
+}
+
+.border-splitDarkMode {
+  font-family: 'Roboto',
+  sans-serif;
+  align-content: center;;
+  max-width: 400px;
+  text-align: left;
+  margin-top: 100px;
+  margin: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #fff;
+  border: solid 1px #cfd8e4;
+  padding: 6px;
+}
+
+.border-split b {
+  font-family: 'Roboto',
+  sans-serif;
+  font-size: large;
+  text-shadow: none;
+  unicode-bidi: plaintext;
+}
+
+.border-split span {
+  font-family: 'Roboto',
+  sans-serif;
+  align-content: center;;
+  max-width: 400px;
+  float: right;
+  margin-left: 10px;
+  color: rgb(0, 0, 0);
+}
+
+.border-splitDarkMode span {
+  font-family: 'Roboto',
+  sans-serif;
+  align-content: center;;
+  max-width: 400px;
+  float: right;
+  margin-left: 10px;
+  color: #fff;
+}
+
+.noBorder {
+  font-family: 'Roboto',
+  sans-serif;
+  align-content: center;
+  text-align: center;
+  margin-top: 100px;
+  margin: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  color: rgb(0, 0, 0);
+}
+
+.noBorderDarkMode {
+    font-family: 'Roboto',
+    sans-serif;
+    align-content: center;
+    text-align: center;
+    margin-top: 100px;
+    margin: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #fff;
+}
+
+.candleMinutes {
+    size: 2px;
+}
+
+.button-18 {
+  align-items: center;
+  background-color: #0A66C2;
+  border: 0;
+  border-radius: 100px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  max-width: 480px;
+  min-height: 40px;
+  min-width: 0px;
+  overflow: hidden;
+  padding: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+
+.button-18:hover,
+.button-18:focus { 
+  background-color: #16437E;
+  color: #ffffff;
+}
+
+.button-18:active {
+  background: #09223b;
+  color: rgb(255, 255, 255, .7);
+}
+
+.button-18:disabled { 
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, .08);
+  color: rgba(0, 0, 0, .3);
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 400px;
+  width: 100%;
+}
+
+.app-icons {
+    display: flex;
+    align-items: center;
+}
+
+.android {
+    width: 150px;
+}
+
+.apple {
+    width: 150px;
+}
+
+.darkMode-button {
+  background-color: #0A66C2; /* Blue */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.location-button {
+  background-color: #4caf50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.location-button:hover {
+  background-color: #3e8e41;
+}
+
+.location-button i {
+  margin-right: 8px;
+}
+
+footer {
+  text-align: center; 
+  color: rgb(0, 0, 0);
+}
+
+.footerDarkMode {
+  text-align: center; 
+  color: rgb(255, 255, 255);
+}
+
+.sourceCode {
+  color: #000;
+}
+
+.sourceCodeDarkMode {
+  color: #fff;
+}
