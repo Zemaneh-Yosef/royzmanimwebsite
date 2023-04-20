@@ -2100,17 +2100,17 @@ function toggleDarkMode() {
   if (
     document
       .getElementById("logo")
-      .src.includes("/RabbiOvadiahYosefCalendar/ro_flag.png")
+      .src.includes("/ro_flag.png")
   ) {
     document.getElementById("logo").src =
-      "/RabbiOvadiahYosefCalendar/ro_flag_light.png";
+      "/ro_flag_light.png";
   } else if (
     document
       .getElementById("logo")
-      .src.includes("/RabbiOvadiahYosefCalendar/ro_flag_light.png")
+      .src.includes("/ro_flag_light.png")
   ) {
     document.getElementById("logo").src =
-      "/RabbiOvadiahYosefCalendar/ro_flag.png";
+      "/ro_flag.png";
   }
   document.getElementById("hd").classList.toggle("hdDarkMode");
   var as = document.getElementsByTagName("a");
