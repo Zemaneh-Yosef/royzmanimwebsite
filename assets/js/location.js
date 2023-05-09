@@ -196,16 +196,16 @@ async function getAverageElevation (lat, long) {
 		'lng': long,
 		'username': 'Elyahu41'
 	});
-	const data = await getJSON("https://secure.geonames.org/srtm3JSON?" + params);
 
+	const data = await getJSON("https://secure.geonames.org/srtm3JSON?" + params.toString());
 	if (data.srtm3 > 0)
 		elevations.push(data.srtm3);
 
-	const data2 = await getJSON("https://secure.geonames.org/astergdemJSON?" + params);
+	const data2 = await getJSON("https://secure.geonames.org/astergdemJSON?" + params.toString());
 	if (data2.astergdem > 0)
 		elevations.push(data2.astergdem);
 
-	const data3 = await getJSON("https://secure.geonames.org/gtopo30JSON?" + params);
+	const data3 = await getJSON("https://secure.geonames.org/gtopo30JSON?" + params.toString());
 	if (data3.gtopo30 > 0)
 		elevations.push(data3.gtopo30);
 
