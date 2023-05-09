@@ -1,1 +1,7 @@
-websiteBackup.code-workspace
+*.DS_Store
+*.db
+_site
+.sass-cache
+.jekyll-metadata
+.jekyll-cache
+Gemfile.lock

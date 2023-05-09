@@ -1,0 +1,30 @@
+sidebar:
+  - title: Home
+    url: /
+    image: /assets/images/icons/home.svg
+  - title: Projects
+    #notif: 2
+    image: /assets/images/icons/folder.svg
+    items:
+      - title: DSi Modding Guide
+        url: /projects/dsi-guide
+      - title: Yamamura
+        url: #
+      - title: NightScript Domain
+        url: /projects/ns-domain
+  - title: Blog
+    image: /assets/images/icons/create.png
+    url: /blog/
+  - title: Art Gallery
+    url: /graphic-design
+    image:
+      avif: /assets/images/icons/photo-gallery.avif
+      png: /assets/images/icons/photo-gallery.png
+  - title: Social Links
+    image: /assets/images/icons/share.svg
+    url: /social
+footer:
+  - title: Website Information
+    url: /projects/ns-domain
+  - title: Source Code
+    url: https://github.com/NightYoshi370/nightyoshi370.github.io

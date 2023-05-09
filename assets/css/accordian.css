@@ -1,0 +1,48 @@
+.accordian summary {
+    border: 4px solid transparent;
+    outline: none;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    background: #444;
+    color: white;
+    padding-left: 1.4rem;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .accordian summary .rightAlign {
+    font-weight: bold;
+    margin-left: auto;
+  }
+  
+  .accordian details {
+    box-sizing: border-box;
+    background: white;
+  }
+  
+  .accordian details summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  .accordian details[open] > summary:before {
+    transform: rotate(90deg);
+  }
+  
+  .accordian summary:before {
+    content: "";
+    border-width: 0.4rem;
+    border-style: solid;
+    border-color: transparent transparent transparent #fff;
+    transform: rotate(0);
+    transform-origin: 0.2rem 50%;
+    transition: 0.25s transform ease;
+    margin-right: 0.5rem;
+  }
+  
+  .accordian .accordianContent {
+    border-top: none;
+    padding: 10px;
+    border: 2px solid #888;
+    border-top: none;
+  }
