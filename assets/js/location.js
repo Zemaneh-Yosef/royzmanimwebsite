@@ -136,7 +136,9 @@ async function setLocation(name, admin, country, latitude, longitude) {
 	const data = await getJSON("https://secure.geonames.org/timezoneJSON?" + params);
 
 	geoLocation.timeZone = data["timezoneId"];
-	getAverageElevation(lat, long) | 0;
+	geoLocation.elevation = await getAverageElevation(lat, long);
+
+	openCalendarWithLocationInfo();
 }
 
 async function getLocation() {
@@ -169,7 +171,7 @@ async function setLatLong (position) {
 	geoLocation.locationName = [data["geonames"][0]["name"], data["geonames"][0]["adminName1"], data["geonames"][0]["countryName"]].join(", ");
 
 	geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-	getAverageElevation(geoLocation.lat, geoLocation.long) | 0;
+	geoLocation.elevation = await getAverageElevation(geoLocation.lat, geoLocation.long);
 }
 
 function showError(error) {
@@ -197,19 +199,34 @@ async function getAverageElevation (lat, long) {
 		'username': 'Elyahu41'
 	});
 
-	const data = await getJSON("https://secure.geonames.org/srtm3JSON?" + params.toString());
-	if (data.srtm3 > 0)
-		elevations.push(data.srtm3);
+	try {
+		const data = await getJSON("https://secure.geonames.org/srtm3JSON?" + params.toString());
+		if (data.srtm3 > 0)
+			elevations.push(data.srtm3);
+	} catch (e) {
+		console.error("Error with strm3JSON elevation request");
+		console.error(e);
+	}
 
-	const data2 = await getJSON("https://secure.geonames.org/astergdemJSON?" + params.toString());
-	if (data2.astergdem > 0)
-		elevations.push(data2.astergdem);
+	try {
+		const data2 = await getJSON("https://secure.geonames.org/astergdemJSON?" + params.toString());
+		if (data2.astergdem > 0)
+			elevations.push(data2.astergdem);
+	} catch(e) {
+		console.error("Error with astergdemJSON elevation request");
+		console.error(e);
+	}
 
-	const data3 = await getJSON("https://secure.geonames.org/gtopo30JSON?" + params.toString());
-	if (data3.gtopo30 > 0)
-		elevations.push(data3.gtopo30);
+	try {
+		const data3 = await getJSON("https://secure.geonames.org/gtopo30JSON?" + params.toString());
+		if (data3.gtopo30 > 0)
+			elevations.push(data3.gtopo30);
+	} catch(e) {
+		console.error("Error with gtopo30JSON elevation request");
+		console.error(e);
+	}
 
-	geoLocation.elevation = elevations.reduce( ( p, c ) => p + c, 0 ) / elevations.length;
+	return (elevations.length ? elevations.reduce( ( p, c ) => p + c, 0 ) / elevations.length : 0);
 }
 
 function openCalendarWithLocationInfo() {
