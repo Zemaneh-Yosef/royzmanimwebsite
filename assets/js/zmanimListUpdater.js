@@ -1,11 +1,11 @@
 // @ts-check
 
 // Uncomment these lines when developing
-//import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
-//import luxon, { DateTime } from "./libraries/luxon/index.js";
+import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
+import luxon, { DateTime } from "./libraries/luxon/index.js";
 
 const isAmudehHoraah = () => localStorage.getItem("amudehHoraah") == "true";
-const getOrdinal = (/** @type {number} */ n) => n.toString()+{e:"st",o:"nd",w:"rd",h:"th"}[new Intl.PluralRules("en",{type:"ordinal"}).select(n)[2]]
+const getOrdinal = (/** @type {number} */ n) => n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
 
 var jewishCalendar = new KosherZmanim.JewishCalendar();
 const dateFormatter = {
@@ -39,14 +39,14 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 			return super.getAlos72Zmanis()
 
 		const originalDate = this.getDate()
-		this.setDate(new Date("March 17"))
+		this.setDate(new Date("March 17" + originalDate.year.toString()))
 		const sunrise = this.getSeaLevelSunrise();
-		const alotBy16Degrees = this.getAlos16Point1Degrees();
-		const numberOfMinutes = ((sunrise.toMillis() - alotBy16Degrees.toMillis()) / 60_000);
+		const alotBy16point1Degrees = this.getAlos16Point1Degrees();
+		const numberOfMinutes = ((sunrise.toMillis() - alotBy16point1Degrees.toMillis()) / 60_000);
 		this.setDate(originalDate);
 
 		const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
-       	const dakahZmanit = shaahZmanit / 60;
+		const dakahZmanit = shaahZmanit / 60;
 
 		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit))
 	}
@@ -54,34 +54,19 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	/**
 	 * @param {boolean} [amudehHoraah]
 	 */
-	getTzais72Zmanis(amudehHoraah) {
-		if (!amudehHoraah)
-			return super.getTzais72Zmanis();
-
-		const originalDate = this.getDate()
-		this.setDate(new Date("March 17"))
-		const sunset = this.getSeaLevelSunset();
-		const tzaitBy16Degrees = this.getTzais16Point1Degrees();
-		const numberOfMinutes = ((tzaitBy16Degrees.toMillis() - sunset.toMillis()) / 60_000);
-		this.setDate(originalDate);
-	
-		const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
-		const dakahZmanit = shaahZmanit / 60;
-
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunset(), (numberOfMinutes * dakahZmanit))
-	}
-
-	/**
-	 * @param {boolean} [amudehHoraah]
-	 */
 	getEarliestTalitAndTefilin(amudehHoraah) {
 		if (amudehHoraah) {
-			var shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
-			var dakahZmanit = shaahZmanit / 60;
-			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-				this.getSeaLevelSunrise(),
-				-(shaahZmanit + dakahZmanit * 6)
-			);
+			const originalDate = this.getDate()
+			this.setDate(new Date("March 17" + originalDate.year.toString()))
+			const sunrise = this.getSeaLevelSunrise();
+			const alotBy16point1Degrees = this.getAlos16Point1Degrees();
+			const numberOfMinutes = ((sunrise.toMillis() - alotBy16point1Degrees.toMillis()) / 60_000);
+			this.setDate(originalDate);
+
+			const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
+			const dakahZmanit = shaahZmanit / 60;
+
+			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit * 5 / 6));//Test this
 		} else {
 			var shaahZmanit = this.getTemporalHour(this.getElevationAdjustedSunrise(), this.getElevationAdjustedSunset());
 			var dakahZmanit = shaahZmanit / 60;
@@ -94,6 +79,37 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 
 	//TODO Netz
 
+		/**
+ * @param {boolean} [amudehHoraah]
+ */
+		getSofZmanShmaMGA(amudehHoraah) {
+			var shaahZmanit = this.getTemporalHour(
+				this.getAlos72Zmanis(amudehHoraah),
+				this.getTzais72Zmanis(amudehHoraah)
+			);
+			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
+				this.getAlos72Zmanis(amudehHoraah),
+				shaahZmanit * 3
+			);
+		}
+
+		/**
+ * @param {boolean} [amudehHoraah]
+ */
+	getSofZmanAchilatChametzMGA(amudehHoraah) {
+		var shaahZmanit = this.getTemporalHour(
+			this.getAlos72Zmanis(amudehHoraah),
+			this.getTzais72Zmanis(amudehHoraah)
+		);
+		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
+			this.getAlos72Zmanis(amudehHoraah),
+			shaahZmanit * 4
+		);
+	}
+
+		/**
+ * @param {boolean} [amudehHoraah]
+ */
 	getSofZmanBiurChametzMGA(amudehHoraah) {
 		var shaahZmanit = this.getTemporalHour(
 			this.getAlos72Zmanis(amudehHoraah),
@@ -135,10 +151,16 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 
 	}
 
+	/**
+ * @param {boolean} [amudehHoraah]
+ */
 	getPlagHaminchaYalkutYosef(amudehHoraah) {
 		return this.plagHaminchaCore(this.getTzait(amudehHoraah), amudehHoraah);
 	}
 
+	/**
+ * @param {boolean} [amudehHoraah]
+ */
 	getPlagHaminchaHalachaBrurah(amudehHoraah) {
 		return this.plagHaminchaCore(this.getSunset(), amudehHoraah);
 	}
@@ -156,24 +178,38 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	getTzait(degreeShaotZmaniot) {
 		if (degreeShaotZmaniot) {
 			const originalDate = this.getDate()
-			this.setDate(new Date("March 17"))
+			this.setDate(new Date("March 17" + originalDate.year.toString()))
 			const sunset = this.getSeaLevelSunset();
-			const tzaitBy3point65degrees = this.getTzaisGeonim3Point65Degrees();
-			const numberOfMinutes = ((tzaitBy3point65degrees.toMillis() - sunset.toMillis()) / 60_000);
+			const tzaitBy3point86degrees = this.getSunriseOffsetByDegrees(90.0 + 3.86);
+			const numberOfMinutes = ((tzaitBy3point86degrees.toMillis() - sunset.toMillis()) / 60_000);
 			this.setDate(originalDate);
 
-			const shaahZmanit = this.getTemporalHour(this.getAlos72Zmanis(), this.getTzais72Zmanis());
-            const dakahZmanit = shaahZmanit / 60;
+			const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
+			const dakahZmanit = shaahZmanit / 60;
 
-            return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunset(), numberOfMinutes * dakahZmanit);
+			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunset(), numberOfMinutes * dakahZmanit);
 		} else {
 			const shaahZmanit = this.getTemporalHour(this.getElevationAdjustedSunrise(), this.getElevationAdjustedSunset());
 			const dakahZmanit = shaahZmanit / 60;
 			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
 				this.getElevationAdjustedSunset(),
 				13 * dakahZmanit + dakahZmanit / 2
-			);	
+			);
 		}
+	}
+
+	getTzaitLChumra() {
+		const originalDate = this.getDate()
+		this.setDate(new Date("March 17" + originalDate.year.toString()))
+		const sunset = this.getSeaLevelSunset();
+		const tzaitBy5point054degrees = this.getSunriseOffsetByDegrees(90.0 + 5.054);
+		const numberOfMinutes = ((tzaitBy5point054degrees.toMillis() - sunset.toMillis()) / 60_000);
+		this.setDate(originalDate);
+
+		const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
+		const dakahZmanit = shaahZmanit / 60;
+
+		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunset(), numberOfMinutes * dakahZmanit);
 	}
 
 	getTzaitTaanit() {
@@ -189,6 +225,41 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 			30 * 60_000
 		);
 	}
+
+	getTzaitShabbatAmudehHoraah() {
+		return this.getSunsetOffsetByDegrees(90.0 + 7.18);
+	}
+
+	/**
+ * @param {boolean} [amudehHoraah]
+ */
+	getTzais72Zmanis(amudehHoraah) {
+		if (!amudehHoraah)
+			return super.getTzais72Zmanis();
+
+		const originalDate = this.getDate()
+		this.setDate(new Date("March 17" + originalDate.year.toString()))
+		const sunset = this.getSeaLevelSunset();
+		const tzaitBy16Degrees = this.getSunriseOffsetByDegrees(90.0 + 16.0);
+		const numberOfMinutes = ((tzaitBy16Degrees.toMillis() - sunset.toMillis()) / 60_000);
+		this.setDate(originalDate);
+
+		const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
+		const dakahZmanit = shaahZmanit / 60;
+
+		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunset(), (numberOfMinutes * dakahZmanit))
+	}
+
+		/**
+ * @param {boolean} [amudehHoraah]
+ */
+	getTzais72ZmanisLKulah(amudehHoraah) {
+		if (this.getTzais72().toMillis() > this.getTzais72Zmanis(amudehHoraah).toMillis()) {
+			return this.getTzais72Zmanis();
+		} else {
+			return this.getTzais72();
+		}
+	}
 }
 
 class zmanimListUpdater {
@@ -200,9 +271,9 @@ class zmanimListUpdater {
 		this.zmanimCalendar = new ROZmanim(geoLocation);
 		document.getElementById("LocationName").innerHTML = geoLocation.getLocationName() || "No Location Name Provided";
 		if (document.getElementById("shabbatModeBanner"))
-		document.getElementById("shabbatModeBanner").addEventListener("click", () => {
-			document.getElementById("shabbatModeBanner").style.display = "none";
-		});
+			document.getElementById("shabbatModeBanner").addEventListener("click", () => {
+				document.getElementById("shabbatModeBanner").style.display = "none";
+			});
 
 		/**
 		 * @type {null|DateTime}
@@ -302,16 +373,16 @@ class zmanimListUpdater {
 		}
 
 		document.getElementById("priorityDate").innerText = primaryDate;
-		document.getElementById("secondaryDate").innerText = secondaryDate.join(" • ")	
+		document.getElementById("secondaryDate").innerText = secondaryDate.join(" • ")
 		if (this.zmanimCalendar.getDate().hasSame(luxon.DateTime.local(), "day")) {
 			document.getElementById("dateContainer").classList.add("text-bold");
 		}
-	
+
 		var parasha = document.getElementById("Parasha");
-	
+
 		var currentDay = jewishCalendar.getDate(); //save the current day
 		var s = daysUntilDay(currentDay.toJSDate(), 6); // 6 = saturday
-	
+
 		jewishCalendar.setDate(luxon.DateTime.fromJSDate(s));
 		if (dateFormatter.hebrew.formatParsha(jewishCalendar) !== "") {
 			parasha.innerHTML = dateFormatter.hebrew.formatParsha(jewishCalendar);
@@ -373,10 +444,10 @@ class zmanimListUpdater {
 			birchatHalevana.style.removeProperty("display");
 			birchatHalevana.innerHTML = birchatHalevanaText;
 		}
-	
+
 		var tachanun = document.getElementById("Tachanun");
 		tachanun.innerHTML = getTachanun();
-	
+
 		var hallel = document.getElementById("Hallel");
 		var hallelText = getHallel();
 		if (!hallelText) {
@@ -385,7 +456,7 @@ class zmanimListUpdater {
 			hallel.style.removeProperty("display");
 			hallel.innerHTML = hallelText;
 		}
-	
+
 		var tekufa = document.getElementById("Tekufa");
 		var tekufaToday = getTekufa();
 		var tekufaNextDay = getTekufaForNextDay();
@@ -403,9 +474,9 @@ class zmanimListUpdater {
 		} else {
 			const timeBase = (
 				tekufaToday !== null &&
-				getTekufaAsDate().toLocaleDateString() ===
-				currentDay.toJSDate().toLocaleDateString()
-			? getTekufaAsDate() : getTekufaForNextDayAsDate());
+					getTekufaAsDate().toLocaleDateString() ===
+					currentDay.toJSDate().toLocaleDateString()
+					? getTekufaAsDate() : getTekufaForNextDayAsDate());
 
 			tekufa.style.removeProperty("display");
 			tekufa.innerHTML = `Tekufa ${getTekufaName} is today at ${timeBase.toLocaleTimeString()}`;
@@ -418,7 +489,7 @@ class zmanimListUpdater {
 			timeFormat = "HH:mm" + (showSeconds ? ":ss" : '')
 
 		const indContainers = Array.from(document.getElementById("calendarFormatter").children)
-			.map(el => /** @type {HTMLElement} */ (el));
+			.map(el => /** @type {HTMLElement} */(el));
 
 		for (const timeSlot of indContainers) {
 			if (!timeSlot.hasAttribute('timeGetter')) {
@@ -448,7 +519,7 @@ class zmanimListUpdater {
 
 
 		}
-	
+
 		//zmanim list updated here
 		/*
 		var candle = document.getElementById("Candle");
@@ -641,17 +712,17 @@ class zmanimListUpdater {
 			zmanimCalendar.getSolarMidnight().setZone(timezone).toFormat(timeFormat) +
 			"</span>";
 		*/
-	
+
 		var daf = document.getElementById("dafBavli");
 		var dafYerushalmi = document.getElementById("DafYerushalmi");
 		var seasonal = document.getElementById("SeasonalPrayers");
 		var shaahZmanit = document.getElementById("ShaahZmanit");
-	
+
 		var dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(jewishCalendar);
 		daf.innerHTML =
 			dafObject.getMasechta() + " " +
 			numberToHebrew(dafObject.getDaf());
-	
+
 		var dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishCalendar);
 
 		if (dafYerushalmiObject.getDaf() == 0) {
@@ -659,7 +730,7 @@ class zmanimListUpdater {
 		} else {
 			dafYerushalmi.innerHTML = dafYerushalmiObject.getYerushalmiMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
 		}
-	
+
 		seasonal.innerHTML = getSeasonalPrayers();
 		shaahZmanit.innerHTML = this.shaahZmanits();
 	}
@@ -680,7 +751,7 @@ class zmanimListUpdater {
 	getIsTonightStartOrEndBirchatLevana() {
 		var startTimeSevenDays = jewishCalendar.getTchilasZmanKidushLevana7Days();
 		var endTimeFifteenDays = jewishCalendar.getSofZmanKidushLevana15Days();
-	
+
 		if (this.zmanimCalendar.getDate().hasSame(startTimeSevenDays, "day")) {
 			return "Birchat HaLevana starts tonight";
 		}
@@ -1077,14 +1148,14 @@ function getTekufaAsDate() {
 	const hours = getTekufa() - 6;
 	const minutes = Math.floor((hours - Math.floor(hours)) * 60);
 	const date = luxon.DateTime.fromObject({
-			year: jewishCalendar.getGregorianYear(),
-			month: jewishCalendar.getGregorianMonth() + 1,
-			day: jewishCalendar.getGregorianDayOfMonth(),
-			hour: 0,
-			minute: 0,
-			second: 0,
-			millisecond: 0,
-		},
+		year: jewishCalendar.getGregorianYear(),
+		month: jewishCalendar.getGregorianMonth() + 1,
+		day: jewishCalendar.getGregorianDayOfMonth(),
+		hour: 0,
+		minute: 0,
+		second: 0,
+		millisecond: 0,
+	},
 		{ zone: "Asia/Jerusalem" }
 	).plus({ hours: hours, minutes: minutes });
 	return date.toJSDate();
@@ -1314,8 +1385,8 @@ function eraseCookie(name) {
 
 const musicPermission = () => !(
 	(jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 33)
-||	(jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && jewishCalendar.getJewishDayOfMonth() >= 17)
-||	(jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.AV && jewishCalendar.getJewishDayOfMonth() <= 9)
+	|| (jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && jewishCalendar.getJewishDayOfMonth() >= 17)
+	|| (jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.AV && jewishCalendar.getJewishDayOfMonth() <= 9)
 );
 
 function getUlchaparatPesha() {
@@ -1323,14 +1394,14 @@ function getUlchaparatPesha() {
 		throw new Error("Call to 'getUlchaparatPesha()' function without being Rosh Hodesh");
 
 	return (jewishCalendar.isJewishLeapYear()
-	 && [
-		KosherZmanim.JewishDate.CHESHVAN,
-		KosherZmanim.JewishDate.KISLEV,
-		KosherZmanim.JewishDate.TEVES,
-		KosherZmanim.JewishDate.SHEVAT,
-		KosherZmanim.JewishDate.ADAR,
-		KosherZmanim.JewishDate.ADAR_II
-	 ].includes(jewishCalendar.getJewishMonth())
+		&& [
+			KosherZmanim.JewishDate.CHESHVAN,
+			KosherZmanim.JewishDate.KISLEV,
+			KosherZmanim.JewishDate.TEVES,
+			KosherZmanim.JewishDate.SHEVAT,
+			KosherZmanim.JewishDate.ADAR,
+			KosherZmanim.JewishDate.ADAR_II
+		].includes(jewishCalendar.getJewishMonth())
 	);
 	//return "Say וּלְכַפָּרַת פֶּשַׁע";
 	//return "Do not say וּלְכַפָּרַת פֶּשַׁע";
