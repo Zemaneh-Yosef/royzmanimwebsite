@@ -7,7 +7,7 @@ const geoLocation = {
 	timeZone: ""
 }
 
-let maxRows = 10;
+let maxRows = 5;
 let maxPossibleRows = 0;
 
 const errorBox = document.getElementById("error");
@@ -56,48 +56,28 @@ function manualLocationSubmit() {
 	openCalendarWithLocationInfo();
 }
 
-async function updateList() {
+async function updateList(event) {
 	const q = document.getElementById("Main").value;
-	if (q.length < 3) {
-		if (q.length == 0)
-			document.getElementById("list").style.display = "none";
-
+	if (q.length < 3)
 		return;
-	}
-	document.getElementById("list").style.display = "block";
 
-	const params = new URLSearchParams({
-		q,
-		maxRows,
-		'username': 'Elyahu41'
-	});
+	const params = new URLSearchParams({ q, maxRows, 'username': 'Elyahu41' });
 	const data = await getJSON("https://secure.geonames.org/searchJSON?" + params);
 
-	var list = document.getElementById("list");
-	list.innerHTML = "";
-	for (var i = 0; i < data["geonames"].length; i++) {
-		const geoName = data.geonames[i];
+	if (event instanceof KeyboardEvent && event.key !== "Enter") {
+		const list = document.getElementById("locationNames");
+		list.querySelectorAll('*').forEach(n => n.remove());
+		for (const geoName of data.geonames) {
+			const option = document.createElement("option");
+			option.setAttribute("value", [...new Set([geoName.name, geoName.adminName1, geoName.country])].filter(Boolean).join(", "))
 
-		const li = document.createElement("li");
-		const a = document.createElement("a");
-		a.setAttribute("href", "#");
-		a.addEventListener("click", () => setLocation(geoName.name, geoName.adminName1, geoName.countryName, geoName.lat, geoName.lng));
-		a.innerText = [geoName.name, geoName.adminName1, geoName.countryName].join(", ");
-
-		li.appendChild(a);
-		list.appendChild(li);
-
-		if (i == data["geonames"].length - 1 && maxRows == 10) {
-			const allResultsList = document.createElement("li");
-			const allResultsLink = document.createElement("a");
-			allResultsLink.innerText = "Show all results";
-			allResultsLink.addEventListener("click", () => showAllLocations());
-			allResultsList.appendChild(allResultsLink);
-			list.appendChild(allResultsList);
+			list.append(option)
 		}
+	} else {
+		loadingScreen();
+		await setLocation(data.geonames[0].name, data.geonames[0].adminName1, data.geonames[0].countryName, data.geonames[0].lat, data.geonames[0].lng);
+		openCalendarWithLocationInfo();
 	}
-	maxPossibleRows = data["totalResultsCount"];
-	filterList();
 }
 
 function filterList() {
@@ -120,25 +100,22 @@ function showAllLocations() {
 }
 
 async function setLocation(name, admin, country, latitude, longitude) {
-	var array = [...new Set(name, admin, country)];
-	geoLocation.locationName = array.join(", ");
+	geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
 	geoLocation.lat = latitude;
 	geoLocation.long = longitude;
-	document.getElementById("list").style.display = "none";
-	document.getElementById("error").value = "";
-	loadingScreen();
 
-	const params = new URLSearchParams({
-		lat,
-		'lng': long,
-		'username': 'Elyahu41'
-	});
-	const data = await getJSON("https://secure.geonames.org/timezoneJSON?" + params);
+	if (!geoLocation.timeZone) {
+		const params = new URLSearchParams({
+			'lat': latitude,
+			'lng': longitude,
+			'username': 'Elyahu41'
+		});
+		const data = await getJSON("https://secure.geonames.org/timezoneJSON?" + params);
 
-	geoLocation.timeZone = data["timezoneId"];
-	geoLocation.elevation = await getAverageElevation(lat, long);
+		geoLocation.timeZone = data["timezoneId"];
+	}
 
-	openCalendarWithLocationInfo();
+	geoLocation.elevation = await getAverageElevation(latitude, longitude);
 }
 
 async function getLocation() {
@@ -159,19 +136,17 @@ async function getLocation() {
 }
 
 async function setLatLong (position) {
-	geoLocation.lat = position.coords.latitude;
-	geoLocation.long = position.coords.longitude;
+	geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 	const params = new URLSearchParams({
-		'lat': geoLocation.lat,
-		'lng': geoLocation.long,
+		'lat': position.coords.latitude,
+		'lng': position.coords.longitude,
 		'username': 'Elyahu41'
 	});
 	const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
-	geoLocation.locationName = [data["geonames"][0]["name"], data["geonames"][0]["adminName1"], data["geonames"][0]["countryName"]].join(", ");
+	const location = data["geonames"][0]; // TODO: If there are other False positives
 
-	geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-	geoLocation.elevation = await getAverageElevation(geoLocation.lat, geoLocation.long);
+	await setLocation(location.name, location.adminName1, location.country, position.coords.latitude, position.coords.longitude);
 }
 
 function showError(error) {

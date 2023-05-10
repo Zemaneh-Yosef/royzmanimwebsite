@@ -52,13 +52,9 @@ permalink: /
 <p class="border" id="error" style="display: none">
   <!--Hidden until shown-->
 </p>
-<input
-  type="text"
-  id="Main"
-  onkeyup="updateList()"
-  placeholder="Search for a place/zipcode..."
-/>
-<ul id="list" class="list"></ul>
+<input list="locationNames" type="text" id="Main" onkeyup="updateList(event)" placeholder="Search for a place/zipcode..." /><datalist id="locationNames"></datalist>
+
+
 <!--write a diclaimer message under the list-->
 <h5 id="disclaimer" style="text-align: center">
   Disclaimer!: The results of this search bar are based on a 3rd party
