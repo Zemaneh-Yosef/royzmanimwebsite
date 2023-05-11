@@ -61,22 +61,27 @@ async function updateList(event) {
 	if (q.length < 3)
 		return;
 
-	const params = new URLSearchParams({ q, maxRows, 'username': 'Elyahu41' });
-	const data = await getJSON("https://secure.geonames.org/searchJSON?" + params);
+	try {
+		const params = new URLSearchParams({ q, maxRows, 'username': 'Elyahu41' });
+		const data = await getJSON("https://secure.geonames.org/searchJSON?" + params);
 
-	if (event instanceof KeyboardEvent && event.key !== "Enter") {
-		const list = document.getElementById("locationNames");
-		list.querySelectorAll('*').forEach(n => n.remove());
-		for (const geoName of data.geonames) {
-			const option = document.createElement("option");
-			option.setAttribute("value", [...new Set([geoName.name, geoName.adminName1, geoName.country])].filter(Boolean).join(", "))
+		if (event instanceof KeyboardEvent && event.key !== "Enter") {
+			const list = document.getElementById("locationNames");
+			list.querySelectorAll('*').forEach(n => n.remove());
+			for (const geoName of data.geonames) {
+				const option = document.createElement("option");
+				option.setAttribute("value", [...new Set([geoName.name, geoName.adminName1, geoName.country])].filter(Boolean).join(", "))
 
-			list.append(option)
+				list.append(option)
+			}
+		} else {
+			loadingScreen();
+			await setLocation(data.geonames[0].name, data.geonames[0].adminName1, data.geonames[0].countryName, data.geonames[0].lat, data.geonames[0].lng);
+			openCalendarWithLocationInfo();
 		}
-	} else {
-		loadingScreen();
-		await setLocation(data.geonames[0].name, data.geonames[0].adminName1, data.geonames[0].countryName, data.geonames[0].lat, data.geonames[0].lng);
-		openCalendarWithLocationInfo();
+	} catch (e) {
+		console.error(e);
+		// Do not crash the program - it just means that they cannot look for a location by name, so just don't offer that feature
 	}
 }
 
@@ -86,14 +91,30 @@ async function setLocation(name, admin, country, latitude, longitude) {
 	geoLocation.long = longitude;
 
 	if (!geoLocation.timeZone) {
-		const params = new URLSearchParams({
-			'lat': latitude,
-			'lng': longitude,
-			'username': 'Elyahu41'
-		});
-		const data = await getJSON("https://secure.geonames.org/timezoneJSON?" + params);
+		try {
+			const params = new URLSearchParams({
+				'lat': latitude,
+				'lng': longitude,
+				'username': 'Elyahu41'
+			});
+			const data = await getJSON("https://secure.geonames.org/timezoneJSON?" + params);
 
-		geoLocation.timeZone = data["timezoneId"];
+			geoLocation.timeZone = data["timezoneId"];
+		} catch (e) {
+			console.error(e);
+			// This didn't come from getting the user's own location, because they already have the timezone
+			// This would come if the location was entered, that API worked and this one started to fail
+			// Crash the whole app in this case; it's not a matter of not being able to do things yourself
+
+			const error = {
+				PERMISSION_DENIED: 1,
+				POSITION_UNAVAILABLE: 2,
+				TIMEOUT: 3,
+				UNKNOWN_ERROR: 4,
+				code: 4
+			}
+			showError(error);
+		}
 	}
 
 	geoLocation.elevation = await getAverageElevation(latitude, longitude);
@@ -119,17 +140,35 @@ async function getLocation() {
 async function setLatLong (position) {
 	geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-	const params = new URLSearchParams({
-		'lat': position.coords.latitude,
-		'lng': position.coords.longitude,
-		'username': 'Elyahu41'
-	});
-	const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
-	const location = data["geonames"][0]; // TODO: If there are other False positives
+	let location;
+	try {
+		const params = new URLSearchParams({
+			'lat': position.coords.latitude,
+			'lng': position.coords.longitude,
+			'username': 'Elyahu41'
+		});
+		const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
+		location = data["geonames"][0]; // TODO: If there are other False positives
+	} catch (e) {
+		// Only thing this is good for is the location name - if there is a problem, then just have the thing say "Your Location"
+		console.error(e);
+		// set up date formatting parameters
+		const ops = {year: 'numeric'};
+		ops.month = ops.day = '2-digit';
+
+		location = {
+			name: "Your Location as of " + new Intl.DateTimeFormat([], ops).format(new Date()),
+			adminName1: "",
+			country: ""
+		}
+	}
 
 	await setLocation(location.name, location.adminName1, location.country, position.coords.latitude, position.coords.longitude);
 }
 
+/**
+ * @param {GeolocationPositionError} error
+ */
 function showError(error) {
 	const errorObjectBuilder = Object.fromEntries([
 		[error.PERMISSION_DENIED, "User denied the request for Geolocation. Please allow location access in your browser settings."
