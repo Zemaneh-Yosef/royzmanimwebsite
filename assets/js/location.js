@@ -80,25 +80,6 @@ async function updateList(event) {
 	}
 }
 
-function filterList() {
-	const filter = document.getElementById("Main").value.toUpperCase();
-	const list = document.getElementById("list");
-	const li = list.getElementsByTagName("li");
-
-	// Loop through all list items, and hide those who don't match the search query
-	for (let element of li) {
-		const a = element.querySelector("a");
-		const txtValue = a?.textContent || a?.innerText;
-		if (!(txtValue.toUpperCase().indexOf(filter) > -1))
-			element.style.display = "none";
-	}
-}
-
-function showAllLocations() {
-	maxRows = maxPossibleRows;
-	updateList();
-}
-
 async function setLocation(name, admin, country, latitude, longitude) {
 	geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
 	geoLocation.lat = latitude;

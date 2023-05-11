@@ -497,6 +497,11 @@ class zmanimListUpdater {
 				continue;
 			}
 
+			if (!getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) {
+				timeSlot.style.display = "none";
+				continue;
+			}
+
 			if (timeSlot.hasAttribute('yomTovInclusive')) {
 				if (jewishCalendar.getYomTovIndex() == KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")])
 					timeSlot.style.removeProperty("display");
@@ -1457,3 +1462,31 @@ const geoLocation = new KosherZmanim.GeoLocation(
 	geoLocationBase.timezone
 );
 const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
+
+/**
+ * @param {{ [x: string]: any; }} obj
+ */
+function getAllMethods (obj, deep = Infinity) {
+    let props = []
+
+    while (
+      (obj = Object.getPrototypeOf(obj)) && // walk-up the prototype chain
+      Object.getPrototypeOf(obj) && // not the the Object prototype methods (hasOwnProperty, etc...)
+      deep !== 0
+    ) {
+      const l = Object.getOwnPropertyNames(obj)
+        .concat(Object.getOwnPropertySymbols(obj).map(s => s.toString()))
+        .sort()
+        .filter(
+          (p, i, arr) =>
+            typeof obj[p] === 'function' && // only the methods
+            p !== 'constructor' && // not the constructor
+            (i == 0 || p !== arr[i - 1]) && // not overriding in this prototype
+            props.indexOf(p) === -1 // not overridden in a child
+        )
+      props = props.concat(l)
+      deep--
+    }
+
+    return props
+  }
