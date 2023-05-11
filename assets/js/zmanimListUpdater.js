@@ -1,8 +1,8 @@
 // @ts-check
 
 // Uncomment these lines when developing
-//import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
-//import luxon, { DateTime } from "./libraries/luxon/index.js";
+// import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
+// import luxon, { DateTime } from "./libraries/luxon/index.js";
 
 const isAmudehHoraah = () => localStorage.getItem("amudehHoraah") == "true";
 const getOrdinal = (/** @type {number} */ n) => n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
@@ -255,7 +255,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
  */
 	getTzais72ZmanisLKulah(amudehHoraah) {
 		if (this.getTzais72().toMillis() > this.getTzais72Zmanis(amudehHoraah).toMillis()) {
-			return this.getTzais72Zmanis();
+			return this.getTzais72Zmanis(amudehHoraah);
 		} else {
 			return this.getTzais72();
 		}
