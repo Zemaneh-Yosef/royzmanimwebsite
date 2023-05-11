@@ -498,6 +498,7 @@ class zmanimListUpdater {
 			}
 
 			if (!getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) {
+				console.log(timeSlot)
 				timeSlot.style.display = "none";
 				continue;
 			}
@@ -837,7 +838,6 @@ class zmanimListUpdater {
 		this.addZmanim(zmanim);
 		this.changeDate(currentSelectedDate); //reset the date to the current date
 
-		console.log(zmanim)
 		this.nextUpcomingZman = zmanim.find(zman => zman !== null &&
 			zman.toMillis() > luxon.DateTime.now().toMillis() &&
 			(this.nextUpcomingZman === null ||
@@ -1480,29 +1480,16 @@ const geoLocation = new KosherZmanim.GeoLocation(
 const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
 
 /**
- * @param {{ [x: string]: any; }} obj
+ * @param {{ [x: string]: any; }} toCheck
  */
-function getAllMethods (obj, deep = Infinity) {
-    let props = []
-
-    while (
-      (obj = Object.getPrototypeOf(obj)) && // walk-up the prototype chain
-      Object.getPrototypeOf(obj) && // not the the Object prototype methods (hasOwnProperty, etc...)
-      deep !== 0
-    ) {
-      const l = Object.getOwnPropertyNames(obj)
-        .concat(Object.getOwnPropertySymbols(obj).map(s => s.toString()))
-        .sort()
-        .filter(
-          (p, i, arr) =>
-            typeof obj[p] === 'function' && // only the methods
-            p !== 'constructor' && // not the constructor
-            (i == 0 || p !== arr[i - 1]) && // not overriding in this prototype
-            props.indexOf(p) === -1 // not overridden in a child
-        )
-      props = props.concat(l)
-      deep--
-    }
-
-    return props
-  }
+function getAllMethods (toCheck) {
+	const props = [];
+    let obj = toCheck;
+    do {
+        props.push(...Object.getOwnPropertyNames(obj));
+    } while (obj = Object.getPrototypeOf(obj));
+    
+    return props.sort().filter((e, i, arr) => { 
+       if (e!=arr[i+1] && typeof toCheck[e] == 'function') return true;
+    });
+}
