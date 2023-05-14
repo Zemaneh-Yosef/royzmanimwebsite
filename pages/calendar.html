@@ -4,298 +4,765 @@ accordian: true
 ---
 
 <p id="shabbatModeBanner" class="marquee">
-	<span>Shabbat Mode</span>
-	<span>Shabbat Mode</span>
-	<span>Shabbat Mode</span>
-	<span>Shabbat Mode</span>
-	<span>Shabbat Mode</span>
+  <span>Shabbat Mode</span>
+  <span>Shabbat Mode</span>
+  <span>Shabbat Mode</span>
+  <span>Shabbat Mode</span>
+  <span>Shabbat Mode</span>
 </p>
 
 <div class="btn-group">
-	<p class="border">
-		<button id="useElevation" class="button-18">Use Elevation</button>
-		<button id="showSeconds" class="button-18">Show Seconds</button>
-		<button id="showInfoIcons" class="button-18">
-			Hide <svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="16"
-				height="16"
-				fill="currentColor"
-				class="bi bi-info-circle"
-				viewbox="0 0 16 16"
-			>
-				<path
-					d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
-				/>
-				<path
-					d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
-				/>
-			</svg>
-		</button>
-	</p>
+  <p class="border">
+    <button id="useElevation" class="button-18">Use Elevation</button>
+    <button id="showSeconds" class="button-18">Show Seconds</button>
+    <button id="showInfoIcons" class="button-18">
+      Hide
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        fill="currentColor"
+        class="bi bi-info-circle"
+        viewbox="0 0 16 16"
+      >
+        <path
+          d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+        />
+        <path
+          d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+        />
+      </svg>
+    </button>
+  </p>
 </div>
 
 <div id="wideGrid">
-	<div id="generic">
-		<div class="card">
-			<ul class="list-group list-group-flush">
-				<li class="list-group-item" id="Parasha"></li>
-				<li class="list-group-item" id="dateContainer">
-					<h6 id="Day"></h6>
-					<h2 id="priorityDate"></h2>
-					<h4 id="secondaryDate"></h4>
-				</li>
-				<li class="list-group-item" id="LocationName"></li>
-				<li class="list-group-item">
-					<h6 class="lang lang-hb">הדף של היום</h6>
-					<h6 class="lang lang-et">Today's Daf</h6>
-					<h6 class="lang lang-en">Today's Talmud Page</h6>
-					<div style="display: grid">
-						<div style="grid-row: 1/1; grid-column: 1/1;">
-							<span class="lang lang-hb">בבלי</span>
-							<span class="lang lang-et">Bavli</span>
-							<span class="lang lang-en">Babylon Tractate</span>
-						</div>
-						<div style="grid-row: 2/2; grid-column: 1/1;">
-							<span class="lang lang-hb">ירושלמי</span>
-							<span class="lang lang-et">Yerushalmi</span>
-							<span class="lang lang-en">Jerusalemite Tractate</span>
-						</div> 
-						<div id="dafBavli" style="grid-column: 2/2; grid-row: 1/1;"></div>
-						<div id="DafYerushalmi" style="grid-column: 2/2; grid-row: 2/2"></div> 
-					</div>
-				</li>
-				<li class="list-group-item" id="SeasonalPrayers"></li>
-			</ul>
-		</div>
-	</div>
-	<div id="zmanim">
-		<section class="accordian" id="calendarFormatter">
-			<details id="alot" timeGetter="getAlos72Zmanis">
-				<summary>
-					<span class="lang lang-hb">עלות השחר</span>
-					<span class="lang lang-et">Alot Hashachar</span>
-					<span class="lang lang-en">Dawn</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This zman determines the beginning of the Halachic day, placing an end to the time of any night-time based Mitzvah (ie: Arvit).<br>
-					When there is a Sha'at Hadachak (in a time of need) situation, mitzvot that are dependent on the daytime could be done starting now. Similarly, if any mitzvah was performed during this time, they are exempt bediavad (after the fact) even if not during a Sha'at Hadachak situation.</p>
-
-					<p>The Ohr Hachaim calendar uses 72 zmaniyot/seasonal minutes (according to the GR"A) before sunrise to calculate the time. Similarly, elevation is included in the calculation. However, the Amudeh Hora'ah Calendar factors in an equinox calculation too.</p>
-
-					<p class="mb-0">As a sidepoint, Alot HaShachar (עלות השחר) gets its name from the verse in Genesis 32:25. In the Talmud, it goes by the title of Amud Hashachar (עמוד השחר).</p>
-	
-					<p>In Tanach this time is called Alot HaShachar (בראשית לב:כה), whereas in the gemara it is called Amud HaShachar.</p>
-					<p>This is the time when the day begins according to halacha. Most mitzvot (commandments), Arvit for example, that take place at night are not allowed to be done after this time.<br>
-					After this time, mitzvot that must be done in the daytime are allowed to be done B'dieved (after the fact) or B'shaat hadachak (in a time of need). However, one should ideally wait until sunrise to do them L'chatchila (optimally).</p>
-		
-					<p class="mb-0">This time is calculated as 72 zmaniyot/seasonal minutes (according to the GR"A) before sunrise. Both sunrise and sunset have elevation included.</p>
-				</div>
-			</details>
-			<details id="earliestTefilin" timeGetter="getEarliestTalitAndTefilin">
-				<summary>
-					<span class="lang lang-hb">טלית ותפילין</span>
-					<span class="lang lang-et">Earliest Talit and Tefilin</span>
-					<span class="lang lang-en">Earliest Talit and Tefilin</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>Misheyakir (literally "when you recognize") is the time when a person can distinguish between blue and white. The gemara (ברכות ט) explains that when a person can distinguish between the blue (techelet) and white strings of their tzitzit, that is the earliest time a person can put on their talit and tefilin for shacharit.</p>
-					<p>This time is calculated as 6 zmaniyot/seasonal minutes (according to the GR"A) after Alot HaShachar (Dawn).</p>
-					<p class="mb-0">Note: This time is only for people who need to go to work or leave early in the morning to travel, however, normally a person should put on his talit/tefilin 60 regular minutes (and in the winter 50 regular minutes) before sunrise.</p>
-				</div>
-			</details>
-			<details id="sunrise" timeGetter="getSeaLevelSunrise">
-				<summary>
-					<span class="lang lang-hb">הנץ (משור)</span>
-					<span class="lang lang-et">HaNetz (Mishor)</span>
-					<span class="lang lang-en">Sunrise (Sea Level)</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the earliest time when all mitzvot (commandments) that are to be done during the daytime are allowed to be performed L'chatchila (optimally). Halachic sunrise is defined as the moment when the top edge of the sun appears on the horizon while rising. Whereas, the gentiles define sunrise as the moment when the sun is halfway through the horizon. This halachic sunrise is called mishor (sea level) sunrise and it is what many jews rely on when praying for Netz.</p>
-					<p class="mb-0">However, it should be noted that the Shulchan Aruch writes in Orach Chayim 89:1, "The mitzvah of shacharit starts at Netz, like it says in the pasuk/verse, 'יראוך עם שמש'". Based on this, the poskim write that a person should wait until the sun is VISIBLE to say shacharit. In Israel, the Ohr HaChaim calendar uses a table of sunrise times from the luach/calendar 'לוח ביכורי יוסף' (Luach Bechoray Yosef) each year. These times were made by Chaim Keller, creator of the ChaiTables website. Ideally, you should download these VISIBLE sunrise times from his website with the capability of this app to use for the year. However, if you did not download the times, you will see 'Mishor' or 'Sea Level' sunrise instead.</p>
-				</div>
-			</details>
-			<details id="latestShmaMGA" timeGetter="getSofZmanShmaMGA72MinutesZmanis">
-				<summary>
-					<span class="lang lang-hb">סוף זמן שמע מג'א</span>
-					<span class="lang lang-et">Sof Zman Shma MG'A</span>
-					<span class="lang lang-en">Latest Shma MG'A</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the latest time a person can fulfill his obligation to say Shma everyday according to the Magen Avraham.</p>
-					<p class="mb-0">The Magen Avraham/Terumat HeDeshen calculate this time as 3 zmaniyot/seasonal hours after Alot HaShachar (Dawn). They calculate a zmaniyot/seasonal hour by taking the time between Alot HaShachar (Dawn) and Tzeit Hachocavim (Nightfall) of Rabbeinu Tam and divide it into 12 equal parts.</p>
-				</div>
-			</details>
-			<details id="latestShmaGRA" timeGetter="getSofZmanShmaGRA">
-				<summary>
-					<span class="lang lang-hb">סוף זמן שמע גר'א</span>
-					<span class="lang lang-et">Sof Zman Shma GR'A</span>
-					<span class="lang lang-en">Latest Shma GR'A</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the latest time a person can fulfill his obligation to say Shma everyday according to the GR"A (HaGaon Rabbeinu Eliyahu)</p>
-					<p class="mb-0">The GR"A calculates this time as 3 zmaniyot/seasonal hours after sunrise (elevation included). The GR"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and divides it into 12 equal parts.</p>
-				</div>
-			</details>
-			<details id="SofZmanAchilatChametz" yomTovInclusive="EREV_PESACH" timeGetter="getSofZmanTfilaMGA72MinutesZmanis">
-				<summary>
-					<span class="lang lang-hb">סוף זמן אכילת חמץ</span>
-					<span class="lang lang-et">Sof Zman Achilat Chametz</span>
-					<span class="lang lang-en">Latest Time to Eat Chametz</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the latest time a person can eat chametz.</p>
-					<p class="mb-0">This is calculated as 4 zmaniyot/seasonal hours, according to the Magen Avraham, after Alot HaShachar (Dawn) with elevation included. Since Chametz is a mitzvah from the torah, we are stringent and we use the Magen Avraham's time to calculate the last time a person can eat chametz.</p>
-				</div>
-			</details>
-			<details id="SofZmanBiurChametz" yomTovInclusive="EREV_PESACH" timeGetter="getSofZmanBiurChametzMGA">
-				<summary>
-					<span class="lang lang-hb">סוף זמן ביעור חמץ</span>
-					<span class="lang lang-et">Sof Zman Biur Chametz</span>
-					<span class="lang lang-en">Latest Time to Burn Chametz</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the latest time a person can own chametz before pesach begins. You should get rid of all chametz in your possession by this time.</p>
-					<p class="mb-0">This is calculated as 5 zmaniyot/seasonal hours, according to the MG"A, after Alot HaShachar (Dawn) with elevation included.</p>
-				</div>
-			</details>
-			<details id="latestBrachotShmaGRA" timeGetter="getSofZmanTfilaGRA">
-				<summary>
-					<span class="lang lang-hb">סוף זמן ברכות שמע</span>
-					<span class="lang lang-et">Sof Zman Berachot Shma</span>
-					<span class="lang lang-en">Latest Berachot Shma</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the latest time a person can say the Brachot Shma according to the GR"A. However, a person can still say Pisukei D'Zimra until Chatzot.</p>
-					<p class="mb-0">The GR"A calculates this time as 4 zmaniyot/seasonal hours after sunrise (elevation included). The GR"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and divides it into 12 equal parts.</p>
-				</div>
-			</details>
-			<details id="hatzoth" timeGetter="getChatzos">
-				<summary>
-					<span class="lang lang-hb">חצות</span>
-					<span class="lang lang-et">Hatsoth</span>
-					<span class="lang lang-en">Midday</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the middle of the halachic day, when the sun is exactly in the middle of the sky relative to the length of the day. It should be noted, that the sun can only be directly above every person, such that they don't even have shadows, in the Tropic of Cancer and the Tropic of Capricorn. Everywhere else, the sun will be at an angle even in the middle of the day.</p>
-					<p>After this time, you can no longer say the Amidah prayer of Shacharit, and you should preferably say Musaf before this time.</p>
-					<p>This time is calculated as 6 zmaniyot/seasonal hours after sunrise. The GR"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and divides it into 12 equal parts.</p>
-				</div>
-			</details>
-			<details id="minhaGedola" timeGetter="getMinchaGedolaGreaterThan30">
-				<summary>
-					<span class="lang lang-hb">מנחה גדולה</span>
-					<span class="lang lang-et">Mincha Gedola</span>
-					<span class="lang lang-en">Earliest Minha</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>Mincha Gedolah, literally "Greater Mincha", is the earliest time a person can say Mincha. It is also the preferred time a person should say Mincha according to some poskim.</p>
-					<p>It is called Mincha Gedolah because there is a lot of time left until sunset.</p>
-					<p>A person should ideally start saying Korbanot AFTER this time.</p>
-					<p>This time is calculated as 30 regular minutes after Chatzot (Mid-day). However, if the zmaniyot/seasonal minutes are longer, we use those minutes instead to be stringent. The GR"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.</p>
-				</div>
-			</details>
-			<details id="minhaKetana" timeGetter="getMinhaKetana">
-				<summary>
-					<span class="lang lang-hb">מנחה קטנה</span>
-					<span class="lang lang-et">Minha Ketana</span>
-					<span class="lang lang-en">Minha Ketana</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>Minha Ketana, literally "Lesser Mincha", is the most preferred time a person can say Mincha according to some poskim.</p>
-					<p>It is called Mincha Ketana because there is less time left until sunset.</p>
-					<p>This time is calculated as 9 and a half zmaniyot/seasonal hours after sunrise. The GR"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.</p>
-				</div>
-			</details>
-			<details id="plagHaminha" timeGetter="getPlagHaminchaHalachaBrurah">
-				<summary>
-					<span class="lang lang-hb">פלג המנחה הלכה ברורה</span>
-					<span class="lang lang-et">Plag HaMincha Lefi Halacha Brurah</span>
-					<span class="lang lang-en">Plag HaMincha (R David Yosef)</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>Plag HaMincha, literally "Half of Mincha", is the midpoint between Mincha Ketana and sunset. Since Mincha Ketana is 2 and a half hours before sunset, Plag is half of that at an hour and 15 minutes before sunset.<br>
-					You can start saying arvit by this time (Source: Rabbi Yehuda in ברכות כ'ו ע'א).</p>
-					<p>A person should not accept shabbat before this time as well.</p>
-					<p>This time is usually calculated as 10 and 3/4th zmaniyot/seasonal hours after sunrise, however, Yalkut Yosef says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes before tzeit. The GR"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.</p>
-				</div>
-			</details>
-			<details id="plagHaminha" timeGetter="getPlagHaminchaYalkutYosef">
-				<summary>
-					<span class="lang lang-hb">פלג המנחה ילקות יוסף</span>
-					<span class="lang lang-et">Plag HaMincha Lefi Yalkut Yosef</span>
-					<span class="lang lang-en">Plag HaMincha (R Yitzhak Yosef)</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>Plag HaMincha, literally "Half of Mincha", is the midpoint between Mincha Ketana and sunset. Since Mincha Ketana is 2 and a half hours before sunset, Plag is half of that at an hour and 15 minutes before sunset.<br>
-					You can start saying arvit by this time (Source: Rabbi Yehuda in ברכות כ'ו ע'א).</p>
-					<p>A person should not accept shabbat before this time as well.</p>
-					<p>This time is usually calculated as 10 and 3/4th zmaniyot/seasonal hours after sunrise, however, Yalkut Yosef says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes before tzeit. The GR"A calculates a zmaniyot/seasonal hour by taking the time between sunrise and sunset (elevation included) and divides it into 12 equal parts. Then we divide one of those 12 parts into 60 to get a zmaniyot/seasonal minute.</p>
-				</div>
-			</details>
-			<details id="candleLighting" timeGetter="getCandleLighting" specialDropdownContent>
-				<summary>
-					<span class="lang lang-hb">הדלקת נרות</span>
-					<span class="lang lang-et">Candle Lighting</span>
-					<span class="lang lang-en">Candle Lighting</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the ideal time for a person to light the candles before shabbat/chag starts.</p>
-					<p>When there is candle lighting on a day that is Yom tov/Shabbat before another day that is Yom tov, the candles are lit after Tzeit/Nightfall. However, if the next day is Shabbat, the candles are lit at their usual time.</p>
-		
-					<p>This time is calculated as ${zmanimCalendar.getCandleLightingOffset()} regular minutes before sunset (elevation included).</p>
-				</div>
-			</details>
-			<details id="sunset" timeGetter="getSunset">
-				<summary>
-					<span class="lang lang-hb">שקיעה</span>
-					<span class="lang lang-et">Shkia</span>
-					<span class="lang lang-en">Sunset</span>
-					<span class="timeDisplay rightAlign"></span>
-				</summary>
-				<div class="accordianContent">
-					<p>This is the time of the day that the day starts to transition into the next day according to halacha.
-                        Halachic sunset is defined as the moment when the top edge of the sun disappears on the  
-                        horizon while setting (elevation included). Whereas, the gentiles define sunset as the moment when the sun is halfway  
-                        through the horizon.
-                        Immediately after the sun sets, Bein Hashmashot/twilight starts according to the Geonim, however, according to Rabbeinu Tam  
-                        the sun continues to set for another 58.5 minutes and only after that Bein Hashmashot starts for another 13.5 minutes
-                        It should be noted that many poskim, like the Mishna Berura, say that a person should ideally say mincha BEFORE sunset  
-                        and not before Tzeit/Nightfall.
-                        Most mitzvot that are to be done during the day should ideally be done before this time.</p>
-				</div>
-			</details>
-		</section>
-		<p id="ShaahZmanit" class="border"></p>
-	</div>
-	<div id="special">
-		<div class="card">
-			<ul class="list-group list-group-flush">
-				<li class="list-group-item" id="SpecialDay"></li>
-				<li class="list-group-item" id="Tachanun"></li>
-				<li class="list-group-item" id="Music"></li>
-				<li class="list-group-item" id="Chamah"></li>
-				<li class="list-group-item" id="BirchatHalevana"></li>
-				<li class="list-group-item" id="Hallel"></li>
-				<li class="list-group-item" id="Ulchaparat"></li>
-				<li class="list-group-item" id="Tekufa"></li>
-			</ul>
-		</div>
-	</div>
+  <div id="generic">
+    <div class="card">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item" id="Parasha"></li>
+        <li class="list-group-item" id="dateContainer">
+          <h6 id="Day"></h6>
+          <h2 id="priorityDate"></h2>
+          <h4 id="secondaryDate"></h4>
+        </li>
+        <li class="list-group-item" id="LocationName"></li>
+        <li class="list-group-item">
+          <h6 class="lang lang-hb">הדף של היום</h6>
+          <h6 class="lang lang-et">Today's Daf</h6>
+          <h6 class="lang lang-en">Today's Talmud Page</h6>
+          <div style="display: grid">
+            <div style="grid-row: 1/1; grid-column: 1/1">
+              <span class="lang lang-hb">בבלי</span>
+              <span class="lang lang-et">Bavli</span>
+              <span class="lang lang-en">Babylon Tractate</span>
+            </div>
+            <div style="grid-row: 2/2; grid-column: 1/1">
+              <span class="lang lang-hb">ירושלמי</span>
+              <span class="lang lang-et">Yerushalmi</span>
+              <span class="lang lang-en">Jerusalemite Tractate</span>
+            </div>
+            <div id="dafBavli" style="grid-column: 2/2; grid-row: 1/1"></div>
+            <div
+              id="DafYerushalmi"
+              style="grid-column: 2/2; grid-row: 2/2"
+            ></div>
+          </div>
+        </li>
+        <li class="list-group-item" id="SeasonalPrayers"></li>
+      </ul>
+    </div>
+  </div>
+  <div id="zmanim">
+    <section class="accordian" id="calendarFormatter">
+      <details id="alot" timeGetter="getAlos72Zmanis">
+        <summary>
+          <span class="lang lang-hb">עלות השחר</span>
+          <span class="lang lang-et">Alot Hashachar</span>
+          <span class="lang lang-en">Dawn</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            In Tanach, this time is called Alot HaShachar (בראשית לב:כה),
+            whereas in the Gemara it is called Amud HaShachar.
+          </p>
+          <p>
+            This is the time when the day begins according to halacha. Most
+            mitzvot (commandments), Arvit for example, that take place at night
+            are not allowed to be done after this time.
+          </p>
+          <p>
+            After this time, mitzvot that must be done in the daytime are
+            allowed to be done B'dieved (after the fact) or B'shaat hadachak (in
+            a time of need). However, one should ideally wait until sunrise to
+            do them L'chatchila (optimally).
+          </p>
+          <p>
+            This time is calculated as 72 zmaniyot/seasonal minutes (according
+            to the GR\"A) before sunrise. Both sunrise and sunset have elevation
+            included.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated by finding out
+            how many minutes are between sunrise and 72 minutes as degrees
+            (16.1) before sunrise on an equal day with sunrise and sunset set
+            around 12 hours apart. Then we take those minutes and make them
+            zmaniyot according to the GR\"A, and we subtract that time from
+            sunrise to get the time for Alot Hashachar. This is according to the
+            Halacha Berurah, and this should only be done outside of Israel in
+            more northern or southern areas. The Halacha Berurah writes to do
+            this because it is more according to the nature of the world.
+            However, it does not seem like Rabbi Ovadiah Yosef ZT\"L or the
+            Yalkut Yosef agrees with this opinion. Elevation is not included in
+            Luach Amudei Horaah mode.
+          </p>
+        </div>
+      </details>
+      <details id="earliestTefilin" timeGetter="getEarliestTalitAndTefilin">
+        <summary>
+          <span class="lang lang-hb">טלית ותפילין</span>
+          <span class="lang lang-et">Earliest Talit and Tefilin</span>
+          <span class="lang lang-en">Earliest Talit and Tefilin</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            Misheyakir (literally "when you recognize") is the time when a
+            person can distinguish between blue and white. The Gemara (ברכות ט)
+            explains that when a person can distinguish between the blue
+            (techelet) and white strings of their tzitzit, that is the earliest
+            time a person can put on their talit and tefilin for Shacharit.
+          </p>
+          <p>
+            This is also the earliest time one can say Shema L'chatchila
+            (optimally).
+          </p>
+          <p>
+            This time is calculated as 6 zmaniyot/seasonal minutes (according to
+            the GR\"A) after Alot HaShachar (Dawn).
+          </p>
+          <p>
+            Note: This time is only for people who need to go to work or leave
+            early in the morning to travel. However, normally a person should
+            put on his talit/tefilin 60 regular minutes (and in the winter 50
+            regular minutes) before sunrise.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated by finding out
+            how many minutes are between sunrise and 72 minutes as degrees
+            (16.1) before sunrise on an equal day with sunrise and sunset set
+            around 12 hours apart. Then we take those minutes and make them
+            zmaniyot according to the GR\"A, and we subtract 5/6 of that time
+            from sunrise to get the time for Misheyakir. This is according to
+            the Halacha Berurah, and this should only be done outside of Israel
+            in more northern or southern areas. The Halacha Berurah writes to do
+            this because it is more according to the nature of the world.
+            However, it does not seem like Rabbi Ovadiah Yosef ZT\"L or the
+            Yalkut Yosef agrees with this opinion. Elevation is not included in
+            Luach Amudei Horaah mode.
+          </p>
+        </div>
+      </details>
+      <details id="sunrise" timeGetter="getSeaLevelSunrise">
+        <summary>
+          <span class="lang lang-hb">הנץ (משור)</span>
+          <span class="lang lang-et">HaNetz (Mishor)</span>
+          <span class="lang lang-en">Sunrise (Sea Level)</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the earliest time when all mitzvot (commandments) that are
+            to be done during the daytime are allowed to be performed
+            L'chatchila (optimally). Halachic sunrise is defined as the moment
+            when the top edge of the sun appears on the horizon while rising.
+            Whereas, the gentiles define sunrise as the moment when the sun is
+            halfway through the horizon. This halachic sunrise is called mishor
+            (sea level) sunrise and it is what many jews rely on when praying
+            for Netz.
+          </p>
+          <p class="mb-0">
+            However, it should be noted that the Shulchan Aruch writes in Orach
+            Chayim 89:1, "The mitzvah of shacharit starts at Netz, like it says
+            in the pasuk/verse, 'יראוך עם שמש'". Based on this, the poskim write
+            that a person should wait until the sun is VISIBLE to say shacharit.
+            In Israel, the Ohr HaChaim calendar uses a table of sunrise times
+            from the luach/calendar 'לוח ביכורי יוסף' (Luach Bechoray Yosef)
+            each year. These times were made by Chaim Keller, creator of the
+            ChaiTables website. Ideally, you should download these VISIBLE
+            sunrise times from his website with the capability of this app to
+            use for the year. However, if you did not download the times, you
+            will see 'Mishor' or 'Sea Level' sunrise instead.
+          </p>
+        </div>
+      </details>
+      <details id="latestShmaMGA" timeGetter="getSofZmanShmaMGA72MinutesZmanis">
+        <summary>
+          <span class="lang lang-hb">סוף זמן שמע מג'א</span>
+          <span class="lang lang-et">Sof Zman Shma MG'A</span>
+          <span class="lang lang-en">Latest Shma MG'A</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the latest time a person can fulfill his obligation to say
+            Shma everyday according to the Magen Avraham.
+          </p>
+          <p class="mb-0">
+            The Magen Avraham/Terumat HeDeshen calculate this time as 3
+            zmaniyot/seasonal hours after Alot HaShachar (Dawn). They calculate
+            a zmaniyot/seasonal hour by taking the time between Alot HaShachar
+            (Dawn) and Tzeit Hachocavim (Nightfall) of Rabbeinu Tam and divide
+            it into 12 equal parts.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated the same way as
+            above except using the skewed Alot/Tzait of the Amudei Horaah
+            calendar, and no elevation is included.
+          </p>
+        </div>
+      </details>
+      <details id="latestShmaGRA" timeGetter="getSofZmanShmaGRA">
+        <summary>
+          <span class="lang lang-hb">סוף זמן שמע גר'א</span>
+          <span class="lang lang-et">Sof Zman Shma GR'A</span>
+          <span class="lang lang-en">Latest Shma GR'A</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the latest time a person can fulfill his obligation to say
+            Shma everyday according to the GR"A (HaGaon Rabbeinu Eliyahu)
+          </p>
+          <p class="mb-0">
+            The GR"A calculates this time as 3 zmaniyot/seasonal hours after
+            sunrise (elevation included). The GR"A calculates a
+            zmaniyot/seasonal hour by taking the time between sunrise and sunset
+            (elevation included) and divides it into 12 equal parts.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated the same way as
+            above except no elevation is included.
+          </p>
+        </div>
+      </details>
+      <details
+        id="SofZmanAchilatChametz"
+        yomTovInclusive="EREV_PESACH"
+        timeGetter="getSofZmanTfilaMGA72MinutesZmanis"
+      >
+        <summary>
+          <span class="lang lang-hb">סוף זמן אכילת חמץ</span>
+          <span class="lang lang-et">Sof Zman Achilat Chametz</span>
+          <span class="lang lang-en">Latest Time to Eat Chametz</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>This is the latest time a person can eat chametz.</p>
+          <p class="mb-0">
+            This is calculated as 4 zmaniyot/seasonal hours, according to the
+            Magen Avraham, after Alot HaShachar (Dawn) with elevation included.
+            Since Chametz is a mitzvah from the torah, we are stringent and we
+            use the Magen Avraham's time to calculate the last time a person can
+            eat chametz.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated the same way as
+            above except using the skewed Alot/Tzait of the Amudei Horaah
+            calendar, and no elevation is included.
+          </p>
+        </div>
+      </details>
+      <details
+        id="SofZmanBiurChametz"
+        yomTovInclusive="EREV_PESACH"
+        timeGetter="getSofZmanBiurChametzMGA"
+      >
+        <summary>
+          <span class="lang lang-hb">סוף זמן ביעור חמץ</span>
+          <span class="lang lang-et">Sof Zman Biur Chametz</span>
+          <span class="lang lang-en">Latest Time to Burn Chametz</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the latest time a person can own chametz before pesach
+            begins. You should get rid of all chametz in your possession by this
+            time.
+          </p>
+          <p class="mb-0">
+            This is calculated as 5 zmaniyot/seasonal hours, according to the
+            MG"A, after Alot HaShachar (Dawn) with elevation included.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated the same way as
+            above except using the skewed Alot/Tzait of the Amudei Horaah
+            calendar, and no elevation is included.
+          </p>
+        </div>
+      </details>
+      <details id="latestBrachotShmaGRA" timeGetter="getSofZmanTfilaGRA">
+        <summary>
+          <span class="lang lang-hb">סוף זמן ברכות שמע</span>
+          <span class="lang lang-et">Sof Zman Berachot Shma</span>
+          <span class="lang lang-en">Latest Berachot Shma</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the latest time a person can say the Brachot Shma according
+            to the GR"A. However, a person can still say Pisukei D'Zimra until
+            Chatzot.
+          </p>
+          <p class="mb-0">
+            The GR"A calculates this time as 4 zmaniyot/seasonal hours after
+            sunrise (elevation included). The GR"A calculates a
+            zmaniyot/seasonal hour by taking the time between sunrise and sunset
+            (elevation included) and divides it into 12 equal parts.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated the same way as
+            above except no elevation is included.
+          </p>
+        </div>
+      </details>
+      <details id="hatzoth" timeGetter="getChatzos">
+        <summary>
+          <span class="lang lang-hb">חצות</span>
+          <span class="lang lang-et">Hatsoth</span>
+          <span class="lang lang-en">Midday</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the middle of the halachic day, when the sun is exactly in
+            the middle of the sky relative to the length of the day. It should
+            be noted, that the sun can only be directly above every person, such
+            that they don't even have shadows, in the Tropic of Cancer and the
+            Tropic of Capricorn. Everywhere else, the sun will be at an angle
+            even in the middle of the day.
+          </p>
+          <p>
+            After this time, you can no longer say the Amidah prayer of
+            Shacharit, and you should preferably say Musaf before this time.
+          </p>
+          <p>
+            This time is calculated as 6 zmaniyot/seasonal hours after sunrise.
+            The GR"A calculates a zmaniyot/seasonal hour by taking the time
+            between sunrise and sunset (elevation included) and divides it into
+            12 equal parts.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated the same way as
+            above except no elevation is included.
+          </p>
+        </div>
+      </details>
+      <details id="minhaGedola" timeGetter="getMinchaGedolaGreaterThan30">
+        <summary>
+          <span class="lang lang-hb">מנחה גדולה</span>
+          <span class="lang lang-et">Mincha Gedola</span>
+          <span class="lang lang-en">Earliest Minha</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            Mincha Gedolah, literally "Greater Mincha", is the earliest time a
+            person can say Mincha. It is also the preferred time a person should
+            say Mincha according to some poskim.
+          </p>
+          <p>
+            It is called Mincha Gedolah because there is a lot of time left
+            until sunset.
+          </p>
+          <p>A person should ideally start saying Korbanot AFTER this time.</p>
+          <p>
+            This time is calculated as 30 regular minutes after Chatzot
+            (Mid-day). However, if the zmaniyot/seasonal minutes are longer, we
+            use those minutes instead to be stringent. The GR"A calculates a
+            zmaniyot/seasonal hour by taking the time between sunrise and sunset
+            (elevation included) and divides it into 12 equal parts. Then we
+            divide one of those 12 parts into 60 to get a zmaniyot/seasonal
+            minute.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated the same way as
+            above except no elevation is included.
+          </p>
+        </div>
+      </details>
+      <details id="minhaKetana" timeGetter="getMinhaKetana">
+        <summary>
+          <span class="lang lang-hb">מנחה קטנה</span>
+          <span class="lang lang-et">Minha Ketana</span>
+          <span class="lang lang-en">Minha Ketana</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            Minha Ketana, literally "Lesser Mincha", is the most preferred time
+            a person can say Mincha according to some poskim.
+          </p>
+          <p>
+            It is called Mincha Ketana because there is less time left until
+            sunset.
+          </p>
+          <p>
+            This time is calculated as 9 and a half zmaniyot/seasonal hours
+            after sunrise. The GR"A calculates a zmaniyot/seasonal hour by
+            taking the time between sunrise and sunset (elevation included) and
+            divides it into 12 equal parts. Then we divide one of those 12 parts
+            into 60 to get a zmaniyot/seasonal minute.
+          </p>
+        </div>
+      </details>
+      <details id="plagHaminha" timeGetter="getPlagHaminchaHalachaBrurah">
+        <summary>
+          <span class="lang lang-hb">פלג המנחה הלכה ברורה</span>
+          <span class="lang lang-et">Plag HaMincha Lefi Halacha Brurah</span>
+          <span class="lang lang-en">Plag HaMincha (R David Yosef)</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            Plag HaMincha, literally "Half of Mincha," is the midpoint between
+            Mincha Ketana and sunset. Since Mincha Ketana is 2 and a half hours
+            before sunset, Plag is half of that at an hour and 15 minutes before
+            sunset.
+          </p>
+          <p>
+            You can start saying Arvit/Maariv by this time according to Rabbi
+            Yehudah in (ברכות כ'ו ע'א).
+          </p>
+          <p>A person should not accept Shabbat before this time as well.</p>
+          <p>
+            The Halacha Berurah says to calculate this time by subtracting an
+            hour and 15 zmaniyot minutes from sunrise. However, the Yalkut Yosef
+            says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes
+            before Tzeit (13.5 zmaniyot minutes).
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, both ways to calculate this zman are
+            shown. The only difference is that the tzait of the Amudei Horaah is
+            used instead of the regular 13.5 zmaniyot minutes.
+          </p>
+          <p>
+            The GR\"A calculates a zmaniyot/seasonal hour by taking the time
+            between sunrise and sunset (elevation included) and divides it into
+            12 equal parts. Then we divide one of those 12 parts into 60 to get
+            a zmaniyot/seasonal minute.
+          </p>
+        </div>
+      </details>
+      <details id="plagHaminha" timeGetter="getPlagHaminchaYalkutYosef">
+        <summary>
+          <span class="lang lang-hb">פלג המנחה ילקות יוסף</span>
+          <span class="lang lang-et">Plag HaMincha Lefi Yalkut Yosef</span>
+          <span class="lang lang-en">Plag HaMincha (R Yitzhak Yosef)</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            Plag HaMincha, literally "Half of Mincha," is the midpoint between
+            Mincha Ketana and sunset. Since Mincha Ketana is 2 and a half hours
+            before sunset, Plag is half of that at an hour and 15 minutes before
+            sunset.
+          </p>
+          <p>
+            You can start saying Arvit/Maariv by this time according to Rabbi
+            Yehudah in (ברכות כ'ו ע'א).
+          </p>
+          <p>A person should not accept Shabbat before this time as well.</p>
+          <p>
+            The Halacha Berurah says to calculate this time by subtracting an
+            hour and 15 zmaniyot minutes from sunrise. However, the Yalkut Yosef
+            says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes
+            before Tzeit (13.5 zmaniyot minutes).
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, both ways to calculate this zman are
+            shown. The only difference is that the tzait of the Amudei Horaah is
+            used instead of the regular 13.5 zmaniyot minutes.
+          </p>
+          <p>
+            The GR\"A calculates a zmaniyot/seasonal hour by taking the time
+            between sunrise and sunset (elevation included) and divides it into
+            12 equal parts. Then we divide one of those 12 parts into 60 to get
+            a zmaniyot/seasonal minute.
+          </p>
+        </div>
+      </details>
+      <details
+        id="candleLighting"
+        timeGetter="getCandleLighting"
+        specialDropdownContent
+      >
+        <summary>
+          <span class="lang lang-hb">הדלקת נרות</span>
+          <span class="lang lang-et">Candle Lighting</span>
+          <span class="lang lang-en">Candle Lighting</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the ideal time for a person to light the candles before
+            shabbat/chag starts.
+          </p>
+          <p>
+            When there is candle lighting on a day that is Yom tov/Shabbat
+            before another day that is Yom tov, the candles are lit after
+            Tzeit/Nightfall. However, if the next day is Shabbat, the candles
+            are lit at their usual time.
+          </p>
+          <p>
+            This time is calculated as
+            ${zmanimCalendar.getCandleLightingOffset()} regular minutes before
+            sunset (elevation included).
+          </p>
+        </div>
+      </details>
+      <details id="sunset" timeGetter="getSunset">
+        <summary>
+          <span class="lang lang-hb">שקיעה</span>
+          <span class="lang lang-et">Shkia</span>
+          <span class="lang lang-en">Sunset</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the time of the day that the day starts to transition into
+            the next day according to halacha.
+          </p>
+          <p>
+            Halachic sunset is defined as the moment when the top edge of the
+            sun disappears on the horizon while setting (elevation included).
+            Whereas, the gentiles define sunset as the moment when the sun is
+            halfway through the horizon.
+          </p>
+          <p>
+            Immediately after the sun sets, Bein Hashmashot/twilight starts
+            according to the Geonim, however, according to Rabbeinu Tam the sun
+            continues to set for another 58.5 minutes and only after that Bein
+            Hashmashot starts for another 13.5 minutes.
+          </p>
+          <p>
+            It should be noted that many poskim, like the Mishna Berura, say
+            that a person should ideally say mincha BEFORE sunset and not before
+            Tzeit/Nightfall.
+          </p>
+          <p>
+            Most mitzvot that are to be done during the day should ideally be
+            done before this time.
+          </p>
+        </div>
+      </details>
+      <details id="tzeit" timeGetter="getTzait">
+        <summary>
+          <span class="lang lang-hb">צאת הכוכבים</span>
+          <span class="lang lang-et">Tzait Hacochavim</span>
+          <span class="lang lang-en">Nightfall</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            Tzeit/Nightfall is the time when the next halachic day starts after
+            Bein Hashmashot/twilight finishes.
+          </p>
+          <p>
+            This is the latest time a person can say Mincha according Rav
+            Ovadiah Yosef Z\"TL. A person should start mincha at least 2 minutes
+            before this time.
+          </p>
+          <p>
+            This time is calculated as 13 and a half zmaniyot/seasonal minutes
+            after sunset (elevation included).
+          </p>
+          <p>
+            The GR\"A calculates a zmaniyot/seasonal hour by taking the time
+            between sunrise and sunset (elevation included) and divides it into
+            12 equal parts. Then we divide one of those 12 parts into 60 to get
+            a zmaniyot/seasonal minute.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated by finding out
+            the amount of minutes between sunset and 3.86 degrees below the
+            horizon on an equal day, then we add that amount of zmaniyot minutes
+            to sunset to get the time of Tzeit/Nightfall. We use 3.86 degrees
+            below the horizon because that is the time when it is 13.5 minutes
+            after sunset in Israel.
+          </p>
+        </div>
+      </details>
+      <details id="tzeitTaanit" timeGetter="getTzaitTaanit">
+        <summary>
+          <span class="lang lang-hb">צאת תענית</span>
+          <span class="lang lang-et">Tzait Taanit</span>
+          <span class="lang lang-en">Fast Ends</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>This is the time that the fast/taanit ends.</p>
+          <p>
+            This time is calculated as 20 regular minutes after sunset
+            (elevation included).
+          </p>
+          <p>
+            It is brought down in Halacha Berurah that Rabbi Ovadiah Yosef Z\"TL
+            was once traveling in New York and he said to his son, Rabbi David
+            Yosef Shlita, that the fast ends 13.5 zmaniyot minutes after sunset.
+            However, in his sefer Chazon Ovadiah, he writes that the fast ends
+            20 minutes after sunset.
+          </p>
+          <p>
+            In the Ohr HaChaim calendar, they write that the fast ends at Tzait
+            Hacochavim. I asked Rabbi Benizri if this meant that the fast ends
+            at 13.5 zmaniyot minutes after sunset and he said, "Not necessarily,
+            a person can end the fast at 20 minutes after sunset if he wants to
+            be stringent." I then asked him if those 20 minutes are zmaniyot
+            minutes or regular minutes and he said, "Regular minutes."
+          </p>
+          <p>
+            If a person wants to end the fast at 13.5 zmaniyot minutes after
+            sunset, he has the right to do so. However, if a person wants to be
+            stringent, he can end the fast at 20 minutes after sunset.
+          </p>
+        </div>
+      </details>
+      <details id="tzeitTaanitLChumra" timeGetter="getTzaitTaanitLChumra">
+        <summary>
+          <span class="lang lang-hb">צאת תענית לחומרא</span>
+          <span class="lang lang-et">Tzait Taanit L'Chumra</span>
+          <span class="lang lang-en">Fast Ends (Stringent)</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is a more stringent time that the fast/taanit ends. This time
+            is according to the opinion of Chacham Ben Zion Abba Shaul.
+          </p>
+          <p>
+            This time is calculated as 30 regular minutes after sunset
+            (elevation included).
+          </p>
+        </div>
+      </details>
+      <details id="tzeitShabbat" timeGetter="getTzaitShabbat">
+        <summary>
+          <span class="lang lang-hb">צאת שבת</span>
+          <span class="lang lang-et">Tzait Shabbat</span>
+          <span class="lang lang-en">Shabbat Ends</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>This is the time that Shabbat/Chag ends.</p>
+          <p>
+            Note that there are many customs on when Shabbat ends. By default,
+            it is set to 40 regular minutes after sunset (elevation included),
+            however, you can change the time in the settings.
+          </p>
+          <p>
+            This time is calculated as
+            ${zmanimCalendar.getAteretTorahSunsetOffset()} regular minutes after
+            sunset (elevation included).
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated by using a
+            degree of 7.18. We use this degree because Rabbi Ovadiah Yosef ZT\"L
+            ruled that regarding Motzeh Shabbat the listed time should be set as
+            30 fixed minutes after sunset. This degree is interpreted as 30
+            minutes after sunset all year round in Israel.
+          </p>
+        </div>
+      </details>
+      <details id="rt" timeGetter="getTzais72Zmanis">
+        <summary>
+          <span class="lang lang-hb">ר״ת</span>
+          <span class="lang lang-et">Rabbeinu Tam</span>
+          <span class="lang lang-en">Rabbeinu Tam</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>This time is Tzeit/Nightfall according to Rabbeinu Tam.</p>
+          <p>
+            Tzeit/Nightfall is the time when the next halachic day starts after
+            Bein Hashmashot/twilight finishes.
+          </p>
+          <p>
+            This time is calculated as 72 zmaniyot/seasonal minutes after sunset
+            (elevation included). According to Rabbeinu Tam, these 72 minutes
+            are made up of 2 parts. The first part is 58 and a half minutes
+            until the second sunset (see Pesachim 94a and Tosafot there). After
+            the second sunset, there are an additional 13.5 minutes until
+            Tzeit/Nightfall.
+          </p>
+          <p>
+            The GR\"A calculates a zmaniyot/seasonal hour by taking the time
+            between sunrise and sunset (elevation included) and divides it into
+            12 equal parts. Then we divide one of those 12 parts into 60 to get
+            a zmaniyot/seasonal minute in order to calculate 72 minutes. Another
+            way of calculating this time is by calculating how many minutes are
+            between sunrise and sunset. Take that number and divide it by 10,
+            and then add the result to sunset. The app uses the first method.
+          </p>
+          <p>
+            In Luach Amudei Horaah mode, this time is calculated by finding out
+            how many minutes are between sunset and 72 minutes as degrees (16.0)
+            after sunset on an equal day with sunrise and sunset set around 12
+            hours apart. Then we take those minutes and make them zmaniyot
+            according to the GR\"A, and we add that time to sunset to get the
+            time for Rabbeinu Tam. This is according to the Halacha Berurah and
+            should only be done outside of Israel in more northern or southern
+            areas. The Halacha Berurah writes to do this because it is more
+            according to the nature of the world; however, it does not seem like
+            Rabbi Ovadiah Yosef ZT\"L or the Yalkut Yosef agrees with this
+            opinion. Elevation is not included in Luach Amudei Horaah mode.
+          </p>
+          <p>
+            It should be noted that Rabbi Ovadiah Yosef ZT\"L was of the opinion
+            to keep the zmaniyot zman of Rabbeinu Tam whether or not it fell out
+            before or after 72 regular minutes after sunset. However, in Luach
+            Amudei Horaah mode, we use the lesser of the two times.
+          </p>
+        </div>
+      </details>
+      <details id="chatzotLayla" timeGetter="getSolarMidnight">
+        <summary>
+          <span class="lang lang-hb">חצות לילה</span>
+          <span class="lang lang-et">Chatzot Layla</span>
+          <span class="lang lang-en">Midnight</span>
+          <span class="timeDisplay rightAlign"></span>
+        </summary>
+        <div class="accordianContent">
+          <p>
+            This is the middle of the halachic night, when the sun is exactly in
+            the middle of the sky beneath us.
+          </p>
+          <p>
+            This time is calculated as 6 zmaniyot/seasonal hours after sunset.
+            The GR\"A calculates a zmaniyot/seasonal hour by taking the time
+            between sunrise and sunset (elevation included) and divides it into
+            12 equal parts.
+          </p>
+        </div>
+      </details>
+    </section>
+    <p id="ShaahZmanit" class="border"></p>
+  </div>
+  <div id="special">
+    <div class="card">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item" id="SpecialDay"></li>
+        <li class="list-group-item" id="Tachanun"></li>
+        <li class="list-group-item" id="Music"></li>
+        <li class="list-group-item" id="Chamah"></li>
+        <li class="list-group-item" id="BirchatHalevana"></li>
+        <li class="list-group-item" id="Hallel"></li>
+        <li class="list-group-item" id="Ulchaparat"></li>
+        <li class="list-group-item" id="Tekufa"></li>
+      </ul>
+    </div>
+  </div>
 </div>
 
 {% comment %}
@@ -345,37 +812,37 @@ accordian: true
 {%endcomment%}
 
 <div id="dialog" title="Basic dialog" style="display: none">
-	<p id="dialogMessage">
-		This is the default dialog which is useful for displaying information.
-		The dialog window can be moved, resized and closed with the 'x' icon.
-	</p>
+  <p id="dialogMessage">
+    This is the default dialog which is useful for displaying information. The
+    dialog window can be moved, resized and closed with the 'x' icon.
+  </p>
 </div>
 
 <noscript>This website requires JavaScript to run</noscript>
 <link rel="stylesheet" href="flexcal.css" />
 
 <p class="noBorder">
-	<button id="backwardDay" class="button-18">
-		<i class="fa fa-arrow-left"></i>
-	</button>
-	<!--<input type="date" id="date" onchange="updateDate()" />-->
-	<input id="date" style="text-align: center" /><input
-		type="button"
-		value="Go"
-		onclick="updateDate()"
-	/>
-	<script>
-		$("document").ready(function () {
-			//This is the code for the calendar popup
-			$("#date").flexcal({
-				calendars: ["en", "jewish", "he-jewish"],
-				selected: "en",
-			});
-		});
-	</script>
-	<button id="forwardDay" class="button-18">
-		<i class="fa fa-arrow-right"></i>
-	</button>
+  <button id="backwardDay" class="button-18">
+    <i class="fa fa-arrow-left"></i>
+  </button>
+  <!--<input type="date" id="date" onchange="updateDate()" />-->
+  <input id="date" style="text-align: center" /><input
+    type="button"
+    value="Go"
+    onclick="updateDate()"
+  />
+  <script>
+    $("document").ready(function () {
+      //This is the code for the calendar popup
+      $("#date").flexcal({
+        calendars: ["en", "jewish", "he-jewish"],
+        selected: "en",
+      });
+    });
+  </script>
+  <button id="forwardDay" class="button-18">
+    <i class="fa fa-arrow-right"></i>
+  </button>
 </p>
 
 <script src="/assets/js/libraries/kosher-zmanim.min.js"></script>

@@ -15,7 +15,7 @@ const dateFormatter = {
 dateFormatter.hebrew.setHebrewFormat(true);
 dateFormatter.english.setTransliteratedMonthList(["Nissan", "Iyar", "Sivan", "Tamuz", "Av", "Elul", "Tishri", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"])
 
-var zmanimFormatter = new KosherZmanim.ZmanimFormatter();
+var zmanimFormatter = new KosherZmanim.ZmanimFormatter()
 zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
 var isShabbatMode = false;
 var showSeconds = (localStorage.getItem("isShowSeconds") == "true");
@@ -39,7 +39,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 			return super.getAlos72Zmanis()
 
 		const originalDate = this.getDate()
-		this.setDate(new Date("March 17" + originalDate.year.toString()))
+		this.setDate(new Date("March 17 " + originalDate.year.toString()))
 		const sunrise = this.getSeaLevelSunrise();
 		const alotBy16point1Degrees = this.getAlos16Point1Degrees();
 		const numberOfMinutes = ((sunrise.toMillis() - alotBy16point1Degrees.toMillis()) / 60_000);
@@ -57,7 +57,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	getEarliestTalitAndTefilin(amudehHoraah) {
 		if (amudehHoraah) {
 			const originalDate = this.getDate()
-			this.setDate(new Date("March 17" + originalDate.year.toString()))
+			this.setDate(new Date("March 17 " + originalDate.year.toString()))
 			const sunrise = this.getSeaLevelSunrise();
 			const alotBy16point1Degrees = this.getAlos16Point1Degrees();
 			const numberOfMinutes = ((sunrise.toMillis() - alotBy16point1Degrees.toMillis()) / 60_000);
@@ -178,7 +178,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	getTzait(degreeShaotZmaniot) {
 		if (degreeShaotZmaniot) {
 			const originalDate = this.getDate()
-			this.setDate(new Date("March 17" + originalDate.year.toString()))
+			this.setDate(new Date("March 17 " + originalDate.year.toString()))
 			const sunset = this.getSeaLevelSunset();
 			const tzaitBy3point86degrees = this.getSunriseOffsetByDegrees(90.0 + 3.86);
 			const numberOfMinutes = ((tzaitBy3point86degrees.toMillis() - sunset.toMillis()) / 60_000);
@@ -200,7 +200,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 
 	getTzaitLChumra() {
 		const originalDate = this.getDate()
-		this.setDate(new Date("March 17" + originalDate.year.toString()))
+		this.setDate(new Date("March 17 " + originalDate.year.toString()))
 		const sunset = this.getSeaLevelSunset();
 		const tzaitBy5point054degrees = this.getSunriseOffsetByDegrees(90.0 + 5.054);
 		const numberOfMinutes = ((tzaitBy5point054degrees.toMillis() - sunset.toMillis()) / 60_000);
@@ -238,7 +238,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 			return super.getTzais72Zmanis();
 
 		const originalDate = this.getDate()
-		this.setDate(new Date("March 17" + originalDate.year.toString()))
+		this.setDate(new Date("March 17 " + originalDate.year.toString()))
 		const sunset = this.getSeaLevelSunset();
 		const tzaitBy16Degrees = this.getSunriseOffsetByDegrees(90.0 + 16.0);
 		const numberOfMinutes = ((tzaitBy16Degrees.toMillis() - sunset.toMillis()) / 60_000);
