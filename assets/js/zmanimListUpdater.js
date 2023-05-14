@@ -255,7 +255,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
  */
 	getTzais72ZmanisLKulah(amudehHoraah) {
 		if (this.getTzais72().toMillis() > this.getTzais72Zmanis(amudehHoraah).toMillis()) {
-			return this.getTzais72Zmanis();
+			return this.getTzais72Zmanis(amudehHoraah);
 		} else {
 			return this.getTzais72();
 		}
@@ -497,11 +497,33 @@ class zmanimListUpdater {
 				continue;
 			}
 
+			if (!getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) {
+				console.log(timeSlot)
+				timeSlot.style.display = "none";
+				continue;
+			}
+
 			if (timeSlot.hasAttribute('yomTovInclusive')) {
 				if (jewishCalendar.getYomTovIndex() == KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")])
 					timeSlot.style.removeProperty("display");
 				else
 					timeSlot.style.display = "none"
+			}
+
+			if (timeSlot.hasAttribute('luachInclusive')) {
+				const diffLuachs = {
+					'amudehHoraah': isAmudehHoraah(),
+					'ohrHachaim': !isAmudehHoraah()
+				};
+				for (let [key, implementation] of Object.entries(diffLuachs)) {
+					if (timeSlot.getAttribute('luachInclusive') !== key)
+						continue;
+
+					if (implementation)
+						timeSlot.style.removeProperty("display");
+					else
+						timeSlot.style.display = "none"
+				}
 			}
 
 			/** @type {DateTime} */
@@ -816,7 +838,6 @@ class zmanimListUpdater {
 		this.addZmanim(zmanim);
 		this.changeDate(currentSelectedDate); //reset the date to the current date
 
-		console.log(zmanim)
 		this.nextUpcomingZman = zmanim.find(zman => zman !== null &&
 			zman.toMillis() > luxon.DateTime.now().toMillis() &&
 			(this.nextUpcomingZman === null ||
@@ -1457,3 +1478,18 @@ const geoLocation = new KosherZmanim.GeoLocation(
 	geoLocationBase.timezone
 );
 const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
+
+/**
+ * @param {{ [x: string]: any; }} toCheck
+ */
+function getAllMethods (toCheck) {
+	const props = [];
+    let obj = toCheck;
+    do {
+        props.push(...Object.getOwnPropertyNames(obj));
+    } while (obj = Object.getPrototypeOf(obj));
+    
+    return props.sort().filter((e, i, arr) => { 
+       if (e!=arr[i+1] && typeof toCheck[e] == 'function') return true;
+    });
+}

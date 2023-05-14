@@ -6,29 +6,28 @@ permalink: /
 <h2>Rabbi Ovadiah Yosef Calendar</h2>
 <h5>(Based on the Ohr HaChaim calendar in israel)</h5>
 
-<p class="border">
-  Help this webpage find your location. <br /><br />
-  You have three options to choose from: <br /><br />
-  1. Allow us to see your location by clicking this button and agreeing to
-  the notification (Your location information is only used to calculate the
-  zmanim and to figure out your city/country names) This option is
-  preferable for <b>mobile phones</b> and a network vpn/filter may disrubt
-  the results. <br />
-  <button class="location-button" onclick="getLocation()">
-	<i class="fas fa-map-marker-alt"></i>
-	Use My Location
+<hr>
+
+<ul>
+  <li><b>Town Search:</b> You can search for a location either by its name or the ZIP code. Enter it in the search bar below, then hit the Enter key.</li>
+  <li><b>Location Detector:</b> Give the site consent to determine your location (and its relevant times) based on the GPS coordinates reported by a browser. VPN's and Proxies will affect the results.</li>
+  <li><b>Manual (Advanced):</b> Input customized longtitude and latitude inputs. Useful for the most precision.</li>
+</ul>
+
+<div class="input-group input-group-lg form-outline">
+  <span class="input-group-text" id="inputGroup-sizing-lg" style="border-right: 0;"><i class="fa fa-search"></i></span>
+  <input list="locationNames" type="search" id="Main" onkeyup="updateList(event)" class="form-control form-control-lg" />
+  <datalist id="locationNames"></datalist>
+  <label class="form-label" for="form1">Insert location name/ZIP code</label>
+  <button type="button" class="btn btn-success" onclick="getLocation()" style="--mdb-btn-padding-x: 1rem;">
+    <i class="fa fa-map-marker"></i>
   </button>
-  <br /><br />
-  2. Enter your location manually here (advanced): <br />
-  <button
-	id="showManualLocation"
-	class="button-18"
-	onclick="showManualLocationSettings()"
-  >
-	Manual Location</button
-  ><br /><br />
-  3. Search for your location in the search bar below.
-</p>
+  <button type="button" class="btn btn-primary" onclick="showManualLocationSettings()" style="--mdb-btn-padding-x: 1rem; border-top-right-radius: var(--mdb-btn-border-radius);
+  border-bottom-right-radius: var(--mdb-btn-border-radius);">
+    <i class="fa fa-caret-square-o-down"></i>
+  </button>
+</div>
+
 <p class="border" id="manualLocation" style="display: none">
   <!--Hidden until shown-->
   Enter your location manually here: <br />
@@ -52,8 +51,6 @@ permalink: /
 <p class="border" id="error" style="display: none">
   <!--Hidden until shown-->
 </p>
-<input list="locationNames" type="text" id="Main" onkeyup="updateList(event)" placeholder="Search for a place/zipcode..." /><datalist id="locationNames"></datalist>
-
 
 <!--write a diclaimer message under the list-->
 <h5 id="disclaimer" style="text-align: center">
