@@ -1,8 +1,8 @@
 // @ts-check
 
 // Uncomment these lines when developing
- import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
- import luxon, { DateTime } from "./libraries/luxon/index.js";
+// import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
+// import luxon, { DateTime } from "./libraries/luxon/index.js";
 
 const isAmudehHoraah = () => localStorage.getItem("amudehHoraah") == "true";
 const getOrdinal = (/** @type {number} */ n) => n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
