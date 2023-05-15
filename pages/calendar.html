@@ -11,31 +11,6 @@ accordian: true
   <span>Shabbat Mode</span>
 </p>
 
-<div class="btn-group">
-  <p class="border">
-    <button id="useElevation" class="button-18">Use Elevation</button>
-    <button id="showSeconds" class="button-18">Show Seconds</button>
-    <button id="showInfoIcons" class="button-18">
-      Hide
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        fill="currentColor"
-        class="bi bi-info-circle"
-        viewbox="0 0 16 16"
-      >
-        <path
-          d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
-        />
-        <path
-          d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
-        />
-      </svg>
-    </button>
-  </p>
-</div>
-
 <div id="wideGrid">
   <div id="generic">
     <div class="card">
@@ -209,14 +184,14 @@ accordian: true
             This is the latest time a person can fulfill his obligation to say
             Shma everyday according to the Magen Avraham.
           </p>
-          <p class="mb-0">
+          <p>
             The Magen Avraham/Terumat HeDeshen calculate this time as 3
             zmaniyot/seasonal hours after Alot HaShachar (Dawn). They calculate
             a zmaniyot/seasonal hour by taking the time between Alot HaShachar
             (Dawn) and Tzeit Hachocavim (Nightfall) of Rabbeinu Tam and divide
             it into 12 equal parts.
           </p>
-          <p>
+          <p class="mb-0">
             In Luach Amudei Horaah mode, this time is calculated the same way as
             above except using the skewed Alot/Tzait of the Amudei Horaah
             calendar, and no elevation is included.
@@ -235,13 +210,13 @@ accordian: true
             This is the latest time a person can fulfill his obligation to say
             Shma everyday according to the GR"A (HaGaon Rabbeinu Eliyahu)
           </p>
-          <p class="mb-0">
+          <p>
             The GR"A calculates this time as 3 zmaniyot/seasonal hours after
             sunrise (elevation included). The GR"A calculates a
             zmaniyot/seasonal hour by taking the time between sunrise and sunset
             (elevation included) and divides it into 12 equal parts.
           </p>
-          <p>
+          <p class="mb-0">
             In Luach Amudei Horaah mode, this time is calculated the same way as
             above except no elevation is included.
           </p>
@@ -260,14 +235,14 @@ accordian: true
         </summary>
         <div class="accordianContent">
           <p>This is the latest time a person can eat chametz.</p>
-          <p class="mb-0">
+          <p>
             This is calculated as 4 zmaniyot/seasonal hours, according to the
             Magen Avraham, after Alot HaShachar (Dawn) with elevation included.
             Since Chametz is a mitzvah from the torah, we are stringent and we
             use the Magen Avraham's time to calculate the last time a person can
             eat chametz.
           </p>
-          <p>
+          <p class="mb-0">
             In Luach Amudei Horaah mode, this time is calculated the same way as
             above except using the skewed Alot/Tzait of the Amudei Horaah
             calendar, and no elevation is included.
@@ -291,11 +266,11 @@ accordian: true
             begins. You should get rid of all chametz in your possession by this
             time.
           </p>
-          <p class="mb-0">
+          <p>
             This is calculated as 5 zmaniyot/seasonal hours, according to the
             MG"A, after Alot HaShachar (Dawn) with elevation included.
           </p>
-          <p>
+          <p class="mb-0">
             In Luach Amudei Horaah mode, this time is calculated the same way as
             above except using the skewed Alot/Tzait of the Amudei Horaah
             calendar, and no elevation is included.
@@ -315,13 +290,13 @@ accordian: true
             to the GR"A. However, a person can still say Pisukei D'Zimra until
             Chatzot.
           </p>
-          <p class="mb-0">
+          <p>
             The GR"A calculates this time as 4 zmaniyot/seasonal hours after
             sunrise (elevation included). The GR"A calculates a
             zmaniyot/seasonal hour by taking the time between sunrise and sunset
             (elevation included) and divides it into 12 equal parts.
           </p>
-          <p>
+          <p class="mb-0">
             In Luach Amudei Horaah mode, this time is calculated the same way as
             above except no elevation is included.
           </p>
@@ -495,7 +470,6 @@ accordian: true
       </details>
       <details
         id="candleLighting"
-        timeGetter="getCandleLighting"
         specialDropdownContent
       >
         <summary>
@@ -517,12 +491,12 @@ accordian: true
           </p>
           <p>
             This time is calculated as
-            ${zmanimCalendar.getCandleLightingOffset()} regular minutes before
+            ${getCandleLightingOffset()} regular minutes before
             sunset (elevation included).
           </p>
         </div>
       </details>
-      <details id="sunset" timeGetter="getSunset">
+      <details id="sunset" timeGetter="getElevationAdjustedSunset">
         <summary>
           <span class="lang lang-hb">שקיעה</span>
           <span class="lang lang-et">Shkia</span>
@@ -594,7 +568,7 @@ accordian: true
           </p>
         </div>
       </details>
-      <details id="tzeitTaanit" timeGetter="getTzaitTaanit">
+      <details id="tzeitTaanit" timeGetter="getTzaitTaanit" condition="isTaanit">
         <summary>
           <span class="lang lang-hb">צאת תענית</span>
           <span class="lang lang-et">Tzait Taanit</span>
@@ -629,7 +603,7 @@ accordian: true
           </p>
         </div>
       </details>
-      <details id="tzeitTaanitLChumra" timeGetter="getTzaitTaanitLChumra">
+      <details id="tzeitTaanitLChumra" timeGetter="getTzaitTaanitLChumra" condition="isTaanit">
         <summary>
           <span class="lang lang-hb">צאת תענית לחומרא</span>
           <span class="lang lang-et">Tzait Taanit L'Chumra</span>
@@ -663,7 +637,7 @@ accordian: true
           </p>
           <p>
             This time is calculated as
-            ${zmanimCalendar.getAteretTorahSunsetOffset()} regular minutes after
+            ${getAteretTorahSunsetOffset()} regular minutes after
             sunset (elevation included).
           </p>
           <p>
