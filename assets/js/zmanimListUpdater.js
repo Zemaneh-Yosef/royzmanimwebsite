@@ -662,7 +662,7 @@ class zmanimListUpdater {
 
 	setNextUpcomingZman() {
 		const zmanim = [];
-		var currentSelectedDate = this.zmanimCalendar.getDate();
+		const currentSelectedDate = jewishCalendar.getDate();
 		this.changeDate(luxon.DateTime.now().minus({ days: 1 }));
 		this.addZmanim(zmanim);
 		this.changeDate(luxon.DateTime.now());
