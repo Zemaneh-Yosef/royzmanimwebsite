@@ -28,22 +28,9 @@
 
 			<nav class="main-nav__nav">
 				<ul class="main-nav__list">
-					<li><a id="shabbatMode" href="#">Shabbat Mode</a></li>
-					<li class="dropdown-parent">
-						<a>Languages <i class="fa fa-caret-down"></i></a>
-						<nav class="main-nav__megamenu">
-							<ul class="main-nav__megamenu-list">
-								<div class="btn-group">
-									<button id="hebrewZmanim" class="button-18">Hebrew</button>
-									<button id="defaultZmanim" class="button-18">Default</button>
-									<button id="englishZmanim" class="button-18">English</button>
-								</div>
-							</ul>
-						</nav>
-					</li>
 					<li><a href="/moladCalculator" target="_blank">Molad Calculator</a></li>
 					<li><a href="/settings.html">Settings</a></li>
-					<li><a href="/about.html">About</a></li>
+					<li><a data-mdb-toggle="modal" data-mdb-target="#aboutModal">About</a></li>
 				</ul>
 			</nav>
 		</header>
@@ -59,6 +46,19 @@
 				<img alt="Get it on Google Play" src="/img/google_play.png"/>
 			</a>
 		</footer>
+		<!-- Modal -->
+		<div class="modal fade modal-xl" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="aboutModalLabel">About Modal</h5>
+						<button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">{% capture my_include %}{% include about.md %}{% endcapture %}
+						{{ my_include | markdownify }}</div>
+				</div>
+			</div>
+		</div>
 		{% if page.accordian %}<script src="/assets/js/accordian.js"></script>{% endif %}
 		<script type="text/javascript" src="/assets/libraries/js/mdb.min.js"></script>
 	</body>

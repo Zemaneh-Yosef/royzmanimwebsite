@@ -17,8 +17,22 @@ dateFormatter.english.setTransliteratedMonthList(["Nissan", "Iyar", "Sivan", "Ta
 
 var zmanimFormatter = new KosherZmanim.ZmanimFormatter();
 zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
-var isShabbatMode = false;
 var showSeconds = (localStorage.getItem("isShowSeconds") == "true");
+
+/**
+ * @param {{ [x: string]: any; }} toCheck
+ */
+function getAllMethods (toCheck) {
+	const props = [];
+    let obj = toCheck;
+    do {
+        props.push(...Object.getOwnPropertyNames(obj));
+    } while (obj = Object.getPrototypeOf(obj));
+    
+    return props.sort().filter((e, i, arr) => { 
+       if (e!=arr[i+1] && typeof toCheck[e] == 'function') return true;
+    });
+}
 
 class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	//custom zmanim class, RO stands for Rabbi Ovadia
@@ -270,10 +284,6 @@ class zmanimListUpdater {
 		this.geoLocation = geoLocation
 		this.zmanimCalendar = new ROZmanim(geoLocation);
 		document.getElementById("LocationName").innerHTML = geoLocation.getLocationName() || "No Location Name Provided";
-		if (document.getElementById("shabbatModeBanner"))
-			document.getElementById("shabbatModeBanner").addEventListener("click", () => {
-				document.getElementById("shabbatModeBanner").style.display = "none";
-			});
 
 		/**
 		 * @type {null|DateTime}
@@ -314,12 +324,6 @@ class zmanimListUpdater {
 	}
 
 	setupButtons() {
-		var shabbatModeButton = document.getElementById("shabbatMode");
-		shabbatModeButton.addEventListener("click", () => {
-			shabbatModeButton.innerHTML = (!isShabbatMode ? "Undo " : "") + "Shabbat Mode";
-			this.shabbatMode();
-		});
-
 		const forwardButton = document.getElementById("forwardDay")
 		forwardButton.addEventListener("click", () => {
 			this.changeDate(jewishCalendar.clone().getDate().plus({ days: 1 }))
@@ -628,36 +632,6 @@ class zmanimListUpdater {
 		this.zmanimCalendar.setAteretTorahSunsetOffset(tzeitShabbatTime);
 		setCookie("tzeitShabbatTime", tzeitShabbatTime, 36500); //100 years
 		this.updateZmanimList();
-	}
-
-	shabbatMode() {
-		//shabbat mode is a mode that disables all the buttons to change the date, and slowly scrolls the zmanim up and down the screen while displaying the shabbat mode banner
-		isShabbatMode = !isShabbatMode;
-		if (!isShabbatMode) {
-			//undo shabbat mode
-			document.getElementById("date").disabled = false;
-			document.getElementById("date").style.backgroundColor = "white";
-			document.getElementById("date").style.color = "black";
-			document.getElementById("date").style.cursor = "pointer";
-			document.getElementById("backButton").disabled = false;
-			document.getElementById("forwardButton").disabled = false;
-			document.getElementById("shabbatModeBanner").style.display = "none";
-		} else {
-			var date = luxon.DateTime.now();
-			jewishCalendar.setDate(date);
-			this.zmanimCalendar.setDate(date);
-			this.updateZmanimList(); //update the zmanim list to the current date
-			//disable the date buttons
-			document.getElementById("date").disabled = true;
-			document.getElementById("date").style.backgroundColor = "grey";
-			document.getElementById("date").style.color = "black";
-			document.getElementById("date").style.cursor = "default";
-			document.getElementById("backButton").disabled = true;
-			document.getElementById("forwardButton").disabled = true;
-			document.getElementById("shabbatModeBanner").style.display = "block";
-			scrollPage(); //scroll the zmanim up and down the screen
-			this.initUpdaterForZmanim();
-		}
 	}
 
 	setNextUpcomingZman() {
@@ -1312,18 +1286,3 @@ const geoLocation = new KosherZmanim.GeoLocation(
 	geoLocationBase.timezone
 );
 const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
-
-/**
- * @param {{ [x: string]: any; }} toCheck
- */
-function getAllMethods (toCheck) {
-	const props = [];
-    let obj = toCheck;
-    do {
-        props.push(...Object.getOwnPropertyNames(obj));
-    } while (obj = Object.getPrototypeOf(obj));
-    
-    return props.sort().filter((e, i, arr) => { 
-       if (e!=arr[i+1] && typeof toCheck[e] == 'function') return true;
-    });
-}
