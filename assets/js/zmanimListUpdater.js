@@ -313,24 +313,6 @@ class zmanimListUpdater {
 		jewishCalendar.setDate(date)
 	}
 
-	getSpecialContent(id) {
-		const messageDialogues = {
-			candleLighting: ["Candle Lighting - הדלקת נרות",
-				`This is the ideal time for a person to light the candles before shabbat/chag starts.
-				When there is candle lighting on a day that is Yom tov/Shabbat before another day that is Yom tov, the candles are lit after Tzeit/Nightfall. However, if the next day is Shabbat, the candles are lit at their usual time.
-
-				This time is calculated as ${this.zmanimCalendar.getCandleLightingOffset()} regular minutes before sunset (elevation included).`],
-			tseithShabbath: ["Shabbat/Chag Ends - צאת שבת/חג - Tzeit Shabbat/Chag",
-				`This is the time that Shabbat/Chag ends.
-		
-				Note that there are many customs on when shabbat ends, by default, I set it to 40 regular minutes after sunset (elevation included), however, you can change the time in the settings.
-		
-				This time is calculated as ${this.zmanimCalendar.getAteretTorahSunsetOffset()} regular minutes after sunset (elevation included).`],
-		}
-
-		return messageDialogues[id];
-	}
-
 	setupButtons() {
 		var shabbatModeButton = document.getElementById("shabbatMode");
 		shabbatModeButton.addEventListener("click", () => {
@@ -492,13 +474,8 @@ class zmanimListUpdater {
 			.map(el => /** @type {HTMLElement} */(el));
 
 		for (const timeSlot of indContainers) {
-			if (!timeSlot.hasAttribute('timeGetter')) {
-				timeSlot.style.display = "none";
-				continue;
-			}
-
-			if (!getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) {
-				console.log(timeSlot)
+			if (!timeSlot.hasAttribute('timeGetter')
+			 || !getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) {
 				timeSlot.style.display = "none";
 				continue;
 			}
@@ -527,213 +504,69 @@ class zmanimListUpdater {
 			}
 
 			/** @type {DateTime} */
-			const dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](isAmudehHoraah())
+			let dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](isAmudehHoraah())
+
+			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
+			switch (timeSlot.id) {
+				case 'candleLighting':
+					const tzetCandle = (jewishCalendar.hasCandleLighting() && jewishCalendar.isAssurBemelacha() && jewishCalendar.getDayOfWeek() !== 6);
+					const shabbatCandles = ((jewishCalendar.hasCandleLighting() && !jewishCalendar.isAssurBemelacha()) || jewishCalendar.getDayOfWeek() === 6);
+	
+					if (!tzetCandle && !shabbatCandles)
+						timeSlot.style.display = "none";
+					else {
+						timeSlot.style.removeProperty("display");
+	
+						if (tzetCandle)
+							dateTimeForZman = this.zmanimCalendar.getTzait(isAmudehHoraah())
+						else if (shabbatCandles) {
+							this.zmanimCalendar.setCandleLightingOffset(parseInt(getCookie("candleLightingTime")) || 20);
+							dateTimeForZman = this.zmanimCalendar.getCandleLighting();
+						}
+					}
+					break;
+				case 'tzeitShabbat':
+					if (jewishCalendar.isYomTovAssurBemelacha() && jewishCalendar.getDayOfWeek() == 7) {
+						timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת השבת וחג";
+						timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Shabbat & Yom Tov";
+						timeSlot.querySelector('.lang.lang-en').innerHTML = "Shabbat & Yom Tov Ends";
+					} else if (jewishCalendar.getDayOfWeek() == 7) {
+						timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת השבת";
+						timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Shabbat";
+						timeSlot.querySelector('.lang.lang-en').innerHTML = "Shabbat Ends";
+					} else {
+						timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת חג";
+						timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Yom Tov";
+						timeSlot.querySelector('.lang.lang-en').innerHTML = "Yom Tov Ends";
+					}
+					break;
+				case 'rt':
+					dateTimeForZman = dateTimeForZman.set({second: 0}).plus({minutes: 1})
+			}
+
+			if (timeSlot.hasAttribute('condition')) {
+				switch (timeSlot.getAttribute('condition')) {
+					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
+					case 'isTaanit':
+						if (jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)
+							timeSlot.style.removeProperty("display");
+						else
+							timeSlot.style.display = "none"
+				}
+			}
 
 			const actionToClass = (this.isNextUpcomingZman(dateTimeForZman) ? "add" : "remove")
 			timeSlot.classList[actionToClass]("nextZman")
 
 			timeSlot.querySelector('.timeDisplay').innerHTML = dateTimeForZman.setZone(geoLocation.getTimeZone()).toFormat(timeFormat)
 
-			if (timeSlot.hasAttribute('specialDropdownContent'))
-				timeSlot.querySelector('.accordianContent').innerHTML = this.getSpecialContent(timeSlot.id)[1].replaceAll('	', '').replaceAll('\n', '<br>');
-
-			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
-
-
+			if (timeSlot.hasAttribute('specialDropdownContent')) {
+				const description = timeSlot.querySelector('.accordianContent');
+				description.innerHTML = description.innerHTML
+					.replaceAll('${getAteretTorahSunsetOffset()}', this.zmanimCalendar.getAteretTorahSunsetOffset().toString())
+					.replaceAll('${getCandleLightingOffset()}', this.zmanimCalendar.getCandleLightingOffset().toString())
+			}
 		}
-
-		//zmanim list updated here
-		/*
-		var candle = document.getElementById("Candle");
-		var sunset = document.getElementById("Sunset");
-		var tzeit = document.getElementById("Tzeit");
-		var tzeitCandles = document.getElementById("TzeitCandles");
-		var tzeitT = document.getElementById("TzeitT");
-		var tzeitTL = document.getElementById("TzeitTL");
-		var tzaitShabbatChag = document.getElementById("TzeitShabbatChag");
-		var rt = document.getElementById("RT");
-		var chatzotLayla = document.getElementById("ChatzotLayla");
-	
-		const timeFormat = (!showSeconds ? "h:mm a" : "h:mm:ss a");
-	
-		if (
-			jewishCalendar.hasCandleLighting() &&
-			jewishCalendar.isAssurBemelacha() &&
-			jewishCalendar.getDayOfWeek() !== 6
-		) {
-			tzeitCandles.style.display = "block";
-			tzeitCandles.innerHTML =
-				"<b>" +
-				getCandleLightingString() +
-				"</b>" + addInfoIcon("candleLighting") +
-				"<span>" +
-				addArrowIfNextUpcomingZman(zmanimCalendar.getTzait()) +
-				zmanimCalendar.getTzait().setZone(timezone).toFormat(timeFormat) +
-				"</span>";
-		} else {
-			tzeitCandles.style.display = "none";
-		}
-
-		if (
-			(jewishCalendar.hasCandleLighting() &&
-				!jewishCalendar.isAssurBemelacha()) ||
-			jewishCalendar.getDayOfWeek() === 6
-		) {
-			zmanimCalendar.setCandleLightingOffset(parseInt(getCookie("candleLightingTime")) || 20);
-	
-			candle.style.display = "block";
-			candle.innerHTML =
-				"<b>" +
-				getCandleLightingString() +
-				" (" +
-				zmanimCalendar.getCandleLightingOffset() +
-				")" +
-				"</b>" + addInfoIcon("candleLighting") +
-				"<span>" +
-				addArrowIfNextUpcomingZman(zmanimCalendar.getCandleLighting()) +
-				zmanimCalendar
-					.getCandleLighting()
-					.setZone(timezone)
-					.toFormat(timeFormat) +
-				"</span>";
-			candle.onclick = function () {
-				// add on click event to the candle lighting time to save the time to a cookie
-				if (document.getElementById("candleMinutes") == null) {
-					candle.innerHTML =
-						"<b>" +
-						getCandleLightingString() +
-						' (<input type="number" id="candleMinutes" onchange="saveCandleLightingSetting()"/>)' +//TODO we need to remove the input field after the user clicks on something else
-						"</b>" + addInfoIcon("candleLighting") +
-						"<span>" +
-						addArrowIfNextUpcomingZman(zmanimCalendar.getCandleLighting()) +
-						zmanimCalendar
-							.getCandleLighting()
-							.setZone(timezone)
-							.toFormat(timeFormat) +
-						"</span>";
-				}
-			};
-		} else {
-			candle.style.display = "none";
-		}
-	
-		sunset.innerHTML =
-			"<b>" +
-			getSunsetString() +
-			"</b>" + addInfoIcon("sunset") +
-			"<span>" +
-			addArrowIfNextUpcomingZman(zmanimCalendar.getElevationAdjustedSunset()) +
-			zmanimCalendar.getElevationAdjustedSunset().setZone(timezone).toFormat(timeFormat) +
-			"</span>";
-		tzeit.innerHTML =
-			"<b>" +
-			getTzeitString() +
-			"</b>" + addInfoIcon("tseith") +
-			"<span>" +
-			addArrowIfNextUpcomingZman(zmanimCalendar.getTzait()) +
-			zmanimCalendar.getTzait().setZone(timezone).toFormat(timeFormat) +
-			"</span>";
-	
-		if (
-			jewishCalendar.isTaanis() &&
-			!(
-				jewishCalendar.getYomTovIndex() ===
-				KosherZmanim.JewishCalendar.YOM_KIPPUR
-			)
-		) {
-			tzeitT.style.display = "block";
-			tzeitTL.style.display = "block";
-			tzeitT.innerHTML =
-				"<b>" +
-				getTzaitTaanitString() +
-				"</b>" + addInfoIcon("tseithTaanith") +
-				"<span>" +
-				addArrowIfNextUpcomingZman(zmanimCalendar.getTzaitTaanit()) +
-				zmanimCalendar.getTzaitTaanit().setZone(timezone).toFormat(timeFormat) +
-				"</span>";
-			tzeitTL.innerHTML =
-				"<b>" +
-				getTzaitTaanitLChumraString() +
-				"</b>" + addInfoIcon("tseithTaanithLehumra") +
-				"<span>" +
-				addArrowIfNextUpcomingZman(zmanimCalendar.getTzaitTaanitLChumra()) +
-				zmanimCalendar
-					.getTzaitTaanitLChumra()
-					.setZone(timezone)
-					.toFormat(timeFormat) +
-				"</span>";
-		} else {
-			tzeitT.style.display = "none";
-			tzeitTL.style.display = "none";
-		}
-	
-		if (
-			jewishCalendar.isAssurBemelacha() &&
-			!jewishCalendar.hasCandleLighting()
-		) {
-			var cookieForTSC = getCookie("tzeitShabbatTime");
-			zmanimCalendar.setAteretTorahSunsetOffset(parseInt(cookieForTSC) || 40);
-	
-			tzaitShabbatChag.style.display = "block";
-			tzaitShabbatChag.innerHTML =
-				"<b>" +
-				getTzaitShabbatChagString(jewishCalendar) +
-				" (" +
-				zmanimCalendar.getAteretTorahSunsetOffset() +
-				") " +
-				"</b>" + addInfoIcon("tseithShabbath") +
-				"<span>" +
-				addArrowIfNextUpcomingZman(zmanimCalendar.getTzaisAteretTorah()) +
-				zmanimCalendar
-					.getTzaisAteretTorah()
-					.setZone(timezone)
-					.toFormat(timeFormat) +
-				"</span>";
-	
-			tzaitShabbatChag.onclick = function () {
-				// add on click event to the tzeit shabbat time to save the time to a cookie
-				if (document.getElementById("tzeitShabbatMinutes") == null) {
-					tzaitShabbatChag.innerHTML =
-						"<b>" +
-						getTzaitShabbatChagString(jewishCalendar) +
-						' (<input type="number" id="tzeitShabbatMinutes" onchange="saveTzeitShabbatSetting()"/>): ' +
-						"</b>" + addInfoIcon("tseithShabbath") +
-						"<span>" +
-						addArrowIfNextUpcomingZman(zmanimCalendar.getTzaisAteretTorah()) +
-						zmanimCalendar
-							.getTzaisAteretTorah()
-							.setZone(timezone)
-							.toFormat(timeFormat) +
-						"</span>";
-				}
-			};
-		} else {
-			tzaitShabbatChag.style.display = "none";
-		}
-	
-		rt.innerHTML =
-			"<b>" +
-			getRabbeinuTamString() +
-			"</b>" + addInfoIcon("rabbenuTam") +
-			"<span>" +
-			addArrowIfNextUpcomingZman(zmanimCalendar.getTzais72Zmanis()) +
-			zmanimCalendar
-				.getTzais72Zmanis()
-				.set({ second: 0 })
-				.plus({ minutes: 1 })
-				.setZone(timezone)
-				.toFormat(timeFormat) +
-			"</span>";
-	
-		chatzotLayla.innerHTML =
-			"<b>" +
-			getChatzotLaylaString() +
-			"</b>" + addInfoIcon("hatsothNight") +
-			"<span>" +
-			addArrowIfNextUpcomingZman(zmanimCalendar.getSolarMidnight()) +
-			zmanimCalendar.getSolarMidnight().setZone(timezone).toFormat(timeFormat) +
-			"</span>";
-		*/
 
 		var daf = document.getElementById("dafBavli");
 		var dafYerushalmi = document.getElementById("DafYerushalmi");
@@ -829,7 +662,7 @@ class zmanimListUpdater {
 
 	setNextUpcomingZman() {
 		const zmanim = [];
-		var currentSelectedDate = this.zmanimCalendar.getDate();
+		const currentSelectedDate = jewishCalendar.getDate();
 		this.changeDate(luxon.DateTime.now().minus({ days: 1 }));
 		this.addZmanim(zmanim);
 		this.changeDate(luxon.DateTime.now());
