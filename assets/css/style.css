@@ -72,55 +72,12 @@ html {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-text-size-adjust: 100%;
 }
-
-.hdDarkMode {
-  width: 100%;
-    position: initial;
-    z-index: 9999;
-    background: #3b3939;/* #3b3939 is equivalent to rgb( 59, 57, 57 ) */
-    border-bottom: 1px solid #BBB;
-    margin-bottom: 10px;
-    display: block;
-    box-sizing: border-box;
-    color: #ffffff;
-    font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.42857143;
-    --ind-menu-main-color: #0A7DA4;
-    --ind-menu-hover-color: #48565b;
-    --ind-menu-active-color: #0A7DA4;
-    --ind-color-picker: #0A7DA4;
-    --ind-color-bg-picker: #0A7DA4;
-    --ind-color-text-picker: #0A7DA4;
-    --ind-color-heading-picker: #0A7DA4;
-    --ind-color-heading-picker-default: #0A7DA4;
-    --wp--preset--font-size--normal: 16px;
-    --wp--preset--font-size--huge: 42px;
-    -webkit-tap-highlight-color: rgba(255, 244, 244, 0);
-    -webkit-text-size-adjust: 100%;
-}
-
-.main-nav__toogle.darkMode span {
-  display: block;
-  height: 4px;
-  width: 100%;
-  background: #fff;
-  border-radius: 10px;
-}
-
-.main-nav__megamenu.darkMode {
-  background: #3b3939;
-}
  
 body,
 html {
   min-height: 100vh;
   margin: auto;
   /*box-shadow: 30px 0px 40px rgba(0, 0, 0, 0.1), -30px 0px 40px rgba(0, 0, 0, 0.1);*/
-}
-
-.liDarkMode {
-    color: #fff;
 }
 
 body {
@@ -133,18 +90,6 @@ main {
   margin-left: auto;
   margin-right: auto;
   width: clamp(16rem, 90vw, 70rem)
-}
-
-.aDarkMode {
-    color: #fff;
-}
-.aDarkMode:hover {
-  background-color: #000000;
-    color: #fff;
-}
-.aDarkMode:focus {
-  background-color: #000000;
-    color: #fff;
 }
 
 .border {
@@ -161,21 +106,6 @@ main {
     padding: 6px;
 }
 
-.borderDarkMode {
-    font-family: 'Roboto',
-    sans-serif;
-    align-content: center;
-    max-width: 400px;
-    text-align: center;
-    margin-top: 100px;
-    margin: 10px;
-    margin-left: auto;
-    margin-right: auto;
-    color: #fff;
-    border: solid 1px #cfd8e4;
-    padding: 6px;
-}
-
 .border-split {
   font-family: 'Roboto',
   sans-serif;
@@ -188,21 +118,6 @@ main {
   margin-right: auto;
   color: rgb(0, 0, 0);
   border: solid 1px #000000;
-  padding: 6px;
-}
-
-.border-splitDarkMode {
-  font-family: 'Roboto',
-  sans-serif;
-  align-content: center;;
-  max-width: 400px;
-  text-align: left;
-  margin-top: 100px;
-  margin: 10px;
-  margin-left: auto;
-  margin-right: auto;
-  color: #fff;
-  border: solid 1px #cfd8e4;
   padding: 6px;
 }
 
@@ -224,16 +139,6 @@ main {
   color: rgb(0, 0, 0);
 }
 
-.border-splitDarkMode span {
-  font-family: 'Roboto',
-  sans-serif;
-  align-content: center;;
-  max-width: 400px;
-  float: right;
-  margin-left: 10px;
-  color: #fff;
-}
-
 .noBorder {
   font-family: 'Roboto',
   sans-serif;
@@ -244,18 +149,6 @@ main {
   margin-left: auto;
   margin-right: auto;
   color: rgb(0, 0, 0);
-}
-
-.noBorderDarkMode {
-    font-family: 'Roboto',
-    sans-serif;
-    align-content: center;
-    text-align: center;
-    margin-top: 100px;
-    margin: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    color: #fff;
 }
 
 .candleMinutes {
@@ -365,17 +258,8 @@ footer {
   color: rgb(0, 0, 0);
 }
 
-.footerDarkMode {
-  text-align: center; 
-  color: rgb(255, 255, 255);
-}
-
 .sourceCode {
   color: #000;
-}
-
-.sourceCodeDarkMode {
-  color: #fff;
 }
 
 .wideView {
