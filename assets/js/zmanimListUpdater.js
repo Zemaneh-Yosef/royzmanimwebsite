@@ -334,32 +334,42 @@ class zmanimListUpdater {
 		backwardButton.addEventListener("click", () => {
 			this.changeDate(jewishCalendar.clone().getDate().minus({ days: 1 }))
 			this.updateZmanimList();
+		});
+
+		const date = document.getElementsByTagName("input");
+		date[0].addEventListener('calendarInsert', () => {
+			const dateObject = luxon.DateTime.fromFormat(date[0].value, "MM/dd/yyyy");
+			this.changeDate(dateObject);
+			this.updateZmanimList();
 		})
 	}
 
 	updateZmanimList() {
-		let primaryDate;
-		let secondaryDate = [];
+		let primaryDate, secondaryDate, otherDate;
 
 		const zmanimLanguage = localStorage.getItem("zmanimLanguage");
 		switch (zmanimLanguage) {
 			case 'hb':
 			default:
 				primaryDate = dateFormatter.hebrew.format(jewishCalendar);
-				secondaryDate.push(jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL), dateFormatter.english.format(jewishCalendar));
+				secondaryDate = jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
+				otherDate = dateFormatter.english.format(jewishCalendar);
 				break;
 			case 'en-et':
 				primaryDate = dateFormatter.english.format(jewishCalendar);
-				secondaryDate.push(jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL), dateFormatter.hebrew.format(jewishCalendar));
+				secondaryDate = jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
+				otherDate = dateFormatter.hebrew.format(jewishCalendar);
 				break;
 			case 'en':
 				primaryDate = jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
-				secondaryDate.push(dateFormatter.english.format(jewishCalendar), dateFormatter.hebrew.format(jewishCalendar));
+				secondaryDate = dateFormatter.english.format(jewishCalendar);
+				otherDate = dateFormatter.hebrew.format(jewishCalendar);
 				break;
 		}
 
 		document.getElementById("priorityDate").innerText = primaryDate;
-		document.getElementById("secondaryDate").innerText = secondaryDate.join(" • ")
+		document.getElementById("secondaryDate").innerText = secondaryDate;
+		document.getElementById("otherDate").innerText = otherDate;
 		if (this.zmanimCalendar.getDate().hasSame(luxon.DateTime.local(), "day")) {
 			document.getElementById("dateContainer").classList.add("text-bold");
 		}
@@ -465,7 +475,7 @@ class zmanimListUpdater {
 					? getTekufaAsDate() : getTekufaForNextDayAsDate());
 
 			tekufa.style.removeProperty("display");
-			tekufa.innerHTML = `Tekufa ${getTekufaName} is today at ${timeBase.toLocaleTimeString()}`;
+			tekufa.innerHTML = `Tekufa ${getTekufaName()} is today at ${timeBase.toLocaleTimeString()}`;
 		}
 
 		let timeFormat;
@@ -592,14 +602,6 @@ class zmanimListUpdater {
 
 		seasonal.innerHTML = getSeasonalPrayers();
 		shaahZmanit.innerHTML = this.shaahZmanits();
-	}
-
-	updateDate() {
-		var date = document.getElementById("date");
-		var dateObject = luxon.DateTime.fromFormat(date.value, "MM/dd/yyyy");
-		jewishCalendar.setDate(dateObject);
-		this.zmanimCalendar.setDate(dateObject);
-		this.updateZmanimList();
 	}
 
 	shaahZmanits() {
@@ -1233,26 +1235,6 @@ function getUlchaparatPesha() {
 	);
 	//return "Say וּלְכַפָּרַת פֶּשַׁע";
 	//return "Do not say וּלְכַפָּרַת פֶּשַׁע";
-}
-
-var scrollDirection = 1;
-function scrollPage() {
-	if (!isShabbatMode)
-		return;
-
-	window.scrollBy(0, scrollDirection); // horizontal and vertical scroll increments
-	setTimeout("scrollPage()", 50); // scrolls every 50 milliseconds
-	if (window.pageYOffset == 0) {
-		scrollDirection = 1;
-	} else if (
-		window.pageYOffset + 1 >
-		document.body.scrollHeight - window.innerHeight
-	) {
-		//window.pageYOffset return a float scroll y value, for exemple in my case 78.4000015258789;
-		//We add +1 to obtain 79.4
-		//(document.body.scrollHeight - window.innerHeight) return a interger of 79
-		scrollDirection = -1;
-	}
 }
 
 //get the location details from the query string and create the zmanim calendar

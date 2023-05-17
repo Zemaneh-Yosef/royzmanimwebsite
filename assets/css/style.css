@@ -314,3 +314,14 @@ body.lang-en .lang:not(.lang-en) {
 .nextZman .timeDisplay::before {
   content: "> "
 }
+
+#date {
+  height: 0;
+  visibility: hidden;
+  border: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  left: 0;
+  width: 0;
+}

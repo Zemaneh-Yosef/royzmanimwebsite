@@ -3,23 +3,33 @@ permalink: /calendar
 accordian: true
 ---
 
-<p id="shabbatModeBanner" class="marquee">
-  <span>Shabbat Mode</span>
-  <span>Shabbat Mode</span>
-  <span>Shabbat Mode</span>
-  <span>Shabbat Mode</span>
-  <span>Shabbat Mode</span>
-</p>
-
 <div id="wideGrid">
   <div id="generic">
     <div class="card">
       <ul class="list-group list-group-flush">
         <li class="list-group-item" id="Parasha"></li>
         <li class="list-group-item" id="dateContainer">
-          <h6 id="Day"></h6>
-          <h2 id="priorityDate"></h2>
-          <h4 id="secondaryDate"></h4>
+          <div class="d-flex" style="align-items: center;">
+            <div><button id="backwardDay" class="btn btn-primary btn-floating">
+              <i class="fa fa-arrow-left"></i>
+            </button></div>
+            <div style="flex: 1; text-align: center;">
+              <h6 id="Day"></h6>
+              <h2 id="priorityDate"></h2>
+              <h5 id="secondaryDate" class="d-inline-block"></h5>
+              <label for="date">
+                <span class="fa-stack fa-lg">
+                  <i class="fa fa-circle fa-stack-2x"></i>
+                  <i class="fa fa-flag fa-stack-1x fa-inverse"></i>
+                </span>
+              </label>
+              <h5 id="otherDate" class="d-inline-block"></h5>
+              <input id="date" />
+            </div>
+            <div><button id="forwardDay" class="btn btn-primary btn-floating">
+              <i class="fa fa-arrow-right"></i>
+            </button></div>
+          </div>
         </li>
         <li class="list-group-item" id="LocationName"></li>
         <li class="list-group-item">
@@ -103,29 +113,15 @@ accordian: true
 <script src="/assets/libraries/flexcal/jquery.flexcal.js" type="text/javascript"></script>
 <!--All these files just to include flexcal.js for a jewish calendar popup widget-->
 
-<p class="noBorder">
-  <button id="backwardDay" class="button-18">
-    <i class="fa fa-arrow-left"></i>
-  </button>
-  <!--<input type="date" id="date" onchange="updateDate()" />-->
-  <input id="date" style="text-align: center" /><input
-    type="button"
-    value="Go"
-    onclick="zmanimListUpdater2.updateDate()"
-  />
-  <script>
-    $("document").ready(function () {
-      //This is the code for the calendar popup
-      $("#date").flexcal({
-        calendars: ["en", "jewish", "he-jewish"],
-        selected: "en",
-      });
+<script>
+  $("document").ready(function () {
+    //This is the code for the calendar popup
+    $("#date").flexcal({
+      calendars: ["en", "jewish", "he-jewish"],
+      selected: "en",
     });
-  </script>
-  <button id="forwardDay" class="button-18">
-    <i class="fa fa-arrow-right"></i>
-  </button>
-</p>
+  });
+</script>
 
 <script src="/assets/js/libraries/kosher-zmanim.min.js"></script>
 <!--Include kosherjava js port-->
