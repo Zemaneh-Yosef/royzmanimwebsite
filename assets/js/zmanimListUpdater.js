@@ -15,7 +15,7 @@ const dateFormatter = {
 dateFormatter.hebrew.setHebrewFormat(true);
 dateFormatter.english.setTransliteratedMonthList(["Nissan", "Iyar", "Sivan", "Tamuz", "Av", "Elul", "Tishri", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"])
 
-var zmanimFormatter = new KosherZmanim.ZmanimFormatter()
+var zmanimFormatter = new KosherZmanim.ZmanimFormatter();
 zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
 var isShabbatMode = false;
 var showSeconds = (localStorage.getItem("isShowSeconds") == "true");
