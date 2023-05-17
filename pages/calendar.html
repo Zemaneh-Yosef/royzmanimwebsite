@@ -94,7 +94,14 @@ accordian: true
 </div>
 
 <noscript>This website requires JavaScript to run</noscript>
-<link rel="stylesheet" href="flexcal.css" />
+<script src="/assets/libraries/flexcal/jquery.min.js" type="text/javascript"></script>
+<script src="/assets/libraries/flexcal/jquery-ui.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/assets/libraries/flexcal/flexcal.css" />
+<link rel="stylesheet" href="/assets/libraries/flexcal/jquery-ui.css" />
+<link type="text/css" rel="stylesheet" href="/assets/libraries/flexcal/jquery-ui2.css">
+<script src="/assets/libraries/flexcal/jquery.textpopup.js" type="text/javascript"></script>
+<script src="/assets/libraries/flexcal/jquery.flexcal.js" type="text/javascript"></script>
+<!--All these files just to include flexcal.js for a jewish calendar popup widget-->
 
 <p class="noBorder">
   <button id="backwardDay" class="button-18">
@@ -104,7 +111,7 @@ accordian: true
   <input id="date" style="text-align: center" /><input
     type="button"
     value="Go"
-    onclick="updateDate()"
+    onclick="zmanimListUpdater2.updateDate()"
   />
   <script>
     $("document").ready(function () {

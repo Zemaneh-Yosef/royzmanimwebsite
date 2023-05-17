@@ -15,7 +15,7 @@ const dateFormatter = {
 dateFormatter.hebrew.setHebrewFormat(true);
 dateFormatter.english.setTransliteratedMonthList(["Nissan", "Iyar", "Sivan", "Tamuz", "Av", "Elul", "Tishri", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"])
 
-var zmanimFormatter = new KosherZmanim.ZmanimFormatter()
+var zmanimFormatter = new KosherZmanim.ZmanimFormatter();
 zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
 var showSeconds = (localStorage.getItem("isShowSeconds") == "true");
 
@@ -1212,7 +1212,7 @@ function eraseCookie(name) {
 }
 
 const musicPermission = () => !(
-	(jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 33)
+	(jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 32)
 	|| (jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && jewishCalendar.getJewishDayOfMonth() >= 17)
 	|| (jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.AV && jewishCalendar.getJewishDayOfMonth() <= 9)
 );
@@ -1274,6 +1274,7 @@ if (isNaN(geoLocationBase.lat) && isNaN(geoLocationBase.long)) {
 
 if (geoLocationBase.timezone == "Asia/Jerusalem") {
 	//if the timezone is Asia/Jerusalem, then the location is probably very close to the Israel or in Israel, so we set the jewish calendar to inIsrael mode
+	//we should change this behavior to ask the user if he is in israel or not and adjust accordingly
 	jewishCalendar.setInIsrael(true);
 }
 
