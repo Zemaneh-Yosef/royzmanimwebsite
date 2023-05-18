@@ -1043,10 +1043,10 @@ const yomTovObj = Object.fromEntries([
 	// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 	// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 	[KosherZmanim.JewishCalendar.SHEMINI_ATZERES, "Shemini Atzereth" + (jewishCalendar.getInIsrael() ? " & Simchath Torah" : "")],
-	[KosherZmanim.JewishCalendar.SHEMINI_ATZERES, (jewishCalendar.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"],
+	[KosherZmanim.JewishCalendar.SIMCHAS_TORAH, (jewishCalendar.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"],
 
 	// Semi-Holidays & Fasts
-	// "20 was Erev Hanukah, which was deleted" (leaving note from the original)
+	// "Yom Tov Index 20 was Erev Hanukah, which was deleted" (leaving note from the original)
 	[KosherZmanim.JewishCalendar.PESACH_SHENI, "Pesach Sheni"],
 	[KosherZmanim.JewishCalendar.LAG_BAOMER, "Lag B'Omer"],
 	[KosherZmanim.JewishCalendar.SEVENTEEN_OF_TAMMUZ, "17<sup>th</sup> of Tammuz Fast"],
