@@ -15,8 +15,6 @@ const dateFormatter = {
 dateFormatter.hebrew.setHebrewFormat(true);
 dateFormatter.english.setTransliteratedMonthList(["Nissan", "Iyar", "Sivan", "Tamuz", "Av", "Elul", "Tishri", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"])
 
-var zmanimFormatter = new KosherZmanim.ZmanimFormatter();
-zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
 var showSeconds = (localStorage.getItem("isShowSeconds") == "true");
 
 /**
@@ -605,6 +603,8 @@ class zmanimListUpdater {
 	}
 
 	shaahZmanits() {
+		var zmanimFormatter = new KosherZmanim.ZmanimFormatter(geoLocation.getTimeZone());
+		zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
 		return `Shaah Zmanith GR'A: ${zmanimFormatter.format(this.zmanimCalendar.getShaahZmanisGra())}
 		/ MG'A: ${zmanimFormatter.format(this.zmanimCalendar.getShaahZmanis72MinutesZmanis())}`.replace('\n', ' ')
 	}
@@ -623,14 +623,14 @@ class zmanimListUpdater {
 	}
 
 	saveCandleLightingSetting() {
-		var candleLightingTime = document.getElementById("candleMinutes").value;
+		var candleLightingTime = document.getElementById("candleMinutes")["value"];
 		this.zmanimCalendar.setCandleLightingOffset(candleLightingTime);
 		setCookie("candleLightingTime", candleLightingTime, 36500); //100 years
 		this.updateZmanimList();
 	}
 
 	saveTzeitShabbatSetting() {
-		var tzeitShabbatTime = document.getElementById("tzeitShabbatMinutes").value;
+		var tzeitShabbatTime = document.getElementById("tzeitShabbatMinutes")["value"];
 		this.zmanimCalendar.setAteretTorahSunsetOffset(tzeitShabbatTime);
 		setCookie("tzeitShabbatTime", tzeitShabbatTime, 36500); //100 years
 		this.updateZmanimList();
