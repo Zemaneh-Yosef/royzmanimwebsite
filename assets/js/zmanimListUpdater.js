@@ -8,6 +8,7 @@ const isAmudehHoraah = () => localStorage.getItem("amudehHoraah") == "true";
 const getOrdinal = (/** @type {number} */ n) => n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
 
 var jewishCalendar = new KosherZmanim.JewishCalendar();
+jewishCalendar.setUseModernHolidays(true);
 const dateFormatter = {
 	english: new KosherZmanim.HebrewDateFormatter(),
 	hebrew: new KosherZmanim.HebrewDateFormatter()
