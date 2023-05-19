@@ -1076,6 +1076,7 @@ function getYomTovForNextDay() {
 	var nextDay = jewishCalendar.getDate().toJSDate();
 	nextDay.setDate(nextDay.getDate() + 1);
 	var nextJewishCalendar = new KosherZmanim.JewishCalendar(nextDay);
+	nextJewishCalendar.setUseModernHolidays(true);
 	return getYomTov(nextJewishCalendar);
 }
 
