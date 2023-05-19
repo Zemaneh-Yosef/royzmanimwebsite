@@ -591,7 +591,6 @@ class zmanimListUpdater {
 			numberToHebrew(dafObject.getDaf());
 
 		var dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishCalendar);
-
 		if (dafYerushalmiObject.getDaf() == 0) {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
@@ -747,7 +746,7 @@ function getSpecialDay() {
 
 	if (!yomTovOfToday && !yomTovOfNextDay) {
 		//if no yom tov today or tomorrow, do nothing to the result array
-	} else if (yomTovOfToday && (!yomTovOfNextDay || (yomTovOfNextDay && !yomTovOfNextDay.startsWith("Erev")))) {
+	} else if (!yomTovOfToday && yomTovOfNextDay && !yomTovOfNextDay.startsWith("Erev")) {
 		//if next day has yom tov
 		result.push("Erev " + yomTovOfNextDay);
 	} else if (
