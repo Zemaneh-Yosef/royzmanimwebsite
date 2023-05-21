@@ -1,5 +1,10 @@
+.list-group {
+  --mdb-list-group-bg: #303030;
+  --mdb-list-group-color: white;
+}
+
 body {
-    background-color: #303030;
+  background: #212529;
 }
 
 .hd {
