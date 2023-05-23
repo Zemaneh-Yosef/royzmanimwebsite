@@ -147,9 +147,11 @@ $.widget('bililite.flexcal', $.bililite.textpopup, {
 	 **************/
 	commit: function(d){
 		d = d || this.options.current;
-		this.element.val(this.format(d));
+		const element = this.element.get(0);
+		element.setAttribute('date-value', this.format(d));
+
 		const event = new Event("calendarInsert")
-		this.element.get(0).dispatchEvent(event);
+		element.dispatchEvent(event);
 		this._setDate(d, false);
 		this._trigger('commit', 0, d);
 	},

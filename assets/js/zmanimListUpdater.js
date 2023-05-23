@@ -321,9 +321,10 @@ class zmanimListUpdater {
 			this.updateZmanimList();
 		});
 
-		const date = document.getElementsByTagName("input");
-		date[0].addEventListener('calendarInsert', () => {
-			const dateObject = luxon.DateTime.fromFormat(date[0].value, "MM/dd/yyyy");
+		const date = document.getElementById("date");
+		date.addEventListener('calendarInsert', () => {
+			const dateObject = luxon.DateTime.fromFormat(date.getAttribute("date-value"), "MM/dd/yyyy");
+
 			this.changeDate(dateObject);
 			this.updateZmanimList();
 		})
@@ -625,12 +626,12 @@ class zmanimListUpdater {
 	setNextUpcomingZman() {
 		const zmanim = [];
 		const currentSelectedDate = jewishCalendar.getDate();
-		this.changeDate(luxon.DateTime.now().minus({ days: 1 }));
-		this.addZmanim(zmanim);
-		this.changeDate(luxon.DateTime.now());
-		this.addZmanim(zmanim);
-		this.changeDate(luxon.DateTime.now().plus({ days: 1 }));
-		this.addZmanim(zmanim);
+
+		for (const time of [-1, 0, 1]) {
+			this.changeDate(luxon.DateTime.now().plus({ days: time }));
+			this.addZmanim(zmanim);
+		}
+
 		this.changeDate(currentSelectedDate); //reset the date to the current date
 
 		this.nextUpcomingZman = zmanim.find(zman => zman !== null &&
