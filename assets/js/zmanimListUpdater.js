@@ -4,7 +4,12 @@
 // import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
 // import luxon, { DateTime } from "./libraries/luxon/index.js";
 
-const isAmudehHoraah = () => localStorage.getItem("amudehHoraah") == "true";
+const settings = {
+	amudehHoraah: () => localStorage.getItem("amudehHoraah") == "true",
+	seconds: () => localStorage.getItem("seconds") == "true",
+	timeFormat: () => localStorage.getItem("timeFormat"),
+	language: () => localStorage.getItem("zmanimLanguage")
+}
 const getOrdinal = (/** @type {number} */ n) => n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
 
 var jewishCalendar = new KosherZmanim.JewishCalendar();
@@ -15,8 +20,6 @@ const dateFormatter = {
 }
 dateFormatter.hebrew.setHebrewFormat(true);
 dateFormatter.english.setTransliteratedMonthList(["Nissan", "Iyar", "Sivan", "Tamuz", "Av", "Elul", "Tishri", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"])
-
-var showSeconds = (localStorage.getItem("isShowSeconds") == "true");
 
 /**
  * @param {{ [x: string]: any; }} toCheck
@@ -70,16 +73,16 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	getEarliestTalitAndTefilin(amudehHoraah) {
 		if (amudehHoraah) {
 			const originalDate = this.getDate()
-			this.setDate(new Date("March 17 " + originalDate.year.toString()))
+			this.setDate(new Date("March 17 " + originalDate.year.toString())); // Set the Calendar to the equinox
 			const sunrise = this.getSeaLevelSunrise();
-			const alotBy16point1Degrees = this.getAlos16Point1Degrees();
+			const alotBy16point1Degrees = this.getAlos16Point1Degrees(); // 16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
 			const numberOfMinutes = ((sunrise.toMillis() - alotBy16point1Degrees.toMillis()) / 60_000);
 			this.setDate(originalDate);
 
 			const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
 			const dakahZmanit = shaahZmanit / 60;
 
-			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit * 5 / 6));//Test this
+			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit * 5 / 6));
 		} else {
 			var shaahZmanit = this.getTemporalHour(this.getElevationAdjustedSunrise(), this.getElevationAdjustedSunset());
 			var dakahZmanit = shaahZmanit / 60;
@@ -92,37 +95,20 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 
 	//TODO Netz
 
-		/**
- * @param {boolean} [amudehHoraah]
- */
-		getSofZmanShmaMGA(amudehHoraah) {
-			var shaahZmanit = this.getTemporalHour(
-				this.getAlos72Zmanis(amudehHoraah),
-				this.getTzais72Zmanis(amudehHoraah)
-			);
-			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-				this.getAlos72Zmanis(amudehHoraah),
-				shaahZmanit * 3
-			);
-		}
+	getSofZmanShmaMGA72MinutesZmanis(amudehHoraah) {
+        return this.getSofZmanShma(this.getAlos72Zmanis(amudehHoraah), this.getTzais72Zmanis(amudehHoraah));
+    }
 
-		/**
- * @param {boolean} [amudehHoraah]
- */
+	/**
+	 * @param {boolean} [amudehHoraah]
+	 */
 	getSofZmanAchilatChametzMGA(amudehHoraah) {
-		var shaahZmanit = this.getTemporalHour(
-			this.getAlos72Zmanis(amudehHoraah),
-			this.getTzais72Zmanis(amudehHoraah)
-		);
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			this.getAlos72Zmanis(amudehHoraah),
-			shaahZmanit * 4
-		);
+		return this.getSofZmanTfila(this.getAlos72Zmanis(amudehHoraah), this.getTzais72Zmanis(amudehHoraah));
 	}
 
-		/**
- * @param {boolean} [amudehHoraah]
- */
+	/**
+	 * @param {boolean} [amudehHoraah]
+	 */
 	getSofZmanBiurChametzMGA(amudehHoraah) {
 		var shaahZmanit = this.getTemporalHour(
 			this.getAlos72Zmanis(amudehHoraah),
@@ -193,7 +179,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 			const originalDate = this.getDate()
 			this.setDate(new Date("March 17 " + originalDate.year.toString()))
 			const sunset = this.getSeaLevelSunset();
-			const tzaitBy3point86degrees = this.getSunriseOffsetByDegrees(90.0 + 3.86);
+			const tzaitBy3point86degrees = this.getSunsetOffsetByDegrees(KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH + 3.86);
 			const numberOfMinutes = ((tzaitBy3point86degrees.toMillis() - sunset.toMillis()) / 60_000);
 			this.setDate(originalDate);
 
@@ -296,7 +282,7 @@ class zmanimListUpdater {
 	}
 
 	handleLanguage() {
-		const zmanimLanguage = localStorage.getItem("zmanimLanguage");
+		const zmanimLanguage = settings.language();
 		switch (zmanimLanguage) {
 			case 'hb':
 			default:
@@ -335,9 +321,10 @@ class zmanimListUpdater {
 			this.updateZmanimList();
 		});
 
-		const date = document.getElementsByTagName("input");
-		date[0].addEventListener('calendarInsert', () => {
-			const dateObject = luxon.DateTime.fromFormat(date[0].value, "MM/dd/yyyy");
+		const date = document.getElementById("date");
+		date.addEventListener('calendarInsert', () => {
+			const dateObject = luxon.DateTime.fromFormat(date.getAttribute("date-value"), "MM/dd/yyyy");
+
 			this.changeDate(dateObject);
 			this.updateZmanimList();
 		})
@@ -478,10 +465,10 @@ class zmanimListUpdater {
 		}
 
 		let timeFormat;
-		if (localStorage.getItem("timeFormat") == "12")
-			timeFormat = (!showSeconds ? "h:mm a" : "h:mm:ss a");
+		if (settings.timeFormat() == "12")
+			timeFormat = (!settings.seconds() ? "h:mm a" : "h:mm:ss a");
 		else
-			timeFormat = "HH:mm" + (showSeconds ? ":ss" : '')
+			timeFormat = "HH:mm" + (settings.seconds() ? ":ss" : '')
 
 		const indContainers = Array.from(document.getElementById("calendarFormatter").children)
 			.map(el => /** @type {HTMLElement} */(el));
@@ -502,8 +489,8 @@ class zmanimListUpdater {
 
 			if (timeSlot.hasAttribute('luachInclusive')) {
 				const diffLuachs = {
-					'amudehHoraah': isAmudehHoraah(),
-					'ohrHachaim': !isAmudehHoraah()
+					'amudehHoraah': settings.amudehHoraah(),
+					'ohrHachaim': !settings.amudehHoraah()
 				};
 				for (let [key, implementation] of Object.entries(diffLuachs)) {
 					if (timeSlot.getAttribute('luachInclusive') !== key)
@@ -517,7 +504,7 @@ class zmanimListUpdater {
 			}
 
 			/** @type {DateTime} */
-			let dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](isAmudehHoraah())
+			let dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](settings.amudehHoraah())
 
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (timeSlot.id) {
@@ -531,7 +518,7 @@ class zmanimListUpdater {
 						timeSlot.style.removeProperty("display");
 	
 						if (tzetCandle)
-							dateTimeForZman = this.zmanimCalendar.getTzait(isAmudehHoraah())
+							dateTimeForZman = this.zmanimCalendar.getTzait(settings.amudehHoraah())
 						else if (shabbatCandles) {
 							this.zmanimCalendar.setCandleLightingOffset(parseInt(getCookie("candleLightingTime")) || 20);
 							dateTimeForZman = this.zmanimCalendar.getCandleLighting();
@@ -639,12 +626,12 @@ class zmanimListUpdater {
 	setNextUpcomingZman() {
 		const zmanim = [];
 		const currentSelectedDate = jewishCalendar.getDate();
-		this.changeDate(luxon.DateTime.now().minus({ days: 1 }));
-		this.addZmanim(zmanim);
-		this.changeDate(luxon.DateTime.now());
-		this.addZmanim(zmanim);
-		this.changeDate(luxon.DateTime.now().plus({ days: 1 }));
-		this.addZmanim(zmanim);
+
+		for (const time of [-1, 0, 1]) {
+			this.changeDate(luxon.DateTime.now().plus({ days: time }));
+			this.addZmanim(zmanim);
+		}
+
 		this.changeDate(currentSelectedDate); //reset the date to the current date
 
 		this.nextUpcomingZman = zmanim.find(zman => zman !== null &&
@@ -685,49 +672,64 @@ class zmanimListUpdater {
 	 * @param {DateTime[]} zmanim
 	 */
 	addZmanim(zmanim) {
-		zmanim.push(this.zmanimCalendar.getAlos72Zmanis(isAmudehHoraah()));
-		zmanim.push(this.zmanimCalendar.getEarliestTalitAndTefilin(isAmudehHoraah()));
-		zmanim.push(this.zmanimCalendar.getSunrise());
-		zmanim.push(this.zmanimCalendar.getSofZmanShmaMGA72MinutesZmanis());
-		zmanim.push(this.zmanimCalendar.getSofZmanShmaGRA());
-		if (
-			jewishCalendar.getYomTovIndex() == KosherZmanim.JewishCalendar.EREV_PESACH
-		) {
-			zmanim.push(this.zmanimCalendar.getSofZmanTfilaMGA72MinutesZmanis());
-			zmanim.push(this.zmanimCalendar.getSofZmanTfilaGRA());
-			zmanim.push(this.zmanimCalendar.getSofZmanBiurChametzMGA(isAmudehHoraah()));
-		} else {
-			zmanim.push(this.zmanimCalendar.getSofZmanTfilaGRA());
+		const indContainers = Array.from(document.getElementById("calendarFormatter").children)
+			.map(el => /** @type {HTMLElement} */(el));
+
+		for (const timeSlot of indContainers) {
+			if (!timeSlot.hasAttribute('timeGetter')
+			 || !getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) {
+				continue;
+			}
+
+			if (timeSlot.hasAttribute('yomTovInclusive') && jewishCalendar.getYomTovIndex() != KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")]) {
+				continue;
+			}
+
+			if (timeSlot.hasAttribute('luachInclusive')) {
+				const diffLuachs = {
+					'amudehHoraah': settings.amudehHoraah(),
+					'ohrHachaim': !settings.amudehHoraah()
+				};
+				for (let [key, implementation] of Object.entries(diffLuachs)) {
+					if (timeSlot.getAttribute('luachInclusive') !== key || (timeSlot.getAttribute('luachInclusive') == key && !implementation))
+						continue;
+				}
+			}
+
+			/** @type {DateTime} */
+			let dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](settings.amudehHoraah())
+
+			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
+			switch (timeSlot.id) {
+				case 'candleLighting':
+					const tzetCandle = (jewishCalendar.hasCandleLighting() && jewishCalendar.isAssurBemelacha() && jewishCalendar.getDayOfWeek() !== 6);
+					const shabbatCandles = ((jewishCalendar.hasCandleLighting() && !jewishCalendar.isAssurBemelacha()) || jewishCalendar.getDayOfWeek() === 6);
+	
+					if (!tzetCandle && !shabbatCandles)
+						continue;
+	
+					if (tzetCandle)
+						dateTimeForZman = this.zmanimCalendar.getTzait(settings.amudehHoraah())
+					else if (shabbatCandles) {
+						this.zmanimCalendar.setCandleLightingOffset(parseInt(getCookie("candleLightingTime")) || 20);
+						dateTimeForZman = this.zmanimCalendar.getCandleLighting();
+					}
+					break;
+				case 'rt':
+					dateTimeForZman = dateTimeForZman.set({second: 0}).plus({minutes: 1})
+			}
+
+			if (timeSlot.hasAttribute('condition')) {
+				switch (timeSlot.getAttribute('condition')) {
+					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
+					case 'isTaanit':
+						if (!(jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR))
+							continue;
+				}
+			}
+
+			zmanim.push(dateTimeForZman);
 		}
-		zmanim.push(this.zmanimCalendar.getChatzos());
-		zmanim.push(this.zmanimCalendar.getMinchaGedolaGreaterThan30());
-		zmanim.push(this.zmanimCalendar.getMinhaKetana());
-		zmanim.push(this.zmanimCalendar.getPlagHaminchaYalkutYosef());
-		zmanim.push(this.zmanimCalendar.getPlagHaminchaHalachaBrurah());
-		if (
-			(jewishCalendar.hasCandleLighting() &&
-				!jewishCalendar.isAssurBemelacha()) ||
-			jewishCalendar.getDayOfWeek() == 6
-		) {
-			zmanim.push(this.zmanimCalendar.getCandleLighting());
-		}
-		zmanim.push(this.zmanimCalendar.getSunset());
-		zmanim.push(this.zmanimCalendar.getTzait(isAmudehHoraah()));
-		if (
-			jewishCalendar.isTaanis() &&
-			jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR
-		) {
-			zmanim.push(this.zmanimCalendar.getTzaitTaanit());
-			zmanim.push(this.zmanimCalendar.getTzaitTaanitLChumra());
-		}
-		if (
-			jewishCalendar.isAssurBemelacha() &&
-			!jewishCalendar.hasCandleLighting()
-		) {
-			zmanim.push(this.zmanimCalendar.getTzaisAteretTorah());
-		}
-		zmanim.push(this.zmanimCalendar.getTzais72Zmanis());
-		zmanim.push(this.zmanimCalendar.getSolarMidnight());
 	}
 }
 
