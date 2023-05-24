@@ -759,7 +759,9 @@ function getSpecialDay() {
 		//if today and the next day have yom tov
 		result.push(yomTovOfToday + " / Erev " + yomTovOfNextDay);
 	} else {
-		result.push(yomTovOfToday);
+		if (yomTovOfToday !== "") {
+			result.push(yomTovOfToday);
+		}
 	}
 	result = addTaanitBechorot(result);
 	result = addRoshChodesh(result);
