@@ -393,13 +393,11 @@ class zmanimListUpdater {
 			specialDay.innerHTML = specialDayText;
 		}
 
-		var isOkayToListenToMusic = musicPermission();
-		var music = document.getElementById("Music");
-		if (isOkayToListenToMusic) {
+		const music = document.getElementById("Music");
+		if (musicPermission()) {
 			music.style.display = "none";
 		} else {
 			music.style.removeProperty("display");
-			music.innerHTML = "No music";
 		}
 
 		const ulchaparat = document.getElementById("Ulchaparat");
