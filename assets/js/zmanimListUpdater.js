@@ -1,8 +1,8 @@
 // @ts-check
 
 // Uncomment these lines when developing
-// import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
-// import luxon, { DateTime } from "./libraries/luxon/index.js";
+import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
+import luxon, { DateTime } from "./libraries/luxon/index.js";
 
 const settings = {
 	amudehHoraah: () => localStorage.getItem("amudehHoraah") == "true",
@@ -558,8 +558,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return result.join(" / ");
 	}
 
-	getTekufaName() {
-		var tekufaNames = ["Tishri", "Tevet", "Nissan", "Tammuz"];
+	getTekufaID() {
 		var INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
 
 		const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
@@ -572,7 +571,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
 		var currentTekufaNumber = Math.floor(solarDaysElapsed / 91.3125); // the number of days that have passed since a tekufa event
 		var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
-		return ((tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) ? tekufaNames[currentTekufaNumber] : null); //0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
+		return ((tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) ? currentTekufaNumber : null); //0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
 	}
 
 	isBarechAleinu() {
@@ -805,8 +804,23 @@ class zmanimListUpdater {
 					? this.jewishCalendar.getTekufaAsDate() : this.jewishCalendar.tomorrow().getTekufaAsDate());
 
 			tekufa.style.removeProperty("display");
-			const tekufaName = this.jewishCalendar.getTekufaName() || this.jewishCalendar.tomorrow().getTekufaName()
-			tekufa.innerHTML = `Tekufa ${tekufaName} is today at ${timeBase.toLocaleTimeString()}`;
+
+			//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
+			const tekufaID = this.jewishCalendar.getTekufaID() || this.jewishCalendar.tomorrow().getTekufaID()
+
+			const months = [6,9,0,3]
+			const tekufaNameEnglish = [...months].map(month => dateFormatter.english.getTransliteratedMonthList[month])[tekufaID];
+
+			const hebrewMonths = [];
+			const jewishDate = new KosherZmanim.JewishDate();
+			for (const month of months) {
+				jewishDate.setJewishMonth(month);
+				hebrewMonths.push(dateFormatter.hebrew.formatMonth(jewishDate))
+			}
+
+			Array.from(tekufa.getElementsByClassName('tekufaName-en')).forEach(element => element.innerHTML = tekufaNameEnglish);
+			Array.from(tekufa.getElementsByClassName('tekufaTime')).forEach(element => element.innerHTML = timeBase.toLocaleTimeString());
+			tekufa.querySelector('#tekufaName-hb').innerHTML = hebrewMonths[tekufaID];
 		}
 
 		let timeFormat;
