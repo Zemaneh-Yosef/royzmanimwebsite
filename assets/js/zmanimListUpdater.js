@@ -1,8 +1,8 @@
 // @ts-check
 
 // Uncomment these lines when developing
-//import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
-//import luxon, { DateTime } from "./libraries/luxon/index.js";
+// import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
+// import luxon, { DateTime } from "./libraries/luxon/index.js";
 
 const settings = {
 	amudehHoraah: () => localStorage.getItem("amudehHoraah") == "true",
@@ -262,7 +262,8 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	tomorrow() {
 		const currentDate = this.getDate().toJSDate()
-		const followingDate = new Date(currentDate).setDate(currentDate.getDate() + 1);
+		const followingDate = new Date(currentDate)
+		followingDate.setDate(currentDate.getDate() + 1);
 
 		const nextJewishCalendar = new WebsiteCalendar(followingDate);
 		if (this.isUseModernHolidays())
