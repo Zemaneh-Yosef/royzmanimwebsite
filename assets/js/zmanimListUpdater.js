@@ -12,8 +12,6 @@ const settings = {
 }
 const getOrdinal = (/** @type {number} */ n) => n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
 
-var jewishCalendar = new KosherZmanim.JewishCalendar();
-jewishCalendar.setUseModernHolidays(true);
 const dateFormatter = {
 	english: new KosherZmanim.HebrewDateFormatter(),
 	hebrew: new KosherZmanim.HebrewDateFormatter()
@@ -261,14 +259,376 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	}
 }
 
+class WebsiteCalendar extends KosherZmanim.JewishCalendar {
+	tomorrow() {
+		const currentDate = this.getDate().toJSDate()
+		const followingDate = new Date(currentDate).setDate(currentDate.getDate() + 1);
+
+		const nextJewishCalendar = new WebsiteCalendar(followingDate);
+		if (this.isUseModernHolidays())
+			nextJewishCalendar.setUseModernHolidays(true);
+
+		return nextJewishCalendar
+	}
+
+	shabbat() {
+		const currentDate = this.getDate().toJSDate()
+		const shabbatDate = new Date(currentDate)
+		shabbatDate.setDate(currentDate.getDate() + ((6 + (7 - currentDate.getDay())) % 7));
+
+		const shabbatJewishCalendar = new WebsiteCalendar(shabbatDate);
+		if (this.isUseModernHolidays())
+			shabbatJewishCalendar.setUseModernHolidays(true);
+
+		return shabbatJewishCalendar
+	}
+
+	isTaanitBechorot() {
+		return (
+			this.getJewishMonth() === KosherZmanim.JewishDate.NISSAN &&
+			((this.getJewishDayOfMonth() === 14 &&
+				this.getDayOfWeek() !== 7) ||
+				(this.getJewishDayOfMonth() === 12 &&
+					this.getDayOfWeek() === 5))
+		);
+	}
+
+	getYomTov() {
+		const yomTovObj = Object.fromEntries([
+			// Erev Holidays
+			[KosherZmanim.JewishCalendar.EREV_PESACH, "Erev Pesach"],
+			[KosherZmanim.JewishCalendar.EREV_SHAVUOS, "Erev Shavuoth"],
+			[KosherZmanim.JewishCalendar.EREV_ROSH_HASHANA, "Erev Rosh Hashana"],
+			[KosherZmanim.JewishCalendar.EREV_YOM_KIPPUR, "Erev Yom Kippur"],
+			[KosherZmanim.JewishCalendar.EREV_SUCCOS, "Erev Sukkoth"],
+		
+			// Holidays
+			[KosherZmanim.JewishCalendar.PESACH, "Pesach"],
+			[KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH, "Chol HaMoed Pesach"],
+			[KosherZmanim.JewishCalendar.SHAVUOS, "Shavuoth"],
+			[KosherZmanim.JewishCalendar.ROSH_HASHANA, "Rosh Hashana"],
+			[KosherZmanim.JewishCalendar.YOM_KIPPUR, "Yom Kippur"],
+			[KosherZmanim.JewishCalendar.SUCCOS, "Sukkoth"],
+			[KosherZmanim.JewishCalendar.CHOL_HAMOED_SUCCOS, "Hol HaMoed Sukkoth"],
+			[KosherZmanim.JewishCalendar.HOSHANA_RABBA, "7th day of Sukkoth (Hoshana Rabba)"],
+		
+			// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
+			// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
+			[KosherZmanim.JewishCalendar.SHEMINI_ATZERES, "Shemini Atzereth" + (this.getInIsrael() ? " & Simchath Torah" : "")],
+			[KosherZmanim.JewishCalendar.SIMCHAS_TORAH, (this.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"],
+		
+			// Semi-Holidays & Fasts
+			// "Yom Tov Index 20 was Erev Hanukah, which was deleted" (leaving note from the original)
+			[KosherZmanim.JewishCalendar.PESACH_SHENI, "Pesach Sheni"],
+			[KosherZmanim.JewishCalendar.LAG_BAOMER, "Lag B'Omer"],
+			[KosherZmanim.JewishCalendar.SEVENTEEN_OF_TAMMUZ, "17<sup>th</sup> of Tammuz Fast"],
+			[KosherZmanim.JewishCalendar.TISHA_BEAV, "Tisha Be'Av"],
+			[KosherZmanim.JewishCalendar.TU_BEAV, "Tu Be'Av"],
+			[KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH, "Tzom Gedalya"],
+			[KosherZmanim.JewishCalendar.CHANUKAH, "Hanukah"],
+			[KosherZmanim.JewishCalendar.TENTH_OF_TEVES, "Fast of Asarah Be'Tevet"],
+			[KosherZmanim.JewishCalendar.TU_BESHVAT, "Tu Be'Shevat"],
+			[KosherZmanim.JewishCalendar.PURIM_KATAN, "Purim Katan"],
+			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN, "Shushan Purim Katan"],
+			[KosherZmanim.JewishCalendar.FAST_OF_ESTHER, "Ta'anith Ester"],
+			[KosherZmanim.JewishCalendar.PURIM, "Purim"],
+			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM, "Shushan Purim"],
+		
+			[KosherZmanim.JewishCalendar.ROSH_CHODESH, "Rosh Hodesh"],
+		
+			// Modern-Day Celebrations
+			[KosherZmanim.JewishCalendar.YOM_HASHOAH, "Yom Hashoah"],
+			[KosherZmanim.JewishCalendar.YOM_HAZIKARON, "Yom Hazikaron"],
+			[KosherZmanim.JewishCalendar.YOM_HAATZMAUT, "Yom Haatzmauth"], // Tachanun is said
+			[KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM, "Yom Yerushalayim"],
+		]);
+		return yomTovObj[this.getYomTovIndex()];
+	}
+
+	listOfSpecialDays() {
+		const result = [];
+
+		const yomTovOfToday = this.getYomTov();
+		const yomTovOfNextDay = this.tomorrow().getYomTov();
+
+		if (!yomTovOfToday && !yomTovOfNextDay) {
+			//if no yom tov today or tomorrow, do nothing to the result array
+		} else if (!yomTovOfToday && yomTovOfNextDay && !yomTovOfNextDay.startsWith("Erev")) {
+			//if next day has yom tov
+			result.push("Erev " + yomTovOfNextDay);
+		} else if (
+			yomTovOfNextDay &&
+			!yomTovOfNextDay.startsWith("Erev") &&
+			yomTovOfToday &&
+			!yomTovOfToday.endsWith(yomTovOfNextDay)
+		) {
+			//if today and the next day have yom tov
+			result.push(yomTovOfToday + " / Erev " + yomTovOfNextDay);
+		} else if (yomTovOfToday) {
+			result.push(yomTovOfToday);
+		}
+
+		if (this.isTaanitBechorot())
+			result.push("Ta'anit Bechorot");
+		else if (this.tomorrow().isTaanitBechorot())
+			result.push("Erev Ta'anit Bechorot")
+
+		if (this.isRoshChodesh())
+			result.push(dateFormatter.english.formatRoshChodesh(this))
+		else if (this.tomorrow().isRoshChodesh())
+			result.push("Erev " + dateFormatter.english.formatRoshChodesh(this.tomorrow()))
+
+		const dayOfOmer = this.getDayOfOmer();
+		if (dayOfOmer != -1) {
+			result.push(getOrdinal(dayOfOmer) + " day of Omer");
+		}
+
+		const dayOfChanukah = this.getDayOfChanukah();
+		if (dayOfChanukah != -1) {
+			result.splice(result.indexOf("Chanukah"), 1); //remove Chanukah from the list to avoid duplication
+			result.push(getOrdinal(dayOfChanukah) + " day of Chanukah");
+		}
+		return result;
+	}
+
+	getHebrewParasha() {
+		return [
+			dateFormatter.hebrew.formatParsha(this.shabbat()) || "No Parasha this week",
+			dateFormatter.hebrew.formatSpecialParsha(this.shabbat())
+		].filter(Boolean)
+	}
+
+	getUlchaparatPesha() {
+		if (!this.isRoshChodesh())
+			throw new Error("Call to 'getUlchaparatPesha()' function without being Rosh Hodesh");
+	
+		return (this.isJewishLeapYear()
+			&& [
+				KosherZmanim.JewishDate.CHESHVAN,
+				KosherZmanim.JewishDate.KISLEV,
+				KosherZmanim.JewishDate.TEVES,
+				KosherZmanim.JewishDate.SHEVAT,
+				KosherZmanim.JewishDate.ADAR,
+				KosherZmanim.JewishDate.ADAR_II
+			].includes(this.getJewishMonth())
+		);
+		//return "Say וּלְכַפָּרַת פֶּשַׁע";
+		//return "Do not say וּלְכַפָּרַת פֶּשַׁע";
+	}
+
+	getTachanun() {
+		var yomTovIndex = this.getYomTovIndex();
+		if (this.isRoshChodesh() ||
+			[
+				KosherZmanim.JewishCalendar.PESACH_SHENI,
+				KosherZmanim.JewishCalendar.LAG_BAOMER,
+				KosherZmanim.JewishCalendar.TISHA_BEAV,
+				KosherZmanim.JewishCalendar.TU_BEAV,
+				KosherZmanim.JewishCalendar.EREV_ROSH_HASHANA,
+				KosherZmanim.JewishCalendar.ROSH_HASHANA,
+				KosherZmanim.JewishCalendar.EREV_YOM_KIPPUR,
+				KosherZmanim.JewishCalendar.YOM_KIPPUR,
+				KosherZmanim.JewishCalendar.TU_BESHVAT,
+				KosherZmanim.JewishCalendar.PURIM_KATAN,
+				KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN,
+				KosherZmanim.JewishCalendar.PURIM,
+				KosherZmanim.JewishCalendar.SHUSHAN_PURIM,
+				KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM
+			].includes(yomTovIndex) ||
+			this.isChanukah() ||
+			this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN ||
+			(this.getJewishMonth() == KosherZmanim.JewishDate.SIVAN &&
+				this.getJewishDayOfMonth() <= 12) ||
+			(this.getJewishMonth() == KosherZmanim.JewishDate.TISHREI &&
+				this.getJewishDayOfMonth() >= 11)
+		) {
+			return "There is no Tachanun today";
+		}
+		var yomTovIndexForNextDay = this.tomorrow().getYomTovIndex();
+		if (this.getDayOfWeek() == 6 ||
+			yomTovIndex == KosherZmanim.JewishCalendar.FAST_OF_ESTHER ||
+			[
+				KosherZmanim.JewishCalendar.TISHA_BEAV,
+				KosherZmanim.JewishCalendar.TU_BEAV,
+				KosherZmanim.JewishCalendar.TU_BESHVAT,
+				KosherZmanim.JewishCalendar.LAG_BAOMER,
+				KosherZmanim.JewishCalendar.PESACH_SHENI,
+				KosherZmanim.JewishCalendar.PURIM_KATAN
+			].includes(yomTovIndexForNextDay) ||
+			this.isErevRoshChodesh()
+		) {
+			return "There is only Tachanun in the morning";
+		}
+		if (this.getDayOfWeek() == 7) {
+			return "צדקתך";
+		}
+		return "There is Tachanun today";
+	}
+
+	getTekufa() {
+		var INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
+		const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
+	
+		var days =
+			KosherZmanim.JewishDate.getJewishCalendarElapsedDays(this.getJewishYear()) +
+			jewishDate.getDaysSinceStartOfJewishYear() +
+			INITIAL_TEKUFA_OFFSET -
+			1; // total days since first Tekufas Tishrei event
+	
+		var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
+		var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
+		if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) {
+			// if the tekufa happens in the upcoming 24 hours
+			return ((1.0 - tekufaDaysElapsed) * 24.0) % 24; // rationalize the tekufa event to number of hours since start of jewish day
+		} else {
+			return null;
+		}
+	}
+
+	getTekufaAsDate() {
+		const hours = this.getTekufa() - 6;
+		const minutes = Math.floor((hours - Math.floor(hours)) * 60);
+		const date = luxon.DateTime.fromObject({
+			year: this.getGregorianYear(),
+			month: this.getGregorianMonth() + 1,
+			day: this.getGregorianDayOfMonth(),
+			hour: 0,
+			minute: 0,
+			second: 0,
+			millisecond: 0,
+		},
+			{ zone: "Asia/Jerusalem" }
+		).plus({ hours: hours, minutes: minutes });
+		if (date.isInDST) {
+			date.plus({ hours: -1 });
+		}
+		return date.toJSDate();
+	}
+
+	getHallel() {
+		var yomTovIndex = this.getYomTovIndex();
+		if (
+			(this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
+				this.getJewishDayOfMonth() == 15) || //First day of Pesach
+			(!this.getInIsrael() &&
+				this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
+				this.getJewishDayOfMonth() == 16) || //First day of Pesach outside of israel
+			[
+				KosherZmanim.JewishCalendar.SHAVUOS,
+				KosherZmanim.JewishCalendar.SUCCOS,
+				KosherZmanim.JewishCalendar.SHEMINI_ATZERES
+			].includes(yomTovIndex) ||
+			this.isCholHamoedSuccos() ||
+			this.isChanukah()
+		) {
+			return "הלל שלם";
+		} else if (
+			this.isRoshChodesh() ||
+			this.isCholHamoedPesach() ||
+			(this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
+				this.getJewishDayOfMonth() == 21) ||
+			(!this.getInIsrael() &&
+				this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
+				this.getJewishDayOfMonth() == 22)
+		) {
+			return "חצי הלל";
+		} else {
+			return false;
+		}
+	}
+
+	getSeasonalPrayers() {
+		var result = [];
+		var startDateForMashivHaruach = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.TISHREI, 22);
+		var endDateForMashivHaruach = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 15);
+		if (
+			this.compareTo(startDateForMashivHaruach) > 0 &&
+			this.compareTo(endDateForMashivHaruach) < 0
+		) {
+			result.push("משיב הרוח");
+		} else {
+			result.push("מוריד הטל");
+		}
+	
+		if (this.isBarechAleinu()) {
+			result.push("ברך עלינו");
+		} else {
+			result.push("ברכנו");
+		}
+		return result.join(" / ");
+	}
+
+	getTekufaName() {
+		var tekufaNames = ["Tishri", "Tevet", "Nissan", "Tammuz"];
+		var INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
+
+		const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
+		var days =
+			KosherZmanim.JewishDate.getJewishCalendarElapsedDays(this.getJewishYear()) +
+			jewishDate.getDaysSinceStartOfJewishYear() +
+			INITIAL_TEKUFA_OFFSET -
+			1; // total days since first Tekufas Tishrei event
+
+		var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
+		var currentTekufaNumber = Math.floor(solarDaysElapsed / 91.3125); // the number of days that have passed since a tekufa event
+		var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
+		return ((tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) ? tekufaNames[currentTekufaNumber] : null); //0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
+	}
+
+	isBarechAleinu() {
+		if (
+			this.getJewishMonth() === KosherZmanim.JewishDate.NISSAN &&
+			this.getJewishDayOfMonth() < 15
+		) {
+			return true;
+		}
+		if (this.getJewishMonth() < KosherZmanim.JewishDate.CHESHVAN) {
+			return false;
+		}
+		if (this.getInIsrael()) {
+			return (
+				this.getJewishMonth() !==
+				KosherZmanim.JewishDate.CHESHVAN ||
+				this.getJewishDayOfMonth() >= 7
+			);
+		} else {
+			const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
+			var tekufatTishriElapsedDays =
+				KosherZmanim.JewishDate.getJewishCalendarElapsedDays(this.getJewishYear()) +
+				(jewishDate.getDaysSinceStartOfJewishYear() - 1) + 0.5;
+			var solar = (this.getJewishYear() - 1) * 365.25;
+			tekufatTishriElapsedDays = Math.floor(tekufatTishriElapsedDays - solar);
+	
+			return tekufatTishriElapsedDays >= 47;
+		}
+	}
+
+	musicPermission() {
+		return !(
+			(this.getDayOfOmer() >= 8 && this.getDayOfOmer() <= 32)
+			|| (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17)
+			|| (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 9)
+		);
+	}
+}
+
 class zmanimListUpdater {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	constructor(geoLocation) {
-		this.geoLocation = geoLocation
-		this.zmanimCalendar = new ROZmanim(geoLocation);
+		this.geoLocation = geoLocation;
 		document.getElementById("LocationName").innerHTML = geoLocation.getLocationName() || "No Location Name Provided";
+		this.zmanimCalendar = new ROZmanim(geoLocation);
+
+		this.jewishCalendar = new WebsiteCalendar();
+		this.jewishCalendar.setUseModernHolidays(true);
+
+		if (geoLocation.getTimeZone() == "Asia/Jerusalem") {
+			//if the timezone is Asia/Jerusalem, then the location is probably very close to the Israel or in Israel, so we set the jewish calendar to inIsrael mode
+			//we should change this behavior to ask the user if he is in israel or not and adjust accordingly
+			this.jewishCalendar.setInIsrael(true);
+		}
 
 		/**
 		 * @type {null|DateTime}
@@ -305,19 +665,19 @@ class zmanimListUpdater {
 	 */
 	changeDate(date) {
 		this.zmanimCalendar.setDate(date)
-		jewishCalendar.setDate(date)
+		this.jewishCalendar.setDate(date)
 	}
 
 	setupButtons() {
 		const forwardButton = document.getElementById("forwardDay")
 		forwardButton.addEventListener("click", () => {
-			this.changeDate(jewishCalendar.clone().getDate().plus({ days: 1 }))
+			this.changeDate(this.jewishCalendar.clone().getDate().plus({ days: 1 }))
 			this.updateZmanimList();
 		})
 
 		const backwardButton = document.getElementById("backwardDay")
 		backwardButton.addEventListener("click", () => {
-			this.changeDate(jewishCalendar.clone().getDate().minus({ days: 1 }))
+			this.changeDate(this.jewishCalendar.clone().getDate().minus({ days: 1 }))
 			this.updateZmanimList();
 		});
 
@@ -337,19 +697,19 @@ class zmanimListUpdater {
 		switch (zmanimLanguage) {
 			case 'hb':
 			default:
-				primaryDate = dateFormatter.hebrew.format(jewishCalendar);
-				secondaryDate = jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
-				otherDate = dateFormatter.english.format(jewishCalendar);
+				primaryDate = dateFormatter.hebrew.format(this.jewishCalendar);
+				secondaryDate = this.jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
+				otherDate = dateFormatter.english.format(this.jewishCalendar);
 				break;
 			case 'en-et':
-				primaryDate = dateFormatter.english.format(jewishCalendar);
-				secondaryDate = jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
-				otherDate = dateFormatter.hebrew.format(jewishCalendar);
+				primaryDate = dateFormatter.english.format(this.jewishCalendar);
+				secondaryDate = this.jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
+				otherDate = dateFormatter.hebrew.format(this.jewishCalendar);
 				break;
 			case 'en':
-				primaryDate = jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
-				secondaryDate = dateFormatter.english.format(jewishCalendar);
-				otherDate = dateFormatter.hebrew.format(jewishCalendar);
+				primaryDate = this.jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
+				secondaryDate = dateFormatter.english.format(this.jewishCalendar);
+				otherDate = dateFormatter.hebrew.format(this.jewishCalendar);
 				break;
 		}
 
@@ -361,55 +721,41 @@ class zmanimListUpdater {
 		}
 
 		var parasha = document.getElementById("Parasha");
-
-		var currentDay = jewishCalendar.getDate(); //save the current day
-		var s = daysUntilDay(currentDay.toJSDate(), 6); // 6 = saturday
-
-		jewishCalendar.setDate(luxon.DateTime.fromJSDate(s));
-		if (dateFormatter.hebrew.formatParsha(jewishCalendar) !== "") {
-			parasha.innerHTML = dateFormatter.hebrew.formatParsha(jewishCalendar);
-		} else {
-			parasha.innerHTML = "No Parasha this week";
-		}
-		if (dateFormatter.hebrew.formatSpecialParsha(jewishCalendar) !== "") {
-			parasha.innerHTML +=
-				" / " + dateFormatter.hebrew.formatSpecialParsha(jewishCalendar);
-		}
-		jewishCalendar.setDate(currentDay); //reset to current day
+		parasha.innerHTML = this.jewishCalendar.getHebrewParasha().join(" / ")
 
 		var day = document.getElementById("Day");
 		//day of week should show the day of the week in English and Hebrew for example: Sunday / ראשון
 		day.innerHTML = [
-			currentDay.toJSDate().toLocaleDateString("en-US", { weekday: "long" }),
-			"יום " + dateFormatter.hebrew.formatDayOfWeek(jewishCalendar)
+			this.jewishCalendar.getDate().toJSDate().toLocaleDateString("en-US", { weekday: "long" }),
+			"יום " + dateFormatter.hebrew.formatDayOfWeek(this.jewishCalendar)
 		].join(" / ");
 
 		var specialDay = document.getElementById("SpecialDay");
-		var specialDayText = getSpecialDay();
-		if (specialDayText === "") {
+		var specialDayText = this.jewishCalendar.listOfSpecialDays();
+		if (!specialDayText.length) {
 			specialDay.style.display = "none";
 		} else {
 			specialDay.style.removeProperty("display");
-			specialDay.innerHTML = specialDayText;
+			specialDay.innerHTML = specialDayText.join(" / ");
 		}
 
 		const music = document.getElementById("Music");
-		if (musicPermission()) {
+		if (this.jewishCalendar.musicPermission()) {
 			music.style.display = "none";
 		} else {
 			music.style.removeProperty("display");
 		}
 
 		const ulchaparat = document.getElementById("Ulchaparat");
-		if (jewishCalendar.isRoshChodesh()) {
+		if (this.jewishCalendar.isRoshChodesh()) {
 			ulchaparat.style.removeProperty("display");
-			ulchaparat.innerHTML = (getUlchaparatPesha() ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
+			ulchaparat.innerHTML = (this.jewishCalendar.getUlchaparatPesha() ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
 		} else {
 			ulchaparat.style.display = "none";
 		}
 
 		var chamah = document.getElementById("Chamah");
-		if (jewishCalendar.isBirkasHachamah()) {
+		if (this.jewishCalendar.isBirkasHachamah()) {
 			chamah.style.removeProperty("display");
 			chamah.innerHTML = "Birchat HaChamah is said today";
 		} else {
@@ -426,10 +772,10 @@ class zmanimListUpdater {
 		}
 
 		var tachanun = document.getElementById("Tachanun");
-		tachanun.innerHTML = getTachanun();
+		tachanun.innerHTML = this.jewishCalendar.getTachanun();
 
 		var hallel = document.getElementById("Hallel");
-		var hallelText = getHallel();
+		var hallelText = this.jewishCalendar.getHallel();
 		if (!hallelText) {
 			hallel.style.display = "none";
 		} else {
@@ -438,28 +784,29 @@ class zmanimListUpdater {
 		}
 
 		var tekufa = document.getElementById("Tekufa");
-		var tekufaToday = getTekufa();
-		var tekufaNextDay = getTekufaForNextDay();
+		var tekufaToday = this.jewishCalendar.getTekufa();
+		var tekufaNextDay = this.jewishCalendar.tomorrow().getTekufa();
 		if (
 			(!tekufaToday && !tekufaNextDay) || //if no tekufa today or tomorrow
 			(!tekufaToday &&
-				getTekufaForNextDayAsDate().toLocaleDateString() !==
-				currentDay.toJSDate().toLocaleDateString()) || //if no tekufa today but there is one tomorrow and it's not today
+				this.jewishCalendar.tomorrow().getTekufaAsDate().toLocaleDateString() !==
+				this.jewishCalendar.getDate().toJSDate().toLocaleDateString()) || //if no tekufa today but there is one tomorrow and it's not today
 			(!tekufaNextDay &&
-				getTekufaAsDate().toLocaleDateString() !==
-				currentDay.toJSDate().toLocaleDateString())
+				this.jewishCalendar.getTekufaAsDate().toLocaleDateString() !==
+				this.jewishCalendar.getDate().toJSDate().toLocaleDateString())
 		) {
 			//if no tekufa tomorrow but there is one today and it's not today
 			tekufa.style.display = "none";
 		} else {
 			const timeBase = (
 				tekufaToday !== null &&
-					getTekufaAsDate().toLocaleDateString() ===
-					currentDay.toJSDate().toLocaleDateString()
-					? getTekufaAsDate() : getTekufaForNextDayAsDate());
+					this.jewishCalendar.getTekufaAsDate().toLocaleDateString() ===
+					this.jewishCalendar.getDate().toJSDate().toLocaleDateString()
+					? this.jewishCalendar.getTekufaAsDate() : this.jewishCalendar.tomorrow().getTekufaAsDate());
 
 			tekufa.style.removeProperty("display");
-			tekufa.innerHTML = `Tekufa ${getTekufaName()} is today at ${timeBase.toLocaleTimeString()}`;
+			const tekufaName = this.jewishCalendar.getTekufaName() || this.jewishCalendar.tomorrow().getTekufaName()
+			tekufa.innerHTML = `Tekufa ${tekufaName} is today at ${timeBase.toLocaleTimeString()}`;
 		}
 
 		let timeFormat;
@@ -479,7 +826,7 @@ class zmanimListUpdater {
 			}
 
 			if (timeSlot.hasAttribute('yomTovInclusive')) {
-				if (jewishCalendar.getYomTovIndex() == KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")])
+				if (this.jewishCalendar.getYomTovIndex() == KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")])
 					timeSlot.style.removeProperty("display");
 				else
 					timeSlot.style.display = "none"
@@ -507,8 +854,8 @@ class zmanimListUpdater {
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (timeSlot.id) {
 				case 'candleLighting':
-					const tzetCandle = (jewishCalendar.hasCandleLighting() && jewishCalendar.isAssurBemelacha() && jewishCalendar.getDayOfWeek() !== 6);
-					const shabbatCandles = ((jewishCalendar.hasCandleLighting() && !jewishCalendar.isAssurBemelacha()) || jewishCalendar.getDayOfWeek() === 6);
+					const tzetCandle = (this.jewishCalendar.hasCandleLighting() && this.jewishCalendar.isAssurBemelacha() && this.jewishCalendar.getDayOfWeek() !== 6);
+					const shabbatCandles = ((this.jewishCalendar.hasCandleLighting() && !this.jewishCalendar.isAssurBemelacha()) || this.jewishCalendar.getDayOfWeek() === 6);
 	
 					if (!tzetCandle && !shabbatCandles)
 						timeSlot.style.display = "none";
@@ -524,11 +871,11 @@ class zmanimListUpdater {
 					}
 					break;
 				case 'tzeitShabbat':
-					if (jewishCalendar.isYomTovAssurBemelacha() && jewishCalendar.getDayOfWeek() == 7) {
+					if (this.jewishCalendar.isYomTovAssurBemelacha() && this.jewishCalendar.getDayOfWeek() == 7) {
 						timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת השבת וחג";
 						timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Shabbat & Yom Tov";
 						timeSlot.querySelector('.lang.lang-en').innerHTML = "Shabbat & Yom Tov Ends";
-					} else if (jewishCalendar.getDayOfWeek() == 7) {
+					} else if (this.jewishCalendar.getDayOfWeek() == 7) {
 						timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת השבת";
 						timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Shabbat";
 						timeSlot.querySelector('.lang.lang-en').innerHTML = "Shabbat Ends";
@@ -546,7 +893,7 @@ class zmanimListUpdater {
 				switch (timeSlot.getAttribute('condition')) {
 					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
 					case 'isTaanit':
-						if (jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)
+						if (this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)
 							timeSlot.style.removeProperty("display");
 						else
 							timeSlot.style.display = "none"
@@ -571,32 +918,33 @@ class zmanimListUpdater {
 		var seasonal = document.getElementById("SeasonalPrayers");
 		var shaahZmanit = document.getElementById("ShaahZmanit");
 
-		var dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(jewishCalendar);
+		var dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(this.jewishCalendar);
 		daf.innerHTML =
 			dafObject.getMasechta() + " " +
 			numberToHebrew(dafObject.getDaf());
 
-		var dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishCalendar);
+		var dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(this.jewishCalendar);
 		if (dafYerushalmiObject.getDaf() == 0) {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
 			dafYerushalmi.innerHTML = dafYerushalmiObject.getYerushalmiMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
 		}
 
-		seasonal.innerHTML = getSeasonalPrayers();
+		seasonal.innerHTML = this.jewishCalendar.getSeasonalPrayers();
 		shaahZmanit.innerHTML = this.shaahZmanits();
 	}
 
 	shaahZmanits() {
-		var zmanimFormatter = new KosherZmanim.ZmanimFormatter(geoLocation.getTimeZone());
+		const zmanimFormatter = new KosherZmanim.ZmanimFormatter(geoLocation.getTimeZone());
 		zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
+
 		return `Shaah Zmanith GR'A: ${zmanimFormatter.format(this.zmanimCalendar.getShaahZmanisGra())}
 		/ MG'A: ${zmanimFormatter.format(this.zmanimCalendar.getShaahZmanis72MinutesZmanis())}`.replace('\n', ' ')
 	}
 
 	getIsTonightStartOrEndBirchatLevana() {
-		var startTimeSevenDays = jewishCalendar.getTchilasZmanKidushLevana7Days();
-		var endTimeFifteenDays = jewishCalendar.getSofZmanKidushLevana15Days();
+		var startTimeSevenDays = this.jewishCalendar.getTchilasZmanKidushLevana7Days();
+		var endTimeFifteenDays = this.jewishCalendar.getSofZmanKidushLevana15Days();
 
 		if (this.zmanimCalendar.getDate().hasSame(startTimeSevenDays, "day")) {
 			return "Birchat HaLevana starts tonight";
@@ -623,7 +971,7 @@ class zmanimListUpdater {
 
 	setNextUpcomingZman() {
 		const zmanim = [];
-		const currentSelectedDate = jewishCalendar.getDate();
+		const currentSelectedDate = this.jewishCalendar.getDate();
 
 		for (const time of [-1, 0, 1]) {
 			this.changeDate(luxon.DateTime.now().plus({ days: time }));
@@ -650,9 +998,9 @@ class zmanimListUpdater {
 		var tomorrow = luxon.DateTime.now().plus({ days: 1 });
 		tomorrow = tomorrow.set({ hour: 0, minute: 0, second: 2, millisecond: 0 });
 		var timeUntilTomorrow = tomorrow.diffNow().as("milliseconds");
-		setTimeout(function () {
+		setTimeout(() => {
 			var date = luxon.DateTime.now();
-			jewishCalendar.setDate(date);
+			this.jewishCalendar.setDate(date);
 			this.updateZmanimList();
 			this.initUpdaterForZmanim();
 		}, timeUntilTomorrow);
@@ -662,7 +1010,6 @@ class zmanimListUpdater {
 	 * @param {DateTime} zman
 	 */
 	isNextUpcomingZman(zman) {
-		console.log(this.nextUpcomingZman, zman);
 		return !(this.nextUpcomingZman == null || !(zman.toMillis() == this.nextUpcomingZman.toMillis()))
 	};
 
@@ -679,7 +1026,7 @@ class zmanimListUpdater {
 				continue;
 			}
 
-			if (timeSlot.hasAttribute('yomTovInclusive') && jewishCalendar.getYomTovIndex() != KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")]) {
+			if (timeSlot.hasAttribute('yomTovInclusive') && this.jewishCalendar.getYomTovIndex() != KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")]) {
 				continue;
 			}
 
@@ -700,8 +1047,8 @@ class zmanimListUpdater {
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (timeSlot.id) {
 				case 'candleLighting':
-					const tzetCandle = (jewishCalendar.hasCandleLighting() && jewishCalendar.isAssurBemelacha() && jewishCalendar.getDayOfWeek() !== 6);
-					const shabbatCandles = ((jewishCalendar.hasCandleLighting() && !jewishCalendar.isAssurBemelacha()) || jewishCalendar.getDayOfWeek() === 6);
+					const tzetCandle = (this.jewishCalendar.hasCandleLighting() && this.jewishCalendar.isAssurBemelacha() && this.jewishCalendar.getDayOfWeek() !== 6);
+					const shabbatCandles = ((this.jewishCalendar.hasCandleLighting() && !this.jewishCalendar.isAssurBemelacha()) || this.jewishCalendar.getDayOfWeek() === 6);
 	
 					if (!tzetCandle && !shabbatCandles)
 						continue;
@@ -721,7 +1068,7 @@ class zmanimListUpdater {
 				switch (timeSlot.getAttribute('condition')) {
 					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
 					case 'isTaanit':
-						if (!(jewishCalendar.isTaanis() && jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR))
+						if (!(this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR))
 							continue;
 				}
 			}
@@ -729,419 +1076,6 @@ class zmanimListUpdater {
 			zmanim.push(dateTimeForZman);
 		}
 	}
-}
-
-/**
- * @param {Date} d
- * @param {number} dow
- */
-function daysUntilDay(d, dow) {
-	d.setDate(d.getDate() + ((dow + (7 - d.getDay())) % 7));
-	return d;
-}
-
-function getSpecialDay() {
-	var result = [];
-	var yomTovOfToday = getYomTov(jewishCalendar);
-	var yomTovOfNextDay = getYomTovForNextDay();
-
-	if (!yomTovOfToday && !yomTovOfNextDay) {
-		//if no yom tov today or tomorrow, do nothing to the result array
-	} else if (!yomTovOfToday && yomTovOfNextDay && !yomTovOfNextDay.startsWith("Erev")) {
-		//if next day has yom tov
-		result.push("Erev " + yomTovOfNextDay);
-	} else if (
-		yomTovOfNextDay &&
-		!yomTovOfNextDay.startsWith("Erev") &&
-		yomTovOfToday &&
-		!yomTovOfToday.endsWith(yomTovOfNextDay)
-	) {
-		//if today and the next day have yom tov
-		result.push(yomTovOfToday + " / Erev " + yomTovOfNextDay);
-	} else {
-		if (yomTovOfToday !== "") {
-			result.push(yomTovOfToday);
-		}
-	}
-	result = addTaanitBechorot(result);
-	result = addRoshChodesh(result);
-	result = addDayOfOmer(result);
-	result = addDayOfChanukah(result);
-	return result.join(" / ");
-}
-
-/**
- * @param {string[]} result
- */
-function addTaanitBechorot(result) {
-	if (tomorrowIsTaanitBechorot()) {
-		//edge case
-		result.push("Erev Ta'anit Bechorot");
-	}
-	if (isTaanisBechoros(jewishCalendar)) {
-		result.push("Ta'anit Bechorot");
-	}
-	return result;
-}
-
-function tomorrowIsTaanitBechorot() {
-	var nextDay = jewishCalendar.getDate().toJSDate();
-	nextDay.setDate(nextDay.getDate() + 1);
-	var nextJewishCalendar = new KosherZmanim.JewishCalendar(nextDay);
-	return isTaanisBechoros(nextJewishCalendar);
-}
-
-/**
- * @param {KosherZmanim.JewishCalendar} jewishCalendar
- */
-function isTaanisBechoros(jewishCalendar) {
-	return (
-		jewishCalendar.getJewishMonth() === KosherZmanim.JewishDate.NISSAN &&
-		((jewishCalendar.getJewishDayOfMonth() === 14 &&
-			jewishCalendar.getDayOfWeek() !== 7) ||
-			(jewishCalendar.getJewishDayOfMonth() === 12 &&
-				jewishCalendar.getDayOfWeek() === 5))
-	);
-}
-
-/**
- * @param {string[]} result
- */
-function addRoshChodesh(result) {
-	var roshChodeshOrErevRoshChodesh = getRoshChodeshOrErevRoshChodesh();
-	if (roshChodeshOrErevRoshChodesh) {
-		result.push(roshChodeshOrErevRoshChodesh);
-	}
-	return result;
-}
-
-function getRoshChodeshOrErevRoshChodesh() {
-	if (!jewishCalendar.isRoshChodesh() && !jewishCalendar.isErevRoshChodesh())
-		return false;
-
-	let prefix = "";
-	let roshHodeshFormatCalendar = jewishCalendar;
-
-	if (jewishCalendar.isErevRoshChodesh()) {
-		prefix = "Erev ";
-		roshHodeshFormatCalendar = new KosherZmanim.JewishCalendar(jewishCalendar.clone().getDate().plus({ day: 1 }))
-	}
-
-	return prefix + dateFormatter.english.formatRoshChodesh(roshHodeshFormatCalendar);
-}
-
-/**
- * @param {string[]} result
- */
-function addDayOfOmer(result) {
-	var dayOfOmer = jewishCalendar.getDayOfOmer();
-	if (dayOfOmer != -1) {
-		result.push(getOrdinal(dayOfOmer) + " day of Omer");
-	}
-	return result;
-}
-
-/**
- * @param {string[]} result
- */
-function addDayOfChanukah(result) {
-	var dayOfChanukah = jewishCalendar.getDayOfChanukah();
-	if (dayOfChanukah != -1) {
-		result.splice(result.indexOf("Chanukah"), 1); //remove Chanukah from the list to avoid duplication
-		result.push(getOrdinal(dayOfChanukah) + " day of Chanukah");
-	}
-	return result;
-}
-
-function getSeasonalPrayers() {
-	var result = [];
-	var startDateForMashivHaruach = new KosherZmanim.JewishDate(jewishCalendar.getJewishYear(), KosherZmanim.JewishDate.TISHREI, 22);
-	var endDateForMashivHaruach = new KosherZmanim.JewishDate(jewishCalendar.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 15);
-	if (
-		jewishCalendar.compareTo(startDateForMashivHaruach) > 0 &&
-		jewishCalendar.compareTo(endDateForMashivHaruach) < 0
-	) {
-		result.push("משיב הרוח");
-	} else {
-		result.push("מוריד הטל");
-	}
-
-	if (isBarechAleinu()) {
-		result.push("ברך עלינו");
-	} else {
-		result.push("ברכנו");
-	}
-	return result.join(" / ");
-}
-
-function getHallel() {
-	var yomTovIndex = jewishCalendar.getYomTovIndex();
-	if (
-		(jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
-			jewishCalendar.getJewishDayOfMonth() == 15) || //First day of Pesach
-		(!jewishCalendar.getInIsrael() &&
-			jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
-			jewishCalendar.getJewishDayOfMonth() == 16) || //First day of Pesach outside of israel
-		[
-			KosherZmanim.JewishCalendar.SHAVUOS,
-			KosherZmanim.JewishCalendar.SUCCOS,
-			KosherZmanim.JewishCalendar.SHEMINI_ATZERES
-		].includes(yomTovIndex) ||
-		jewishCalendar.isCholHamoedSuccos() ||
-		jewishCalendar.isChanukah()
-	) {
-		return "הלל שלם";
-	} else if (
-		jewishCalendar.isRoshChodesh() ||
-		jewishCalendar.isCholHamoedPesach() ||
-		(jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
-			jewishCalendar.getJewishDayOfMonth() == 21) ||
-		(!jewishCalendar.getInIsrael() &&
-			jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
-			jewishCalendar.getJewishDayOfMonth() == 22)
-	) {
-		return "חצי הלל";
-	} else {
-		return false;
-	}
-}
-
-function getTekufaForNextDay() {
-	var nextDay = jewishCalendar.getDate().toJSDate();
-	nextDay.setDate(nextDay.getDate() + 1);
-	jewishCalendar.setDate(luxon.DateTime.fromJSDate(nextDay));
-	var tekufa = getTekufa();
-	nextDay.setDate(nextDay.getDate() - 1);
-	jewishCalendar.setDate(luxon.DateTime.fromJSDate(nextDay));
-	return tekufa;
-}
-
-function getTekufaForNextDayAsDate() {
-	var nextDay = jewishCalendar.getDate().toJSDate();
-	nextDay.setDate(nextDay.getDate() + 1);
-	jewishCalendar.setDate(luxon.DateTime.fromJSDate(nextDay));
-	var tekufaDate = getTekufaAsDate();
-	nextDay.setDate(nextDay.getDate() - 1);
-	jewishCalendar.setDate(luxon.DateTime.fromJSDate(nextDay));
-	return tekufaDate;
-}
-
-function getTekufa() {
-	var INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
-	const jewishDate = new KosherZmanim.JewishDate(jewishCalendar.getJewishYear(), jewishCalendar.getJewishMonth(), jewishCalendar.getJewishDayOfMonth());
-
-	var days =
-		KosherZmanim.JewishDate.getJewishCalendarElapsedDays(jewishCalendar.getJewishYear()) +
-		jewishDate.getDaysSinceStartOfJewishYear() +
-		INITIAL_TEKUFA_OFFSET -
-		1; // total days since first Tekufas Tishrei event
-
-	var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
-	var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
-	if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) {
-		// if the tekufa happens in the upcoming 24 hours
-		return ((1.0 - tekufaDaysElapsed) * 24.0) % 24; // rationalize the tekufa event to number of hours since start of jewish day
-	} else {
-		return null;
-	}
-}
-
-function getTekufaName() {
-	var tekufaNameForToday = getTekufaType();
-	if (tekufaNameForToday !== -1)
-		return tekufaNameForToday;
-
-	jewishCalendar.setDate(jewishCalendar.getDate().plus({ days: 1 }));
-	var tekufaNameForTomorrow = getTekufaType();
-	jewishCalendar.setDate(jewishCalendar.getDate().minus({ days: 1 }));
-	return tekufaNameForTomorrow;
-
-	function getTekufaType() {
-		var tekufaNames = ["Tishri", "Tevet", "Nissan", "Tammuz"];
-		var INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
-
-		const jewishDate = new KosherZmanim.JewishDate(jewishCalendar.getJewishYear(), jewishCalendar.getJewishMonth(), jewishCalendar.getJewishDayOfMonth());
-		var days =
-			KosherZmanim.JewishDate.getJewishCalendarElapsedDays(
-				jewishCalendar.getJewishYear()
-			) +
-			jewishDate.getDaysSinceStartOfJewishYear() +
-			INITIAL_TEKUFA_OFFSET -
-			1; // total days since first Tekufas Tishrei event
-
-		var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
-		var currentTekufaNumber = Math.floor(solarDaysElapsed / 91.3125); // the number of days that have passed since a tekufa event
-		var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
-		return ((tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) ? tekufaNames[currentTekufaNumber] : -1); //0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
-	}
-}
-
-function getTekufaAsDate() {
-	const hours = getTekufa() - 6;
-	const minutes = Math.floor((hours - Math.floor(hours)) * 60);
-	const date = luxon.DateTime.fromObject({
-		year: jewishCalendar.getGregorianYear(),
-		month: jewishCalendar.getGregorianMonth() + 1,
-		day: jewishCalendar.getGregorianDayOfMonth(),
-		hour: 0,
-		minute: 0,
-		second: 0,
-		millisecond: 0,
-	},
-		{ zone: "Asia/Jerusalem" }
-	).plus({ hours: hours, minutes: minutes });
-	if (date.isInDST) {
-		date.plus({ hours: -1 });
-	}
-	return date.toJSDate();
-}
-
-function isBarechAleinu() {
-	if (
-		jewishCalendar.getJewishMonth() === KosherZmanim.JewishDate.NISSAN &&
-		jewishCalendar.getJewishDayOfMonth() < 15
-	) {
-		return true;
-	}
-	if (jewishCalendar.getJewishMonth() < KosherZmanim.JewishDate.CHESHVAN) {
-		return false;
-	}
-	if (jewishCalendar.getInIsrael()) {
-		return (
-			jewishCalendar.getJewishMonth() !==
-			KosherZmanim.JewishDate.CHESHVAN ||
-			jewishCalendar.getJewishDayOfMonth() >= 7
-		);
-	} else {
-		const jewishDate = new KosherZmanim.JewishDate(jewishCalendar.getJewishYear(), jewishCalendar.getJewishMonth(), jewishCalendar.getJewishDayOfMonth());
-		var tekufatTishriElapsedDays =
-			KosherZmanim.JewishDate.getJewishCalendarElapsedDays(jewishCalendar.getJewishYear()) +
-			(jewishDate.getDaysSinceStartOfJewishYear() - 1) + 0.5;
-		var solar = (jewishCalendar.getJewishYear() - 1) * 365.25;
-		tekufatTishriElapsedDays = Math.floor(tekufatTishriElapsedDays - solar);
-
-		return tekufatTishriElapsedDays >= 47;
-	}
-}
-
-const yomTovObj = Object.fromEntries([
-	// Erev Holidays
-	[KosherZmanim.JewishCalendar.EREV_PESACH, "Erev Pesach"],
-	[KosherZmanim.JewishCalendar.EREV_SHAVUOS, "Erev Shavuoth"],
-	[KosherZmanim.JewishCalendar.EREV_ROSH_HASHANA, "Erev Rosh Hashana"],
-	[KosherZmanim.JewishCalendar.EREV_YOM_KIPPUR, "Erev Yom Kippur"],
-	[KosherZmanim.JewishCalendar.EREV_SUCCOS, "Erev Sukkoth"],
-
-	// Holidays
-	[KosherZmanim.JewishCalendar.PESACH, "Pesach"],
-	[KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH, "Chol HaMoed Pesach"],
-	[KosherZmanim.JewishCalendar.SHAVUOS, "Shavuoth"],
-	[KosherZmanim.JewishCalendar.ROSH_HASHANA, "Rosh Hashana"],
-	[KosherZmanim.JewishCalendar.YOM_KIPPUR, "Yom Kippur"],
-	[KosherZmanim.JewishCalendar.SUCCOS, "Sukkoth"],
-	[KosherZmanim.JewishCalendar.CHOL_HAMOED_SUCCOS, "Hol HaMoed Sukkoth"],
-	[KosherZmanim.JewishCalendar.HOSHANA_RABBA, "7th day of Sukkoth (Hoshana Rabba)"],
-
-	// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
-	// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
-	[KosherZmanim.JewishCalendar.SHEMINI_ATZERES, "Shemini Atzereth" + (jewishCalendar.getInIsrael() ? " & Simchath Torah" : "")],
-	[KosherZmanim.JewishCalendar.SIMCHAS_TORAH, (jewishCalendar.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"],
-
-	// Semi-Holidays & Fasts
-	// "Yom Tov Index 20 was Erev Hanukah, which was deleted" (leaving note from the original)
-	[KosherZmanim.JewishCalendar.PESACH_SHENI, "Pesach Sheni"],
-	[KosherZmanim.JewishCalendar.LAG_BAOMER, "Lag B'Omer"],
-	[KosherZmanim.JewishCalendar.SEVENTEEN_OF_TAMMUZ, "17<sup>th</sup> of Tammuz Fast"],
-	[KosherZmanim.JewishCalendar.TISHA_BEAV, "Tisha Be'Av"],
-	[KosherZmanim.JewishCalendar.TU_BEAV, "Tu Be'Av"],
-	[KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH, "Tzom Gedalya"],
-	[KosherZmanim.JewishCalendar.CHANUKAH, "Hanukah"],
-	[KosherZmanim.JewishCalendar.TENTH_OF_TEVES, "Fast of Asarah Be'Tevet"],
-	[KosherZmanim.JewishCalendar.TU_BESHVAT, "Tu Be'Shevat"],
-	[KosherZmanim.JewishCalendar.PURIM_KATAN, "Purim Katan"],
-	[KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN, "Shushan Purim Katan"],
-	[KosherZmanim.JewishCalendar.FAST_OF_ESTHER, "Ta'anith Ester"],
-	[KosherZmanim.JewishCalendar.PURIM, "Purim"],
-	[KosherZmanim.JewishCalendar.SHUSHAN_PURIM, "Shushan Purim"],
-
-	[KosherZmanim.JewishCalendar.ROSH_CHODESH, "Rosh Hodesh"],
-
-	// Modern-Day Celebrations
-	[KosherZmanim.JewishCalendar.YOM_HASHOAH, "Yom Hashoah"],
-	[KosherZmanim.JewishCalendar.YOM_HAZIKARON, "Yom Hazikaron"],
-	[KosherZmanim.JewishCalendar.YOM_HAATZMAUT, "Yom Haatzmauth"], // Tachanun is said
-	[KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM, "Yom Yerushalayim"],
-]);
-const getYomTov = (/** @type {KosherZmanim.JewishCalendar} */ jewishCalendar) => yomTovObj[jewishCalendar.getYomTovIndex()];
-
-function getYomTovForNextDay() {
-	var nextDay = jewishCalendar.getDate().toJSDate();
-	nextDay.setDate(nextDay.getDate() + 1);
-	var nextJewishCalendar = new KosherZmanim.JewishCalendar(nextDay);
-	nextJewishCalendar.setUseModernHolidays(true);
-	return getYomTov(nextJewishCalendar);
-}
-
-function getTachanun() {
-	var yomTovIndex = jewishCalendar.getYomTovIndex();
-	if (jewishCalendar.isRoshChodesh() ||
-		[
-			KosherZmanim.JewishCalendar.PESACH_SHENI,
-			KosherZmanim.JewishCalendar.LAG_BAOMER,
-			KosherZmanim.JewishCalendar.TISHA_BEAV,
-			KosherZmanim.JewishCalendar.TU_BEAV,
-			KosherZmanim.JewishCalendar.EREV_ROSH_HASHANA,
-			KosherZmanim.JewishCalendar.ROSH_HASHANA,
-			KosherZmanim.JewishCalendar.EREV_YOM_KIPPUR,
-			KosherZmanim.JewishCalendar.YOM_KIPPUR,
-			KosherZmanim.JewishCalendar.TU_BESHVAT,
-			KosherZmanim.JewishCalendar.PURIM_KATAN,
-			KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN,
-			KosherZmanim.JewishCalendar.PURIM,
-			KosherZmanim.JewishCalendar.SHUSHAN_PURIM,
-			KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM
-		].includes(yomTovIndex) ||
-		jewishCalendar.isChanukah() ||
-		jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.NISSAN ||
-		(jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.SIVAN &&
-			jewishCalendar.getJewishDayOfMonth() <= 12) ||
-		(jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.TISHREI &&
-			jewishCalendar.getJewishDayOfMonth() >= 11)
-	) {
-		return "There is no Tachanun today";
-	}
-	var yomTovIndexForNextDay = getYomTovIndexForNextDay();
-	if (jewishCalendar.getDayOfWeek() == 6 ||
-		yomTovIndex == KosherZmanim.JewishCalendar.FAST_OF_ESTHER ||
-		[
-			KosherZmanim.JewishCalendar.TISHA_BEAV,
-			KosherZmanim.JewishCalendar.TU_BEAV,
-			KosherZmanim.JewishCalendar.TU_BESHVAT,
-			KosherZmanim.JewishCalendar.LAG_BAOMER,
-			KosherZmanim.JewishCalendar.PESACH_SHENI,
-			KosherZmanim.JewishCalendar.PURIM_KATAN
-		].includes(yomTovIndexForNextDay) ||
-		jewishCalendar.isErevRoshChodesh()
-	) {
-		return "There is only Tachanun in the morning";
-	}
-	if (jewishCalendar.getDayOfWeek() == 7) {
-		return "צדקתך";
-	}
-	return "There is Tachanun today";
-}
-
-function getYomTovIndexForNextDay() {
-	var nextDay = jewishCalendar.getDate().toJSDate();
-	nextDay.setDate(nextDay.getDate() + 1);
-
-	jewishCalendar.setDate(luxon.DateTime.fromJSDate(nextDay));
-	var yomTovIndex = jewishCalendar.getYomTovIndex();
-
-	nextDay.setDate(nextDay.getDate() - 1); //reset the date to the original date
-	jewishCalendar.setDate(luxon.DateTime.fromJSDate(nextDay));
-
-	return yomTovIndex;
 }
 
 /**
@@ -1219,30 +1153,6 @@ function eraseCookie(name) {
 	document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 }
 
-const musicPermission = () => !(
-	(jewishCalendar.getDayOfOmer() >= 8 && jewishCalendar.getDayOfOmer() <= 32)
-	|| (jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && jewishCalendar.getJewishDayOfMonth() >= 17)
-	|| (jewishCalendar.getJewishMonth() == KosherZmanim.JewishDate.AV && jewishCalendar.getJewishDayOfMonth() <= 9)
-);
-
-function getUlchaparatPesha() {
-	if (!jewishCalendar.isRoshChodesh())
-		throw new Error("Call to 'getUlchaparatPesha()' function without being Rosh Hodesh");
-
-	return (jewishCalendar.isJewishLeapYear()
-		&& [
-			KosherZmanim.JewishDate.CHESHVAN,
-			KosherZmanim.JewishDate.KISLEV,
-			KosherZmanim.JewishDate.TEVES,
-			KosherZmanim.JewishDate.SHEVAT,
-			KosherZmanim.JewishDate.ADAR,
-			KosherZmanim.JewishDate.ADAR_II
-		].includes(jewishCalendar.getJewishMonth())
-	);
-	//return "Say וּלְכַפָּרַת פֶּשַׁע";
-	//return "Do not say וּלְכַפָּרַת פֶּשַׁע";
-}
-
 //get the location details from the query string and create the zmanim calendar
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -1258,12 +1168,6 @@ if (isNaN(geoLocationBase.elevation)) {
 }
 if (isNaN(geoLocationBase.lat) && isNaN(geoLocationBase.long)) {
 	window.location.href = "/"
-}
-
-if (geoLocationBase.timezone == "Asia/Jerusalem") {
-	//if the timezone is Asia/Jerusalem, then the location is probably very close to the Israel or in Israel, so we set the jewish calendar to inIsrael mode
-	//we should change this behavior to ask the user if he is in israel or not and adjust accordingly
-	jewishCalendar.setInIsrael(true);
 }
 
 const geoLocation = new KosherZmanim.GeoLocation(
