@@ -1,8 +1,8 @@
 // @ts-check
 
 // Uncomment these lines when developing
-import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
-import luxon, { DateTime } from "./libraries/luxon/index.js";
+//import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
+//import luxon, { DateTime } from "./libraries/luxon/index.js";
 
 const settings = {
 	amudehHoraah: () => localStorage.getItem("amudehHoraah") == "true",
