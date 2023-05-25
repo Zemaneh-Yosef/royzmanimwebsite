@@ -756,7 +756,6 @@ class zmanimListUpdater {
 		var chamah = document.getElementById("Chamah");
 		if (this.jewishCalendar.isBirkasHachamah()) {
 			chamah.style.removeProperty("display");
-			chamah.innerHTML = "Birchat HaChamah is said today";
 		} else {
 			chamah.style.display = "none";
 		}
