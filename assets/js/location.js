@@ -57,26 +57,43 @@ function manualLocationSubmit() {
 }
 
 async function updateList(event) {
-	const q = document.getElementById("Main").value;
+	const q = encodeURIComponent(document.getElementById("Main").value);
 	if (q.length < 3)
 		return;
 
 	try {
-		const params = new URLSearchParams({ q, maxRows, 'username': 'Elyahu41' });
-		const data = await getJSON("https://secure.geonames.org/searchJSON?" + params);
+		let locationName = true;
+		let params = new URLSearchParams({ q, maxRows, 'username': 'Elyahu41' });
+		let data = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString());
+		if (!data.geonames.length) {
+			locationName = false;
+
+			params.delete('maxRows');
+			params.delete('q');
+			params.set('postalcode', q);
+			data = await getJSON("https://secure.geonames.org/postalCodeLookupJSON?" + params.toString())
+		}
 
 		if (event instanceof KeyboardEvent && event.key !== "Enter") {
 			const list = document.getElementById("locationNames");
 			list.querySelectorAll('*').forEach(n => n.remove());
-			for (const geoName of data.geonames) {
+			for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
 				const option = document.createElement("option");
-				option.setAttribute("value", [...new Set([geoName.name, geoName.adminName1, geoName.country])].filter(Boolean).join(", "))
+				option.setAttribute("value", [...new Set([geoName.name || geoName.placeName,
+					geoName.adminName1 || geoName.adminCode1,
+					geoName.countryName || geoName.countryCode])].filter(Boolean).join(", "))
 
 				list.append(option)
 			}
 		} else {
 			loadingScreen();
-			await setLocation(data.geonames[0].name, data.geonames[0].adminName1, data.geonames[0].countryName, data.geonames[0].lat, data.geonames[0].lng);
+			const geoName = (locationName ? data.geonames[0] : data.postalcodes[0])
+			await setLocation(
+				geoName.name || geoName.placeName,
+				geoName.adminName1 || geoName.adminCode1,
+				geoName.countryName || geoName.countryCode,
+				geoName.lat, geoName.lng
+			);
 			openCalendarWithLocationInfo();
 		}
 	} catch (e) {

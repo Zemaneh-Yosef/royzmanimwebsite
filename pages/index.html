@@ -2,9 +2,67 @@
 permalink: /
 ---
 
+<noscript>This website requires JavaScript to run</noscript>
 <h2>Rabbi Ovadiah Yosef Calendar</h2>
 <h5>(Based on the Ohr HaChaim calendar in israel)</h5>
+
+<hr>
 
 <meta http-equiv="Refresh" content="0; url='https://elyahu41.github.io/RabbiOvadiahYosefCalendar'" />
 <p>Hey there, this site is still under construction. You should have been redirected to the main one (making this text unread) but in case you weren't, hit the link below:</p>
 <a href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar">Visit the Stable Site</a>
+
+<hr>
+
+<ul>
+  <li><b>Town Search:</b> You can search for a location either by its name or the ZIP code. Enter it in the search bar below, then hit the Enter key.</li>
+  <li><b>Location Detector:</b> Give the site consent to determine your location (and its relevant times) based on the GPS coordinates reported by a browser. VPN's and Proxies will affect the results.</li>
+  <li><b>Manual (Advanced):</b> Input customized longtitude and latitude inputs. Useful for the most precision.</li>
+</ul>
+
+<div class="input-group input-group-lg form-outline">
+  <span class="input-group-text" id="inputGroup-sizing-lg" style="border-right: 0;"><i class="fa fa-search"></i></span>
+  <input list="locationNames" type="search" id="Main" onkeyup="updateList(event)" class="form-control form-control-lg" />
+  <datalist id="locationNames"></datalist>
+  <label class="form-label" for="form1">Insert location name/ZIP code</label>
+  <button type="button" class="btn btn-success" onclick="getLocation()" style="--mdb-btn-padding-x: 1rem;">
+    <i class="fa fa-map-marker"></i>
+  </button>
+  <button type="button" class="btn btn-primary" onclick="showManualLocationSettings()" style="--mdb-btn-padding-x: 1rem; border-top-right-radius: var(--mdb-btn-border-radius);
+  border-bottom-right-radius: var(--mdb-btn-border-radius);">
+    <i class="fa fa-caret-square-o-down"></i>
+  </button>
+</div>
+
+<p class="border" id="manualLocation" style="display: none">
+  <!--Hidden until shown-->
+  Enter your location manually here: <br />
+  <input
+	type="text"
+	id="cityInput"
+	placeholder="City Name? (optional)"
+  /><br /><br />
+  <input type="text" id="latInput" placeholder="Latitude?" /><br /><br />
+  <input type="text" id="longInput" placeholder="Longitude?" /><br /><br />
+  <input
+	type="text"
+	id="elevationInput"
+	placeholder="Elevation in meters? (optional)"
+  /><br /><br />
+  Timezone?
+  <select id="timezoneInput"></select
+  ><br /><br />
+  <button class="button-18" onclick="manualLocationSubmit()">Submit</button>
+</p>
+<p class="border" id="error" style="display: none">
+  <!--Hidden until shown-->
+</p>
+
+<!--write a diclaimer message under the list-->
+<h5 id="disclaimer" style="text-align: center">
+  Disclaimer!: The results of this search bar are based on a 3rd party
+  website and are not guaranteed to match what you are looking for. If you
+  are not sure about the results, please use the manual location button.
+</h5>
+
+<script src="/assets/js/location.js" type="text/javascript"></script>
