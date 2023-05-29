@@ -191,7 +191,7 @@ class zmanimListUpdater {
 
 				enDescription.innerHTML = descEngText.join(" • ")
 			} else {
-				enDescription.parentElement.style.display = 'none';
+				enDescription.style.display = 'none';
 			}
 		} else {
 			sefirathHaomer.style.display = 'none';
