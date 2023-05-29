@@ -321,7 +321,6 @@ class zmanimListUpdater {
 
 			//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
 			const tekufaID = this.jewishCalendar.getTekufaID() || this.jewishCalendar.tomorrow().getTekufaID()
-			console.log("Tekufa", tekufaID);
 
 			Array.from(tekufa.getElementsByClassName('tekufaName-en')).forEach(element => element.innerHTML = this.jewishCalendar.getTekufaName(tekufaID).english);
 			Array.from(tekufa.getElementsByClassName('tekufaTime')).forEach(element => element.innerHTML = timeBase.toLocaleTimeString());
@@ -377,8 +376,6 @@ class zmanimListUpdater {
 				case 'candleLighting':
 					const tzetCandle = (this.jewishCalendar.hasCandleLighting() && this.jewishCalendar.isAssurBemelacha() && this.jewishCalendar.getDayOfWeek() !== 6);
 					const shabbatCandles = ((this.jewishCalendar.hasCandleLighting() && !this.jewishCalendar.isAssurBemelacha()) || this.jewishCalendar.getDayOfWeek() === 6);
-
-					console.log("Candles", shabbatCandles, tzetCandle)
 
 					if (!tzetCandle && !shabbatCandles) {
 						timeSlot.style.display = "none";

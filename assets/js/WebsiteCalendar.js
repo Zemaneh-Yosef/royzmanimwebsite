@@ -245,7 +245,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
      * @param {number} tekufaID
      */
     getTekufaName(tekufaID) {
-        const tekufaMonths = [6,9,0,3];
+        const tekufaMonths = [7,10,1,4];
         const jewishDate = new KosherZmanim.JewishDate();
 
         const tekufaName = {
