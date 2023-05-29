@@ -899,7 +899,7 @@ export class HebrewDateFormatter {
      * transliterated into Latin chars. The default uses Ashkenazi pronunciation in typical American English spelling
      * Shekalim, Zachor, Parah or Hachodesh.
      *
-     * @param jewishCalendar the JewishCalendar Object
+     * @param {JewishCalendar} jewishCalendar the JewishCalendar Object
      * @return today's special parsha. If the formatter is set to format in Hebrew, returns a string
      *         of the current special parsha  in Hebrew for in the format of &#x05E9;&#x05E7;&#x05DC;&#x05D9;&#x05DD;,
      *         &#x05D6;&#x05DB;&#x05D5;&#x05E8;, &#x05E4;&#x05E8;&#x05D4; or &#x05D4;&#x05D7;&#x05D3;&#x05E9; or an empty

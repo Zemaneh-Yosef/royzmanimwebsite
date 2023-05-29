@@ -28,6 +28,9 @@ function showManualLocationSettings() {
 	manualLocationButton.innerHTML = "Hide Manual Location";
 	manualLocation.style.display = "block";
 
+	/**
+	 * @type {HTMLSelectElement}
+	 */
 	let select = document.getElementById("timezoneInput");
 	if (!Intl.supportedValuesOf) {
 		let opt = new Option("Your browser does not support Intl.supportedValuesOf().", null, true, true);
