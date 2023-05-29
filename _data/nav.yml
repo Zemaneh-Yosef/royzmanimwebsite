@@ -410,7 +410,7 @@ zmanim:
                   a zmaniyot/seasonal minute.
                 </p>
   - id: candleLighting
-    yomTovInclusive: SHABBAT_AND_CHAG
+    yomTovInclusive:
     luachInclusive:
     condition:
     timeGetter:
@@ -507,7 +507,7 @@ zmanim:
                   after sunset in Israel.
                 </p>
   - id: tzeitTaanit
-    yomTovInclusive: TAANIT
+    yomTovInclusive:
     luachInclusive:
     condition: isTaanit
     timeGetter: getTzaitTaanit
@@ -542,7 +542,7 @@ zmanim:
                   stringent, he can end the fast at 20 minutes after sunset.
                 </p>
   - id: tzeitTaanitLChumra
-    yomTovInclusive: TAAANIT
+    yomTovInclusive:
     luachInclusive:
     condition: isTaanit
     timeGetter: getTzaitTaanitLChumra
@@ -560,7 +560,7 @@ zmanim:
                   (elevation included).
                 </p>
   - id: tzeitShabbat
-    yomTovInclusive: SHABBAT_AND_CHAG
+    yomTovInclusive:
     luachInclusive:
     condition:
     timeGetter: getTzaitShabbat
@@ -588,7 +588,7 @@ zmanim:
                   minutes after sunset all year round in Israel.
                 </p>
   - id: rt
-    yomTovInclusive: SHABBAT_AND_CHAG
+    yomTovInclusive:
     luachInclusive:
     condition:
     timeGetter: getTzais72Zmanis

@@ -311,16 +311,17 @@ class zmanimListUpdater {
 			//if no tekufa tomorrow but there is one today and it's not today
 			tekufa.style.display = "none";
 		} else {
+			tekufa.style.removeProperty("display");
+
 			const timeBase = (
 				tekufaToday !== null &&
 					this.jewishCalendar.getTekufaAsDate().toLocaleDateString() ===
 					this.jewishCalendar.getDate().toJSDate().toLocaleDateString()
 					? this.jewishCalendar.getTekufaAsDate() : this.jewishCalendar.tomorrow().getTekufaAsDate());
 
-			tekufa.style.removeProperty("display");
-
 			//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
 			const tekufaID = this.jewishCalendar.getTekufaID() || this.jewishCalendar.tomorrow().getTekufaID()
+			console.log("Tekufa", tekufaID);
 
 			Array.from(tekufa.getElementsByClassName('tekufaName-en')).forEach(element => element.innerHTML = this.jewishCalendar.getTekufaName(tekufaID).english);
 			Array.from(tekufa.getElementsByClassName('tekufaTime')).forEach(element => element.innerHTML = timeBase.toLocaleTimeString());
@@ -337,8 +338,8 @@ class zmanimListUpdater {
 			.map(el => /** @type {HTMLElement} */(el));
 
 		for (const timeSlot of indContainers) {
-			if (!timeSlot.hasAttribute('timeGetter')
-			 || !getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) {
+			if ((!timeSlot.hasAttribute('timeGetter')
+			 || !getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) && timeSlot.id !== 'candleLighting') {
 				timeSlot.style.display = "none";
 				continue;
 			}
@@ -367,17 +368,22 @@ class zmanimListUpdater {
 			}
 
 			/** @type {DateTime} */
-			let dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](settings.amudehHoraah())
+			let dateTimeForZman;
+			if (timeSlot.hasAttribute('timeGetter'))
+				dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](settings.amudehHoraah())
 
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (timeSlot.id) {
 				case 'candleLighting':
 					const tzetCandle = (this.jewishCalendar.hasCandleLighting() && this.jewishCalendar.isAssurBemelacha() && this.jewishCalendar.getDayOfWeek() !== 6);
 					const shabbatCandles = ((this.jewishCalendar.hasCandleLighting() && !this.jewishCalendar.isAssurBemelacha()) || this.jewishCalendar.getDayOfWeek() === 6);
-	
-					if (!tzetCandle && !shabbatCandles)
+
+					console.log("Candles", shabbatCandles, tzetCandle)
+
+					if (!tzetCandle && !shabbatCandles) {
 						timeSlot.style.display = "none";
-					else {
+						continue;
+					} else {
 						timeSlot.style.removeProperty("display");
 	
 						if (tzetCandle)
@@ -523,12 +529,13 @@ class zmanimListUpdater {
 			.map(el => /** @type {HTMLElement} */(el));
 
 		for (const timeSlot of indContainers) {
-			if (!timeSlot.hasAttribute('timeGetter')
-			 || !getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) {
+			if ((!timeSlot.hasAttribute('timeGetter')
+			 || !getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) && timeSlot.id !== 'candleLighting') {
 				continue;
 			}
 
-			if (timeSlot.hasAttribute('yomTovInclusive') && this.jewishCalendar.getYomTovIndex() != KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")]) {
+			if (timeSlot.hasAttribute('yomTovInclusive')
+			&& this.jewishCalendar.getYomTovIndex() != KosherZmanim.JewishCalendar[timeSlot.getAttribute("yomtovInclusive")]) {
 				continue;
 			}
 
@@ -544,7 +551,9 @@ class zmanimListUpdater {
 			}
 
 			/** @type {DateTime} */
-			let dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](settings.amudehHoraah())
+			let dateTimeForZman;
+			if (timeSlot.hasAttribute('timeGetter'))
+				dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](settings.amudehHoraah())
 
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (timeSlot.id) {

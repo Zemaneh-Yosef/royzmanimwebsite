@@ -122,7 +122,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			if (yomTovOfToday)
 				yomTovTitle.push(yomTovOfToday);
 
-			if (yomTovOfNextDay && yomTovOfNextDay !== yomTovOfToday)
+			if (yomTovOfNextDay && !yomTovOfNextDay.includes(yomTovOfToday))
 				yomTovTitle.push("Erev " + yomTovOfNextDay);
 
 			result.push(yomTovTitle.join(" / "))

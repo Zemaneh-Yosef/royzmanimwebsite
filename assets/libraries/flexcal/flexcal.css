@@ -61,6 +61,8 @@ button.fa:before {
 }
 .ui-flexcal caption.ui-datepicker-header {
 	line-height: 1.52em; /* to align with the prev/next buttons */
+	text-align: center;
+	caption-side: top;
 }
 .ui-flexcal .ui-datepicker-buttonpane {
 	margin: 0.2em 0 0 0 !important;
