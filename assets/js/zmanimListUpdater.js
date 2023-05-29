@@ -185,9 +185,9 @@ class zmanimListUpdater {
 			if (this.jewishCalendar.getDayOfOmer() >= 7) {
 				enDescription.parentElement.style.removeProperty("display");
 
-				const descEngText = [weeks + " week" + (weeks == 1 ? "s" : "")];
+				const descEngText = [weeks + " week" + (weeks !== 1 ? "s" : "")];
 				if (days)
-					descEngText.push(days + " day" + (days == 1 ? "s" :""))
+					descEngText.push(days + " day" + (days !== 1 ? "s" :""))
 
 				enDescription.innerHTML = descEngText.join(" • ")
 			} else {
