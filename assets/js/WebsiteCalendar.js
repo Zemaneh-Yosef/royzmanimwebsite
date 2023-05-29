@@ -251,7 +251,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
         const tekufaName = {
             english: [...tekufaMonths].map(month => this.dateFormatter.english.getTransliteratedMonthList()[month]),
             hebrew: [...tekufaMonths].map(month => {
-                jewishDate.setJewishMonth(month - 1);
+                jewishDate.setJewishMonth(month + 1);
                 return this.dateFormatter.hebrew.formatMonth(jewishDate)
             })
         }
