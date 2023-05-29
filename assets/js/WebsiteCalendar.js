@@ -245,13 +245,13 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
      * @param {number} tekufaID
      */
     getTekufaName(tekufaID) {
-        const tekufaMonths = [7,10,1,4];
+        const tekufaMonths = [6,9,0,3];
         const jewishDate = new KosherZmanim.JewishDate();
 
         const tekufaName = {
             english: [...tekufaMonths].map(month => this.dateFormatter.english.getTransliteratedMonthList()[month]),
             hebrew: [...tekufaMonths].map(month => {
-                jewishDate.setJewishMonth(month);
+                jewishDate.setJewishMonth(month - 1);
                 return this.dateFormatter.hebrew.formatMonth(jewishDate)
             })
         }
