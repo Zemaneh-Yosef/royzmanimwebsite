@@ -1,12 +1,11 @@
 // @ts-check
 
 // Comment the following line when developing
-/* 
-import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
-import luxon, { DateTime } from "./libraries/luxon/index.js";
-import { n2words } from "./libraries/n2words";
-import ROZmanim from "./ROYZmanim";
-import WebsiteCalendar from "./WebsiteCalendar";
+/*
+import * as KosherZmanim from "./libraries/dev/kosherZmanim.js";
+import n2words from "./libraries/n2words.js";
+import ROZmanim from "./ROYZmanim.js";
+import WebsiteCalendar from "./WebsiteCalendar.js";
 // */
 
 const settings = {
@@ -45,6 +44,9 @@ class zmanimListUpdater {
 		this.zmanimCalendar.setCandleLightingOffset(settings.candleLighting());
 		this.zmanimCalendar.setAteretTorahSunsetOffset(settings.tzeith());
 
+		this.zmanimCalendar.setUseElevation(!settings.amudehHoraah());
+		this.zmanimCalendar.setDegreeUsage(settings.amudehHoraah());
+
 		this.jewishCalendar = new WebsiteCalendar();
 		this.jewishCalendar.setUseModernHolidays(true);
 		this.jewishCalendar.setUpDateFormatter();
@@ -56,14 +58,14 @@ class zmanimListUpdater {
 		}
 
 		/**
-		 * @type {null|DateTime}
+		 * @type {null|luxon.DateTime}
 		 */
 		this.nextUpcomingZman = null;
 
 		this.handleLanguage();
 		this.setupButtons();
 		this.setNextUpcomingZman();
-		this.updateZmanimList(); //Note: if there are no parameters, this method will crash because there is no timezone set. However, it will be recalled in the getJson method
+		// this.updateZmanimList(); //Note: if there are no parameters, this method will crash because there is no timezone set. However, it will be recalled in the getJson method
 	}
 
 	handleLanguage() {
@@ -86,7 +88,7 @@ class zmanimListUpdater {
 	}
 
 	/**
-	 * @param {DateTime} date
+	 * @param {luxon.DateTime} date
 	 */
 	changeDate(date) {
 		this.zmanimCalendar.setDate(date)
@@ -96,18 +98,21 @@ class zmanimListUpdater {
 	setupButtons() {
 		const forwardButton = document.getElementById("forwardDay")
 		forwardButton.addEventListener("click", () => {
+			// @ts-ignore
 			this.changeDate(this.jewishCalendar.clone().getDate().plus({ days: 1 }))
 			this.updateZmanimList();
 		})
 
 		const backwardButton = document.getElementById("backwardDay")
 		backwardButton.addEventListener("click", () => {
+			// @ts-ignore
 			this.changeDate(this.jewishCalendar.clone().getDate().minus({ days: 1 }))
 			this.updateZmanimList();
 		});
 
 		const date = document.getElementById("date");
 		date.addEventListener('calendarInsert', () => {
+			// @ts-ignore
 			const dateObject = luxon.DateTime.fromFormat(date.getAttribute("date-value"), "MM/dd/yyyy");
 
 			this.changeDate(dateObject);
@@ -220,16 +225,16 @@ class zmanimListUpdater {
 			case 'hb':
 			default:
 				primaryDate = this.jewishCalendar.formatJewishDate().hebrew;
-				secondaryDate = this.jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
+				secondaryDate = this.jewishCalendar.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
 				otherDate = this.jewishCalendar.formatJewishDate().english;
 				break;
 			case 'en-et':
 				primaryDate = this.jewishCalendar.formatJewishDate().english;
-				secondaryDate = this.jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
+				secondaryDate = this.jewishCalendar.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
 				otherDate = this.jewishCalendar.formatJewishDate().hebrew;
 				break;
 			case 'en':
-				primaryDate = this.jewishCalendar.getDate().toLocaleString(luxon.DateTime.DATE_FULL);
+				primaryDate = this.jewishCalendar.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
 				secondaryDate = this.jewishCalendar.formatJewishDate().english;
 				otherDate = this.jewishCalendar.formatJewishDate().hebrew;
 				break;
@@ -238,7 +243,7 @@ class zmanimListUpdater {
 		document.getElementById("priorityDate").innerText = primaryDate;
 		document.getElementById("secondaryDate").innerText = secondaryDate;
 		document.getElementById("otherDate").innerText = otherDate;
-		if (this.zmanimCalendar.getDate().hasSame(luxon.DateTime.local(), "day")) {
+		if (this.zmanimCalendar.getDate().hasSame(window.luxon.DateTime.local(), "day")) {
 			document.getElementById("dateContainer").classList.add("text-bold");
 		}
 
@@ -366,10 +371,10 @@ class zmanimListUpdater {
 				}
 			}
 
-			/** @type {DateTime} */
+			/** @type {luxon.DateTime} */
 			let dateTimeForZman;
 			if (timeSlot.hasAttribute('timeGetter'))
-				dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](settings.amudehHoraah())
+				dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')]()
 
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (timeSlot.id) {
@@ -382,30 +387,37 @@ class zmanimListUpdater {
 						continue;
 					} else {
 						timeSlot.style.removeProperty("display");
-	
+
 						if (tzetCandle)
-							dateTimeForZman = this.zmanimCalendar.getTzait(settings.amudehHoraah())
+							dateTimeForZman = this.zmanimCalendar.getTzait()
 						else if (shabbatCandles)
 							dateTimeForZman = this.zmanimCalendar.getCandleLighting();
 					}
 					break;
 				case 'tzeitShabbat':
-					if (this.jewishCalendar.isYomTovAssurBemelacha() && this.jewishCalendar.getDayOfWeek() == 7) {
-						timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת השבת וחג";
-						timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Shabbat & Yom Tov";
-						timeSlot.querySelector('.lang.lang-en').innerHTML = "Shabbat & Yom Tov Ends";
-					} else if (this.jewishCalendar.getDayOfWeek() == 7) {
-						timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת השבת";
-						timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Shabbat";
-						timeSlot.querySelector('.lang.lang-en').innerHTML = "Shabbat Ends";
+					if (this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) {
+						timeSlot.style.removeProperty("display");
+
+						if (this.jewishCalendar.isYomTovAssurBemelacha() && this.jewishCalendar.getDayOfWeek() == 7) {
+							timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת השבת וחג";
+							timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Shabbat & Yom Tov";
+							timeSlot.querySelector('.lang.lang-en').innerHTML = "Shabbat & Yom Tov Ends";
+						} else if (this.jewishCalendar.getDayOfWeek() == 7) {
+							timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת השבת";
+							timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Shabbat";
+							timeSlot.querySelector('.lang.lang-en').innerHTML = "Shabbat Ends";
+						} else {
+							timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת חג";
+							timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Yom Tov";
+							timeSlot.querySelector('.lang.lang-en').innerHTML = "Yom Tov Ends";
+						}
 					} else {
-						timeSlot.querySelector('.lang.lang-hb').innerHTML = "צאת חג";
-						timeSlot.querySelector('.lang.lang-et').innerHTML = "Tzait Yom Tov";
-						timeSlot.querySelector('.lang.lang-en').innerHTML = "Yom Tov Ends";
+						timeSlot.style.display = "none";
 					}
 					break;
 				case 'rt':
-					dateTimeForZman = dateTimeForZman.set({second: 0}).plus({minutes: 1})
+					if (!settings.seconds() && dateTimeForZman.second !== 0)
+						dateTimeForZman = dateTimeForZman.set({second: 0}).plus({minutes: 1})
 			}
 
 			if (timeSlot.hasAttribute('condition')) {
@@ -461,6 +473,34 @@ class zmanimListUpdater {
 		/ MG'A: ${zmanimFormatter.format(this.zmanimCalendar.getShaahZmanis72MinutesZmanis())}`.replace('\n', ' ')
 	}
 
+	tzeitTester() {
+		var TzeitZmanimTable = []
+		for (var i = new Decimal(0); i.toNumber() < 4; i = i.plus(0.01)) {
+			TzeitZmanimTable.push({
+				degree: i.toNumber(),
+				TimeObj: this.zmanimCalendar.getTzait(i.toNumber()),
+				timeRenderer: this.zmanimCalendar.getTzait(i.toNumber()).setZone(geoLocation.getTimeZone()).toFormat("h:mm:ss a")
+			})
+		}
+
+		console.table(TzeitZmanimTable)
+		return TzeitZmanimTable;
+	}
+
+	alotTester() {
+		var TzeitZmanimTable = []
+		for (var i = new Decimal(14); i.toNumber() < 18; i = i.plus(0.01)) {
+			TzeitZmanimTable.push({
+				degree: i.toNumber(),
+				TimeObj: this.zmanimCalendar.getAlos72Zmanis(i.toNumber()),
+				timeRenderer: this.zmanimCalendar.getAlos72Zmanis(i.toNumber()).setZone(geoLocation.getTimeZone()).toFormat("h:mm:ss a")
+			})
+		}
+
+		console.table(TzeitZmanimTable)
+		return TzeitZmanimTable;
+	}
+
 	getIsTonightStartOrEndBirchatLevana() {
 		var startTimeSevenDays = this.jewishCalendar.getTchilasZmanKidushLevana7Days();
 		var endTimeFifteenDays = this.jewishCalendar.getSofZmanKidushLevana15Days();
@@ -479,14 +519,15 @@ class zmanimListUpdater {
 		const currentSelectedDate = this.jewishCalendar.getDate();
 
 		for (const time of [-1, 0, 1]) {
-			this.changeDate(luxon.DateTime.now().plus({ days: time }));
+			this.changeDate(window.luxon.DateTime.now().plus({ days: time }));
 			this.addZmanim(zmanim);
 		}
 
+		// @ts-ignore
 		this.changeDate(currentSelectedDate); //reset the date to the current date
 
 		this.nextUpcomingZman = zmanim.find(zman => zman !== null &&
-			zman.toMillis() > luxon.DateTime.now().toMillis() &&
+			zman.toMillis() > window.luxon.DateTime.now().toMillis() &&
 			(this.nextUpcomingZman === null ||
 				zman.toMillis() < this.nextUpcomingZman.toMillis()))
 
@@ -494,17 +535,17 @@ class zmanimListUpdater {
 		//call back this function 1 second after the nextUpcomingZman passes
 		setTimeout(
 			this.setNextUpcomingZman,
-			this.nextUpcomingZman.toMillis() - luxon.DateTime.now().toMillis() + 1000
+			this.nextUpcomingZman.toMillis() - window.luxon.DateTime.now().toMillis() + 1000
 		); //TODO test
 	}
 
 	initUpdaterForZmanim() {
 		//at 12:00 AM the next day, update the zmanim to the next day's zmanim
-		var tomorrow = luxon.DateTime.now().plus({ days: 1 });
+		var tomorrow = window.luxon.DateTime.now().plus({ days: 1 });
 		tomorrow = tomorrow.set({ hour: 0, minute: 0, second: 2, millisecond: 0 });
 		var timeUntilTomorrow = tomorrow.diffNow().as("milliseconds");
 		setTimeout(() => {
-			var date = luxon.DateTime.now();
+			var date = window.luxon.DateTime.now();
 			this.jewishCalendar.setDate(date);
 			this.updateZmanimList();
 			this.initUpdaterForZmanim();
@@ -512,14 +553,14 @@ class zmanimListUpdater {
 	}
 
 	/**
-	 * @param {DateTime} zman
+	 * @param {luxon.DateTime} zman
 	 */
 	isNextUpcomingZman(zman) {
 		return !(this.nextUpcomingZman == null || !(zman.toMillis() == this.nextUpcomingZman.toMillis()))
 	};
 
 	/**
-	 * @param {DateTime[]} zmanim
+	 * @param {luxon.DateTime[]} zmanim
 	 */
 	addZmanim(zmanim) {
 		const indContainers = Array.from(document.getElementById("calendarFormatter").children)
@@ -547,10 +588,10 @@ class zmanimListUpdater {
 				}
 			}
 
-			/** @type {DateTime} */
+			/** @type {luxon.DateTime} */
 			let dateTimeForZman;
 			if (timeSlot.hasAttribute('timeGetter'))
-				dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')](settings.amudehHoraah())
+				dateTimeForZman = this.zmanimCalendar[timeSlot.getAttribute('timeGetter')]()
 
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (timeSlot.id) {
@@ -562,7 +603,7 @@ class zmanimListUpdater {
 						continue;
 	
 					if (tzetCandle)
-						dateTimeForZman = this.zmanimCalendar.getTzait(settings.amudehHoraah())
+						dateTimeForZman = this.zmanimCalendar.getTzait()
 					else if (shabbatCandles)
 						dateTimeForZman = this.zmanimCalendar.getCandleLighting();
 					break;
@@ -658,4 +699,6 @@ const geoLocation = new KosherZmanim.GeoLocation(
 	geoLocationBase.elevation,
 	geoLocationBase.timezone
 );
+
 const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
+zmanimListUpdater2.updateZmanimList()

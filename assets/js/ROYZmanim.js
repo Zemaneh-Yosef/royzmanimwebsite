@@ -1,63 +1,51 @@
 // @ts-check
 
 // Comment out the commenters when developing
-/* 
-import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
-import luxon from "./libraries/luxon/index.js";
+/*
+import * as KosherZmanim from "./libraries/dev/kosherZmanim.js"
 export default
-// */
+*/
 
 class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
-	//custom zmanim class, RO stands for Rabbi Ovadia
 	/**
-	 * @param {KosherZmanim.GeoLocation} geoLocation
+	 * @param {boolean} degreeValue
 	 */
-	constructor(geoLocation) {
-		super(geoLocation);
-		this.setCandleLightingOffset(20);
-		this.setUseElevation(true);
+	setDegreeUsage(degreeValue) {
+		this.degreeUsage = degreeValue;
 	}
 
-	/**
-	 * @param {boolean} [amudehHoraah]
-	 */
-	getAlos72Zmanis(amudehHoraah) {
-		if (!amudehHoraah)
-			return super.getAlos72Zmanis()
-
+	getMorningShaotZmaniyot(degree=16.04) {
 		const originalDate = this.getDate()
 		this.setDate(new Date("March 17 " + originalDate.year.toString()))
 		const sunrise = this.getSeaLevelSunrise();
-		const alotBy16point1Degrees = this.getAlos16Point1Degrees();
-		const numberOfMinutes = ((sunrise.toMillis() - alotBy16point1Degrees.toMillis()) / 60_000);
+		const alotBy16point1Degrees = this.getSunriseOffsetByDegrees(new Decimal(degree).plus(KosherZmanim.ZmanimCalendar.GEOMETRIC_ZENITH).toNumber());
+		const numberOfMilli = sunrise.toMillis() - alotBy16point1Degrees.toMillis();
+		const numberOfSeconds = numberOfMilli / 1000;
 		this.setDate(originalDate);
 
 		const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
 		const dakahZmanit = shaahZmanit / 60;
+		const secondsZmanit = dakahZmanit / 60;
 
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit))
+		return {shaahZmanit, dakahZmanit, secondsZmanit, numberOfMilli, numberOfSeconds}
 	}
 
-	/**
-	 * @param {boolean} [amudehHoraah]
-	 */
-	getEarliestTalitAndTefilin(amudehHoraah) {
-		if (amudehHoraah) {
-			const originalDate = this.getDate()
-			this.setDate(new Date("March 17 " + originalDate.year.toString())); // Set the Calendar to the equinox
-			const sunrise = this.getSeaLevelSunrise();
-			const alotBy16point1Degrees = this.getAlos16Point1Degrees(); // 16.1 degrees is 72 minutes before sunrise in Netanya on the equinox, so no adjustment is needed
-			const numberOfMinutes = ((sunrise.toMillis() - alotBy16point1Degrees.toMillis()) / 60_000);
-			this.setDate(originalDate);
+	getAlos72Zmanis(degree=16.04) {
+		if (!this.degreeUsage)
+			return super.getAlos72Zmanis()
 
-			const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
-			const dakahZmanit = shaahZmanit / 60;
+		const {numberOfSeconds, secondsZmanit} = this.getMorningShaotZmaniyot(degree);
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.getSeaLevelSunrise(), -(numberOfSeconds * secondsZmanit))
+	}
 
-			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunrise(), -(numberOfMinutes * dakahZmanit * 5 / 6));
+	getEarliestTalitAndTefilin(degree=16.04) {
+		if (this.degreeUsage) {
+			const {numberOfSeconds, secondsZmanit} = this.getMorningShaotZmaniyot(degree);
+			return KosherZmanim.ZmanimCalendar.getTimeOffset(this.getSeaLevelSunrise(), -(numberOfSeconds * secondsZmanit * 5 / 6));
 		} else {
 			var shaahZmanit = this.getTemporalHour(this.getElevationAdjustedSunrise(), this.getElevationAdjustedSunset());
 			var dakahZmanit = shaahZmanit / 60;
-			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
+			return KosherZmanim.ZmanimCalendar.getTimeOffset(
 				this.getAlos72Zmanis(),
 				6 * dakahZmanit
 			);
@@ -66,53 +54,27 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 
 	//TODO Netz
 
-	getSofZmanShmaMGA72MinutesZmanis(amudehHoraah) {
-        return this.getSofZmanShma(this.getAlos72Zmanis(amudehHoraah), this.getTzais72Zmanis(amudehHoraah));
+	getSofZmanShmaMGA72MinutesZmanis() {
+        return this.getSofZmanShma(this.getAlos72Zmanis(), this.getTzais72Zmanis());
     }
 
-	/**
-	 * @param {boolean} [amudehHoraah]
-	 */
-	getSofZmanAchilatChametzMGA(amudehHoraah) {
-		return this.getSofZmanTfila(this.getAlos72Zmanis(amudehHoraah), this.getTzais72Zmanis(amudehHoraah));
+	getSofZmanAchilatChametzMGA() {
+		return this.getSofZmanTfila(this.getAlos72Zmanis(), this.getTzais72Zmanis());
 	}
 
-	/**
-	 * @param {boolean} [amudehHoraah]
-	 */
-	getSofZmanBiurChametzMGA(amudehHoraah) {
-		var shaahZmanit = this.getTemporalHour(
-			this.getAlos72Zmanis(amudehHoraah),
-			this.getTzais72Zmanis(amudehHoraah)
-		);
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			this.getAlos72Zmanis(amudehHoraah),
+	getSofZmanBiurChametzMGA() {
+		const shaahZmanit = this.getTemporalHour(this.getAlos72Zmanis(), this.getTzais72Zmanis());
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(
+			this.getAlos72Zmanis(),
 			shaahZmanit * 5
 		);
 	}
 
 	/**
-	 * Workaround for passing an invalid argument
-	 * {@link KosherZmanim.ComplexZmanimCalendar.getMinchaKetana}
-	 */
-	getMinhaKetana() {
-		return this.getMinchaKetana();
-	}
-	/**
 	 * @param {luxon.DateTime} time
-	 * @param {boolean} amudehHoraah
 	 */
-	plagHaminchaCore(time, amudehHoraah) {
-		let sunrise, sunset;
-		if (amudehHoraah) {
-			sunrise = this.getSeaLevelSunrise();
-			sunset = this.getSeaLevelSunset();
-		} else {
-			sunrise = this.getElevationAdjustedSunrise();
-			sunset = this.getElevationAdjustedSunset();
-		}
-
-		const shaahZmanit = this.getTemporalHour(sunrise, sunset);
+	plagHaminchaCore(time) {
+		const shaahZmanit = this.getTemporalHour(this.getElevationAdjustedSunrise(), this.getElevationAdjustedSunset());
 		const dakahZmanit = shaahZmanit / 60;
 		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
 			time,
@@ -121,18 +83,13 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 
 	}
 
-	/**
- * @param {boolean} [amudehHoraah]
- */
-	getPlagHaminchaYalkutYosef(amudehHoraah) {
-		return this.plagHaminchaCore(this.getTzait(amudehHoraah), amudehHoraah);
+	getPlagHaminchaYalkutYosef() {
+		return this.plagHaminchaCore(this.getTzait());
 	}
 
-	/**
- * @param {boolean} [amudehHoraah]
- */
-	getPlagHaminchaHalachaBrurah(amudehHoraah) {
-		return this.plagHaminchaCore(this.getSunset(), amudehHoraah);
+	getPlagHaminchaHalachaBrurah() {
+		// @ts-ignore
+		return this.plagHaminchaCore(this.getSunset());
 	}
 
 	getCandleLighting() {
@@ -142,22 +99,21 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 		);
 	}
 
-	/**
-	 * @param {boolean} [degreeShaotZmaniot]
-	 */
-	getTzait(degreeShaotZmaniot) {
-		if (degreeShaotZmaniot) {
+	getTzait(degree=3.75) {
+		if (this.degreeUsage) {
 			const originalDate = this.getDate()
 			this.setDate(new Date("March 17 " + originalDate.year.toString()))
 			const sunset = this.getSeaLevelSunset();
-			const tzaitBy3point86degrees = this.getSunsetOffsetByDegrees(KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH + 3.86);
-			const numberOfMinutes = ((tzaitBy3point86degrees.toMillis() - sunset.toMillis()) / 60_000);
+			const tzaitGeonimInDegrees = this.getSunsetOffsetByDegrees(new Decimal(degree).plus(KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH).toNumber());
+			const numberOfMilli = tzaitGeonimInDegrees.toMillis() - sunset.toMillis();
+			const numberOfSeconds = numberOfMilli / 1000;
 			this.setDate(originalDate);
 
 			const shaahZmanit = this.getTemporalHour(this.getSeaLevelSunrise(), this.getSeaLevelSunset());
 			const dakahZmanit = shaahZmanit / 60;
+			const secondsZmanit = dakahZmanit / 60;
 
-			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunset(), numberOfMinutes * dakahZmanit);
+			return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunset(), numberOfSeconds * secondsZmanit);
 		} else {
 			const shaahZmanit = this.getTemporalHour(this.getElevationAdjustedSunrise(), this.getElevationAdjustedSunset());
 			const dakahZmanit = shaahZmanit / 60;
@@ -172,7 +128,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 		const originalDate = this.getDate()
 		this.setDate(new Date("March 17 " + originalDate.year.toString()))
 		const sunset = this.getSeaLevelSunset();
-		const tzaitBy5point054degrees = this.getSunriseOffsetByDegrees(90.0 + 5.054);
+		const tzaitBy5point054degrees = this.getSunsetOffsetByDegrees(90.0 + 5.054);
 		const numberOfMinutes = ((tzaitBy5point054degrees.toMillis() - sunset.toMillis()) / 60_000);
 		this.setDate(originalDate);
 
@@ -196,21 +152,21 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 		);
 	}
 
-	getTzaitShabbatAmudehHoraah() {
-		return this.getSunsetOffsetByDegrees(90.0 + 7.18);
+	getTzaitShabbat() {
+		if (this.degreeUsage)
+			return this.getSunsetOffsetByDegrees(90.0 + 7.18);
+		else
+			return this.getTzaisAteretTorah()
 	}
 
-	/**
- * @param {boolean} [amudehHoraah]
- */
-	getTzais72Zmanis(amudehHoraah) {
-		if (!amudehHoraah)
+	getTzais72Zmanis() {
+		if (!this.degreeUsage)
 			return super.getTzais72Zmanis();
 
 		const originalDate = this.getDate()
 		this.setDate(new Date("March 17 " + originalDate.year.toString()))
 		const sunset = this.getSeaLevelSunset();
-		const tzaitBy16Degrees = this.getSunriseOffsetByDegrees(90.0 + 16.0);
+		const tzaitBy16Degrees = this.getSunsetOffsetByDegrees(90.0 + 16.0);
 		const numberOfMinutes = ((tzaitBy16Degrees.toMillis() - sunset.toMillis()) / 60_000);
 		this.setDate(originalDate);
 
@@ -220,12 +176,9 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(this.getSeaLevelSunset(), (numberOfMinutes * dakahZmanit))
 	}
 
-		/**
- * @param {boolean} [amudehHoraah]
- */
-	getTzais72ZmanisLKulah(amudehHoraah) {
-		if (this.getTzais72().toMillis() > this.getTzais72Zmanis(amudehHoraah).toMillis()) {
-			return this.getTzais72Zmanis(amudehHoraah);
+	getTzais72ZmanisLKulah() {
+		if (this.getTzais72().toMillis() > this.getTzais72Zmanis().toMillis()) {
+			return this.getTzais72Zmanis();
 		} else {
 			return this.getTzais72();
 		}
