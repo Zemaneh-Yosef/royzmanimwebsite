@@ -55,11 +55,6 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	//TODO Netz
 
 	getSofZmanShmaMGA72MinutesZmanis() {
-		const upperAlot = super.getAlos72Zmanis();
-		const upperTzet = super.getTzais72Zmanis();
-		const upperSofZmanShma = this.getSofZmanShma(upperAlot, upperTzet);
-
-
         return this.getSofZmanShma(this.getAlos72Zmanis(), this.getTzais72Zmanis());
     }
 
@@ -171,7 +166,7 @@ class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 		const originalDate = this.getDate()
 		this.setDate(new Date("March 17 " + originalDate.year.toString()))
 		const sunset = this.getSeaLevelSunset();
-		const tzaitBy16Degrees = this.getSunriseOffsetByDegrees(90.0 + 16.0);
+		const tzaitBy16Degrees = this.getSunsetOffsetByDegrees(90.0 + 16.0);
 		const numberOfMinutes = ((tzaitBy16Degrees.toMillis() - sunset.toMillis()) / 60_000);
 		this.setDate(originalDate);
 

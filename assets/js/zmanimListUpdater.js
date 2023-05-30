@@ -416,7 +416,8 @@ class zmanimListUpdater {
 					}
 					break;
 				case 'rt':
-					dateTimeForZman = dateTimeForZman.set({second: 0}).plus({minutes: 1})
+					if (!settings.seconds() && dateTimeForZman.second !== 0)
+						dateTimeForZman = dateTimeForZman.set({second: 0}).plus({minutes: 1})
 			}
 
 			if (timeSlot.hasAttribute('condition')) {
