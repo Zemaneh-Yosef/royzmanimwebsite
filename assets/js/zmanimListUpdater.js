@@ -1,12 +1,12 @@
 // @ts-check
 
-// Comment the following line when developing
-/*
-import * as KosherZmanim from "./libraries/dev/bundle";
-import n2words from "./libraries/n2words.js";
+// Comment the following few lines before going live
+import * as KosherZmanim from "./libraries/dev/bundle.js";
 import ROZmanim from "./ROYZmanim.js";
 import WebsiteCalendar from "./WebsiteCalendar.js";
-// */
+
+/** @type {import("./libraries/n2words.js")} */
+var n2words = n2words;
 
 const settings = {
 	amudehHoraah: () => localStorage.getItem("amudehHoraah") == "true",

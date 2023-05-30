@@ -3,7 +3,8 @@
         "module": "ESNext",
         "target": "ES2017",
         "lib": ["DOM", "DOM.Iterable", "ESNext"],
-        "noImplicitThis": false
+        "noImplicitThis": false,
+        "strictNullChecks": false
     },
     "exclude": ["_site"]
 }

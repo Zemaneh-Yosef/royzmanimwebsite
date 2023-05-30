@@ -1,10 +1,8 @@
 // @ts-check
 
-// Comment out the commenters when developing
-/*
-import * as KosherZmanim from "./libraries/dev/bundle"
+// Comment the following lines before going live!
+import * as KosherZmanim from "./libraries/dev/bundle.js"
 export default
-// */
 
 class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	/**

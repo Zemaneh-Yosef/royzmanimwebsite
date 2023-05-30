@@ -1,8 +1,8 @@
 // @ts-check
-/*
-import * as KosherZmanim from "./libraries/dev/bundle"
+
+// Comment the following lines before going live!
+import * as KosherZmanim from "./libraries/dev/bundle.js"
 export default
-// */
 
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
     setUpDateFormatter() {
