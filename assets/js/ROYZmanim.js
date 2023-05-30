@@ -2,9 +2,9 @@
 
 // Comment out the commenters when developing
 /*
-import * as KosherZmanim from "./libraries/dev/kosherZmanim.js"
+import * as KosherZmanim from "./libraries/dev/bundle"
 export default
-*/
+// */
 
 class ROZmanim extends KosherZmanim.ComplexZmanimCalendar {
 	/**

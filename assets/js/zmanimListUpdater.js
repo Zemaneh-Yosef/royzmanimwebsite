@@ -2,7 +2,7 @@
 
 // Comment the following line when developing
 /*
-import * as KosherZmanim from "./libraries/dev/kosherZmanim.js";
+import * as KosherZmanim from "./libraries/dev/bundle";
 import n2words from "./libraries/n2words.js";
 import ROZmanim from "./ROYZmanim.js";
 import WebsiteCalendar from "./WebsiteCalendar.js";
@@ -98,14 +98,12 @@ class zmanimListUpdater {
 	setupButtons() {
 		const forwardButton = document.getElementById("forwardDay")
 		forwardButton.addEventListener("click", () => {
-			// @ts-ignore
 			this.changeDate(this.jewishCalendar.clone().getDate().plus({ days: 1 }))
 			this.updateZmanimList();
 		})
 
 		const backwardButton = document.getElementById("backwardDay")
 		backwardButton.addEventListener("click", () => {
-			// @ts-ignore
 			this.changeDate(this.jewishCalendar.clone().getDate().minus({ days: 1 }))
 			this.updateZmanimList();
 		});
@@ -523,7 +521,6 @@ class zmanimListUpdater {
 			this.addZmanim(zmanim);
 		}
 
-		// @ts-ignore
 		this.changeDate(currentSelectedDate); //reset the date to the current date
 
 		this.nextUpcomingZman = zmanim.find(zman => zman !== null &&
@@ -702,3 +699,4 @@ const geoLocation = new KosherZmanim.GeoLocation(
 
 const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
 zmanimListUpdater2.updateZmanimList()
+
