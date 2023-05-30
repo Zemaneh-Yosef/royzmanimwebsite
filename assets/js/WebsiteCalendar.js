@@ -380,6 +380,33 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 	}
 
+	isShvuaShechalBo() {
+		//shevua shechal bo happens on the whole week that tisha beav falls out on
+		if (this.getJewishMonth() == KosherZmanim.JewishDate.AV) {
+			const currentDate = this.getDate();
+			this.setJewishDayOfMonth(9);//set to the 9th of Av
+			if (this.getDayOfWeek() == 1) {
+				return false;//there is no shevua shechal bo if tisha beav falls out on a sunday
+			}
+			this.setDate(currentDate);//reset the date
+
+			//now we need to find out if the current day is in the week of tisha beav
+			var tishaBeav = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.AV, 9);
+			let dayOfWeek = tishaBeav.getDayOfWeek() - 1;// avoid tisha beav itself, not sure if this is what is intended/wanted
+			const daysOfShvuaShechalBo = [];
+			while (dayOfWeek != 1) {
+				daysOfShvuaShechalBo.push(tishaBeav.getJewishDayOfMonth());// add which days are in the week of tisha beav
+				tishaBeav.setJewishDayOfMonth(tishaBeav.getJewishDayOfMonth() - 1);
+				dayOfWeek = tishaBeav.getDayOfWeek() - 1;
+			}
+			if (daysOfShvuaShechalBo.includes(this.getJewishDayOfMonth())) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
 	isMourningPeriod() {
 		const validSefira = this.getDayOfOmer() !== -1;
 		const validTamuz = (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17);
