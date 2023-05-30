@@ -385,8 +385,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		if (this.getJewishMonth() == KosherZmanim.JewishDate.AV) {
 			const currentDate = this.getDate();
 			this.setJewishDayOfMonth(9);//set to the 9th of Av
-			if (this.getDayOfWeek() == 1) {
-				return false;//there is no shevua shechal bo if tisha beav falls out on a sunday
+			if (this.getDayOfWeek() == 1 || this.getDayOfWeek() == 7) {
+				return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
 			}
 			this.setDate(currentDate);//reset the date
 
@@ -405,6 +405,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				return false;
 			}
 		}
+		return false;
 	}
 
 	isMourningPeriod() {
