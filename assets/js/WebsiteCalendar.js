@@ -1,11 +1,8 @@
 // @ts-check
-
 /*
-import * as KosherZmanim from "./libraries/kosherzmanim/kosher-zmanim.js"
-import luxon from "./libraries/luxon/index.js";
-import { n2words } from "./libraries/n2words";
+import * as KosherZmanim from "./libraries/dev/kosherZmanim.js"
 export default
-// */
+*/
 
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
     setUpDateFormatter() {
@@ -245,6 +242,9 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
      * @param {number} tekufaID
      */
     getTekufaName(tekufaID) {
+		if (!this.dateFormatter)
+			this.setUpDateFormatter();
+
         const tekufaMonths = [6,9,0,3];
         const jewishDate = new KosherZmanim.JewishDate();
 
@@ -265,6 +265,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	getTekufaAsDate() {
 		const hours = this.getTekufa() - 6;
 		const minutes = Math.floor((hours - Math.floor(hours)) * 60);
+		// @ts-ignore
 		const date = luxon.DateTime.fromObject({
 			year: this.getGregorianYear(),
 			month: this.getGregorianMonth() + 1,

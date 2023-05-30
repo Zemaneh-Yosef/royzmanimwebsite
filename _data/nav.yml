@@ -312,7 +312,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getMinhaKetana
+    timeGetter: getMinchaKetana
     names:
       hb: מנחה קטנה
       et: Minha Ketana
