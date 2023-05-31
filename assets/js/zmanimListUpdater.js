@@ -4,9 +4,7 @@
 import * as KosherZmanim from "./libraries/dev/bundle.js";
 import ROZmanim from "./ROYZmanim.js";
 import WebsiteCalendar from "./WebsiteCalendar.js";
-
-/** @type {import("./libraries/n2words.js")} */
-var n2words = n2words;
+import n2words from "./libraries/n2wordsrollup.js";
 
 const settings = {
 	amudehHoraah: () => localStorage.getItem("amudehHoraah") == "true",
