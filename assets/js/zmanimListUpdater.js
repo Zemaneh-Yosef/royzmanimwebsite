@@ -198,7 +198,23 @@ class zmanimListUpdater {
 			sefirathHaomer.style.display = 'none';
 			threeWeeks.style.removeProperty("display");
 
-			// TODO: Implement Switching the titles
+			const threeWeeksText = Array.from(threeWeeks.getElementsByClassName("threeWeeks"));
+			const nineDaysText = Array.from(threeWeeks.getElementsByClassName("nineDays"));
+			const weekOfText = Array.from(threeWeeks.getElementsByClassName("weekOf"));
+
+			if (this.jewishCalendar.isShvuaShechalBo()) {
+				weekOfText.forEach((/** @type {HTMLElement} */ elem) => elem.style.removeProperty("display"))
+				nineDaysText.forEach((/** @type {HTMLElement} */ elem) => elem.style.display = "none")
+				threeWeeksText.forEach((/** @type {HTMLElement} */ elem) => elem.style.display = "none")
+			} else if (this.jewishCalendar.getJewishMonth() == KosherZmanim.JewishCalendar.AV) {
+				weekOfText.forEach((/** @type {HTMLElement} */ elem) => elem.style.display = "none")
+				nineDaysText.forEach((/** @type {HTMLElement} */ elem) => elem.style.removeProperty("display"))
+				threeWeeksText.forEach((/** @type {HTMLElement} */ elem) => elem.style.display = "none")
+			} else {
+				weekOfText.forEach((/** @type {HTMLElement} */ elem) => elem.style.display = "none")
+				nineDaysText.forEach((/** @type {HTMLElement} */ elem) => elem.style.display = "none")
+				threeWeeksText.forEach((/** @type {HTMLElement} */ elem) => elem.style.removeProperty("display"))
+			}
 		}
 
 		for (const [key, value] of Object.entries(this.jewishCalendar.mourningHalachot())) {

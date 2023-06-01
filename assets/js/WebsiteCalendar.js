@@ -2,8 +2,8 @@
 
 // Comment the following lines before going live!
 import * as KosherZmanim from "./libraries/dev/bundle.js"
-export default
 
+export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
     setUpDateFormatter() {
         this.dateFormatter = {
@@ -57,10 +57,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	isTaanitBechorot() {
 		return (
 			this.getJewishMonth() === KosherZmanim.JewishDate.NISSAN &&
-			((this.getJewishDayOfMonth() === 14 &&
-				this.getDayOfWeek() !== 7) ||
-				(this.getJewishDayOfMonth() === 12 &&
-					this.getDayOfWeek() === 5))
+			((this.getJewishDayOfMonth() === 14 && this.getDayOfWeek() !== 7) ||
+			 (this.getJewishDayOfMonth() === 12 && this.getDayOfWeek() === 5))
 		);
 	}
 
@@ -198,7 +196,10 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"english": "Jerusalem Day"
 			}],
 		]);
-		return yomTovObj[this.getYomTovIndex()]["english-translated"];
+		if (!yomTovObj[this.getYomTovIndex()])
+			return null;
+
+		return yomTovObj[this.getYomTovIndex()]["english-translated"] || yomTovObj[this.getYomTovIndex()]["english"];
 	}
 
 	listOfSpecialDays() {
@@ -291,7 +292,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		) {
 			return "There is no Tachanun today";
 		}
-		var yomTovIndexForNextDay = this.tomorrow().getYomTovIndex();
+		const yomTovIndexForNextDay = this.tomorrow().getYomTovIndex();
 		if (this.getDayOfWeek() == 6 ||
 			yomTovIndex == KosherZmanim.JewishCalendar.FAST_OF_ESTHER ||
 			[
@@ -378,17 +379,17 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	getHallel() {
-		var yomTovIndex = this.getYomTovIndex();
-		if (
-			(this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
-				this.getJewishDayOfMonth() == 15) || //First day of Pesach
-			(!this.getInIsrael() &&
-				this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN &&
-				this.getJewishDayOfMonth() == 16) || //First day of Pesach outside of israel
-			[
+		const yomTovIndex = this.getYomTovIndex();
+
+		const firstDayOfPessach = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 15);
+		const secondDayOfPessach = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 16);
+
+		if (this.isDate(firstDayOfPessach) || (!this.getInIsrael() && secondDayOfPessach)
+		 || [
 				KosherZmanim.JewishCalendar.SHAVUOS,
 				KosherZmanim.JewishCalendar.SUCCOS,
-				KosherZmanim.JewishCalendar.SHEMINI_ATZERES
+				KosherZmanim.JewishCalendar.SHEMINI_ATZERES,
+				KosherZmanim.JewishCalendar.SIMCHAS_TORAH
 			].includes(yomTovIndex) ||
 			this.isCholHamoedSuccos() ||
 			this.isChanukah()
@@ -431,7 +432,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	getTekufaID() {
-		var INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
+		const INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
 
 		const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
 		var days =
@@ -476,30 +477,23 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 	isShvuaShechalBo() {
 		//shevua shechal bo happens on the whole week that tisha beav falls out on
-		if (this.getJewishMonth() == KosherZmanim.JewishDate.AV) {
-			const currentDate = this.getDate();
-			this.setJewishDayOfMonth(9);//set to the 9th of Av
-			if (this.getDayOfWeek() == 1 || this.getDayOfWeek() == 7) {
-				return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
-			}
-			this.setDate(currentDate);//reset the date
-
-			//now we need to find out if the current day is in the week of tisha beav
-			var tishaBeav = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.AV, 9);
-			let dayOfWeek = tishaBeav.getDayOfWeek() - 1;// avoid tisha beav itself, not sure if this is what is intended/wanted
-			const daysOfShvuaShechalBo = [];
-			while (dayOfWeek != 1) {
-				daysOfShvuaShechalBo.push(tishaBeav.getJewishDayOfMonth());// add which days are in the week of tisha beav
-				tishaBeav.setJewishDayOfMonth(tishaBeav.getJewishDayOfMonth() - 1);
-				dayOfWeek = tishaBeav.getDayOfWeek() - 1;
-			}
-			if (daysOfShvuaShechalBo.includes(this.getJewishDayOfMonth())) {
-				return true;
-			} else {
-				return false;
-			}
+		if (this.getJewishMonth() !== KosherZmanim.JewishDate.AV)
+			return false;
+		
+		const currentDate = this.getDate();
+		this.setJewishDayOfMonth(9);//set to the 9th of Av
+		if (this.getDayOfWeek() == 1 || this.getDayOfWeek() == 7) {
+			return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
 		}
-		return false;
+		this.setDate(currentDate);//reset the date
+
+		//now we need to find out if the current day is in the week of tisha beav
+		const tishaBeav = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.AV, 9);
+		const daysOfShvuaShechalBo = [];
+		for (; tishaBeav.getDayOfWeek() != 7; tishaBeav.setJewishDayOfMonth(tishaBeav.getJewishDayOfMonth() - 1))
+			daysOfShvuaShechalBo.push(tishaBeav.getJewishDayOfMonth());// add which days are in the week of tisha beav
+
+		return daysOfShvuaShechalBo.includes(this.getJewishDayOfMonth());
 	}
 
 	isMourningPeriod() {
@@ -510,31 +504,40 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return validAv || validTamuz || validSefira
 	}
 
+	/**
+	 * @param {KosherZmanim.JewishDate} jewishDate
+	 */
+	isDate(jewishDate) {
+		return (this.getJewishDayOfMonth() == jewishDate.getJewishDayOfMonth()
+			 && this.getJewishMonth() == jewishDate.getJewishMonth()
+			 && this.getJewishYear() == jewishDate.getJewishYear());
+	}
+
 	/*
 	* If an attribute returns true, that means the mourning customs are in effect
 	*/
 	mourningHalachot() {
+		const validAv = this.getJewishMonth() == KosherZmanim.JewishDate.AV
+					 && this.getJewishDayOfMonth() >= 2
+					 && this.getJewishDayOfMonth() <= 8;
+
+		const threeWeeks = validAv || (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17);
+		const validOmer = (this.getDayOfOmer() <= 34 && this.getDayOfOmer() !== -1)
+
+		const allDaysOfMourning = (this.getDayOfOmer() <= 34) || threeWeeks;
+		const noHolHamoed = (this.getDayOfOmer() >= 8 && this.getDayOfOmer() <= 32) || threeWeeks;
+
 		return {
-			music: (
-				(this.getDayOfOmer() >= 8 && this.getDayOfOmer() <= 32)
-				|| (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17)
-				|| (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 9)
-			),
-			haircuts: (
-				(this.getDayOfOmer() <= 34)
-				|| (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17)
-				|| (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 9)
-			),
-			wedding: (
-				(this.getDayOfOmer() <= 34)
-				|| (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17)
-				|| (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 9)
-			),
-			clothing: (
-				(this.getDayOfOmer() <= 34)
-				|| (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17)
-				|| (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 9)
-			)
+			music: noHolHamoed,
+			haircuts: validOmer || this.isShvuaShechalBo(),
+			wedding: validOmer || validAv,
+			purchaseClothing: validOmer || validAv,
+			swimming: this.isShvuaShechalBo(),
+			construction: this.isShvuaShechalBo(),
+			meat: validAv && this.getDayOfWeek() !== 7,
+			showering: this.isShvuaShechalBo(),
+			laundry: this.isShvuaShechalBo(),
+			wearingClothing: validAv
 		}
 	}
 
