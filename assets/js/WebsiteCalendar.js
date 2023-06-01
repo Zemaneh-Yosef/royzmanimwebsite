@@ -488,7 +488,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		this.setDate(currentDate);//reset the date
 
 		//now we need to find out if the current day is in the week of tisha beav
-		const tishaBeav = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.AV, 9);
+		const tishaBeav = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.AV, 8);
 		const daysOfShvuaShechalBo = [];
 		for (; tishaBeav.getDayOfWeek() != 7; tishaBeav.setJewishDayOfMonth(tishaBeav.getJewishDayOfMonth() - 1))
 			daysOfShvuaShechalBo.push(tishaBeav.getJewishDayOfMonth());// add which days are in the week of tisha beav
@@ -499,7 +499,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	isMourningPeriod() {
 		const validSefira = this.getDayOfOmer() !== -1;
 		const validTamuz = (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17);
-		const validAv = (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 9);
+		const validAv = (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 8);
 
 		return validAv || validTamuz || validSefira
 	}
@@ -524,7 +524,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const threeWeeks = validAv || (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17);
 		const validOmer = (this.getDayOfOmer() <= 34 && this.getDayOfOmer() !== -1)
 
-		const allDaysOfMourning = (this.getDayOfOmer() <= 34) || threeWeeks;
+		const allDaysOfMourning = validOmer || threeWeeks;
 		const noHolHamoed = (this.getDayOfOmer() >= 8 && this.getDayOfOmer() <= 32) || threeWeeks;
 
 		return {
