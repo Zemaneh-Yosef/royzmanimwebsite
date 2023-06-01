@@ -384,7 +384,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const firstDayOfPessach = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 15);
 		const secondDayOfPessach = new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 16);
 
-		if (this.isDate(firstDayOfPessach) || (!this.getInIsrael() && secondDayOfPessach)
+		if (this.isDate(firstDayOfPessach) || (!this.getInIsrael() && this.isDate(secondDayOfPessach))
 		 || [
 				KosherZmanim.JewishCalendar.SHAVUOS,
 				KosherZmanim.JewishCalendar.SUCCOS,
