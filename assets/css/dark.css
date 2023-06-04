@@ -1,5 +1,6 @@
 .list-group {
   --mdb-list-group-bg: #303030;
+  --mdb-card-bg: #303030;
   --mdb-list-group-color: white;
 }
 

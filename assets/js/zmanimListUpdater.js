@@ -280,7 +280,7 @@ class zmanimListUpdater {
 		const ulchaparat = document.getElementById("Ulchaparat");
 		if (this.jewishCalendar.isRoshChodesh()) {
 			ulchaparat.style.removeProperty("display");
-			ulchaparat.innerHTML = (this.jewishCalendar.getUlchaparatPesha() ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
+			ulchaparat.innerHTML = (this.jewishCalendar.tefilahRules().amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
 		} else {
 			ulchaparat.style.display = "none";
 		}
@@ -302,15 +302,28 @@ class zmanimListUpdater {
 		}
 
 		var tachanun = document.getElementById("Tachanun");
-		tachanun.innerHTML = this.jewishCalendar.getTachanun();
+		if (this.jewishCalendar.getDayOfWeek() == 7) {
+			tachanun.innerHTML = this.jewishCalendar.tefilahRules().tachanun == 0 ? "צדקתך" : "יהי שם"
+		} else {
+			switch (this.jewishCalendar.tefilahRules().tachanun) {
+				case 2:
+					tachanun.innerHTML = "No Tachanun";
+					break;
+				case 1:
+					tachanun.innerHTML = "Only Tachanun at Shacharit";
+					break;
+				case 0:
+					tachanun.innerHTML = "Calendar-Tachanun Day";
+			}
+		}
 
 		var hallel = document.getElementById("Hallel");
-		var hallelText = this.jewishCalendar.getHallel();
+		var hallelText = this.jewishCalendar.tefilahRules().hallel;
 		if (!hallelText) {
 			hallel.style.display = "none";
 		} else {
 			hallel.style.removeProperty("display");
-			hallel.innerHTML = hallelText;
+			hallel.innerHTML = hallelText == 2 ? "הלל שלם (עם ברכה)" : "חצי הלל (בלי ברכה)";
 		}
 
 		var tekufa = document.getElementById("Tekufa");
@@ -458,7 +471,6 @@ class zmanimListUpdater {
 
 		var daf = document.getElementById("dafBavli");
 		var dafYerushalmi = document.getElementById("DafYerushalmi");
-		var seasonal = document.getElementById("SeasonalPrayers");
 		var shaahZmanit = document.getElementById("ShaahZmanit");
 
 		var dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(this.jewishCalendar);
@@ -473,7 +485,11 @@ class zmanimListUpdater {
 			dafYerushalmi.innerHTML = dafYerushalmiObject.getYerushalmiMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
 		}
 
-		seasonal.innerHTML = this.jewishCalendar.getSeasonalPrayers();
+		var seasonal = document.getElementById("SeasonalPrayers");
+		seasonal.innerHTML = [
+			this.jewishCalendar.tefilahRules().amidah.mechayehHametim,
+			this.jewishCalendar.tefilahRules().amidah.mevarechHashanim
+		].filter(Boolean).join(" / ");
 		shaahZmanit.innerHTML = this.shaahZmanits();
 	}
 
