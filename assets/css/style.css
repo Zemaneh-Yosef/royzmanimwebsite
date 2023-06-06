@@ -289,26 +289,28 @@ body.lang-en .lang:not(.lang-en) {
   display: none;
 }
 
-#wideGrid {
-  display: grid;
-  grid-template-areas:
-    "crucial zmanim"
-    "extra zmanim";
-  grid-template-rows: auto auto;
-  grid-template-columns: 40% 60%;
-  gap: 1em;
-}
-
-#wideGrid > #generic {
-  grid-area: crucial;
-}
-
-#wideGrid > #zmanim {
-  grid-area: zmanim;
-}
-
-#wideGrid > #special {
-  grid-area: extra;
+@media (min-width: 992px) {
+  #wideGrid {
+    display: grid;
+    grid-template-areas:
+      "crucial zmanim"
+      "extra zmanim";
+    grid-template-rows: auto auto;
+    grid-template-columns: 40% 60%;
+    gap: 1em;
+  }
+  
+  #wideGrid > #generic {
+    grid-area: crucial;
+  }
+  
+  #wideGrid > #zmanim {
+    grid-area: zmanim;
+  }
+  
+  #wideGrid > #special {
+    grid-area: extra;
+  }
 }
 
 .nextZman .timeDisplay::before {
