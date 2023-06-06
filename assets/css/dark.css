@@ -1,7 +1,21 @@
+.list-group-item {
+  --mdb-list-group-bg: #303030;
+  --mdb-list-group-color: white;
+}
 .list-group {
   --mdb-list-group-bg: #303030;
-  --mdb-card-bg: #303030;
   --mdb-list-group-color: white;
+}
+.card {
+  --mdb-card-bg: #303030;
+}
+
+:root {
+  --mdb-list-group-bg: #303030;
+  --mdb-list-group-color: white;
+  --mdb-list-group-bg: #303030;
+  --mdb-list-group-color: white;
+  --mdb-card-bg: #303030;
 }
 
 body {
