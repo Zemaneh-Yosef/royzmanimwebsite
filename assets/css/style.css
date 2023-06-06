@@ -46,7 +46,7 @@ html {
   100% { left: -100%; }
 }
 
-.hdReg {
+#hd {
   width: 100%;
   position: initial;
   z-index: 9999;

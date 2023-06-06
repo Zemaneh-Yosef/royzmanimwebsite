@@ -8,7 +8,7 @@ body {
   background: #212529;
 }
 
-.hd {
+#hd {
     background: #3b3939;/* #3b3939 is equivalent to rgb( 59, 57, 57 ) */
     color: #ffffff;
     --ind-menu-main-color: #0A7DA4;
@@ -30,18 +30,12 @@ body {
   background: #3b3939;
 }
 
-.li {
-    color: #fff;
+.main-nav__list li {
+  color: #fff;
 }
 
-.a {
-    color: #fff;
-}
-.a:hover {
-  background-color: #000000;
-    color: #fff;
-}
-.a:focus {
+.main-nav__list li:hover,
+.main-nav__list li:focus {
   background-color: #000000;
     color: #fff;
 }
