@@ -6,5 +6,10 @@
         "noImplicitThis": false,
         "strictNullChecks": false
     },
-    "exclude": ["_site"]
+    "exclude": ["_site"],
+    "typeAcquisition": {
+        "include": [
+            "jquery"
+        ]
+    }
 }

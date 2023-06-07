@@ -31,13 +31,13 @@
 			if (this.options.box) this.options.hideOnOutsideClick = false; // never auto-hide for inline boxes
 			this._hideOnOutsideClick(this.options.hideOnOutsideClick);
 			// if options.position is an object suitable for passing to $.fn.position (field 'my' is defined) then use it; otherwise use the string shortcuts
-			this._position = $.extend({
-				of: this.element, // the input element that flexcal was called on
-				collision: 'none',
+			this._position = {
+				of: this.element.closest('.card'), // the input element that flexcal was called on
+				collision: 'flipfit',
 				using: function(to) { $(this).stop(true, false).animate(to, 200) } // animate the repositioning	
-			}, this.options.position.my ? this.options.position : position[this.options.position]);
+			};
 			// turn the duration into an array to be used with Function.apply
-			this._duration = $.isArray(this.options.duration) ? this.options.duration : [this.options.duration];
+			this._duration = Array.isArray(this.options.duration) ? this.options.duration : [this.options.duration];
 			var trigger = this.options.trigger;
 			if (trigger == 'self'){
 				trigger = this.element;
@@ -88,7 +88,7 @@
 				$(this.options.box) :
 				$('<div/>').appendTo('body').css({position: 'absolute', display: 'none'});
 			box.addClass(this.options['class']).
-				keydown(function(e) {
+				on("keydown", function(e) {
 					if (e.keyCode == $.ui.keyCode.ESCAPE) {
 						self.element.focus();
 						if (self.options.hideOnOutsideClick) self.hide();
@@ -136,22 +136,8 @@
 			hide: $.fn.hide,
 			duration: 'slow',
 			hideOnOutsideClick: true,
-			position: 'tl',
 			trigger: 'self',
 			'class': 'ui-textpopup-box'
 		}
 	});
-
-	// position for the textpopup relative to the input box. rt means right side, aligned to top; tr means top side, aligned to right
-	var position = {
-		tl: {my: 'left bottom', at: 'left top'},
-		tr: {my: 'right bottom ', at: 'right top'},
-		bl: {my: 'left top', at: 'left bottom'},
-		br: {my: 'right top', at: 'right bottom'},
-		lt: {my: 'right top', at: 'left top'},
-		rt: {my: 'left top', at: 'right top'},
-		lb: {my: 'right bottom', at: 'left bottom'},
-		rb: {my: 'left bottom', at: 'right bottom'}
-	};
-	
 })(jQuery);
