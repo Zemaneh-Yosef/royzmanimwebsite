@@ -398,7 +398,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 	getTekufaAsDate() {
 		const hours = this.getTekufa() - 6;
-		const minutes = Math.floor((hours - Math.floor(hours)) * 60);
+		let minutes = Math.floor((hours - Math.floor(hours)) * 60);
+		minutes -= 21;
 		// @ts-ignore
 		const date = luxon.DateTime.fromObject({
 			year: this.getGregorianYear(),
