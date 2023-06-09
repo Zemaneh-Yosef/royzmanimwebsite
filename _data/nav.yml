@@ -3,7 +3,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getAlos72Zmanis
+    timeGetter: getAlotHashachar
     names:
       hb: עלות השחר
       et: Alot Hashachar
@@ -43,7 +43,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getEarliestTalitAndTefilin
+    timeGetter: getMisheyakir
     names:
       hb: טלית ותפילין
       et: Earliest Talit and Tefilin
@@ -88,7 +88,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getSeaLevelSunrise
+    timeGetter: getNetz
     names:
       hb: הנץ (משור)
       et: HaNetz (Mishor)
@@ -121,7 +121,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getSofZmanShmaMGA72MinutesZmanis
+    timeGetter: getSofZmanShmaMGA
     names:
       hb: סוף זמן שמע מג'א
       et: Sof Zman Shma MG'A
@@ -171,7 +171,7 @@ zmanim:
     yomTovInclusive: EREV_PESACH
     luachInclusive:
     condition:
-    timeGetter: getSofZmanTfilaMGA72MinutesZmanis
+    timeGetter: getSofZmanAchilathHametz
     names:
       hb: סוף זמן אכילת חמץ
       et: Sof Zman Achilat Chametz
@@ -194,7 +194,7 @@ zmanim:
     yomTovInclusive: EREV_PESACH
     luachInclusive:
     condition:
-    timeGetter: getSofZmanBiurChametzMGA
+    timeGetter: getSofZmanBiurHametz
     names:
       hb: סוף זמן ביעור חמץ
       et: Sof Zman Biur Chametz
@@ -218,7 +218,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getSofZmanTfilaGRA
+    timeGetter: getSofZmanBrachothShma
     names:
       hb: סוף זמן ברכות שמע
       et: Sof Zman Berachot Shma
@@ -243,7 +243,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getChatzos
+    timeGetter: getHatzoth
     names:
       hb: חצות
       et: Hatsoth
@@ -275,7 +275,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getMinchaGedolaGreaterThan30
+    timeGetter: getMinhaGedolah
     names:
       hb: מנחה גדולה
       et: Mincha Gedola
@@ -333,7 +333,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getPlagHaminchaHalachaBrurah
+    timeGetter: getPlagHaminhaHalachaBrurah
     names:
       hb: פלג המנחה הלכה ברורה
       et: Plag HaMincha Lefi Halacha Brurah
@@ -371,7 +371,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getPlagHaminchaYalkutYosef
+    timeGetter: getPlagHaminhaYalkutYosef
     names:
       hb: פלג המנחה ילקות יוסף
       et: Plag HaMincha Lefi Yalkut Yosef
@@ -434,7 +434,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getElevationAdjustedSunset
+    timeGetter: getShkiya
     names:
       hb: שקיעה
       et: Shkia
@@ -474,6 +474,43 @@ zmanim:
       hb: צאת הכוכבים
       et: Tzait Hacochavim
       en: Nightfall
+    description: |-
+      <p>
+                  Tzeit/Nightfall is the time when the next halachic day starts after
+                  Bein Hashmashot/twilight finishes.
+                </p>
+                <p>
+                  This is the latest time a person can say Mincha according Rav
+                  Ovadiah Yosef Z\"TL. A person should start mincha at least 2 minutes
+                  before this time.
+                </p>
+                <p>
+                  This time is calculated as 13 and a half zmaniyot/seasonal minutes
+                  after sunset (elevation included).
+                </p>
+                <p>
+                  The GR\"A calculates a zmaniyot/seasonal hour by taking the time
+                  between sunrise and sunset (elevation included) and divides it into
+                  12 equal parts. Then we divide one of those 12 parts into 60 to get
+                  a zmaniyot/seasonal minute.
+                </p>
+                <p>
+                  In Luach Amudei Horaah mode, this time is calculated by finding out
+                  the amount of minutes between sunset and 3.86 degrees below the
+                  horizon on an equal day, then we add that amount of zmaniyot minutes
+                  to sunset to get the time of Tzeit/Nightfall. We use 3.86 degrees
+                  below the horizon because that is the time when it is 13.5 minutes
+                  after sunset in Israel.
+                </p>
+  - id: tzeitLechumra
+    yomTovInclusive:
+    luachInclusive: amudehHoraah
+    condition:
+    timeGetter: getTzaitLechumra
+    names:
+      hb: צאת הכוכבים לחומרה
+      et: Tzait Hacochavim LeChumra
+      en: Nightfall (Stringent)
     description: |-
       <p>
                   Tzeit/Nightfall is the time when the next halachic day starts after
@@ -559,7 +596,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getTzaitShabbat
+    timeGetter: getTzaitShabbath
     names:
       hb: צאת שבת
       et: Tzait Shabbat
@@ -587,7 +624,7 @@ zmanim:
     yomTovInclusive:
     luachInclusive:
     condition:
-    timeGetter: getTzais72Zmanis
+    timeGetter: getTzaitRT
     names:
       hb: ר״ת
       et: Rabbeinu Tam

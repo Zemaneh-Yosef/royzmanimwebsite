@@ -2,7 +2,7 @@
 
 // Comment the following few lines before going live
 import * as KosherZmanim from "./libraries/dev/bundle.js";
-import ROZmanim from "./ROYZmanim.js";
+import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.js";
 import WebsiteCalendar from "./WebsiteCalendar.js";
 import n2words from "./libraries/n2wordsrollup.js";
 
@@ -15,21 +15,6 @@ const settings = {
 	tzeith: () => parseInt(localStorage.getItem("tzeith")) || 40
 }
 
-/**
- * @param {{ [x: string]: any; }} toCheck
- */
-function getAllMethods (toCheck) {
-	const props = [];
-    let obj = toCheck;
-    do {
-        props.push(...Object.getOwnPropertyNames(obj));
-    } while (obj = Object.getPrototypeOf(obj));
-    
-    return props.sort().filter((e, i, arr) => { 
-       if (e!=arr[i+1] && typeof toCheck[e] == 'function') return true;
-    });
-}
-
 class zmanimListUpdater {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
@@ -38,12 +23,9 @@ class zmanimListUpdater {
 		this.geoLocation = geoLocation;
 		document.getElementById("LocationName").innerHTML = geoLocation.getLocationName() || "No Location Name Provided";
 
-		this.zmanimCalendar = new ROZmanim(geoLocation);
-		this.zmanimCalendar.setCandleLightingOffset(settings.candleLighting());
-		this.zmanimCalendar.setAteretTorahSunsetOffset(settings.tzeith());
-
-		this.zmanimCalendar.setUseElevation(!settings.amudehHoraah());
-		this.zmanimCalendar.setDegreeUsage(settings.amudehHoraah());
+		this.zmanimCalendar = (settings.amudehHoraah() ? new AmudehHoraahZmanim(geoLocation) : new OhrHachaimZmanim(geoLocation, true));
+		this.zmanimCalendar.ComplexZmanimCalendar.setCandleLightingOffset(settings.candleLighting());
+		this.zmanimCalendar.ComplexZmanimCalendar.setAteretTorahSunsetOffset(settings.tzeith());
 
 		this.jewishCalendar = new WebsiteCalendar();
 		this.jewishCalendar.setUseModernHolidays(true);
@@ -89,7 +71,7 @@ class zmanimListUpdater {
 	 * @param {luxon.DateTime} date
 	 */
 	changeDate(date) {
-		this.zmanimCalendar.setDate(date)
+		this.zmanimCalendar.ComplexZmanimCalendar.setDate(date)
 		this.jewishCalendar.setDate(date)
 	}
 
@@ -255,7 +237,7 @@ class zmanimListUpdater {
 		document.getElementById("priorityDate").innerText = primaryDate;
 		document.getElementById("secondaryDate").innerText = secondaryDate;
 		document.getElementById("otherDate").innerText = otherDate;
-		if (this.zmanimCalendar.getDate().hasSame(window.luxon.DateTime.local(), "day")) {
+		if (this.zmanimCalendar.ComplexZmanimCalendar.getDate().hasSame(window.luxon.DateTime.local(), "day")) {
 			document.getElementById("dateContainer").classList.add("text-bold");
 		}
 
@@ -368,8 +350,9 @@ class zmanimListUpdater {
 
 		for (const timeSlot of indContainers) {
 			if ((!timeSlot.hasAttribute('timeGetter')
-			 || !getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) && timeSlot.id !== 'candleLighting') {
+			 || !methodNames.includes(timeSlot.getAttribute('timeGetter'))) && timeSlot.id !== 'candleLighting') {
 				timeSlot.style.display = "none";
+				console.log(timeSlot.getAttribute('timeGetter'), methodNames)
 				continue;
 			}
 
@@ -391,8 +374,10 @@ class zmanimListUpdater {
 
 					if (implementation)
 						timeSlot.style.removeProperty("display");
-					else
+					else {
 						timeSlot.style.display = "none"
+						continue;
+					}
 				}
 			}
 
@@ -443,6 +428,13 @@ class zmanimListUpdater {
 				case 'rt':
 					if (!settings.seconds() && dateTimeForZman.second !== 0)
 						dateTimeForZman = dateTimeForZman.set({second: 0}).plus({minutes: 1})
+					break;
+				case 'tzeit':
+					if (this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) {
+						timeSlot.style.display = "none";
+					} else {
+						timeSlot.style.removeProperty("display");
+					}
 			}
 
 			if (timeSlot.hasAttribute('condition')) {
@@ -464,8 +456,8 @@ class zmanimListUpdater {
 			if (timeSlot.hasAttribute('specialDropdownContent')) {
 				const description = timeSlot.querySelector('.accordianContent');
 				description.innerHTML = description.innerHTML
-					.replaceAll('${getAteretTorahSunsetOffset()}', this.zmanimCalendar.getAteretTorahSunsetOffset().toString())
-					.replaceAll('${getCandleLightingOffset()}', this.zmanimCalendar.getCandleLightingOffset().toString())
+					.replaceAll('${getAteretTorahSunsetOffset()}', this.zmanimCalendar.ComplexZmanimCalendar.getAteretTorahSunsetOffset().toString())
+					.replaceAll('${getCandleLightingOffset()}', this.zmanimCalendar.ComplexZmanimCalendar.getCandleLightingOffset().toString())
 			}
 		}
 
@@ -497,46 +489,18 @@ class zmanimListUpdater {
 		const zmanimFormatter = new KosherZmanim.ZmanimFormatter(geoLocation.getTimeZone());
 		zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
 
-		return `Shaah Zmanith GR'A: ${zmanimFormatter.format(this.zmanimCalendar.getShaahZmanisGra())}
-		/ MG'A: ${zmanimFormatter.format(this.zmanimCalendar.getShaahZmanis72MinutesZmanis())}`.replace('\n', ' ')
-	}
-
-	tzeitTester() {
-		var TzeitZmanimTable = []
-		for (var i = new Decimal(0); i.toNumber() < 4; i = i.plus(0.01)) {
-			TzeitZmanimTable.push({
-				degree: i.toNumber(),
-				TimeObj: this.zmanimCalendar.getTzait(i.toNumber()),
-				timeRenderer: this.zmanimCalendar.getTzait(i.toNumber()).setZone(geoLocation.getTimeZone()).toFormat("h:mm:ss a")
-			})
-		}
-
-		console.table(TzeitZmanimTable)
-		return TzeitZmanimTable;
-	}
-
-	alotTester() {
-		var TzeitZmanimTable = []
-		for (var i = new Decimal(14); i.toNumber() < 18; i = i.plus(0.01)) {
-			TzeitZmanimTable.push({
-				degree: i.toNumber(),
-				TimeObj: this.zmanimCalendar.getAlos72Zmanis(i.toNumber()),
-				timeRenderer: this.zmanimCalendar.getAlos72Zmanis(i.toNumber()).setZone(geoLocation.getTimeZone()).toFormat("h:mm:ss a")
-			})
-		}
-
-		console.table(TzeitZmanimTable)
-		return TzeitZmanimTable;
+		return `Shaah Zmanith GR'A: ${zmanimFormatter.format(this.zmanimCalendar.ComplexZmanimCalendar.getShaahZmanisGra())}
+		/ MG'A: ${zmanimFormatter.format(this.zmanimCalendar.ComplexZmanimCalendar.getShaahZmanis72MinutesZmanis())}`.replace('\n', ' ')
 	}
 
 	getIsTonightStartOrEndBirchatLevana() {
 		var startTimeSevenDays = this.jewishCalendar.getTchilasZmanKidushLevana7Days();
 		var endTimeFifteenDays = this.jewishCalendar.getSofZmanKidushLevana15Days();
 
-		if (this.zmanimCalendar.getDate().hasSame(startTimeSevenDays, "day")) {
+		if (this.jewishCalendar.getDate().hasSame(startTimeSevenDays, "day")) {
 			return "Birchat HaLevana starts tonight";
 		}
-		if (this.zmanimCalendar.getDate().hasSame(endTimeFifteenDays, "day")) {
+		if (this.jewishCalendar.getDate().hasSame(endTimeFifteenDays, "day")) {
 			return "Last night for Birchat HaLevana";
 		}
 		return false;
@@ -595,7 +559,7 @@ class zmanimListUpdater {
 
 		for (const timeSlot of indContainers) {
 			if ((!timeSlot.hasAttribute('timeGetter')
-			 || !getAllMethods(ROZmanim.prototype).includes(timeSlot.getAttribute('timeGetter'))) && timeSlot.id !== 'candleLighting') {
+			 || !methodNames.includes(timeSlot.getAttribute('timeGetter'))) && timeSlot.id !== 'candleLighting') {
 				continue;
 			}
 
