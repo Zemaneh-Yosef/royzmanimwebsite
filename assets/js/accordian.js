@@ -1,3 +1,5 @@
+let accordionEntries = [...document.querySelectorAll('.accordian details')]
+
 class Accordion {
     /**
    * @param {HTMLDetailsElement} el
@@ -68,6 +70,7 @@ class Accordion {
     }
   
     open() {
+      accordionEntries.filter(elem => elem.el.open).forEach(elem => elem.shrink())
       // Apply a fixed height on the element
       this.el.style.height = `${this.el.offsetHeight}px`;
       // Force the [open] attribute on the details element
@@ -120,6 +123,5 @@ class Accordion {
       this.el.style.removeProperty('overflow');
     }
   }
-  
-  document.querySelectorAll('.accordian details').forEach((/** @type {HTMLDetailsElement} */ el) => new Accordion(el))
-  
+
+accordionEntries = accordionEntries.map((/** @type {HTMLDetailsElement} */ el) => new Accordion(el))
