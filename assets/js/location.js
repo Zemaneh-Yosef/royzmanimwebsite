@@ -1,4 +1,4 @@
-const getJSON = async (url) => await (await fetch(url)).json();
+const getJSON = async (/** @type {RequestInfo | URL} */ url) => await (await fetch(url)).json();
 const geoLocation = {
 	locationName: '',
 	lat: 0,
@@ -60,7 +60,7 @@ function manualLocationSubmit() {
 }
 
 async function updateList(event) {
-	const q = encodeURIComponent(document.getElementById("Main").value);
+	const q = document.getElementById("Main").value;
 	if (q.length < 3)
 		return;
 
@@ -68,6 +68,16 @@ async function updateList(event) {
 		let locationName = true;
 		let params = new URLSearchParams({ q, maxRows, 'username': 'Elyahu41' });
 		let data = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString());
+		if (!data.geonames.length && q.includes(',')) {
+			params.delete('q');
+			params.set('q', q.split(',')[0]);
+			const newData = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString())
+			const match = newData.geonames.find(geoName => [...new Set([geoName.name || geoName.placeName,
+				geoName.adminName1 || geoName.adminCode1,
+				geoName.countryName || geoName.countryCode])].filter(Boolean).join(", ") == q)
+			if (match)
+				data.geonames = [match]
+		}
 		if (!data.geonames.length) {
 			locationName = false;
 
@@ -90,7 +100,7 @@ async function updateList(event) {
 			}
 		} else {
 			loadingScreen();
-			const geoName = (locationName ? data.geonames[0] : data.postalcodes[0])
+			const geoName = (locationName ? data.geonames.find(entry => entry.name.includes(q)) || data.geonames[0] : data.postalcodes[0])
 			await setLocation(
 				geoName.name || geoName.placeName,
 				geoName.adminName1 || geoName.adminCode1,
@@ -140,21 +150,26 @@ async function setLocation(name, admin, country, latitude, longitude) {
 	geoLocation.elevation = await getAverageElevation(latitude, longitude);
 }
 
-async function getLocation() {
+/**
+ * @param {PositionOptions} options
+ */
+function getCoordinates(options) {
+	return new Promise(function(resolve, reject) {
+	  navigator.geolocation.getCurrentPosition(resolve, reject, options);
+	});
+}
+
+function getLocation() {
 	if (!navigator.geolocation) {
 		errorBox.innerHTML = "Geolocation is not supported by this browser.";
 		errorBox.style.display = "block";
 	}
 
 	loadingScreen();
-	try {
-		const pos = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject));
-
-		await setLatLong(pos);
-		openCalendarWithLocationInfo();
-	} catch (e) {
-		showError(error)
-	}
+	getCoordinates({maximumAge:60000, timeout:5000, enableHighAccuracy:true})
+		.then(pos => setLatLong(pos))
+		.then(() => openCalendarWithLocationInfo())
+		.catch((e) => showError(e))
 }
 
 async function setLatLong (position) {
