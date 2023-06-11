@@ -1,13 +1,24 @@
-.list-group-item {
-  --mdb-list-group-bg: #303030;
-  --mdb-list-group-color: white;
-}
+.list-group-item,
 .list-group {
   --mdb-list-group-bg: #303030;
   --mdb-list-group-color: white;
 }
 .card {
   --mdb-card-bg: #303030;
+}
+
+.modal {
+  --mdb-modal-bg: #303030;
+  --mdb-modal-color: #adb5bd;
+}
+
+.modal-content {
+  border: var(--mdb-modal-border-width) solid rgba(255, 255, 255, 0.15);
+}
+
+.modal-header {
+  --mdb-modal-header-border-width: 1px;
+  --mdb-modal-header-border-color: #495057;
 }
 
 :root {

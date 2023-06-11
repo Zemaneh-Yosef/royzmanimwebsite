@@ -11,36 +11,31 @@ let maxRows = 5;
 let maxPossibleRows = 0;
 
 const errorBox = document.getElementById("error");
-const loadingScreen = () => {
-	errorBox.style.display = "block";
-	errorBox.innerHTML = '<img src="Loading_icon.gif" alt="loading" style="display: block; margin-left: auto; margin-right: auto; width: 10%" id="loading" /><br><br>Loading...';
-}
 
 function showManualLocationSettings() {
 	const manualLocation = document.getElementById("manualLocation");
-	const manualLocationButton = document.getElementById("showManualLocation");
-	if (manualLocation.style.display == "block") {
-		manualLocationButton.innerHTML = "Manual Location";
+	if (!manualLocation.style.display) {
 		manualLocation.style.display = "none";
 		return;
 	}
 
-	manualLocationButton.innerHTML = "Hide Manual Location";
-	manualLocation.style.display = "block";
+	manualLocation.style.removeProperty("display");
 
 	/**
 	 * @type {HTMLSelectElement}
 	 */
 	let select = document.getElementById("timezoneInput");
-	if (!Intl.supportedValuesOf) {
-		let opt = new Option("Your browser does not support Intl.supportedValuesOf().", null, true, true);
-		opt.disabled = true;
-		select.options.add(opt);
-	} else {
-		for (const timeZone of Intl.supportedValuesOf("timeZone")) {
-			select.options.add(new Option(timeZone));
+	if (!select.options.length) {
+		if (!Intl.supportedValuesOf) {
+			let opt = new Option("Your browser does not support Intl.supportedValuesOf().", null, true, true);
+			opt.disabled = true;
+			select.options.add(opt);
+		} else {
+			for (const timeZone of Intl.supportedValuesOf("timeZone")) {
+				select.options.add(new Option(timeZone));
+			}
+			select.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 		}
-		select.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	}
 }
 
@@ -59,6 +54,16 @@ function manualLocationSubmit() {
 	openCalendarWithLocationInfo();
 }
 
+const iconography = {
+	search: document.querySelector('.input-group-text .fa-search'),
+	error: document.querySelector('.input-group-text .fa-times-circle'),
+	loading: document.querySelector('.input-group-text .spinner-border')
+}
+
+const geoNameTitleGenerator = (geoName) => [...new Set([geoName.name || geoName.placeName,
+	geoName.adminName1 || geoName.adminCode1,
+	geoName.countryName || geoName.countryCode])].filter(Boolean).join(", ");
+
 async function updateList(event) {
 	const q = document.getElementById("Main").value;
 	if (q.length < 3)
@@ -72,9 +77,7 @@ async function updateList(event) {
 			params.delete('q');
 			params.set('q', q.split(',')[0]);
 			const newData = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString())
-			const match = newData.geonames.find(geoName => [...new Set([geoName.name || geoName.placeName,
-				geoName.adminName1 || geoName.adminCode1,
-				geoName.countryName || geoName.countryCode])].filter(Boolean).join(", ") == q)
+			const match = newData.geonames.find(geoName => geoNameTitleGenerator(geoName) == q)
 			if (match)
 				data.geonames = [match]
 		}
@@ -88,19 +91,38 @@ async function updateList(event) {
 		}
 
 		if (event instanceof KeyboardEvent && event.key !== "Enter") {
+			iconography.error.style.display = "none";
+			iconography.search.style.removeProperty("display");
+			iconography.loading.style.display = "none"
+			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+
 			const list = document.getElementById("locationNames");
 			list.querySelectorAll('*').forEach(n => n.remove());
 			for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
 				const option = document.createElement("option");
-				option.setAttribute("value", [...new Set([geoName.name || geoName.placeName,
-					geoName.adminName1 || geoName.adminCode1,
-					geoName.countryName || geoName.countryCode])].filter(Boolean).join(", "))
+				option.setAttribute("value", geoNameTitleGenerator(geoName))
 
 				list.append(option)
 			}
 		} else {
-			loadingScreen();
 			const geoName = (locationName ? data.geonames.find(entry => entry.name.includes(q)) || data.geonames[0] : data.postalcodes[0])
+			const multiZip = (!locationName || !data.geonames.find(geoName => geoNameTitleGenerator(geoName).includes(q) || geoNameTitleGenerator(geoName).includes(q.split(',')[0]))) && (data.postalcodes || data.geonames).length !== 1;
+			if (!geoName || multiZip) {
+				iconography.error.style.removeProperty("display");
+				iconography.search.style.display = "none";
+				iconography.loading.style.display = "none"
+				document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+
+				const toastBootstrap = mdb.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
+				toastBootstrap.show()
+				return;
+			}
+
+			iconography.error.style.display = "none";
+			iconography.search.style.display = "none";
+			iconography.loading.style.removeProperty("display");
+			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
+
 			await setLocation(
 				geoName.name || geoName.placeName,
 				geoName.adminName1 || geoName.adminCode1,
@@ -131,6 +153,11 @@ async function setLocation(name, admin, country, latitude, longitude) {
 
 			geoLocation.timeZone = data["timezoneId"];
 		} catch (e) {
+			iconography.error.style.removeProperty("display");
+			iconography.search.style.display = "none";
+			iconography.loading.style.display = "none"
+			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+
 			console.error(e);
 			// This didn't come from getting the user's own location, because they already have the timezone
 			// This would come if the location was entered, that API worked and this one started to fail

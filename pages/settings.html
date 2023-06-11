@@ -18,8 +18,8 @@ permalink: /settings
                 <div style="flex: 1 1;">
                     <h4>Methods of Calculations</h4>
                     <ul>
-                        <li>The <strong>Amudeh Hora'ah</strong> Calendar based outside Eretz Yisrael was put together by Rabbi Leehor Dahan. It relies on the opinion of Minchat Cohen to modify the calculations based on how far north/south one is away from Netanya (which matches Bavel/Iraq in the y axis). This opinion is quoted by Rabbi David Yosef in Halacha Brurah (Chelek 15, Siman 261, halacha 13).</li>
-                        <li>The <strong>Ohr Hachaim</strong> Calendar based in Eretz Yisrael was used by Hacham Ovadia himself. It uses elevation to account for the hill-based environment, but does not alter the timings basd on how far north/south one is located away from Netanya as a direct instruction by Hacham Ovadia (source: Rabbi Shlomo Benizri)</li>
+                        <li>The <strong>Amudeh Hora'ah</strong> Calendar based outside Eretz Yisrael was put together by Rabbi Leeor Dahan. It relies on the opinion of Minchat Cohen to modify the calculations based on how far north/south one is away from Israel. This opinion is quoted by Rabbi David Yosef in Halacha Brurah (Chelek 15, Siman 261, halacha 13).</li>
+                        <li>The <strong>Ohr Hachaim</strong> Calendar based in Eretz Yisrael was used by Hacham Ovadia himself. It uses elevation to account for the hill-based environment, but does not alter the timings basd on how far north/south one is located away from Israel based on what Rabbi Shlomo Benizri claims to be a verbal instruction by Hacham Ovadia Yosef.</li>
                     </ul>
                 </div>
                 <div>
@@ -37,9 +37,34 @@ permalink: /settings
                 <div style="flex: 1 1;">
                     <h4>Language Options</h4>
                     <ul>
-                        <li><strong>Hebrew:</strong> {{ site.data.nav.zmanim[0].names.hb }}, {{ site.data.nav.zmanim[1].names.hb }}, etc...</li>
-                        <li><strong>English - Transliterated:</strong> {{ site.data.nav.zmanim[0].names.et }}, {{ site.data.nav.zmanim[1].names.et }}, etc...</li>
-                        <li><strong>English:</strong> {{ site.data.nav.zmanim[0].names.en }}, {{ site.data.nav.zmanim[1].names.en }}, etc...</li>
+                        <li><b>Hebrew:</b> {{ site.data.nav.zmanim[0].names.hb }}, {{ site.data.nav.zmanim[1].names.hb }}, etc...</li>
+                        <li><b>English - Transliterated:</b> {{ site.data.nav.zmanim[0].names.et }}, {{ site.data.nav.zmanim[1].names.et }}, etc...</li>
+                        <li><b>English:</b> {{ site.data.nav.zmanim[0].names.en }}, {{ site.data.nav.zmanim[1].names.en }}, etc...</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <input type="radio" class="btn-check" name="language" id="hebrew" autocomplete="off" checked />
+                        <label class="btn btn-secondary" for="hebrew">Hebrew</label>
+                      
+                        <input type="radio" class="btn-check" name="language" id="enet" autocomplete="off" />
+                        <label class="btn btn-secondary" for="enet">English - Transliterated</label>
+
+                        <input type="radio" class="btn-check" name="language" id="enli" autocomplete="off" />
+                        <label class="btn btn-secondary" for="enli">English</label>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <h4>Customizable Times</h4>
+            <div class="d-lg-flex">
+                <div style="flex: 1 1;">
+                    <p>For Erev Yom Tov & Erev Shabbath, this field allows you to specify a personal time for <strong>Candle Lighting</strong>. The time reported for candle lighting will be the time for shkiya minus however minutes specified above:</p>
+                    <ul>
+                        <li><b>15:</b> 3/4's of a "mil".</li>
+                        <li><b>18:</b> The complete shiur of a "mil". Application of this is based on the "Re'em"</li>
+                        <li><b>20:</b> The Re'em's shiur of a mil, combined with a rounding upwards for Tosefeth Shabbath.</li>
+                        <li><b>22:</b> Different measurement of how to calculate a complete mil.</li>
                     </ul>
                 </div>
                 <div>

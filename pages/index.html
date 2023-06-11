@@ -11,14 +11,23 @@ permalink: /
       </div>
       <div class="modal-body">
         <ul>
-          <li><b>Town Search:</b> You can search for a location either by its name or the ZIP code. Enter it in the search bar below, then hit the Enter key.</li>
+          <li><b>Town Search:</b> You can search for a location either by its name or the ZIP code. Enter it in the search bar below, then hit the Enter key.<br>
+            <i>Disclaimer: The results of this search bar are based on a 3rd party
+            website and are not guaranteed to match what you are looking for. If you
+            are not sure about the results, please use the manual location button.</i></li>
           <li><b>Location Detector:</b> Give the site consent to determine your location (and its relevant times) based on the GPS coordinates reported by a browser. VPN's and Proxies will affect the results.</li>
           <li><b>Manual (Advanced):</b> Input customized longtitude and latitude inputs. Useful for the most precision.</li>
         </ul>
 
-        <div class="input-group input-group-lg form-outline">
-          <span class="input-group-text" id="inputGroup-sizing-lg" style="border-right: 0;"><i class="fa fa-search"></i></span>
-          <input list="locationNames" type="search" id="Main" onkeyup="updateList(event)" class="form-control form-control-lg" />
+        <div class="input-group input-group-lg form-outline mb-2">
+          <span class="input-group-text" id="inputGroup-sizing-lg">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <div class="spinner-border" style="display: none;" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <i class="fa fa-times-circle" style="display: none" aria-hidden="true"></i>
+          </span>
+          <input list="locationNames" type="search" id="Main" onkeyup="updateList(event)" class="form-control form-control-lg" style="z-index: 2" />
           <datalist id="locationNames"></datalist>
           <label class="form-label" for="form1">Insert location name/ZIP code</label>
           <button type="button" class="btn btn-success" onclick="getLocation()" style="--mdb-btn-padding-x: 1rem;">
@@ -28,6 +37,16 @@ permalink: /
           border-bottom-right-radius: var(--mdb-btn-border-radius);">
             <i class="fa fa-caret-square-o-down"></i>
           </button>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked/>
+          <label class="form-check-label" for="flexRadioDefault2">Adjusted Minutes based on Location (לוח עמודי הוראה) - Disabled in Israel</label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
+          <label class="form-check-label" for="flexRadioDefault1">Fixed Israel Minutes (לוח אור החיים)</label>
         </div>
 
         <p class="border" id="manualLocation" style="display: none">
@@ -53,14 +72,29 @@ permalink: /
         <p class="border" id="error" style="display: none">
           <!--Hidden until shown-->
         </p>
-
-        <!--write a diclaimer message under the list-->
-        <h5 id="disclaimer" style="text-align: center">
-          Disclaimer!: The results of this search bar are based on a 3rd party
-          website and are not guaranteed to match what you are looking for. If you
-          are not sure about the results, please use the manual location button.
-        </h5>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="inaccessibleToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Location inaccessible. Please try again!
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" data-mdb-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="zipToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Multiple ZIP codes coordinates detected. Please use Location Name instead.
+      </div>
+      <button type="button" class="btn-close me-2 m-auto" data-mdb-dismiss="toast" aria-label="Close"></button>
     </div>
   </div>
 </div>
