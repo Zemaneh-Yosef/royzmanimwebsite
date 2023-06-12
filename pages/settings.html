@@ -56,6 +56,25 @@ permalink: /settings
                 </div>
             </div>
             <hr>
+            <div class="d-lg-flex">
+                <div style="flex: 1 1;">
+                    <h4>Time format</h4>
+                    <ul>
+                        <li><b>24h:</b> A full 24 hour representation, used mainly outside the United States. Does not recept itself well with a watch.</li>
+                        <li><b>12h:</b> The day is split into two, with the first half being 12->1-11 with an AM label, while the inverse is true for PM. Typically used in American countries</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <input type="radio" class="btn-check" name="timeformat" id="24h" autocomplete="off" checked />
+                        <label class="btn btn-secondary" for="24h">Full Clock</label>
+
+                        <input type="radio" class="btn-check" name="timeformat" id="12h" autocomplete="off" />
+                        <label class="btn btn-secondary" for="12h">AM/PM</label>
+                    </div>
+                </div>
+            </div>
+            <!-- <hr>
             <h4>Customizable Times</h4>
             <div class="d-lg-flex">
                 <div style="flex: 1 1;">
@@ -68,22 +87,38 @@ permalink: /settings
                     </ul>
                 </div>
                 <div>
-                    <div class="btn-group">
-                        <input type="radio" class="btn-check" name="language" id="hebrew" autocomplete="off" checked />
-                        <label class="btn btn-secondary" for="hebrew">Hebrew</label>
-                      
-                        <input type="radio" class="btn-check" name="language" id="enet" autocomplete="off" />
-                        <label class="btn btn-secondary" for="enet">English - Transliterated</label>
-
-                        <input type="radio" class="btn-check" name="language" id="enli" autocomplete="off" />
-                        <label class="btn btn-secondary" for="enli">English</label>
-                    </div>
+                    
                 </div>
-            </div>
+            </div> -->
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-primary" onclick="saveChanges()">Save changes</button>
         </div>
       </div>
     </div>
 </div>
+
+<script>
+
+window.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("calendarSource") == "ohrHachaim") {
+        document.getElementById("ohrHachaim").checked = true;
+        document.getElementById("amudehHoraah").checked = false;
+    }
+
+    if (localStorage.getItem("timeFormat") == "12") {
+        document.getElementById("12h").checked = true;
+        document.getElementById("24h").checked = false;
+    }
+
+})
+
+function saveChanges() {
+    localStorage.setItem("calendarSource", document.getElementById("amudehHoraah").checked ? "amudehHoraah" : "ohrHachaim")
+    localStorage.setItem("zmanimLanguage",
+        (document.getElementById("hebrew").checked ? "hb" : (document.getElementById("enet").checked ? "en-et" : "en")))
+    localStorage.setItem("timeFormat", document.getElementById("24h").checked ? "24" : "12")
+
+    window.location.href = "/"
+}
+</script>

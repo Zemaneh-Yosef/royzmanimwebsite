@@ -7,7 +7,7 @@ import WebsiteCalendar from "./WebsiteCalendar.js";
 import n2words from "./libraries/n2wordsrollup.js";
 
 const settings = {
-	amudehHoraah: () => localStorage.getItem("amudehHoraah") == "true",
+	calendarSource: () => localStorage.getItem("calendarSource"),
 	seconds: () => localStorage.getItem("seconds") == "true",
 	timeFormat: () => localStorage.getItem("timeFormat"),
 	language: () => localStorage.getItem("zmanimLanguage"),
@@ -23,7 +23,7 @@ class zmanimListUpdater {
 		this.geoLocation = geoLocation;
 		document.getElementById("LocationName").innerHTML = geoLocation.getLocationName() || "No Location Name Provided";
 
-		this.zmanimCalendar = (settings.amudehHoraah() ? new AmudehHoraahZmanim(geoLocation) : new OhrHachaimZmanim(geoLocation, true));
+		this.zmanimCalendar = (settings.calendarSource() == "amudehHoraah" ? new AmudehHoraahZmanim(geoLocation) : new OhrHachaimZmanim(geoLocation, true));
 		this.zmanimCalendar.ComplexZmanimCalendar.setCandleLightingOffset(settings.candleLighting());
 		this.zmanimCalendar.ComplexZmanimCalendar.setAteretTorahSunsetOffset(settings.tzeith());
 
@@ -364,20 +364,10 @@ class zmanimListUpdater {
 			}
 
 			if (timeSlot.hasAttribute('luachInclusive')) {
-				const diffLuachs = {
-					'amudehHoraah': settings.amudehHoraah(),
-					'ohrHachaim': !settings.amudehHoraah()
-				};
-				for (let [key, implementation] of Object.entries(diffLuachs)) {
-					if (timeSlot.getAttribute('luachInclusive') !== key)
-						continue;
-
-					if (implementation)
-						timeSlot.style.removeProperty("display");
-					else {
-						timeSlot.style.display = "none"
-						continue;
-					}
+				if (!['amudehHoraah', 'ohrHachaim'].includes(timeSlot.getAttribute('luachInclusive'))
+				 || settings.calendarSource() !== timeSlot.getAttribute('luachInclusive')) {
+					timeSlot.style.display = "none";
+					continue;
 				}
 			}
 
@@ -569,13 +559,10 @@ class zmanimListUpdater {
 			}
 
 			if (timeSlot.hasAttribute('luachInclusive')) {
-				const diffLuachs = {
-					'amudehHoraah': settings.amudehHoraah(),
-					'ohrHachaim': !settings.amudehHoraah()
-				};
-				for (let [key, implementation] of Object.entries(diffLuachs)) {
-					if (timeSlot.getAttribute('luachInclusive') !== key || (timeSlot.getAttribute('luachInclusive') == key && !implementation))
-						continue;
+				if (!['amudehHoraah', 'ohrHachaim'].includes(timeSlot.getAttribute('luachInclusive'))
+				 || settings.calendarSource() !== timeSlot.getAttribute('luachInclusive')) {
+					timeSlot.style.display = "none";
+					continue;
 				}
 			}
 

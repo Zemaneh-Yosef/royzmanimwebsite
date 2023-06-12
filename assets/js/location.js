@@ -192,11 +192,24 @@ function getLocation() {
 		errorBox.style.display = "block";
 	}
 
-	loadingScreen();
 	getCoordinates({maximumAge:60000, timeout:5000, enableHighAccuracy:true})
-		.then(pos => setLatLong(pos))
+		.then(pos => {
+			iconography.error.style.display = "none";
+			iconography.search.style.display = "none";
+			iconography.loading.style.removeProperty("display");
+			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
+
+			return setLatLong(pos)
+		})
 		.then(() => openCalendarWithLocationInfo())
-		.catch((e) => showError(e))
+		.catch((e) => {
+			iconography.error.style.removeProperty("display");
+			iconography.search.style.display = "none";
+			iconography.loading.style.display = "none"
+			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+
+			showError(e)
+		})
 }
 
 async function setLatLong (position) {
@@ -287,6 +300,7 @@ async function getAverageElevation (lat, long) {
 }
 
 function openCalendarWithLocationInfo() {
+	localStorage.setItem("calendarSource", document.getElementById("flexRadioDefault2").checked ? "amudehHoraah" : "ohrHachaim")
 	const params = new URLSearchParams(geoLocation);
 	window.location.href = "calendar?" + params.toString();
 }
