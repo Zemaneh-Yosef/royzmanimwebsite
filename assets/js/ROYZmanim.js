@@ -332,7 +332,8 @@ class AmudehHoraahZmanim extends ROYZmanim {
 	}
 
 	getMisheyakir(degree=16.04) {
-		const {numberOfSeconds, secondsZmanit} = this.getMorningShaotZmaniyot(degree);
+		const {numberOfSeconds} = this.getMorningShaotZmaniyot(degree);
+		const {secondsZmanit} = this.getTimeZmaniyot();
 		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunrise(), -(numberOfSeconds.mul(secondsZmanit).mul(5).div(6).toNumber()));
 	}
 
