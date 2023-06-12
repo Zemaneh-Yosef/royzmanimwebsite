@@ -193,6 +193,12 @@ class ROYZmanim {
      * Abstract method that should be implemented by subclasses.
      * @returns {luxon.DateTime} The return value.
      */
+	getTzait72Zmanit() { throw new Error("Unimplemented") }
+
+	/**
+     * Abstract method that should be implemented by subclasses.
+     * @returns {luxon.DateTime} The return value.
+     */
 	getTzaitShabbath() { throw new Error("Unimplemented") }
 
 	/**
@@ -256,6 +262,10 @@ class OhrHachaimZmanim extends ROYZmanim {
 
 	getTzaitShabbath() {
 		return this.ComplexZmanimCalendar.getTzaisAteretTorah();
+	}
+
+	getTzait72Zmanit() {
+		return this.ComplexZmanimCalendar.getTzais72Zmanis();
 	}
 
 	getTzaitRT() {
