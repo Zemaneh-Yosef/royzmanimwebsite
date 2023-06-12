@@ -150,3 +150,14 @@ body.lang-en .lang:not(.lang-en) {
 #logo_light {
   display: none;
 }
+
+#banner #logo_light,
+#banner #logo_dark {
+  position: absolute;
+  top: 0;
+}
+
+#bannerText {
+  padding-left: 4.25rem;
+}
+
