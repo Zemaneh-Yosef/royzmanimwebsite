@@ -48,7 +48,7 @@ class ROYZmanim {
 	}
 
 	getSofZmanShmaMGA() {
-        return this.ComplexZmanimCalendar.getSofZmanShma(this.getAlotHashachar(), this.getTzait());
+        return this.ComplexZmanimCalendar.getSofZmanShma(this.getAlotHashachar(), this.zmanim.getTzais72Zmanis());
     }
 
 	getSofZmanShmaGRA() {
@@ -60,11 +60,11 @@ class ROYZmanim {
     }
 
 	getSofZmanAchilathHametz() {
-		return this.ComplexZmanimCalendar.getSofZmanTfila(this.getAlotHashachar(), this.getTzait());
+		return this.ComplexZmanimCalendar.getSofZmanTfila(this.getAlotHashachar(), this.zmanim.getTzais72Zmanis());
 	}
 
 	getSofZmanBiurHametz() {
-		const shaahZmanit = this.ComplexZmanimCalendar.getTemporalHour(this.getAlotHashachar(), this.getTzait());
+		const shaahZmanit = this.ComplexZmanimCalendar.getTemporalHour(this.getAlotHashachar(), this.zmanim.getTzais72Zmanis());
 		return KosherZmanim.ZmanimCalendar.getTimeOffset(
 			this.getAlotHashachar(),
 			shaahZmanit * 5
