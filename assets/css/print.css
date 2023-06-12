@@ -1,0 +1,20 @@
+#hd {
+    display: none;
+}
+
+.accordian summary {
+    color: black;
+    background-color: transparent;
+}
+
+.accordian summary:before {
+    display: none;
+}
+
+#backwardDay, #forwardDay {
+    display: none;
+}
+
+.nextZman .timeDisplay::before {
+    display: none;
+}

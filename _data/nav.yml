@@ -278,11 +278,11 @@ zmanim:
     timeGetter: getMinhaGedolah
     names:
       hb: מנחה גדולה
-      et: Mincha Gedola
+      et: Minha Gedola
       en: Earliest Minha
     description: |-
       <p>
-                  Mincha Gedolah, literally "Greater Mincha", is the earliest time a
+                  Minha Gedolah, literally "Greater Mincha", is the earliest time a
                   person can say Mincha. It is also the preferred time a person should
                   say Mincha according to some poskim.
                 </p>
