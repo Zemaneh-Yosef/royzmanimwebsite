@@ -396,7 +396,25 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
         )
     }
 
-	getTekufaAsDate() {
+	getTekufaAsDate() {// This method should be used for Ohr Hachaim only
+		const hours = this.getTekufa() - 6;
+		let minutes = Math.floor((hours - Math.floor(hours)) * 60);
+		// @ts-ignore
+		const date = luxon.DateTime.fromObject({
+			year: this.getGregorianYear(),
+			month: this.getGregorianMonth() + 1,
+			day: this.getGregorianDayOfMonth(),
+			hour: 0,
+			minute: 0,
+			second: 0,
+			millisecond: 0,
+		},
+			{ zone: "Europe/Amsterdam", isOffsetFixed: false }
+		).plus({ hours: hours, minutes: minutes });
+		return date.toJSDate();
+	}
+
+	getAmudeiHoraahTekufaAsDate() {// This method should be used for Amudei Horaah only
 		const hours = this.getTekufa() - 6;
 		let minutes = Math.floor((hours - Math.floor(hours)) * 60);
 		minutes -= 21;
@@ -410,11 +428,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			second: 0,
 			millisecond: 0,
 		},
-			{ zone: "Asia/Jerusalem" }
+			{ zone: "Europe/Amsterdam", isOffsetFixed: false }
 		).plus({ hours: hours, minutes: minutes });
-		if (date.isInDST) {
-			date.plus({ hours: -1 });
-		}
 		return date.toJSDate();
 	}
 
