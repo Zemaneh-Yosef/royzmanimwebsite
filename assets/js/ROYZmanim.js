@@ -34,21 +34,12 @@ class ROYZmanim {
 	// </core>
 	// <portable>
 
-	getMisheyakir() {
-		const shaahZmanit = this.ComplexZmanimCalendar.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
-		const dakahZmanit = shaahZmanit / 60;
-		return KosherZmanim.ZmanimCalendar.getTimeOffset(
-			this.getAlotHashachar(),
-			6 * dakahZmanit
-		);
-	}
-
 	getNetz() {
 		return this.ComplexZmanimCalendar.getSeaLevelSunrise();
 	}
 
 	getSofZmanShmaMGA() {
-        return this.ComplexZmanimCalendar.getSofZmanShma(this.getAlotHashachar(), this.zmanim.getTzais72Zmanis());
+        return this.ComplexZmanimCalendar.getSofZmanShma(this.getAlotHashachar(), this.getTzait72Zmanit());
     }
 
 	getSofZmanShmaGRA() {
@@ -60,11 +51,11 @@ class ROYZmanim {
     }
 
 	getSofZmanAchilathHametz() {
-		return this.ComplexZmanimCalendar.getSofZmanTfila(this.getAlotHashachar(), this.zmanim.getTzais72Zmanis());
+		return this.ComplexZmanimCalendar.getSofZmanTfila(this.getAlotHashachar(), this.getTzait72Zmanit());
 	}
 
 	getSofZmanBiurHametz() {
-		const shaahZmanit = this.ComplexZmanimCalendar.getTemporalHour(this.getAlotHashachar(), this.zmanim.getTzais72Zmanis());
+		const shaahZmanit = this.ComplexZmanimCalendar.getTemporalHour(this.getAlotHashachar(), this.getTzait72Zmanit());
 		return KosherZmanim.ZmanimCalendar.getTimeOffset(
 			this.getAlotHashachar(),
 			shaahZmanit * 5
@@ -181,6 +172,12 @@ class ROYZmanim {
      * Abstract method that should be implemented by subclasses.
      * @returns {luxon.DateTime} The return value.
      */
+	getMisheyakir() { throw new Error("Unimplemented") }
+
+	/**
+     * Abstract method that should be implemented by subclasses.
+     * @returns {luxon.DateTime} The return value.
+     */
 	getTzait() { throw new Error("Unimplemented") }
 
 	/**
@@ -206,12 +203,6 @@ class ROYZmanim {
      * @returns {luxon.DateTime} The return value.
      */
 	getTzaitLechumra() { throw new Error("Not in Amudeh Hora'ah Mode") }
-
-	/**
-     * Abstract method reserved for the Amudeh Hora'ah subclass.
-     * @returns {luxon.DateTime} The return value.
-     */
-	getTzais72ZmanisLKulah() { throw new Error("Not in Amudeh Hora'ah Mode") }
 
 	// </needsImplementaton>
 }
@@ -244,6 +235,15 @@ class OhrHachaimZmanim extends ROYZmanim {
      */
 	getAlotHashachar() {
 		return this.ComplexZmanimCalendar.getAlos72Zmanis();
+	}
+
+	getMisheyakir() {
+		const shaahZmanit = this.ComplexZmanimCalendar.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
+		const dakahZmanit = shaahZmanit / 60;
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(
+			this.getAlotHashachar(),
+			6 * dakahZmanit
+		);
 	}
 
 	getNetz() {
@@ -329,6 +329,11 @@ class AmudehHoraahZmanim extends ROYZmanim {
 		const {numberOfSeconds} = this.getMorningShaotZmaniyot(degree);
 		const {secondsZmanit} = this.getTimeZmaniyot();
 		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunrise(), -(numberOfSeconds.mul(secondsZmanit).toNumber()));
+	}
+
+	getMisheyakir(degree=16.04) {
+		const {numberOfSeconds, secondsZmanit} = this.getMorningShaotZmaniyot(degree);
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunrise(), -(numberOfSeconds.mul(secondsZmanit).mul(5).div(6).toNumber()));
 	}
 
 	getTzait() {
