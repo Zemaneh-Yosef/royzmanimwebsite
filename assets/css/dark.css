@@ -76,3 +76,7 @@ body {
 #logo_dark {
   display: none;
 }
+
+nav.main-nav__nav {
+  background: #3b3939;
+}
