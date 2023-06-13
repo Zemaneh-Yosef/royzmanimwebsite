@@ -6,7 +6,7 @@ zmanim:
     timeGetter: getAlotHashachar
     names:
       hb: עלות השחר
-      et: Alot Hashachar
+      et: Aloth Hashachar
       en: Dawn
     description: |-
       <p>
@@ -437,7 +437,7 @@ zmanim:
     timeGetter: getShkiya
     names:
       hb: שקיעה
-      et: Shkia
+      et: Sheqi'a
       en: Sunset
     description: |-
       <p>
