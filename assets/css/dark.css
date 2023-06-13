@@ -7,66 +7,8 @@
   --mdb-card-bg: #303030;
 }
 
-.modal {
-  --mdb-modal-bg: #303030;
-  --mdb-modal-color: #adb5bd;
-}
-
-.modal-content {
-  border: var(--mdb-modal-border-width) solid rgba(255, 255, 255, 0.15);
-}
-
-.modal-header {
-  --mdb-modal-header-border-width: 1px;
-  --mdb-modal-header-border-color: #495057;
-}
-
-:root {
-  --mdb-list-group-bg: #303030;
-  --mdb-list-group-color: white;
-  --mdb-list-group-bg: #303030;
-  --mdb-list-group-color: white;
-  --mdb-card-bg: #303030;
-}
-
-body {
-  background: #212529;
-}
-
-#hd {
-    background: #3b3939;/* #3b3939 is equivalent to rgb( 59, 57, 57 ) */
-    color: #ffffff;
-    --ind-menu-main-color: #0A7DA4;
-    --ind-menu-hover-color: #48565b;
-    --ind-menu-active-color: #0A7DA4;
-    --ind-color-picker: #0A7DA4;
-    --ind-color-bg-picker: #0A7DA4;
-    --ind-color-text-picker: #0A7DA4;
-    --ind-color-heading-picker: #0A7DA4;
-    --ind-color-heading-picker-default: #0A7DA4;
-    -webkit-tap-highlight-color: rgba(255, 244, 244, 0);
-}
-
-.main-nav__toogle span {
-  background: #fff;
-}
-
-.main-nav__megamenu {
-  background: #3b3939;
-}
-
-.main-nav__list li {
-  color: #fff;
-}
-
-.main-nav__list li:hover,
-.main-nav__list li:focus {
-  background-color: #000000;
-    color: #fff;
-}
-
-.modal-header .btn-close {
-  filter: invert(1)
+.navbar-toggler-icon {
+  filter: invert(1);
 }
 
 #logo_light {
@@ -79,4 +21,8 @@ body {
 
 nav.main-nav__nav {
   background: #3b3939;
+}
+
+body {
+  background: #212529;
 }

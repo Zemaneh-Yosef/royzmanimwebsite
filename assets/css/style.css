@@ -151,8 +151,8 @@ body.lang-en .lang:not(.lang-en) {
   display: none;
 }
 
-#banner #logo_light,
-#banner #logo_dark {
+.navbar-brand #logo_light,
+.navbar-brand #logo_dark {
   position: absolute;
   top: 0;
 }

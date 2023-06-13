@@ -55,14 +55,23 @@ class zmanimListUpdater {
 			default:
 				document.body.classList.remove("lang-en", "lang-en-et");
 				document.body.classList.add("lang-hb");
+
+				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.rtl.min.css")
+				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.rtl.min.css")
 				break;
 			case 'en-et':
 				document.body.classList.remove("lang-hb", "lang-en");
 				document.body.classList.add("lang-en-et");
+
+				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.min.css")
+				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
 				break;
 			case 'en':
 				document.body.classList.remove("lang-hb", "lang-en-et");
 				document.body.classList.add("lang-en");
+
+				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.min.css")
+				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
 				break;
 		}
 	}
