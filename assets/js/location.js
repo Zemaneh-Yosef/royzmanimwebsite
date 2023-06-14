@@ -138,7 +138,11 @@ async function updateList(event) {
 }
 
 async function setLocation(name, admin, country, latitude, longitude) {
-	geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
+	if (country.contains("Palestine")) {
+		geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ").replaceAll("Palestine", "Israel");
+	} else {// we just want to remove duplicates and empty strings
+		geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
+	}
 	geoLocation.lat = latitude;
 	geoLocation.long = longitude;
 
