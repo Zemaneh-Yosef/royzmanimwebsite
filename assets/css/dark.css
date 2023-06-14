@@ -1,10 +1,19 @@
 .list-group-item,
-.list-group {
-  --mdb-list-group-bg: #303030;
+.list-group,
+:root {
   --mdb-list-group-color: white;
 }
+
+:root {
+  --mdb-card-bg: #424242;
+}
+
 .card {
-  --mdb-card-bg: #303030;
+  background-color: var(--mdb-card-bg);
+}
+
+.navbar {
+  background-color: #303030;
 }
 
 .navbar-toggler-icon {
@@ -19,10 +28,14 @@
   display: none;
 }
 
-nav.main-nav__nav {
-  background: #3b3939;
+body {
+  --mdb-body-bg: #212529;
 }
 
-body {
-  background: #212529;
+.toast {
+  --mdb-toast-bg: #303030
+}
+
+.accordian .accordianContent {
+  background: #303030;
 }

@@ -64,6 +64,7 @@ const geoNameTitleGenerator = (geoName) => [...new Set([geoName.name || geoName.
 	geoName.adminName1 || geoName.adminCode1,
 	geoName.countryName || geoName.countryCode])].filter(Boolean).join(", ");
 
+/** @param {KeyboardEvent|MouseEvent} event */
 async function updateList(event) {
 	const q = document.getElementById("Main").value;
 	if (q.length < 3)
@@ -90,21 +91,7 @@ async function updateList(event) {
 			data = await getJSON("https://secure.geonames.org/postalCodeLookupJSON?" + params.toString())
 		}
 
-		if (event instanceof KeyboardEvent && event.key !== "Enter") {
-			iconography.error.style.display = "none";
-			iconography.search.style.removeProperty("display");
-			iconography.loading.style.display = "none"
-			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
-
-			const list = document.getElementById("locationNames");
-			list.querySelectorAll('*').forEach(n => n.remove());
-			for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
-				const option = document.createElement("option");
-				option.setAttribute("value", geoNameTitleGenerator(geoName))
-
-				list.append(option)
-			}
-		} else {
+		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
 			const geoName = (locationName ? data.geonames.find(entry => entry.name.includes(q)) || data.geonames[0] : data.postalcodes[0])
 			const multiZip = (!locationName || !data.geonames.find(geoName => geoNameTitleGenerator(geoName).includes(q) || geoNameTitleGenerator(geoName).includes(q.split(',')[0]))) && (data.postalcodes || data.geonames).length !== 1;
 			if (!geoName || multiZip) {
@@ -130,6 +117,20 @@ async function updateList(event) {
 				geoName.lat, geoName.lng
 			);
 			openCalendarWithLocationInfo();
+		} else {
+			iconography.error.style.display = "none";
+			iconography.search.style.removeProperty("display");
+			iconography.loading.style.display = "none"
+			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+
+			const list = document.getElementById("locationNames");
+			list.querySelectorAll('*').forEach(n => n.remove());
+			for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
+				const option = document.createElement("option");
+				option.setAttribute("value", geoNameTitleGenerator(geoName))
+
+				list.append(option)
+			}
 		}
 	} catch (e) {
 		console.error(e);
@@ -138,11 +139,11 @@ async function updateList(event) {
 }
 
 async function setLocation(name, admin, country, latitude, longitude) {
-	if (country.contains("Palestine")) {
-		geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ").replaceAll("Palestine", "Israel");
-	} else {// we just want to remove duplicates and empty strings
-		geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
-	}
+	if (country)
+		country = country.replaceAll("Palestine", "Israel")
+
+	geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
+
 	geoLocation.lat = latitude;
 	geoLocation.long = longitude;
 

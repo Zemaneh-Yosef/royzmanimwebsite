@@ -3,8 +3,8 @@
     padding: .7rem .9rem;
     display: flex;
     align-items: center;
-    background: #444;
-    color: white;
+    background: var(--mdb-card-bg);
+    color: var(--mdb-list-group-color);
     padding-left: 1.2rem;
     position: relative;
     cursor: pointer;
@@ -17,13 +17,17 @@
   
   .accordian details {
     box-sizing: border-box;
-    background: white;
   }
   
   .accordian details summary::-webkit-details-marker {
     display: none;
   }
   
+  .accordian details[open] > summary {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+  }
+
   .accordian details[open] > summary:before {
     transform: rotate(90deg);
   }
@@ -32,7 +36,7 @@
     content: "";
     border-width: 0.4rem;
     border-style: solid;
-    border-color: transparent transparent transparent #fff;
+    border-color: transparent transparent transparent var(--mdb-list-group-color);
     transform: rotate(0);
     transform-origin: 0.2rem 50%;
     transition: 0.25s transform ease;
@@ -42,6 +46,7 @@
   .accordian .accordianContent {
     border-top: none;
     padding: 10px;
-    border: 2px solid #888;
+    border: 2px solid var(--mdb-card-bg);
     border-top: none;
+    background: white;
   }

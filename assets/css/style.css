@@ -1,95 +1,26 @@
 html {
 	scroll-behavior: smooth;
-  --background-color: #e5e5e5;
 }
 
-.marquee {
-  background-color: #0A66C2;
-  color: #f6f6f6;
-  margin: 0 auto;
-  overflow: clip;
-  padding: 12px;
-  white-space: nowrap;
-  position: fixed;
-  width: 100%;
-  display: none;
-  /* marquee animation should always be on top */
-  z-index: 100000;
-}
-.marquee span {
-  display: inline-block;
-  font-size: 20px;
-  font-weight: bold;
-  position: relative;
-  left: 100%;
-  animation: marquee 16s linear infinite;
-}
-
-.marquee span:nth-child(1) {
-  animation-delay: 0s;
-}
-.marquee span:nth-child(2) {
-  animation-delay: 0.8s;
-}
-.marquee span:nth-child(3) {
-  animation-delay: 1.6s;
-}
-.marquee span:nth-child(4) {
-  animation-delay: 2.4s;
-}
-.marquee span:nth-child(5) {
-  animation-delay: 3.2s;
-}
-
-@keyframes marquee {
-  0%   { left: 100%; }
-  100% { left: -100%; }
-}
-
-#hd {
-  width: 100%;
-  position: initial;
-  z-index: 9999;
-  background: #E5E8E9;/* #E5E8E9 is equivalent to rgb( 229, 232, 233 ) */
-  border-bottom: 1px solid #BBB;
-  margin-bottom: 10px;
-  display: block;
-  box-sizing: border-box;
-  color: #333333;
-  font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.42857143;
-  --ind-menu-main-color: #0A7DA4;
-  --ind-menu-hover-color: #48565b;
-  --ind-menu-active-color: #0A7DA4;
-  --ind-color-picker: #0A7DA4;
-  --ind-color-bg-picker: #0A7DA4;
-  --ind-color-text-picker: #0A7DA4;
-  --ind-color-heading-picker: #0A7DA4;
-  --ind-color-heading-picker-default: #0A7DA4;
-  --wp--preset--font-size--normal: 16px;
-  --wp--preset--font-size--huge: 42px;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-text-size-adjust: 100%;
-}
- 
-body,
-html {
-  min-height: 100vh;
-  margin: auto;
-  /*box-shadow: 30px 0px 40px rgba(0, 0, 0, 0.1), -30px 0px 40px rgba(0, 0, 0, 0.1);*/
+:root {
+  --mdb-body-bg: #e5e5e5;
+  --mdb-card-bg: white;
+  --mdb-list-group-color: #4f4f4f;
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
-  margin: 0;
-  background-color: #e5e5e5;
+  min-height: 100vh;
+  background-color: var(--mdb-body-bg);
 }
 
 main {
   margin-left: auto;
   margin-right: auto;
   width: clamp(16rem, 90vw, 70rem)
+}
+
+.navbar {
+  background-color: white;
 }
 
 .wideView {
@@ -161,3 +92,6 @@ body.lang-en .lang:not(.lang-en) {
   padding-left: 4.25rem;
 }
 
+.card>.list-group {
+  padding-left: 0;
+}
