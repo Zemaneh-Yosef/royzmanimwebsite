@@ -67,7 +67,7 @@ class ChaiTables {
             UserNumber: userId,
             Language: "English",
             AllowShaving: "OFF"
-        }
+        };
 
         const url = new URL("http://www.chaitables.com/cgi-bin/ChaiTables.cgi/")
         for (let [key, value] of Object.entries(urlParams)) {
@@ -76,5 +76,9 @@ class ChaiTables {
 
             url.searchParams.set("cgi_" + key, value)
         }
+
+        return url;
     }
+
+
 }

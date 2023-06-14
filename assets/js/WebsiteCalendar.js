@@ -409,7 +409,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			second: 0,
 			millisecond: 0,
 		},
-			{ zone: "Europe/Amsterdam", isOffsetFixed: false }
+			{ zone: "UTC+2" }
 		).plus({ hours: hours, minutes: minutes });
 		return date.toJSDate();
 	}
@@ -428,7 +428,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			second: 0,
 			millisecond: 0,
 		},
-			{ zone: "Europe/Amsterdam", isOffsetFixed: false }
+			{ zone: "UTC+2" }
 		).plus({ hours: hours, minutes: minutes });
 		return date.toJSDate();
 	}

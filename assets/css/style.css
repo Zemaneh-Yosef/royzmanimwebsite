@@ -6,6 +6,8 @@ html {
   --mdb-body-bg: #e5e5e5;
   --mdb-card-bg: white;
   --mdb-list-group-color: #4f4f4f;
+  --mdb-list-group-border-width: 1px;
+  --mdb-list-group-border-color: rgba(0,0,0,0.125);
 }
 
 body {

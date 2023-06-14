@@ -6,6 +6,7 @@
 
 :root {
   --mdb-card-bg: #424242;
+  --mdb-list-group-border-color: hsla(0,0%,100%,.20);
 }
 
 .card {

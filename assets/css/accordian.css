@@ -1,6 +1,6 @@
 .accordian summary {
     outline: none;
-    padding: .7rem .9rem;
+    padding: .5rem .9rem;
     display: flex;
     align-items: center;
     background: var(--mdb-card-bg);
@@ -15,17 +15,19 @@
     margin-left: auto;
   }
   
-  .accordian details {
-    box-sizing: border-box;
+  .accordian details:not(:last-child) {
+    border-bottom: var(--mdb-list-group-border-width) solid var(--mdb-list-group-border-color);
   }
   
   .accordian details summary::-webkit-details-marker {
     display: none;
   }
   
-  .accordian details[open] > summary {
+  .accordian details[open] {
     border-top: 1px solid black;
-    border-bottom: 1px solid black;
+    box-shadow: 0 1px 6px -2px black;
+    z-index: 12;
+    position: relative;
   }
 
   .accordian details[open] > summary:before {
