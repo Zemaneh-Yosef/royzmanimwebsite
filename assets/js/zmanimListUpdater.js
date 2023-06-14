@@ -323,10 +323,10 @@ class zmanimListUpdater {
 		if (
 			(!tekufaToday && !tekufaNextDay) || //if no tekufa today or tomorrow
 			(!tekufaToday &&
-				this.jewishCalendar.tomorrow().getTekufaAsDate().toLocaleDateString() !==
+				this.jewishCalendar.tomorrow().getTekufaAsDate(settings.calendarSource() == "amudehHoraah").toLocaleDateString() !==
 				this.jewishCalendar.getDate().toJSDate().toLocaleDateString()) || //if no tekufa today but there is one tomorrow and it's not today
 			(!tekufaNextDay &&
-				this.jewishCalendar.getTekufaAsDate().toLocaleDateString() !==
+				this.jewishCalendar.getTekufaAsDate(settings.calendarSource() == "amudehHoraah").toLocaleDateString() !==
 				this.jewishCalendar.getDate().toJSDate().toLocaleDateString())
 		) {
 			//if no tekufa tomorrow but there is one today and it's not today
@@ -336,9 +336,9 @@ class zmanimListUpdater {
 
 			const timeBase = (
 				tekufaToday !== null &&
-					this.jewishCalendar.getTekufaAsDate().toLocaleDateString() ===
+					this.jewishCalendar.getTekufaAsDate(settings.calendarSource() == "amudehHoraah").toLocaleDateString() ===
 					this.jewishCalendar.getDate().toJSDate().toLocaleDateString()
-					? this.jewishCalendar.getTekufaAsDate() : this.jewishCalendar.tomorrow().getTekufaAsDate());
+					? this.jewishCalendar.getTekufaAsDate(settings.calendarSource() == "amudehHoraah") : this.jewishCalendar.tomorrow().getTekufaAsDate(settings.calendarSource() == "amudehHoraah"));
 
 			//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
 			const tekufaID = this.jewishCalendar.getTekufaID() || this.jewishCalendar.tomorrow().getTekufaID()

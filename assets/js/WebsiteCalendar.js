@@ -396,28 +396,16 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
         )
     }
 
-	getTekufaAsDate() {// This method should be used for Ohr Hachaim only
+	/**
+	 * @param {boolean} [amudehHoraah]
+	 */
+	getTekufaAsDate(amudehHoraah) {
 		const hours = this.getTekufa() - 6;
 		let minutes = Math.floor((hours - Math.floor(hours)) * 60);
-		// @ts-ignore
-		const date = luxon.DateTime.fromObject({
-			year: this.getGregorianYear(),
-			month: this.getGregorianMonth() + 1,
-			day: this.getGregorianDayOfMonth(),
-			hour: 0,
-			minute: 0,
-			second: 0,
-			millisecond: 0,
-		},
-			{ zone: "UTC+2" }
-		).plus({ hours: hours, minutes: minutes });
-		return date.toJSDate();
-	}
 
-	getAmudeiHoraahTekufaAsDate() {// This method should be used for Amudei Horaah only
-		const hours = this.getTekufa() - 6;
-		let minutes = Math.floor((hours - Math.floor(hours)) * 60);
-		minutes -= 21;
+		if (amudehHoraah)
+			minutes -= 21;
+
 		// @ts-ignore
 		const date = luxon.DateTime.fromObject({
 			year: this.getGregorianYear(),
