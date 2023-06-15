@@ -33,15 +33,15 @@ permalink: /settings
                 <div style="flex: 1 1;">
                     <h4>Language Options</h4>
                     <ul>
-                        <li><b>Hebrew:</b> {{ site.data.nav.zmanim[0].names.hb }}, {{ site.data.nav.zmanim[1].names.hb }}, etc...</li>
-                        <li><b>English - Transliterated:</b> {{ site.data.nav.zmanim[0].names.et }}, {{ site.data.nav.zmanim[1].names.et }}, etc...</li>
-                        <li><b>English:</b> {{ site.data.nav.zmanim[0].names.en }}, {{ site.data.nav.zmanim[1].names.en }}, etc...</li>
+                        <li><b>Hebrew:</b> {{ site.data.zmanim[0].names.hb }}, {{ site.data.zmanim[1].names.hb }}, etc...</li>
+                        <li><b>English - Transliterated:</b> {{ site.data.zmanim[0].names.et }}, {{ site.data.zmanim[1].names.et }}, etc...</li>
+                        <li><b>English:</b> {{ site.data.zmanim[0].names.en }}, {{ site.data.zmanim[1].names.en }}, etc...</li>
                     </ul>
                 </div>
                 <div>
-                    <div class="btn-group">
+                    <div class="btn-group" onclick="handleLanguageChange()">
                         <input type="radio" class="btn-check" name="language" id="hebrew" autocomplete="off" checked />
-                        <label class="btn btn-secondary" for="hebrew">Hebrew</label>
+                        <label class="btn btn-secondary" for="hebrew">Hebrew - עברית</label>
                       
                         <input type="radio" class="btn-check" name="language" id="enet" autocomplete="off" />
                         <label class="btn btn-secondary" for="enet">English - Transliterated</label>
@@ -106,8 +106,11 @@ window.addEventListener("DOMContentLoaded", () => {
         document.getElementById("12h").checked = true;
         document.getElementById("24h").checked = false;
     }
-
 })
+
+function handleLanguageChange() {
+    window.handleLanguage(document.getElementById("hebrew").checked ? "hb" : (document.getElementById("enet").checked ? "en-et" : "en"));
+}
 
 function saveChanges() {
     localStorage.setItem("calendarSource", document.getElementById("amudehHoraah").checked ? "amudehHoraah" : "ohrHachaim")

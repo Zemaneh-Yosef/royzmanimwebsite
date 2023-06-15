@@ -27,21 +27,37 @@
 			  <a class="navbar-brand" href="/">
 				<img id="logo_dark" src="/assets/images/ro_flag.png" alt="Link to the Home Page"/>
 				<img id="logo_light" src="/assets/images/ro_flag_light.png" alt="Link to the Home Page"/>
-				<span id="bannerText">Rabbi Ovadiah Yosef Calendar</span>
+				<span id="bannerText">
+					<span class="lang lang-hb">לוח מרן זצ"ל</span>
+				    <span class="lang lang-et">Rabbi Ovadiah Yosef Calendar</span>
+			    	<span class="lang lang-en">Rabbi Ovadiah Yosef Calendar</span>
+				</span>
 			  </a>
-			  <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+			  <button class="navbar-toggler ms-auto" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			  </button>
 			  <nav class="collapse navbar-collapse" id="navbarNavDropdown">
 				<ul class="navbar-nav ms-auto mb-2 mb-lg-0" style="text-align: end;">
 				  <li class="nav-item">
-					<a class="nav-link" href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" target="_blank">Molad Calculator</a>
+					<a class="nav-link" href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" target="_blank">
+						<span class="lang lang-hb">לוח של מולד</span>
+				        <span class="lang lang-et">Molad Calendar</span>
+			    	    <span class="lang lang-en">New-Moon Calendar</span>
+					</a>
 				  </li>
 				  <li class="nav-item">
-					<a class="nav-link" href="/settings">Settings</a>
+					<a class="nav-link" href="/settings">
+						<span class="lang lang-hb">תְצוּרָה</span>
+				        <span class="lang lang-et">Settings</span>
+			    	    <span class="lang lang-en">Settings</span>
+					</a>
 				  </li>
 				  <li class="nav-item">
-					<a class="nav-link" data-mdb-toggle="modal" data-mdb-target="#aboutModal">About</a>
+					<a class="nav-link" data-mdb-toggle="modal" data-mdb-target="#aboutModal">
+						<span class="lang lang-hb">על אודות</span>
+				        <span class="lang lang-et">About</span>
+			    	    <span class="lang lang-en">About</span>
+					</a>
 				  </li>
 				</ul>
 			  </nav>
@@ -64,6 +80,7 @@
 			</div>
 		</div>
 		{% if page.accordian %}<script src="/assets/js/accordian.js"></script>{% endif %}
+		<script src="/assets/js/settings.js" type="module"></script>
 		<script type="text/javascript" src="/assets/libraries/mdbootstrap/js/mdb.min.js"></script>
 	</body>
 </html>

@@ -5,15 +5,7 @@ import * as KosherZmanim from "./libraries/dev/bundle.js";
 import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.js";
 import WebsiteCalendar from "./WebsiteCalendar.js";
 import n2words from "./libraries/n2wordsrollup.js";
-
-const settings = {
-	calendarSource: () => localStorage.getItem("calendarSource"),
-	seconds: () => localStorage.getItem("seconds") == "true",
-	timeFormat: () => localStorage.getItem("timeFormat"),
-	language: () => localStorage.getItem("zmanimLanguage"),
-	candleLighting: () => parseInt(localStorage.getItem("candles")) || 20,
-	tzeith: () => parseInt(localStorage.getItem("tzeith")) || 40
-}
+import { settings } from "./settings.js";
 
 class zmanimListUpdater {
 	/**
@@ -42,44 +34,9 @@ class zmanimListUpdater {
 		 */
 		this.nextUpcomingZman = null;
 
-		this.handleLanguage();
 		this.setupButtons();
 		this.setNextUpcomingZman();
 		// this.updateZmanimList(); //Note: if there are no parameters, this method will crash because there is no timezone set. However, it will be recalled in the getJson method
-	}
-
-	handleLanguage() {
-		const zmanimLanguage = settings.language();
-		switch (zmanimLanguage) {
-			case 'hb':
-			default:
-				document.body.classList.remove("lang-en", "lang-en-et");
-				document.body.classList.add("lang-hb");
-
-				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.rtl.min.css")
-				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.rtl.min.css")
-
-				document.body.dir = "rtl"
-				break;
-			case 'en-et':
-				document.body.classList.remove("lang-hb", "lang-en");
-				document.body.classList.add("lang-en-et");
-
-				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.min.css")
-				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
-
-				document.body.dir = "ltr"
-				break;
-			case 'en':
-				document.body.classList.remove("lang-hb", "lang-en-et");
-				document.body.classList.add("lang-en");
-
-				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.min.css")
-				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
-
-				document.body.dir = "ltr"
-				break;
-		}
 	}
 
 	/**
@@ -668,30 +625,12 @@ function numberToHebrew(num) {
 	return buffer.join("");
 }
 
-//get the location details from the query string and create the zmanim calendar
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
-const geoLocationBase = {
-	locationName: urlParams.get("locationName"),
-	lat: parseFloat(urlParams.get("lat")),
-	long: parseFloat(urlParams.get("long")),
-	elevation: parseFloat(urlParams.get("elevation")),
-	timezone: urlParams.get("timeZone") || undefined
-}
-if (isNaN(geoLocationBase.elevation)) {
-	geoLocationBase.elevation = 0;
-}
-if (isNaN(geoLocationBase.lat) && isNaN(geoLocationBase.long)) {
+if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 	window.location.href = "/"
 }
 
-const geoLocation = new KosherZmanim.GeoLocation(
-	geoLocationBase.locationName,
-	geoLocationBase.lat,
-	geoLocationBase.long,
-	geoLocationBase.elevation,
-	geoLocationBase.timezone
-);
+// @ts-ignore
+const geoLocation = new KosherZmanim.GeoLocation(...Object.values(settings.location).map(numberFunc => numberFunc()));
 
 const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
 zmanimListUpdater2.updateZmanimList()

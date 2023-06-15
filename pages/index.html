@@ -7,17 +7,14 @@ permalink: /
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Set your location!</h5>
+        <h5 class="modal-title text-center">Set your location! | בחר את המיקום שלך!</h5>
       </div>
       <div class="modal-body">
-        <ul>
-          <li><b>Town Search:</b> You can search for a location either by its name or the ZIP code. Enter it in the search bar below, then hit the Enter key.<br>
-            <i>Disclaimer: The results of this search bar are based on a 3rd party
-            website and are not guaranteed to match what you are looking for. If you
-            are not sure about the results, please use the manual location button.</i></li>
-          <li><b>Location Detector:</b> Give the site consent to determine your location (and its relevant times) based on the GPS coordinates reported by a browser. VPN's and Proxies will affect the results.</li>
-          <li><b>Manual (Advanced):</b> Input customized longtitude and latitude inputs. Useful for the most precision.</li>
-        </ul>
+        {% capture hebrewWelcomeText %}{% include homepage/hebrew.md %}{% endcapture %}
+        {% capture englishWelcomeText %}{% include homepage/english.md %}{% endcapture %}
+        <span class="lang lang-hb">{{ hebrewWelcomeText | markdownify }}</span>
+        <span class="lang lang-et">{{ englishWelcomeText | markdownify }}</span>
+        <span class="lang lang-en">{{ englishWelcomeText | markdownify }}</span>
 
         <div class="input-group input-group-lg form-outline mb-2">
           <span class="input-group-text" id="inputGroup-sizing-lg">
@@ -48,8 +45,6 @@ permalink: /
           <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
           <label class="form-check-label" for="flexRadioDefault1">Fixed Israel Minutes (לוח אור החיים)</label>
         </div>
-
-        <p>PS: If your keyboard doesn't have an "Enter" button, the search icon in the bar doubles as one for you.</p>
 
         <p class="border" id="manualLocation" style="display: none">
           <!--Hidden until shown-->

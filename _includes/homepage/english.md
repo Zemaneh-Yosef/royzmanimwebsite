@@ -1,0 +1,4 @@
+- **Town Search:** You can search for a location either by its name or the ZIP code. Enter it in the search bar below, then hit the Enter key on your keyboard. (If you're using a device that doesn't have one, click on the search icon instead)<br>
+  _Disclaimer: The results of this search bar are based on a 3rd party website and are not guaranteed to match what you are looking for. If you are not sure about the results, please use the manual location button._
+- **Location Detector:** Give the site consent to determine your location (and its relevant times) based on the GPS coordinates reported by a browser. VPN's and Proxies will affect the results.
+- **Manual (Advanced):** Input customized longtitude and latitude inputs. Useful for the most precision.

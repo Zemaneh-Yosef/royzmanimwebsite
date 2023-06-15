@@ -12,12 +12,18 @@ The "ROYZmanim" website was made to calculate timing information according to th
 3. When there is a line that we could cross between making something permitted and forbidden, we as the product offerers need to prove that our method is accurate. As such, we have fully open-sourced each codebase we worked on, as well as restricted ourselves to things that are calculatable (with the exclusion of ChaiTables Netz calculation, as that's where the Ohr Hachaim gets their Netz data from). The only thing we do **not** intend to prove its accuracy are seconds, because they should **not** be relied upon.
 4. The calculation methods between sunrise and sunset are the same across both Sepharadi & Ashkenazi calendars, because every updated calendar pulls the data from the NOAA. As such, what makes the differences are the way the hours are divided as well as עלות & צאת.
 
-### Development Credits
+### Website Credits
 
 - **Elyahu Jacobi:** Lead Programmer, App Designer
 - **Maor N:** Contracted work for the following: Website design, code clean up, type-safety and advocate for עמודי הוראה's implementation
-- **Aryeh Berman:** Developer of the KosherZmanim TypeScript library port
-- **Eliyahu Hershfield:** Developer of the KosherJava project
+- Rabbinical Credits listed below with their Haskamot
+
+### Development Credits
+
+- **Aryeh Berman:** Primary Developer of the KosherZmanim TypeScript library port
+- **Eliyahu Hershfield:** Primary Developer of the KosherJava project, which KosherZmanim was based on
+- Developers of [luxon](https://moment.github.io/luxon/#/), [Decimal.js](https://mikemcl.github.io/decimal.js/), [mdbootstrap](https://mdbootstrap.com/) (which uses [Bootstrap 5](https://getbootstrap.com/)) & [n2words](https://github.com/forzagreen/n2words)
+- Shout out to the to-be-replaced-in-the-future [flexcal](https://github.com/dwachss/flexcal), with all of its jQuery and jQuery-UI dependencies
 
 ### Special Thanks
 

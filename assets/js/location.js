@@ -228,7 +228,7 @@ async function setLatLong (position) {
 			'username': 'Elyahu41'
 		});
 		const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
-		location = data["geonames"][0]; // TODO: If there are other False positives
+		location = data.geonames[0]; // TODO: If there are other False positives
 	} catch (e) {
 		// Only thing this is good for is the location name - if there is a problem, then just have the thing say "Your Location"
 		console.error(e);
