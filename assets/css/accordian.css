@@ -10,9 +10,8 @@
     cursor: pointer;
   }
   
-  .accordian summary .rightAlign {
+  .accordian summary .timeDisplay {
     font-weight: bold;
-    margin-left: auto;
   }
   
   .accordian details:not(:last-child) {
@@ -40,9 +39,20 @@
     border-style: solid;
     border-color: transparent transparent transparent var(--mdb-list-group-color);
     transform: rotate(0);
-    transform-origin: 0.2rem 50%;
+    transform-origin: left center;
     transition: 0.25s transform ease;
     margin-right: 0.25rem;
+  }
+
+  body[dir=rtl] .accordian summary:before {
+    border-color: transparent var(--mdb-list-group-color) transparent transparent;
+    margin-right: 0;
+    margin-left: 0.25rem;
+    transform-origin: right center;
+  }
+
+  body[dir=rtl] .accordian details[open] > summary:before {
+    transform: rotate(-90deg) translateX(3px) translateY(-3px);
   }
   
   .accordian .accordianContent {

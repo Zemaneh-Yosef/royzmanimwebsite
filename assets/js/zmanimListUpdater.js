@@ -58,6 +58,8 @@ class zmanimListUpdater {
 
 				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.rtl.min.css")
 				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.rtl.min.css")
+
+				document.body.dir = "rtl"
 				break;
 			case 'en-et':
 				document.body.classList.remove("lang-hb", "lang-en");
@@ -65,6 +67,8 @@ class zmanimListUpdater {
 
 				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.min.css")
 				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
+
+				document.body.dir = "ltr"
 				break;
 			case 'en':
 				document.body.classList.remove("lang-hb", "lang-en-et");
@@ -72,6 +76,8 @@ class zmanimListUpdater {
 
 				document.getElementById("mdb").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.min.css")
 				document.getElementById("mdbd").setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
+
+				document.body.dir = "ltr"
 				break;
 		}
 	}
@@ -462,7 +468,6 @@ class zmanimListUpdater {
 
 		var daf = document.getElementById("dafBavli");
 		var dafYerushalmi = document.getElementById("DafYerushalmi");
-		var shaahZmanit = document.getElementById("ShaahZmanit");
 
 		var dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(this.jewishCalendar);
 		daf.innerHTML =
@@ -481,15 +486,16 @@ class zmanimListUpdater {
 			this.jewishCalendar.tefilahRules().amidah.mechayehHametim,
 			this.jewishCalendar.tefilahRules().amidah.mevarechHashanim
 		].filter(Boolean).join(" / ");
-		shaahZmanit.innerHTML = this.shaahZmanits();
+		this.shaahZmanits();
 	}
 
 	shaahZmanits() {
+		const dd = document.getElementsByTagName("dd");
 		const zmanimFormatter = new KosherZmanim.ZmanimFormatter(geoLocation.getTimeZone());
 		zmanimFormatter.setTimeFormat(KosherZmanim.ZmanimFormatter.SEXAGESIMAL_FORMAT);
 
-		return `Shaah Zmanith GR'A: ${zmanimFormatter.format(this.zmanimCalendar.ComplexZmanimCalendar.getShaahZmanisGra())}
-		/ MG'A: ${zmanimFormatter.format(this.zmanimCalendar.ComplexZmanimCalendar.getShaahZmanis72MinutesZmanis())}`.replace('\n', ' ')
+		dd[0].innerHTML = zmanimFormatter.format(this.zmanimCalendar.ComplexZmanimCalendar.getShaahZmanisGra())
+		dd[1].innerHTML = zmanimFormatter.format(this.zmanimCalendar.ComplexZmanimCalendar.getShaahZmanis72MinutesZmanis())
 	}
 
 	getIsTonightStartOrEndBirchatLevana() {

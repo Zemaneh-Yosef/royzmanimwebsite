@@ -90,10 +90,24 @@ body.lang-en .lang:not(.lang-en) {
   top: 0;
 }
 
-#bannerText {
+body #bannerText {
   padding-left: 4.25rem;
+}
+
+body[dir="rtl"] #bannerText {
+  padding-left: 0;
+  padding-right: 4.25rem;
 }
 
 .card>.list-group {
   padding-left: 0;
+}
+
+#ShaahZmanit .list-group-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+#ShaahZmanit dd {
+  margin: 0;
 }

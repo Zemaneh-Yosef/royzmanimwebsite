@@ -54,28 +54,27 @@ accordian: true
   </div>
   <div id="zmanim">
     <section class="accordian" id="calendarFormatter">
-      {% for item in site.data.nav.zmanim %}
+      {% for item in site.data.zmanim %}
         <details
           id="{{ item.id }}"
           {% if item.timeGetter %}timeGetter="{{ item.timeGetter }}"{% endif %}
-          {% if item.luachInclusive %}luachInclusive="{{ item.luachInclusive }}"{% endif %}
-          {% if item.yomTovInclusive %}yomTovInclusive="{{ item.yomTovInclusive }}"{% endif %}
-          {% if item.condition %}condition="{{ item.condition }}"{% endif %}
+          {% if item.attributes.luachInclusive %}luachInclusive="{{ item.luachInclusive }}"{% endif %}
+          {% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.yomTovInclusive }}"{% endif %}
+          {% if item.attributes.condition %}condition="{{ item.condition }}"{% endif %}
         >
           <summary>
             <span class="lang lang-hb">{{ item.names.hb }}</span>
             <span class="lang lang-et">{{ item.names.et }}</span>
             <span class="lang lang-en">{{ item.names.en }}</span>
-            <span class="timeDisplay rightAlign"></span>
+            <span class="timeDisplay ms-auto"></span>
           </summary>
           <div class="accordianContent">{{ item.description }}</div>
         </details>
       {% endfor %}
     </section>
-    <p id="ShaahZmanit" class="border"></p>
   </div>
   <div id="special">
-    <div class="card">
+    <div class="card mb-2">
       <ul class="list-group list-group-flush">
         <li class="list-group-item" id="SpecialDay"></li>
         <li class="list-group-item" id="MourningPeriod">
@@ -178,6 +177,29 @@ accordian: true
           <span class="lang lang-en">The <span class="tekufaName-en"></span> period is today at <span class="tekufaTime"></span></span>
         </li>
       </ul>
+    </div>
+    <div class="card mb-2" id="ShaahZmanit">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <span class="lang lang-hb">שעה זמנית</span>
+          <span class="lang lang-et">Sha'ah Zmanith</span>
+          <span class="lang lang-en">Seasonal Hour</span>
+        </h5>
+      </div>
+      <dl class="list-group list-group-flush">
+        <div class="list-group-item">
+          <dt class="lang lang-hb">גר"א (װילנער גאון)</dt>
+          <dt class="lang lang-et">GR"A (Vilna Gaon)</dt>
+          <dt class="lang lang-en">GR"A (Vilna Gaon)</dt>
+          <dd></dd>
+        </div>
+        <div class="list-group-item">
+          <dt class="lang lang-hb">מג"א (מגן אברהם)</dt>
+          <dt class="lang lang-et">MR"A (Maren Avraham)</dt>
+          <dt class="lang lang-en">MR"A (Maren Avraham)</dt>
+          <dd></dd>
+        </div>
+      </dl>
     </div>
   </div>
 </div>

@@ -26,7 +26,7 @@ class ChaiTables {
      * @return the full link directly to the chai tables for the chosen neighborhood
      *
      * @param {Number} searchradius The search radius in kilometers.
-     * @param {9|1|2|3|4|5} type the type of table you want.
+     * @param {0|1|2|3|4|5} type the type of table you want.
      *             0 is visible sunrise,
      *             1 is visible sunset,
      *             2 is mishor sunrise,
@@ -80,5 +80,5 @@ class ChaiTables {
         return url;
     }
 
-
+    
 }
