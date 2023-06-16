@@ -62,9 +62,9 @@ accordian: true
         <details
           id="{{ item.id }}"
           {% if item.timeGetter %}timeGetter="{{ item.timeGetter }}"{% endif %}
-          {% if item.attributes.luachInclusive %}luachInclusive="{{ item.luachInclusive }}"{% endif %}
-          {% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.yomTovInclusive }}"{% endif %}
-          {% if item.attributes.condition %}condition="{{ item.condition }}"{% endif %}
+          {% if item.attributes.luachInclusive %}luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+          {% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+          {% if item.attributes.condition %}condition="{{ item.attributes.condition }}"{% endif %}
         >
           <summary>
             <span class="lang lang-hb">{{ item.names.hb }}</span>
