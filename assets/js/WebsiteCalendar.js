@@ -406,8 +406,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		if (amudehHoraah)
 			minutes -= 21;
 
-		// @ts-ignore
-		const date = luxon.DateTime.fromObject({
+		const date = window.luxon.DateTime.fromObject({
 			year: this.getGregorianYear(),
 			month: this.getGregorianMonth() + 1,
 			day: this.getGregorianDayOfMonth(),

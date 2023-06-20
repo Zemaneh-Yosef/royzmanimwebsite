@@ -63,7 +63,7 @@
 			  </nav>
 		  	</div>
 		</header>
-		<main>
+		<main {% if page.breakout != true %}class="maxWidthContainer"{% endif %}>
 			{{ content }}
 		</main>
 		<!-- Modal -->

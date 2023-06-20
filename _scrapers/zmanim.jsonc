@@ -1,5 +1,5 @@
 /*
-Array.from(document.getElementsByTagName("details")).map(elem => ({
+const zmanimObj = Array.from(document.getElementsByTagName("details")).map(elem => ({
     id: elem.id,
     attributes: {
         yomTovInclusive: elem.getAttribute("yomTovInclusive"),
@@ -13,7 +13,8 @@ Array.from(document.getElementsByTagName("details")).map(elem => ({
         en: elem.querySelector('.lang.lang-en').innerHTML
     },
     description: elem.querySelector('.accordianContent').innerHTML.split('\n').map(line => line.trim()).join('\n')
-}))
+}));
+Object.keys(zmanimObj).forEach(k => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
 */
 
 [
@@ -62,6 +63,9 @@ Array.from(document.getElementsByTagName("details")).map(elem => ({
         },
         "description": "<p>\nThis is the earliest time when all mitzvot (commandments) that are\nto be done during the daytime are allowed to be performed\nL'chatchila (optimally). Halachic sunrise is defined as the moment\nwhen the top edge of the sun appears on the horizon while rising.\nWhereas, the gentiles define sunrise as the moment when the sun is\nhalfway through the horizon. This halachic sunrise is called mishor\n(sea level) sunrise and it is what many jews rely on when praying\nfor Netz.\n</p>\n<p class=\"mb-0\">\nHowever, it should be noted that the Shulchan Aruch writes in Orach\nChayim 89:1, \"The mitzvah of shacharit starts at Netz, like it says\nin the pasuk/verse, 'יראוך עם שמש'\". Based on this, the poskim write\nthat a person should wait until the sun is VISIBLE to say shacharit.\nIn Israel, the Ohr HaChaim calendar uses a table of sunrise times\nfrom the luach/calendar 'לוח ביכורי יוסף' (Luach Bechoray Yosef)\neach year. These times were made by Chaim Keller, creator of the\nChaiTables website. Ideally, you should download these VISIBLE\nsunrise times from his website with the capability of this app to\nuse for the year. However, if you did not download the times, you\nwill see 'Mishor' or 'Sea Level' sunrise instead.\n</p>"
     },
+    {
+        "id": "latestShma",
+    }
     {
         "id": "latestShmaMGA",
         "attributes": {

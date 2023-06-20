@@ -11,7 +11,7 @@
     display: none;
 }
 
-#backwardDay, #forwardDay {
+li[zfReplace="dateContainer"] button {
     display: none;
 }
 

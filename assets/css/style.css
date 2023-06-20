@@ -15,7 +15,7 @@ body {
   background-color: var(--mdb-body-bg);
 }
 
-main {
+.maxWidthContainer {
   margin-left: auto;
   margin-right: auto;
   width: clamp(16rem, 90vw, 70rem)
@@ -101,13 +101,4 @@ body[dir="rtl"] #bannerText {
 
 .card>.list-group {
   padding-left: 0;
-}
-
-#ShaahZmanit .list-group-item {
-  display: flex;
-  justify-content: space-between;
-}
-
-#ShaahZmanit dd {
-  margin: 0;
 }

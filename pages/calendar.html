@@ -2,65 +2,63 @@
 title: Rabbi Ovadia Yosef Zmanim Calendar
 permalink: /calendar
 accordian: true
+breakout: true
 ---
 
-<div id="wideGrid">
+<div id="wideGrid" class="maxWidthContainer">
   <div id="generic">
     <div class="card mb-2">
       <ul class="list-group list-group-flush">
-        <li class="list-group-item" id="Parasha"></li>
-        <li class="list-group-item" id="dateContainer">
+        <li class="list-group-item" zfReplace="Parasha"></li>
+        <li class="list-group-item" zfFind="dateContainer">
           <div class="d-flex" style="align-items: center;">
-            <div><button id="backwardDay" class="btn btn-primary btn-floating">
+            <div><button dateAlter="-1" class="btn btn-primary btn-floating">
               <span class="lang lang-hb"><i class="fa fa-arrow-right"></i></span>
   				    <span class="lang lang-et"><i class="fa fa-arrow-left"></i></span>
 	  		    	<span class="lang lang-en"><i class="fa fa-arrow-left"></i></span>
             </button></div>
             <div style="flex: 1; text-align: center;">
-              <h6 id="Day"></h6>
-              <h2 id="priorityDate"></h2>
-              <h5 id="secondaryDate" class="d-inline-block"></h5>
-              <input type="button" id="date" value="&#xf073;" class="fa btn btn-primary btn-floating">
-              <h5 id="otherDate" class="d-inline-block"></h5>
+              <h6 zfReplace="Day"></h6>
+              <h2 zfReplace="primaryDate"></h2>
+              <h5 zfReplace="secondaryDate" class="d-inline-block"></h5>
+              <input type="button" value="&#xf073;" class="fa btn btn-primary btn-floating">
+              <h5 zfReplace="otherDate" class="d-inline-block"></h5>
             </div>
-            <div><button id="forwardDay" class="btn btn-primary btn-floating">
+            <div><button dateAlter="1" class="btn btn-primary btn-floating">
               <span class="lang lang-hb"><i class="fa fa-arrow-left"></i></span>
   				    <span class="lang lang-et"><i class="fa fa-arrow-right"></i></span>
 	  		    	<span class="lang lang-en"><i class="fa fa-arrow-right"></i></span>
             </button></div>
           </div>
         </li>
-        <li class="list-group-item" id="LocationName"></li>
-        <li class="list-group-item">
+        <li class="list-group-item" zfReplace="LocationName"></li>
+        <li class="list-group-item" zfFind="DafYomi">
           <h6 class="lang lang-hb">הדף של היום</h6>
           <h6 class="lang lang-et">Today's Daf</h6>
           <h6 class="lang lang-en">Today's Talmud Page</h6>
-          <div style="display: grid">
-            <div style="grid-row: 1/1; grid-column: 1/1">
-              <span class="lang lang-hb">בבלי</span>
-              <span class="lang lang-et">Bavli</span>
-              <span class="lang lang-en">Babylon Tractate</span>
+          <dl class="mb-0">
+            <div class="d-flex justify-content-between">
+              <dt class="lang lang-hb">בבלי</dt>
+              <dt class="lang lang-et">Bavli</dt>
+              <dt class="lang lang-en">Babylon Tractate</dt>
+              <dd class="m-0" zfReplace="dafBavli"></dd>
             </div>
-            <div style="grid-row: 2/2; grid-column: 1/1">
-              <span class="lang lang-hb">ירושלמי</span>
-              <span class="lang lang-et">Yerushalmi</span>
-              <span class="lang lang-en">Jerusalemite Tractate</span>
+            <div class="d-flex justify-content-between">
+              <dt class="lang lang-hb">ירושלמי</dt>
+              <dt class="lang lang-et">Yerushalmi</dt>
+              <dt class="lang lang-en">Jerusalemite Tractate</dt>
+              <dd class="m-0" zfReplace="DafYerushalmi"></dd>
             </div>
-            <div id="dafBavli" style="grid-column: 2/2; grid-row: 1/1"></div>
-            <div
-              id="DafYerushalmi"
-              style="grid-column: 2/2; grid-row: 2/2"
-            ></div>
-          </div>
+          </dl>
         </li>
       </ul>
     </div>
   </div>
   <div id="zmanim">
-    <section class="accordian" id="calendarFormatter">
+    <section class="accordian" calendarFormatter>
       {% for item in site.data.zmanim %}
         <details
-          id="{{ item.id }}"
+          zmanid="{{ item.id }}"
           {% if item.timeGetter %}timeGetter="{{ item.timeGetter }}"{% endif %}
           {% if item.attributes.luachInclusive %}luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
           {% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
@@ -80,109 +78,113 @@ accordian: true
   <div id="special">
     <div class="card mb-2">
       <ul class="list-group list-group-flush">
-        <li class="list-group-item" id="SpecialDay"></li>
-        <li class="list-group-item" id="MourningPeriod">
-          <div id="SefirathHaomer">
+        <li class="list-group-item" zfReplace="SpecialDay"></li>
+        <li class="list-group-item" zfFind="MourningPeriod">
+          <div zfFind="SefirathHaomer">
             <h5>
-              <span class="lang lang-hb">היום <span id="hbOmerDate"></span> לעומר</span>
-              <span class="lang lang-et">Today is <span id="etNumOmerCount"></span> of the Omer</span>
-              <span class="lang lang-en"><span id="enOrdOmerCount"></span> day of the Omer</span>
+              <span class="lang lang-hb">היום <span zfReplace="hbOmerDate"></span> לעומר</span>
+              <span class="lang lang-et">Today is <span zfReplace="etNumOmerCount"></span> of the Omer</span>
+              <span class="lang lang-en"><span zfReplace="enOrdOmerCount"></span> day of the Omer</span>
             </h5>
-            <p class="lang lang-hb">שהם <span id="hbOmerDays"></span></p>
-            <p class="lang lang-et">which <span id="etOmer"></span></p>
-            <p class="lang lang-en" id="enOmer"></p>
-            <hr id="omerRules">
+            <p class="lang lang-hb">שהם <span zfReplace="hbOmerDays"></span></p>
+            <p class="lang lang-et">which <span zfReplace="etOmer"></span></p>
+            <p class="lang lang-en" zfReplace="enOmer"></p>
+            <hr zfFind="omerRules">
           </div>
-          <div id="ThreeWeeksHeader">
+          <div zfFind="ThreeWeeksHeader">
             <h5>
               <span class="lang lang-hb">
-                <span class="threeWeeks">שלושה שבועות</span>
-                <span class="nineDays">תשעה ימים</span>
-                <span class="weekOf">שבוע שחל בו</span>
+                <span zfFind="threeWeeks">שלושה שבועות</span>
+                <span zfFind="nineDays">תשעה ימים</span>
+                <span zfFind="weekOf">שבוע שחל בו</span>
               </span>
               <span class="lang lang-et">
-                <span class="threeWeeks">Three Weeks</span>
-                <span class="nineDays">Nine Days</span>
-                <span class="weekOf">The week of Tisha Beav</span>
+                <span zfFind="threeWeeks">Three Weeks</span>
+                <span zfFind="nineDays">Nine Days</span>
+                <span zfFind="weekOf">The week of Tisha Beav</span>
               </span>
               <span class="lang lang-en">
-                <span class="threeWeeks">Three Weeks</span>
-                <span class="nineDays">Nine Days</span>
-                <span class="weekOf">The week of Tisha Beav</span>
+                <span zfFind="threeWeeks">Three Weeks</span>
+                <span zfFind="nineDays">Nine Days</span>
+                <span zfFind="weekOf">The week of Tisha Beav</span>
               </span>
             </h5>
           </div>
           <ul>
-            <li id="haircuts">
+            <li zfFind="haircuts">
               <span class="lang lang-hb">לא לקחת תשפורת</span>
               <span class="lang lang-et">No taking haircuts</span>
               <span class="lang lang-en">No taking haircuts</span>
             </li>
-            <li id="music">
+            <li zfFind="music">
               <span class="lang lang-hb">לא לשמוע למוזיקה</span>
               <span class="lang lang-et">No listening to music</span>
               <span class="lang lang-en">No listening to music</span>
             </li>
-            <li id="wedding">
+            <li zfFind="wedding">
               <span class="lang lang-hb">לא לתחתן</span>
               <span class="lang lang-et">No weddings</span>
               <span class="lang lang-en">No weddings</span>
             </li>
-            <li id="purchaseClothing">
+            <li zfFind="purchaseClothing">
               <span class="lang lang-hb">אסור לקנות בגדים חדשים</span>
               <span class="lang lang-et">No purchasing new clothing</span>
               <span class="lang lang-en">No purchasing new clothing</span>
             </li>
-            <li id="swimming">
+            <li zfFind="swimming">
               <span class="lang lang-hb">השחייה אסורה</span>
               <span class="lang lang-et">No swimming</span>
               <span class="lang lang-en">No swimming</span>
             </li>
-            <li id="construction">
+            <li zfFind="construction">
               <span class="lang lang-hb">אין בנייה</span>
               <span class="lang lang-et">No construction</span>
               <span class="lang lang-en">No construction</span>
             </li>
-            <li id="meat">
+            <li zfFind="meat">
               <span class="lang lang-hb">לא לאכול בשר ולשתות יין</span>
               <span class="lang lang-et">No consumption of meat or wine</span>
               <span class="lang lang-en">No consumption of meat or wine</span>
             </li>
-            <li id="showering">
+            <li zfFind="showering">
               <span class="lang lang-hb">אין להתקלח עם מים חמים</span>
               <span class="lang lang-et">No showering with hot water</span>
               <span class="lang lang-en">No showering with hot water</span>
             </li>
-            <li id="laundry">
+            <li zfFind="laundry">
               <span class="lang lang-hb">אין כביסה או לבישת בגדים טריים</span>
               <span class="lang lang-et">No laundry or wearing freshly laundered clothing</span>
               <span class="lang lang-en">No laundry or wearing freshly laundered clothing</span>
             </li>
-            <li id="wearingClothing">
+            <li zfFind="wearingClothing">
               <span class="lang lang-hb">לא ללבוש בגדים חדשים</span>
               <span class="lang lang-et">No wearing new clothing</span>
               <span class="lang lang-en">No wearing new clothing</span>
             </li>
           </ul>
         </li>
-        <li class="list-group-item" id="Tachanun"></li>
-        <li class="list-group-item" id="Chamah">
+        <li class="list-group-item" zfReplace="Tachanun"></li>
+        <li class="list-group-item" zfFind="Chamah">
           <span class="lang lang-hb">ברכת החמה!</span>
           <span class="lang lang-et">Birchath Hachama!</span>
           <span class="lang lang-en">Blessing of the sun!</span>
         </li>
-        <li class="list-group-item" id="BirchatHalevana"></li>
-        <li class="list-group-item" id="Hallel"></li>
-        <li class="list-group-item" id="Ulchaparat"></li>
-        <li class="list-group-item" id="SeasonalPrayers"></li>
-        <li class="list-group-item" id="Tekufa">
-          <span class="lang lang-hb">תקופה <span id="tekufaName-hb"></span> היום בשעה <span class="tekufaTime"></span></span>
-          <span class="lang lang-et">Tekufa <span class="tekufaName-en"></span> is today at <span class="tekufaTime"></span></span>
-          <span class="lang lang-en">The <span class="tekufaName-en"></span> period is today at <span class="tekufaTime"></span></span>
+        <li class="list-group-item" zfFind="BirchatHalevana">
+          <span class="lang lang-hb">ברכת הלבנה!</span>
+          <span class="lang lang-et">Birchath Halevana!</span>
+          <span class="lang lang-en">Blessing of the moon!</span>
+        </li>
+        <li class="list-group-item" zfReplace="Hallel"></li>
+        <li class="list-group-item" zfReplace="Ulchaparat"></li>
+        <li class="list-group-item" zfReplace="SeasonalPrayers"></li>
+        <li class="list-group-item" zfReplace="Tekufa">
+          <span class="lang lang-hb">תקופה <span zfReplace="tekufaName-hb"></span> היום בשעה <span zfReplace="tekufaTime"></span></span>
+          <span class="lang lang-et">Tekufa <span zfReplace="tekufaName-en"></span> is today at <span zfReplace="tekufaTime"></span></span>
+          <span class="lang lang-en">The <span zfReplace="tekufaName-en"></span> period is today at <span zfReplace="tekufaTime"></span></span>
         </li>
       </ul>
     </div>
-    <div class="card mb-2" id="ShaahZmanit">
+    <div class="card mb-2" zfReplace="ShaahZmanit">
       <div class="card-header">
         <h5 class="mb-0">
           <span class="lang lang-hb">שעה זמנית</span>
@@ -191,23 +193,43 @@ accordian: true
         </h5>
       </div>
       <dl class="list-group list-group-flush">
-        <div class="list-group-item">
+        <div class="list-group-item d-flex justify-content-between">
           <dt class="lang lang-hb">גר"א (װילנער גאון)</dt>
           <dt class="lang lang-et">GR"A (Vilna Gaon)</dt>
           <dt class="lang lang-en">GR"A (Vilna Gaon)</dt>
-          <dd></dd>
+          <dd class="m-0" zfReplace="graShaahZmanit"></dd>
         </div>
-        <div class="list-group-item">
+        <div class="list-group-item d-flex justify-content-between">
           <dt class="lang lang-hb">מג"א (מגן אברהם)</dt>
           <dt class="lang lang-et">MR"A (Maren Avraham)</dt>
           <dt class="lang lang-en">MR"A (Maren Avraham)</dt>
-          <dd></dd>
+          <dd class="m-0" zfReplace="mgaShaahZmanit"></dd>
         </div>
       </dl>
     </div>
   </div>
 </div>
 
+<!--
+<div id="tvLayout">
+    <section class="wideView" calendarFormatter>
+      {% for item in site.data.zmanim %}
+        <article
+          zmanid="{{ item.id }}"
+          {% if item.timeGetter %}timeGetter="{{ item.timeGetter }}"{% endif %}
+          {% if item.attributes.luachInclusive %}luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+          {% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+          {% if item.attributes.condition %}condition="{{ item.attributes.condition }}"{% endif %}
+        >
+          <span class="lang lang-hb">{{ item.names.hb }}</span>
+          <span class="lang lang-et">{{ item.names.et }}</span>
+          <span class="lang lang-en">{{ item.names.en }}</span>
+          <span class="timeDisplay"></span>
+        </article>
+      {% endfor %}
+    </section>
+</div>
+-->
 
 
 <noscript>This website requires JavaScript to run</noscript>
@@ -220,13 +242,13 @@ accordian: true
 <!--All these files just to include flexcal.js for a jewish calendar popup widget-->
 
 <script>
-  $("document").ready(function () {
-    //This is the code for the calendar popup
-    $("#date").flexcal({
-      calendars: ["en", "jewish", "he-jewish"],
-      selected: "en",
-    });
-  });
+  document.addEventListener("DOMContentLoaded", () => {
+    for (const dateContainer of document.querySelectorAll('[zfReplace="dateContainer"]'))
+      $(dateContainer.getElementsByTagName("input")[0]).flexcal({
+        calendars: ["en", "jewish", "he-jewish"],
+        selected: "en",
+      });
+  })
 </script>
 
 <!--
