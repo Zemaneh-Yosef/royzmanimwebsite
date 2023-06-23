@@ -46,7 +46,7 @@
 					</a>
 				  </li>
 				  <li class="nav-item">
-					<a class="nav-link" href="/settings">
+					<a class="nav-link" data-mdb-toggle="modal" data-mdb-target="#settingsModal">
 						<span class="lang lang-hb">תְצוּרָה</span>
 				        <span class="lang lang-et">Settings</span>
 			    	    <span class="lang lang-en">Settings</span>
@@ -79,8 +79,9 @@
 				</div>
 			</div>
 		</div>
+		{% include modals/settings.html %}
 		{% if page.accordian %}<script src="/assets/js/accordian.js"></script>{% endif %}
-		<script src="/assets/js/settings.js" type="module"></script>
+		<script src="/assets/js/settings/docLoad.js" type="module"></script>
 		<script type="text/javascript" src="/assets/libraries/mdbootstrap/js/mdb.min.js"></script>
 	</body>
 </html>

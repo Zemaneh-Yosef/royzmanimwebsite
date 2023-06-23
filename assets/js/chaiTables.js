@@ -50,7 +50,6 @@ class ChaiTables {
             'USAcities1': (isIsraelCities ? 1 : this.indexOfMetroArea),
             USAcities2: 0,
             searchradius: (isIsraelCities ? "" : this.selectedCountry == "Israel" ? 2 : searchradius),
-            Placename: "?",
             "eroslatitude": (isIsraelCities ? 0.0 : this.geoData.getLatitude()),
             "eroslongitude": (isIsraelCities ? 0.0 : switchLongitude ? -this.geoData.getLongitude() : this.geoData.getLongitude()),
             eroshgt: 0.0,
@@ -80,5 +79,47 @@ class ChaiTables {
         return url;
     }
 
-    
+
+    /**
+     * @param {string} htmlBody
+     * @param {number} year
+     * @param {number} timezone
+     */
+    extractData (htmlBody, year, timezone) {
+        const calendar = new KosherZmanim.JewishCalendar();
+        calendar.setJewishYear(year)
+        const data = {
+            lng: this.geoData.getLongitude(),
+            lat: this.geoData.getLatitude(),
+            times: []
+        }
+
+        const domParsed = new DOMParser().parseFromString(htmlBody, "text/xml");
+
+        const zmanTable = Array.from(domParsed.getElementsByTagName('table'))
+            .find(table=>[14,15].includes(table.rows[0].cells.length));
+
+        const isLeapYear = zmanTable.rows[0].cells.length == 15;
+        const monthIndexers = (!isLeapYear ? [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6] : [8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5, 6, 7]).entries()
+        for (let rowIndexString in zmanTable.rows) {
+            let rowIndex = parseInt(rowIndexString);
+
+            if (rowIndex == 0)
+                continue;
+
+            for (let [monthValue, monthCellIndex] of monthIndexers) {
+                const zmanTime = zmanTable.rows[rowIndex].cells[monthCellIndex].innerText
+                if (!zmanTime)
+                    continue;
+                const [hour, minute, second] = zmanTime.split(":").map(time=> parseInt(time))
+
+                calendar.setJewishDate(year, 1+monthValue, parseInt(zmanTable.rows[rowIndex].cells[0].innerText))
+                const time = calendar.getDate();
+                const newTime = time.set({ hour, minute, second }).setZone(window.luxon.FixedOffsetZone.instance(timezone))
+                data.times.push(newTime.toMillis())
+            }
+        }
+
+        return data;
+    }
 }

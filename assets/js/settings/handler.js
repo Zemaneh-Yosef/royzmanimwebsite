@@ -1,3 +1,5 @@
+// @ts-check
+
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
@@ -21,7 +23,9 @@ const settings = {
     }
 }
 
-function handleLanguage(zmanimLanguage = settings.language()) {
+function handleLanguage(zmanimLanguage = settings.language(), save=false) {
+    const langSelectors = Array.from(document.getElementById('languageSelector').getElementsByTagName('input'));
+
     switch (zmanimLanguage) {
         case 'hb':
         default: {
@@ -36,7 +40,10 @@ function handleLanguage(zmanimLanguage = settings.language()) {
             if (darkmdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/css/mdb.dark.rtl.min.css")
                 darkmdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.rtl.min.css")
 
-            document.body.dir = "rtl"
+            document.body.dir = "rtl";
+
+            langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'hebrew').forEach(btnOfGroup => btnOfGroup.checked = false);
+            langSelectors.find(btnOfGroup=>btnOfGroup.id == 'hebrew').checked = true;
             break;
         } case 'en-et': {
             document.body.classList.remove("lang-hb", "lang-en");
@@ -51,6 +58,9 @@ function handleLanguage(zmanimLanguage = settings.language()) {
                 darkmdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
 
             document.body.dir = "ltr"
+
+            langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'enet').forEach(btnOfGroup => btnOfGroup.checked = false);
+            langSelectors.find(btnOfGroup=>btnOfGroup.id == 'enet').checked = true;
             break;
         } case 'en': {
             document.body.classList.remove("lang-hb", "lang-en-et");
@@ -65,22 +75,26 @@ function handleLanguage(zmanimLanguage = settings.language()) {
                 darkmdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
 
             document.body.dir = "ltr"
+
+            langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'enli').forEach(btnOfGroup => btnOfGroup.checked = false);
+            langSelectors.find(btnOfGroup=>btnOfGroup.id == 'enli').checked = true;
             break;
         }
     }
 
     Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
+        // @ts-ignore
         new mdb.Input(formOutline).update();
-        if (settings.language() == "hb") {
+        if (zmanimLanguage == "hb") {
+            /** @type {HTMLElement} */
             const formLabel = formOutline.querySelector('.form-label');
             formLabel.style.marginRight = formLabel.style.marginLeft;
-            formLabel.style.marginLeft = 0;
+            formLabel.style.marginLeft = (0).toString();
         }
     });
+
+    if (save)
+        localStorage.setItem("zmanimLanguage", zmanimLanguage)
 }
-
-window.handleLanguage = handleLanguage;
-
-document.addEventListener("DOMContentLoaded", () => handleLanguage())
 
 export {settings, handleLanguage}

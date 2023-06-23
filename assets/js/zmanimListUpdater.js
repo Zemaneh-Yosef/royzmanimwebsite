@@ -5,29 +5,18 @@ import * as KosherZmanim from "./libraries/dev/bundle.js";
 import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.js";
 import WebsiteCalendar from "./WebsiteCalendar.js";
 import n2words from "./libraries/n2wordsrollup.js";
-import { settings } from "./settings.js";
+import { settings } from "./settings/handler.js";
 
 class zmanimListUpdater {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	constructor(geoLocation) {
-		document.querySelectorAll('[zfReplace="LocationName"]')
-			.forEach(locationName => locationName.innerHTML = geoLocation.getLocationName() || "No Location Name Provided");
-
-		this.zmanMethods = (settings.calendarSource() == "amudehHoraah" ? new AmudehHoraahZmanim(geoLocation) : new OhrHachaimZmanim(geoLocation, true));
-		this.zmanMethods.coreCZC.setCandleLightingOffset(settings.candleLighting());
-		this.zmanMethods.coreCZC.setAteretTorahSunsetOffset(settings.tzeith());
-
 		this.jewishCalendar = new WebsiteCalendar();
 		this.jewishCalendar.setUseModernHolidays(true);
 		this.jewishCalendar.setUpDateFormatter();
 
-		if (geoLocation.getTimeZone() == "Asia/Jerusalem") {
-			//if the timezone is Asia/Jerusalem, then the location is probably very close to the Israel or in Israel, so we set the jewish calendar to inIsrael mode
-			//we should change this behavior to ask the user if he is in israel or not and adjust accordingly
-			this.jewishCalendar.setInIsrael(true);
-		}
+		this.resetCalendar(geoLocation);
 
 		/**
 		 * @type {null|luxon.DateTime}
@@ -38,6 +27,37 @@ class zmanimListUpdater {
 
 		this.setNextUpcomingZman();
 		// this.updateZmanimList();
+	}
+
+	/**
+	 * @param {KosherZmanim.GeoLocation} geoLocation
+	 */
+	resetCalendar(geoLocation = this.geoLocation) {
+		this.geoLocation = geoLocation;
+
+		document.querySelectorAll('[zfReplace="LocationName"]')
+			.forEach(locationName => locationName.innerHTML = geoLocation.getLocationName() || "No Location Name Provided");
+
+		if (settings.calendarSource() == "amudehHoraah") {
+			document.querySelector('[zfFind="luachAmudehHoraah"]').style.removeProperty('display')
+			document.querySelector('[zfFind="luachOhrHachaim"]').style.display = 'none';
+			this.zmanMethods = new AmudehHoraahZmanim(geoLocation)
+		} else {
+			document.querySelector('[zfFind="luachOhrHachaim"]').style.removeProperty('display')
+			document.querySelector('[zfFind="luachAmudehHoraah"]').style.display = 'none';
+			this.zmanMethods = new OhrHachaimZmanim(geoLocation, true)
+		}
+
+		this.zmanMethods.coreCZC.setCandleLightingOffset(settings.candleLighting());
+		this.zmanMethods.coreCZC.setAteretTorahSunsetOffset(settings.tzeith());
+
+		if (geoLocation.getTimeZone() == "Asia/Jerusalem") {
+			//if the timezone is Asia/Jerusalem, then the location is probably very close to the Israel or in Israel, so we set the jewish calendar to inIsrael mode
+			//we should change this behavior to ask the user if he is in israel or not and adjust accordingly
+			this.jewishCalendar.setInIsrael(true);
+		}
+
+		this.zmanMethods.coreCZC.setDate(this.jewishCalendar.getDate());
 	}
 
 	/**
@@ -193,17 +213,17 @@ class zmanimListUpdater {
 				}
 
 				/** @type {HTMLElement} */
-				const omerRules = mourningDiv.querySelector('[zfFind="enOmer"]')
+				const omerRules = mourningDiv.querySelector('[zfFind="omerRules"]')
 				if (Object.values(this.jewishCalendar.mourningHalachot()).every(elem => elem == false)) {
 					omerRules.style.display = "none"
-					enDescription.classList.add("pb-0")
-					etDescription.parentElement.classList.add("pb-0")
-					hbDescription.parentElement.classList.add("pb-0")
+					enDescription.classList.add("mb-0")
+					etDescription.parentElement.classList.add("mb-0")
+					hbDescription.parentElement.classList.add("mb-0")
 				} else {
 					omerRules.style.removeProperty("display")
-					enDescription.classList.remove("pb-0")
-					etDescription.parentElement.classList.remove("pb-0")
-					hbDescription.parentElement.classList.remove("pb-0")
+					enDescription.classList.remove("mb-0")
+					etDescription.parentElement.classList.remove("mb-0")
+					hbDescription.parentElement.classList.remove("mb-0")
 				}
 			} else {
 				sefirathHaomer.style.display = 'none';
@@ -511,9 +531,11 @@ class zmanimListUpdater {
 						.replaceAll('${getCandleLightingOffset()}', this.zmanMethods.coreCZC.getCandleLightingOffset().toString())
 				}
 
-				// Calculate but hide! Can be derived via 
+				// Calculate but hide! Can be derived via Inspect Element
 				if (!zmanInfo[zmanId].display)
 					timeSlot.style.display = 'none';
+				else
+					timeSlot.style.removeProperty('display')
 			}
 		}
 
@@ -708,3 +730,4 @@ const geoLocation = new KosherZmanim.GeoLocation(...Object.values(settings.locat
 const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
 zmanimListUpdater2.updateZmanimList()
 
+window.zmanimListUpdater2 = zmanimListUpdater2;

@@ -1,13 +1,12 @@
----
-title: Setting - Rabbi Ovadia Yosef Zmanim Calendar
-permalink: /settings
----
-
-<div class="modal" style="position: static; display: block; height: auto;">
-    <div class="modal-dialog modal-xl">
+<div class="modal fade modal-xl" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Settings</h5>
+            <div class="modal-title">
+                <h3>Settings</h3>
+                <h6>These settings automatically save when they're changed and should be automatically reflected on the page.</h6>
+            </div>
+          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <div class="d-lg-flex">
@@ -19,7 +18,7 @@ permalink: /settings
                     </ul>
                 </div>
                 <div>
-                    <div class="btn-group">
+                    <div class="btn-group" id="calendarPsakSetter">
                         <input type="radio" class="btn-check" name="calcMode" id="amudehHoraah" autocomplete="off" checked />
                         <label class="btn btn-secondary" for="amudehHoraah">Amudeh Hora'ah</label>
                       
@@ -39,7 +38,7 @@ permalink: /settings
                     </ul>
                 </div>
                 <div>
-                    <div class="btn-group" onclick="handleLanguageChange()">
+                    <div class="btn-group" id="languageSelector">
                         <input type="radio" class="btn-check" name="language" id="hebrew" autocomplete="off" checked />
                         <label class="btn btn-secondary" for="hebrew">Hebrew - עברית</label>
                       
@@ -61,7 +60,7 @@ permalink: /settings
                     </ul>
                 </div>
                 <div>
-                    <div class="btn-group">
+                    <div class="btn-group" id="timeFormatter">
                         <input type="radio" class="btn-check" name="timeformat" id="24h" autocomplete="off" checked />
                         <label class="btn btn-secondary" for="24h">Full Clock</label>
 
@@ -87,37 +86,6 @@ permalink: /settings
                 </div>
             </div> -->
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onclick="saveChanges()">Save changes</button>
-        </div>
       </div>
     </div>
 </div>
-
-<script>
-
-window.addEventListener("DOMContentLoaded", () => {
-    if (localStorage.getItem("calendarSource") == "ohrHachaim") {
-        document.getElementById("ohrHachaim").checked = true;
-        document.getElementById("amudehHoraah").checked = false;
-    }
-
-    if (localStorage.getItem("timeFormat") == "12") {
-        document.getElementById("12h").checked = true;
-        document.getElementById("24h").checked = false;
-    }
-})
-
-function handleLanguageChange() {
-    window.handleLanguage(document.getElementById("hebrew").checked ? "hb" : (document.getElementById("enet").checked ? "en-et" : "en"));
-}
-
-function saveChanges() {
-    localStorage.setItem("calendarSource", document.getElementById("amudehHoraah").checked ? "amudehHoraah" : "ohrHachaim")
-    localStorage.setItem("zmanimLanguage",
-        (document.getElementById("hebrew").checked ? "hb" : (document.getElementById("enet").checked ? "en-et" : "en")))
-    localStorage.setItem("timeFormat", document.getElementById("24h").checked ? "24" : "12")
-
-    window.location.href = "/"
-}
-</script>
