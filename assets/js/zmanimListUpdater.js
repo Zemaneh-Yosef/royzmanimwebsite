@@ -25,7 +25,6 @@ class zmanimListUpdater {
 
 		this.buttonsInit = false;
 
-		this.setNextUpcomingZman();
 		// this.updateZmanimList();
 	}
 
@@ -58,6 +57,8 @@ class zmanimListUpdater {
 		}
 
 		this.zmanMethods.coreCZC.setDate(this.jewishCalendar.getDate());
+
+		this.setNextUpcomingZman();
 	}
 
 	/**
@@ -94,7 +95,6 @@ class zmanimListUpdater {
 		}
 
 		for (const dateName of Object.keys(date)) {
-			console.log(dateName);
 			dateContainer.querySelector(`[zfReplace="${dateName}Date"]`).innerHTML = date[dateName]
 		}
 
@@ -268,7 +268,7 @@ class zmanimListUpdater {
 	}
 
 	getZmanimInfo() {
-		/** @type {Record<string, {display: -1|0|1, code: string[], luxonObj: luxon.DateTime, title: { hb: string, en: string, "en-et": string }}>} */
+		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: luxon.DateTime, title: { hb: string, en: string, "en-et": string }}>} */
 		const zmanimInfo = {}
 
 		const indContainers = Array.from(document.querySelector("[calendarFormatter]").children)
@@ -367,6 +367,17 @@ class zmanimListUpdater {
 							zmanimInfo[zmanid].code.push("Not a fast day")
 						}
 				}
+			}
+
+			if (!zmanimInfo[zmanid].luxonObj || !zmanimInfo[zmanid].luxonObj.isValid) {
+				zmanimInfo[zmanid].display = -2;
+				if (zmanimInfo[zmanid].luxonObj)
+					zmanimInfo[zmanid].code.push(
+						'LUXON: ' + zmanimInfo[zmanid].luxonObj.invalidReason,
+						'LUXON: ' + zmanimInfo[zmanid].luxonObj.invalidExplanation
+					);
+				else
+					zmanimInfo[zmanid].code.push("Invalid Date");
 			}
 		}
 
@@ -519,6 +530,12 @@ class zmanimListUpdater {
 					continue;
 				}
 
+				if (zmanInfo[zmanId].display == -2) {
+					timeSlot.style.removeProperty("display");
+					timeSlot.querySelector('.timeDisplay').innerHTML = "XX:XX"
+					continue;
+				}
+
 				const actionToClass = (this.isNextUpcomingZman(zmanInfo[zmanId].luxonObj) ? "add" : "remove")
 				timeSlot.classList[actionToClass]("nextZman")
 
@@ -631,20 +648,16 @@ class zmanimListUpdater {
 
 		for (const time of [-1, 0, 1]) {
 			this.changeDate(window.luxon.DateTime.now().plus({ days: time }));
-			zmanim.push(...Object.values(this.getZmanimInfo()).filter(obj => obj.display == 1).map(time => time.luxonObj));
+			zmanim.push(...Object.values(this.getZmanimInfo()).filter(obj => obj.display == 1 && obj.luxonObj && obj.luxonObj.isValid).map(time => time.luxonObj));
 		}
 
 		this.changeDate(currentSelectedDate); //reset the date to the current date
 
-		this.nextUpcomingZman = zmanim.find(zman => zman !== null &&
-			zman.toMillis() > window.luxon.DateTime.now().toMillis() &&
-			(this.nextUpcomingZman === null ||
-				zman.toMillis() < this.nextUpcomingZman.toMillis()))
+		this.nextUpcomingZman = zmanim.find(zman => zman.toMillis() > window.luxon.DateTime.now().toMillis())
 
-		this.updateZmanimList();
 		//call back this function 1 second after the nextUpcomingZman passes
 		setTimeout(
-			this.setNextUpcomingZman,
+			() => {this.setNextUpcomingZman(); this.updateZmanimList()},
 			this.nextUpcomingZman.toMillis() - window.luxon.DateTime.now().toMillis() + 1000
 		); //TODO test
 	}

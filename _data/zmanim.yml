@@ -9,37 +9,7 @@
     hb: עלות השחר
     et: Aloth Hashachar
     en: Dawn
-  description: |-
-    <p>
-    In Tanach, this time is called Alot HaShachar (בראשית לב:כה),
-    whereas in the Gemara it is called Amud HaShachar.
-    </p>
-    <p>
-    This is the time when the day begins according to halacha. Most
-    mitzvot (commandments), Arvit for example, that take place at night
-    are not allowed to be done after this time.
-    </p>
-    <p>
-    After this time, mitzvot that must be done in the daytime are
-    allowed to be done B'dieved (after the fact) or B'shaat hadachak (in
-    a time of need). However, one should ideally wait until sunrise to
-    do them L'chatchila (optimally).
-    </p>
-    <p>
-    This time is calculated as 72 zmaniyot/seasonal minutes (according
-    to the GR"A) before sunrise. Both sunrise and sunset have elevation
-    included.
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, this time is calculated by finding out
-    how many minutes are between sunrise and 72 minutes as degrees
-    (16.1) before sunrise on an equal day with sunrise and sunset set
-    around 12 hours apart. Then we take those minutes and make them
-    zmaniyot according to the GR\"A, and we subtract that time from
-    sunrise to get the time for Alot Hashachar. This is according to the
-    Halacha Berurah, and this should only be done outside of Israel in
-    more northern or southern areas.
-    </p>
+  descriptionInclude: zmanDescription/aloth.md
 - id: earliestTefilin
   attributes:
     yomTovInclusive:
@@ -340,7 +310,7 @@
     divides it into 12 equal parts. Then we divide one of those 12 parts
     into 60 to get a zmaniyot/seasonal minute.
     </p>
-- id: plagHaminha
+- id: plagHaminhaHB
   attributes:
     yomTovInclusive:
     luachInclusive:
@@ -379,7 +349,7 @@
     12 equal parts. Then we divide one of those 12 parts into 60 to get
     a zmaniyot/seasonal minute.
     </p>
-- id: plagHaminha
+- id: plagHaminhaYY
   attributes:
     yomTovInclusive:
     luachInclusive:

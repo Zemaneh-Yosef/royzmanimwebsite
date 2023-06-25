@@ -9,9 +9,8 @@
     title: Australia
     value: Australia
   metroAreas:
-  - Buenos-Aires_area_Argentina
-  - Concordia_area_Argentina
-  - Salto_area_Argentina
+  - Melbourne_area_Australia
+  - Sydney_area_Australia
 - info:
     title: Austria
     value: Austria

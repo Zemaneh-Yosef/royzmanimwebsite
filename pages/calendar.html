@@ -82,7 +82,7 @@ breakout: true
             <span class="lang lang-en">{{ item.names.en }}</span>
             <span class="timeDisplay ms-auto"></span>
           </summary>
-          <div class="accordianContent">{{ item.description }}</div>
+          <div class="accordianContent">{% capture my_include %}{% if item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}{% endcapture %}{{ my_include | markdownify }}</div>
         </details>
       {% endfor %}
     </section>

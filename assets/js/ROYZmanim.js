@@ -246,11 +246,6 @@ class OhrHachaimZmanim extends ROYZmanim {
 		);
 	}
 
-	getNetz() {
-		/* TODO: Make it use ChaiTables */
-		return this.coreCZC.getSeaLevelSunrise()
-	}
-
 	getTzait() {
 		const shaahZmanit = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
 		const dakahZmanit = shaahZmanit / 60;
@@ -349,9 +344,13 @@ class AmudehHoraahZmanim extends ROYZmanim {
 		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), numberOfSeconds.mul(secondsZmanit).toNumber());
 	}
 
-	getTzaitShabbath() {
-		const degree = new Decimal(7.14).plus(KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH)
-		return this.coreCZC.getSunsetOffsetByDegrees(degree.toNumber());
+	getTzaitShabbath(visibleDegree=7.14) {
+		const degree = new Decimal(visibleDegree).plus(KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH)
+		const sunsetOffset = this.coreCZC.getSunsetOffsetByDegrees(degree.toNumber());
+		if (!sunsetOffset || sunsetOffset.toMillis() > this.getSolarMidnight().toMillis())
+			return (visibleDegree > 5.32 ? this.getTzaitShabbath(5.32) : this.getSolarMidnight());
+
+		return sunsetOffset;
 	}
 
 	getTzait72Zmanit() {

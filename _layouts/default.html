@@ -18,8 +18,9 @@
 		<link rel="stylesheet" href="/assets/css/style.css" />
 		<link rel="stylesheet" href="/assets/css/dark.css" media="screen and (prefers-color-scheme: dark)">
 		<link rel="stylesheet" media="print" href="/assets/css/print.css" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css" integrity="sha256-XoaMnoYC5TH6/+ihMEnospgm0J1PM/nioxbOUdnM8HY=" crossorigin="anonymous">
-		<link href="favicon.ico" rel="icon" type="image/x-icon" />
+		<link rel="stylesheet" href="/assets/libraries/forkAwesome/css/fork-awesome.min.css" integrity="sha256-XoaMnoYC5TH6/+ihMEnospgm0J1PM/nioxbOUdnM8HY=" crossorigin="anonymous">
+		<link href="/assets/libraries/materialComp/material-components-web.min.css" rel="stylesheet">
+		<link href="/favicon.ico" rel="icon" type="image/x-icon" />
 	</head>
 	<body>
 		<header class="navbar navbar-expand-lg bg-body-tertiary mb-3">
@@ -52,6 +53,11 @@
 			    	    <span class="lang lang-en">Settings</span>
 					</a>
 				  </li>
+				  <!-- <li class="nav-item">
+					<a class="nav-link" data-mdb-toggle="modal" data-mdb-target="#ctModal">
+						CTZmanim
+					</a>
+				  </li> -->
 				  <li class="nav-item">
 					<a class="nav-link" data-mdb-toggle="modal" data-mdb-target="#aboutModal">
 						<span class="lang lang-hb">על אודות</span>
@@ -80,6 +86,7 @@
 			</div>
 		</div>
 		{% include modals/settings.html %}
+		{% include modals/chaiTable.html %}
 		{% if page.accordian %}<script src="/assets/js/accordian.js"></script>{% endif %}
 		<script src="/assets/js/settings/docLoad.js" type="module"></script>
 		<script type="text/javascript" src="/assets/libraries/mdbootstrap/js/mdb.min.js"></script>
