@@ -255,12 +255,12 @@ breakout: true
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    for (const dateContainer of document.querySelectorAll('[zfReplace="dateContainer"]'))
+    for (const dateContainer of document.querySelectorAll('[zfFind="dateContainer"]'))
       $(dateContainer.getElementsByTagName("input")[0]).flexcal({
         calendars: ["en", "jewish", "he-jewish"],
         selected: "en",
       });
-  })
+  });
 </script>
 
 <!--
