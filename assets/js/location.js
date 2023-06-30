@@ -1,3 +1,6 @@
+// Order of Operations
+// Check if Hebrew: Use 
+
 const getJSON = async (/** @type {RequestInfo | URL} */ url) => await (await fetch(url)).json();
 const geoLocation = {
 	locationName: '',
@@ -92,7 +95,21 @@ async function updateList(event) {
 		}
 
 		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
-			const geoName = (locationName ? data.geonames.find(entry => entry.name.includes(q)) || data.geonames[0] : data.postalcodes[0])
+			let geoName;
+			if (!locationName)
+				geoName = data.postalcodes[0];
+			else {
+				geoName = data.geonames.find(entry => entry.name == q);
+				if (!geoName)
+					geoName = data.geonames.find(entry => entry.name.includes(q))
+				if (!geoName && q.includes(',')) {
+					geoName = data.geonames.find(entry => entry.name == q.split(',')[0]);
+					if (!geoName)
+						geoName = data.geonames.find(entry => entry.name.includes(q.split(',')[0]))
+				}
+				if (!geoName)
+					geoName = data.geonames[0]
+			}
 			const multiZip = (!locationName || !data.geonames.find(geoName => geoNameTitleGenerator(geoName).includes(q) || geoNameTitleGenerator(geoName).includes(q.split(',')[0]))) && (data.postalcodes || data.geonames).length !== 1;
 			if (!geoName || multiZip) {
 				iconography.error.style.removeProperty("display");
