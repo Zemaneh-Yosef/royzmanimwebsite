@@ -495,8 +495,8 @@
     condition:
   timeGetter: getTzaitLechumra
   names:
-    hb: צאת הכוכבים לחומרה
-    et: Tzait Hacochavim LeChumra
+    hb: צאת הכוכבים לחומרא
+    et: Tzait Hakokhavim LeKhumra
     en: Nightfall (Stringent)
   description: |-
     <p>
