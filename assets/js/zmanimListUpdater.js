@@ -339,7 +339,7 @@ class zmanimListUpdater {
 				switch (timeSlot.getAttribute('condition')) {
 					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
 					case 'isTaanit':
-						if (!(this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR) || settings.calendarSource() == "amudehHoraah") {
+						if (!(this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)) {
 							zmanimInfo[zmanid].display = 0;
 							zmanimInfo[zmanid].code.push("Not a fast day")
 						}
@@ -502,10 +502,6 @@ class zmanimListUpdater {
 				}
 
 				const zmanId = timeSlot.getAttribute('zmanid');
-				if (zmanInfo[zmanId].display == 0) {
-					timeSlot.style.display = 'none';
-					continue;
-				}
 				if (zmanInfo[zmanId].display == -1) {
 					timeSlot.style.display = 'none';
 					continue;
