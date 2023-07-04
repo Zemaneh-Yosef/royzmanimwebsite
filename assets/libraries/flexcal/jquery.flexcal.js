@@ -1,3 +1,5 @@
+//@ts-check
+
 // flexcal: a multi-calendar date picker 
 
 // Version 3.5
@@ -65,17 +67,17 @@ function swap ( elem, options, callback ) {
 };
 
 
-$.fn.extend({
+jQuery.fn.extend({
 	// add indicators that an element is active; UI doesn't use :hover, which probably makes sense for IE
 	'ui-clickable': function(){
-		return this.addClass('ui-state-default')
-		.bind('focus.ui', function(){$(this).addClass('ui-state-focus')})
-		.bind('blur.ui', function() {$(this).removeClass('ui-state-focus')})
-		.bind('mouseenter.ui', function(){$(this).addClass('ui-state-hover')})
-		.bind('mouseleave.ui', function(){$(this).removeClass('ui-state-hover')});
+		return $(this).addClass('ui-state-default')
+		.on('focus.ui', function(){$(this).addClass('ui-state-focus')})
+		.on('blur.ui', function() {$(this).removeClass('ui-state-focus')})
+		.on('mouseenter.ui', function(){$(this).addClass('ui-state-hover')})
+		.on('mouseleave.ui', function(){$(this).removeClass('ui-state-hover')});
 	},
 	'ui-unclickable': function(){
-		return this.removeClass('ui-state-default ui-state-focus ui-state-hover').unbind('.ui');
+		return $(this).removeClass('ui-state-default ui-state-focus ui-state-hover').off('.ui');
 	},
 	trueHeight: makeVisible(function(){
 		// Firefox bug (as of version 37): table offsetHeight does not include the caption.
@@ -214,6 +216,7 @@ $.widget('bililite.flexcal', $.bililite.textpopup, {
 	/**************
 	 * Protected methods
 	 **************/
+	/** @param {JQuery} cal */
 	_adjustHTML: function(cal){
 		cal.attr ('dir', this._l10n.isRTL ? 'rtl' : 'ltr');
 		cal.find('a').removeClass('ui-state-focus').filter('.commit[rel="'+formatISO(this.options.current)+'"]').addClass('ui-state-focus');
@@ -647,7 +650,7 @@ function addDay(d, n){
 // next: one month from now, m: month number (0 indexed), y: year number, dow: day of the week (0 indexed)
 function toDate (d) {return new Date (d.y, d.m, d.d)}
 $.bililite.flexcal.calendars = {
-	gregorian: function(d){
+	gregorian: function(/** @type Date */d){
 		var m = d.getMonth(), y = d.getFullYear(), date = d.getDate(), first = new Date (y, m, 1);
 		var prev = new Date (y, m-1, date), next = new Date (y, m+1, date);
 		if (prev.getDate() != date) prev = new Date (y, m, 0); // adjust for too-short months
@@ -667,7 +670,7 @@ $.bililite.flexcal.calendars = {
 			toDate: toDate
 		};
 	},
-	jewish: function(d){
+	jewish: function(/** @type Date */d){
 		var h = civ2heb(d);
 		var roshchodesh = addDay(d, -h.d+1);
 		var daysinlastmonth = Math.max(civ2heb(addDay(roshchodesh,-1)).daysinmonth, h.d); //  the min/max() correct for the possibility of other month being too short
@@ -677,8 +680,8 @@ $.bililite.flexcal.calendars = {
 			last: addDay(roshchodesh, h.daysinmonth-1),
 			prev: addDay(d, -daysinlastmonth),
 			next: addDay(roshchodesh, h.daysinmonth+daysintonextmonth-1),
-			prevYear: heb2civ($.extend({}, h, {y: h.y-1})),
-			nextYear: heb2civ($.extend({}, h, {y: h.y+1})),
+			prevYear: heb2civ(Object.assign({}, h, {y: h.y-1})),
+			nextYear: heb2civ(Object.assign({}, h, {y: h.y+1})),
 			m: h.m,
 			y: h.y,
 			d: h.d,
@@ -689,7 +692,7 @@ $.bililite.flexcal.calendars = {
 };
 
 // need to add to the default after all this is defined
-$.extend(
+Object.assign(
 	$.bililite.flexcal.prototype.options.l10n,
 	$.datepicker.regional[''], // use the jQuery UI defaults where possible
 	{
@@ -701,7 +704,7 @@ $.extend(
 		todayText: 'Today'
 	}
 );
-$.extend($.bililite.flexcal.prototype, {
+Object.assign($.bililite.flexcal.prototype, {
 	_l10n: tol10n(),
 	_firstL10n: tol10n()
 });
@@ -813,7 +816,7 @@ var l10n = $.bililite.flexcal.l10n = {
 	}
 };
 
-// highly modified version of Kaluach routines. Used with permission
+// Space-Adjusted version of Kaluach routines. Used with permission
 /* Copyright (C) 5760,5761 (2000 CE), by Abu Mami and Yisrael Hersch.
  *   All Rights Reserved.
  *   All copyright notices in this script must be left intact.
@@ -830,11 +833,11 @@ var l10n = $.bililite.flexcal.l10n = {
 function Gauss(year) {
 	var a,b,c;
 	var m;
-	var	Mar;	// "day in March" on which Pesach falls (return value)
+	var Mar;	// "day in March" on which Pesach falls (return value)
 
 	a = Math.floor((12 * year + 17) % 19);
 	b = Math.floor(year % 4);
-	m = 32.044093161144 + 1.5542417966212 * a +  b / 4.0 - 0.0031777940220923 * year;
+	m = 32.044093161144 + 1.5542417966212 * a + b / 4.0 - 0.0031777940220923 * year;
 	if (m < 0)
 		m -= 1;
 	Mar = Math.floor(m);
@@ -859,6 +862,7 @@ function leap(y) {
 }
 
 // takes a Date object, returns an object with {m: hebrewmonth, d: date, y: year, daysinmonth: number of days in this Hebrew month}
+/** @param {Date} date */
 function civ2heb(date) {
 	var d = date.getDate();
 	var	m = date.getMonth()+1;
@@ -962,16 +966,14 @@ function heb2civ(h, type){
 // TODO: use the jQuery foundation's Globalize tools (https://github.com/jquery/globalize)
 
 function tol10n (name, defaultL10n){
-	return $.extend(true, {}, defaultL10n || $.bililite.flexcal.prototype.options.l10n, partialL10n(name));
+	return Object.assign(true, {}, defaultL10n || $.bililite.flexcal.prototype.options.l10n, partialL10n(name));
 };
 $.bililite.flexcal.tol10n = tol10n;
 
 function partialL10n (name){
 	if (name == null) return {};
 	if ($.isPlainObject(name)) return name;
-	if ($.isArray(name)) return name.reduce( function (previous, current){ // fold all the elements into an empty object
-		return $.extend(previous, partialL10n(current));
-	}, {});
+	if (Array.isArray(name)) return name.reduce((previous, current) => Object.assign(previous, partialL10n(current)), {});
 	if (l10n[name]) return l10n[name];
 	for (var loc in tol10n.localizers){
 		var ret = tol10n.localizers[loc](name);
@@ -1032,11 +1034,11 @@ if ($.calendars) tol10n.localizers.woodsCalendar = function (name){
 	}
 	var region = $.calendars.calendars[calendarSystem].prototype.regionalOptions; // where the details are stored
 	if (!(language in region)) return;
-	var ret = $.extend({}, region[''], region[language]);
+	var ret = Object.assign({}, region[''], region[language]);
 	ret.calendar = $.bililite.flexcal.calendars[calendarSystem];
 	// some details are in the date picker, not the language localization
 	if (language in $.calendarsPicker.regionalOptions){
-		ret = $.extend(ret, $.calendarsPicker.regionalOptions[language]);
+		ret = Object.assign(ret, $.calendarsPicker.regionalOptions[language]);
 	};
 	return ret;	
 };

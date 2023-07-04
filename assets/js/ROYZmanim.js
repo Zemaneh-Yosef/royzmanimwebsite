@@ -1,7 +1,7 @@
 // @ts-check
 
 // Comment the following line before going live (as well as the export line on the bottom)!
-import * as KosherZmanim from "./libraries/dev/bundle.js"
+import * as KosherZmanim from "./libraries/dev/kosher-zmanim.esm.js"
 
 class ROYZmanim {
 	/**
@@ -141,20 +141,6 @@ class ROYZmanim {
 		);
 	}
 
-	getTzaitTaanit() {
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			this.zmanim.sunset(),
-			20 * 60_000
-		);
-	}
-
-	getTzaitTaanitLChumra() {
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			this.zmanim.sunset(),
-			30 * 60_000
-		);
-	}
-
 	getSolarMidnight() {
 		return this.coreCZC.getSolarMidnight()
 	}
@@ -204,6 +190,18 @@ class ROYZmanim {
      */
 	getTzaitLechumra() { throw new Error("Not in Amudeh Hora'ah Mode") }
 
+	/**
+     * Abstract method reserved for the Ohr Hachaim subclass.
+     * @returns {luxon.DateTime} The return value.
+     */
+	getTzaitTaanit() { throw new Error("Not in Ohr Hachaim Mode") }
+
+	/**
+     * Abstract method reserved for the Ohr Hachaim subclass.
+     * @returns {luxon.DateTime} The return value.
+     */
+	getTzaitTaanitLChumra() { throw new Error("Not in Ohr Hachaim Mode") }
+
 	// </needsImplementaton>
 }
 
@@ -252,6 +250,20 @@ class OhrHachaimZmanim extends ROYZmanim {
 		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
 			this.zmanim.sunset(),
 			13 * dakahZmanit + dakahZmanit / 2
+		);
+	}
+
+	getTzaitTaanit() {
+		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
+			this.zmanim.sunset(),
+			20 * 60_000
+		);
+	}
+
+	getTzaitTaanitLChumra() {
+		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
+			this.zmanim.sunset(),
+			30 * 60_000
 		);
 	}
 

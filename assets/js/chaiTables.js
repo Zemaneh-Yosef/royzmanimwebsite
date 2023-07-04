@@ -1,7 +1,7 @@
 //@ts-check
 
 import { MDCSelect } from "./libraries/selector.js"
-import * as KosherZmanim from "./libraries/dev/bundle.js"
+import * as KosherZmanim from "./libraries/dev/kosher-zmanim.esm.js"
 export { ChaiTables }
 
 class ChaiTables {

@@ -458,7 +458,7 @@
   timeGetter: getTzait
   names:
     hb: צאת הכוכבים
-    et: Tzait Hacochavim
+    et: Tzait Hakokhavim
     en: Nightfall
   description: |-
     <p>
@@ -529,7 +529,7 @@
 - id: tzeitTaanit
   attributes:
     yomTovInclusive:
-    luachInclusive:
+    luachInclusive: ohrHachaim
     condition: isTaanit
   timeGetter: getTzaitTaanit
   names:
@@ -565,7 +565,7 @@
 - id: tzeitTaanitLChumra
   attributes:
     yomTovInclusive:
-    luachInclusive:
+    luachInclusive: ohrHachaim
     condition: isTaanit
   timeGetter: getTzaitTaanitLChumra
   names:

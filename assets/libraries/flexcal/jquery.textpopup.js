@@ -42,7 +42,8 @@
 			if (trigger == 'self'){
 				trigger = this.element;
 			}
-			if (this._triggerElement) $(trigger).unbind('.textpopup');
+			if (this._triggerElement)
+				$(trigger).off('.textpopup');
 			if (trigger){
 				this._triggerElement = $(trigger);
 				this._triggerElement.filter(":focusable").bind('focus.textpopup', self.show.bind(self));
@@ -116,7 +117,7 @@
 		destroy: function() {
 			if (!this.options.box) this._box().remove();
 			if (this._triggerElement) this._triggerElement.unbind ('.textpopup');
-			$('body').unbind('.textpopup');
+			$('body').off('.textpopup');
 			this.theBox = undefined;
 		},
 		_setOption: function(key, value) {

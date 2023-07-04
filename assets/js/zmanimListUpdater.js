@@ -1,10 +1,9 @@
 // @ts-check
 
 // Comment the following few lines before going live
-import * as KosherZmanim from "./libraries/dev/bundle.js";
+import * as KosherZmanim from "./libraries/dev/kosher-zmanim.esm.js";
 import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.js";
 import WebsiteCalendar from "./WebsiteCalendar.js";
-import n2words from "./libraries/n2wordsrollup.js";
 import { settings } from "./settings/handler.js";
 
 class zmanimListUpdater {
@@ -142,72 +141,39 @@ class zmanimListUpdater {
 				sefirathHaomer.style.removeProperty("display");
 				threeWeeks.style.display = "none";
 
-				const weeks = Math.floor(this.jewishCalendar.getDayOfOmer() / 7);
-				const days = this.jewishCalendar.getDayOfOmer() % 7;
+				const omerInfo = this.jewishCalendar.getOmerInfo();
 
-				// Hebrew Attributes
-				const hbName = n2words(this.jewishCalendar.getDayOfOmer());
+				// Hebrew
+				mourningDiv.querySelector('[zfReplace="hbOmerDate"]').innerHTML =
+					omerInfo.title.hb.mainCount;
 
-				/** @type {HTMLElement} */
-				const hbNameElem = mourningDiv.querySelector('[zfReplace="hbOmerDate"]');
-
-				const dayWords = ["יום", "ימים"]
-				const verb = dayWords[(this.jewishCalendar.getDayOfOmer() >= 2 && this.jewishCalendar.getDayOfOmer() <= 10 ? 1 : 0)];
-
-				const hbTitle = [hbName, verb];
-				if (this.jewishCalendar.getDayOfOmer() == 1)
-					hbTitle.reverse()
-
-				hbNameElem.innerHTML = hbTitle.join(" ")
-
-				/** @type {HTMLElement} */
 				const hbDescription = mourningDiv.querySelector('[zfReplace="hbOmerDays"]');
 				if (this.jewishCalendar.getDayOfOmer() >= 7) {
 					hbDescription.parentElement.style.removeProperty("display");
-
-					const weeksCount = [n2words(weeks), "שבוע" + (weeks >= 2 ? "ות" : "")]
-					if (weeks == 1)
-						weeksCount.reverse()
-
-					hbDescription.innerHTML = weeksCount.join(" ")
-
-					if (days) {
-						const dayCount = [n2words(days), dayWords[days == 1 ? 0 : 1]]
-						if (days == 1)
-							dayCount.reverse()
-
-						hbDescription.innerHTML += " ו" + dayCount.join(" ")
-					}
+					hbDescription.innerHTML = omerInfo.title.hb.subCount.toString();
 				} else {
 					hbDescription.parentElement.style.display = 'none';
 				}
 
 				// English
 				mourningDiv.querySelector('[zfReplace="etNumOmerCount"]').innerHTML =
-					this.jewishCalendar.getDayOfOmer() + " day" + (this.jewishCalendar.getDayOfOmer() >= 2 ? "s" : '');
+					omerInfo.title.et.mainCount;
 				const etDescription = mourningDiv.querySelector('[zfReplace="etOmer"]');
 				if (this.jewishCalendar.getDayOfOmer() >= 7) {
 					etDescription.parentElement.style.removeProperty("display");
-
-					etDescription.innerHTML = (weeks == 1 ? "is a week" : "are " + weeks + " weeks")
-					if (days)
-						etDescription.innerHTML += " and " + (days == 1 ? "a day" : days + " days");
+					etDescription.innerHTML = omerInfo.title.et.subCount.toString();
 				} else {
 					etDescription.parentElement.style.display = 'none';
 				}
 
-				mourningDiv.querySelector('[zfReplace="enOrdOmerCount"]').innerHTML = this.jewishCalendar.getTitleDayOfOmer();
+				mourningDiv.querySelector('[zfReplace="enOrdOmerCount"]').innerHTML =
+					omerInfo.title.en.mainCount;
 
 				/** @type {HTMLElement} */
 				const enDescription = mourningDiv.querySelector('[zfReplace="enOmer"]');
 				if (this.jewishCalendar.getDayOfOmer() >= 7) {
 					enDescription.parentElement.style.removeProperty("display");
-
-					const descEngText = [weeks + " week" + (weeks !== 1 ? "s" : "")];
-					if (days)
-						descEngText.push(days + " day" + (days !== 1 ? "s" :""))
-
-					enDescription.innerHTML = descEngText.join(" • ")
+					enDescription.innerHTML = omerInfo.title.en.subCount.toString();
 				} else {
 					enDescription.style.display = 'none';
 				}
@@ -352,9 +318,20 @@ class zmanimListUpdater {
 					}
 					break;
 				case 'tzeit':
-					if (this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) {
+					if ((this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) || this.jewishCalendar.isTaanis()) {
 						zmanimInfo[zmanid].display = 0;
 						zmanimInfo[zmanid].code.push("Isur Melacha Tzet")
+					}
+					break;
+				case 'tzeitLechumra':
+					if (!(this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)) {
+						zmanimInfo[zmanid].title.hb = "צאת תענית (צאת הכוכבים)";
+						zmanimInfo[zmanid].title['en-et'] = "Tzeit Ta'anith (Tzeit Hakochavim)";
+						zmanimInfo[zmanid].title.en = "Fast Ends (NightFall)";
+					} else {
+						zmanimInfo[zmanid].title.hb = "צאת הכוכבים לחומרא";
+						zmanimInfo[zmanid].title['en-et'] = "Tzait Hakokhavim LeKhumra";
+						zmanimInfo[zmanid].title.en = "Nightfall (Stringent)";
 					}
 			}
 
@@ -579,16 +556,20 @@ class zmanimListUpdater {
 	 * @param {HTMLElement} [dafContainer]
 	 */
 	renderDafYomi(dafContainer) {
-		var daf = dafContainer.querySelector('[zfReplace="dafBavli"]');
-		var dafYerushalmi = dafContainer.querySelector('[zfReplace="DafYerushalmi"]');
+		const daf = dafContainer.querySelector('[zfReplace="dafBavli"]');
+		const dafYerushalmi = dafContainer.querySelector('[zfReplace="DafYerushalmi"]');
 
-		var dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(this.jewishCalendar);
-		daf.innerHTML =
-			dafObject.getMasechta() + " " +
-			numberToHebrew(dafObject.getDaf());
+		if (this.jewishCalendar.getJewishYear() < 5684) {
+			daf.innerHTML = "N/A. Daf Yomi (Bavli) was only created on Rosh Hashanah 5684 and continues onto this day"
+		} else {
+			const dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(this.jewishCalendar);
+			daf.innerHTML =
+				dafObject.getMasechta() + " " +
+				numberToHebrew(dafObject.getDaf());
+		}
 
 		var dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(this.jewishCalendar);
-		if (dafYerushalmiObject.getDaf() == 0) {
+		if (dafYerushalmiObject.getDaf() == 0 || !dafYerushalmiObject) {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
 			dafYerushalmi.innerHTML = dafYerushalmiObject.getYerushalmiMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());

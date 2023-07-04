@@ -1,7 +1,8 @@
 // @ts-check
 
 // Comment the following lines before going live!
-import * as KosherZmanim from "./libraries/dev/bundle.js"
+import * as KosherZmanim from "./libraries/dev/kosher-zmanim.esm.js"
+import n2words from "./libraries/n2wordsrollup.js";
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
@@ -237,8 +238,60 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return result;
 	}
 
-	getTitleDayOfOmer() {
-		return getOrdinal(super.getDayOfOmer())
+	getOmerInfo() {
+		const weeks = Math.floor(this.getDayOfOmer() / 7);
+		const days = this.getDayOfOmer() % 7;
+
+		// Hebrew Attributes
+		const hbName = n2words(this.getDayOfOmer());
+
+		const dayWords = ["יום", "ימים"]
+		const verb = dayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)];
+
+		const hbTitle = [hbName, verb];
+		if (this.getDayOfOmer() == 1)
+			hbTitle.reverse()
+
+		const weeksCount = [n2words(weeks), "שבוע" + (weeks >= 2 ? "ות" : "")]
+		if (weeks == 1)
+			weeksCount.reverse()
+
+		const dayCount = [n2words(days), dayWords[days == 1 ? 0 : 1]]
+		if (days == 1)
+			dayCount.reverse()
+
+		return {
+			info: {
+				days,
+				weeks
+			},
+			title: {
+				en: {
+					mainCount: getOrdinal(super.getDayOfOmer()) + "day",
+					subCount: {
+						days: getOrdinal(days) + " day",
+						weeks: getOrdinal(weeks) + " week",
+						toString: function () { return (!weeks ? "" :[this.weeks].concat(days ? [this.days] : []).join(" • ")); }
+					}
+				},
+				et: {
+					mainCount: this.getDayOfOmer() + " day" + (this.getDayOfOmer() >= 2 ? "s" : ''),
+					subCount: {
+						days: (days == 1 ? "a day" : days + " days"),
+						weeks: (weeks == 1 ? "is a week" : "are " + weeks + " weeks"),
+						toString: function () { return (!weeks ? "" : [this.weeks].concat(days ? [this.days] : []).join(" and ")) }
+					}
+				},
+				hb: {
+					mainCount: hbTitle.join(),
+					subCount: {
+						days: dayCount.join(" "),
+						weeks: weeksCount.join(" "),
+						toString: function () { return (!weeks ? "" : [this.weeks].concat(days ? [this.days] : []).join(" ו")) }
+					}
+				}
+			}
+		}
 	}
 
 	getHebrewParasha() {
