@@ -525,6 +525,10 @@ class zmanimListUpdater {
 				}
 
 				const zmanId = timeSlot.getAttribute('zmanid');
+				if (zmanInfo[zmanId].display == 0) {
+					timeSlot.style.display = 'none';
+					continue;
+				}
 				if (zmanInfo[zmanId].display == -1) {
 					timeSlot.style.display = 'none';
 					continue;
