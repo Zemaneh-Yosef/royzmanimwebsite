@@ -324,10 +324,10 @@ class zmanimListUpdater {
 					}
 					break;
 				case 'tzeitLechumra':
-					if (!(this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)) {
+					if (this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR) {
 						zmanimInfo[zmanid].title.hb = "צאת תענית (צאת הכוכבים)";
 						zmanimInfo[zmanid].title['en-et'] = "Tzeit Ta'anith (Tzeit Hakochavim)";
-						zmanimInfo[zmanid].title.en = "Fast Ends (NightFall)";
+						zmanimInfo[zmanid].title.en = "Fast Ends (Nightfall)";
 					} else {
 						zmanimInfo[zmanid].title.hb = "צאת הכוכבים לחומרא";
 						zmanimInfo[zmanid].title['en-et'] = "Tzait Hakokhavim LeKhumra";
@@ -524,6 +524,15 @@ class zmanimListUpdater {
 						.replaceAll('${getAteretTorahSunsetOffset()}', this.zmanMethods.coreCZC.getAteretTorahSunsetOffset().toString())
 						.replaceAll('${getCandleLightingOffset()}', this.zmanMethods.coreCZC.getCandleLightingOffset().toString())
 				}
+
+				if (zmanInfo[zmanId].title.hb)
+					timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb
+
+				if (zmanInfo[zmanId].title.en)
+					timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en
+
+				if (zmanInfo[zmanId].title["en-et"])
+					timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[zmanId].title["en-et"]
 
 				// Calculate but hide! Can be derived via Inspect Element
 				if (!zmanInfo[zmanId].display)
