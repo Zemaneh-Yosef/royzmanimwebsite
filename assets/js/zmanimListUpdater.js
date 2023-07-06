@@ -36,7 +36,7 @@ class zmanimListUpdater {
 		document.querySelectorAll('[zfReplace="LocationName"]')
 			.forEach(locationName => locationName.innerHTML = geoLocation.getLocationName() || "No Location Name Provided");
 
-		if (settings.calendarSource() == "amudehHoraah") {
+		if (settings.calendar.hourCalculators() == "degrees") {
 			document.querySelector('[zfFind="luachAmudehHoraah"]').style.removeProperty('display')
 			document.querySelector('[zfFind="luachOhrHachaim"]').style.display = 'none';
 			this.zmanMethods = new AmudehHoraahZmanim(geoLocation)
@@ -271,8 +271,8 @@ class zmanimListUpdater {
 			}
 
 			if (timeSlot.hasAttribute('luachInclusive')) {
-				if (!['amudehHoraah', 'ohrHachaim'].includes(timeSlot.getAttribute('luachInclusive'))
-				 || settings.calendarSource() !== timeSlot.getAttribute('luachInclusive')) {
+				if (!['degrees', 'seasonal'].includes(timeSlot.getAttribute('luachInclusive'))
+				 || settings.calendar.hourCalculators() !== timeSlot.getAttribute('luachInclusive')) {
 					zmanimInfo[zmanid].display = -1;
 					zmanimInfo[zmanid].code.push('wrong luach')
 					continue;
@@ -333,6 +333,23 @@ class zmanimListUpdater {
 						zmanimInfo[zmanid].title['en-et'] = "Tzait Hakokhavim LeKhumra";
 						zmanimInfo[zmanid].title.en = "Nightfall (Stringent)";
 					}
+					break;
+				case 'tzeitTaanitLChumra':
+					if (!settings.calendar.tzeitTaanitHumra()) {
+						zmanimInfo[zmanid].display = 0;
+						zmanimInfo[zmanid].code.push("Settings-Hidden")
+					}
+					break;
+				case 'rt':
+					if (!settings.calendar.rtKulah()) {
+						zmanimInfo[zmanid].title.hb = 'ר"ת (שלם)';
+						zmanimInfo[zmanid].title['en-et'] = "Rabbeinu Tam (Full)";
+						zmanimInfo[zmanid].title.en = "Rabbeinu Tam (Full)";
+					} else {
+						zmanimInfo[zmanid].title.hb = 'ר"ת';
+						zmanimInfo[zmanid].title['en-et'] = "Rabbeinu Tam";
+						zmanimInfo[zmanid].title.en = "Rabbeinu Tam";
+					}
 			}
 
 			if (timeSlot.hasAttribute('condition')) {
@@ -358,6 +375,7 @@ class zmanimListUpdater {
 			}
 		}
 
+		console.log(zmanimInfo)
 		return zmanimInfo;
 	}
 
@@ -453,15 +471,15 @@ class zmanimListUpdater {
 			}
 		)
 
-		var tekufaToday = this.jewishCalendar.getTekufa();
-		var tekufaNextDay = this.jewishCalendar.tomorrow().getTekufa();
+		const tekufaToday = this.jewishCalendar.getTekufa();
+		const tekufaNextDay = this.jewishCalendar.tomorrow().getTekufa();
 		if (
 			(!tekufaToday && !tekufaNextDay) || //if no tekufa today or tomorrow
 			(!tekufaToday &&
-				this.jewishCalendar.tomorrow().getTekufaAsDate(settings.calendarSource() == "amudehHoraah").toLocaleDateString() !==
+				this.jewishCalendar.tomorrow().getTekufaAsDate(settings.calendar.tekufa() == "hatzoth").toJSDate().toLocaleDateString() !==
 				this.jewishCalendar.getDate().toJSDate().toLocaleDateString()) || //if no tekufa today but there is one tomorrow and it's not today
 			(!tekufaNextDay &&
-				this.jewishCalendar.getTekufaAsDate(settings.calendarSource() == "amudehHoraah").toLocaleDateString() !==
+				this.jewishCalendar.getTekufaAsDate(settings.calendar.tekufa() == "hatzoth").toJSDate().toLocaleDateString() !==
 				this.jewishCalendar.getDate().toJSDate().toLocaleDateString())
 		) {
 			//if no tekufa tomorrow but there is one today and it's not today
@@ -471,20 +489,21 @@ class zmanimListUpdater {
 		} else {
 			const timeBase = (
 				tekufaToday !== null &&
-					this.jewishCalendar.getTekufaAsDate(settings.calendarSource() == "amudehHoraah").toLocaleDateString() ===
+					this.jewishCalendar.getTekufaAsDate(settings.calendar.tekufa() == "hatzoth").toJSDate().toLocaleDateString() ===
 					this.jewishCalendar.getDate().toJSDate().toLocaleDateString()
-					? this.jewishCalendar.getTekufaAsDate(settings.calendarSource() == "amudehHoraah") : this.jewishCalendar.tomorrow().getTekufaAsDate(settings.calendarSource() == "amudehHoraah"));
+					? this.jewishCalendar.getTekufaAsDate(settings.calendar.tekufa() == "hatzoth") : this.jewishCalendar.tomorrow().getTekufaAsDate(settings.calendar.tekufa() == "hatzoth"));
 
 			//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
 			const tekufaID = this.jewishCalendar.getTekufaID() || this.jewishCalendar.tomorrow().getTekufaID()
 
-			document.querySelectorAll('[zfReplace="Tekufa"]').forEach(
+			document.querySelectorAll('[zfFind="Tekufa"]').forEach(
 				(/**@type {HTMLElement} */tekufa) => {
 					tekufa.style.removeProperty("display");
 
-					Array.from(tekufa.getElementsByClassName('tekufaName-en')).forEach(element => element.innerHTML = this.jewishCalendar.getTekufaName(tekufaID).english);
-					Array.from(tekufa.getElementsByClassName('tekufaTime')).forEach(element => element.innerHTML = timeBase.toLocaleTimeString());
-					tekufa.querySelector('#tekufaName-hb').innerHTML = this.jewishCalendar.getTekufaName(tekufaID).hebrew;
+					Array.from(tekufa.querySelectorAll('[zfReplace="tekufaTime"]')).forEach(element => element.innerHTML = timeBase.toJSDate().toLocaleTimeString());
+
+					Array.from(tekufa.querySelectorAll('[zfReplace="tekufaName-en"]')).forEach(element => element.innerHTML = this.jewishCalendar.getTekufaName(tekufaID).english);
+					tekufa.querySelector('[zfReplace="tekufaName-hb"]').innerHTML = this.jewishCalendar.getTekufaName(tekufaID).hebrew;
 				}
 			)
 		}

@@ -2,6 +2,7 @@
 
 // Comment the following line before going live (as well as the export line on the bottom)!
 import * as KosherZmanim from "./libraries/dev/kosher-zmanim.esm.js"
+import { settings } from "./settings/handler.js";
 
 class ROYZmanim {
 	/**
@@ -135,10 +136,18 @@ class ROYZmanim {
 	}
 
 	getCandleLighting() {
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			this.zmanim.sunset(),
-			-(this.coreCZC.getCandleLightingOffset() * 60_000)
-		);
+		return this.zmanim.sunset().minus({ minutes: this.coreCZC.getCandleLightingOffset() })
+	}
+
+	getTzaitTaanitLChumra() {
+		return this.zmanim.sunset().plus({ minutes: 30 });
+	}
+
+	getTzaitRT() {
+		if (settings.calendar.rtKulah())
+			return window.luxon.DateTime.min(this.coreCZC.getTzais72(), this.getTzait72Zmanit())
+		else
+			return this.getTzait72Zmanit();
 	}
 
 	getSolarMidnight() {
@@ -170,12 +179,6 @@ class ROYZmanim {
      * Abstract method that should be implemented by subclasses.
      * @returns {luxon.DateTime} The return value.
      */
-	getTzaitRT() { throw new Error("Unimplemented") }
-
-	/**
-     * Abstract method that should be implemented by subclasses.
-     * @returns {luxon.DateTime} The return value.
-     */
 	getTzait72Zmanit() { throw new Error("Unimplemented") }
 
 	/**
@@ -195,12 +198,6 @@ class ROYZmanim {
      * @returns {luxon.DateTime} The return value.
      */
 	getTzaitTaanit() { throw new Error("Not in Ohr Hachaim Mode") }
-
-	/**
-     * Abstract method reserved for the Ohr Hachaim subclass.
-     * @returns {luxon.DateTime} The return value.
-     */
-	getTzaitTaanitLChumra() { throw new Error("Not in Ohr Hachaim Mode") }
 
 	// </needsImplementaton>
 }
@@ -260,22 +257,11 @@ class OhrHachaimZmanim extends ROYZmanim {
 		);
 	}
 
-	getTzaitTaanitLChumra() {
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			this.zmanim.sunset(),
-			30 * 60_000
-		);
-	}
-
 	getTzaitShabbath() {
 		return this.coreCZC.getTzaisAteretTorah();
 	}
 
 	getTzait72Zmanit() {
-		return this.coreCZC.getTzais72Zmanis();
-	}
-
-	getTzaitRT() {
 		return this.coreCZC.getTzais72Zmanis();
 	}
 }
@@ -356,6 +342,10 @@ class AmudehHoraahZmanim extends ROYZmanim {
 		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), numberOfSeconds.mul(secondsZmanit).toNumber());
 	}
 
+	getTzaitTaanitLChumra() {
+		return window.luxon.DateTime.max(this.getTzaitLechumra(), super.getTzaitTaanitLChumra())
+	}
+
 	getTzaitShabbath(visibleDegree=7.14) {
 		const degree = new Decimal(visibleDegree).plus(KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH)
 		const sunsetOffset = this.coreCZC.getSunsetOffsetByDegrees(degree.toNumber());
@@ -369,11 +359,6 @@ class AmudehHoraahZmanim extends ROYZmanim {
 		const {numberOfSeconds} = this.getNightShaotZmaniyot(16.01);
 		const {secondsZmanit} = this.getTimeZmaniyot();
 		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), numberOfSeconds.mul(secondsZmanit).toNumber());
-	}
-
-	getTzaitRT() {
-		// @ts-ignore
-		return luxon.DateTime.min(this.coreCZC.getTzais72(), this.getTzait72Zmanit())
 	}
 }
 

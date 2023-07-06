@@ -470,7 +470,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		},
 			{ zone: "UTC+2" }
 		).plus({ hours: hours, minutes: minutes });
-		return date.toJSDate();
+		return date;
 	}
 
 	getTekufaID() {

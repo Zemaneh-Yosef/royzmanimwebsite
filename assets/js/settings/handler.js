@@ -5,12 +5,29 @@ const urlParams = new URLSearchParams(queryString);
 
 /** @param {string} param */
 const settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
+const defaultSettings = (variedTocheck, defaultSetting) => {
+    if (urlParams.has(variedTocheck) || localStorage.getItem(variedTocheck))
+        return settingsURLOverride(variedTocheck);
+    else
+        return defaultSetting
+}
 
-const settings = {
-	calendarSource: () => ['amudehHoraah', 'ohrHachaim'].includes(settingsURLOverride("calendarSource")) ? settingsURLOverride('calendarSource') : "amudehHoraah",
+const settings = Object.freeze({
 	seconds: () => settingsURLOverride("seconds") == "true",
 	timeFormat: () => settingsURLOverride("timeFormat") == "12" ? "12" : "24",
-	language: () => ['hb', 'en-et', 'en'].includes(settingsURLOverride("zmanimLanguage")) ? settingsURLOverride("zmanimLanguage") : "hb",
+    /** @returns {'hb'|'en'|'en-et'} */
+	language: () => {
+        try {
+            let response = (navigator.language.includes('en') ? 'en' : 'hb');
+            if (['hb', 'en-et', 'en'].includes(settingsURLOverride("zmanimLanguage")))
+                response = settingsURLOverride("zmanimLanguage")
+
+            // @ts-ignore
+            return response
+        } catch (e) {
+            return 'hb'
+        }
+    },
 	candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
 	tzeith: () => parseInt(settingsURLOverride("tzeith")) || 40,
 
@@ -20,8 +37,19 @@ const settings = {
         long: () => parseFloat(settingsURLOverride("long")),
         elevation: () => parseFloat(settingsURLOverride("elevation")) || 0,
         timezone: () => settingsURLOverride("timeZone")
+    },
+
+    calendar: {
+        /** @returns {'seasonal'|'degrees'} */
+        // @ts-ignore
+        hourCalculators: () => ['seasonal', 'degrees'].includes(settingsURLOverride("hourCalculators")) ? settingsURLOverride("hourCalculators") : 'degrees',
+        rtKulah: () => defaultSettings("rtKulah", "true") == "true",
+        tzeitTaanitHumra: () => settingsURLOverride("tzeitTaanitHumra") == "true",
+        /** @returns {'hatzoth'|'arbitrary'} */
+        // @ts-ignore
+        tekufa: () => ['hatzoth', 'arbitrary'].includes(settingsURLOverride("tekufa")) ? settingsURLOverride("tekufa") : 'hatzoth'
     }
-}
+})
 
 function handleLanguage(zmanimLanguage = settings.language(), save=false) {
     const langSelectors = Array.from(document.getElementById('languageSelector').getElementsByTagName('input'));

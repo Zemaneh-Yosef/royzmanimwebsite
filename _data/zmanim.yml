@@ -491,7 +491,7 @@
 - id: tzeitLechumra
   attributes:
     yomTovInclusive:
-    luachInclusive: amudehHoraah
+    luachInclusive: degrees
     condition:
   timeGetter: getTzaitLechumra
   names:
@@ -529,7 +529,7 @@
 - id: tzeitTaanit
   attributes:
     yomTovInclusive:
-    luachInclusive: ohrHachaim
+    luachInclusive: seasonal
     condition: isTaanit
   timeGetter: getTzaitTaanit
   names:
@@ -565,7 +565,7 @@
 - id: tzeitTaanitLChumra
   attributes:
     yomTovInclusive:
-    luachInclusive: ohrHachaim
+    luachInclusive:
     condition: isTaanit
   timeGetter: getTzaitTaanitLChumra
   names:
@@ -579,7 +579,7 @@
     </p>
     <p>
     This time is calculated as 30 regular minutes after sunset
-    (elevation included).
+    (elevation included for the Ohr Hachaim calendar).
     </p>
 - id: tzeitShabbat
   attributes:

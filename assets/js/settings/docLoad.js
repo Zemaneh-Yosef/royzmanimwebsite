@@ -18,7 +18,18 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     document.getElementById('calendarPsakSetter').addEventListener('click', () => {
-        localStorage.setItem("calendarSource", document.getElementById("amudehHoraah").checked ? "amudehHoraah" : "ohrHachaim")
+        if (document.getElementById("amudehHoraah").checked) {
+            localStorage.setItem("hourCalculators", "degrees");
+            localStorage.setItem("rtKulah", "true");
+            localStorage.setItem("tzeitTaanitHumra", "false");
+            localStorage.setItem("tekufa", "hatzoth");
+        } else {
+            localStorage.setItem("hourCalculators", "seasonal");
+            localStorage.setItem("rtKulah", "false");
+            localStorage.setItem("tzeitTaanitHumra", "true");
+            localStorage.setItem("tekufa", "arbitrary");
+        }
+
         if (window.zmanimListUpdater2) {
             window.zmanimListUpdater2.resetCalendar()
             window.zmanimListUpdater2.updateZmanimList()

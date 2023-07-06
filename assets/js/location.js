@@ -322,7 +322,18 @@ async function getAverageElevation (lat, long) {
 }
 
 function openCalendarWithLocationInfo() {
-	localStorage.setItem("calendarSource", document.getElementById("flexRadioDefault2").checked ? "amudehHoraah" : "ohrHachaim")
+	if (document.getElementById("flexRadioDefault2").checked) {
+		localStorage.setItem("hourCalculators", "degrees");
+		localStorage.setItem("rtKulah", "true");
+		localStorage.setItem("tzeitTaanitHumra", "false");
+		localStorage.setItem("tekufa", "hatzoth");
+	} else {
+		localStorage.setItem("hourCalculators", "seasonal");
+		localStorage.setItem("rtKulah", "false");
+		localStorage.setItem("tzeitTaanitHumra", "true");
+		localStorage.setItem("tekufa", "arbitrary");
+	}
+
 	const params = new URLSearchParams(geoLocation);
 	window.location.href = "calendar?" + params.toString();
 }
