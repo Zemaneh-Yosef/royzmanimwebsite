@@ -483,7 +483,7 @@ class zmanimListUpdater {
 				this.jewishCalendar.getDate().toJSDate().toLocaleDateString())
 		) {
 			//if no tekufa tomorrow but there is one today and it's not today
-			document.querySelectorAll('[zfReplace="Tekufa"]').forEach(
+			document.querySelectorAll('[zfFind="Tekufa"]').forEach(
 				(/**@type {HTMLElement} */tekufa) => tekufa.style.display = "none"
 			)
 		} else {

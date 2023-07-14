@@ -1,0 +1,6 @@
+The time that the sun appears on the horizon while rising is the Halachic Definition of Sea-Level Sunrise.
+
+- This is the official beginning of the new Halachic day, where all of the Mitzvot dependent on the day-time (Shofar, Lulav) can be done optimally. 
+- The GRA's seasonal hours uses the time between this point and the point of sunset to determine his seasonal hours. To get a single seasonal hour, divide the time frame into 12 even part, with an option to get the length of a seasonal minute by dividing that hour into 60.
+
+However, the ideal sunrise time is when the sun is visible, as said by the Shulchan Aruch's commentators on Orach Hayim, 89:1 (sourced from the Tehilim verse in 72:5; **יִֽירָא֥וּךָ עִם־שָׁ֑מֶשׁ** וְלִפְנֵ֥י יָ֝רֵ֗חַ דֹּ֣ור דֹּורִֽים׃). As such, it is highly recommended to download visible sunrise times from the ChaiTables website (by Chaim Keller), used in the ביכורי יוסף (Bechoreh Yosef) calendar. This is precisely tailored to one's exact location, which is determined by one's longitude/latitude.

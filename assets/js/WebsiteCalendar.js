@@ -64,139 +64,139 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	getYomTov() {
-		const yomTovObj = Object.fromEntries([
+		const yomTovObj = {
 			// Holidays
-			[KosherZmanim.JewishCalendar.PESACH, {
+			[KosherZmanim.JewishCalendar.PESACH]: {
 				hebrew: "פסח",
 				"english-translated": "Pesach",
 				english: "Passover",
-			}],
-			[KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH, {
+			},
+			[KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH]: {
 				english: "Passover: Intermediary",
 				"english-translated": "Chol HaMoed Pesach",
 				hebrew: "פסח (חול המועד)"
-			}],
-			[KosherZmanim.JewishCalendar.SHAVUOS, {
+			},
+			[KosherZmanim.JewishCalendar.SHAVUOS]: {
 				english: "Shavuoth",
 				hebrew: "שבועות"
-			}],
-			[KosherZmanim.JewishCalendar.ROSH_HASHANA, {
+			},
+			[KosherZmanim.JewishCalendar.ROSH_HASHANA]: {
 				"hebrew": "ראש השנה",
 				"english": "Rosh Hashana"
-			}],
-			[KosherZmanim.JewishCalendar.YOM_KIPPUR, {
+			},
+			[KosherZmanim.JewishCalendar.YOM_KIPPUR]: {
 				"hebrew": "יום קיפור",
 				"english": "Yom Kippur",
-			}],
-			[KosherZmanim.JewishCalendar.SUCCOS, {
+			},
+			[KosherZmanim.JewishCalendar.SUCCOS]: {
 				"hebrew": "סוכות",
 				"english": "Sukkoth"
-			}],
-			[KosherZmanim.JewishCalendar.CHOL_HAMOED_SUCCOS, {
+			},
+			[KosherZmanim.JewishCalendar.CHOL_HAMOED_SUCCOS]: {
 				"hebrew": "סוכות (חול המועד)",
 				"english-translated": "Hol HaMoed Sukkoth",
 				"english": "Sukkoth: Intermediary"
-			}],
-			[KosherZmanim.JewishCalendar.HOSHANA_RABBA, {
+			},
+			[KosherZmanim.JewishCalendar.HOSHANA_RABBA]: {
 				"hebrew": "הושנה רבה - שביעי של סוכות",
 				"english-translated": "Hoshanah Rabba - 7th day of Sukkoth",
 				"english": "7th day of Sukkoth (Hoshana Rabba)"
-			}],
+			},
 		
 			// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 			// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
-			[KosherZmanim.JewishCalendar.SHEMINI_ATZERES, {
+			[KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: {
 				"hebrew": "שמיני עצרת" + (this.getInIsrael() ? " & שמחת תורה" : ""),
 				"english": "Shemini Atzereth" + (this.getInIsrael() ? " & Simchath Torah" : "")
-			}],
-			[KosherZmanim.JewishCalendar.SIMCHAS_TORAH, {
+			},
+			[KosherZmanim.JewishCalendar.SIMCHAS_TORAH]: {
 				"hebrew": (this.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
 				"english": (this.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
-			}],
+			},
 		
 			// Semi-Holidays & Fasts
-			[KosherZmanim.JewishCalendar.PESACH_SHENI, {
+			[KosherZmanim.JewishCalendar.PESACH_SHENI]: {
 				"hebrew": "פסח שני",
 				"english": "Pesach Sheni"
-			}],
-			[KosherZmanim.JewishCalendar.LAG_BAOMER, {
+			},
+			[KosherZmanim.JewishCalendar.LAG_BAOMER]: {
 				"hebrew": "לג בעומר",
 				"english": "Lag Baomer"
-			}],
-			[KosherZmanim.JewishCalendar.SEVENTEEN_OF_TAMMUZ, {
+			},
+			[KosherZmanim.JewishCalendar.SEVENTEEN_OF_TAMMUZ]: {
 				"hebrew": "צום הרביעי",
 				"english": "Fast of the 4<sup>th</sup> month"
-			}],
-			[KosherZmanim.JewishCalendar.TISHA_BEAV, {
+			},
+			[KosherZmanim.JewishCalendar.TISHA_BEAV]: {
 				"hebrew": "צום החמישי",
 				"english": "Fast of the 5<sup>th</sup> month"
-			}],
-			[KosherZmanim.JewishCalendar.TU_BEAV, {
+			},
+			[KosherZmanim.JewishCalendar.TU_BEAV]: {
 				"hebrew": 'ט"ו באב',
 				"english": "Tu Be'av"
-			}],
-			[KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH, {
+			},
+			[KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH]: {
 				"hebrew": 'צום גדליע (השבעי)',
 				"english-translated": "Tzom Gedalia (7<sup>th</sup> month)",
 				"english": "Fast of the 5<sup>th</sup> month"
-			}],
-			[KosherZmanim.JewishCalendar.TENTH_OF_TEVES, {
+			},
+			[KosherZmanim.JewishCalendar.TENTH_OF_TEVES]: {
 				"hebrew": 'צום העשירי',
 				"english": "Fast of the 10<sup>th</sup> month"
-			}],
-			[KosherZmanim.JewishCalendar.TU_BESHVAT, {
+			},
+			[KosherZmanim.JewishCalendar.TU_BESHVAT]: {
 				"hebrew": 'ט"ו בשבת',
 				"english": "Tu Bishvath"
-			}],
-			[KosherZmanim.JewishCalendar.PURIM_KATAN, {
+			},
+			[KosherZmanim.JewishCalendar.PURIM_KATAN]: {
 				"hebrew": "פורים קתן",
 				"english": "Purim Katan",
-			}],
-			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN, {
+			},
+			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN]: {
 				"hebrew": "שושן פורים קתן",
 				"english": "Shushan Purim Katan"
-			}],
-			[KosherZmanim.JewishCalendar.FAST_OF_ESTHER, {
+			},
+			[KosherZmanim.JewishCalendar.FAST_OF_ESTHER]: {
 				"hebrew": "תענית אסתר",
 				"english-translated": "Ta'anith Ester",
 				"english": "Fast of Ester"
-			}],
-			[KosherZmanim.JewishCalendar.PURIM, {
+			},
+			[KosherZmanim.JewishCalendar.PURIM]: {
 				"hebrew": "פורים",
 				"english": "Purim",
-			}],
-			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM, {
+			},
+			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM]: {
 				"hebrew": "שושן פורים",
 				"english": "Shushan Purim"
-			}],
+			},
 		
-			[KosherZmanim.JewishCalendar.ROSH_CHODESH, {
+			[KosherZmanim.JewishCalendar.ROSH_CHODESH]: {
 				"hebrew": "ראש חודש",
 				english: "Rosh Hodesh"
-			}],
+			},
 		
 			// Modern-Day Celebrations
-			[KosherZmanim.JewishCalendar.YOM_HASHOAH, {
+			[KosherZmanim.JewishCalendar.YOM_HASHOAH]: {
 				hebrew: "יום השועה",
 				"english-translated": "Yom Hashoa",
 				english: "Holocaust Memorial Day"
-			}],
-			[KosherZmanim.JewishCalendar.YOM_HAZIKARON, {
+			},
+			[KosherZmanim.JewishCalendar.YOM_HAZIKARON]: {
 				"hebrew": "יום הזכרון",
 				"english-translated": "Yom Hazikaron",
 				"english": "Day of Rememberance"
-			}],
-			[KosherZmanim.JewishCalendar.YOM_HAATZMAUT, {
+			},
+			[KosherZmanim.JewishCalendar.YOM_HAATZMAUT]: {
 				"hebrew": "יום האצמעות",
 				"english-translated": "Yom Haatzmauth",
 				"english": "Yom Haatzmauth"
-			}], // Tachanun is said
-			[KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM, {
+			}, // Tachanun is said
+			[KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM]: {
 				"hebrew": "יום ירושלים",
 				"english-translated": "Yom Yerushalayim",
 				"english": "Jerusalem Day"
-			}],
-		]);
+			},
+		}
 		if (!yomTovObj[this.getYomTovIndex()])
 			return null;
 

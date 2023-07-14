@@ -267,13 +267,13 @@ async function setLatLong (position) {
  * @param {GeolocationPositionError} error
  */
 function showError(error) {
-	const errorObjectBuilder = Object.fromEntries([
-		[error.PERMISSION_DENIED, "User denied the request for Geolocation. Please allow location access in your browser settings."
-		+ '<img src="chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />'],
-		[error.POSITION_UNAVAILABLE, "Location information is unavailable."],
-		[error.TIMEOUT, "The request to get user location timed out."],
-		[error.UNKNOWN_ERROR, "An unknown error occured. Please report this on our GitHub repository"]
-	]);
+	const errorObjectBuilder = {
+		[error.PERMISSION_DENIED]: "User denied the request for Geolocation. Please allow location access in your browser settings."
+		+ '<img src="chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />',
+		[error.POSITION_UNAVAILABLE]: "Location information is unavailable.",
+		[error.TIMEOUT]: "The request to get user location timed out.",
+		[error.UNKNOWN_ERROR]: "An unknown error occured. Please report this on our GitHub repository"
+	};
 
 	errorBox.style.display = "block";
 	errorBox.innerHTML = errorObjectBuilder[error.code];
