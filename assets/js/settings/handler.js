@@ -21,7 +21,7 @@ const settings = Object.freeze({
             return settingsURLOverride("timeFormat");
 
         let local = this.language() == 'hb' ? 'he' : 'en'
-        const testTime = (new Intl.DateTimeFormat(local, { hourCycle: "h24", timeStyle: "short" })).format(new Date().setHours(0,0,0,0));
+        const testTime = (new Intl.DateTimeFormat(local, { timeStyle: "short" })).format(new Date().setHours(0,0,0,0));
         if (testTime.endsWith('AM'))
             return testTime.startsWith('0') ? 'h11' : 'h12';
         else

@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("amudehHoraah").checked = false;
     }
 
-    if (localStorage.getItem("timeFormat") == "12") {
+    if (localStorage.getItem("timeFormat") == "h12") {
         document.getElementById("12h").checked = true;
         document.getElementById("24h").checked = false;
     }
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     document.getElementById('timeFormatter').addEventListener('click', () => {
-        localStorage.setItem("timeFormat", document.getElementById("24h").checked ? "24" : "12");
+        localStorage.setItem("timeFormat", document.getElementById("24h").checked ? "h24" : "h12");
         if (window.zmanimListUpdater2)
             window.zmanimListUpdater2.updateZmanimList()
     })
