@@ -38,7 +38,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById('timeFormatter').addEventListener('click', () => {
         localStorage.setItem("timeFormat", document.getElementById("24h").checked ? "h24" : "h12");
-        if (window.zmanimListUpdater2)
+        if (window.zmanimListUpdater2) {
+            window.zmanimListUpdater2.resetCalendar();
             window.zmanimListUpdater2.updateZmanimList()
+        }
     })
 })
