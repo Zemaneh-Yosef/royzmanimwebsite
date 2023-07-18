@@ -57,6 +57,13 @@ class zmanimListUpdater {
 
 		this.zmanMethods.coreCZC.setDate(this.jewishCalendar.getDate());
 
+		let local = settings.language() == 'hb' ? 'he' : 'en'
+        this.dtF = new Intl.DateTimeFormat(local, {
+			hourCycle: settings.timeFormat(),
+			timeStyle: settings.seconds() ? "medium" : "short",
+			timeZone: geoLocation.getTimeZone()
+		});
+
 		this.setNextUpcomingZman();
 	}
 
@@ -508,10 +515,6 @@ class zmanimListUpdater {
 			)
 		}
 
-		let timeFormat = "HH:mm" + (settings.seconds() ? ":ss" : '');
-		if (settings.timeFormat() == "12")
-			timeFormat = timeFormat.replace('HH', 'h') + ' a';
-
 		const zmanInfo = this.getZmanimInfo();
 		for (const calendarContainer of document.querySelectorAll('[calendarFormatter]')) {
 			for (const timeSlot of Array.from(calendarContainer.children).map(el => /** @type {HTMLElement} */(el))) {
@@ -535,7 +538,7 @@ class zmanimListUpdater {
 				const actionToClass = (this.isNextUpcomingZman(zmanInfo[zmanId].luxonObj) ? "add" : "remove")
 				timeSlot.classList[actionToClass]("nextZman")
 
-				timeSlot.querySelector('.timeDisplay').innerHTML = zmanInfo[zmanId].luxonObj.setZone(geoLocation.getTimeZone()).toFormat(timeFormat)
+				timeSlot.querySelector('.timeDisplay').innerHTML = this.dtF.format(zmanInfo[zmanId].luxonObj.toJSDate())
 
 				if (timeSlot.hasAttribute('specialDropdownContent')) {
 					const description = timeSlot.querySelector('.accordianContent');

@@ -14,19 +14,33 @@ const defaultSettings = (variedTocheck, defaultSetting) => {
 
 const settings = Object.freeze({
 	seconds: () => settingsURLOverride("seconds") == "true",
-	timeFormat: () => settingsURLOverride("timeFormat") == "12" ? "12" : "24",
+    /** @return {'h11'|'h12'|'h23'|'h24'} */
+	timeFormat: function () {
+        if (['h11', 'h12', 'h23', 'h24'].includes(settingsURLOverride("timeFormat")))
+            // @ts-ignore
+            return settingsURLOverride("timeFormat");
+
+        let local = this.language() == 'hb' ? 'he' : 'en'
+        const testTime = (new Intl.DateTimeFormat(local, { hourCycle: "h24", timeStyle: "short" })).format(new Date().setHours(0,0,0,0));
+        if (testTime.endsWith('AM'))
+            return testTime.startsWith('0') ? 'h11' : 'h12';
+        else
+            return testTime.startsWith('2') ? 'h24' : 'h23'
+    },
     /** @returns {'hb'|'en'|'en-et'} */
 	language: () => {
-        try {
-            let response = (navigator.language.includes('en') ? 'en' : 'hb');
-            if (['hb', 'en-et', 'en'].includes(settingsURLOverride("zmanimLanguage")))
-                response = settingsURLOverride("zmanimLanguage")
-
+        if (['hb', 'en-et', 'en'].includes(settingsURLOverride("zmanimLanguage")))
             // @ts-ignore
-            return response
-        } catch (e) {
-            return 'hb'
+            return settingsURLOverride("zmanimLanguage")
+
+        if (window.navigator && window.navigator.languages) {
+            const languagePartOfOptions = window.navigator.languages.find(language => language.includes('hb') || language.includes('en'))
+            if (languagePartOfOptions) {
+                return languagePartOfOptions.includes('en') ? 'en' : 'hb'
+            }
         }
+
+        return 'hb';
     },
 	candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
 	tzeith: () => parseInt(settingsURLOverride("tzeith")) || 40,

@@ -129,7 +129,7 @@ class ChaiTables {
 		const selectors = Array.from(document.getElementsByClassName("mdc-select"));
 		const MDCSelectors = selectors.map(selectElem => new MDCSelect(selectElem))
 
-		
+		const hideAllForms = () => selectors.filter(selector => selector.id.endsWith('MetroArea')).forEach(selector=>selector.style.display = 'none')
 	}
 
 	formSubmit() {
