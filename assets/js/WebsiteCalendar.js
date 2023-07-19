@@ -580,7 +580,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			meat: validAv && this.getDayOfWeek() !== 7,
 			showering: this.isShvuaShechalBo(),
 			laundry: this.isShvuaShechalBo(),
-			wearingClothing: validAv
+			wearingClothing: validAv,
+			shechiyanu: threeWeeks && (this.getDayOfWeek() !== 7 || (this.getDayOfWeek() == 7 && !validAv))
 		}
 	}
 }
