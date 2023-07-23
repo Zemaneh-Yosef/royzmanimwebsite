@@ -26,12 +26,25 @@ The "ROYZmanim" website was made to calculate timing information according to th
 - **Maor N:** Contracted work for the following: Website design, code clean up, type-safety and עמודי הוראה's implementation
 - Rabbinical Credits listed below with their Haskamot
 
-### Development Credits
+### External API Credits
+
+- **ChaiTables Website:** Accurate Netz timings based on GeoLocation
+- **GeoNames Website:** Location meta-data search API
+
+### Perfered-Dependencies Credits
 
 - **Aryeh Berman:** Primary Developer of the KosherZmanim TypeScript library port
 - **Eliyahu Hershfield:** Primary Developer of the KosherJava project, which KosherZmanim was based on
-- Developers of [luxon](https://moment.github.io/luxon/#/), [Decimal.js](https://mikemcl.github.io/decimal.js/), [mdbootstrap](https://mdbootstrap.com/) (which uses [Bootstrap 5](https://getbootstrap.com/)) & [n2words](https://github.com/forzagreen/n2words)
-- Shout out to the to-be-replaced-in-the-future [flexcal](https://github.com/dwachss/flexcal), with all of its jQuery and jQuery-UI dependencies
+- **Google:** Created the Material Design language, of which we use through [mdbootstrap](https://mdbootstrap.com/) (which uses [Bootstrap 5](https://getbootstrap.com/))
+- Developers of [luxon](https://moment.github.io/luxon/#/), & [n2words](https://github.com/forzagreen/n2words)
+
+##### Mandated-Dependencies Credits
+
+- **[flexcal](https://github.com/dwachss/flexcal):** A jQuery(-UI) plugin to have a Hebrew-Date picker. To be replaced with a custom implementation built around KosherZmanim
+- **[Material Design Web](https://m2.material.io/develop/web/getting-started):** Replace MDBootstrap's list selector, due to MDBootstrap's being paid.
+- **[Decimal.js](https://mikemcl.github.io/decimal.js/):** Support for Arbitrary Decimal Precision in JavaScript.
+- **[pdf.js](https://mozilla.github.io/pdf.js/):** Embedded PDF viewer, because native ones either force the person to download the PDF on page-load or have issues scrolling
+
 
 ### Special Thanks
 
@@ -39,10 +52,10 @@ The "ROYZmanim" website was made to calculate timing information according to th
 
 As the creator of the עמודי הוראה calendar, it is reasonable he would want his calendar to be represented accurately. Beyond his extensive documentation found at the end of his commentary on the משנה ברורה's 3<sup>rd</sup> volume, he was also very explanative of his opinions, especially when they differed from the לוח אור החיים (which is what our initial version only supported). Together, we have made a product that he could advertise, and it is included in the back of the 4<sup>th</sup> volume of his commentary on the משנה ברורה.
 
-<iframe src="/assets/הסכמה.pdf" allowfullscreen style="aspect-ratio: 16/9; width: 100%;"></iframe>
+<iframe src="/assets/libraries/pdfviewer/web/viewer.html?file=/assets/הסכמה.pdf" allow="fullscreen" style="aspect-ratio: 16/9; width: 100%;" loading="lazy"></iframe>
 
 ##### Rabbi Meir Gavriel Elbaz
 
 As a Talmid of Rabbi Ovadia Yosef in Yeshivath יחוה דעת, we felt we were getting the Halachot of Hacham Ovadia when we would ask him any halachic problem. With an expertee in עניני דיומא (as part of his work as the English Translator for <a href="https://halachayomit.co.il/en/default.aspx">Halacha Yomit</a>), every question would be answered with a level of expertees as if it were applicable on that very day. We are very priviledged to have him as our personal Posek, and may Hashem help him be the light onto the dear & pleasent nation.
 
-<iframe src="/assets/Haskamah.pdf" allowfullscreen style="aspect-ratio: 16/9; width: 100%;"></iframe>
+<iframe src="/assets/libraries/pdfviewer/web/viewer.html?file=/assets/Haskamah.pdf" allow="fullscreen" style="aspect-ratio: 16/9; width: 100%;" loading="lazy"></iframe>

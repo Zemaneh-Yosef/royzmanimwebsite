@@ -9975,6 +9975,34 @@ const _AstronomicalCalendar = class _AstronomicalCalendar {
       }
     */
   /**
+  * A method that returns <a href="https://en.wikipedia.org/wiki/Local_mean_time">local mean time (LMT)</a> time
+  * converted to regular clock time for the number of hours (0.0 to 23.999...) passed to this method. This time is
+  * adjusted from standard time to account for the local latitude. The 360&deg; of the globe divided by 24 calculates
+  * to 15&deg; per hour with 4 minutes per degree, so at a longitude of 0 , 15, 30 etc... noon is at exactly 12:00pm.
+  * Lakewood, N.J., with a longitude of -74.222, is 0.7906 away from the closest multiple of 15 at -75&deg;. This is
+  * multiplied by 4 clock minutes (per degree) to yield 3 minutes and 7 seconds for a noon time of 11:56:53am. This
+  * method is not tied to the theoretical 15&deg; time zones, but will adjust to the actual time zone and <a href=
+  * "https://en.wikipedia.org/wiki/Daylight_saving_time">Daylight saving time</a> to return LMT.
+  * 
+  * @param hours
+  * 			the hour (such as 12.0 for noon and 0.0 for midnight) to calculate as LMT. Valid values are in the range of
+  * 			0.0 to 23.999.... An IllegalArgumentException will be thrown if the value does not fit in the expected range.
+  * @return the Date representing the local mean time (LMT) for the number of hours passed in. In Lakewood, NJ, passing 12
+  *         (noon) will return 11:56:50am.
+  * @see GeoLocation#getLocalMeanTimeOffset()
+  */
+  getLocalMeanTime(hours) {
+    if (hours < 0 || hours >= 24) {
+      throw new IllegalArgumentException("Hours must between 0 and 23.9999...");
+    }
+    const geoLocation = this.getGeoLocation();
+    const rawOffsetHours = TimeZone.getRawOffset(geoLocation.getTimeZone()) / _AstronomicalCalendar.HOUR_MILLIS;
+    return _AstronomicalCalendar.getTimeOffset(
+      this.getDateFromTime(hours - rawOffsetHours, true),
+      -geoLocation.getLocalMeanTimeOffset()
+    );
+  }
+  /**
    * Adjusts the <code>Calendar</code> to deal with edge cases where the location crosses the antimeridian.
    *
    * @see GeoLocation#getAntimeridianAdjustment()
@@ -11735,7 +11763,7 @@ const _JewishCalendar = class _JewishCalendar extends JewishDate {
    * returns Parsha.NONE if a weekday or if there is no parsha that week (for example Yomtov is on Shabbos)
    * @return the current parsha
    */
-  getParsha() {
+  getParshah() {
     if (this.getDayOfWeek() !== SATURDAY) {
       return 0 /* NONE */;
     }
@@ -11753,28 +11781,43 @@ const _JewishCalendar = class _JewishCalendar extends JewishDate {
    * @return one of the four parshiyos of Parsha.SHKALIM, Parsha.ZACHOR, Parsha.PARA, Parsha.HACHODESH or Parsha.NONE.
    */
   getSpecialShabbos() {
-    if (this.getDayOfWeek() === SATURDAY) {
-      if ((this.getJewishMonth() === _JewishCalendar.SHEVAT && !this.isJewishLeapYear() || this.getJewishMonth() === _JewishCalendar.ADAR && this.isJewishLeapYear()) && [25, 27, 29].includes(this.getJewishDayOfMonth())) {
+    if (this.getDayOfWeek() !== SATURDAY)
+      return 0 /* NONE */;
+    if ((this.getJewishMonth() === _JewishCalendar.SHEVAT && !this.isJewishLeapYear() || this.getJewishMonth() === _JewishCalendar.ADAR && this.isJewishLeapYear()) && [25, 27, 29].includes(this.getJewishDayOfMonth())) {
+      return 62 /* SHKALIM */;
+    }
+    if (this.getJewishMonth() === _JewishCalendar.ADAR && !this.isJewishLeapYear() || this.getJewishMonth() === _JewishCalendar.ADAR_II) {
+      if (this.getJewishDayOfMonth() === 1) {
         return 62 /* SHKALIM */;
       }
-      if (this.getJewishMonth() === _JewishCalendar.ADAR && !this.isJewishLeapYear() || this.getJewishMonth() === _JewishCalendar.ADAR_II) {
-        if (this.getJewishDayOfMonth() === 1) {
-          return 62 /* SHKALIM */;
-        }
-        if ([8, 9, 11, 13].includes(this.getJewishDayOfMonth())) {
-          return 63 /* ZACHOR */;
-        }
-        if ([18, 20, 22, 23].includes(this.getJewishDayOfMonth())) {
-          return 64 /* PARA */;
-        }
-        if ([25, 27, 29].includes(this.getJewishDayOfMonth())) {
-          return 65 /* HACHODESH */;
-        }
+      if ([8, 9, 11, 13].includes(this.getJewishDayOfMonth())) {
+        return 63 /* ZACHOR */;
       }
-      if (this.getJewishMonth() === _JewishCalendar.NISSAN && this.getJewishDayOfMonth() === 1) {
+      if ([18, 20, 22, 23].includes(this.getJewishDayOfMonth())) {
+        return 64 /* PARA */;
+      }
+      if ([25, 27, 29].includes(this.getJewishDayOfMonth())) {
         return 65 /* HACHODESH */;
       }
     }
+    if (this.getJewishMonth() === _JewishCalendar.NISSAN) {
+      if (this.getJewishDayOfMonth() == 1)
+        return 65 /* HACHODESH */;
+      if (this.getJewishDayOfMonth() >= 8 && this.getJewishDayOfMonth() <= 14)
+        return 68 /* HAGADOL */;
+    }
+    if (this.getJewishMonth() == _JewishCalendar.AV) {
+      if (this.getJewishDayOfMonth() >= 4 && this.getJewishDayOfMonth() <= 9) {
+        return 69 /* CHAZON */;
+      }
+      if (this.getJewishDayOfMonth() >= 10 && this.getJewishDayOfMonth() <= 16) {
+        return 70 /* NACHAMU */;
+      }
+    }
+    if (this.getJewishMonth() == _JewishCalendar.TISHREI && this.getJewishDayOfMonth() >= 3 && this.getJewishDayOfMonth() <= 8)
+      return 66 /* SHUVA */;
+    if (this.getParshah() == 16 /* BESHALACH */)
+      return 67 /* SHIRA */;
     return 0 /* NONE */;
   }
   /**
@@ -12007,26 +12050,111 @@ const _JewishCalendar = class _JewishCalendar extends JewishDate {
     return this.getJewishMonth() === _JewishCalendar.TISHREI && this.getJewishDayOfMonth() <= 10;
   }
   /**
-   * Returns true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em> or <em>Succos</em>.
-   *
-   * @return true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em> or <em>Succos</em>
-   * @see #isYomTov()
-   * @see #CHOL_HAMOED_PESACH
-   * @see #CHOL_HAMOED_SUCCOS
-   */
-  isCholHamoed() {
-    return this.isCholHamoedPesach() || this.isCholHamoedSuccos();
+  * Returns true if the current day is <em>Pesach</em> (either  the <em>Yom Tov</em> of <em>Pesach</em> or<em>Chol Hamoed Pesach</em>).
+  * 
+  * @return true if the current day is <em>Pesach</em> (either  the <em>Yom Tov</em> of <em>Pesach</em> or<em>Chol Hamoed Pesach</em>).
+  * @see #isYomTov()
+  * @see #isCholHamoedPesach()
+  * @see #PESACH
+  * @see #CHOL_HAMOED_PESACH
+  */
+  isPesach() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.PESACH || holidayIndex == _JewishCalendar.CHOL_HAMOED_PESACH;
   }
   /**
    * Returns true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em>.
    *
    * @return true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em>
    * @see #isYomTov()
+   * @see #isPessach()
    * @see #CHOL_HAMOED_PESACH
    */
   isCholHamoedPesach() {
     const holidayIndex = this.getYomTovIndex();
     return holidayIndex === _JewishCalendar.CHOL_HAMOED_PESACH;
+  }
+  /**
+  * Returns true if the current day is <em>Shavuos</em>.
+  *
+  * @return true if the current day is <em>Shavuos</em>.
+  * @see #isYomTov()
+  * @see #SHAVUOS
+  */
+  isShavuos() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.SHAVUOS;
+  }
+  /**
+  * Returns true if the current day is <em>Rosh Hashana</em>.
+  *
+  * @return true if the current day is <em>Rosh Hashana</em>.
+  * @see #isYomTov()
+  * @see #ROSH_HASHANA
+  */
+  isRoshHashana() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.ROSH_HASHANA;
+  }
+  /**
+  * Returns true if the current day is <em>Yom Kippur</em>.
+  *
+  * @return true if the current day is <em>Yom Kippur</em>.
+  * @see #isYomTov()
+  * @see #YOM_KIPPUR
+  */
+  isYomKippur() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.YOM_KIPPUR;
+  }
+  /**
+  * Returns true if the current day is <em>Succos</em> (either  the <em>Yom Tov</em> of <em>Succos</em> or<em>Chol Hamoed Succos</em>).
+  * It will return false for {@link #isShminiAtzeres() Shmini Atzeres} and {@link #isSimchasTorah() Simchas Torah}.
+  * 
+  * @return true if the current day is <em>Succos</em> (either  the <em>Yom Tov</em> of <em>Succos</em> or<em>Chol Hamoed Succos</em>.
+  * @see #isYomTov()
+  * @see #isCholHamoedSuccos()
+  * @see #isHoshanaRabba()
+  * @see #SUCCOS
+  * @see #CHOL_HAMOED_SUCCOS
+  * @see #HOSHANA_RABBA
+  */
+  isSuccos() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.SUCCOS || holidayIndex == _JewishCalendar.CHOL_HAMOED_SUCCOS || holidayIndex == _JewishCalendar.HOSHANA_RABBA;
+  }
+  /**
+  * Returns true if the current day is <em>Hoshana Rabba</em>.
+  *
+  * @return true true if the current day is <em>Hoshana Rabba</em>.
+  * @see #isYomTov()
+  * @see #HOSHANA_RABBA
+  */
+  isHoshanaRabba() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.HOSHANA_RABBA;
+  }
+  /**
+  * Returns true if the current day is <em>Shmini Atzeres</em>.
+  *
+  * @return true if the current day is <em>Shmini Atzeres</em>.
+  * @see #isYomTov()
+  * @see #SHEMINI_ATZERES
+  */
+  isShminiAtzeres() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.SHEMINI_ATZERES;
+  }
+  /**
+  * Returns true if the current day is <em>Simchas Torah</em>. This will always return false if {@link #getInIsrael() in Israel}
+  *
+  * @return true if the current day is <em>Shmini Atzeres</em>.
+  * @see #isYomTov()
+  * @see #SIMCHAS_TORAH
+  */
+  isSimchasTorah() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.SIMCHAS_TORAH;
   }
   /**
    * Returns true if the current day is <em>Chol Hamoed</em> of <em>Succos</em>.
@@ -12038,6 +12166,17 @@ const _JewishCalendar = class _JewishCalendar extends JewishDate {
   isCholHamoedSuccos() {
     const holidayIndex = this.getYomTovIndex();
     return holidayIndex === _JewishCalendar.CHOL_HAMOED_SUCCOS;
+  }
+  /**
+   * Returns true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em> or <em>Succos</em>.
+   *
+   * @return true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em> or <em>Succos</em>
+   * @see #isYomTov()
+   * @see #CHOL_HAMOED_PESACH
+   * @see #CHOL_HAMOED_SUCCOS
+   */
+  isCholHamoed() {
+    return this.isCholHamoedPesach() || this.isCholHamoedSuccos();
   }
   /**
    * Returns true if the current day is erev Yom Tov. The method returns true for Erev - Pesach (first and last days),
@@ -12120,6 +12259,20 @@ const _JewishCalendar = class _JewishCalendar extends JewishDate {
    */
   isChanukah() {
     return this.getYomTovIndex() === _JewishCalendar.CHANUKAH;
+  }
+  /**
+  * Returns if the day is Purim (<a href="https://en.wikipedia.org/wiki/Purim#Shushan_Purim">Shushan Purim</a>
+  * in a mukaf choma and regular Purim in a non-mukaf choma). 
+  * @return if the day is Purim (Shushan Purim in a mukaf choma and regular Purin in a non-mukaf choma)
+  * 
+  * @see #getIsMukafChoma()
+  * @see #setIsMukafChoma(boolean)
+  */
+  isPurim() {
+    if (this.isMukafChoma) {
+      return this.getYomTovIndex() == _JewishCalendar.SHUSHAN_PURIM;
+    }
+    return this.getYomTovIndex() == _JewishCalendar.PURIM;
   }
   /**
    * Returns if the day is Rosh Chodesh. Rosh Hashana will return false
@@ -12288,6 +12441,41 @@ const _JewishCalendar = class _JewishCalendar extends JewishDate {
   // eslint-disable-next-line class-methods-use-this
   getDafYomiYerushalmi() {
     throw new UnsupportedError("This method is not supported, due to a circular dependency. Use `YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishCalendar)` instead");
+  }
+  /**
+  * Returns the elapsed days since <em>Tekufas Tishrei</em>. This uses <em>Tekufas Shmuel</em> (identical to the <a href=
+  * "https://en.wikipedia.org/wiki/Julian_year_(astronomy)">Julian Year</a> with a solar year length of 365.25 days).
+  * The notation used below is D = days, H = hours and C = chalakim. <em><a href="https://en.wikipedia.org/wiki/Molad"
+  * >Molad</a> BaHaRad</em> was 2D,5H,204C or 5H,204C from the start of <em>Rosh Hashana</em> year 1. For <em>molad
+  * Nissan</em> add 177D, 4H and 438C (6 * 29D, 12H and 793C), or 177D,9H,642C after <em>Rosh Hashana</em> year 1.
+  * <em>Tekufas Nissan</em> was 7D, 9H and 642C before <em>molad Nissan</em> according to the Rambam, or 170D, 0H and
+  * 0C after <em>Rosh Hashana</em> year 1. <em>Tekufas Tishrei</em> was 182D and 3H (365.25 / 2) before <em>tekufas
+  * Nissan</em>, or 12D and 15H before <em>Rosh Hashana</em> of year 1. Outside of Israel we start reciting <em>Tal
+  * Umatar</em> in <em>Birkas Hashanim</em> from 60 days after <em>tekufas Tishrei</em>. The 60 days include the day of
+  * the <em>tekufah</em> and the day we start reciting <em>Tal Umatar</em>. 60 days from the tekufah == 47D and 9H
+  * from <em>Rosh Hashana</em> year 1.
+  * 
+  * @return the number of elapsed days since <em>tekufas Tishrei</em>.
+  * 
+  * @see #isVeseinTalUmatarStartDate()
+  * @see #isVeseinTalUmatarStartingTonight()
+  * @see #isVeseinTalUmatarRecited()
+  */
+  getTekufasTishreiElapsedDays() {
+    const days = _JewishCalendar.getJewishCalendarElapsedDays(this.getJewishYear()) + (this.getDaysSinceStartOfJewishYear() - 1) + 0.5;
+    const solar = (this.getJewishYear() - 1) * 365.25;
+    return Math.floor(days - solar);
+  }
+  /**
+  * Returns true if the current day is <em>Isru Chag</em>. The method returns true for the day following <em>Pesach</em>
+  * <em>Shavuos</em> and <em>Succos</em>. It utilizes {@see #getInIsrael()} to return the proper date.
+  * 
+  * @return true if the current day is <em>Isru Chag</em>. The method returns true for the day following <em>Pesach</em>
+  * <em>Shavuos</em> and <em>Succos</em>. It utilizes {@see #getInIsrael()} to return the proper date.
+  */
+  isIsruChag() {
+    const holidayIndex = this.getYomTovIndex();
+    return holidayIndex == _JewishCalendar.ISRU_CHAG;
   }
   /**
    * Indicates whether some other object is "equal to" this one.
@@ -13007,6 +13195,45 @@ const _ZmanimCalendar = class _ZmanimCalendar extends AstronomicalCalendar {
   getShaahZmanisBasedZman(startOfDay, endOfDay, hours) {
     const shaahZmanis = this.getTemporalHour(startOfDay, endOfDay);
     return _ZmanimCalendar.getTimeOffset(startOfDay, shaahZmanis * hours);
+  }
+  /**
+  * A utility method that returns the percentage of a <em>shaah zmanis</em> after sunset (or before sunrise) for a given degree
+  * offset. For the <a href="https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/">equilux</a> where there
+  * is a 720-minute day, passing 16.1&deg; for the location of Jerusalem will return about 1.2. This will work for any location
+  * or date, but will typically only be of interest at the equinox/equilux to calculate the percentage of a <em>shaah zmanis</em>
+  * for those who want to use the <a href="https://en.wikipedia.org/wiki/Abraham_Cohen_Pimentel">Minchas Cohen</a> in Ma'amar 2:4
+  * and the <a href="https://en.wikipedia.org/wiki/Hezekiah_da_Silva">Pri Chadash</a> who calculate <em>tzais</em> as a percentage
+  * of the day after sunset. While the Minchas Cohen only applies this to 72 minutes or a 1/10 of the day around the world (based
+  * on the equinox / equilux in Israel, this method allows calculations for any degrees level for any location.
+  * 
+  * @param degrees
+  *            the number of degrees below the horizon after sunset.
+  * @param sunset
+  *            if <code>true</code> the calculation should be degrees after sunset, or if <code>false</code>, degrees before sunrise.
+  * @return the <code>double</code> percentage of a <em>sha'ah zmanis</em> for a given set of degrees below the astronomical horizon
+  *         for the current calendar.  If the calculation can't be computed a {@link Double#MIN_VALUE} will be returned. See detailed
+  *         explanation on top of the page.
+  */
+  getPercentOfShaahZmanisFromDegrees(degrees, sunset) {
+    const seaLevelSunrise = this.getSeaLevelSunrise();
+    const seaLevelSunset = this.getSeaLevelSunset();
+    let twilight = null;
+    if (sunset) {
+      twilight = this.getSunsetOffsetByDegrees(_ZmanimCalendar.GEOMETRIC_ZENITH + degrees);
+    } else {
+      twilight = this.getSunriseOffsetByDegrees(_ZmanimCalendar.GEOMETRIC_ZENITH + degrees);
+    }
+    if (seaLevelSunrise == null || seaLevelSunset == null || twilight == null) {
+      return Long_MIN_VALUE;
+    }
+    const shaahZmanis = (seaLevelSunset.toMillis() - seaLevelSunrise.toMillis()) / 12;
+    let riseSetToTwilight;
+    if (sunset) {
+      riseSetToTwilight = twilight.toMillis() - seaLevelSunset.toMillis();
+    } else {
+      riseSetToTwilight = seaLevelSunrise.toMillis() - twilight.toMillis();
+    }
+    return riseSetToTwilight / shaahZmanis;
   }
 };
 /**
@@ -19607,7 +19834,7 @@ const _HebrewDateFormatter = class _HebrewDateFormatter {
    *         Bereshis or Nitzavim Vayeilech or an empty string if there are none.
    */
   formatParsha(jewishCalendar) {
-    const parsha = jewishCalendar.getParsha();
+    const parsha = jewishCalendar.getParshah();
     return this.hebrewFormat ? this.hebrewParshaMap[parsha] || "" : this.transliteratedParshaMap[parsha] || "";
   }
   /**

@@ -750,9 +750,9 @@ declare class AstronomicalCalendar {
     /** Sun's zenith at astronomical twilight (108&deg;). */
     static readonly ASTRONOMICAL_ZENITH: number;
     /** constant for milliseconds in a minute (60,000) */
-    protected static readonly MINUTE_MILLIS: number;
+    static readonly MINUTE_MILLIS: number;
     /** constant for milliseconds in an hour (3,600,000) */
-    protected static readonly HOUR_MILLIS: number;
+    static readonly HOUR_MILLIS: number;
     /**
      * The Java Calendar encapsulated by this class to track the current date used by the class
      */
@@ -1089,6 +1089,24 @@ declare class AstronomicalCalendar {
      * @param riseSet
      * @return
      */
+    /**
+       * A method that returns <a href="https://en.wikipedia.org/wiki/Local_mean_time">local mean time (LMT)</a> time
+       * converted to regular clock time for the number of hours (0.0 to 23.999...) passed to this method. This time is
+       * adjusted from standard time to account for the local latitude. The 360&deg; of the globe divided by 24 calculates
+       * to 15&deg; per hour with 4 minutes per degree, so at a longitude of 0 , 15, 30 etc... noon is at exactly 12:00pm.
+       * Lakewood, N.J., with a longitude of -74.222, is 0.7906 away from the closest multiple of 15 at -75&deg;. This is
+       * multiplied by 4 clock minutes (per degree) to yield 3 minutes and 7 seconds for a noon time of 11:56:53am. This
+       * method is not tied to the theoretical 15&deg; time zones, but will adjust to the actual time zone and <a href=
+       * "https://en.wikipedia.org/wiki/Daylight_saving_time">Daylight saving time</a> to return LMT.
+       *
+       * @param hours
+       * 			the hour (such as 12.0 for noon and 0.0 for midnight) to calculate as LMT. Valid values are in the range of
+       * 			0.0 to 23.999.... An IllegalArgumentException will be thrown if the value does not fit in the expected range.
+       * @return the Date representing the local mean time (LMT) for the number of hours passed in. In Lakewood, NJ, passing 12
+       *         (noon) will return 11:56:50am.
+       * @see GeoLocation#getLocalMeanTimeOffset()
+       */
+    getLocalMeanTime(hours: number): DateTime | null;
     /**
      * Adjusts the <code>Calendar</code> to deal with edge cases where the location crosses the antimeridian.
      *
@@ -1703,7 +1721,7 @@ type ZmanWithDuration = Zman & {
 };
 
 declare namespace Utils {
-    function getAllMethodNames(obj: object, excludeContructors?: boolean): Array<string>;
+    function getAllMethodNames(obj: object, excludeContructors?: boolean): string[];
 }
 declare namespace TimeZone {
     /**
@@ -2819,6 +2837,25 @@ declare class ZmanimCalendar extends AstronomicalCalendar {
       *         AstronomicalCalendar} documentation.
      */
     getShaahZmanisBasedZman(startOfDay: DateTime | null, endOfDay: DateTime | null, hours: number): DateTime | null;
+    /**
+       * A utility method that returns the percentage of a <em>shaah zmanis</em> after sunset (or before sunrise) for a given degree
+       * offset. For the <a href="https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/">equilux</a> where there
+       * is a 720-minute day, passing 16.1&deg; for the location of Jerusalem will return about 1.2. This will work for any location
+       * or date, but will typically only be of interest at the equinox/equilux to calculate the percentage of a <em>shaah zmanis</em>
+       * for those who want to use the <a href="https://en.wikipedia.org/wiki/Abraham_Cohen_Pimentel">Minchas Cohen</a> in Ma'amar 2:4
+       * and the <a href="https://en.wikipedia.org/wiki/Hezekiah_da_Silva">Pri Chadash</a> who calculate <em>tzais</em> as a percentage
+       * of the day after sunset. While the Minchas Cohen only applies this to 72 minutes or a 1/10 of the day around the world (based
+       * on the equinox / equilux in Israel, this method allows calculations for any degrees level for any location.
+       *
+       * @param degrees
+       *            the number of degrees below the horizon after sunset.
+       * @param sunset
+       *            if <code>true</code> the calculation should be degrees after sunset, or if <code>false</code>, degrees before sunrise.
+       * @return the <code>double</code> percentage of a <em>sha'ah zmanis</em> for a given set of degrees below the astronomical horizon
+       *         for the current calendar.  If the calculation can't be computed a {@link Double#MIN_VALUE} will be returned. See detailed
+       *         explanation on top of the page.
+       */
+    getPercentOfShaahZmanisFromDegrees(degrees: number, sunset: boolean): number | null;
 }
 
 /**
@@ -7704,7 +7741,7 @@ declare class JewishCalendar extends JewishDate {
      * returns Parsha.NONE if a weekday or if there is no parsha that week (for example Yomtov is on Shabbos)
      * @return the current parsha
      */
-    getParsha(): Parsha;
+    getParshah(): Parsha;
     /**
      * Returns a parsha enum if the Shabbos is one of the four parshiyos of Parsha.SHKALIM, Parsha.ZACHOR, Parsha.PARA,
      * Parsha.HACHODESH or Parsha.NONE for a regular Shabbos (or any weekday).
@@ -7780,22 +7817,85 @@ declare class JewishCalendar extends JewishDate {
      */
     isAseresYemeiTeshuva(): boolean;
     /**
-     * Returns true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em> or <em>Succos</em>.
-     *
-     * @return true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em> or <em>Succos</em>
-     * @see #isYomTov()
-     * @see #CHOL_HAMOED_PESACH
-     * @see #CHOL_HAMOED_SUCCOS
-     */
-    isCholHamoed(): boolean;
+       * Returns true if the current day is <em>Pesach</em> (either  the <em>Yom Tov</em> of <em>Pesach</em> or<em>Chol Hamoed Pesach</em>).
+       *
+       * @return true if the current day is <em>Pesach</em> (either  the <em>Yom Tov</em> of <em>Pesach</em> or<em>Chol Hamoed Pesach</em>).
+       * @see #isYomTov()
+       * @see #isCholHamoedPesach()
+       * @see #PESACH
+       * @see #CHOL_HAMOED_PESACH
+       */
+    isPesach(): boolean;
     /**
      * Returns true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em>.
      *
      * @return true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em>
      * @see #isYomTov()
+     * @see #isPessach()
      * @see #CHOL_HAMOED_PESACH
      */
     isCholHamoedPesach(): boolean;
+    /**
+       * Returns true if the current day is <em>Shavuos</em>.
+       *
+       * @return true if the current day is <em>Shavuos</em>.
+       * @see #isYomTov()
+       * @see #SHAVUOS
+       */
+    isShavuos(): boolean;
+    /**
+       * Returns true if the current day is <em>Rosh Hashana</em>.
+       *
+       * @return true if the current day is <em>Rosh Hashana</em>.
+       * @see #isYomTov()
+       * @see #ROSH_HASHANA
+       */
+    isRoshHashana(): boolean;
+    /**
+       * Returns true if the current day is <em>Yom Kippur</em>.
+       *
+       * @return true if the current day is <em>Yom Kippur</em>.
+       * @see #isYomTov()
+       * @see #YOM_KIPPUR
+       */
+    isYomKippur(): boolean;
+    /**
+       * Returns true if the current day is <em>Succos</em> (either  the <em>Yom Tov</em> of <em>Succos</em> or<em>Chol Hamoed Succos</em>).
+       * It will return false for {@link #isShminiAtzeres() Shmini Atzeres} and {@link #isSimchasTorah() Simchas Torah}.
+       *
+       * @return true if the current day is <em>Succos</em> (either  the <em>Yom Tov</em> of <em>Succos</em> or<em>Chol Hamoed Succos</em>.
+       * @see #isYomTov()
+       * @see #isCholHamoedSuccos()
+       * @see #isHoshanaRabba()
+       * @see #SUCCOS
+       * @see #CHOL_HAMOED_SUCCOS
+       * @see #HOSHANA_RABBA
+       */
+    isSuccos(): boolean;
+    /**
+       * Returns true if the current day is <em>Hoshana Rabba</em>.
+       *
+       * @return true true if the current day is <em>Hoshana Rabba</em>.
+       * @see #isYomTov()
+       * @see #HOSHANA_RABBA
+       */
+    isHoshanaRabba(): boolean;
+    /**
+       * Returns true if the current day is <em>Shmini Atzeres</em>.
+       *
+       * @return true if the current day is <em>Shmini Atzeres</em>.
+       * @see #isYomTov()
+       * @see #SHEMINI_ATZERES
+       */
+    isShminiAtzeres(): boolean;
+    /**
+       * Returns true if the current day is <em>Simchas Torah</em>. This will always return false if {@link #getInIsrael() in Israel}
+       *
+       * @return true if the current day is <em>Shmini Atzeres</em>.
+       * @see #isYomTov()
+       * @see #SIMCHAS_TORAH
+       */
+    isSimchasTorah(): boolean;
     /**
      * Returns true if the current day is <em>Chol Hamoed</em> of <em>Succos</em>.
      *
@@ -7804,6 +7904,15 @@ declare class JewishCalendar extends JewishDate {
      * @see #CHOL_HAMOED_SUCCOS
      */
     isCholHamoedSuccos(): boolean;
+    /**
+     * Returns true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em> or <em>Succos</em>.
+     *
+     * @return true if the current day is <em>Chol Hamoed</em> of <em>Pesach</em> or <em>Succos</em>
+     * @see #isYomTov()
+     * @see #CHOL_HAMOED_PESACH
+     * @see #CHOL_HAMOED_SUCCOS
+     */
+    isCholHamoed(): boolean;
     /**
      * Returns true if the current day is erev Yom Tov. The method returns true for Erev - Pesach (first and last days),
      * Shavuos, Rosh Hashana, Yom Kippur and Succos and Hoshana Rabba.
@@ -7847,6 +7956,15 @@ declare class JewishCalendar extends JewishDate {
      * @see #getDayOfChanukah()
      */
     isChanukah(): boolean;
+    /**
+     * Returns if the day is Purim (<a href="https://en.wikipedia.org/wiki/Purim#Shushan_Purim">Shushan Purim</a>
+     * in a mukaf choma and regular Purim in a non-mukaf choma).
+     * @return if the day is Purim (Shushan Purim in a mukaf choma and regular Purin in a non-mukaf choma)
+     *
+     * @see #getIsMukafChoma()
+     * @see #setIsMukafChoma(boolean)
+     */
+    isPurim(): boolean;
     /**
      * Returns if the day is Rosh Chodesh. Rosh Hashana will return false
      *
@@ -7955,6 +8073,34 @@ declare class JewishCalendar extends JewishDate {
      * @return the daf as a {@link Daf}
      */
     getDafYomiYerushalmi(): Daf;
+    /**
+       * Returns the elapsed days since <em>Tekufas Tishrei</em>. This uses <em>Tekufas Shmuel</em> (identical to the <a href=
+       * "https://en.wikipedia.org/wiki/Julian_year_(astronomy)">Julian Year</a> with a solar year length of 365.25 days).
+       * The notation used below is D = days, H = hours and C = chalakim. <em><a href="https://en.wikipedia.org/wiki/Molad"
+       * >Molad</a> BaHaRad</em> was 2D,5H,204C or 5H,204C from the start of <em>Rosh Hashana</em> year 1. For <em>molad
+       * Nissan</em> add 177D, 4H and 438C (6 * 29D, 12H and 793C), or 177D,9H,642C after <em>Rosh Hashana</em> year 1.
+       * <em>Tekufas Nissan</em> was 7D, 9H and 642C before <em>molad Nissan</em> according to the Rambam, or 170D, 0H and
+       * 0C after <em>Rosh Hashana</em> year 1. <em>Tekufas Tishrei</em> was 182D and 3H (365.25 / 2) before <em>tekufas
+       * Nissan</em>, or 12D and 15H before <em>Rosh Hashana</em> of year 1. Outside of Israel we start reciting <em>Tal
+       * Umatar</em> in <em>Birkas Hashanim</em> from 60 days after <em>tekufas Tishrei</em>. The 60 days include the day of
+       * the <em>tekufah</em> and the day we start reciting <em>Tal Umatar</em>. 60 days from the tekufah == 47D and 9H
+       * from <em>Rosh Hashana</em> year 1.
+       *
+       * @return the number of elapsed days since <em>tekufas Tishrei</em>.
+       *
+       * @see #isVeseinTalUmatarStartDate()
+       * @see #isVeseinTalUmatarStartingTonight()
+       * @see #isVeseinTalUmatarRecited()
+       */
+    getTekufasTishreiElapsedDays(): number;
+    /**
+       * Returns true if the current day is <em>Isru Chag</em>. The method returns true for the day following <em>Pesach</em>
+       * <em>Shavuos</em> and <em>Succos</em>. It utilizes {@see #getInIsrael()} to return the proper date.
+       *
+       * @return true if the current day is <em>Isru Chag</em>. The method returns true for the day following <em>Pesach</em>
+       * <em>Shavuos</em> and <em>Succos</em>. It utilizes {@see #getInIsrael()} to return the proper date.
+       */
+    isIsruChag(): boolean;
     /**
      * Indicates whether some other object is "equal to" this one.
      * @see Object#equals(Object)
