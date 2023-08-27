@@ -6420,4 +6420,4 @@ var MDCSelect = /** @class */ (function (_super) {
 }(MDCComponent));
 
 export { MDCSelect, MDCSelectFoundation, MDCSelectHelperText, MDCSelectHelperTextFoundation, MDCSelectIcon, MDCSelectIconFoundation, cssClasses$1 as cssClasses, cssClasses as helperTextCssClasses, strings$1 as helperTextStrings, strings as iconStrings, numbers, strings$2 as strings };
-//# sourceMappingURL=bundle.js.map
+//# sourceMappingURL=selector.js.map

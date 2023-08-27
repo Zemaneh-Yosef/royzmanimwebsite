@@ -1,7 +1,7 @@
 // @ts-check
 
 // Comment the following line before going live (as well as the export line on the bottom)!
-import * as KosherZmanim from "./libraries/dev/kosher-zmanim.esm.js"
+import * as KosherZmanim from "./libraries/kosher-zmanim.esm.js"
 import { settings } from "./settings/handler.js";
 
 class ROYZmanim {
@@ -9,7 +9,7 @@ class ROYZmanim {
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	constructor(geoLocation) {
-		this.coreCZC = new KosherZmanim.ComplexZmanimCalendar(geoLocation)
+		this.coreCZC = new KosherZmanim.ZmanimCalendar(geoLocation)
 
 		/* getElevationAdjustedSunrise & getElevationAdjustedSunset are protected. Manually make the Object */
 		this.zmanim = {
@@ -26,10 +26,7 @@ class ROYZmanim {
 	plagHaminchaCore(time) {
 		const shaahZmanit = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
 		const dakahZmanit = shaahZmanit / 60;
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			time,
-			-(shaahZmanit + 15 * dakahZmanit)
-		);
+		return time.minus(shaahZmanit + 15 * dakahZmanit)
 	}
 
 	// </core>
@@ -40,19 +37,19 @@ class ROYZmanim {
 	}
 
 	getSofZmanShmaMGA() {
-        return this.coreCZC.getSofZmanShma(this.getAlotHashachar(), this.getTzait72Zmanit());
+        return this.coreCZC.getShaahZmanisBasedZman(this.getAlotHashachar(), this.getTzait72Zmanit(), 3);
     }
 
 	getSofZmanShmaGRA() {
-        return this.coreCZC.getSofZmanShma(this.zmanim.sunrise(), this.zmanim.sunset());
+        return this.coreCZC.getShaahZmanisBasedZman(this.zmanim.sunrise(), this.zmanim.sunset(), 3);
     }
 
 	getSofZmanBrachothShma() {
-        return this.coreCZC.getSofZmanTfila(this.zmanim.sunrise(), this.zmanim.sunset());
+        return this.coreCZC.getShaahZmanisBasedZman(this.zmanim.sunrise(), this.zmanim.sunset(), 4);
     }
 
 	getSofZmanAchilathHametz() {
-		return this.coreCZC.getSofZmanTfila(this.getAlotHashachar(), this.getTzait72Zmanit());
+		return this.coreCZC.getShaahZmanisBasedZman(this.getAlotHashachar(), this.getTzait72Zmanit(), 4);
 	}
 
 	getSofZmanBiurHametz() {
@@ -92,7 +89,7 @@ class ROYZmanim {
      *         explanation on top of the {@link AstronomicalCalendar} documentation.
      */
 	getMinhaGedolah() {
-		return window.luxon.DateTime.max(this.coreCZC.getMinchaGedola30Minutes(), this.coreCZC.getMinchaGedola()) || null;
+		return window.luxon.DateTime.max(this.coreCZC.getChatzos().plus({minutes: 30}), this.coreCZC.getMinchaGedola()) || null;
 	}
 
 	/**
@@ -143,7 +140,7 @@ class ROYZmanim {
 	}
 
 	getTzaitRT() {
-		if (settings.calendar.rtKulah())
+		if (settings.calendarToggle.rtKulah())
 			return window.luxon.DateTime.min(this.coreCZC.getTzais72(), this.getTzait72Zmanit())
 		else
 			return this.getTzait72Zmanit();
@@ -228,7 +225,8 @@ class OhrHachaimZmanim extends ROYZmanim {
      * @see KosherZmanim.ComplexZmanimCalendar.getShaahZmanisGra()
      */
 	getAlotHashachar() {
-		return this.coreCZC.getAlos72Zmanis();
+		const shaahZmanis = this.coreCZC.getShaahZmanisGra();
+		return this.zmanim.sunrise().minus(shaahZmanis * 1.2);;
 	}
 
 	getMisheyakir() {
@@ -243,25 +241,20 @@ class OhrHachaimZmanim extends ROYZmanim {
 	getTzait() {
 		const shaahZmanit = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
 		const dakahZmanit = shaahZmanit / 60;
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			this.zmanim.sunset(),
-			13 * dakahZmanit + dakahZmanit / 2
-		);
+		return this.zmanim.sunset().plus(13.5 * dakahZmanit);
 	}
 
 	getTzaitTaanit() {
-		return KosherZmanim.ComplexZmanimCalendar.getTimeOffset(
-			this.zmanim.sunset(),
-			20 * 60_000
-		);
+		return this.zmanim.sunset().plus(60_000 * 20);
 	}
 
 	getTzaitShabbath() {
-		return this.coreCZC.getTzaisAteretTorah();
+		return this.zmanim.sunset().plus(60_000 * settings.customTimes.tzeithIssurMelakha().minutes);
 	}
 
 	getTzait72Zmanit() {
-		return this.coreCZC.getTzais72Zmanis();
+		const shaahZmanis = this.coreCZC.getShaahZmanisGra();
+		return this.zmanim.sunset().plus(shaahZmanis * 1.2);;
 	}
 }
 
@@ -274,80 +267,54 @@ class AmudehHoraahZmanim extends ROYZmanim {
 		this.coreCZC.setUseElevation(false);
 	}
 
-	getEquinoxDayZmanim() {
-		const equinoxDayZmanim = new KosherZmanim.ComplexZmanimCalendar(this.coreCZC.getGeoLocation())
+	/**
+	 * 
+	 * @param {Parameters<KosherZmanim.ComplexZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[0]} degree 
+	 * @param {Parameters<KosherZmanim.ComplexZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[1]} sunset 
+	 * @returns {ReturnType<KosherZmanim.ComplexZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>} Percentage
+	 */
+	getPercentOfShaahZmanisFromDegreesOnEquinoxDay(degree, sunset) {
+		const equinoxDayZmanim = new KosherZmanim.ComplexZmanimCalendar(this.coreCZC.getGeoLocation());
 		equinoxDayZmanim.setUseElevation(false);
-		equinoxDayZmanim.setDate(new Date("March 17 " + this.coreCZC.getDate().year.toString()))
-		return equinoxDayZmanim
-	}
-
-	getTimeZmaniyot() {
-		const shaahZmanit = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
-		const dakahZmanit = new Decimal(shaahZmanit).div(60);
-		const secondsZmanit = dakahZmanit.div(60);
-
-		return {shaahZmanit, dakahZmanit, secondsZmanit}
-	}
-
-	/**
-	 * @param {number} degree
-	 */
-	getMorningShaotZmaniyot(degree) {
-		const zenithDegree = new Decimal(degree).plus(KosherZmanim.ZmanimCalendar.GEOMETRIC_ZENITH)
-
-		const sunrise = this.getEquinoxDayZmanim().getSeaLevelSunrise();
-		const alotBy16point1Degrees = this.getEquinoxDayZmanim().getSunriseOffsetByDegrees(zenithDegree.toNumber());
-		const numberOfMilli = new Decimal(sunrise.toMillis()).minus(alotBy16point1Degrees.toMillis());
-		const numberOfSeconds = numberOfMilli.div(1000);
-
-		return {numberOfMilli, numberOfSeconds}
-	}
-
-	/**
-	 * @param {number} degree
-	 */
-	getNightShaotZmaniyot(degree) {
-		const zenithDegree = new Decimal(degree).plus(KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH)
-
-		const sunset = this.getEquinoxDayZmanim().getSeaLevelSunset();
-		const tzaitDegree = this.getEquinoxDayZmanim().getSunsetOffsetByDegrees(zenithDegree.toNumber());
-		const numberOfMilli = new Decimal(tzaitDegree.toMillis()).minus(sunset.toMillis());
-		const numberOfSeconds = numberOfMilli.div(1000);
-
-		return {numberOfMilli, numberOfSeconds}
+		equinoxDayZmanim.setDate(new Date("March 17 " + this.coreCZC.getDate().year.toString()));
+		return equinoxDayZmanim.getPercentOfShaahZmanisFromDegrees(degree, sunset)
 	}
 
 	getAlotHashachar(degree=16.04) {
-		const sunrisePercent = this.getEquinoxDayZmanim().getPercentOfShaahZmanisFromDegrees(degree, false);
-		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset())
-		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunrise(), -(sunrisePercent * temporalHour))
+		const sunrisePercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(degree, false);
+		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunrise(), -(sunrisePercent * temporalHour));
 	}
 
 	getMisheyakir(degree=16.04) {
-		const sunrisePercent = this.getEquinoxDayZmanim().getPercentOfShaahZmanisFromDegrees(degree, false);
-		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset())
-		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunrise(), -(sunrisePercent * temporalHour * 5 / 6))
+		const sunrisePercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(degree, false);
+		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunrise(), -(sunrisePercent * temporalHour * 5 / 6));
 	}
 
 	getTzait() {
-		const sunsetPercent = this.getEquinoxDayZmanim().getPercentOfShaahZmanisFromDegrees(3.77, true);
-		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset())
-		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), sunsetPercent * temporalHour)
+		const sunsetPercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(3.77, true);
+		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), sunsetPercent * temporalHour);
 	}
 
 	getTzaitLechumra() {
-		const sunsetPercent = this.getEquinoxDayZmanim().getPercentOfShaahZmanisFromDegrees(5.054, true);
-		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset())
-		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), sunsetPercent * temporalHour)
+		const sunsetPercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(5.054, true);
+		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), sunsetPercent * temporalHour);
 	}
 
 	getTzaitTaanitLChumra() {
-		return window.luxon.DateTime.max(this.getTzaitLechumra(), super.getTzaitTaanitLChumra())
+		return window.luxon.DateTime.max(this.getTzaitLechumra(), super.getTzaitTaanitLChumra());
 	}
 
-	getTzaitShabbath(visibleDegree=7.14) {
-		const degree = new Decimal(visibleDegree).plus(KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH)
-		const sunsetOffset = this.coreCZC.getSunsetOffsetByDegrees(degree.toNumber());
+	/**
+     * Actual A"H implementation of Tzeit Shabbat
+     * @returns {luxon.DateTime} The return value.
+     */
+	getTzaitShabbath(visibleDegree=settings.customTimes.tzeithIssurMelakha().degree) {
+		const degree = visibleDegree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH;
+		const sunsetOffset = this.coreCZC.getSunsetOffsetByDegrees(degree);
 		if (!sunsetOffset || sunsetOffset.toMillis() > this.getSolarMidnight().toMillis())
 			return (visibleDegree > 5.32 ? this.getTzaitShabbath(5.32) : this.getSolarMidnight());
 
@@ -355,9 +322,9 @@ class AmudehHoraahZmanim extends ROYZmanim {
 	}
 
 	getTzait72Zmanit() {
-		const sunsetPercent = this.getEquinoxDayZmanim().getPercentOfShaahZmanisFromDegrees(16.01, true);
-		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset())
-		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), sunsetPercent * temporalHour)
+		const sunsetPercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(16.01, true);
+		const temporalHour = this.coreCZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
+		return KosherZmanim.ZmanimCalendar.getTimeOffset(this.zmanim.sunset(), sunsetPercent * temporalHour);
 	}
 }
 

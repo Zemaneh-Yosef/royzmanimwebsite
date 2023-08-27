@@ -42,7 +42,7 @@ The "ROYZmanim" website was made to calculate timing information according to th
 
 - **[flexcal](https://github.com/dwachss/flexcal):** A jQuery(-UI) plugin to have a Hebrew-Date picker. To be replaced with a custom implementation built around KosherZmanim
 - **[Material Design Web](https://m2.material.io/develop/web/getting-started):** Replace MDBootstrap's list selector, due to MDBootstrap's being paid.
-- **[Decimal.js](https://mikemcl.github.io/decimal.js/):** Support for Arbitrary Decimal Precision in JavaScript.
+<!-- - **[Decimal.js](https://mikemcl.github.io/decimal.js/):** Support for Arbitrary Decimal Precision in JavaScript. -->
 - **[pdf.js](https://mozilla.github.io/pdf.js/):** Embedded PDF viewer, because native ones either force the person to download the PDF on page-load or have issues scrolling
 
 
@@ -52,10 +52,10 @@ The "ROYZmanim" website was made to calculate timing information according to th
 
 As the creator of the עמודי הוראה calendar, it is reasonable he would want his calendar to be represented accurately. Beyond his extensive documentation found at the end of his commentary on the משנה ברורה's 3<sup>rd</sup> volume, he was also very explanative of his opinions, especially when they differed from the לוח אור החיים (which is what our initial version only supported). Together, we have made a product that he could advertise, and it is included in the back of the 4<sup>th</sup> volume of his commentary on the משנה ברורה.
 
-<iframe src="/assets/libraries/pdfviewer/web/viewer.html?file=/assets/הסכמה.pdf" allow="fullscreen" style="aspect-ratio: 16/9; width: 100%;" loading="lazy"></iframe>
+<iframe src="/assets/libraries/pdfviewer/web/viewer.html?file=/assets/haskamah-he.pdf" allow="fullscreen" style="aspect-ratio: 16/9; width: 100%;" loading="lazy"></iframe>
 
 ##### Rabbi Meir Gavriel Elbaz
 
 As a Talmid of Rabbi Ovadia Yosef in Yeshivath יחוה דעת, we felt we were getting the Halachot of Hacham Ovadia when we would ask him any halachic problem. With an expertee in עניני דיומא (as part of his work as the English Translator for <a href="https://halachayomit.co.il/en/default.aspx">Halacha Yomit</a>), every question would be answered with a level of expertees as if it were applicable on that very day. We are very priviledged to have him as our personal Posek, and may Hashem help him be the light onto the dear & pleasent nation.
 
-<iframe src="/assets/libraries/pdfviewer/web/viewer.html?file=/assets/Haskamah.pdf" allow="fullscreen" style="aspect-ratio: 16/9; width: 100%;" loading="lazy"></iframe>
+<iframe src="/assets/libraries/pdfviewer/web/viewer.html?file=/assets/haskamah-en.pdf" allow="fullscreen" style="aspect-ratio: 16/9; width: 100%;" loading="lazy"></iframe>

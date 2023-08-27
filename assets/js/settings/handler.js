@@ -1,5 +1,6 @@
 // @ts-check
 
+import * as KosherZmanim from "../libraries/kosher-zmanim.esm.js"
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
@@ -10,6 +11,15 @@ const defaultSettings = (variedTocheck, defaultSetting) => {
         return settingsURLOverride(variedTocheck);
     else
         return defaultSetting
+}
+
+function isValidJSON(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }
 
 const settings = Object.freeze({
@@ -53,7 +63,7 @@ const settings = Object.freeze({
         timezone: () => settingsURLOverride("timeZone")
     },
 
-    calendar: {
+    calendarToggle: {
         /** @returns {'seasonal'|'degrees'} */
         // @ts-ignore
         hourCalculators: () => ['seasonal', 'degrees'].includes(settingsURLOverride("hourCalculators")) ? settingsURLOverride("hourCalculators") : 'degrees',
@@ -62,6 +72,57 @@ const settings = Object.freeze({
         /** @returns {'hatzoth'|'arbitrary'} */
         // @ts-ignore
         tekufa: () => ['hatzoth', 'arbitrary'].includes(settingsURLOverride("tekufa")) ? settingsURLOverride("tekufa") : 'hatzoth'
+    },
+    customTimes: {
+        candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
+        tzeithIssurMelakha: () => {
+            if (!settingsURLOverride("tzeithIMmin").trim() || isNaN(parseInt(settingsURLOverride("tzeithIMmin")))) {
+                return (settings.calendarToggle.hourCalculators() == "seasonal" ? { minutes: 40, degree: null } : {
+                    minutes: 30,
+                    degree: 7.14
+                });
+            }
+
+            let degreeValid = true;
+
+            if (!settingsURLOverride("tzeithIMdeg") || !settingsURLOverride("tzeithIMdeg").trim() || !isValidJSON(settingsURLOverride("tzeithIMdeg"))) {
+                degreeValid = false;
+            } else {
+                const degCheck = JSON.parse(settingsURLOverride("tzeithIMdeg"))
+                degreeValid = 'lat' in degCheck && 'lng' in degCheck;
+                degreeValid = degreeValid && !isNaN(settings.location.lat()) && !isNaN(settings.location.long());
+                degreeValid = degreeValid && degCheck.lat == settings.location.lat() && degCheck.lng == settings.location.long()
+                degreeValid = degreeValid && !isNaN(parseFloat(degCheck.degree))
+            }
+
+            if (!degreeValid) {
+                if (isNaN(settings.location.lat()) || isNaN(settings.location.long())) {
+                    return {
+                        minutes: parseInt(settingsURLOverride("tzeithIMmin")),
+                        degree: null
+                    };
+                }
+
+                /** @type {[string, number, number, number, string]} */
+                // @ts-ignore
+                const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
+                const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
+
+                const aCalendar = new KosherZmanim.AstronomicalCalendar(geoLocation);
+                const degree = aCalendar.getSunsetSolarDipFromOffset(parseInt(settingsURLOverride("tzeithIMmin")));
+
+                localStorage.setItem("tzeithIMdeg", degree.toString())
+                return {
+                    minutes: parseInt(settingsURLOverride("tzeithIMmin")),
+                    degree
+                }
+            }
+
+            return {
+                minutes: parseInt(settingsURLOverride("tzeithIMmin")),
+                degree: parseInt(settingsURLOverride("tzeithIMdeg"))
+            }
+        }
     }
 })
 

@@ -261,6 +261,18 @@
     In Luach Amudei Horaah mode, this time is calculated the same way as
     above except no elevation is included.
     </p>
+- id: minhaGedolaBenTzion
+  attributes:
+    yomTovInclusive:
+    luachInclusive:
+    condition:
+  timeGetter: 
+  names:
+    hb: מנחה גדולה לחומרא
+    et: Minha Gedolah LeHumra
+    en: Earliest Minha (Stringent)
+  description: |-
+    <p>This stringent Minha Gedolah is according to the opinion of Rabbi Ben-Tzion Aba-Shaul, who calculates it as 7 seasonal minutes after hatzot</p>
 - id: minhaKetana
   attributes:
     yomTovInclusive:

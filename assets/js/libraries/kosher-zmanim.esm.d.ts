@@ -1,5 +1,6 @@
 import * as _Luxon from 'luxon';
 import { DateTime } from 'luxon';
+import * as _Big from 'big.js';
 
 /**
  * A class that represents a numeric time. Times that represent a time of day are stored as {@link java.util.Date}s in
@@ -552,7 +553,7 @@ declare abstract class AstronomicalCalculator {
      *            The location information used for astronomical calculating sun times.
      * @param zenith
      *            the azimuth below the vertical zenith of 90&deg;. For sunset typically the {@link #adjustZenith
-       *            zenith} used for the calculation uses geometric zenith of 90&deg; and {@link #adjustZenith adjusts}
+     *            zenith} used for the calculation uses geometric zenith of 90&deg; and {@link #adjustZenith adjusts}
      *            this slightly to account for solar refraction and the sun's radius. Another example would be
      *            {@link AstronomicalCalendar#getEndNauticalTwilight()} that passes
      *            {@link AstronomicalCalendar#NAUTICAL_ZENITH} to this method.
@@ -1029,6 +1030,17 @@ declare class AstronomicalCalendar {
      * @see #getTemporalHour()
      */
     getTemporalHour(startOfday?: DateTime | null, endOfDay?: DateTime | null): number;
+    /**
+   * A method that returns "solar" midnight, or the time when the sun is at its <a
+   * href="https://en.wikipedia.org/wiki/Nadir">nadir</a>.
+   * <b>Note:</b> this method is experimental and might be removed.
+   *
+   * @return the <code>Date</code> of Solar Midnight (chatzos layla). If the calculation can't be computed such as in
+   *         the Arctic Circle where there is at least one day a year where the sun does not rise, and one where it
+   *         does not set, a null will be returned. See detailed explanation on top of the
+   *         {@link AstronomicalCalendar} documentation.
+   */
+    getSolarMidnight(): DateTime | null;
     /**
      * A method that returns sundial or solar noon. It occurs when the Sun is <a href
      * ="https://en.wikipedia.org/wiki/Transit_%28astronomy%29">transiting</a> the <a
@@ -5821,17 +5833,6 @@ declare class ComplexZmanimCalendar extends ZmanimCalendar {
      */
     getSofZmanBiurChametzMGA16Point1Degrees(): DateTime | null;
     /**
-     * A method that returns "solar" midnight, or the time when the sun is at its <a
-     * href="https://en.wikipedia.org/wiki/Nadir">nadir</a>.
-     * <b>Note:</b> this method is experimental and might be removed.
-     *
-     * @return the <code>Date</code> of Solar Midnight (chatzos layla). If the calculation can't be computed such as in
-     *         the Arctic Circle where there is at least one day a year where the sun does not rise, and one where it
-     *         does not set, a null will be returned. See detailed explanation on top of the
-     *         {@link AstronomicalCalendar} documentation.
-     */
-    getSolarMidnight(): DateTime | null;
-    /**
      * A method that returns the <a href="https://en.wikipedia.org/wiki/Shneur_Zalman_of_Liadi">Baal Hatanya</a>'s
      * <em>netz amiti</em> (sunrise) without {@link AstronomicalCalculator#getElevationAdjustment(double)
      * elevation adjustment}. This forms the base for the Baal Hatanya's dawn-based calculations that are
@@ -8788,5 +8789,6 @@ interface Options {
 }
 
 declare const Luxon: typeof _Luxon;
+declare const BigNumber: typeof _Big;
 
-export { AstronomicalCalendar, Calendar, ComplexZmanimCalendar, Daf, GeoLocation, GeoLocationUtils, HebrewDateFormatter, IntegerUtils, JewishCalendar, JewishDate, JsonOutput, Long_MIN_VALUE, Luxon, MathUtils, NOAACalculator, Options, OutputMetadata, Parsha, StringUtils, SunTimesCalculator, Time, TimeZone, Utils, YerushalmiYomiCalculator, YomiCalculator, Zman, ZmanWithDuration, ZmanWithZmanDate, ZmanimCalendar, ZmanimFormatter, getZmanimJson, padZeros };
+export { AstronomicalCalendar, BigNumber, Calendar, ComplexZmanimCalendar, Daf, GeoLocation, GeoLocationUtils, HebrewDateFormatter, IntegerUtils, JewishCalendar, JewishDate, JsonOutput, Long_MIN_VALUE, Luxon, MathUtils, NOAACalculator, Options, OutputMetadata, Parsha, StringUtils, SunTimesCalculator, Time, TimeZone, Utils, YerushalmiYomiCalculator, YomiCalculator, Zman, ZmanWithDuration, ZmanWithZmanDate, ZmanimCalendar, ZmanimFormatter, getZmanimJson, padZeros };

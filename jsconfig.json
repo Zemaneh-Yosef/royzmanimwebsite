@@ -4,7 +4,8 @@
         "target": "ES2017",
         "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "noImplicitThis": false,
-        "strictNullChecks": false
+        "strictNullChecks": false,
+        "noImplicitAny": true
     },
     "exclude": ["_site"],
     "typeAcquisition": {

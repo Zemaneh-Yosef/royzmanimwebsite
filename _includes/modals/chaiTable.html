@@ -6,8 +6,8 @@
 				<button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<p>To use ChaiTables' Netz data, please insert your country as well as the metroarea you reside in:</p>
-				<div class="mdc-select mdc-select--outlined mdc-select--required">
+				<p>To use ChaiTables' Netz data, please insert your country as well as the metropolitan area (MA for short) you reside in:</p>
+				<div class="mdc-select mdc-select--outlined mdc-select--required" id="MAIndex">
 					<div class="mdc-select__anchor" aria-required="true" aria-labelledby="outlined-select-label">
 					  <span class="mdc-notched-outline">
 						<span class="mdc-notched-outline__leading"></span>
@@ -58,7 +58,7 @@
 					  <span class="mdc-notched-outline">
 						<span class="mdc-notched-outline__leading"></span>
 						<span class="mdc-notched-outline__notch">
-						  <span id="outlined-select-label" class="mdc-floating-label">Metropolitician Area selector for {{ location.info.title }}</span>
+						  <span id="outlined-select-label" class="mdc-floating-label">MA of {{ location.info.title }}</span>
 						</span>
 						<span class="mdc-notched-outline__trailing"></span>
 					  </span>
@@ -100,6 +100,9 @@
 				</div>
 				{%endfor%}
     		</div>
+			<div class="modal-footer">
+				<button type="button" disabled class="btn btn-primary" id="gctnd">Get ChaiTables Netz Data</button>
+			</div>
     	</div>
     </div>
 </div>

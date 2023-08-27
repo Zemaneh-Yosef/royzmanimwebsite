@@ -11,7 +11,7 @@ class Accordion {
       this.summary = el.querySelector('summary');
       // Store the <div class="content"> element
       this.content = el.querySelector('.accordianContent');
-  
+
       // Store the animation object (so we can cancel it if needed)
       this.animation = null;
       // Store if the element is closing

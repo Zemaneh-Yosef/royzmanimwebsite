@@ -1,7 +1,6 @@
 // @ts-check
 
-// Comment the following lines before going live!
-import * as KosherZmanim from "./libraries/dev/kosher-zmanim.esm.js"
+import * as KosherZmanim from "./libraries/kosher-zmanim.esm.js"
 import n2words from "./libraries/n2wordsrollup.js";
 
 export default
