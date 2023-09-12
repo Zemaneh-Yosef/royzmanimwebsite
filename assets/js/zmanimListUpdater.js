@@ -301,7 +301,7 @@ class zmanimListUpdater {
 						zmanimInfo[zmanid].code.push('not-shabbat')
 						continue;
 					} else
-						zmanimInfo[zmanid].luxonObj = this.zmanMethods[(tzetCandle ? "getTzait" : "getCandleLighting")]()
+						zmanimInfo[zmanid].luxonObj = this.zmanMethods[(tzetCandle ? "tzeitShabbat" : "getCandleLighting")]()
 
 					break;
 				case 'tzeitShabbat':
