@@ -130,10 +130,10 @@ class zmanimListUpdater {
 	}
 
 	writeMourningPeriod() {
-		const mourningDisplays = Array.from(document.querySelectorAll('[zfFind="MourningPeriod"]'))
-			.map(el => /** @type {HTMLElement} */(el));
+		for (const mourningDiv of document.querySelectorAll('[zfFind="MourningPeriod"]')) {
+			if (!(mourningDiv instanceof HTMLElement))
+				continue;
 
-		for (const mourningDiv of mourningDisplays) {
 			if (!this.jewishCalendar.isMourningPeriod()) {
 				mourningDiv.style.display = "none";
 				return;
@@ -245,10 +245,7 @@ class zmanimListUpdater {
 		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: luxon.DateTime, title: { hb: string, en: string, "en-et": string }}>} */
 		const zmanimInfo = {}
 
-		const indContainers = Array.from(document.querySelector("[calendarFormatter]").children)
-			.map(el => /** @type {HTMLElement} */(el));
-
-		for (const timeSlot of indContainers) {
+		for (const timeSlot of document.querySelector("[calendarFormatter]").children) {
 			if (!timeSlot.hasAttribute("zmanid"))
 				continue;
 
@@ -404,11 +401,9 @@ class zmanimListUpdater {
 	}
 
 	updateZmanimList() {
-		const dateContainers = Array.from(document.querySelectorAll('[zfFind="dateContainer"]'))
-			.map(elem => /** @type {HTMLElement} */(elem));
-	
-		for (let dateContainer of dateContainers) {
-			this.renderDateContainer(dateContainer);
+		for (let dateContainer of document.querySelectorAll('[zfFind="dateContainer"]')) {
+			if (dateContainer instanceof HTMLElement)
+				this.renderDateContainer(dateContainer);
 		}
 
 		document.querySelectorAll('[zfReplace="Parasha"]').forEach(
@@ -506,7 +501,7 @@ class zmanimListUpdater {
 				this.jewishCalendar.getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth").toJSDate().toLocaleDateString() !==
 				this.jewishCalendar.getDate().toJSDate().toLocaleDateString())
 		) {
-			//if no tekufa tomorrow but there is one today and it's not today
+			// if no tekufa tomorrow but there is one today and it's not today
 			document.querySelectorAll('[zfFind="Tekufa"]').forEach(
 				(/**@type {HTMLElement} */tekufa) => tekufa.style.display = "none"
 			)
@@ -520,21 +515,25 @@ class zmanimListUpdater {
 			//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
 			const tekufaID = this.jewishCalendar.getTekufaID() || this.jewishCalendar.tomorrow().getTekufaID()
 
-			document.querySelectorAll('[zfFind="Tekufa"]').forEach(
-				(/**@type {HTMLElement} */tekufa) => {
-					tekufa.style.removeProperty("display");
+			for (let tekufa of document.querySelectorAll('[zfFind="Tekufa"]')) {
+				if (!(tekufa instanceof HTMLElement))
+					continue;
 
-					Array.from(tekufa.querySelectorAll('[zfReplace="tekufaTime"]')).forEach(element => element.innerHTML = timeBase.toJSDate().toLocaleTimeString());
+				tekufa.style.removeProperty("display");
 
-					Array.from(tekufa.querySelectorAll('[zfReplace="tekufaName-en"]')).forEach(element => element.innerHTML = this.jewishCalendar.getTekufaName(tekufaID).english);
-					tekufa.querySelector('[zfReplace="tekufaName-hb"]').innerHTML = this.jewishCalendar.getTekufaName(tekufaID).hebrew;
-				}
-			)
+				Array.from(tekufa.querySelectorAll('[zfReplace="tekufaTime"]')).forEach(element => element.innerHTML = timeBase.toJSDate().toLocaleTimeString());
+
+				Array.from(tekufa.querySelectorAll('[zfReplace="tekufaName-en"]')).forEach(element => element.innerHTML = this.jewishCalendar.getTekufaName(tekufaID).english);
+				tekufa.querySelector('[zfReplace="tekufaName-hb"]').innerHTML = this.jewishCalendar.getTekufaName(tekufaID).hebrew;
+			}
 		}
 
 		const zmanInfo = this.getZmanimInfo();
 		for (const calendarContainer of document.querySelectorAll('[calendarFormatter]')) {
-			for (const timeSlot of Array.from(calendarContainer.children).map(el => /** @type {HTMLElement} */(el))) {
+			for (const timeSlot of calendarContainer.children) {
+				if (!(timeSlot instanceof HTMLElement))
+					continue;
+
 				if (!timeSlot.hasAttribute('zmanid')) {
 					timeSlot.style.display = 'none';
 					continue;
@@ -581,21 +580,16 @@ class zmanimListUpdater {
 			}
 		}
 
-		const dafYomiContainers = Array.from(document.querySelectorAll('[zfFind="DafYomi"]'))
-			.map(elem => /** @type {HTMLElement} */(elem));
-	
-		for (let dafContainer of dafYomiContainers) {
-			this.renderDafYomi(dafContainer);
+		for (let dafContainer of document.querySelectorAll('[zfFind="DafYomi"]')) {
+			if (dafContainer instanceof HTMLElement)
+				this.renderDafYomi(dafContainer);
 		}
 
 		const seasonalRules = [
 			this.jewishCalendar.tefilahRules().amidah.mechayehHametim,
 			this.jewishCalendar.tefilahRules().amidah.mevarechHashanim
 		];
-		document.querySelectorAll('[zfReplace="SeasonalPrayers"]').forEach(
-			(/**@type {HTMLElement} */seasonal) => 
-				seasonal.innerHTML = seasonalRules.filter(Boolean).join(" / ")
-		)
+		document.querySelectorAll('[zfReplace="SeasonalPrayers"]').forEach((seasonal) => seasonal.innerHTML = seasonalRules.filter(Boolean).join(" / "))
 		
 		this.shaahZmanits();
 	}
