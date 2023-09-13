@@ -1,4 +1,6 @@
-let accordionEntries = [...document.querySelectorAll('.accordian details')]
+// @ts-check
+
+let accordionElements = [...document.querySelectorAll('.accordian details')]
 
 class Accordion {
     /**
@@ -10,6 +12,7 @@ class Accordion {
       // Store the <summary> element
       this.summary = el.querySelector('summary');
       // Store the <div class="content"> element
+      /** @type {HTMLElement} */
       this.content = el.querySelector('.accordianContent');
 
       // Store the animation object (so we can cancel it if needed)
@@ -122,6 +125,6 @@ class Accordion {
       this.el.style.removeProperty('height');
       this.el.style.removeProperty('overflow');
     }
-  }
+}
 
-accordionEntries = accordionEntries.map((/** @type {HTMLDetailsElement} */ el) => new Accordion(el))
+let accordionEntries = accordionElements.map((/** @type {HTMLDetailsElement} */ el) => new Accordion(el))

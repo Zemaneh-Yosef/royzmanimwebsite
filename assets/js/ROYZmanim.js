@@ -248,8 +248,8 @@ class OhrHachaimZmanim extends ROYZmanim {
 		return this.zmanim.sunset().plus(60_000 * 20);
 	}
 
-	getTzaitShabbath() {
-		return this.zmanim.sunset().plus(60_000 * settings.customTimes.tzeithIssurMelakha().minutes);
+	getTzaitShabbath(shabbatTimeObj = settings.customTimes.tzeithIssurMelakha()) {
+		return this.zmanim.sunset().plus(60_000 * shabbatTimeObj.minutes);
 	}
 
 	getTzait72Zmanit() {
@@ -312,11 +312,11 @@ class AmudehHoraahZmanim extends ROYZmanim {
      * Actual A"H implementation of Tzeit Shabbat
      * @returns {luxon.DateTime} The return value.
      */
-	getTzaitShabbath(visibleDegree=settings.customTimes.tzeithIssurMelakha().degree) {
-		const degree = visibleDegree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH;
+	getTzaitShabbath(shabbatTimeObj=settings.customTimes.tzeithIssurMelakha()) {
+		const degree = shabbatTimeObj.degree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH;
 		const sunsetOffset = this.coreCZC.getSunsetOffsetByDegrees(degree);
 		if (!sunsetOffset || sunsetOffset.toMillis() > this.getSolarMidnight().toMillis())
-			return (visibleDegree > 5.32 ? this.getTzaitShabbath(5.32) : this.getSolarMidnight());
+			return (shabbatTimeObj.degree > 5.32 ? this.getTzaitShabbath({ degree: 5.32, minutes: null }) : this.getSolarMidnight());
 
 		return sunsetOffset;
 	}

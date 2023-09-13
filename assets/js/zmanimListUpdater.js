@@ -314,23 +314,24 @@ class zmanimListUpdater {
 						zmanimInfo[zmanid].code.push('not-shabbat')
 						continue;
 					} else
-						zmanimInfo[zmanid].luxonObj = this.zmanMethods[(tzetCandle ? "getTzait" : "getCandleLighting")]()
+						zmanimInfo[zmanid].luxonObj = (tzetCandle ? this.zmanMethods.getTzaitShabbath({minutes: 40, degree: 7.14 }) : this.zmanMethods.getCandleLighting());
 
 					break;
 				case 'tzeitShabbat':
 					if (this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) {
+						let customMinuteDisplay = `(${settings.customTimes.tzeithIssurMelakha().minutes}m${(this.zmanMethods instanceof AmudehHoraahZmanim && `/${settings.customTimes.tzeithIssurMelakha().degree}°`) || ""})`
 						if (this.jewishCalendar.isYomTovAssurBemelacha() && this.jewishCalendar.getDayOfWeek() == 7) {
-							zmanimInfo[zmanid].title.hb = "צאת השבת וחג";
-							zmanimInfo[zmanid].title['en-et'] = "Tzait Shabbat & Yom Tov";
-							zmanimInfo[zmanid].title.en = "Shabbat & Yom Tov Ends";
+							zmanimInfo[zmanid].title.hb = `צאת השבת וחג ${customMinuteDisplay}`;
+							zmanimInfo[zmanid].title['en-et'] = `Tzait Shabbat & Yom Tov ${customMinuteDisplay}`;
+							zmanimInfo[zmanid].title.en = `Shabbat & Yom Tov Ends ${customMinuteDisplay}`;
 						} else if (this.jewishCalendar.getDayOfWeek() == 7) {
-							zmanimInfo[zmanid].title.hb = "צאת השבת";
-							zmanimInfo[zmanid].title['en-et'] = "Tzait Shabbat";
-							zmanimInfo[zmanid].title.en = "Shabbat Ends";
+							zmanimInfo[zmanid].title.hb = `צאת השבת ${customMinuteDisplay}`;
+							zmanimInfo[zmanid].title['en-et'] = `Tzait Shabbat ${customMinuteDisplay}`;
+							zmanimInfo[zmanid].title.en = `Shabbat Ends ${customMinuteDisplay}`;
 						} else {
-							zmanimInfo[zmanid].title.hb = "צאת חג";
-							zmanimInfo[zmanid].title['en-et'] = "Tzait Yom Tov";
-							zmanimInfo[zmanid].title.en = "Yom Tov Ends";
+							zmanimInfo[zmanid].title.hb = `צאת חג ${customMinuteDisplay}`;
+							zmanimInfo[zmanid].title['en-et'] = `Tzait Yom Tov ${customMinuteDisplay}`;
+							zmanimInfo[zmanid].title.en = `Yom Tov Ends ${customMinuteDisplay}`;
 						}
 					} else {
 						zmanimInfo[zmanid].display = 0;
@@ -338,7 +339,7 @@ class zmanimListUpdater {
 					}
 					break;
 				case 'tzeit':
-					if ((this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) || this.jewishCalendar.isTaanis()) {
+					if ((this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) || (this.jewishCalendar.isTaanis() && this.zmanMethods instanceof AmudehHoraahZmanim)) {
 						zmanimInfo[zmanid].display = 0;
 						zmanimInfo[zmanid].code.push("Isur Melacha Tzet")
 					}

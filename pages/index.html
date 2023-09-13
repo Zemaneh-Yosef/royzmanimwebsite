@@ -74,26 +74,7 @@ permalink: /
   </div>
 </div>
 
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="inaccessibleToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body">
-        Location inaccessible. Please try again!
-      </div>
-      <button type="button" class="btn-close me-2 m-auto" data-mdb-dismiss="toast" aria-label="Close"></button>
-    </div>
-  </div>
-</div>
-
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="zipToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body">
-        Multiple ZIP codes coordinates detected. Please use Location Name instead.
-      </div>
-      <button type="button" class="btn-close me-2 m-auto" data-mdb-dismiss="toast" aria-label="Close"></button>
-    </div>
-  </div>
-</div>
+{% include toasts/failToast.html toastId="inaccessibleToast" errorText="Location inaccessible. Please try again!" %}
+{% include toasts/failToast.html toastId="zipToast" errorText="Multiple ZIP codes coordinates detected. Please use Location Name instead." %}
 
 <script src="/assets/js/location.js" type="text/javascript"></script>

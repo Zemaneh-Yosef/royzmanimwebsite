@@ -6,13 +6,21 @@ const urlParams = new URLSearchParams(queryString);
 
 /** @param {string} param */
 const settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
-const defaultSettings = (variedTocheck, defaultSetting) => {
+
+/**
+ * @param {string} variedTocheck
+ * @param {string} defaultSetting
+ */
+function defaultSettings (variedTocheck, defaultSetting) {
     if (urlParams.has(variedTocheck) || localStorage.getItem(variedTocheck))
         return settingsURLOverride(variedTocheck);
     else
         return defaultSetting
 }
 
+/**
+ * @param {string} str
+ */
 function isValidJSON(str) {
     try {
         JSON.parse(str);
@@ -76,7 +84,7 @@ const settings = Object.freeze({
     customTimes: {
         candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
         tzeithIssurMelakha: () => {
-            if (!settingsURLOverride("tzeithIMmin").trim() || isNaN(parseInt(settingsURLOverride("tzeithIMmin")))) {
+            if (!(settingsURLOverride("tzeithIMmin") || "").trim() || isNaN(parseInt(settingsURLOverride("tzeithIMmin")))) {
                 return (settings.calendarToggle.hourCalculators() == "seasonal" ? { minutes: 40, degree: null } : {
                     minutes: 30,
                     degree: 7.14
@@ -85,7 +93,7 @@ const settings = Object.freeze({
 
             let degreeValid = true;
 
-            if (!settingsURLOverride("tzeithIMdeg") || !settingsURLOverride("tzeithIMdeg").trim() || !isValidJSON(settingsURLOverride("tzeithIMdeg"))) {
+            if (!(settingsURLOverride("tzeithIMdeg") || "").trim() || !isValidJSON(settingsURLOverride("tzeithIMdeg"))) {
                 degreeValid = false;
             } else {
                 const degCheck = JSON.parse(settingsURLOverride("tzeithIMdeg"))

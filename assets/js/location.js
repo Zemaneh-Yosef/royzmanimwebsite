@@ -248,6 +248,7 @@ async function setLatLong (position) {
 		location = data.geonames[0]; // TODO: If there are other False positives
 	} catch (e) {
 		// Only thing this is good for is the location name - if there is a problem, then just have the thing say "Your Location"
+		// Only dependency of the location name is to determine whether one is in Israel or not
 		console.error(e);
 		// set up date formatting parameters
 		const ops = {year: 'numeric'};
