@@ -325,7 +325,7 @@ class zmanimListUpdater {
 					}
 					break;
 				case 'tzeit':
-					if ((this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) || this.jewishCalendar.isTaanis()) {
+					if ((this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) || (this.jewishCalendar.isTaanis() && this.zmanMethods instanceof AmudehHoraahZmanim)) {
 						zmanimInfo[zmanid].display = 0;
 						zmanimInfo[zmanid].code.push("Isur Melacha Tzet")
 					}
