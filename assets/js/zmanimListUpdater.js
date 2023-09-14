@@ -462,6 +462,12 @@ class zmanimListUpdater {
 
 		document.querySelectorAll('[zfReplace="Tachanun"]').forEach(
 			(/**@type {HTMLElement} */tachanun) => {
+				if (this.jCal.isYomTovAssurBemelacha()) {
+					tachanun.style.display = "none";
+					return;
+				}
+
+				tachanun.style.removeProperty("display");
 				if (this.jCal.getDayOfWeek() == 7) {
 					tachanun.innerHTML = this.jCal.tefilahRules().tachanun == 0 ? "צדקתך" : "יהי שם"
 				} else {
