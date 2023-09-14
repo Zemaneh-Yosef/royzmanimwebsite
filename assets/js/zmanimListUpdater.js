@@ -407,13 +407,11 @@ class zmanimListUpdater {
 				this.renderDateContainer(dateContainer);
 		}
 
-		document.querySelectorAll('[zfReplace="Parasha"]').forEach(
-			(/**@type {HTMLElement} */ elem) => elem.innerHTML = this.jCal.getHebrewParasha().join(" / ")
-		);
+		for (let parashaElem of document.querySelectorAll('[zfReplace="Parasha"]'))
+			parashaElem.innerHTML = this.jCal.getHebrewParasha().join(" / ")
 
-		document.querySelectorAll('[zfReplace="Day"]').forEach(
-			(/**@type {HTMLElement} */ elem) => elem.innerHTML = Object.values(this.jCal.getDayOfTheWeek()).join(" / ")
-		)
+		for (let dayElem of document.querySelectorAll('[zfReplace="Day"]'))
+			dayElem.innerHTML = Object.values(this.jCal.getDayOfTheWeek()).join(" / ")
 
 		const specialDayText = this.jCal.listOfSpecialDays();
 		document.querySelectorAll('[zfReplace="SpecialDay"]').forEach(
@@ -617,8 +615,8 @@ class zmanimListUpdater {
 				numberToHebrew(dafObject.getDaf());
 		}
 
-		var dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(this.jCal);
-		if (dafYerushalmiObject.getDaf() == 0 || !dafYerushalmiObject) {
+		const dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(this.jCal);
+		if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
 			dafYerushalmi.innerHTML = dafYerushalmiObject.getYerushalmiMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
