@@ -11,9 +11,9 @@ class zmanimListUpdater {
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	constructor(geoLocation) {
-		this.jewishCalendar = new WebsiteCalendar();
-		this.jewishCalendar.setUseModernHolidays(true);
-		this.jewishCalendar.setUpDateFormatter();
+		this.jCal = new WebsiteCalendar();
+		this.jCal.setUseModernHolidays(true);
+		this.jCal.setUpDateFormatter();
 
 		this.resetCalendar(geoLocation);
 
@@ -36,9 +36,9 @@ class zmanimListUpdater {
 		document.querySelectorAll('[zfReplace="LocationName"]')
 			.forEach(locationName => locationName.innerHTML = geoLocation.getLocationName() || "No Location Name Provided");
 
-		this.jewishCalendar.setInIsrael(geoLocation.getLocationName().toLowerCase().includes('israel'));
+		this.jCal.setInIsrael(geoLocation.getLocationName().toLowerCase().includes('israel'));
 
-		if (!this.jewishCalendar.getInIsrael() && settings.calendarToggle.hourCalculators() == "degrees") {
+		if (!this.jCal.getInIsrael() && settings.calendarToggle.hourCalculators() == "degrees") {
 			document.querySelector('[zfFind="luachAmudehHoraah"]').style.removeProperty('display')
 			document.querySelector('[zfFind="luachOhrHachaim"]').style.display = 'none';
 			this.zmanMethods = new AmudehHoraahZmanim(geoLocation)
@@ -50,7 +50,7 @@ class zmanimListUpdater {
 
 		this.zmanMethods.coreCZC.setCandleLightingOffset(settings.candleLighting());
 
-		this.zmanMethods.coreCZC.setDate(this.jewishCalendar.getDate());
+		this.zmanMethods.coreCZC.setDate(this.jCal.getDate());
 
         this.dtF = new Intl.DateTimeFormat(settings.language() == 'hb' ? 'he' : 'en', {
 			hourCycle: settings.timeFormat(),
@@ -69,7 +69,7 @@ class zmanimListUpdater {
 	 */
 	changeDate(date) {
 		this.zmanMethods.coreCZC.setDate(date)
-		this.jewishCalendar.setDate(date)
+		this.jCal.setDate(date)
 	}
 
 	/**
@@ -82,19 +82,19 @@ class zmanimListUpdater {
 		switch (settings.language()) {
 			case 'hb':
 			default:
-				date.primary = this.jewishCalendar.formatJewishDate().hebrew;
-				date.secondary = this.jewishCalendar.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
-				date.other = this.jewishCalendar.formatJewishDate().english;
+				date.primary = this.jCal.formatJewishDate().hebrew;
+				date.secondary = this.jCal.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
+				date.other = this.jCal.formatJewishDate().english;
 				break;
 			case 'en-et':
-				date.primary = this.jewishCalendar.formatJewishDate().english;
-				date.secondary = this.jewishCalendar.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
-				date.other = this.jewishCalendar.formatJewishDate().hebrew;
+				date.primary = this.jCal.formatJewishDate().english;
+				date.secondary = this.jCal.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
+				date.other = this.jCal.formatJewishDate().hebrew;
 				break;
 			case 'en':
-				date.primary = this.jewishCalendar.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
-				date.secondary = this.jewishCalendar.formatJewishDate().english;
-				date.other = this.jewishCalendar.formatJewishDate().hebrew;
+				date.primary = this.jCal.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
+				date.secondary = this.jCal.formatJewishDate().english;
+				date.other = this.jCal.formatJewishDate().hebrew;
 				break;
 		}
 
@@ -111,7 +111,7 @@ class zmanimListUpdater {
 		if (!this.buttonsInit) {
 			for (const dateChanger of Array.from(dateContainer.getElementsByTagName('button')).filter(btn => btn.hasAttribute('dateAlter'))) {
 				dateChanger.addEventListener("click", () => {
-					this.changeDate(this.jewishCalendar.clone().getDate().plus({ days: parseInt(dateChanger.getAttribute("dateAlter")) }))
+					this.changeDate(this.jCal.clone().getDate().plus({ days: parseInt(dateChanger.getAttribute("dateAlter")) }))
 					this.updateZmanimList();
 				})
 			}
@@ -134,7 +134,7 @@ class zmanimListUpdater {
 			if (!(mourningDiv instanceof HTMLElement))
 				continue;
 
-			if (!this.jewishCalendar.isMourningPeriod()) {
+			if (!this.jCal.isMourningPeriod()) {
 				mourningDiv.style.display = "none";
 				return;
 			}
@@ -145,18 +145,18 @@ class zmanimListUpdater {
 
 			/** @type {HTMLElement} */
 			const threeWeeks = mourningDiv.querySelector('[zfFind="ThreeWeeksHeader"]');
-			if (this.jewishCalendar.getDayOfOmer() !== -1) {
+			if (this.jCal.getDayOfOmer() !== -1) {
 				sefirathHaomer.style.removeProperty("display");
 				threeWeeks.style.display = "none";
 
-				const omerInfo = this.jewishCalendar.getOmerInfo();
+				const omerInfo = this.jCal.getOmerInfo();
 
 				// Hebrew
 				mourningDiv.querySelector('[zfReplace="hbOmerDate"]').innerHTML =
 					omerInfo.title.hb.mainCount;
 
 				const hbDescription = mourningDiv.querySelector('[zfReplace="hbOmerDays"]');
-				if (this.jewishCalendar.getDayOfOmer() >= 7) {
+				if (this.jCal.getDayOfOmer() >= 7) {
 					hbDescription.parentElement.style.removeProperty("display");
 					hbDescription.innerHTML = omerInfo.title.hb.subCount.toString();
 				} else {
@@ -167,7 +167,7 @@ class zmanimListUpdater {
 				mourningDiv.querySelector('[zfReplace="etNumOmerCount"]').innerHTML =
 					omerInfo.title.et.mainCount;
 				const etDescription = mourningDiv.querySelector('[zfReplace="etOmer"]');
-				if (this.jewishCalendar.getDayOfOmer() >= 7) {
+				if (this.jCal.getDayOfOmer() >= 7) {
 					etDescription.parentElement.style.removeProperty("display");
 					etDescription.innerHTML = omerInfo.title.et.subCount.toString();
 				} else {
@@ -179,7 +179,7 @@ class zmanimListUpdater {
 
 				/** @type {HTMLElement} */
 				const enDescription = mourningDiv.querySelector('[zfReplace="enOmer"]');
-				if (this.jewishCalendar.getDayOfOmer() >= 7) {
+				if (this.jCal.getDayOfOmer() >= 7) {
 					enDescription.parentElement.style.removeProperty("display");
 					enDescription.innerHTML = omerInfo.title.en.subCount.toString();
 				} else {
@@ -188,7 +188,7 @@ class zmanimListUpdater {
 
 				/** @type {HTMLElement} */
 				const omerRules = mourningDiv.querySelector('[zfFind="omerRules"]')
-				if (Object.values(this.jewishCalendar.mourningHalachot()).every(elem => elem == false)) {
+				if (Object.values(this.jCal.mourningHalachot()).every(elem => elem == false)) {
 					omerRules.style.display = "none"
 					enDescription.classList.add("mb-0")
 					etDescription.parentElement.classList.add("mb-0")
@@ -210,12 +210,12 @@ class zmanimListUpdater {
 				/** @type {HTMLElement[]} */
 				const weekOfText = Array.from(threeWeeks.querySelectorAll('[zfFind="weekOf"]'));
 
-				if (this.jewishCalendar.isShvuaShechalBo()) {
+				if (this.jCal.isShvuaShechalBo()) {
 					weekOfText.forEach((elem) => elem.style.removeProperty("display"));
 
 					([nineDaysText, threeWeeksText]).flat()
 						.forEach((elem) => elem.style.display = "none")
-				} else if (this.jewishCalendar.getJewishMonth() == KosherZmanim.JewishCalendar.AV) {
+				} else if (this.jCal.getJewishMonth() == KosherZmanim.JewishCalendar.AV) {
 					nineDaysText.forEach((elem) => elem.style.removeProperty("display"));
 
 					([weekOfText, threeWeeksText]).flat()
@@ -229,7 +229,7 @@ class zmanimListUpdater {
 			}
 
 
-			for (const [key, value] of Object.entries(this.jewishCalendar.mourningHalachot())) {
+			for (const [key, value] of Object.entries(this.jCal.mourningHalachot())) {
 				/** @type {HTMLElement} */
 				const halachaIndex = mourningDiv.querySelector(`[zfFind="${key}"]`);
 
@@ -277,7 +277,7 @@ class zmanimListUpdater {
 				/** @type {keyof Pick<typeof KosherZmanim.JewishCalendar, FilteredNumberType>} */
 				// @ts-ignore
 				const yomTovInclusive = timeSlot.getAttribute("yomtovInclusive")
-				if (this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar[yomTovInclusive])
+				if (this.jCal.getYomTovIndex() !== KosherZmanim.JewishCalendar[yomTovInclusive])
 					zmanimInfo[zmanid].display = 0;
 					zmanimInfo[zmanid].code.push('non-proper Yom Tov day')
 			}
@@ -306,8 +306,8 @@ class zmanimListUpdater {
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (zmanid) {
 				case 'candleLighting':
-					const tzetCandle = (this.jewishCalendar.hasCandleLighting() && this.jewishCalendar.isAssurBemelacha() && this.jewishCalendar.getDayOfWeek() !== 6);
-					const shabbatCandles = ((this.jewishCalendar.hasCandleLighting() && !this.jewishCalendar.isAssurBemelacha()) || this.jewishCalendar.getDayOfWeek() === 6);
+					const tzetCandle = (this.jCal.hasCandleLighting() && this.jCal.isAssurBemelacha() && this.jCal.getDayOfWeek() !== 6);
+					const shabbatCandles = ((this.jCal.hasCandleLighting() && !this.jCal.isAssurBemelacha()) || this.jCal.getDayOfWeek() === 6);
 
 					if (!tzetCandle && !shabbatCandles) {
 						zmanimInfo[zmanid].display = -1;
@@ -318,13 +318,13 @@ class zmanimListUpdater {
 
 					break;
 				case 'tzeitShabbat':
-					if (this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) {
+					if (this.jCal.isAssurBemelacha() && !this.jCal.hasCandleLighting()) {
 						let customMinuteDisplay = `(${settings.customTimes.tzeithIssurMelakha().minutes}m${(this.zmanMethods instanceof AmudehHoraahZmanim && `/${settings.customTimes.tzeithIssurMelakha().degree}°`) || ""})`
-						if (this.jewishCalendar.isYomTovAssurBemelacha() && this.jewishCalendar.getDayOfWeek() == 7) {
+						if (this.jCal.isYomTovAssurBemelacha() && this.jCal.getDayOfWeek() == 7) {
 							zmanimInfo[zmanid].title.hb = `צאת השבת וחג ${customMinuteDisplay}`;
 							zmanimInfo[zmanid].title['en-et'] = `Tzait Shabbat & Yom Tov ${customMinuteDisplay}`;
 							zmanimInfo[zmanid].title.en = `Shabbat & Yom Tov Ends ${customMinuteDisplay}`;
-						} else if (this.jewishCalendar.getDayOfWeek() == 7) {
+						} else if (this.jCal.getDayOfWeek() == 7) {
 							zmanimInfo[zmanid].title.hb = `צאת השבת ${customMinuteDisplay}`;
 							zmanimInfo[zmanid].title['en-et'] = `Tzait Shabbat ${customMinuteDisplay}`;
 							zmanimInfo[zmanid].title.en = `Shabbat Ends ${customMinuteDisplay}`;
@@ -339,13 +339,13 @@ class zmanimListUpdater {
 					}
 					break;
 				case 'tzeit':
-					if ((this.jewishCalendar.isAssurBemelacha() && !this.jewishCalendar.hasCandleLighting()) || (this.jewishCalendar.isTaanis() && this.zmanMethods instanceof AmudehHoraahZmanim)) {
+					if ((this.jCal.isAssurBemelacha() && !this.jCal.hasCandleLighting()) || (this.jCal.isTaanis() && this.zmanMethods instanceof AmudehHoraahZmanim)) {
 						zmanimInfo[zmanid].display = 0;
 						zmanimInfo[zmanid].code.push("Isur Melacha Tzet")
 					}
 					break;
 				case 'tzeitLechumra':
-					if (this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR) {
+					if (this.jCal.isTaanis() && this.jCal.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR) {
 						zmanimInfo[zmanid].title.hb = "צאת תענית (צאת הכוכבים)";
 						zmanimInfo[zmanid].title['en-et'] = "Tzeit Ta'anith (Tzeit Hakochavim)";
 						zmanimInfo[zmanid].title.en = "Fast Ends (Nightfall)";
@@ -379,7 +379,7 @@ class zmanimListUpdater {
 				switch (timeSlot.getAttribute('condition')) {
 					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
 					case 'isTaanit':
-						if (!(this.jewishCalendar.isTaanis() && this.jewishCalendar.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)) {
+						if (!(this.jCal.isTaanis() && this.jCal.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)) {
 							zmanimInfo[zmanid].display = 0;
 							zmanimInfo[zmanid].code.push("Not a fast day")
 						}
@@ -408,14 +408,14 @@ class zmanimListUpdater {
 		}
 
 		document.querySelectorAll('[zfReplace="Parasha"]').forEach(
-			(/**@type {HTMLElement} */ elem) => elem.innerHTML = this.jewishCalendar.getHebrewParasha().join(" / ")
+			(/**@type {HTMLElement} */ elem) => elem.innerHTML = this.jCal.getHebrewParasha().join(" / ")
 		);
 
 		document.querySelectorAll('[zfReplace="Day"]').forEach(
-			(/**@type {HTMLElement} */ elem) => elem.innerHTML = Object.values(this.jewishCalendar.getDayOfTheWeek()).join(" / ")
+			(/**@type {HTMLElement} */ elem) => elem.innerHTML = Object.values(this.jCal.getDayOfTheWeek()).join(" / ")
 		)
 
-		const specialDayText = this.jewishCalendar.listOfSpecialDays();
+		const specialDayText = this.jCal.listOfSpecialDays();
 		document.querySelectorAll('[zfReplace="SpecialDay"]').forEach(
 			(/**@type {HTMLElement} */specialDay) => {
 				if (!specialDayText.length) {
@@ -431,9 +431,9 @@ class zmanimListUpdater {
 
 		document.querySelectorAll('[zfReplace="Ulchaparat"]').forEach(
 			(/**@type {HTMLElement} */ulchaparat) => {
-				if (this.jewishCalendar.isRoshChodesh()) {
+				if (this.jCal.isRoshChodesh()) {
 					ulchaparat.style.removeProperty("display");
-					ulchaparat.innerHTML = (this.jewishCalendar.tefilahRules().amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
+					ulchaparat.innerHTML = (this.jCal.tefilahRules().amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
 				} else {
 					ulchaparat.style.display = "none";
 				}
@@ -442,7 +442,7 @@ class zmanimListUpdater {
 
 		document.querySelectorAll('[zfFind="Chamah"]').forEach(
 			(/**@type {HTMLElement} */chamah) => {
-				if (this.jewishCalendar.isBirkasHachamah()) {
+				if (this.jCal.isBirkasHachamah()) {
 					chamah.style.removeProperty("display");
 				} else {
 					chamah.style.display = "none";
@@ -462,10 +462,10 @@ class zmanimListUpdater {
 
 		document.querySelectorAll('[zfReplace="Tachanun"]').forEach(
 			(/**@type {HTMLElement} */tachanun) => {
-				if (this.jewishCalendar.getDayOfWeek() == 7) {
-					tachanun.innerHTML = this.jewishCalendar.tefilahRules().tachanun == 0 ? "צדקתך" : "יהי שם"
+				if (this.jCal.getDayOfWeek() == 7) {
+					tachanun.innerHTML = this.jCal.tefilahRules().tachanun == 0 ? "צדקתך" : "יהי שם"
 				} else {
-					switch (this.jewishCalendar.tefilahRules().tachanun) {
+					switch (this.jCal.tefilahRules().tachanun) {
 						case 2:
 							tachanun.innerHTML = "No Tachanun";
 							break;
@@ -479,7 +479,7 @@ class zmanimListUpdater {
 			}
 		)
 
-		const hallelText = this.jewishCalendar.tefilahRules().hallel;
+		const hallelText = this.jCal.tefilahRules().hallel;
 		document.querySelectorAll('[zfReplace="Hallel"]').forEach(
 			(/**@type {HTMLElement} */hallel) => {
 				if (!hallelText) {
@@ -491,16 +491,16 @@ class zmanimListUpdater {
 			}
 		)
 
-		const tekufaToday = this.jewishCalendar.getTekufa();
-		const tekufaNextDay = this.jewishCalendar.tomorrow().getTekufa();
+		const tekufaToday = this.jCal.getTekufa();
+		const tekufaNextDay = this.jCal.tomorrow().getTekufa();
 		if (
 			(!tekufaToday && !tekufaNextDay) || //if no tekufa today or tomorrow
 			(!tekufaToday &&
-				this.jewishCalendar.tomorrow().getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth").toJSDate().toLocaleDateString() !==
-				this.jewishCalendar.getDate().toJSDate().toLocaleDateString()) || //if no tekufa today but there is one tomorrow and it's not today
+				this.jCal.tomorrow().getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth").toJSDate().toLocaleDateString() !==
+				this.jCal.getDate().toJSDate().toLocaleDateString()) || //if no tekufa today but there is one tomorrow and it's not today
 			(!tekufaNextDay &&
-				this.jewishCalendar.getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth").toJSDate().toLocaleDateString() !==
-				this.jewishCalendar.getDate().toJSDate().toLocaleDateString())
+				this.jCal.getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth").toJSDate().toLocaleDateString() !==
+				this.jCal.getDate().toJSDate().toLocaleDateString())
 		) {
 			// if no tekufa tomorrow but there is one today and it's not today
 			document.querySelectorAll('[zfFind="Tekufa"]').forEach(
@@ -509,12 +509,12 @@ class zmanimListUpdater {
 		} else {
 			const timeBase = (
 				tekufaToday !== null &&
-					this.jewishCalendar.getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth").toJSDate().toLocaleDateString() ===
-					this.jewishCalendar.getDate().toJSDate().toLocaleDateString()
-					? this.jewishCalendar.getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth") : this.jewishCalendar.tomorrow().getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth"));
+					this.jCal.getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth").toJSDate().toLocaleDateString() ===
+					this.jCal.getDate().toJSDate().toLocaleDateString()
+					? this.jCal.getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth") : this.jCal.tomorrow().getTekufaAsDate(settings.calendarToggle.tekufa() == "hatzoth"));
 
 			//0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
-			const tekufaID = this.jewishCalendar.getTekufaID() || this.jewishCalendar.tomorrow().getTekufaID()
+			const tekufaID = this.jCal.getTekufaID() || this.jCal.tomorrow().getTekufaID()
 
 			for (let tekufa of document.querySelectorAll('[zfFind="Tekufa"]')) {
 				if (!(tekufa instanceof HTMLElement))
@@ -524,8 +524,8 @@ class zmanimListUpdater {
 
 				Array.from(tekufa.querySelectorAll('[zfReplace="tekufaTime"]')).forEach(element => element.innerHTML = timeBase.toJSDate().toLocaleTimeString());
 
-				Array.from(tekufa.querySelectorAll('[zfReplace="tekufaName-en"]')).forEach(element => element.innerHTML = this.jewishCalendar.getTekufaName(tekufaID).english);
-				tekufa.querySelector('[zfReplace="tekufaName-hb"]').innerHTML = this.jewishCalendar.getTekufaName(tekufaID).hebrew;
+				Array.from(tekufa.querySelectorAll('[zfReplace="tekufaName-en"]')).forEach(element => element.innerHTML = this.jCal.getTekufaName(tekufaID).english);
+				tekufa.querySelector('[zfReplace="tekufaName-hb"]').innerHTML = this.jCal.getTekufaName(tekufaID).hebrew;
 			}
 		}
 
@@ -587,8 +587,8 @@ class zmanimListUpdater {
 		}
 
 		const seasonalRules = [
-			this.jewishCalendar.tefilahRules().amidah.mechayehHametim,
-			this.jewishCalendar.tefilahRules().amidah.mevarechHashanim
+			this.jCal.tefilahRules().amidah.mechayehHametim,
+			this.jCal.tefilahRules().amidah.mevarechHashanim
 		];
 		document.querySelectorAll('[zfReplace="SeasonalPrayers"]').forEach((seasonal) => seasonal.innerHTML = seasonalRules.filter(Boolean).join(" / "))
 		
@@ -602,16 +602,16 @@ class zmanimListUpdater {
 		const daf = dafContainer.querySelector('[zfReplace="dafBavli"]');
 		const dafYerushalmi = dafContainer.querySelector('[zfReplace="DafYerushalmi"]');
 
-		if (this.jewishCalendar.getJewishYear() < 5684) {
+		if (this.jCal.getJewishYear() < 5684) {
 			daf.innerHTML = "N/A. Daf Yomi (Bavli) was only created on Rosh Hashanah 5684 and continues onto this day"
 		} else {
-			const dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(this.jewishCalendar);
+			const dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(this.jCal);
 			daf.innerHTML =
 				dafObject.getMasechta() + " " +
 				numberToHebrew(dafObject.getDaf());
 		}
 
-		var dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(this.jewishCalendar);
+		var dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(this.jCal);
 		if (dafYerushalmiObject.getDaf() == 0 || !dafYerushalmiObject) {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
@@ -632,17 +632,17 @@ class zmanimListUpdater {
 
 	birkathHalevanaCheck() {
 		const dateObjs = {
-			start: this.jewishCalendar.getTchilasZmanKidushLevana7Days(),
-			end: this.jewishCalendar.getSofZmanKidushLevana15Days(),
-			current: this.jewishCalendar.getDate()
+			start: this.jCal.getTchilasZmanKidushLevana7Days(),
+			end: this.jCal.getSofZmanKidushLevana15Days(),
+			current: this.jCal.getDate()
 		}
 
 		const geoLocation = this.zmanMethods.coreCZC.getGeoLocation()
 		const monthCalc = (this.zmanMethods instanceof AmudehHoraahZmanim ? new AmudehHoraahZmanim(geoLocation) : new OhrHachaimZmanim(geoLocation, true));
 
-		switch (this.jewishCalendar.getJewishMonth()) {
+		switch (this.jCal.getJewishMonth()) {
 			case KosherZmanim.JewishCalendar.AV:
-				const tishaBeav = this.jewishCalendar.clone()
+				const tishaBeav = this.jCal.clone()
 				tishaBeav.setJewishDayOfMonth(9)
 				if (tishaBeav.getDayOfWeek() == 7)
 					tishaBeav.setJewishDayOfMonth(10);
@@ -651,7 +651,7 @@ class zmanimListUpdater {
 				dateObjs.start = monthCalc.getShkiya();
 				break;
 			case KosherZmanim.JewishCalendar.TISHREI:
-				const yomKippur = this.jewishCalendar.clone()
+				const yomKippur = this.jCal.clone()
 				yomKippur.setJewishDayOfMonth(10)
 
 				monthCalc.coreCZC.setDate(yomKippur.getDate())
@@ -666,7 +666,7 @@ class zmanimListUpdater {
 	setNextUpcomingZman() {
 		/** @type {luxon.DateTime[]} */
 		const zmanim = [];
-		const currentSelectedDate = this.jewishCalendar.getDate();
+		const currentSelectedDate = this.jCal.getDate();
 
 		for (const time of [-1, 0, 1]) {
 			this.changeDate(window.luxon.DateTime.now().plus({ days: time }));
@@ -691,7 +691,7 @@ class zmanimListUpdater {
 		var timeUntilTomorrow = tomorrow.diffNow().as("milliseconds");
 		setTimeout(() => {
 			var date = window.luxon.DateTime.now();
-			this.jewishCalendar.setDate(date);
+			this.jCal.setDate(date);
 			this.updateZmanimList();
 			this.initUpdaterForZmanim();
 		}, timeUntilTomorrow);
