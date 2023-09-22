@@ -469,7 +469,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			millisecond: 0,
 		},
 			{ zone: "UTC+2" }
-		).plus({ hours: hours, minutes: minutes }).minus({minute: 30});
+		).plus({ hours: Math.trunc(hours), minutes: minutes });
 		return date;
 	}
 
