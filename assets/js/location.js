@@ -117,7 +117,7 @@ async function updateList(event) {
 				iconography.loading.style.display = "none"
 				document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
 
-				const toastBootstrap = mdb.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
+				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
 				toastBootstrap.show()
 				return;
 			}

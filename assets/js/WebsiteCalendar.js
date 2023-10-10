@@ -1,7 +1,7 @@
 // @ts-check
 
-import * as KosherZmanim from "./libraries/kosher-zmanim.esm.js"
-import n2words from "./libraries/n2wordsrollup.js";
+import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import n2words from "../libraries/n2words.js";
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {

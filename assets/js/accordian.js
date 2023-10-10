@@ -10,10 +10,13 @@ class Accordion {
       // Store the <details> element
       this.el = el;
       // Store the <summary> element
-      this.summary = el.querySelector('summary');
+      const summary = el.getElementsByTagName('summary')[0]
+      if (summary instanceof HTMLElement)
+        this.summary = summary;
       // Store the <div class="content"> element
-      /** @type {HTMLElement} */
-      this.content = el.querySelector('.accordianContent');
+      const content = el.getElementsByClassName('accordianContent')[0]
+      if (content instanceof HTMLElement)
+        this.content = content
 
       // Store the animation object (so we can cancel it if needed)
       this.animation = null;

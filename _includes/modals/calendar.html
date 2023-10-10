@@ -1,9 +1,9 @@
-<div class="modal fade modal-md" id="calendarModal" tabindex="-1" aria-labelledby="ctModalLabel" aria-hidden="true">
+<div class="modal fade modal-md" id="calendarModal" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h3 class="modal-title">Calendar-View</h3>
-				<button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
                 <ul class="nav nav-tabs">
@@ -12,9 +12,9 @@
                     <li class="nav-item"><a class="nav-link">עברית</a></li>
                 </ul>
                 {% for i in (1..6) %}
-                    <div class="d-flex" id="calRow{{i}}">
+                    <div class="d-flex calRow" id="calRow{{i}}">
                         {% for j in (1..7) %}
-                            <div style="aspect-ratio: 1/1;" class="calBox"></div>
+                            <div class="calBox"></div>
                         {% endfor %}
                     </div>
                 {% endfor %}

@@ -1,17 +1,25 @@
-Dawn is the time that rays of sun can be seen in the lit up Eastern part of the sky (Rosh, Brachot 4:1; Rambam Pirush Mishnayot Yoma 3:1; Shulchan Aruch O.C. 89:1). Halachically, it is the time that we transition from night into day.
+Dawn is the time that rays of sun can be seen in the lit up Eastern part of the sky (Rosh, Brachot 4:1; Rambam Pirush Mishnayot Yoma 3:1; Shulchan Aruch O.C. 89:1). Halachically, it is the time that we transition from night into day, where the new day's commandments can start being fulfilled (although in an unideal fasion; preferably, these should wait until הנץ החמה/sunrise. However, if one has already done it erroniously or has a pressing need, they are still exempt).
 
 - The Night-Time Shema (when omitted due to negligence), Tikkun Hatzot, and the evening prayer are no longer recitable past this time.
-- The obligation to start fulfilling daytime commandments start from this time. As such, since there is an explicit prohibition to eat before prayer, one may not eat anymore.
-   - However, this is not an ideal time to fulfil commandments; they should only be fulfilled at this point when one has a pressing need. Otherwise, it should be delayed until after sunrise (הנץ החמה). Nevertheless, if one erroniously did it at this point, they are still exempt.
-   - Wearing Tallit & Tefilin requires Misheyakir, as they have an explicit start time within Brachot Bavli.
+- Despite this being an unideal time to pray, considering that its obligation has started, one may no longer eat until the end of his prayer.
+- Wearing Tallit & Tefilin requires Misheyakir, as they have an explicit start time within Brachot Bavli.
 
 ---
 
-The Talmud Bavli in Pesachim (92b-94a) measures the time between sunset and calculative nightfall, which is then matched to the time interval from dawn to sunrise. We hold by Rabbi Yehuda, who measured the time at 4 mil. Since a singular mil is 18 minutes (Rambam Pirush Mishnayot Brachot 1:1 & Shulchan Aruch O.C. 459:1), one can multiply the length of a mil by the amount of mil needed to find that Alot is 72 seasonal minutes before sunrise.
-- This is the Halichot Olam’s interpretation of “Rambam Pe’er HaDor 44”, recorded in volume 1, pages 106 and 248-250.
-- The definition of *calculative* nightfall (72 seasonal minutes) is not to be confused with what we halachically maintain nightfall is (13.5 seasonal minutes).
+The Talmud Bavli in Pesachim (92b-94a) presents a debate regarding how to measure the time between sunset and calculative nightfall, which is then matched to the time interval from dawn to sunrise. Practically, we hold by Rabbi Yehuda's interpretation of the time interval being 4 "mil". Since a singular mil is 18 minutes (Rambam Pirush Mishnayot Brachot 1:1 & Shulchan Aruch O.C. 459:1), one can multiply the length of a mil by the amount of mil needed to find that Alot is 72 minutes before sunrise. These minutes are adjusted to the length of the day (making them "seasonal" minutes), when the day's sunrise and sunset time internal is divided into 12 to make it an hour, which is then further divided into 60 to make a seasonal minutes.
+- The Rambam in "Pe'er HaDor 44" (written in Arabic) clarifies which methodology of calculating a minute's length is. The Minchat Kohen (מבוא השמש מאמר ב פרק ג)'s interpretation is that these are seasonal use seasonal minutes, which is what's followed by R' Yosef Haim (בי"ח ש"א: וארא ה, ויקהל ד, צו ח; בי"ח ש"ב: נח ז; רב פעלים ח"ב: סימן ב) and Maran zt'l (הליכות עולם ח"א: דף 106 ודף 248-250). This is also supported by the Mishnah Brurah (58:5) and Yalkut Yosef (58:3).
+- The definition of *calculative* nightfall (72 seasonal minutes) is not to be confused with what we *halachically* maintain nightfall is (13.5 seasonal minutes).
 
-The Amudeh Hora’ah and Ohr Hachaim calendars both calculate seasonal hours and minutes by dividing the time interval between sunset and sunrise by 12, then dividing the seasonal hour by 60. However, the Amudeh Hora’ah calendar argues (based on several authoritative sources of early Acharonim) that taking into consideration only the length of day without also accounting for the discrepancy of latitude is erroneous. Instead, each locale must determine its own number of seasonal minutes based on its relation to Israel on the equinox days. This can be done by applying the same level of darkness found in Israel (16.04 degrees) to any location, then determining its own Alot minutes based on assessing that darkness vis a vis sunrise and counting this duration of time.
+Whereas the Ohr Hachaim calendar uses this calculation regardless of the latitudinal discrepancies, the Amudeh Hora’ah calendar argues (based on several authoritative sources of early Acharonim) that this is erroneous. This is also supported astronomically, where the latitude degree increase on the globe also proportionately delays the time for nightfall and dawn. Instead, the Amudeh Hora'ah calendar dictates that each locale must determine its own number of seasonal minutes, based on its relation to Israel on an equinox day (where sunrise and sunset are aligned, which by default gives a control of fixed minutes). To calculate this, one needs to derive the level of darkness (measured by degrees) in the sky found in Israel by the desired time (in our case, 72 minutes before sunrise), which can then be applied as a percentage of the day to the desired locale.
+
+---
+
+Times of desperate need may make these times too strict. In these cases, there are 2 earlier time calculations, which are 90 minutes and 96 minutes.
+
+- 90 minutes can be reached in two ways; either counting the backwards-mil by 5 instead of 4 (as explained by Ulah and held by Rambam in Hilchot Korban Pesach 5:9) or holding like the Terumat Hadeshen that calculates Alot as being 1/8th of the day, with the day lasting 720 minutes
+- 96 minutes can be achieved by switching the mil's length to last 24 minutes, based on his commentary to Massechet Pesachim.
+
+Although these calculations work for commandment fulfilling, they will not work for saying a Bracha on them, as per the concept of ספק ברכות להקל.
 
 ---
 

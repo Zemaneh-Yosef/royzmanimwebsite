@@ -1,15 +1,15 @@
 //@ts-check
 
-import { MDCSelect } from "./libraries/selector.js"
-import * as KosherZmanim from "./libraries/kosher-zmanim.esm.js"
+import { MDCSelect } from "../libraries/materialComp/selector.js"
+import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 export { ChaiTables }
 
 class ChaiTables {
 	/**
-	 * @param {KosherZmanim.GeoLocation} geoLocation
+	 * @param {KosherZmanim.GeoLocation} geoL
 	 */
-	constructor(geoLocation) {
-		this.geoData = geoLocation;
+	constructor(geoL) {
+		this.geoL = geoL;
 	}
 
 	/**
@@ -51,10 +51,10 @@ class ChaiTables {
 			'USAcities1': (isIsraelCities ? 1 : this.indexOfMetroArea),
 			USAcities2: 0,
 			searchradius: (isIsraelCities ? "" : this.selectedCountry == "Israel" ? 2 : searchradius),
-			"eroslatitude": (isIsraelCities ? 0.0 : this.geoData.getLatitude()),
-			"eroslongitude": (isIsraelCities ? 0.0 : switchLongitude ? -this.geoData.getLongitude() : this.geoData.getLongitude()),
+			"eroslatitude": (isIsraelCities ? 0.0 : this.geoL.getLatitude()),
+			"eroslongitude": (isIsraelCities ? 0.0 : switchLongitude ? -this.geoL.getLongitude() : this.geoL.getLongitude()),
 			eroshgt: 0.0,
-			geotz: KosherZmanim.TimeZone.getRawOffset(this.geoData.getTimeZone()) / (1000 * 60 * 60),
+			geotz: KosherZmanim.TimeZone.getRawOffset(this.geoL.getTimeZone()) / (1000 * 60 * 60),
 			DST: jewishCalendar.getDate().isInDST ? "ON" : "OFF",
 			exactcoord: "OFF",
 			MetroArea: (isIsraelCities ? this.indexOfMetroArea : "jerusalem"),
@@ -114,7 +114,7 @@ class ChaiTables {
 				const [hour, minute, second] = zmanTime.split(":").map(time=> parseInt(time))
 
 				loopCal.setJewishDate(loopCal.getJewishYear(), 1+monthValue, parseInt(zmanTable.rows[rowIndex].cells[0].innerText))
-				const time = loopCal.getDate().set({ hour, minute, second }).setZone(this.geoData.getTimeZone())
+				const time = loopCal.getDate().set({ hour, minute, second }).setZone(this.geoL.getTimeZone())
 				times.push(time.toMillis())
 			}
 		}
@@ -122,14 +122,13 @@ class ChaiTables {
 		return times;
 	}
 
-	/**
-	 * @param {KosherZmanim.JewishDate} calendar
-	 */
-	async formatInterfacer(calendar) {
+	async formatInterfacer() {
+		const calendar = new KosherZmanim.JewishDate();
+
 		/** @type {{lng: number; lat: number; times: number[]}} */
 		const data = {
-			lng: this.geoData.getLongitude(),
-			lat: this.geoData.getLatitude(),
+			lng: this.geoL.getLongitude(),
+			lat: this.geoL.getLatitude(),
 			times: []
 		}
 
@@ -182,10 +181,10 @@ class ChaiTables {
 		submitBtn.addEventListener('click', async () => {
 			const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
 			this.setOtherData(MDCSelectors[0].value, MDCSelectors[selectors.indexOf(selectedMASel)].selectedIndex);
-			const ctData = await this.formatInterfacer(window.zmanimListUpdater2.jewishCalendar);
+			const ctData = await this.formatInterfacer();
 
 			if (!ctData.times.length) {
-				const toastBootstrap = window.mdb.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
+				const toastBootstrap = window.bs.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
 				toastBootstrap.show();
 				return;
 			}
