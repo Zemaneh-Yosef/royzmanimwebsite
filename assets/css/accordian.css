@@ -81,11 +81,12 @@ body[dir=rtl] .accordian details[open] > summary:before {
 }
 
 .accordian .accordianContent {
-  border-top: none;
   padding: 10px;
   border: 2px solid var(--bs-card-bg);
   border-top: none;
   background: white;
+  max-height: 60vh;
+  overflow: scroll;
 }
 
 @keyframes shine {
