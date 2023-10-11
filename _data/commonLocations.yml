@@ -1,0 +1,127 @@
+- name: New York
+  flag: 🇺🇸
+  # Location: LCM
+  lat: 40.72424106443191
+  lng: -73.81530898489612
+  timezone: America/New_York
+  humra: 1
+# http://localhost:4000/calendar?locationName=Jerusalem%2C+Israel&lat=31.776766188649376&long=35.23450233337062&elevation=0&timeZone=Asia%2FJerusalem
+- name: Jerusalem
+  flag: 🇮🇱
+  # Location: Kotel
+  lat: 31.776766188649376
+  lng: 35.23450233337062
+  timezone: Asia/Jerusalem
+  humra: 0
+- name: Haifa
+  flag: 🇮🇱
+  # Location: Yeshiva Mevaser Shalom
+  lat: 32.77959008665043
+  lng: 34.99117381483697
+  timezone: Asia/Jerusalem
+  humra: 0
+- name: Tel-Aviv
+  flag: 🇮🇱
+  # Location: Central Chabad of Tel Aviv
+  lat: 32.070030475322845
+  lng: 34.773052506343284
+  timezone: Asia/Jerusalem
+  humra: 0
+- name: Baltimore
+  flag: 🇺🇸
+  # Location: Ner Yisrael
+  lat: 39.38871045313417
+  lng: -76.75324161009378
+  timezone: America/New_York
+  humra: 0
+- name: Boston
+  flag: 🇺🇸
+  # Location: Kollel of Greater Boston
+  lat: 42.34249379520455
+  lng: -71.14544376434604
+  timezone: America/New_York
+  humra: 0
+- name: Chicago
+  flag: 🇺🇸
+  # Location: Mikor
+  lat: 42.013667229573805
+  lng: -87.70204125651325
+  timezone: America/Chicago
+  humra: 0
+- name: Los Angeles
+  flag: 🇺🇸
+  # Location: Valley Torah High School
+  lat: 34.1688520530159
+  lng: -118.40607216944592
+  timezone: America/Los_Angeles
+  humra: 0
+- name: Miami
+  flag: 🇺🇸
+  # Location: Chabad of Midtown Miami
+  lat: 25.804507405080564
+  lng: -80.19053877936163
+  timezone: America/New_York
+  humra: 0
+- name: Philadelphia
+  flag: 🇺🇸
+  # Location: Talmudic Yeshiva of Philadelphia
+  lat: 39.98928008362471
+  lng: -75.24796098612637
+  timezone: America/New_York
+  humra: 0
+- name: San Fransisco
+  flag: 🇺🇸
+  # Location: Chabad of the Neighborhood
+  lat: 37.73985657236113
+  lng: -122.46842797244682
+  timezone: America/Los_Angeles
+  humra: 0
+- name: Seattle
+  flag: 🇺🇸
+  # Location: Sephardic Bikur Holim Congregation
+  lat: 47.54453824815417
+  lng: -122.26683403258228
+  timezone: America/Los_Angeles
+  humra: 0
+- name: Montreal
+  flag: 🇨🇦
+  # Location: Academy Yeshiva Yavne
+  lat: 45.4612709318975
+  lng: -73.66436583221801
+  timezone: America/New_York
+  humra: 0
+- name: Toronto
+  flag: 🇨🇦
+  # Location: Agudas Yisrael of Toronto
+  lat: 43.735631103552414
+  lng: -79.43261235761372
+  timezone: America/New_York
+  humra: 0
+- name: Melbourne
+  flag: 🇦🇺
+  # Location: Beit Chabad of Melbourne
+  lat: -37.87212345318587
+  lng: 145.02129792015762
+  timezone: Australia/Melbourne
+  humra: 0
+- name: London
+  flag: 🇬🇧
+  # Location: East London Central Synagogue
+  lat: 51.51533191532832
+  lng: -0.05952736014698637
+  timezone: Europe/London
+  humra: 0
+- name: Manchester
+  flag: 🇬🇧
+  # Location: Manchester Yeshiva - Kollel
+  lat: 53.51573749687538
+  lng: -2.2446087931448964
+  timezone: Europe/London
+  humra: 0
+- name: Johannesburg
+  flag: 🇿🇦
+  # Location: Aish Hatorah
+  lat: -26.148241441075868
+  lng: 28.101528097071967
+  timezone: Africa/Johannesburg
+  humra: 0
