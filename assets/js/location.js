@@ -67,11 +67,21 @@ const geoNameTitleGenerator = (geoName) => [...new Set([geoName.name || geoName.
 	geoName.adminName1 || geoName.adminCode1,
 	geoName.countryName || geoName.countryCode])].filter(Boolean).join(", ");
 
+let pool;
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 /** @param {KeyboardEvent|MouseEvent} event */
 async function updateList(event) {
 	const q = document.getElementById("Main").value;
 	if (q.length < 3)
 		return;
+
+	pool = q;
+	await delay(1000);
+	if (pool !== q) {
+		console.log('Skipping to next implementation');
+		return;
+	}
 
 	try {
 		let locationName = true;
