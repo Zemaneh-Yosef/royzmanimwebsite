@@ -11,8 +11,8 @@ breakout: true
     <div style="grid-column: 3/3; font-weight: bold; padding: 10px;">Havdalah</div>
     {% for item in site.data.commonLocations %}
         <div style='font-family: "Twemoji Country Flags", "Helvetica", "Comic Sans", serif;'>{{ item.flag }} {{ item.name }}</div>
-        <div style="text-align: center;" data-lat="{{ item.lat }}" data-lng="{{ item.lng }}" data-timezone="{{ item.timezone }}" class="timecalc start">Start Time</div>
-        <div style="text-align: center;" data-lat="{{ item.lat }}" data-lng="{{ item.lng }}" data-timezone="{{ item.timezone }}" class="timecalc end">End Time</div>
+        <div style="text-align: center;" {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %} data-lat="{{ item.lat }}" data-lng="{{ item.lng }}" data-timezone="{{ item.timezone }}" class="timecalc start">Start Time</div>
+        <div style="text-align: center;" {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %} data-lat="{{ item.lat }}" data-lng="{{ item.lng }}" data-timezone="{{ item.timezone }}" class="timecalc end">End Time</div>
     {% endfor %}
 </div>
 </div>

@@ -8,13 +8,14 @@ polyfillCountryFlagEmojis();
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
-const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, false);
+const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 
 const elems = document.getElementsByClassName('timecalc');
 for (const elem of elems) {
     const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
-    currentCalc.coreZC.setGeoLocation(new KosherZmanim.GeoLocation("null", parseFloat(elem.getAttribute("data-lat")), parseFloat(elem.getAttribute('data-lng')), 0, elem.getAttribute('data-timezone')))
+    const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0)
+    currentCalc.coreZC.setGeoLocation(new KosherZmanim.GeoLocation("null", parseFloat(elem.getAttribute("data-lat")), parseFloat(elem.getAttribute('data-lng')), elevation, elem.getAttribute('data-timezone')))
 
     const dtF = new Intl.DateTimeFormat('en', {
         hourCycle: "h24",

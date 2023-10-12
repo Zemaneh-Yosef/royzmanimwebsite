@@ -5,13 +5,13 @@
   lng: -73.81530898489612
   timezone: America/New_York
   humra: 1
-# http://localhost:4000/calendar?locationName=Jerusalem%2C+Israel&lat=31.776766188649376&long=35.23450233337062&elevation=0&timeZone=Asia%2FJerusalem
 - name: Jerusalem
   flag: 🇮🇱
   # Location: Kotel
   lat: 31.776766188649376
   lng: 35.23450233337062
   timezone: Asia/Jerusalem
+  elevation: 788
   humra: 0
 - name: Haifa
   flag: 🇮🇱
@@ -19,6 +19,7 @@
   lat: 32.77959008665043
   lng: 34.99117381483697
   timezone: Asia/Jerusalem
+  elevation: 282
   humra: 0
 - name: Tel-Aviv
   flag: 🇮🇱
@@ -26,6 +27,7 @@
   lat: 32.070030475322845
   lng: 34.773052506343284
   timezone: Asia/Jerusalem
+  elevation: 19
   humra: 0
 - name: Baltimore
   flag: 🇺🇸
