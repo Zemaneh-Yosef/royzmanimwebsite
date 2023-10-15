@@ -97,25 +97,6 @@ body.lang-en .lang:not(.lang-en) {
   content: "> "
 }
 
-#logo_light {
-  display: none;
-}
-
-.navbar-brand #logo_light,
-.navbar-brand #logo_dark {
-  position: absolute;
-  top: 0;
-}
-
-body #bannerText {
-  padding-left: 4.25rem;
-}
-
-body[dir="rtl"] #bannerText {
-  padding-left: 0;
-  padding-right: 4.25rem;
-}
-
 .card>.list-group {
   padding-left: 0;
 }
@@ -127,4 +108,8 @@ body[dir="rtl"] #bannerText {
 
 .btn-primary {
   --bs-btn-bg: #3b71ca;
+}
+
+#logo {
+  height: 3rem;
 }

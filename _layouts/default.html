@@ -23,57 +23,97 @@
 		<link href="/assets/libraries/materialComp/material-components-web.min.css" rel="stylesheet">
 		<link href="/favicon.ico" rel="icon" type="image/x-icon" />
 	</head>
-	<body>
+	<body class="d-flex">
 		<script src="/assets/js/settings/docLoadBlock.js"></script>
-		<header class="navbar navbar-expand-lg mb-3">
-			<div class="container-fluid">
-			  <a class="navbar-brand" href="/">
-				<img id="logo_dark" src="/assets/images/ro_flag.png" alt="Link to the Home Page"/>
-				<img id="logo_light" src="/assets/images/ro_flag_light.png" alt="Link to the Home Page"/>
-				<span id="bannerText">
-					<span class="lang lang-hb">לוח מרן זצ"ל</span>
-				    <span class="lang lang-et">Rabbi Ovadiah Yosef Calendar</span>
-			    	<span class="lang lang-en">Rabbi Ovadiah Yosef Calendar</span>
-				</span>
-			  </a>
-			  <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			  </button>
-			  <nav class="collapse navbar-collapse" id="navbarNavDropdown">
-				<ul class="navbar-nav ms-auto mb-2 mb-lg-0" style="text-align: end;">
-				  <li class="nav-item">
-					<a class="nav-link" href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" target="_blank">
-						<span class="lang lang-hb">לוח של מולד</span>
-				        <span class="lang lang-et">Molad Calendar</span>
-			    	    <span class="lang lang-en">New-Moon Calendar</span>
+		<div class="d-none d-lg-flex flex-column flex-shrink-0" id="sidebar" style="width: 4.5rem;">
+			<a href="/" class="d-block p-1 link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
+				<img src="/assets/images/icon.png" alt="Zemaneh Yosef Icon" style="width: 100%">
+			</a>
+			<ul class="nav nav-pills nav-flush flex-column mt-auto text-center">
+				<li class="nav-item">
+					<a href="#" class="nav-link active py-3 border-bottom rounded-0" aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home" data-bs-original-title="Home">
+						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Home"><use xlink:href="#home"></use></svg>
 					</a>
-				  </li>
-				  <li class="nav-item">
-					<a class="nav-link" data-bs-toggle="modal" data-bs-target="#settingsModal">
-						<span class="lang lang-hb">תְצוּרָה</span>
-				        <span class="lang lang-et">Settings</span>
-			    	    <span class="lang lang-en">Settings</span>
+				</li>
+				<li>
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Dashboard" data-bs-original-title="Dashboard">
+						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Dashboard"><use xlink:href="#speedometer2"></use></svg>
 					</a>
-				  </li>
-				  <li class="nav-item">
-					<a class="nav-link" data-bs-toggle="modal" data-bs-target="#calendarModal">
-						calendarModal
+				</li>
+				<li>
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Orders" data-bs-original-title="Orders">
+						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Orders"><use xlink:href="#table"></use></svg>
 					</a>
-				  </li>
-				  <li class="nav-item">
-					<a class="nav-link" data-bs-toggle="modal" data-bs-target="#aboutModal">
-						<span class="lang lang-hb">על אודות</span>
-				        <span class="lang lang-et">About</span>
-			    	    <span class="lang lang-en">About</span>
+				</li>
+				<li>
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Products" data-bs-original-title="Products">
+						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Products"><use xlink:href="#grid"></use></svg>
 					</a>
-				  </li>
+				</li>
+				<li>
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Customers" data-bs-original-title="Customers">
+						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Customers"><use xlink:href="#people-circle"></use></svg>
+					</a>
+				</li>
+			</ul>
+			<div class="dropdown border-top">
+				<a href="#" class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+					<img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
+				</a>
+				<ul class="dropdown-menu text-small shadow" s>
+					<li><a class="dropdown-item" href="#">New project...</a></li>
+					<li><a class="dropdown-item" href="#">Settings</a></li>
+					<li><a class="dropdown-item" href="#">Profile</a></li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item" href="#">Sign out</a></li>
 				</ul>
-			  </nav>
-		  	</div>
-		</header>
-		<main {% if page.breakout != true %}class="maxWidthContainer"{% endif %}>
-			{{ content }}
-		</main>
+			</div>
+		</div>
+		<div style="flex: 1 1;">
+			<header class="navbar d-lg-none mb-1">
+				<div class="container-fluid">
+					<a class="navbar-brand" href="/">
+						<img id="logo" src="/assets/images/logo.png" alt="Link to the Home Page"/>
+					</a>
+					<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<nav class="collapse navbar-collapse" id="navbarNavDropdown">
+						<ul class="navbar-nav ms-auto mb-2 mb-lg-0" style="text-align: end;">
+							<li class="nav-item">
+								<a class="nav-link" href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" target="_blank">
+									<span class="lang lang-hb">לוח של מולד</span>
+									<span class="lang lang-et">Molad Calendar</span>
+									<span class="lang lang-en">New-Moon Calendar</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#settingsModal">
+									<span class="lang lang-hb">תְצוּרָה</span>
+									<span class="lang lang-et">Settings</span>
+									<span class="lang lang-en">Settings</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#calendarModal">
+									calendarModal
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#aboutModal">
+									<span class="lang lang-hb">על אודות</span>
+									<span class="lang lang-et">About</span>
+									<span class="lang lang-en">About</span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</header>
+			<main class="{% if page.breakout != true %}maxWidthContainer{% endif %} mt-2">
+				{{ content }}
+			</main>
+		</div>
 		<!-- Modal -->
 		<div class="modal fade modal-xl" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
 			<div class="modal-dialog">

@@ -20,20 +20,8 @@
   --bs-body-bg: #1A1D2A;
 }
 
-.navbar {
+.navbar, #sidebar {
   background-color: #373E5C;
-}
-
-.navbar-toggler-icon {
-  filter: invert(1);
-}
-
-#logo_light {
-  display: inline-block;
-}
-
-#logo_dark {
-  display: none;
 }
 
 /* body {
