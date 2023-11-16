@@ -26,13 +26,13 @@
 	<body class="d-flex">
 		<script src="/assets/js/settings/docLoadBlock.js"></script>
 		<div class="d-none d-lg-flex flex-column flex-shrink-0" id="sidebar" style="width: 4.5rem;">
-			<a href="/" class="d-block p-1 link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
-				<img src="/assets/images/icon.png" alt="Zemaneh Yosef Icon" style="width: 100%">
+			<a href="/" id="sidebarLogo" class="link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
+				<img src="/assets/images/icon-text.png" alt="Zemaneh Yosef Icon" style="width: 100%">
 			</a>
 			<ul class="nav nav-pills nav-flush flex-column mt-auto text-center">
 				<li class="nav-item">
-					<a href="#" class="nav-link active py-3 border-bottom rounded-0" aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home" data-bs-original-title="Home">
-						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Home"><use xlink:href="#home"></use></svg>
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home" data-bs-original-title="Home">
+						<i class="fa fa-fire" aria-hidden="true"></i>
 					</a>
 				</li>
 				<li>
@@ -110,7 +110,7 @@
 					</nav>
 				</div>
 			</header>
-			<main class="{% if page.breakout != true %}maxWidthContainer{% endif %} mt-2">
+			<main class="maxWidthContainer mt-2">
 				{{ content }}
 			</main>
 		</div>

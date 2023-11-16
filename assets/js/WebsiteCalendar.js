@@ -5,37 +5,114 @@ import n2words from "../libraries/n2words.js";
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
-    setUpDateFormatter() {
-        this.dateFormatter = {
-            english: new KosherZmanim.HebrewDateFormatter(),
-            hebrew: new KosherZmanim.HebrewDateFormatter()
-        }
+	static hebrewParshaMap = {
+		[KosherZmanim.Parsha.NONE]: '',
+		[KosherZmanim.Parsha.BERESHIS]: '\u05D1\u05E8\u05D0\u05E9\u05D9\u05EA',
+		[KosherZmanim.Parsha.NOACH]: '\u05E0\u05D7',
+		[KosherZmanim.Parsha.LECH_LECHA]: '\u05DC\u05DA \u05DC\u05DA',
+		[KosherZmanim.Parsha.VAYERA]: '\u05D5\u05D9\u05E8\u05D0',
+		[KosherZmanim.Parsha.CHAYEI_SARA]: '\u05D7\u05D9\u05D9 \u05E9\u05E8\u05D4',
+		[KosherZmanim.Parsha.TOLDOS]: '\u05EA\u05D5\u05DC\u05D3\u05D5\u05EA',
+		[KosherZmanim.Parsha.VAYETZEI]: '\u05D5\u05D9\u05E6\u05D0',
+		[KosherZmanim.Parsha.VAYISHLACH]: '\u05D5\u05D9\u05E9\u05DC\u05D7',
+		[KosherZmanim.Parsha.VAYESHEV]: '\u05D5\u05D9\u05E9\u05D1',
+		[KosherZmanim.Parsha.MIKETZ]: '\u05DE\u05E7\u05E5',
+		[KosherZmanim.Parsha.VAYIGASH]: '\u05D5\u05D9\u05D2\u05E9',
+		[KosherZmanim.Parsha.VAYECHI]: '\u05D5\u05D9\u05D7\u05D9',
+		[KosherZmanim.Parsha.SHEMOS]: '\u05E9\u05DE\u05D5\u05EA',
+		[KosherZmanim.Parsha.VAERA]: '\u05D5\u05D0\u05E8\u05D0',
+		[KosherZmanim.Parsha.BO]: '\u05D1\u05D0',
+		[KosherZmanim.Parsha.BESHALACH]: '\u05D1\u05E9\u05DC\u05D7',
+		[KosherZmanim.Parsha.YISRO]: '\u05D9\u05EA\u05E8\u05D5',
+		[KosherZmanim.Parsha.MISHPATIM]: '\u05DE\u05E9\u05E4\u05D8\u05D9\u05DD',
+		[KosherZmanim.Parsha.TERUMAH]: '\u05EA\u05E8\u05D5\u05DE\u05D4',
+		[KosherZmanim.Parsha.TETZAVEH]: '\u05EA\u05E6\u05D5\u05D4',
+		[KosherZmanim.Parsha.KI_SISA]: '\u05DB\u05D9 \u05EA\u05E9\u05D0',
+		[KosherZmanim.Parsha.VAYAKHEL]: '\u05D5\u05D9\u05E7\u05D4\u05DC',
+		[KosherZmanim.Parsha.PEKUDEI]: '\u05E4\u05E7\u05D5\u05D3\u05D9',
+		[KosherZmanim.Parsha.VAYIKRA]: '\u05D5\u05D9\u05E7\u05E8\u05D0',
+		[KosherZmanim.Parsha.TZAV]: '\u05E6\u05D5',
+		[KosherZmanim.Parsha.SHMINI]: '\u05E9\u05DE\u05D9\u05E0\u05D9',
+		[KosherZmanim.Parsha.TAZRIA]: '\u05EA\u05D6\u05E8\u05D9\u05E2',
+		[KosherZmanim.Parsha.METZORA]: '\u05DE\u05E6\u05E8\u05E2',
+		[KosherZmanim.Parsha.ACHREI_MOS]: '\u05D0\u05D7\u05E8\u05D9 \u05DE\u05D5\u05EA',
+		[KosherZmanim.Parsha.KEDOSHIM]: '\u05E7\u05D3\u05D5\u05E9\u05D9\u05DD',
+		[KosherZmanim.Parsha.EMOR]: '\u05D0\u05DE\u05D5\u05E8',
+		[KosherZmanim.Parsha.BEHAR]: '\u05D1\u05D4\u05E8',
+		[KosherZmanim.Parsha.BECHUKOSAI]: '\u05D1\u05D7\u05E7\u05EA\u05D9',
+		[KosherZmanim.Parsha.BAMIDBAR]: '\u05D1\u05DE\u05D3\u05D1\u05E8',
+		[KosherZmanim.Parsha.NASSO]: '\u05E0\u05E9\u05D0',
+		[KosherZmanim.Parsha.BEHAALOSCHA]: '\u05D1\u05D4\u05E2\u05DC\u05EA\u05DA',
+		[KosherZmanim.Parsha.SHLACH]: '\u05E9\u05DC\u05D7 \u05DC\u05DA',
+		[KosherZmanim.Parsha.KORACH]: '\u05E7\u05E8\u05D7',
+		[KosherZmanim.Parsha.CHUKAS]: '\u05D7\u05D5\u05E7\u05EA',
+		[KosherZmanim.Parsha.BALAK]: '\u05D1\u05DC\u05E7',
+		[KosherZmanim.Parsha.PINCHAS]: '\u05E4\u05D9\u05E0\u05D7\u05E1',
+		[KosherZmanim.Parsha.MATOS]: '\u05DE\u05D8\u05D5\u05EA',
+		[KosherZmanim.Parsha.MASEI]: '\u05DE\u05E1\u05E2\u05D9',
+		[KosherZmanim.Parsha.DEVARIM]: '\u05D3\u05D1\u05E8\u05D9\u05DD',
+		[KosherZmanim.Parsha.VAESCHANAN]: '\u05D5\u05D0\u05EA\u05D7\u05E0\u05DF',
+		[KosherZmanim.Parsha.EIKEV]: '\u05E2\u05E7\u05D1',
+		[KosherZmanim.Parsha.REEH]: '\u05E8\u05D0\u05D4',
+		[KosherZmanim.Parsha.SHOFTIM]: '\u05E9\u05D5\u05E4\u05D8\u05D9\u05DD',
+		[KosherZmanim.Parsha.KI_SEITZEI]: '\u05DB\u05D9 \u05EA\u05E6\u05D0',
+		[KosherZmanim.Parsha.KI_SAVO]: '\u05DB\u05D9 \u05EA\u05D1\u05D5\u05D0',
+		[KosherZmanim.Parsha.NITZAVIM]: '\u05E0\u05E6\u05D1\u05D9\u05DD',
+		[KosherZmanim.Parsha.VAYEILECH]: '\u05D5\u05D9\u05DC\u05DA',
+		[KosherZmanim.Parsha.HAAZINU]: '\u05D4\u05D0\u05D6\u05D9\u05E0\u05D5',
+		[KosherZmanim.Parsha.VZOS_HABERACHA]: '\u05D5\u05D6\u05D0\u05EA \u05D4\u05D1\u05E8\u05DB\u05D4 ',
+		[KosherZmanim.Parsha.VAYAKHEL_PEKUDEI]: '\u05D5\u05D9\u05E7\u05D4\u05DC \u05E4\u05E7\u05D5\u05D3\u05D9',
+		[KosherZmanim.Parsha.TAZRIA_METZORA]: '\u05EA\u05D6\u05E8\u05D9\u05E2 \u05DE\u05E6\u05E8\u05E2',
+		[KosherZmanim.Parsha.ACHREI_MOS_KEDOSHIM]: '\u05D0\u05D7\u05E8\u05D9 \u05DE\u05D5\u05EA \u05E7\u05D3\u05D5\u05E9\u05D9\u05DD',
+		[KosherZmanim.Parsha.BEHAR_BECHUKOSAI]: '\u05D1\u05D4\u05E8 \u05D1\u05D7\u05E7\u05EA\u05D9',
+		[KosherZmanim.Parsha.CHUKAS_BALAK]: '\u05D7\u05D5\u05E7\u05EA \u05D1\u05DC\u05E7',
+		[KosherZmanim.Parsha.MATOS_MASEI]: '\u05DE\u05D8\u05D5\u05EA \u05DE\u05E1\u05E2\u05D9',
+		[KosherZmanim.Parsha.NITZAVIM_VAYEILECH]: '\u05E0\u05E6\u05D1\u05D9\u05DD \u05D5\u05D9\u05DC\u05DA',
+		[KosherZmanim.Parsha.SHKALIM]: '\u05E9\u05E7\u05DC\u05D9\u05DD',
+		[KosherZmanim.Parsha.ZACHOR]: '\u05D6\u05DB\u05D5\u05E8',
+		[KosherZmanim.Parsha.PARA]: '\u05E4\u05E8\u05D4',
+		[KosherZmanim.Parsha.HACHODESH]: '\u05D4\u05D7\u05D3\u05E9',
+		[KosherZmanim.Parsha.SHUVA]: '\u05E9\u05D5\u05D1\u05D4',
+		[KosherZmanim.Parsha.SHIRA]: '\u05E9\u05D9\u05E8\u05D4',
+		[KosherZmanim.Parsha.HAGADOL]: '\u05D4\u05D2\u05D3\u05D5\u05DC',
+		[KosherZmanim.Parsha.CHAZON]: '\u05D7\u05D6\u05D5\u05DF',
+		[KosherZmanim.Parsha.NACHAMU]: '\u05E0\u05D7\u05DE\u05D5',
+	  };
 
-        this.dateFormatter.hebrew.setHebrewFormat(true);
-        this.dateFormatter.english.setTransliteratedMonthList(["Nissan", "Iyar", "Sivan", "Tamuz", "Av", "Elul", "Tishri", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"])
-    }
-
-	formatJewishDate() {
+	formatJewishFullDate() {
+		const hNum = new HebrewNumberFormatter();
 		return {
-			english: this.dateFormatter.english.format(this),
-			hebrew: this.dateFormatter.hebrew.format(this)
+			english: (new Intl.DateTimeFormat('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"})).format(this.getDate().toJSDate()),
+			hebrew: [
+				hNum.formatHebrewNumber(this.getJewishDayOfMonth()),
+				new Intl.DateTimeFormat('he-u-ca-hebrew', {month: 'long'}).format(this.getDate().toJSDate()) + ',',
+				hNum.formatHebrewNumber(this.getJewishYear()),
+			].join(' ')
+		}
+	}
+
+	formatJewishYear() {
+		const hNum = new HebrewNumberFormatter();
+		return {
+			english: this.getJewishYear(),
+			hebrew: hNum.formatHebrewNumber(this.getJewishYear())
 		}
 	}
 
 	getDayOfTheWeek() {
+		let dayOfWeek = this.getDate().weekday
+		if (dayOfWeek == 7)
+			dayOfWeek = 0;
+
 		return {
-			english: this.getDate().toJSDate().toLocaleDateString("en-US", { weekday: "long" }),
-			hebrew: "יום " + this.dateFormatter.hebrew.formatDayOfWeek(this)
+			english: daysForLocale('en')[dayOfWeek],
+			hebrew: daysForLocale('he-u-ca-hebrew')[dayOfWeek]
 		}
 	}
 
 	tomorrow() {
-		const currentDate = this.getDate().toJSDate()
-		const followingDate = new Date(currentDate)
-		followingDate.setDate(currentDate.getDate() + 1);
-
-		const nextJewishCalendar = new WebsiteCalendar(followingDate);
-        this.setUpDateFormatter();
+		const nextJewishCalendar = new WebsiteCalendar(this.getDate());
+		nextJewishCalendar.setDate(nextJewishCalendar.getDate().plus({ day: 1 }))
 		if (this.isUseModernHolidays())
 			nextJewishCalendar.setUseModernHolidays(true);
 
@@ -43,15 +120,13 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	shabbat() {
-		const currentDate = this.getDate().toJSDate()
-		const shabbatDate = new Date(currentDate)
-		shabbatDate.setDate(currentDate.getDate() + ((6 + (7 - currentDate.getDay())) % 7));
-
-		const shabbatJewishCalendar = new WebsiteCalendar(shabbatDate);
+		const nextJewishCalendar = new WebsiteCalendar(this.getDate());
 		if (this.isUseModernHolidays())
-			shabbatJewishCalendar.setUseModernHolidays(true);
+			nextJewishCalendar.setUseModernHolidays(true);
 
-		return shabbatJewishCalendar
+		nextJewishCalendar.setDate(nextJewishCalendar.getDate().set({ weekday: 6 }))
+
+		return nextJewishCalendar
 	}
 
 	isTaanitBechorot() {
@@ -225,10 +300,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		else if (this.tomorrow().isTaanitBechorot())
 			result.push("Erev Ta'anit Bechorot")
 
+		const dateFormatter = (new Intl.DateTimeFormat('en-u-ca-hebrew', { month: "long" }))
 		if (this.isRoshChodesh())
-			result.push(this.dateFormatter.english.formatRoshChodesh(this))
+			result.push("Rosh Hodesh " + dateFormatter.format(this.getDate().toJSDate()))
 		else if (this.tomorrow().isRoshChodesh())
-			result.push("Erev " + this.dateFormatter.english.formatRoshChodesh(this.tomorrow()))
+			result.push("Erev Rosh Hodesh " + dateFormatter.format(this.getDate().toJSDate()))
 
 		const dayOfChanukah = this.getDayOfChanukah();
 		if (dayOfChanukah != -1) {
@@ -295,8 +371,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 	getHebrewParasha() {
 		return [
-			this.dateFormatter.hebrew.formatParsha(this.shabbat()) || "No Parasha this week",
-			this.dateFormatter.hebrew.formatSpecialParsha(this.shabbat())
+			WebsiteCalendar.hebrewParshaMap[this.shabbat().getParshah()] || "No Parasha this week",
+			WebsiteCalendar.hebrewParshaMap[this.shabbat().getSpecialShabbos()]
 		].filter(Boolean)
 	}
 
@@ -428,19 +504,23 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
      * @param {number} tekufaID
      */
     getTekufaName(tekufaID) {
-		if (!this.dateFormatter)
-			this.setUpDateFormatter();
-
         const tekufaMonths = [6,9,0,3];
         const jewishDate = new KosherZmanim.JewishDate();
 
         const tekufaName = {
-            english: [...tekufaMonths].map(month => this.dateFormatter.english.getTransliteratedMonthList()[month]),
-            hebrew: [...tekufaMonths].map(month => {
-                jewishDate.setJewishMonth(month + 1);
-                return this.dateFormatter.hebrew.formatMonth(jewishDate)
-            })
-        }
+			// @ts-ignore
+            english: [],
+			// @ts-ignore
+            hebrew: []
+        };
+
+		const dateFormatterEn = new Intl.DateTimeFormat('en-u-ca-hebrew', { month: "long" })
+		const dateFormatterHb = new Intl.DateTimeFormat('he-u-ca-hebrew', { month: "long" })
+		tekufaMonths.forEach(month => {
+			jewishDate.setJewishMonth(month + 1)
+			tekufaName.english.push(dateFormatterEn.format(jewishDate.getDate().toJSDate()))
+			tekufaName.hebrew.push(dateFormatterHb.format(jewishDate.getDate().toJSDate()))
+		})
 
         return Object.fromEntries(
             Object.entries(tekufaName)
@@ -452,7 +532,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 * @param {boolean} [amudehHoraah]
 	 */
 	getTekufaAsDate(amudehHoraah) {
-		const hours = this.getTekufa() - 6;
+		const hours = Math.trunc(this.getTekufa() - 6);
 		let minutes = Math.floor((hours - Math.floor(hours)) * 60);
 
 		if (amudehHoraah)
@@ -468,7 +548,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			millisecond: 0,
 		},
 			{ zone: "UTC+2" }
-		).plus({ hours: hours, minutes: minutes }).minus({minute: 30});
+		).plus({ hours: hours, minutes: minutes });
 		return date;
 	}
 
@@ -587,4 +667,128 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 function getOrdinal (/** @type {number} */ n) {
 	return n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
+}
+
+/**
+ * @param {string | string[]} localeName
+ * @param {"short" | "long" | "narrow"} [weekday] 
+ */
+function daysForLocale(localeName, weekday = 'long') {
+	const {format} = new Intl.DateTimeFormat(localeName, { weekday });
+	return [...Array(7).keys()]
+	  .map((day) => format(new Date(Date.UTC(2021, 5, day))));
+}
+
+class HebrewNumberFormatter {
+	static GERESH = '\u05F3';
+	static GERSHAYIM = '\u05F4';
+
+	constructor() {
+		this.finalFormLetters = true;
+		this.gershGershayim = true;
+		this.useLonghebrewYears = false;
+	}
+
+	/**
+   * Returns a Hebrew formatted string of a number. The method can calculate from 0 - 9999.
+   * <ul>
+   * <li>Single digit numbers such as 3, 30 and 100 will be returned with a &#x5F3; (<a
+   * href="https://en.wikipedia.org/wiki/Geresh">Geresh</a>) appended as at the end. For example &#x5D2;&#x5F3;,
+   * &#x5DC;&#x5F3; and &#x5E7;&#x5F3;</li>
+   * <li>multi digit numbers such as 21 and 769 will be returned with a &#x5F4; (<a
+   * href="https://en.wikipedia.org/wiki/Gershayim">Gershayim</a>) between the second to last and last letters. For
+   * example &#x5DB;&#x5F4;&#x5D0;, &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;</li>
+   * <li>15 and 16 will be returned as &#x5D8;&#x5F4;&#x5D5; and &#x5D8;&#x5F4;&#x5D6;</li>
+   * <li>Single digit numbers (years assumed) such as 6000 (%1000=0) will be returned as &#x5D5;&#x5F3;
+   * &#x5D0;&#x5DC;&#x5E4;&#x5D9;&#x5DD;</li>
+   * <li>0 will return &#x5D0;&#x5E4;&#x05E1;</li>
+   * </ul>
+   *
+   * @param {number} num
+   *            the number to be formatted. It will trow an IllegalArgumentException if the number is &lt; 0 or &gt; 9999.
+   * @return the Hebrew formatted number such as &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;
+   */
+	formatHebrewNumber(num) {
+		if (num !== Math.trunc(num)) throw new Error('number must be an integer.');
+	
+		if (num < 0) {
+		  throw new Error('negative numbers can\'t be formatted');
+		} else if (num > 9999) {
+		  throw new Error('numbers > 9999 can\'t be formatted');
+		}
+	
+		const ALAFIM = '\u05D0\u05DC\u05E4\u05D9\u05DD';
+		const EFES = '\u05D0\u05E4\u05E1';
+	
+		const jHundreds = ['', '\u05E7', '\u05E8', '\u05E9', '\u05EA', '\u05EA\u05E7', '\u05EA\u05E8',
+		  '\u05EA\u05E9', '\u05EA\u05EA', '\u05EA\u05EA\u05E7'];
+		const jTens = ['', '\u05D9', '\u05DB', '\u05DC', '\u05DE', '\u05E0', '\u05E1', '\u05E2',
+		  '\u05E4', '\u05E6'];
+		const jTenEnds = ['', '\u05D9', '\u05DA', '\u05DC', '\u05DD', '\u05DF', '\u05E1', '\u05E2',
+		  '\u05E3', '\u05E5'];
+		const tavTaz = ['\u05D8\u05D5', '\u05D8\u05D6'];
+		const jOnes = ['', '\u05D0', '\u05D1', '\u05D2', '\u05D3', '\u05D4', '\u05D5', '\u05D6',
+		  '\u05D7', '\u05D8'];
+	
+		if (num === 0) { // do we really need this? Should it be applicable to a date?
+		  return EFES;
+		}
+		const shortNumber = num % 1000; // discard thousands
+		// next check for all possible single Hebrew digit years
+		const singleDigitNumber = (shortNumber < 11 || (shortNumber < 100 && shortNumber % 10 === 0) || (shortNumber <= 400 && shortNumber % 100 === 0));
+		const thousands = Math.trunc(num / 1000); // get # thousands
+		let sb = '';
+		// append thousands to String
+		if (num % 1000 === 0) { // in year is 5000, 4000 etc
+		  sb = sb.concat(jOnes[thousands]);
+		  if (this.gershGershayim) {
+			sb = sb.concat(HebrewNumberFormatter.GERESH);
+		  }
+		  sb = sb.concat(' ');
+		  sb = sb.concat(ALAFIM); // add # of thousands plus word thousand (overide alafim boolean)
+		  return sb;
+		} else if (this.useLonghebrewYears && num >= 1000) { // if alafim boolean display thousands
+		  sb = sb.concat(jOnes[thousands]);
+		  if (this.gershGershayim) {
+			sb = sb.concat(HebrewNumberFormatter.GERESH); // append thousands quote
+		  }
+		  sb = sb.concat(' ');
+		}
+		num = num % 1000; // remove 1000s
+		const hundreds = Math.trunc(num / 100); // # of hundreds
+		sb = sb.concat(jHundreds[hundreds]); // add hundreds to String
+		num = num % 100; // remove 100s
+		if (num === 15) { // special case 15
+		  sb = sb.concat(tavTaz[0]);
+		} else if (num === 16) { // special case 16
+		  sb = sb.concat(tavTaz[1]);
+		} else {
+		  const tens = Math.trunc(num / 10);
+		  if (num % 10 === 0) { // if evenly divisable by 10
+			if (!singleDigitNumber) {
+			  if (this.finalFormLetters) {
+				sb = sb.concat(jTenEnds[tens]); // years like 5780 will end with a final form &#x05E3;
+			  } else {
+				sb = sb.concat(jTens[tens]); // years like 5780 will end with a regular &#x05E4;
+			  }
+			} else {
+			  sb = sb.concat(jTens[tens]); // standard letters so years like 5050 will end with a regular nun
+			}
+		  } else {
+			sb = sb.concat(jTens[tens]);
+			num = num % 10;
+			sb = sb.concat(jOnes[num]);
+		  }
+		}
+		if (this.gershGershayim) {
+		  if (singleDigitNumber) {
+			sb = sb.concat(HebrewNumberFormatter.GERESH); // append single quote
+		  } else { // append double quote before last digit
+			sb = sb.substr(0, sb.length - 1)
+			  .concat(HebrewNumberFormatter.GERSHAYIM)
+			  .concat(sb.substr(sb.length - 1, 1));
+		  }
+		}
+		return sb;
+	}
 }

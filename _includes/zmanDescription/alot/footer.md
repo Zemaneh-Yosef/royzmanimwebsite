@@ -1,0 +1,1 @@
+Fun fact: Within the Torah, this time is typically referred to under a variant of Alot Hashachar. While this exact term is used in fight between Eisav's Angel and Yaakov (Genesis 32:25), the variant of וכמו השחר עלה is used in Genesis 19:15. However, the language used by the Mishnah (Brachot 1:1) is Amud Hashachar (עמוד השחר).

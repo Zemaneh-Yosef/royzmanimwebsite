@@ -77,19 +77,23 @@ body.lang-en .lang:not(.lang-en) {
       "extra zmanim";
     grid-template-rows: auto auto;
     grid-template-columns: 40% 60%;
-    gap: 1em;
   }
   
   #wideGrid > #generic {
     grid-area: crucial;
+    margin-right: .5rem;
+    margin-bottom: .5rem;
   }
   
   #wideGrid > #zmanim {
     grid-area: zmanim;
+    margin-left: .5rem;
   }
   
   #wideGrid > #special {
     grid-area: extra;
+    margin-right: .5rem;
+    margin-top: .5rem;
   }
 }
 
@@ -112,4 +116,21 @@ body.lang-en .lang:not(.lang-en) {
 
 #logo {
   height: 3rem;
+}
+
+#sidebarLogo {
+  display: block;
+  background-image: url(/assets/images/icon-bg.png);
+  background-position: center;
+  background-size: 100%;
+  padding: .25rem;
+}
+
+#sidebarLogo img {
+  transform: scale(1); /* you need a scale here to allow it to transition in both directions */
+  transition: 0.15s all ease;
+}
+
+#sidebarLogo:hover img {
+  transform: scale(1.2);
 }

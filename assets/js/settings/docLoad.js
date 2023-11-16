@@ -3,6 +3,9 @@ import { handleLanguage } from "./handler.js";
 document.addEventListener("DOMContentLoaded", () => {
     handleLanguage();
 
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new window.bootstrap.Tooltip(tooltipTriggerEl))
+
     if (localStorage.getItem("calendarSource") == "ohrHachaim") {
         document.getElementById("ohrHachaim").checked = true;
         document.getElementById("amudehHoraah").checked = false;

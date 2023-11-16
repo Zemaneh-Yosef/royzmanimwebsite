@@ -13,7 +13,6 @@ class zmanimListUpdater {
 	constructor(geoLocation) {
 		this.jCal = new WebsiteCalendar();
 		this.jCal.setUseModernHolidays(true);
-		this.jCal.setUpDateFormatter();
 
 		/**
 		 * @type {null|luxon.DateTime}
@@ -80,7 +79,7 @@ class zmanimListUpdater {
 
 		if (!internal) {
 			this.updateZmanimList();
-			if (window.luxon.DateTime.now().hasSame(date, 'day')) {
+			/* if (window.luxon.DateTime.now().hasSame(date, 'day')) {
 				//at 12:00 AM the next day, update the zmanim to the next day's zmanim
 				var tomorrow = window.luxon.DateTime.now().plus({ days: 1 });
 				tomorrow = tomorrow.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
@@ -90,7 +89,7 @@ class zmanimListUpdater {
 				}, timeUntilTomorrow);
 			} else {
 				this.countdownToNextDay = null;
-			}
+			} */
 		}
 	}
 
@@ -104,19 +103,19 @@ class zmanimListUpdater {
 		switch (settings.language()) {
 			case 'hb':
 			default:
-				date.primary = this.jCal.formatJewishDate().hebrew;
+				date.primary = this.jCal.formatJewishFullDate().hebrew;
 				date.secondary = this.jCal.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
-				date.other = this.jCal.formatJewishDate().english;
+				date.other = this.jCal.formatJewishFullDate().english;
 				break;
 			case 'en-et':
-				date.primary = this.jCal.formatJewishDate().english;
+				date.primary = this.jCal.formatJewishFullDate().english;
 				date.secondary = this.jCal.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
-				date.other = this.jCal.formatJewishDate().hebrew;
+				date.other = this.jCal.formatJewishFullDate().hebrew;
 				break;
 			case 'en':
 				date.primary = this.jCal.getDate().toLocaleString(window.luxon.DateTime.DATE_FULL);
-				date.secondary = this.jCal.formatJewishDate().english;
-				date.other = this.jCal.formatJewishDate().hebrew;
+				date.secondary = this.jCal.formatJewishFullDate().english;
+				date.other = this.jCal.formatJewishFullDate().hebrew;
 				break;
 		}
 
@@ -288,9 +287,8 @@ class zmanimListUpdater {
 			}
 
 			if (timeSlot.hasAttribute('data-yomTovInclusive')) {
-				/** @typedef {{
-					 [K in keyof typeof KosherZmanim.JewishCalendar]: typeof KosherZmanim.JewishCalendar[K] extends number ? K : never;
-					}[keyof typeof KosherZmanim.JewishCalendar]} FilteredNumberType */
+				/**
+				 * @typedef {{[K in keyof typeof KosherZmanim.JewishCalendar]: typeof KosherZmanim.JewishCalendar[K] extends number ? K : never;}[keyof typeof KosherZmanim.JewishCalendar]} FilteredNumberType */
 
 				/** @type {keyof Pick<typeof KosherZmanim.JewishCalendar, FilteredNumberType>} */
 				// @ts-ignore
@@ -312,11 +310,12 @@ class zmanimListUpdater {
 
 			/** @type {luxon.DateTime} */
 			if (timeSlot.hasAttribute('data-timeGetter')) {
-				/** @typedef {{
-					 [K in keyof typeof this.zmanFuncs]: typeof this.zmanFuncs[K] extends Function ? K : never;
-					}[keyof typeof this.zmanFuncs]} FilteredType */
+				/**
+				 * @typedef {{[K in keyof typeof this.zmanFuncs]: typeof this.zmanFuncs[K] extends Function ? K : never;}[keyof typeof this.zmanFuncs]} FunctionType
+				 * @typedef {{[K in FunctionType]: ReturnType<typeof this.zmanFuncs[K]> extends luxon.DateTime ? K : never;}[FunctionType]} LuxonTimeType
+				 */
 
-				/** @type {keyof Pick<typeof this.zmanFuncs, FilteredType>} */
+				/** @type {keyof Pick<typeof this.zmanFuncs, LuxonTimeType>} */
 				// @ts-ignore
 				const getFunction = timeSlot.getAttribute('data-timeGetter');
 				zmanimInfo[zmanid].luxonObj = this.zmanFuncs[getFunction]()
@@ -708,20 +707,19 @@ class zmanimListUpdater {
 		const zmanim = [];
 		const currentSelectedDate = this.jCal.getDate();
 
-		for (const time of [-1, 0, 1]) {
+		for (const time of [0, 1]) {
 			this.changeDate(window.luxon.DateTime.now().plus({ days: time }), true);
 			zmanim.push(...Object.values(this.getZmanimInfo()).filter(obj => obj.display == 1 && obj.luxonObj?.isValid).map(time => time.luxonObj));
 		}
 
 		this.changeDate(currentSelectedDate, true); //reset the date to the current date
+		zmanim.sort((a,b) => a.toMillis() - b.toMillis())
+		this.nextUpcomingZman = zmanim.find(zman => zman.diffNow().milliseconds > 0)
 
-		this.nextUpcomingZman = zmanim.find(zman => zman.toMillis() > window.luxon.DateTime.now().toMillis())
-
-		//call back this function 1 second after the nextUpcomingZman passes
 		setTimeout(
 			() => {this.setNextUpcomingZman(); this.updateZmanimList()},
-			this.nextUpcomingZman.toMillis() - window.luxon.DateTime.now().toMillis() + 1000
-		); //TODO test
+			this.nextUpcomingZman.diffNow().toMillis()
+		);
 	}
 
 	/**

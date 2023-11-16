@@ -1,15 +1,9 @@
-Sunrise ("Hanetz") is defined as the time when one could identify the uppermost edge of the solar sphere rising in the east [Halacha Brurah (intro to siman 261, halacha 21) & Yalkut Yosef (new edition, siman 89 page 460)]. It is the official beginning of the new Halachic day, where any day-dependent Mitzvot (Shofar, Lulav) can be done optimally.
+Sunrise ("Hanetz") is the official beginning of the new Halachic day, where any day-dependent Mitzvot (Shofar, Lulav) can be done optimally. Although Maran zt"l himself wasn't time-precise when praying by this time (see Orchot Maran (volume 1) 7:5), many wait until the minute to ensure that the Tefilah of Shacharit is done by its proper time (Orach Hayim, 89:1)
 
 ---
 
-There are three types of sunrise:
+The NOAA (National Oceanic and Atmospheric Administration) algorithm is used to determine the scientific sunrise for the current location, with a few changes to account for the Halachic world:
+- Our astronomical definition for "Halachic Sunrise" only requires the uppermost edge of the solar sphere to be visible in the east [Halacha Berurah (intro to siman 261, halacha 21) & Yalkut Yosef (new edition, siman 89 page 460)], which would be approximately six minutes prior to a full reveal of the sun above the horizon [Rambam on Hilchot Kriat Shema (1:11), based on the כסף משנה's גרסה, Rav Pa'alim Vol. II, Orach Hayim, Chapter 3]. For reference, the gentile default requires the sun to be halfway above the horizon.
+- This is measured at "sea-level", where one would be able to see the sun would there not be any obstructions on a flat horizon. Elevation-based adjustments (measured in meters) are needed to calculate any GRA-based time in the Ohr Hachaim calendar.
 
-- **Astronomical sunrise:** The time the sun would appear to an observer at their local height when any horizon obstruction would get removed. The Talmud (Pesachim 93) uses this time to determine what time would a "4 mil" (72 minutes) Tzeit Hakokhavim calculate to.
-- **Sea-Level:** The time the sun is seen rising over a flat horizon for an observer at the height of the horizon. These are the computed times via the NOAA algorithm, which is used as the basis for the Halachic devision of the day (with elevation adjustments when using the Ohr Hachaim calendar)
-- **Visible Sunrise:** The time is seen rising over any obstructions in the flat horizon. This is the time one should use for prayer by Netz, as it's what's implied by any mention of sunrise pre-computation days (Mishnah Brurah 588:2 based on Rashi & Ran on Megillah 20; Eshel Avraham Botchach, Orakh Hayim 89; Yalkut Yosef, new edition, siman 89 page 51)
-
-The ביכורי יוסף (Bechoreh Yosef) and אור החיים (Ohr Hachaim) calendars both use the visible sunrise time when reporting the time for "Hanetz". The creator of the ביכורי יוסף calendar (Chaim Keller) made his calculations public, under the ChaiTables website. By inputting your area code to the customized setup (found by clicking the button below), it will calculate visible sunrise times based on the DTM created.
-
----
-
-It is noteworthy to mention, though, that Rabbi David Yosef records in Orchot Maran (1<sup>st</sup> volume, 7:5) the lack of attention given to ensuring that his "Netz Tefilot" would start when the calendar said they should be. Instead, he relied on the earlier generation's inability to imprecisely calculate the time in their day to pray 2-18 minutes before.
+Additionally, one can also switch to use "Visible Sunrise" times provided by the ChaiTables website, which uses its DTM (Data Table Map) to factor-in any horizontal obstruction. (Mishnah Brurah 588:2 based on Rashi & Ran on Megillah 20; Eshel Avraham Botchach, Orach Hayim 89; Yalkut Yosef, new edition, siman 89 page 51)

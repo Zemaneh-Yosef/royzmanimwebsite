@@ -1,20 +1,30 @@
 ---
 - id: alot
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
   timeGetter: getAlotHashachar
   names:
     hb: עלות השחר
     et: Aloth Hashachar
     en: Dawn
-  descriptionInclude: zmanDescription/aloth.md
+  descriptionIncludeArray:
+    - zmanDescription/alot/body.md
+    - zmanDescription/alot/extra.md
+    - zmanDescription/alot/footer.md
+  extraZmanim:
+    - titles:
+        hb: עלות השחר (5 מיל/שמינית מהיום)
+        et: Alot Hashachar (5 mil/⅛<sup>th</sup> of the day)
+        en: Dawn (5 mil/⅛<sup>th</sup> of the day)
+      timeGetter:
+        functionCall: getAlotHashachar
+        param: {minutes: 90, degree: 19.8}
+    - titles:
+        hb: עלות השחר (4 מיל - 24 דקות)
+        et: Alot Hashachar (4 mil - 24 minutes each)
+        en: Dawn (4 mil - 24 minutes each)
+      timeGetter:
+        functionCall: getAlotHashachar
+        param: {minutes: 96, degree: 23.8}
 - id: earliestTefilin
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
   timeGetter: getMisheyakir
   names:
     hb: טלית ותפילין

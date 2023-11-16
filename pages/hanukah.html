@@ -1,0 +1,111 @@
+---
+title: Chanukah Times
+permalink: /hanukah
+breakout: true
+---
+
+<style>
+    .shabbatTitleCore {
+        font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
+        font-size: calc(1.375rem + 3vw);
+    }
+
+    .shabbatTitleViewable {
+        background-image: linear-gradient(to bottom, #FFF2B3 0%, #D6B961 100%);
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-stroke: 0.064585575888052vw rgba(0,0,0,.6);
+        text-shadow: rgba(0, 0, 0, 0.12) 0 0.10615711252654vw 0.31847133757962vw, rgba(0, 0, 0, 0.24) 0 0.10615711252654vw 0.21231422505308vw;
+        position: relative;
+        z-index: 5;
+    }
+
+    .shabbatAbso {
+        position: absolute;
+        color: black;
+        opacity: 50%;
+        top: 3.3vw;
+        width: calc(100% - 5.7vw);
+        filter: blur(0.086114101184069vw);
+        z-index: 4;
+    }
+
+    #subtitle {
+        font-family: 'Guttman Mantova', 'Courier New', Courier, monospace;
+        line-height: 1;
+        font-size: 2.35vw;
+    }
+
+    :root {
+        --shabbat-font: 'Roboto', sans-serif;
+    }
+
+    #wrappedElement {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        background-color: rgba(214, 211, 191, .86);
+        background-image: url(/assets/images/shabbat-candles.png);
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        color: black; padding: 3vw;
+        position: relative;
+        font-size: 1.05vw;
+    }
+
+    .friday {
+        border-right: 0.21528525296017vw solid black;
+    }
+
+    .motzSha {
+        padding-left: 0.53821313240043vw;
+    }
+
+    .timeshow {
+        text-align: center;
+    }
+
+    .explanation {
+        font-size: 0.86114101184069vw;
+    }
+
+    #sidebar {
+        display: none !important;
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<div style="width: 100%; aspect-ratio: 1/1; padding: 3vw; background: url(/assets/images/shabbat-bg.png); background-size: cover; position: relative; font-family: var(--shabbat-font)">
+    <span style="position:absolute; line-height: 1; top: 0.86114101184069vw; right: 0.86114101184069vw; font-size: 1.291711517761vw; font-family: 'Guttman Mantova', 'Courier New', Courier, monospace;">בס"ד</span>
+    <div id="wrappedElement">
+        <div style="grid-column: 1/ span 2; text-align: center;">
+            <h1 class="mb-0 shabbatTitleCore shabbatTitleViewable"> - זמני חנוכה </h1>
+            <h1 class="mb-0 shabbatTitleCore shabbatAbso"> - זמני חנוכה </h1>
+            <h5 id="subtitle">על פי לוח <b>זמני יוסף</b> לשיטת הרה"ג עובדיה יוסף זצ"ל</h5>
+        </div>
+        <div class="mt-2" style="grid-column: 1/span 2; text-align: center; font-size: .825em;">
+            We invite you to explore our website and mobile apps to access other <i>Z'manim</i> & explanations
+            <div class="d-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
+                <div style="border-radius: .5rem; background: black; width: 10em; padding: .5rem;">
+                    <div style="border-radius: .5rem; background: white;">
+                        <img src="/assets/images/app-store-qr.png" style="width: 100%">
+                    </div>
+                    App Store
+                </div>
+                <div style="border-radius: .5rem; background: black; width: 10em; padding: .5rem;">
+                    <div style="border-radius: .5rem; background: white;">
+                        <img src="/assets/images/gplay-qr.png" style="width: 100%">
+                    </div>
+                    Play Store
+                </div>
+            </div>
+            https://royzmanim.com
+        </div>
+    </div>
+</div>
+
+<script src="/assets/libraries/luxon.min.js"></script>
+<script type="module" src="/assets/js/chanukah.js"></script>

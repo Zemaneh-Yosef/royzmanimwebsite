@@ -1,27 +1,31 @@
-lockfileVersion: 5.4
+lockfileVersion: '6.0'
 
-specifiers:
-  '@types/jquery': ^3.5.16
-  '@types/jqueryui': ^1.12.17
-
-dependencies:
-  '@types/jquery': 3.5.16
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
 
 devDependencies:
-  '@types/jqueryui': 1.12.17
+  '@types/jquery':
+    specifier: ^3.5.26
+    version: 3.5.26
+  '@types/jqueryui':
+    specifier: ^1.12.19
+    version: 1.12.19
 
 packages:
 
-  /@types/jquery/3.5.16:
-    resolution: {integrity: sha512-bsI7y4ZgeMkmpG9OM710RRzDFp+w4P1RGiIt30C1mSBT+ExCleeh4HObwgArnDFELmRrOpXgSYN9VF1hj+f1lw==}
+  /@types/jquery@3.5.26:
+    resolution: {integrity: sha512-wWYf2NBI6b+1RPQY86B74HSgZNsLAUtr4eFlGQoOQPJw/B3mCMfwWCflZWQ7OKtAB18MJCcYpL6+0NZbMIXl5g==}
     dependencies:
       '@types/sizzle': 2.3.3
-
-  /@types/jqueryui/1.12.17:
-    resolution: {integrity: sha512-rqiCaZO7d1rAcJVXNSV6MYwt42oB4ArTRr0QbU3f4+Siv0d6m9uRkhiKHpc6oL9NFJKDxzIIDvUeMXTtlJFFaA==}
-    dependencies:
-      '@types/jquery': 3.5.16
     dev: true
 
-  /@types/sizzle/2.3.3:
+  /@types/jqueryui@1.12.19:
+    resolution: {integrity: sha512-pbjCT91/GB3kbJ9R2VeCfgTgHnqCrDG7FhLC7jeRnOsUJBxBX4VzTYPwF/qdRDxt7AHwaCzeuIM7IEPdYpfNvg==}
+    dependencies:
+      '@types/jquery': 3.5.26
+    dev: true
+
+  /@types/sizzle@2.3.3:
     resolution: {integrity: sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==}
+    dev: true
