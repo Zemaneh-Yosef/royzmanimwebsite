@@ -25,18 +25,18 @@
 	</head>
 	<body class="d-flex">
 		<script src="/assets/js/settings/docLoadBlock.js"></script>
-		<div class="d-none d-lg-flex flex-column flex-shrink-0" id="sidebar" style="width: 4.5rem;">
+		<div class="d-none d-lg-flex flex-column flex-shrink-0" id="sidebar">
 			<a href="/" id="sidebarLogo" class="link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
 				<img src="/assets/images/icon-text.png" alt="Zemaneh Yosef Icon" style="width: 100%">
 			</a>
 			<ul class="nav nav-pills nav-flush flex-column mt-auto text-center">
 				<li class="nav-item">
-					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home" data-bs-original-title="Home">
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Shabbat Times" data-bs-original-title="Shabbat Times">
 						<i class="fa fa-fire" aria-hidden="true"></i>
 					</a>
 				</li>
 				<li>
-					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Dashboard" data-bs-original-title="Dashboard">
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Mobile" data-bs-original-title="Mobile">
 						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Dashboard"><use xlink:href="#speedometer2"></use></svg>
 					</a>
 				</li>
@@ -132,7 +132,6 @@
 		{% include modals/chaiTable.html %}
 		{% include toasts/failToast.html toastId="ctFailToast" errorText="ChaiTable did not return a table. Please be in contact with us to check what went wrong." %}
 		{% if page.accordian %}<script src="/assets/js/accordian.js"></script>{% endif %}
-		<script type="module" src="/assets/libraries/mdbootstrap/bundle.esm.js"></script>
 		<script src="/assets/js/settings/docLoad.js" type="module"></script>
 		<script src="/assets/libraries/bootstrap/js/bootstrap.bundle.min.js"></script>
 	</body>

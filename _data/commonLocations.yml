@@ -1,19 +1,21 @@
 usa:
-  - name: New York
+  - name: |
+      New York (State)<br>
+      <span class="explanation">(Also: Teaneck/Passaic NJ)</span>
     #flag: https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_New_York.svg
     # Location: LCM
     lat: 40.72424106443191
     lng: -73.81530898489612
     timezone: America/New_York
     humra: 1
-  - name: Washington, DC<br><span class="explanation">(Near the white house)</span>
-    twoLine: True
+#  - name: Washington, DC<br><span class="explanation">(Near the white house)</span>
+#    twoLine: True
     #flag: https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_New_York.svg
     # Location: White House
-    lat: 38.89767341655743
-    lng: -77.03652965917647
-    timezone: America/New_York
-    humra: 0
+#    lat: 38.89767341655743
+#    lng: -77.03652965917647
+#    timezone: America/New_York
+#    humra: 0
   - name: Anchorage, AK
     #flag: https://upload.wikimedia.org/wikipedia/commons/e/e6/Flag_of_Alaska.svg
     # Location: Lubavitch Jewish Center of Alaska
@@ -89,6 +91,12 @@ usa:
     # Location: Beth Tefilo
     lat: 42.46863506203298
     lng: -83.20178168922764
+    timezone: America/New_York
+    humra: 0
+  - name: East Stroudsburg, PA
+    # Location: Camp Dora Golding
+    lat: 41.054291084356464
+    lng: -75.15068351567173
     timezone: America/New_York
     humra: 0
   - name: Houston, TX
@@ -220,7 +228,7 @@ usa:
     humra: 0
   - name: Waterbury, CT
     #flag: https://upload.wikimedia.org/wikipedia/commons/9/96/Flag_of_Connecticut.svg
-    # Location:
+    # Location: R Sonnenshine
     lat: 41.57191699168177
     lng: -73.04407703185714
     timezone: America/New_York

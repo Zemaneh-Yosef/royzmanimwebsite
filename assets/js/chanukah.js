@@ -17,26 +17,90 @@ const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 const calc = (settings.location.timezone() == 'Asia/Jerusalem' ? new OhrHachaimZmanim(geoLocation, true) : (new AmudehHoraahZmanim(geoLocation)))
 const jCal = new WebsiteCalendar()
 
-const dateFormater = new Intl.DateTimeFormat('en', {
-    hourCycle: window.location.href.includes('usa') ? "h12" : "h24",
-    timeStyle: "short",
-    timeZone: settings.location.timezone()
-});
-
 for (const title of document.getElementsByClassName('shabbatTitleCore')) {
-    title.innerHTML = settings.location.name() + title.innerHTML + jCal.formatJewishYear().hebrew
+    title.innerHTML = [
+        `<span style="font-size: 0.85em">${settings.location.name().replaceAll(' ', '  ')}</span>`,
+        title.innerHTML,
+        jCal.formatJewishYear().hebrew
+    ].join('')
 }
 
-let baseElem = document.getElementById("wrappedElement").firstElementChild
+let baseElem = document.getElementById("lastTitle")
+
+let biH = false;
+if (baseElem.style.gridColumn == "3")
+    biH = true;
 
 jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.KISLEV, 24);
-calc.coreZC.setDate(jCal.getDate())
-for (let i = 0; i <= 8; i++) {
+calc.coreZC.setDate(jCal.getDate().toZonedDateTime(settings.location.timezone()))
+for (let i = 0; i <= 7; i++) {
+    const image = document.createElement('img');
+    image.src = `/assets/images/hanukah/menorah-${i + 1}.png`
+    image.style.height = "1em";
+    image.style.verticalAlign = "baseline";
+    image.style.paddingRight = ".6ch"
+    image.style.filter = "invert(1)"
+
     const dateElem = document.createElement('div');
+    dateElem.classList.add('shabbatRow')
+    dateElem.appendChild(image)
+    dateElem.appendChild(document.createTextNode(jCal.formatFancyDate()))
 
-    const weekday = jCal.getDate().weekdayLong
-    const month = jCal.getDate().monthLong
-    dateElem.innerHTML = jCal.getDate().toJSDate().toLocaleDateString()
+    baseElem.insertAdjacentElement('afterend', dateElem);
 
-    console.log(dateElem.innerHTML)
+    /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
+    const timeFormatAttr = ['en', {
+        hourCycle: settings.timeFormat(),
+        timeStyle: "short"
+    }]
+
+    if ([5,6].includes(jCal.getDate().dayOfWeek)) {
+        dateElem.style.lineHeight = "1";
+        dateElem.appendChild(document.createElement('br'))
+
+        const explanation = document.createElement('span')
+        explanation.classList.add('explanation');
+        explanation.appendChild(document.createTextNode(
+            jCal.getDate().dayOfWeek == 5
+                ? '(Light Chanukah Candles before Shabbat Candles)'
+                : '(At home, make Havdalah before lighting Chanukah Candles)'
+        ));
+        dateElem.appendChild(explanation);
+
+        const timeContElem = document.createElement('div');
+        timeContElem.classList.add("timeshow", "shabbatRow");
+        timeContElem.style.height = "100%"
+        if (biH)
+            timeContElem.style.gridColumnEnd = "span 2";
+
+        const timeElem = document.createElement('span')
+        timeElem.appendChild(document.createTextNode(
+            jCal.getDate().dayOfWeek == 5
+                ? calc.getCandleLighting().toLocaleString(...timeFormatAttr)
+                : calc.getTzaitShabbath().toLocaleString(...timeFormatAttr) + ` (RT: ${calc.getTzaitRT().toLocaleString(...timeFormatAttr)})`
+        ));
+
+        timeContElem.appendChild(timeElem)
+        dateElem.insertAdjacentElement('afterend', timeContElem)
+        baseElem = timeContElem;
+    } else {
+        const tzeitOvadia = document.createElement('div');
+        tzeitOvadia.classList.add("timeshow", "shabbatRow");
+        tzeitOvadia.append(document.createTextNode(calc.getTzait().toLocaleString(...timeFormatAttr)))
+
+        dateElem.insertAdjacentElement('afterend', tzeitOvadia)
+        if (biH) {
+            const tzeitBIH = document.createElement('div')
+            tzeitBIH.classList.add("timeshow", "shabbatRow");
+            tzeitBIH.append(document.createTextNode(calc.getTzaitBenIshHai().toLocaleString(...timeFormatAttr)))
+
+            tzeitOvadia.insertAdjacentElement('afterend', tzeitBIH)
+            baseElem = tzeitBIH
+        } else {
+            baseElem = tzeitOvadia;
+        }
+    }
+
+    jCal.setDate(jCal.getDate().add({days: 1}))
+    calc.coreZC.setDate(calc.coreZC.getDate().add({ days: 1 }))
 }

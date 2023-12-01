@@ -33,10 +33,11 @@ The "ROYZmanim" website was made to calculate timing information according to th
 
 ### Perfered-Dependencies Credits
 
-- **Aryeh Berman:** Primary Developer of the KosherZmanim TypeScript library port
-- **Eliyahu Hershfield:** Primary Developer of the KosherJava project, which KosherZmanim was based on
-- **Google:** Created the Material Design language, of which we use through [mdbootstrap](https://mdbootstrap.com/) (which uses [Bootstrap 5](https://getbootstrap.com/))
-- Developers of [luxon](https://moment.github.io/luxon/#/), & [n2words](https://github.com/forzagreen/n2words)
+- **Eliyahu Hershfield:** Primary Developer of the KosherJava project
+- **Aryeh Berman:** Initial Port of KosherJava to TypeScript
+- **Bootstrap:** Web Framework to make initial components
+  - **[mdbootstrap](https://mdbootstrap.com/):** Implementing Google's Design Language into Bootstrap
+- Developers of [n2words](https://github.com/forzagreen/n2words)
 
 ##### Mandated-Dependencies Credits
 

@@ -2,5 +2,8 @@
 	"devDependencies": {
 		"@types/jquery": "^3.5.26",
 		"@types/jqueryui": "^1.12.19"
+	},
+	"dependencies": {
+		"@js-temporal/polyfill": "^0.4.4"
 	}
 }

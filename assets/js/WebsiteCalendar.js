@@ -82,10 +82,10 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	formatJewishFullDate() {
 		const hNum = new HebrewNumberFormatter();
 		return {
-			english: (new Intl.DateTimeFormat('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"})).format(this.getDate().toJSDate()),
+			english: this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"}),
 			hebrew: [
 				hNum.formatHebrewNumber(this.getJewishDayOfMonth()),
-				new Intl.DateTimeFormat('he-u-ca-hebrew', {month: 'long'}).format(this.getDate().toJSDate()) + ',',
+				this.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'}) + ',',
 				hNum.formatHebrewNumber(this.getJewishYear()),
 			].join(' ')
 		}
@@ -99,20 +99,20 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 	}
 
-	getDayOfTheWeek() {
-		let dayOfWeek = this.getDate().weekday
-		if (dayOfWeek == 7)
-			dayOfWeek = 0;
+	formatFancyDate() {
+		return `${daysForLocale('en')[this.getDate().dayOfWeek]}, ${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day)}`
+	}
 
+	getDayOfTheWeek() {
 		return {
-			english: daysForLocale('en')[dayOfWeek],
-			hebrew: daysForLocale('he-u-ca-hebrew')[dayOfWeek]
+			english: daysForLocale('en')[this.getDate().dayOfWeek],
+			hebrew: daysForLocale('he-u-ca-hebrew')[this.getDate().dayOfWeek]
 		}
 	}
 
 	tomorrow() {
 		const nextJewishCalendar = new WebsiteCalendar(this.getDate());
-		nextJewishCalendar.setDate(nextJewishCalendar.getDate().plus({ day: 1 }))
+		nextJewishCalendar.setDate(nextJewishCalendar.getDate().add({ days: 1 }))
 		if (this.isUseModernHolidays())
 			nextJewishCalendar.setUseModernHolidays(true);
 
@@ -124,7 +124,12 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		if (this.isUseModernHolidays())
 			nextJewishCalendar.setUseModernHolidays(true);
 
-		nextJewishCalendar.setDate(nextJewishCalendar.getDate().set({ weekday: 6 }))
+		for (let index = 0; index < 7; index++) {
+			if (nextJewishCalendar.getDate().dayOfWeek == 6)
+				break;
+
+			nextJewishCalendar.setDate(nextJewishCalendar.getDate().add({ days: 1 }));
+		}
 
 		return nextJewishCalendar
 	}
@@ -300,11 +305,12 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		else if (this.tomorrow().isTaanitBechorot())
 			result.push("Erev Ta'anit Bechorot")
 
-		const dateFormatter = (new Intl.DateTimeFormat('en-u-ca-hebrew', { month: "long" }))
+		/** @type {['en-u-ca-hebrew', { month: "long" }]} */
+		const dateFormatter = ['en-u-ca-hebrew', { month: "long" }]
 		if (this.isRoshChodesh())
-			result.push("Rosh Hodesh " + dateFormatter.format(this.getDate().toJSDate()))
+			result.push("Rosh Hodesh " + this.getDate().toLocaleString(...dateFormatter))
 		else if (this.tomorrow().isRoshChodesh())
-			result.push("Erev Rosh Hodesh " + dateFormatter.format(this.getDate().toJSDate()))
+			result.push("Erev Rosh Hodesh " + this.getDate().toLocaleString(...dateFormatter))
 
 		const dayOfChanukah = this.getDayOfChanukah();
 		if (dayOfChanukah != -1) {
@@ -514,12 +520,10 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
             hebrew: []
         };
 
-		const dateFormatterEn = new Intl.DateTimeFormat('en-u-ca-hebrew', { month: "long" })
-		const dateFormatterHb = new Intl.DateTimeFormat('he-u-ca-hebrew', { month: "long" })
 		tekufaMonths.forEach(month => {
 			jewishDate.setJewishMonth(month + 1)
-			tekufaName.english.push(dateFormatterEn.format(jewishDate.getDate().toJSDate()))
-			tekufaName.hebrew.push(dateFormatterHb.format(jewishDate.getDate().toJSDate()))
+			tekufaName.english.push(jewishDate.getDate().toLocaleString('en-u-ca-hebrew', { month: "long" }))
+			tekufaName.hebrew.push(jewishDate.getDate().toLocaleString('he-u-ca-hebrew', { month: "long" }))
 		})
 
         return Object.fromEntries(
@@ -538,17 +542,16 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		if (amudehHoraah)
 			minutes -= 21;
 
-		const date = window.luxon.DateTime.fromObject({
+		const date = KosherZmanim.Temporal.ZonedDateTime.from({
 			year: this.getGregorianYear(),
 			month: this.getGregorianMonth() + 1,
 			day: this.getGregorianDayOfMonth(),
-			hour: 0,
-			minute: 0,
+			hour: hours,
+			minute: minutes,
 			second: 0,
 			millisecond: 0,
-		},
-			{ zone: "UTC+2" }
-		).plus({ hours: hours, minutes: minutes });
+			timeZone: "UTC+2"
+		});
 		return date;
 	}
 
@@ -675,8 +678,20 @@ function getOrdinal (/** @type {number} */ n) {
  */
 function daysForLocale(localeName, weekday = 'long') {
 	const {format} = new Intl.DateTimeFormat(localeName, { weekday });
-	return [...Array(7).keys()]
-	  .map((day) => format(new Date(Date.UTC(2021, 5, day))));
+	const array = [...Array(7).keys()]
+	  .map((day) => format(new Date(Date.UTC(2021, 8, day))));
+	array.unshift(undefined);
+	return array;
+}
+
+/**
+ * @param {string | string[]} localeName
+ * @param {"short" | "long" | "narrow" | "numeric" | "2-digit"} [weekday] 
+ */
+function monthForLocale(localeName, weekday = 'long') {
+	const {format} = new Intl.DateTimeFormat(localeName, { month: weekday });
+	return [...Array(13).keys()]
+	  .map((day) => format(new Date(Date.UTC(2021, day, 1))));
 }
 
 class HebrewNumberFormatter {
@@ -717,18 +732,14 @@ class HebrewNumberFormatter {
 		  throw new Error('numbers > 9999 can\'t be formatted');
 		}
 	
-		const ALAFIM = '\u05D0\u05DC\u05E4\u05D9\u05DD';
-		const EFES = '\u05D0\u05E4\u05E1';
-	
-		const jHundreds = ['', '\u05E7', '\u05E8', '\u05E9', '\u05EA', '\u05EA\u05E7', '\u05EA\u05E8',
-		  '\u05EA\u05E9', '\u05EA\u05EA', '\u05EA\u05EA\u05E7'];
-		const jTens = ['', '\u05D9', '\u05DB', '\u05DC', '\u05DE', '\u05E0', '\u05E1', '\u05E2',
-		  '\u05E4', '\u05E6'];
-		const jTenEnds = ['', '\u05D9', '\u05DA', '\u05DC', '\u05DD', '\u05DF', '\u05E1', '\u05E2',
-		  '\u05E3', '\u05E5'];
-		const tavTaz = ['\u05D8\u05D5', '\u05D8\u05D6'];
-		const jOnes = ['', '\u05D0', '\u05D1', '\u05D2', '\u05D3', '\u05D4', '\u05D5', '\u05D6',
-		  '\u05D7', '\u05D8'];
+		const ALAFIM = 'אלפים';
+		const EFES = 'אפס';
+
+		const jHundreds = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"];
+		const jTens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
+		const jTenEnds = ["", "י", "ך", "ל", "ם", "ן", "ס", "ע", "ף", "ץ"];
+		const tavTaz = ["טו", "טז"];
+		const jOnes = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
 	
 		if (num === 0) { // do we really need this? Should it be applicable to a date?
 		  return EFES;

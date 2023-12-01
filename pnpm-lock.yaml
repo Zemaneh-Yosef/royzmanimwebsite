@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+dependencies:
+  '@js-temporal/polyfill':
+    specifier: ^0.4.4
+    version: 0.4.4
+
 devDependencies:
   '@types/jquery':
     specifier: ^3.5.26
@@ -13,6 +18,14 @@ devDependencies:
     version: 1.12.19
 
 packages:
+
+  /@js-temporal/polyfill@0.4.4:
+    resolution: {integrity: sha512-2X6bvghJ/JAoZO52lbgyAPFj8uCflhTo2g7nkFzEQdXd/D8rEeD4HtmTEpmtGCva260fcd66YNXBOYdnmHqSOg==}
+    engines: {node: '>=12'}
+    dependencies:
+      jsbi: 4.3.0
+      tslib: 2.6.2
+    dev: false
 
   /@types/jquery@3.5.26:
     resolution: {integrity: sha512-wWYf2NBI6b+1RPQY86B74HSgZNsLAUtr4eFlGQoOQPJw/B3mCMfwWCflZWQ7OKtAB18MJCcYpL6+0NZbMIXl5g==}
@@ -29,3 +42,11 @@ packages:
   /@types/sizzle@2.3.3:
     resolution: {integrity: sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==}
     dev: true
+
+  /jsbi@4.3.0:
+    resolution: {integrity: sha512-SnZNcinB4RIcnEyZqFPdGPVgrg2AcnykiBy0sHVJQKHYeaLUvi3Exj+iaPpLnFVkDPZIV4U0yvgC9/R4uEAZ9g==}
+    dev: false
+
+  /tslib@2.6.2:
+    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+    dev: false

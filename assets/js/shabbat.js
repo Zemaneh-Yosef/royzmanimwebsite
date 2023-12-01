@@ -22,13 +22,13 @@ const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 
-const shabbatDate = 18;
-const jCal = new WebsiteCalendar(window.luxon.DateTime.now().set({ day: shabbatDate }))
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ month: 12, day: 2 });
+const jCal = new WebsiteCalendar(shabbatDate)
 
 for (const title of document.getElementsByClassName('shabbatTitleCore'))
-    title.innerHTML += jCal.getHebrewParasha().join(" / ")
+    title.innerHTML += jCal.getHebrewParasha().join(" / ") + " " + jCal.formatJewishYear().hebrew
 
-if (jCal.getDate().weekday != 6)
+if (jCal.getDate().dayOfWeek != 6)
     throw new Error("Non-Saturday")
 
 const elems = document.getElementsByClassName('timecalc');
@@ -37,6 +37,8 @@ const doubleLocations = {}
 for (const elem of elems) {
     const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
     const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
+
+    const zonedDT = shabbatDate.toZonedDateTime(elem.getAttribute('data-timezone'))
 
     const geoLocationsParams = [
         "null",
@@ -49,28 +51,30 @@ for (const elem of elems) {
     currentCalc.coreZC.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
     currentCalc.coreZC.setCandleLightingOffset(20);
 
-    const dtF = new Intl.DateTimeFormat('en', {
+    /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
+    const dtF = ['en', {
         hourCycle: window.location.href.includes('usa') ? "h12" : "h24",
-        timeStyle: "short",
-        timeZone: elem.getAttribute('data-timezone')
-    });
+        timeStyle: "short"
+    }];
 
-    currentCalc.coreZC.setDate(currentCalc.coreZC.getDate().set({ day: shabbatDate - 1 }));
+    currentCalc.coreZC.setDate(zonedDT.subtract({ days: 1 }));
 
     let candleTime = currentCalc.getCandleLighting()
     if (elem.hasAttribute('data-humra'))
-        candleTime = candleTime.minus({minute: parseInt(elem.getAttribute('data-humra'))})
-    elem.nextElementSibling.setAttribute('data-milisecondValue', candleTime.toMillis().toString())
-    elem.nextElementSibling.innerHTML = dtF.format(candleTime.toJSDate())
+        candleTime = candleTime.subtract({minutes: parseInt(elem.getAttribute('data-humra'))})
+    elem.nextElementSibling.setAttribute('data-milisecondValue', candleTime.epochMilliseconds.toString())
+    elem.nextElementSibling.innerHTML = candleTime.toLocaleString(...dtF);
 
-    currentCalc.coreZC.setDate(currentCalc.coreZC.getDate().set({ day: shabbatDate }));
+    currentCalc.coreZC.setDate(zonedDT);
 
+    /** @type {HTMLElement} */
+    // @ts-ignore
     const tzetElement = elem.nextElementSibling.nextElementSibling;
     let tzeiTime = currentCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 })
     if (elem.hasAttribute('data-humra'))
-        tzeiTime = tzeiTime.plus({minute: parseInt(elem.getAttribute('data-humra'))})
-    tzetElement.setAttribute('data-milisecondValue', tzeiTime.toMillis().toString())
-    tzetElement.innerHTML = dtF.format(tzeiTime.toJSDate())
+        tzeiTime = tzeiTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
+    tzetElement.setAttribute('data-milisecondValue', tzeiTime.epochMilliseconds.toString())
+    tzetElement.innerHTML = tzeiTime.toLocaleString(...dtF)
 
     /** @type {HTMLElement} */
     // @ts-ignore
@@ -78,13 +82,13 @@ for (const elem of elems) {
     let rTime = currentCalc.getTzaitRT()
     if (rtElem && !rtElem.classList.contains('timecalc') && !rtElem.style.gridColumn) {
         if (elem.hasAttribute('data-humra'))
-            rTime = rTime.plus({minute: parseInt(elem.getAttribute('data-humra'))})
+            rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
 
         if (elem.getAttribute('data-timezone') == 'Asia/Jerusalem')
-            rtElem.innerHTML += ` / <span class="explanation">(RT: ${dtF.format(rTime.toJSDate())})</span>`;
+            rtElem.innerHTML += ` / <span class="explanation">(RT: ${rTime.toLocaleString(...dtF)})</span>`;
         else {
-            rtElem.setAttribute('data-milisecondValue', rTime.toMillis().toString())
-            rtElem.innerHTML = dtF.format(rTime.toJSDate());
+            rtElem.setAttribute('data-milisecondValue', rTime.epochMilliseconds.toString())
+            rtElem.innerHTML = rTime.toLocaleString(...dtF);
         }
     }
 
@@ -93,18 +97,15 @@ for (const elem of elems) {
         console.log(stateLocation)
         if (stateLocation in doubleLocations) {
             const baseLocation = doubleLocations[stateLocation];
-            const ogTzetTime = window.luxon.DateTime.fromMillis(parseInt(baseLocation.nextElementSibling.nextElementSibling.getAttribute('data-milisecondValue')));
+            const ogTzetTime = KosherZmanim.Temporal.Instant.fromEpochMilliseconds(parseInt(baseLocation.nextElementSibling.nextElementSibling.getAttribute('data-milisecondValue')));
 
-            const compTimes = [tzeiTime, ogTzetTime].map(dTime => Math.floor(dTime.toMillis() / 1000 / 60))
-            const diffTime = compTimes
-                .reduce(
-                    (accumulator, currentValue) => accumulator - currentValue,
-                    compTimes[0] * 2,
-                );
-            if (Math.abs(diffTime) <= 2) {
+            const compTimes = tzeiTime.until(ogTzetTime.toZonedDateTimeISO(elem.getAttribute('data-timezone'))).total({ unit: 'minutes' })
+            console.log(compTimes)
+            if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
                 elem.style.display = "none";
                 elem.nextElementSibling.style.display = "none";
                 tzetElement.style.display = "none";
+
                 if (rtElem && !rtElem.classList.contains('timecalc') && !rtElem.style.gridColumn)
                     rtElem.style.display = "none"
 
@@ -113,22 +114,22 @@ for (const elem of elems) {
                     elem.innerHTML.split(',')[0].trim()
                 ].join('/') + ', ' + stateLocation
 
-                const ogCandleTime = window.luxon.DateTime.fromMillis(parseInt(baseLocation.nextElementSibling.getAttribute('data-milisecondValue')))
-                if (candleTime.toMillis() < ogCandleTime.toMillis()) {
-                    baseLocation.nextElementSibling.setAttribute('data-milisecondValue', candleTime.toMillis().toString())
-                    baseLocation.nextElementSibling.innerHTML = dtF.format(candleTime.toJSDate())
+                const ogCandleTime = KosherZmanim.Temporal.Instant.fromEpochMilliseconds(parseInt(baseLocation.nextElementSibling.getAttribute('data-milisecondValue')))
+                if (candleTime.epochMilliseconds < ogCandleTime.epochMilliseconds) {
+                    baseLocation.nextElementSibling.setAttribute('data-milisecondValue', candleTime.epochMilliseconds.toString())
+                    baseLocation.nextElementSibling.innerHTML = candleTime.toLocaleString(...dtF)
                 }
 
-                if (tzeiTime.toMillis() > ogTzetTime.toMillis()) {
-                    baseLocation.nextElementSibling.nextElementSibling.setAttribute('data-milisecondValue', tzeiTime.toMillis().toString())
-                    baseLocation.nextElementSibling.nextElementSibling.innerHTML = dtF.format(tzeiTime.toJSDate())
+                if (tzeiTime.epochMilliseconds > ogTzetTime.epochMilliseconds) {
+                    baseLocation.nextElementSibling.nextElementSibling.setAttribute('data-milisecondValue', tzeiTime.epochMilliseconds.toString())
+                    baseLocation.nextElementSibling.nextElementSibling.innerHTML = tzeiTime.toLocaleString(...dtF)
                 }
 
                 if (rtElem && !rtElem.classList.contains('timecalc') && !rtElem.style.gridColumn) {
-                    const ogRTime = window.luxon.DateTime.fromMillis(parseInt(baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.getAttribute('data-milisecondValue')))
-                    if (rTime.toMillis() > ogRTime.toMillis()) {
-                        baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.setAttribute('data-milisecondValue', rTime.toMillis().toString())
-                        baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.innerHTML = dtF.format(rTime.toJSDate())
+                    const ogRTime = KosherZmanim.Temporal.Instant.fromEpochMilliseconds(parseInt(baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.getAttribute('data-milisecondValue')))
+                    if (rTime.epochMilliseconds > ogRTime.epochMilliseconds) {
+                        baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.setAttribute('data-milisecondValue', rTime.epochMilliseconds.toString())
+                        baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.innerHTML = rTime.toLocaleString(...dtF);
                     }
                 }   
             }

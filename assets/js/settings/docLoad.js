@@ -1,7 +1,9 @@
 import { handleLanguage } from "./handler.js";
+import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/bundle.esm.js"
 
 document.addEventListener("DOMContentLoaded", () => {
     handleLanguage();
+    initMDB({Input, Ripple});
 
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new window.bootstrap.Tooltip(tooltipTriggerEl))

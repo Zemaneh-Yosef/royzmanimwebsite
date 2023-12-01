@@ -44,6 +44,8 @@ class ChaiTables {
 		}
 
 		const isIsraelCities = this.selectedCountry == "Eretz_Yisroel";
+		const utcOffsetNoDST = KosherZmanim.TimeZone.getRawOffset(this.geoL.getTimeZone())
+		const utcOffsetDST = KosherZmanim.TimeZone.getOffset(this.geoL.getTimeZone(), jewishCalendar.getDate().toZonedDateTime(this.geoL.getTimeZone()).epochMilliseconds)
 
 		const urlParams = {
 			'TableType': (isIsraelCities ? "BY" : "Chai"),
@@ -54,8 +56,8 @@ class ChaiTables {
 			"eroslatitude": (isIsraelCities ? 0.0 : this.geoL.getLatitude()),
 			"eroslongitude": (isIsraelCities ? 0.0 : switchLongitude ? -this.geoL.getLongitude() : this.geoL.getLongitude()),
 			eroshgt: 0.0,
-			geotz: KosherZmanim.TimeZone.getRawOffset(this.geoL.getTimeZone()) / (1000 * 60 * 60),
-			DST: jewishCalendar.getDate().isInDST ? "ON" : "OFF",
+			geotz: utcOffsetNoDST / (1000 * 60 * 60),
+			DST: utcOffsetNoDST !== utcOffsetDST ? "ON" : "OFF",
 			exactcoord: "OFF",
 			MetroArea: (isIsraelCities ? this.indexOfMetroArea : "jerusalem"),
 			types: type,
@@ -114,8 +116,8 @@ class ChaiTables {
 				const [hour, minute, second] = zmanTime.split(":").map(time=> parseInt(time))
 
 				loopCal.setJewishDate(loopCal.getJewishYear(), 1+monthValue, parseInt(zmanTable.rows[rowIndex].cells[0].innerText))
-				const time = loopCal.getDate().set({ hour, minute, second }).setZone(this.geoL.getTimeZone())
-				times.push(time.toMillis())
+				const time = loopCal.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour, minute, second })
+				times.push(time.epochMilliseconds)
 			}
 		}
 
