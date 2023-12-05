@@ -2,6 +2,7 @@ usa:
   - name: |
       New York (State)<br>
       <span class="explanation">(Also: Teaneck/Passaic NJ)</span>
+    twoLine: True
     #flag: https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_New_York.svg
     # Location: LCM
     lat: 40.72424106443191

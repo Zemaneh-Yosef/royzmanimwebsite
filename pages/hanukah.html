@@ -50,7 +50,7 @@ breakout: true
     }
 
     #innerDisplay {
-        background-color: rgba(0, 0, 22, .86);
+        background-color: rgba(41, 44, 64, .44);
         background-image: url(/assets/images/hanukah/bg.png);
         background-position: bottom center;
         background-repeat: no-repeat;
@@ -87,6 +87,13 @@ breakout: true
     .maxWidthContainer {
         width: clamp(16rem, 90vw, 90rem);
     }
+
+    .shabbatRow img {
+        height: 1em;
+        vertical-align: baseline;
+        padding-right: .6ch;
+        filter: invert(1);
+    }
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,19 +104,23 @@ breakout: true
 <div style="width: 100%; aspect-ratio: 6/4; padding: 3vw; background: url(/assets/images/hanukah/completebg.png); background-size: cover; position: relative; font-family: var(--shabbat-font)">
     <span style="position:absolute; line-height: 1; top: 0.86114101184069vw; right: 0.86114101184069vw; font-size: 1.291711517761vw; font-family: 'Guttman Mantova', 'Courier New', Courier, monospace;">בס"ד</span>
     <div id="innerDisplay">
-        <div style="display: grid;grid-template-columns: 1fr auto;">
+        <div style="display: grid;grid-template-columns: 1fr auto auto;" data-columns="getTzait getTzaitBenIshHai">
             <div style="grid-column: 1/ span 3; text-align: center; line-height: 1; position: relative" class="mb-2">
                 <h1 class="mb-0 shabbatTitleCore shabbatTitleViewable"> - זמני חנוכה לספרדים </h1>
                 <h1 class="mb-0 shabbatTitleCore shabbatAbso"> - זמני חנוכה לספרדים </h1>
                 With the exception of Friday & Saturday, one should light within 30 minutes after Rabbi Ovadia Yosef's time below.<br>
-                <span style="font-size: .75em; opacity: .8;">(Opinions that went over this time were not included in the flyer)</span>
+                <span id="plagElement" style="font-size: .75em; color: rgb(204,204,204);">(Opinions that went over this time were not included in the flyer)</span>
             </div>
             <div style="grid-column: 1; grid-row: 2; font-weight: bold;">Day</div>
+            <!--<div style="grid-column: 2; grid-row: 2; font-weight: bold; padding-right: 0.53821313240043vw; text-align: center; line-height: 1; font-family: 'Guttman Mantova', var(--shabbat-font);">
+                הכי מוקדם<br>
+                <span class="explanation">(Sunset - NOAA calendar)</span>
+            </div> -->
             <div style="grid-column: 2; grid-row: 2; font-weight: bold; padding-right: 0.53821313240043vw; text-align: center; line-height: 1; font-family: 'Guttman Mantova', var(--shabbat-font);">
                 לשיטת מרן עובדיה<br>
                 <span class="explanation">(13.5m/3.77° - seasonal)</span>
             </div>
-            <div style="grid-column: 3; grid-row: 2; font-weight: bold; padding-left: 0.53821313240043vw; text-align: center; line-height: 1; font-family: 'Guttman Mantova', var(--shabbat-font);" id="lastTitle">
+            <div style="grid-column: 3; grid-row: 2; font-weight: bold; padding-left: 0.53821313240043vw; text-align: center; line-height: 1; font-family: 'Guttman Mantova', var(--shabbat-font);">
                 לשיטת הבא"ח<br>
                 <span class="explanation">(27m/6.563° - seasonal)</span>
             </div>
