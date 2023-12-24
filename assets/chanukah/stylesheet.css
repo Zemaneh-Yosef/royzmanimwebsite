@@ -1,9 +1,0 @@
-@font-face {
-    font-family: 'Blade Runner Movie Font';
-    src: url('BladeRunnerMovieFont.woff2') format('woff2'),
-        url('BladeRunnerMovieFont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-

@@ -4,7 +4,7 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
 import WebsiteCalendar from "./WebsiteCalendar.js"
 
-import {isEmojiSupported} from "https://cdn.skypack.dev/is-emoji-supported";
+import {isEmojiSupported} from "../libraries/is-emoji-supported.js";
 if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
     const n = document.createElement("style");
     const fontName = "Twemoji Country Flags"; //BabelStone Flags
@@ -22,7 +22,7 @@ const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ month: 12, day: 2 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 30 });
 const jCal = new WebsiteCalendar(shabbatDate)
 
 for (const title of document.getElementsByClassName('shabbatTitleCore'))
@@ -31,8 +31,13 @@ for (const title of document.getElementsByClassName('shabbatTitleCore'))
 if (jCal.getDate().dayOfWeek != 6)
     throw new Error("Non-Saturday")
 
+let shitot = {
+    fri: document.getElementById('wrappedElement').getAttribute('data-functions-fri').split(" "),
+    shab: document.getElementById('wrappedElement').getAttribute('data-functions-shab').split(" ")
+}
+
 const elems = document.getElementsByClassName('timecalc');
-/** @type {Record<string, Element>} */
+/** @type {Record<string, {elem: Element; geo: KosherZmanim.GeoLocation}>} */
 const doubleLocations = {}
 for (const elem of elems) {
     const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
@@ -57,84 +62,115 @@ for (const elem of elems) {
         timeStyle: "short"
     }];
 
-    currentCalc.coreZC.setDate(zonedDT.subtract({ days: 1 }));
+    let editElem = elem;
 
-    let candleTime = currentCalc.getCandleLighting()
-    if (elem.hasAttribute('data-humra'))
-        candleTime = candleTime.subtract({minutes: parseInt(elem.getAttribute('data-humra'))})
-    elem.nextElementSibling.setAttribute('data-milisecondValue', candleTime.epochMilliseconds.toString())
-    elem.nextElementSibling.innerHTML = candleTime.toLocaleString(...dtF);
+    currentCalc.coreZC.setDate(zonedDT.subtract({ days: 1 }));
+    for (const friShita of shitot.fri) {
+        editElem = editElem.nextElementSibling
+
+        /** @type {KosherZmanim.Temporal.ZonedDateTime} */
+        // @ts-ignore
+        let time = currentCalc[friShita]()
+        if (elem.hasAttribute('data-humra'))
+            time = time.subtract({minutes: parseInt(elem.getAttribute('data-humra'))})
+        editElem.setAttribute('data-milisecondValue', time.epochMilliseconds.toString())
+        editElem.innerHTML = time.toLocaleString(...dtF);
+    }
 
     currentCalc.coreZC.setDate(zonedDT);
+    for (const shabShita of shitot.shab) {
+        editElem = editElem.nextElementSibling
 
-    /** @type {HTMLElement} */
-    // @ts-ignore
-    const tzetElement = elem.nextElementSibling.nextElementSibling;
-    let tzeiTime = currentCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 })
-    if (elem.hasAttribute('data-humra'))
-        tzeiTime = tzeiTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
-    tzetElement.setAttribute('data-milisecondValue', tzeiTime.epochMilliseconds.toString())
-    tzetElement.innerHTML = tzeiTime.toLocaleString(...dtF)
+        /** @type {KosherZmanim.Temporal.ZonedDateTime} */
+        // @ts-ignore
+        let time = (shabShita == 'getTzaitShabbath' ? currentCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 }) : currentCalc[shabShita]());
 
-    /** @type {HTMLElement} */
-    // @ts-ignore
-    let rtElem = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? tzetElement : tzetElement.nextElementSibling);
-    let rTime = currentCalc.getTzaitRT()
-    if (rtElem && !rtElem.classList.contains('timecalc') && !rtElem.style.gridColumn) {
         if (elem.hasAttribute('data-humra'))
-            rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
+            time = time.add({minutes: parseInt(elem.getAttribute('data-humra'))})
+        editElem.setAttribute('data-milisecondValue', time.epochMilliseconds.toString())
 
-        if (elem.getAttribute('data-timezone') == 'Asia/Jerusalem')
-            rtElem.innerHTML += ` / <span class="explanation">(RT: ${rTime.toLocaleString(...dtF)})</span>`;
-        else {
-            rtElem.setAttribute('data-milisecondValue', rTime.epochMilliseconds.toString())
-            rtElem.innerHTML = rTime.toLocaleString(...dtF);
+        editElem.innerHTML = time.toLocaleString(...dtF);
+
+        if (shabShita == 'getTzaitShabbath' && elem.getAttribute('data-timezone') == 'Asia/Jerusalem') {
+            let rTime = currentCalc.getTzaitRT()
+            if (elem.hasAttribute('data-humra'))
+                rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
+
+            editElem.innerHTML += ` / <span class="explanation">(${document.getElementById('wrappedElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
         }
     }
 
     if (elem.hasAttribute('data-double-location')) {
         const stateLocation = elem.innerHTML.split(',')[1].trim()
-        console.log(stateLocation)
         if (stateLocation in doubleLocations) {
-            const baseLocation = doubleLocations[stateLocation];
-            const ogTzetTime = KosherZmanim.Temporal.Instant.fromEpochMilliseconds(parseInt(baseLocation.nextElementSibling.nextElementSibling.getAttribute('data-milisecondValue')));
+            const baseLocation = doubleLocations[stateLocation].elem;
 
-            const compTimes = tzeiTime.until(ogTzetTime.toZonedDateTimeISO(elem.getAttribute('data-timezone'))).total({ unit: 'minutes' })
-            console.log(compTimes)
+            const baseCalc = (baseLocation.getAttribute('data-timezone') == 'Asia/Jerusalem' ? new OhrHachaimZmanim(doubleLocations[stateLocation].geo, true) : new AmudehHoraahZmanim(doubleLocations[stateLocation].geo))
+            baseCalc.coreZC.setDate(zonedDT);
+
+            const compTimes = baseCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 }).until(currentCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 })).total({ unit: 'minutes' })
             if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
-                elem.style.display = "none";
-                elem.nextElementSibling.style.display = "none";
-                tzetElement.style.display = "none";
-
-                if (rtElem && !rtElem.classList.contains('timecalc') && !rtElem.style.gridColumn)
-                    rtElem.style.display = "none"
+                editElem = elem;
+                for (let i of ['', ...shitot.fri, ...shitot.shab]) {
+                    editElem.style.display = 'none';
+                    editElem = editElem.nextElementSibling;
+                }
 
                 baseLocation.innerHTML = [
                     baseLocation.innerHTML.split(',')[0].trim(),
                     elem.innerHTML.split(',')[0].trim()
                 ].join('/') + ', ' + stateLocation
 
-                const ogCandleTime = KosherZmanim.Temporal.Instant.fromEpochMilliseconds(parseInt(baseLocation.nextElementSibling.getAttribute('data-milisecondValue')))
-                if (candleTime.epochMilliseconds < ogCandleTime.epochMilliseconds) {
-                    baseLocation.nextElementSibling.setAttribute('data-milisecondValue', candleTime.epochMilliseconds.toString())
-                    baseLocation.nextElementSibling.innerHTML = candleTime.toLocaleString(...dtF)
-                }
+                let baseEditElem = baseLocation;
+                editElem = elem;
+                currentCalc.coreZC.setDate(zonedDT.subtract({ days: 1 }));
+                baseCalc.coreZC.setDate(zonedDT.subtract({ days: 1 }));
+                for (const friShita of shitot.fri) {
+                    editElem = editElem.nextElementSibling
+                    baseEditElem = baseEditElem.nextElementSibling;
 
-                if (tzeiTime.epochMilliseconds > ogTzetTime.epochMilliseconds) {
-                    baseLocation.nextElementSibling.nextElementSibling.setAttribute('data-milisecondValue', tzeiTime.epochMilliseconds.toString())
-                    baseLocation.nextElementSibling.nextElementSibling.innerHTML = tzeiTime.toLocaleString(...dtF)
-                }
+                    const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map(
+                        //@ts-ignore
+                        calc => calc[friShita]()
+                            .subtract({minutes: !baseLocation.hasAttribute('data-humra') ? 0 : parseInt(baseLocation.getAttribute('data-humra'))})
+                    )
 
-                if (rtElem && !rtElem.classList.contains('timecalc') && !rtElem.style.gridColumn) {
-                    const ogRTime = KosherZmanim.Temporal.Instant.fromEpochMilliseconds(parseInt(baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.getAttribute('data-milisecondValue')))
-                    if (rTime.epochMilliseconds > ogRTime.epochMilliseconds) {
-                        baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.setAttribute('data-milisecondValue', rTime.epochMilliseconds.toString())
-                        baseLocation.nextElementSibling.nextElementSibling.nextElementSibling.innerHTML = rTime.toLocaleString(...dtF);
+                    if (!Math.trunc(curCalcTime.until(baseCalcTime).total({ unit: "minute" })) || curCalcTime.until(baseCalcTime).total({ unit: "minute" }) < 0) {
+                        console.log("new one was later, continue")
+                        continue;
                     }
-                }   
+
+                    baseEditElem.setAttribute('data-milisecondValue', curCalcTime.epochMilliseconds.toString())
+                    baseEditElem.innerHTML = curCalcTime.toLocaleString(...dtF)
+                }
+
+                currentCalc.coreZC.setDate(zonedDT);
+                baseCalc.coreZC.setDate(zonedDT);
+
+                for (const shabShita of shitot.shab) {
+                    editElem = editElem.nextElementSibling
+                    baseEditElem = baseEditElem.nextElementSibling;
+
+                    const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map(
+                        //@ts-ignore
+                        calc => (shabShita == 'getTzaitShabbath' ? calc.getTzaitShabbath({ minutes: 30, degree: 7.14 }) : calc[shabShita]())
+                            .add({minutes: !baseLocation.hasAttribute('data-humra') ? 0 : parseInt(baseLocation.getAttribute('data-humra'))})
+                    )
+
+                    if (!Math.trunc(curCalcTime.until(baseCalcTime).total({ unit: "minute" })) || curCalcTime.until(baseCalcTime).total({ unit: "minute" }) > 0) {
+                        console.log("new one was earlier, continue")
+                        continue;
+                    }
+
+                    baseEditElem.setAttribute('data-milisecondValue', curCalcTime.epochMilliseconds.toString())
+                    baseEditElem.innerHTML = curCalcTime.toLocaleString(...dtF)
+                }
             }
         } else {
-            doubleLocations[stateLocation] = elem;
+            doubleLocations[stateLocation] = {elem: elem, geo:
+                // @ts-ignore
+                new KosherZmanim.GeoLocation(...geoLocationsParams)
+            };
         }
     }
 }

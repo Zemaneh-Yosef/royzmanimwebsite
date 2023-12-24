@@ -1,0 +1,494 @@
+usa:
+  - name: |
+      New York (State)<br>
+      <span class="explanation">(Also: Teaneck/Passaic NJ)</span>
+    twoLine: True
+    #flag: https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_New_York.svg
+    # Location: LCM
+    lat: 40.72424106443191
+    lng: -73.81530898489612
+    timezone: America/New_York
+    humra: 1
+#  - name: Washington, DC<br><span class="explanation">(Near the white house)</span>
+#    twoLine: True
+    #flag: https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_New_York.svg
+    # Location: White House
+#    lat: 38.89767341655743
+#    lng: -77.03652965917647
+#    timezone: America/New_York
+#    humra: 0
+  - name: Anchorage, AK
+    #flag: https://upload.wikimedia.org/wikipedia/commons/e/e6/Flag_of_Alaska.svg
+    # Location: Lubavitch Jewish Center of Alaska
+    lat: 61.189844990922424
+    lng: -149.86105149140388
+    timezone: America/Anchorage
+    humra: 0
+  - name: Atlanta, GA
+    # Location: Chabad of Toco Hills
+    lat: 33.814254855365846
+    lng: -84.32203439424957
+    timezone: America/New_York
+  - name: Austin, TX
+    # Location: Tiferet Israel
+    lat: 30.35673543347277
+    lng: -97.75627669260676
+    timezone: America/Chicago
+  - name: Baltimore, MD
+    #flag: https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg
+    # Location: Ner Yisrael
+    lat: 39.38871045313417
+    lng: -76.75324161009378
+    timezone: America/New_York
+    humra: 0
+  - name: Boston, MA
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f2/Flag_of_Massachusetts.svg
+    # Location: Kollel of Greater Boston
+    lat: 42.34249379520455
+    lng: -71.14544376434604
+    timezone: America/New_York
+    humra: 0
+  - name: Chicago, IL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Illinois.svg
+    # Location: Mikor
+    lat: 42.013667229573805
+    lng: -87.70204125651325
+    timezone: America/Chicago
+    humra: 0
+  - name: Cincinnati, OH
+    lat: 39.196090100714315
+    lng: -84.44458229822393
+    timezone: America/New_York
+    humra: 0
+  - name: Cleveland, OH
+    #flag: https://upload.wikimedia.org/wikipedia/commons/4/4c/Flag_of_Ohio.svg
+    # Location: Young Israel of Greater Cleveland
+    lat: 41.49275318797232
+    lng: -81.5160625033638
+    timezone: America/New_York
+    humra: 0
+  - name: Dallas, TX
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg
+    # Location: Congregation Toras Chaim
+    lat: 32.99741715565875
+    lng: -96.78097876171452
+    timezone: America/Chicago
+    doubleLocation: True
+    humra: 1
+  - name: Deal/Lakewood, NJ
+    # Location: Beth Medrash Govoha
+    lat: 40.09562417811022
+    lng: -74.22206003964102
+    timezone: America/New_York
+    humra: 1
+  - name: Denver, CO
+    #flag: https://upload.wikimedia.org/wikipedia/commons/4/46/Flag_of_Colorado.svg
+    # Location: Aish of the Rockies
+    lat: 39.623743899831325
+    lng: -104.87754202891581
+    timezone: America/Denver
+    humra: 0
+  - name: Detroit, MI
+    # Location: Beth Tefilo
+    lat: 42.46863506203298
+    lng: -83.20178168922764
+    timezone: America/New_York
+    humra: 0
+  - name: East Stroudsburg, PA
+    # Location: Camp Dora Golding
+    lat: 41.054291084356464
+    lng: -75.15068351567173
+    timezone: America/New_York
+    humra: 0
+  - name: Houston, TX
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg
+    # Location: Uptown Chabad
+    lat: 29.743773687328083
+    lng: -95.4515488015217
+    timezone: America/Chicago
+    doubleLocation: True
+    humra: 1
+  - name: Las Vegas, NV
+    #flag: "https://upload.wikimedia.org/wikipedia/commons/7/74/State_Seal_of_Nevada.svg"
+    # Location: Mesivta of Las Vagas
+    lat: 36.141846544208185
+    lng: -115.28237053926483
+    timezone: America/Los_Angeles
+    humra: 0
+  - name: Los Angeles, CA
+    #flag: https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_California.svg
+    # Location: Valley Torah High School
+    lat: 34.1688520530159
+    lng: -118.40607216944592
+    timezone: America/Los_Angeles
+    humra: 1
+  - name: Miami, FL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
+    # Location: Chabad of Midtown Miami
+    lat: 25.804507405080564
+    lng: -80.19053877936163
+    timezone: America/New_York
+    doubleLocation: True
+    humra: 0
+  - name: Minneapolis, MN
+    # Location: Bais Yisroel
+    lat: 44.94920049871677
+    lng: -93.33365938070462
+    timezone: America/Chicago
+#  - name: Monsey
+#    flag: 🇺🇸
+#    # Location: Yeshiva Tiferet Torah
+#    lat: 41.09721330539338
+#    lng: -74.07531789904493
+#    timezone: America/New_York
+#    humra: 0
+  - name: Nashville, TN
+    # Location: Chabad
+    lat: 36.06225223630986
+    lng: -86.92306606904569
+    timezone: America/Chicago
+  - name: Norfolk, VA
+    # Location: B’nai Israel Congregation
+    lat: 36.86656375645289
+    lng: -76.29166957486076
+    timezone: America/New_York
+  - name: Orlando, FL
+    # Location: Chabad
+    lat: 28.450468208094588
+    lng: -81.48257799439362
+    timezone: America/New_York
+    doubleLocation: True
+  - name: Phoenix, AZ
+    #flag: https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arizona.svg
+    # Location: Young Israel of Pheonix
+    lat: 33.528400
+    lng: -112.065002
+    timezone: America/Denver
+    humra: 0
+  - name: Philadelphia, PA
+    #flag: https://upload.wikimedia.org/wikipedia/commons/5/5d/Flag_of_Philadelphia%2C_Pennsylvania.svg
+    # Location: Talmudic Yeshiva of Philadelphia
+    lat: 39.98928008362471
+    lng: -75.24796098612637
+    timezone: America/New_York
+    humra: 0
+  - name: Puerto Rico
+    #flag: https://upload.wikimedia.org/wikipedia/commons/2/28/Flag_of_Puerto_Rico.svg
+    # Location: Chabad Jewish Center of Puerto Rico
+    lat: 18.4442630085944
+    lng: -66.01568114134614
+    timezone: America/Puerto_Rico
+    humra: 0
+  - name: Richmond, VA
+    lat: 37.589138064524455
+    lng: -77.52950495042002
+    timezone: America/New_York
+  - name: San Francisco, CA
+    #flag: https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_California.svg
+    # Location: Chabad of the Neighborhood
+    lat: 37.73985657236113
+    lng: -122.46842797244682
+    timezone: America/Los_Angeles
+    doubleLocation: True
+    humra: 0
+  - name: San Diego, CA
+    # Location: Adat Yeshurun
+    lat: 32.86391004347926
+    lng: -117.23910506437377
+    timezone: America/Los_Angeles
+  - name: San Jose, CA
+    # Location: Chabad
+    lat: 37.24497324161597
+    lng: -121.95908744526422
+    timezone: America/Los_Angeles
+    doubleLocation: True
+  - name: Seattle, WA
+    #flag: https://upload.wikimedia.org/wikipedia/commons/5/54/Flag_of_Washington.svg
+    # Location: Sephardic Bikur Holim Congregation
+    lat: 47.54453824815417
+    lng: -122.26683403258228
+    timezone: America/Los_Angeles
+    humra: 0
+  - name: South Bend, IN
+    # Location: Yeshiva Gedolah
+    lat: 41.64161867768027
+    lng: -86.23961809975386
+    timezone: America/New_York
+#  - name: Surfside, FL
+#    # Location: THE Shul
+#    lat: 25.88582456842674
+#    lng: -80.12272002715574
+#    timezone: America/New_York
+#    doubleLocation: True
+  - name: Tampa, FL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
+    # Location: 
+    lat: 27.987052274209734
+    lng: -82.57645831769476
+    timezone: America/New_York
+    humra: 0
+  - name: Waterbury, CT
+    #flag: https://upload.wikimedia.org/wikipedia/commons/9/96/Flag_of_Connecticut.svg
+    # Location: R Sonnenshine
+    lat: 41.57191699168177
+    lng: -73.04407703185714
+    timezone: America/New_York
+    humra: 0
+int:
+  - name:
+      en: Jerusalem
+      hb: ירושלים
+    flag: 🇮🇱
+    # Location: Kotel
+    lat: 31.776766188649376
+    lng: 35.23450233337062
+    timezone: Asia/Jerusalem
+    elevation: 788
+    humra: 0
+  - name:
+      en: Haifa
+      hb: חיפה
+    flag: 🇮🇱
+    # Location: Yeshiva Mevaser Shalom
+    lat: 32.77959008665043
+    lng: 34.99117381483697
+    timezone: Asia/Jerusalem
+    elevation: 282
+    humra: 0
+  - name:
+      en: Tel-Aviv
+      hb: תל-אביב
+    flag: 🇮🇱
+    # Location: Central Chabad of Tel Aviv
+    lat: 32.070030475322845
+    lng: 34.773052506343284
+    timezone: Asia/Jerusalem
+    elevation: 19
+    humra: 0
+  - name:
+      en: Bet Shemesh
+      hb: בית שמש
+    flag: 🇮🇱
+    # Location: Netzach Yisrael
+    lat: 31.722984873344494
+    lng: 34.99215294269103
+    timezone: Asia/Jerusalem
+    elevation: 275
+    humra: 0
+  - name:
+      en: Montreal
+      hb: מונטריאול
+    flag: 🇨🇦
+    # Location: Academy Yeshiva Yavne
+    lat: 45.4612709318975
+    lng: -73.66436583221801
+    timezone: America/New_York
+    humra: 0
+  - name:
+      en: Toronto
+      hb: טורונטו
+    flag: 🇨🇦
+    # Location: Agudas Yisrael of Toronto
+    lat: 43.735631103552414
+    lng: -79.43261235761372
+    timezone: America/New_York
+    humra: 0
+  - name:
+      en: Vancouver
+      hb: ונקובר
+    flag: 🇨🇦
+    # Location: Chabad of Downtime
+    lat: 49.2770162203696
+    lng: -123.12782594833551
+    timezone: America/Los_Angeles
+    humra: 0
+  # - name: Neko Harbour
+  #   flag: 🇦🇶
+  #   # Location: KosherJavaTest
+  #   lat: -64.83
+  #   lng: -62.66
+  #   timezone: Antarctica/Palmer
+  #   humra: 0
+  # - name: King George Island
+  #   flag: 🇦🇶
+  #   # Location: KosherJavaTest
+  #   lat: -62.2
+  #   lng: -59
+  #   timezone: Antarctica/Palmer
+  #   humra: 0
+  - name:
+      en: London
+      hb: לונדון
+    flag: 🇬🇧
+    # Location: East London Central Synagogue
+    lat: 51.51533191532832
+    lng: -0.05952736014698637
+    timezone: Europe/London
+    humra: 0
+  - name:
+      en: Manchester
+      hb: מנצ'סטר
+    flag: 🇬🇧
+    # Location: Manchester Yeshiva - Kollel
+    lat: 53.51573749687538
+    lng: -2.2446087931448964
+    timezone: Europe/London
+    humra: 0
+#  - name:
+#      en: Casablanca
+#      hb: קזבלנקה
+#    flag: 🇲🇦
+#    # Location: Beth-El
+#    lat: 33.595913641003186
+#    lng: -7.62685776498386
+#    timezone: Africa/Casablanca
+#  - name:
+#      en: Fez
+#      hb: פאס
+#    flag: 🇲🇦
+#    # Location: Aben Danan Synagogue
+#    lat: 34.05265608796703
+#    lng: -4.991739839996843
+#    timezone: Africa/Casablanca
+  - name:
+      en: Melbourne
+      hb: מלבורן
+    flag: 🇦🇺
+    # Location: Beit Chabad of Melbourne
+    lat: -37.87212345318587
+    lng: 145.02129792015762
+    timezone: Australia/Melbourne
+    humra: 0
+  - name:
+      en: Sydney
+      hb: סידני
+    flag: 🇦🇺
+    # Location: Newtown Synagogue
+    lat: -33.893687157730575
+    lng: 151.18556499207457
+    timezone: Australia/Sydney
+#  - name:
+#      en: Budapest
+#      hb: בודפשט
+#    flag: 🇭🇺
+#    # Location: Bet Chabad Budapest
+#    lat: 47.495667884196365
+#    lng: 19.0582288815067
+#    timezone: Europe/Budapest
+#    humra: 0
+  - name:
+      en: Buenos Aires
+      hb: בואנוס איירס
+    flag: 🇦🇷
+    # Location: Od Yosef Hai
+    lat: -34.600264096797304
+    lng: -58.41267052919149
+    timezone: America/Argentina/Buenos_Aires
+#  - name:
+#      en: Dubai
+#      hb: דובאי
+#    flag: 🇦🇪
+#    # Location: JCC
+#    lat: 25.077169848653405
+#    lng: 55.14052293818169
+#    timezone: Asia/Dubai
+#  - name:
+#      en: Gibraltar
+#      hb: גיברלטר
+#    flag: 🇪🇺
+#    # Location: Kollel
+#    lat: 36.13928732570956
+#    lng: -5.354612017938431
+#    timezone: Europe/Gibraltar
+#  - name:
+#      en: Istanbul
+#      hb: איסטנבול
+#    flag: 🇹🇷
+#    # Location: Beth Israel
+#    lat: 41.05435605836154
+#    lng: 28.985693291500237
+#    timezone: Europe/Istanbul
+#  - name:
+#      en: Johannesburg
+#      hb: יוהנסבורג
+#    flag: 🇿🇦
+#    # Location: Aish Hatorah
+#    lat: -26.148241441075868
+#    lng: 28.101528097071967
+#    timezone: Africa/Johannesburg
+#    humra: 0
+  - name:
+      en: Mexico City
+      hb: העיר מקסיקו
+    flag: 🇲🇽
+    # Location: Maguen David
+    lat: 19.432050965534625
+    lng: -99.20391641868167
+    timezone: America/Mexico_City
+#  - name:
+#      en: Moscow
+#      hb: מוסקבה
+#    flag: 🇷🇺
+#    # Location: Memorial Synagogue on Poklonnaya Hill
+#    lat: 55.730007261775775
+#    lng: 37.49621562637213
+#    timezone: Europe/Moscow
+#    humra: 0
+  - name:
+      en: Panama City
+      hb: העיר פנמה
+    flag: 🇵🇦
+    # Location: Chabad of Panama City Beach
+    lat: 30.184364584099537
+    lng: -85.80425262990799
+    timezone: America/Panama
+    humra: 0
+  - name:
+      en: Paris
+      hb: פריז
+    flag: 🇫🇷
+    # Location: Beth Yaacov
+    lat: 48.86535400728481
+    lng: 2.403776330433585
+    timezone: Europe/Paris
+  - name:
+      en: São Paulo
+      hb: סאו פאולו
+    flag: 🇧🇷
+    # Location: Mekor Haim
+    lat: -23.536875415672412
+    lng: -46.65604401017217
+    timezone: America/Sao_Paulo
+  - name:
+      en: Uman
+      hb: אומאן
+    flag: 🇺🇦
+    # Location: Heichal Hakodesh
+    lat: 48.74630483820283
+    lng: 30.23306872988433
+    timezone: Europe/Kyiv
+#  - name:
+#      en: Tehran
+#      hb: טהראן
+#    flag: 🇮🇷
+#    # Location: Abrishami
+#    lat: 35.713248686873925
+#    lng: 51.404035434300916
+#    timezone: Asia/Tehran
+#    humra: 0
+#  - name:
+#      en: Vienna
+#      hb: וינה
+#    flag: 🇦🇹
+#    # Location: Machsike hadaat
+#    lat: 48.21607277666811
+#    lng: 16.38237854825104
+#    timezone: Europe/Vienna
+#    humra: 0
+  # - name: Kurima Island, Japan
+  #   flag: 🇯🇵
+  #   # Location: Grabbed from KosherJavaTest
+  #   lat: 24.721
+  #   lng: 125.2387
+  #   timezone: Asia/Tokyo
+  #   humra: 0

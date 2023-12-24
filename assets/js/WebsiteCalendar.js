@@ -99,6 +99,13 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 	}
 
+	formatJewishMonth() {
+		return {
+			english: this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'}),
+			hebrew: this.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})
+		}
+	}
+
 	formatFancyDate() {
 		return `${daysForLocale('en')[this.getDate().dayOfWeek]}, ${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day)}`
 	}
@@ -217,7 +224,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			[KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH]: {
 				"hebrew": 'צום גדליע (השבעי)',
 				"english-translated": "Tzom Gedalia (7<sup>th</sup> month)",
-				"english": "Fast of the 5<sup>th</sup> month"
+				"english": "Fast of the 7<sup>th</sup> month"
 			},
 			[KosherZmanim.JewishCalendar.TENTH_OF_TEVES]: {
 				"hebrew": 'צום העשירי',

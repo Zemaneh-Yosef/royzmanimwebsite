@@ -110,6 +110,10 @@ class GRAZmanim extends ZmanimMathBase {
 		return this.plagHaminchaCore(this.zmanim.sunset());
 	}
 
+	getEarliestMinchaBirkatKohanim() {
+		return this.zmanim.sunset().subtract({ minutes: 30 })
+	}
+
 	getCandleLighting() {
 		return this.zmanim.sunset().subtract({ minutes: this.coreZC.getCandleLightingOffset() })
 	}
@@ -347,6 +351,13 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
 			})
 	}
 
+	getTzaitLechumra() {
+		return this.zmanim.sunset()
+			.add({
+				milliseconds: Math.trunc(this.fixedToZmaniyot(20, {length: "minutes", measure: "gra"}))
+			})
+	}
+
 	getTzaitTaanit() {
 		return this.zmanim.sunset().add({ minutes: 20 });
 	}
@@ -377,7 +388,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[1]} sunset 
 	 * @returns {ReturnType<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>}
 	 */
-	getPercentOfShaahZmanisFromDegreesOnEquinoxDay(degree, sunset) {
+	equinoxSeasonalHourPercentFromDegrees(degree, sunset) {
 		const equinoxDayZmanim = new KosherZmanim.ZmanimCalendar(this.coreZC.getGeoLocation());
 		equinoxDayZmanim.setUseElevation(false);
 		equinoxDayZmanim.setDate(new Date("March 17 " + this.coreZC.getDate().year.toString()));
@@ -385,7 +396,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getAlotHashachar(zemaniyot={minutes: 72, degree: 16.04}) {
-		const sunrisePercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(zemaniyot.degree, false);
+		const sunrisePercent = this.equinoxSeasonalHourPercentFromDegrees(zemaniyot.degree, false);
 		return this.zmanim.sunrise()
 			.subtract({
 				milliseconds: Math.trunc(this.fixedToZmaniyot(sunrisePercent, {length: "hours", measure: "gra"}))
@@ -393,7 +404,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getMisheyakir(alotZemaniyot={minutes: 72, degree: 16.04}, percentageForMisheyakir=(5/6)) {
-		const sunrisePercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(alotZemaniyot.degree, false);
+		const sunrisePercent = this.equinoxSeasonalHourPercentFromDegrees(alotZemaniyot.degree, false);
 		return this.zmanim.sunrise()
 			.subtract({
 				milliseconds: Math.trunc(this.fixedToZmaniyot(sunrisePercent, {length: "hours", measure: "gra"}) * percentageForMisheyakir)
@@ -401,7 +412,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getTzait() {
-		const sunsetPercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(3.77, true);
+		const sunsetPercent = this.equinoxSeasonalHourPercentFromDegrees(3.77, true);
 		return this.zmanim.sunset()
 			.add({
 				milliseconds: Math.trunc(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
@@ -409,7 +420,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getTzaitLechumra() {
-		const sunsetPercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(5.135, true);
+		const sunsetPercent = this.equinoxSeasonalHourPercentFromDegrees(5.135, true);
 		return this.zmanim.sunset()
 			.add({
 				milliseconds: Math.trunc(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
@@ -417,7 +428,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getTzaitBenIshHai() {
-		const sunsetPercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(6.563, true);
+		const sunsetPercent = this.equinoxSeasonalHourPercentFromDegrees(6.563, true);
 		return this.zmanim.sunset()
 			.add({
 				milliseconds: Math.trunc(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
@@ -442,7 +453,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getTzait72Zmanit() {
-		const sunsetPercent = this.getPercentOfShaahZmanisFromDegreesOnEquinoxDay(16.01, true);
+		const sunsetPercent = this.equinoxSeasonalHourPercentFromDegrees(16.01, true);
 		return this.zmanim.sunset()
 			.add({
 				milliseconds: Math.trunc(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
