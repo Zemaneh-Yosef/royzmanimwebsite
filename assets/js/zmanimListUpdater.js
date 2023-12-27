@@ -6,6 +6,8 @@ import WebsiteCalendar from "./WebsiteCalendar.js";
 import { settings } from "./settings/handler.js";
 import { ChaiTables } from "./chaiTables.js";
 
+import icsExport from "./icsHandler.js";
+
 class zmanimListUpdater {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
@@ -54,16 +56,14 @@ class zmanimListUpdater {
 
 		this.zmanFuncs.coreZC.setCandleLightingOffset(settings.candleLighting());
 
-		this.zmanFuncs.coreZC.setDate(this.jCal.getDate().toZonedDateTime(this.geoLocation.getTimeZone()));
-
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 		this.dtF = [settings.language() == 'hb' ? 'he' : 'en', {
 			hourCycle: settings.timeFormat(),
 			timeStyle: settings.seconds() ? "medium" : "short"
 		}];
 
-		//this.chaiTableInfo = new ChaiTables(this.geoLocation);
-		//this.chaiTableInfo.initForm();
+		this.chaiTableInfo = new ChaiTables(this.geoLocation);
+		this.chaiTableInfo.initForm();
 
 		this.lastData = {
 			'parsha': undefined,
@@ -74,16 +74,16 @@ class zmanimListUpdater {
 		}
 
 		this.setNextUpcomingZman();
-		this.changeDate(this.zmanFuncs.coreZC.getDate())
+		this.changeDate(this.jCal.getDate())
 	}
 
 	/**
-	 * @param {KosherZmanim.Temporal.ZonedDateTime} date
+	 * @param {KosherZmanim.Temporal.PlainDate} date
 	 * @param {boolean} internal 
 	 */
 	changeDate(date, internal=false) {
 		this.zmanFuncs.coreZC.setDate(date)
-		this.jCal.setDate(date.toPlainDate());
+		this.jCal.setDate(date);
 
 		if (!internal) {
 			this.updateZmanimList();
@@ -134,6 +134,36 @@ class zmanimListUpdater {
 			dateContainer.querySelector(`[data-zfReplace="${dateName}Date"]`).innerHTML = date[dateName]
 		}
 
+		dateContainer.querySelector(`[data-zfReplace="primaryDate"]`).addEventListener('click', () => {
+			const geoLocationParams = [
+				this.geoLocation.getLocationName(),
+				this.geoLocation.getLatitude(),
+				this.geoLocation.getLongitude(),
+				this.geoLocation.getElevation(),
+				this.geoLocation.getTimeZone()
+			];
+
+			const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
+
+			const icsData = icsExport(
+				this.zmanFuncs instanceof AmudehHoraahZmanim,
+				[isoDay, isoMonth, isoYear, isoCalendar],
+				// @ts-ignore
+				geoLocationParams,
+				this.zmanFuncs.coreZC.isUseElevation()
+			)
+			const element = document.createElement('a');
+			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
+			element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + " - " + this.geoLocation.getLocationName() + ".ics");
+
+			element.style.display = 'none';
+			document.body.appendChild(element);
+
+			element.click();
+
+			document.body.removeChild(element);
+		})
+
 		const boldDateHandler = (this.jCal.getDate().dayOfYear == KosherZmanim.Temporal.Now.plainDateISO().dayOfYear
 		&& this.jCal.getDate().year == KosherZmanim.Temporal.Now.plainDateISO().year) ? 'add' : 'remove'
 		dateContainer.classList[boldDateHandler]("text-bold");
@@ -149,9 +179,8 @@ class zmanimListUpdater {
 
 			for (const calendarBtn of dateContainer.getElementsByTagName('input')) {
 				calendarBtn.addEventListener('calendarInsert',
-					() => this.changeDate(KosherZmanim.Temporal.ZonedDateTime
+					() => this.changeDate(KosherZmanim.Temporal.PlainDate
 						.from(new Date(calendarBtn.getAttribute("date-value")).toString())
-						.with({ timeZone: this.geoLocation.getTimeZone()})
 					)
 				)
 			}
@@ -701,13 +730,13 @@ class zmanimListUpdater {
 					if (tishaBeav.getDayOfWeek() == 7)
 						tishaBeav.setJewishDayOfMonth(10);
 	
-					monthCalc.setDate(tishaBeav.getDate().toZonedDateTime(this.geoLocation.getTimeZone()));
+					monthCalc.setDate(tishaBeav.getDate());
 					break;
 				case KosherZmanim.JewishCalendar.TISHREI:
 					const yomKippur = this.jCal.clone();
 					yomKippur.setJewishDayOfMonth(10);
 	
-					monthCalc.setDate(yomKippur.getDate().toZonedDateTime(this.geoLocation.getTimeZone()));
+					monthCalc.setDate(yomKippur.getDate());
 					break;
 			}
 
@@ -728,7 +757,7 @@ class zmanimListUpdater {
 		const currentSelectedDate = this.zmanFuncs.coreZC.getDate();
 
 		for (const time of [0, 1]) {
-			this.changeDate(KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).add({ days: time }), true);
+			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO().add({ days: time }), true);
 			zmanim.push(...Object.values(this.getZmanimInfo()).filter(obj => obj.display == 1).map(time => time.luxonObj));
 		}
 

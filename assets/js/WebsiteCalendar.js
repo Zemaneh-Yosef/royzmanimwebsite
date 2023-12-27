@@ -188,7 +188,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"english-translated": "Hoshanah Rabba - 7th day of Sukkoth",
 				"english": "7th day of Sukkoth (Hoshana Rabba)"
 			},
-		
+
 			// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 			// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 			[KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: {
@@ -199,7 +199,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": (this.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
 				"english": (this.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
 			},
-		
+
 			// Semi-Holidays & Fasts
 			[KosherZmanim.JewishCalendar.PESACH_SHENI]: {
 				"hebrew": "פסח שני",
@@ -260,7 +260,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": "ראש חודש",
 				english: "Rosh Hodesh"
 			},
-		
+
 			// Modern-Day Celebrations
 			[KosherZmanim.JewishCalendar.YOM_HASHOAH]: {
 				hebrew: "יום השועה",
@@ -675,7 +675,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 }
 
-function getOrdinal (/** @type {number} */ n) {
+export function getOrdinal (/** @type {number} */ n) {
 	return n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
 }
 

@@ -28,7 +28,7 @@ for (const title of document.getElementsByClassName('shabbatTitleCore')) {
 let shitot = document.getElementById("innerDisplay").firstElementChild.getAttribute("data-columns").split(" ");
 
 jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.KISLEV, 24);
-calc.coreZC.setDate(jCal.getDate().toZonedDateTime(settings.location.timezone()));
+calc.coreZC.setDate(jCal.getDate());
 
 /** @type {Record<string, { plagHamincha: KosherZmanim.Temporal.ZonedDateTime; msg?: string } & ({ candleLighting: KosherZmanim.Temporal.ZonedDateTime } | { tzetShabbat: KosherZmanim.Temporal.ZonedDateTime; rt: KosherZmanim.Temporal.ZonedDateTime } | Record<string, KosherZmanim.Temporal.ZonedDateTime>)>} */
 const timeSchedule = {};

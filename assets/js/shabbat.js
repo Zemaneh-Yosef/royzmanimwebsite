@@ -43,8 +43,6 @@ for (const elem of elems) {
     const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
     const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
 
-    const zonedDT = shabbatDate.toZonedDateTime(elem.getAttribute('data-timezone'))
-
     const geoLocationsParams = [
         "null",
         parseFloat(elem.getAttribute("data-lat")),
@@ -64,7 +62,7 @@ for (const elem of elems) {
 
     let editElem = elem;
 
-    currentCalc.coreZC.setDate(zonedDT.subtract({ days: 1 }));
+    currentCalc.coreZC.setDate(shabbatDate.subtract({ days: 1 }));
     for (const friShita of shitot.fri) {
         editElem = editElem.nextElementSibling
 
@@ -77,7 +75,7 @@ for (const elem of elems) {
         editElem.innerHTML = time.toLocaleString(...dtF);
     }
 
-    currentCalc.coreZC.setDate(zonedDT);
+    currentCalc.coreZC.setDate(shabbatDate);
     for (const shabShita of shitot.shab) {
         editElem = editElem.nextElementSibling
 
@@ -106,7 +104,7 @@ for (const elem of elems) {
             const baseLocation = doubleLocations[stateLocation].elem;
 
             const baseCalc = (baseLocation.getAttribute('data-timezone') == 'Asia/Jerusalem' ? new OhrHachaimZmanim(doubleLocations[stateLocation].geo, true) : new AmudehHoraahZmanim(doubleLocations[stateLocation].geo))
-            baseCalc.coreZC.setDate(zonedDT);
+            baseCalc.coreZC.setDate(shabbatDate);
 
             const compTimes = baseCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 }).until(currentCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 })).total({ unit: 'minutes' })
             if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
@@ -123,8 +121,8 @@ for (const elem of elems) {
 
                 let baseEditElem = baseLocation;
                 editElem = elem;
-                currentCalc.coreZC.setDate(zonedDT.subtract({ days: 1 }));
-                baseCalc.coreZC.setDate(zonedDT.subtract({ days: 1 }));
+                currentCalc.coreZC.setDate(shabbatDate.subtract({ days: 1 }));
+                baseCalc.coreZC.setDate(shabbatDate.subtract({ days: 1 }));
                 for (const friShita of shitot.fri) {
                     editElem = editElem.nextElementSibling
                     baseEditElem = baseEditElem.nextElementSibling;
@@ -144,8 +142,8 @@ for (const elem of elems) {
                     baseEditElem.innerHTML = curCalcTime.toLocaleString(...dtF)
                 }
 
-                currentCalc.coreZC.setDate(zonedDT);
-                baseCalc.coreZC.setDate(zonedDT);
+                currentCalc.coreZC.setDate(shabbatDate);
+                baseCalc.coreZC.setDate(shabbatDate);
 
                 for (const shabShita of shitot.shab) {
                     editElem = editElem.nextElementSibling

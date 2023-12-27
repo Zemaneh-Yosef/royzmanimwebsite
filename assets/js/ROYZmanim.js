@@ -18,6 +18,25 @@ class ZmanimMathBase {
 		}
 	}
 
+	/** @returns {this} */
+	tomorrow() {
+		let calc;
+		if (this instanceof OhrHachaimZmanim) {
+			calc = new OhrHachaimZmanim(this.coreZC.getGeoLocation(), this.coreZC.isUseElevation());
+		} else {
+			calc = new (
+				this instanceof AmudehHoraahZmanim ? AmudehHoraahZmanim :
+					this instanceof AlotTzeitZmanim ? AlotTzeitZmanim :
+						this instanceof GRAZmanim ? GRAZmanim : ZmanimMathBase)(this.coreZC.getGeoLocation())
+		}
+
+		calc.coreZC.setAstronomicalCalculator(this.coreZC.getAstronomicalCalculator())
+		calc.coreZC.setDate(this.coreZC.getDate().add({days: 1}));
+
+		// @ts-ignore
+		return calc;
+	}
+
 	/**
 	 * @param {{
 	 * 	length: "hours"|"minutes";
