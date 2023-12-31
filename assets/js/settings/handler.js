@@ -80,7 +80,10 @@ const settings = Object.freeze({
         tzeitTaanitHumra: () => settingsURLOverride("tzeitTaanitHumra") == "true",
         /** @returns {'hatzoth'|'arbitrary'} */
         // @ts-ignore
-        tekufa: () => ['hatzoth', 'arbitrary'].includes(settingsURLOverride("tekufa")) ? settingsURLOverride("tekufa") : 'hatzoth'
+        tekufaMidpoint: () => ['hatzoth', 'arbitrary'].includes(settingsURLOverride("tekufa")) ? settingsURLOverride("tekufa") : 'hatzoth',
+        /** @returns {'shemuel'|'adabaravah'} */
+        // @ts-ignore
+        tekufaCalc: () => ['shemuel', 'adabaravah'].includes(settingsURLOverride("tekufaCalc")) ? settingsURLOverride("tekufaCalc") : 'shemuel'
     },
     customTimes: {
         candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,

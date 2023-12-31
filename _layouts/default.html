@@ -30,9 +30,9 @@
 				<img src="/assets/images/icon-text.png" alt="Zemaneh Yosef Icon" style="width: 100%">
 			</a>
 			<ul class="nav nav-pills nav-flush flex-column mt-auto text-center">
-				<li class="nav-item">
-					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Shabbat Times" data-bs-original-title="Shabbat Times">
-						<i class="fa fa-fire" aria-hidden="true"></i>
+				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Mobile App Download">
+					<a class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#mobileModal">
+						<i class="fa fa-mobile" aria-hidden="true"></i>
 					</a>
 				</li>
 				<li>
@@ -130,6 +130,7 @@
 		{% include modals/settings.html %}
 		{% include modals/calendar.html %}
 		{% include modals/chaiTable.html %}
+		{% include modals/mobile.html %}
 		{% include toasts/failToast.html toastId="ctFailToast" errorText="ChaiTable did not return a table. Please be in contact with us to check what went wrong." %}
 		{% if page.accordian %}<script src="/assets/js/accordian.js"></script>{% endif %}
 		<script src="/assets/js/settings/docLoad.js" type="module"></script>

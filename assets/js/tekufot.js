@@ -33,61 +33,73 @@ function mjd2date(mjd){
 }
 
 /**
- * @param {number} n
- * @param {number} m
- */
-function gmod(n,m){
-    // generalized modulo function (n mod m) also valid for negative values of n
-
-    return ((n%m)+m)%m;
-}
-
-/**
  * @param {number} fday
  * @param {Temporal.PlainDate} date 
  */
 function fracday2hrmin(fday, date){
     // reduces the fractional part of the day to hours and minutes
 
-    var hour = 24*fday;
-    var hr   = Math.floor(hour);
-    var min  = Math.floor(6000*(hour-hr)+0.5);
+    const hour = 24*fday;
+    const minute = (hour - Math.trunc(hour)) * 60;
+    const second = (minute - Math.trunc(minute)) * 60; 
 
-    if(min==0)
-        return date.toPlainDateTime({ hour: hr });
-    if((min>0) && (gmod(min,10)>0) || (min>0) && (gmod(min,100)==0))
-        return date.toPlainDateTime({ hour: hr, minute: min/100 });
-    if((min>0) && (gmod(min,100)>0) && (gmod(min,10)==0))
-    return date.toPlainDateTime({ hour: hr, minute: (min/100) * 10 });
+    return date
+        .toPlainDateTime({
+            hour: Math.trunc(hour),
+            minute: Math.trunc(minute),
+            second: Math.trunc(second)
+        });
 }
 
 export default class TekufahCalculator {
     /**
      * @param {number} hebrewYear
-     * @param {boolean} [fixedClock]
      */
-    constructor(hebrewYear, fixedClock) {
-        this.hebrewYear = hebrewYear
-        this.solarYearLength = 719513280/1969920;
-        this.fixedClock = fixedClock;
-
-        this.startPoint = this.solarYearLength*(hebrewYear-1.75)-2051833
+    constructor(hebrewYear) {
+        this.setYear(hebrewYear)
     }
 
-    calculateTekufot() {
-        let temporalDates = [];
+    /**
+     * @param {number} hebrewYear
+     */
+    setYear(hebrewYear) {
+        this.hebrewYear = hebrewYear
+    }
 
-        let mjd = this.startPoint;
+    /**
+     * @param {boolean} fixedClock
+     */
+    calculateTekufotShemuel(fixedClock) {
+        let temporalDates = [];
+        const solarYearLength = 719513280/1969920;
+
+        let mjd = solarYearLength*(this.hebrewYear-1.75)-2051833;
         for (let index = 0; index < 6; index++) {
-            mjd += this.solarYearLength/4;
+            mjd += solarYearLength/4;
             let f = mjd-Math.floor(mjd);
 
             f = (mjd-0.25)-Math.floor(mjd-0.25);
             temporalDates.push(fracday2hrmin(f, mjd2date(mjd-0.25)))
         }
 
-        if (!this.fixedClock)
+        if (!fixedClock)
             temporalDates = temporalDates.map(temporal => temporal.subtract({ minutes: 21 }))
+
+        return temporalDates;
+    }
+
+    calculateTekufotRAda() {
+        let temporalDates = [];
+        const solarYearLength = 719507020/1969920;
+
+        let mjd = solarYearLength*(this.hebrewYear-1.75)-2051826;
+        for (let index = 0; index < 6; index++) {
+            mjd += solarYearLength/4;
+            let f = mjd-Math.floor(mjd);
+
+            f = (mjd-0.25)-Math.floor(mjd-0.25);
+            temporalDates.push(fracday2hrmin(f, mjd2date(mjd-0.25)))
+        }
 
         return temporalDates;
     }

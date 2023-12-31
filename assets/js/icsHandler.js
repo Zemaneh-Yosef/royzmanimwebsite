@@ -27,7 +27,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
     const jCal = new WebsiteCalendar(baseDate);
     jCal.setInIsrael(isIsrael)
     const calc = (amudehHoraahZman ? new AmudehHoraahZmanim(geoLocation) : new OhrHachaimZmanim(geoLocation, useElevation));
-    calc.coreZC.setDate(baseDate);
+    calc.setDate(baseDate);
 
     /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
     const dtF = [settings.language() == 'hb' ? 'he' : 'en', {
@@ -64,8 +64,9 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
         }
 
         if (jCal.getDate().dayOfWeek == 5 && !jCal.tomorrow().isYomTovAssurBemelacha()) {
+            const parasha = jCal.getHebrewParasha().join(" / ");
             events.push({
-                title: "שבת " + (jCal.getHebrewParasha().join(" / "))
+                title: "שבת " + (parasha == "No Parasha this week" ? jCal.tomorrow().getYomTov() : parasha)
                     + (jCal.tomorrow().isChanukah() ? " | " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night of Hanukah" : ""),
                 start: calc.getCandleLighting().epochMilliseconds,
                 end: calc.tomorrow().getTzaitShabbath().epochMilliseconds,
@@ -128,7 +129,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
         }
 
         jCal.setDate(jCal.getDate().add({ days: 1 }));
-        calc.coreZC.setDate(calc.coreZC.getDate().add({ days: 1 }))
+        calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
     }
 
     const labeledEvents = events.map(obj => ({

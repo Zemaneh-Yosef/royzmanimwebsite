@@ -106,7 +106,7 @@ class zmanimListUpdater {
 	 * @param {boolean} internal 
 	 */
 	changeDate(date, internal=false) {
-		this.zmanFuncs.coreZC.setDate(date)
+		this.zmanFuncs.setDate(date)
 		this.jCal.setDate(date);
 
 		if (!internal) {
@@ -158,43 +158,42 @@ class zmanimListUpdater {
 			dateContainer.querySelector(`[data-zfReplace="${dateName}Date"]`).innerHTML = date[dateName]
 		}
 
-		dateContainer.querySelector(`[data-zfReplace="primaryDate"]`).addEventListener('click', () => {
-			const geoLocationParams = [
-				this.geoLocation.getLocationName(),
-				this.geoLocation.getLatitude(),
-				this.geoLocation.getLongitude(),
-				this.geoLocation.getElevation(),
-				this.geoLocation.getTimeZone()
-			];
-
-			const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
-
-			const icsData = icsExport(
-				this.zmanFuncs instanceof AmudehHoraahZmanim,
-				[isoYear, isoMonth, isoDay, isoCalendar],
-				// @ts-ignore
-				geoLocationParams,
-				this.zmanFuncs.coreZC.isUseElevation(),
-				this.jCal.getInIsrael(),
-				this.zmanimList
-			)
-			const element = document.createElement('a');
-			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
-			element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + " - " + this.geoLocation.getLocationName() + ".ics");
-
-			element.style.display = 'none';
-			document.body.appendChild(element);
-
-			element.click();
-
-			document.body.removeChild(element);
-		})
-
-		const boldDateHandler = (this.jCal.getDate().dayOfYear == KosherZmanim.Temporal.Now.plainDateISO().dayOfYear
-		&& this.jCal.getDate().year == KosherZmanim.Temporal.Now.plainDateISO().year) ? 'add' : 'remove'
+		const boldDateHandler = (this.jCal.getDate().equals(KosherZmanim.Temporal.Now.plainDateISO())) ? 'add' : 'remove'
 		dateContainer.classList[boldDateHandler]("text-bold");
 
 		if (!this.buttonsInit) {
+			dateContainer.querySelector(`[data-zfReplace="primaryDate"]`).addEventListener('click', () => {
+				const geoLocationParams = [
+					this.geoLocation.getLocationName(),
+					this.geoLocation.getLatitude(),
+					this.geoLocation.getLongitude(),
+					this.geoLocation.getElevation(),
+					this.geoLocation.getTimeZone()
+				];
+	
+				const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
+	
+				const icsData = icsExport(
+					this.zmanFuncs instanceof AmudehHoraahZmanim,
+					[isoYear, isoMonth, isoDay, isoCalendar],
+					// @ts-ignore
+					geoLocationParams,
+					this.zmanFuncs.coreZC.isUseElevation(),
+					this.jCal.getInIsrael(),
+					this.zmanimList
+				)
+				const element = document.createElement('a');
+				element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
+				element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + " - " + this.geoLocation.getLocationName() + ".ics");
+	
+				element.style.display = 'none';
+				document.body.appendChild(element);
+	
+				element.click();
+	
+				document.body.removeChild(element);
+			})
+
 			for (const dateChanger of Array.from(dateContainer.getElementsByTagName('button')).filter(btn => btn.hasAttribute('data-dateAlter'))) {
 				const days = parseInt(dateChanger.getAttribute("data-dateAlter"))
 				if (isNaN(days))
@@ -436,8 +435,7 @@ class zmanimListUpdater {
 			}
 		)
 
-		const tekufaDate = this.zmanFuncs.nextTekufa(settings.calendarToggle.tekufa() !== "hatzoth");
-		console.log(this.jCal.getDate().toZonedDateTime(this.zmanFuncs.coreZC.getGeoLocation().getTimeZone()).until(tekufaDate).total('days'))
+		const tekufaDate = this.zmanFuncs.nextTekufa(settings.calendarToggle.tekufaMidpoint() !== "hatzoth");
 		if (this.jCal.getDate().toZonedDateTime(this.zmanFuncs.coreZC.getGeoLocation().getTimeZone()).until(tekufaDate).total('days') < 1) {
 			for (let tekufa of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
 				if (!(tekufa instanceof HTMLElement))
@@ -521,12 +519,11 @@ class zmanimListUpdater {
 				this.renderDafYomi(dafContainer);
 		}
 
-		const seasonalRules = [
-			this.jCal.tefilahRules().amidah.mechayehHametim,
-			this.jCal.tefilahRules().amidah.mevarechHashanim
-		];
-		document.querySelectorAll('[data-zfReplace="SeasonalPrayers"]').forEach((seasonal) => seasonal.innerHTML = seasonalRules.filter(Boolean).join(" / "))
-		
+		for (let seasonalRuleContainer of document.querySelectorAll('[data-zfFind="SeasonalPrayers"]')) {
+			if (seasonalRuleContainer instanceof HTMLElement)
+				this.renderSeasonalRules(seasonalRuleContainer);
+		}
+
 		this.shaahZmanits();
 	}
 
@@ -551,6 +548,36 @@ class zmanimListUpdater {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
 			dafYerushalmi.innerHTML = dafYerushalmiObject.getYerushalmiMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
+		}
+	}
+
+	/**
+	 * @param {HTMLElement} [tefilahRuleContainer]
+	 */
+	renderSeasonalRules(tefilahRuleContainer) {
+		let calForRules = this.jCal;
+		if (this.jCal.getDate().equals(KosherZmanim.Temporal.Now.plainDateISO())
+		 && this.zmanFuncs.getTzait().epochMilliseconds <= KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).epochMilliseconds) {
+			calForRules = this.jCal.tomorrow();
+		}
+		const seasonalRules = [
+			this.jCal.tefilahRules().amidah.mechayehHametim,
+			this.jCal.tefilahRules().amidah.mevarechHashanim
+		];
+
+		tefilahRuleContainer.querySelector('[data-zfReplace="SeasonalPrayers"]').innerHTML = seasonalRules.filter(Boolean).join(" / ");
+
+		let shemaKolenu = this.geoLocation.getLatitude() < 0;
+		if (settings.calendarToggle.tekufaCalc() == 'adabaravah') {
+			const talUmatarRAda = this.zmanFuncs.tekufaCalc.calculateTekufotRAda()[0].toPlainDate().add({ days: 60 })
+			shemaKolenu = shemaKolenu || KosherZmanim.Temporal.PlainDate.compare(talUmatarRAda, this.jCal.getDate()) !== -1
+		}
+
+		const shemaKolenuElem = tefilahRuleContainer.querySelector('[data-zfFind="ShemaKolenu"]');
+		if (this.jCal.tefilahRules().amidah.mevarechHashanim == "ברכנו" && shemaKolenu) {
+			shemaKolenuElem.style.removeProperty("display")
+		} else {
+			shemaKolenuElem.style.display = "none";
 		}
 	}
 
@@ -600,8 +627,6 @@ class zmanimListUpdater {
 
 			dateObjs.start = (monthCalc.isUseElevation() ? monthCalc.getSunset() : monthCalc.getSeaLevelSunset());
 		}
-
-
 
 		return {
 			current: compare(dateObjs.start.epochMilliseconds, dateObjs.current.toZonedDateTime(this.geoLocation.getTimeZone()).epochMilliseconds, dateObjs.end.epochMilliseconds),

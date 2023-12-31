@@ -207,7 +207,14 @@ breakout: true
         </li>
         <li class="list-group-item" data-zfReplace="Hallel"></li>
         <li class="list-group-item" data-zfReplace="Ulchaparat"></li>
-        <li class="list-group-item" data-zfReplace="SeasonalPrayers"></li>
+        <li class="list-group-item" data-zfFind="SeasonalPrayers">
+          <span data-zfReplace="SeasonalPrayers"></span>
+          <ul data-zfFind="ShemaKolenu">
+            <li class="lang lang-hb">בשמע קולנו: "ותן טל ומתר לברכה"</li>
+            <li class="lang lang-et">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
+            <li class="lang lang-en">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
+          </ul>
+        </li>
         <li class="list-group-item" data-zfFind="Tekufa">
           <span class="lang lang-hb">תקופה <span data-zfReplace="tekufaName-hb"></span> היום בשעה <span data-zfReplace="tekufaTime"></span></span>
           <span class="lang lang-et">Tekufa <span data-zfReplace="tekufaName-en"></span> is today at <span data-zfReplace="tekufaTime"></span></span>

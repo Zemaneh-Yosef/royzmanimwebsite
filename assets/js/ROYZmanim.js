@@ -11,6 +11,7 @@ class ZmanimMathBase {
 	 */
 	constructor(geoLocation) {
 		this.coreZC = new KosherZmanim.ZmanimCalendar(geoLocation)
+		this.tekufaCalc = new TekufahCalculator(this.coreZC.getDate().withCalendar("hebrew").year);
 
 		/* getElevationAdjustedSunrise & getElevationAdjustedSunset are protected. Manually make the Object */
 		this.zmanim = {
@@ -19,8 +20,24 @@ class ZmanimMathBase {
 		}
 	}
 
+	/**
+	 * @param {KosherZmanim.Temporal.PlainDate} plainDate
+	 */
+	setDate(plainDate) {
+		this.coreZC.setDate(plainDate);
+		this.tekufaCalc.setYear(this.coreZC.getDate().withCalendar("hebrew").year)
+	}
+
 	/** @returns {this} */
 	tomorrow() {
+		return this.chainDate(this.coreZC.getDate().add({days: 1}));
+	}
+
+	/**
+	 * @param {KosherZmanim.Temporal.PlainDate} date 
+	 * @returns {this}
+	 */
+	chainDate(date) {
 		let calc;
 		if (this instanceof OhrHachaimZmanim) {
 			calc = new OhrHachaimZmanim(this.coreZC.getGeoLocation(), this.coreZC.isUseElevation());
@@ -32,7 +49,7 @@ class ZmanimMathBase {
 		}
 
 		calc.coreZC.setAstronomicalCalculator(this.coreZC.getAstronomicalCalculator())
-		calc.coreZC.setDate(this.coreZC.getDate().add({days: 1}));
+		calc.setDate(date);
 
 		// @ts-ignore
 		return calc;
@@ -95,8 +112,7 @@ class ZmanimMathBase {
 	 * @param {boolean} [fixedClock]
 	 */
 	nextTekufa(fixedClock) {
-		const tekufaCal = new TekufahCalculator(this.coreZC.getDate().withCalendar("hebrew").year, fixedClock);
-		const plainTekufoth = tekufaCal.calculateTekufot();
+		const plainTekufoth = this.tekufaCalc.calculateTekufotShemuel(fixedClock);
 		const tekufotTZ = plainTekufoth
 			.map(temporal => temporal.toZonedDateTime("+02:00").withTimeZone(this.coreZC.getGeoLocation().getTimeZone()))
 
