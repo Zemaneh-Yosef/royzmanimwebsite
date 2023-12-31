@@ -57,7 +57,8 @@ for (const elem of elems) {
     /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
     const dtF = ['en', {
         hourCycle: window.location.href.includes('usa') ? "h12" : "h24",
-        timeStyle: "short"
+        hour: 'numeric',
+        minute: '2-digit'
     }];
 
     let editElem = elem;

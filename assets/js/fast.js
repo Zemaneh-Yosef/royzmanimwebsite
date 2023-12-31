@@ -26,12 +26,12 @@ if (!jCal.isTaanis())
 
 let fastName;
 const fastMonths = {
-    4: 17,
-    5: 9,
-    10: 10
+    [WebsiteCalendar.TAMMUZ]: 17,
+    [WebsiteCalendar.AV]: 9,
+    [WebsiteCalendar.TEVES]: 10
 }
 if (!(jCal.getJewishMonth() in fastMonths))
-    fastName = (jCal.getJewishMonth() == 7 ? "צום גדליה" : "תענית אסתר")
+    fastName = (jCal.getJewishMonth() == WebsiteCalendar.TISHREI ? "צום גדליה" : "תענית אסתר")
 else
     fastName = ("צום " + n2words(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().hebrew)
 
@@ -80,7 +80,8 @@ for (const elem of elems) {
     /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
     const dtF = ['en', {
         hourCycle: window.location.href.includes('usa') ? "h12" : "h24",
-        timeStyle: "short"
+        hour: 'numeric',
+        minute: '2-digit'
     }];
 
     let editElem = elem;

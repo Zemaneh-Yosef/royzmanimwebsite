@@ -2,6 +2,8 @@
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import n2words from "../libraries/n2words.js";
+import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
+import { settings } from "./settings/handler.js";
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
@@ -147,6 +149,146 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			((this.getJewishDayOfMonth() === 14 && this.getDayOfWeek() !== 7) ||
 			 (this.getJewishDayOfMonth() === 12 && this.getDayOfWeek() === 5))
 		);
+	}
+
+	/**
+	 * @param {boolean} independent
+	 * @param {AmudehHoraahZmanim|OhrHachaimZmanim} zmanCalc
+	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: string|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
+	 */
+	getZmanimInfo(independent, zmanCalc, zmanList) {
+		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: { hb: string, en: string, "en-et": string }}>} */
+		const calculatedZmanim = {}
+
+		for (const [zmanId, zmanInfo] of Object.entries(zmanList)) {
+			calculatedZmanim[zmanId] = {
+				display: 1,
+				code: [],
+				luxonObj: null,
+				title: {
+					hb: null,
+					en: null,
+					"en-et": null
+				}
+			}
+
+			if (independent) {
+				calculatedZmanim[zmanId].title.hb = zmanInfo.title.hb
+				calculatedZmanim[zmanId].title.en = zmanInfo.title.en
+				calculatedZmanim[zmanId].title['en-et'] = zmanInfo.title['en-et']
+			}
+
+			if (zmanInfo.yomTovInclusive) {
+				// @ts-ignore
+				if (this.getYomTovIndex() !== KosherZmanim.JewishCalendar[zmanInfo.yomTovInclusive])
+					calculatedZmanim[zmanId].display = 0;
+					calculatedZmanim[zmanId].code.push('non-proper Yom Tov day')
+			}
+
+			if (zmanInfo.luachInclusive) {
+				if (!['degrees', 'seasonal'].includes(zmanInfo.luachInclusive)
+				 || settings.calendarToggle.hourCalculators() !== zmanInfo.luachInclusive
+				 || (zmanInfo.luachInclusive == 'degrees' && this.getInIsrael())) {
+					calculatedZmanim[zmanId].display = -1;
+					calculatedZmanim[zmanId].code.push('wrong luach')
+					continue;
+				}
+			}
+
+			if (zmanInfo.function) {
+				calculatedZmanim[zmanId].luxonObj = zmanCalc[zmanInfo.function]()
+			}
+
+			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
+			switch (zmanId) {
+				case 'candleLighting':
+					const tzetCandle = (this.hasCandleLighting() && this.isAssurBemelacha() && this.getDayOfWeek() !== 6);
+					const shabbatCandles = ((this.hasCandleLighting() && !this.isAssurBemelacha()) || this.getDayOfWeek() === 6);
+
+					if (!tzetCandle && !shabbatCandles) {
+						calculatedZmanim[zmanId].display = -1;
+						calculatedZmanim[zmanId].code.push('not-shabbat')
+						continue;
+					} else
+						calculatedZmanim[zmanId].luxonObj = (tzetCandle ? zmanCalc.getTzaitShabbath({minutes: 40, degree: 7.14 }) : zmanCalc.getCandleLighting());
+
+					break;
+				case 'tzeitShabbat':
+					if (this.isAssurBemelacha() && !this.hasCandleLighting()) {
+						let customMinuteDisplay = `(${settings.customTimes.tzeithIssurMelakha().minutes}m${(zmanCalc instanceof AmudehHoraahZmanim && `/${settings.customTimes.tzeithIssurMelakha().degree}°`) || ""})`
+						if (this.isYomTovAssurBemelacha() && this.getDayOfWeek() == 7) {
+							calculatedZmanim[zmanId].title.hb = `צאת השבת וחג ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzait Shabbat & Yom Tov ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.en = `Shabbat & Yom Tov Ends ${customMinuteDisplay}`;
+						} else if (this.getDayOfWeek() == 7) {
+							calculatedZmanim[zmanId].title.hb = `צאת השבת ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzait Shabbat ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.en = `Shabbat Ends ${customMinuteDisplay}`;
+						} else {
+							calculatedZmanim[zmanId].title.hb = `צאת חג ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzait Yom Tov ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.en = `Yom Tov Ends ${customMinuteDisplay}`;
+						}
+					} else {
+						calculatedZmanim[zmanId].display = 0;
+						calculatedZmanim[zmanId].code.push("Not a day with Tzet")
+					}
+					break;
+				case 'tzeit':
+					if ((this.isAssurBemelacha() && !this.hasCandleLighting()) || (this.isTaanis() && zmanCalc instanceof AmudehHoraahZmanim)) {
+						calculatedZmanim[zmanId].display = 0;
+						calculatedZmanim[zmanId].code.push("Isur Melacha Tzet")
+					}
+					break;
+				case 'tzeitLechumra':
+					if (this.isTaanis() && this.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR) {
+						calculatedZmanim[zmanId].title.hb = "צאת תענית (צאת הכוכבים)";
+						calculatedZmanim[zmanId].title['en-et'] = "Tzeit Ta'anith (Tzeit Hakochavim)";
+						calculatedZmanim[zmanId].title.en = "Fast Ends (Nightfall)";
+					} else {
+						calculatedZmanim[zmanId].title.hb = "צאת הכוכבים לחומרא";
+						calculatedZmanim[zmanId].title['en-et'] = "Tzait Hakokhavim LeKhumra";
+						calculatedZmanim[zmanId].title.en = "Nightfall (Stringent)";
+					}
+					break;
+				case 'tzeitTaanitLChumra':
+					if (!settings.calendarToggle.tzeitTaanitHumra()) {
+						calculatedZmanim[zmanId].display = 0;
+						calculatedZmanim[zmanId].code.push("Settings-Hidden")
+					}
+					break;
+				case 'rt':
+					if (calculatedZmanim[zmanId].luxonObj) {
+						if (calculatedZmanim[zmanId].luxonObj.epochMilliseconds == zmanCalc.getTzait72Zmanit().epochMilliseconds) {
+							calculatedZmanim[zmanId].title.hb = 'ר"ת (זמנית)';
+							calculatedZmanim[zmanId].title['en-et'] = "Rabbeinu Tam (Zmanit)";
+							calculatedZmanim[zmanId].title.en = "Rabbeinu Tam (Seasonal)";
+						} else {
+							calculatedZmanim[zmanId].title.hb = 'ר"ת (קבוע)';
+							calculatedZmanim[zmanId].title['en-et'] = "Rabbeinu Tam (Kavuah)";
+							calculatedZmanim[zmanId].title.en = "Rabbeinu Tam (Fixed)";
+						}
+					}
+			}
+
+			if (zmanInfo.condition) {
+				switch (zmanInfo.condition) {
+					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
+					case 'isTaanit':
+						if (!(this.isTaanis() && this.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)) {
+							calculatedZmanim[zmanId].display = 0;
+							calculatedZmanim[zmanId].code.push("Not a fast day")
+						}
+				}
+			}
+
+			if (!calculatedZmanim[zmanId].luxonObj) {
+				calculatedZmanim[zmanId].display = -2;
+				calculatedZmanim[zmanId].code.push("Invalid Date");
+			}
+		}
+
+		return calculatedZmanim;
 	}
 
 	getYomTov() {
@@ -493,91 +635,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return tefilahRuleObj;
 	}
 
-	getTekufa() {
-		var INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
-		const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
-	
-		var days =
-			KosherZmanim.JewishDate.getJewishCalendarElapsedDays(this.getJewishYear()) +
-			jewishDate.getDaysSinceStartOfJewishYear() +
-			INITIAL_TEKUFA_OFFSET -
-			1; // total days since first Tekufas Tishrei event
-	
-		var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
-		var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
-		if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) {
-			// if the tekufa happens in the upcoming 24 hours
-			return ((1.0 - tekufaDaysElapsed) * 24.0) % 24; // rationalize the tekufa event to number of hours since start of jewish day
-		} else {
-			return null;
-		}
-	}
-
-    /**
-     * @param {number} tekufaID
-     */
-    getTekufaName(tekufaID) {
-        const tekufaMonths = [6,9,0,3];
-        const jewishDate = new KosherZmanim.JewishDate();
-
-        const tekufaName = {
-			// @ts-ignore
-            english: [],
-			// @ts-ignore
-            hebrew: []
-        };
-
-		tekufaMonths.forEach(month => {
-			jewishDate.setJewishMonth(month + 1)
-			tekufaName.english.push(jewishDate.getDate().toLocaleString('en-u-ca-hebrew', { month: "long" }))
-			tekufaName.hebrew.push(jewishDate.getDate().toLocaleString('he-u-ca-hebrew', { month: "long" }))
-		})
-
-        return Object.fromEntries(
-            Object.entries(tekufaName)
-                .map(([key, array]) => [key, array[tekufaID]])
-        )
-    }
-
-	/**
-	 * @param {boolean} [amudehHoraah]
-	 */
-	getTekufaAsDate(amudehHoraah) {
-		const hours = Math.trunc(this.getTekufa() - 6);
-		let minutes = Math.floor((hours - Math.floor(hours)) * 60);
-
-		if (amudehHoraah)
-			minutes -= 21;
-
-		const date = KosherZmanim.Temporal.ZonedDateTime.from({
-			year: this.getGregorianYear(),
-			month: this.getGregorianMonth() + 1,
-			day: this.getGregorianDayOfMonth(),
-			hour: hours,
-			minute: minutes,
-			second: 0,
-			millisecond: 0,
-			timeZone: "UTC+2"
-		});
-		return date;
-	}
-
-	getTekufaID() {
-		const INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
-
-		const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
-		var days =
-			KosherZmanim.JewishDate.getJewishCalendarElapsedDays(this.getJewishYear()) +
-			jewishDate.getDaysSinceStartOfJewishYear() +
-			INITIAL_TEKUFA_OFFSET -
-			1; // total days since first Tekufas Tishrei event
-
-		var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
-		var currentTekufaNumber = Math.floor(solarDaysElapsed / 91.3125); // the number of days that have passed since a tekufa event
-		var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
-		return ((tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) ? currentTekufaNumber : null); //0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
-	}
-
 	isBarechAleinu() {
 		if (
 			this.getJewishMonth() === KosherZmanim.JewishDate.NISSAN &&
@@ -672,6 +729,14 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			wearingClothing: validAv,
 			shechiyanu: threeWeeks && (this.getDayOfWeek() !== 7 || (this.getDayOfWeek() == 7 && !validAv))
 		}
+	}
+
+	clone() {
+		const clonedCal = new WebsiteCalendar(this.getDate())
+		clonedCal.setInIsrael(this.getInIsrael())
+		clonedCal.setUseModernHolidays(this.isUseModernHolidays())
+
+		return clonedCal;
 	}
 }
 

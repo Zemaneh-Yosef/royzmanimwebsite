@@ -36,7 +36,8 @@ const timeSchedule = {};
 /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 const timeFormatAttr = ['en', {
     hourCycle: settings.timeFormat(),
-    timeStyle: "short"
+    hour: 'numeric',
+    minute: '2-digit'
 }]
 
 for (let i = 0; i <= 7; i++) {

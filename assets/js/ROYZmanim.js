@@ -3,6 +3,7 @@
 // Comment the following line before going live (as well as the export line on the bottom)!
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { settings } from "./settings/handler.js";
+import TekufahCalculator from "./tekufot.js";
 
 class ZmanimMathBase {
 	/**
@@ -88,6 +89,18 @@ class ZmanimMathBase {
 	 */
 	plagHaminchaCore(time) {
 		return time.subtract({ milliseconds: Math.trunc(this.fixedToZmaniyot(1.25, {length: "hours", measure: "gra"})) })
+	}
+
+	/**
+	 * @param {boolean} [fixedClock]
+	 */
+	nextTekufa(fixedClock) {
+		const tekufaCal = new TekufahCalculator(this.coreZC.getDate().withCalendar("hebrew").year, fixedClock);
+		const plainTekufoth = tekufaCal.calculateTekufot();
+		const tekufotTZ = plainTekufoth
+			.map(temporal => temporal.toZonedDateTime("+02:00").withTimeZone(this.coreZC.getGeoLocation().getTimeZone()))
+
+		return tekufotTZ.find(tekufa => this.coreZC.getDate().toZonedDateTime(this.coreZC.getGeoLocation().getTimeZone()).epochMilliseconds < tekufa.epochMilliseconds)
 	}
 }
 

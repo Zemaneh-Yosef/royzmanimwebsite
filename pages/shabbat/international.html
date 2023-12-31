@@ -201,8 +201,8 @@ website: true
             <div class="shabbatRow timeshow rtBorder friday">Start Time</div>
             <div class="shabbatRow timeshow">End Time</div>
         {% endfor %}
-        <div class="mt-2" style="grid-column: 1/span 4; text-align: center; font-size: .825em;">
-            We invite you to explore our {% if page.website %}website and{% endif %} mobile apps to access other <i>Z'manim</i> & explanations
+        <div class="mt-2" style="grid-column: 1/span 4; text-align: center; font-size: .825em; font-family: 'Guttman Mantova', var(--shabbat-font);">
+            מזמנים אתם ל{% if page.website %}אתר ול{% endif %}אפליקציה שלנו לראות עוד זמנים ובאוריו.
             <div class="d-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
                 <div style="border-radius: .5rem; background: black; width: 10em; padding: .5rem;">
                     <div style="border-radius: .5rem; background: white;">
@@ -217,7 +217,7 @@ website: true
                     Play Store
                 </div>
             </div>
-            {% if page.website %}https://royzmanim.com{% endif %}
+            {% if page.website %}<span style="font-family: var(--shabbat-font);">https://royzmanim.com</span>{% endif %}
         </div>
     </div>
 </div>

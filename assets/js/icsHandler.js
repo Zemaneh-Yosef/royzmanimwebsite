@@ -17,33 +17,42 @@ const exportDate = (date) => [date.year, date.month, date.day]
  * @param {[number, number, number, string | Temporal.CalendarProtocol]} plainDateParams
  * @param {[string, number, number, number, string]} geoLocationData
  * @param {boolean} useElevation
+ * @param {boolean} isIsrael
+	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: string|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
  */
-export default function icsExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation) {
+export default function icsExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList) {
     const baseDate = new Temporal.PlainDate(...plainDateParams).with({ day: 1, month: 1 })
     const geoLocation = new GeoLocation(...geoLocationData);
 
     const jCal = new WebsiteCalendar(baseDate);
+    jCal.setInIsrael(isIsrael)
     const calc = (amudehHoraahZman ? new AmudehHoraahZmanim(geoLocation) : new OhrHachaimZmanim(geoLocation, useElevation));
     calc.coreZC.setDate(baseDate);
 
     /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
     const dtF = [settings.language() == 'hb' ? 'he' : 'en', {
         hourCycle: settings.timeFormat(),
-        timeStyle: settings.seconds() ? "medium" : "short"
+        hour: 'numeric',
+        minute: '2-digit'
     }];
+
+    if (settings.seconds()) {
+        dtF[1].second = '2-digit'
+    }
 
     /** @type {ics.EventAttributes[]} */
     const events = [];
     for (let index = 0; index < jCal.getDate().daysInYear; index++) {
-        /**
-         * Style of Events:
-         * 
-         * - Hebrew Date: One and done, have that be all day depending on how the calendar 
-         */
+        const dailyZmanim = Object.values(jCal.getZmanimInfo(true, calc, zmanList))
+            .filter(entry => entry.display == 1)
+            .map(entry => `${entry.title[settings.language()]}: ${entry.luxonObj.toLocaleString(...dtF)}`)
+            .join('\n')
+
         events.push({
             start: exportDate(jCal.getDate()),
             end: exportDate(jCal.getDate().add({ days: 1 })),
             title: jCal.formatJewishFullDate().hebrew,
+            description: dailyZmanim
         })
 
         if (jCal.tomorrow().getDayOfOmer() !== -1) {
@@ -54,9 +63,9 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
             })
         }
 
-        if (jCal.getDate().dayOfWeek == 5) {
+        if (jCal.getDate().dayOfWeek == 5 && !jCal.tomorrow().isYomTovAssurBemelacha()) {
             events.push({
-                title: "שבת " + (jCal.getHebrewParasha().join(" / ") || jCal.tomorrow().getYomTov())
+                title: "שבת " + (jCal.getHebrewParasha().join(" / "))
                     + (jCal.tomorrow().isChanukah() ? " | " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night of Hanukah" : ""),
                 start: calc.getCandleLighting().epochMilliseconds,
                 end: calc.tomorrow().getTzaitShabbath().epochMilliseconds,
@@ -126,9 +135,12 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
         ...obj,
         calName:
             (calc instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah Calendar" : "Ohr Hachaim Calendar")
-            + " - " + calc.coreZC.getGeoLocation().getLocationName()
+            + " - " + calc.coreZC.getGeoLocation().getLocationName(),
+        startInputType: "utc",
+        endInputType: "utc"
     }));
 
+    // @ts-ignore
     const icsRespond = ics.createEvents(labeledEvents)
     if (icsRespond.error)
         throw icsRespond.error;

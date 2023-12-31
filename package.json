@@ -4,7 +4,7 @@
 		"@types/jqueryui": "^1.12.19"
 	},
 	"dependencies": {
-		"@js-temporal/polyfill": "^0.4.4",
-		"ics": "^3.7.2"
+		"ics": "^3.7.2",
+		"temporal-polyfill": "^0.1.1"
 	}
 }

@@ -129,7 +129,7 @@ function isPlainObject(obj) {
 		if (isNaN(d.getTime())) return 'Invalid   ';
 		return pad(d.getFullYear(), 4)+'-'+pad(d.getMonth()+1, 2)+'-'+pad(d.getDate(), 2)
 	} 
-	function parseISO(s) {
+	function parseISO(/** @type {string} */s) {
 		var m = s.match(/(\d+)/g);
 		return new Date(m[0],m[1]-1,m[2]);
 	}
@@ -175,7 +175,7 @@ function isPlainObject(obj) {
 		commit: function(d){
 			d = d || this.options.current;
 			const element = this.element.get(0);
-			element.setAttribute('date-value', this.format(d));
+			element.setAttribute('date-value', formatISO(d));
 	
 			const event = new Event("calendarInsert")
 			element.dispatchEvent(event);
