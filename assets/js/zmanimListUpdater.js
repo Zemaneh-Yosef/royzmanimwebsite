@@ -524,7 +524,11 @@ class zmanimListUpdater {
 				this.renderSeasonalRules(seasonalRuleContainer);
 		}
 
-		this.shaahZmanits();
+		for (let shaahZmanitCont of document.querySelectorAll('[data-zfFind="shaahZmanit"]')) {
+			if (shaahZmanitCont instanceof HTMLElement)
+				this.shaahZmanits(shaahZmanitCont);
+		}
+		
 	}
 
 	/**
@@ -573,6 +577,7 @@ class zmanimListUpdater {
 			shemaKolenu = shemaKolenu || KosherZmanim.Temporal.PlainDate.compare(talUmatarRAda, this.jCal.getDate()) !== -1
 		}
 
+		/** @type {HTMLUListElement} */
 		const shemaKolenuElem = tefilahRuleContainer.querySelector('[data-zfFind="ShemaKolenu"]');
 		if (this.jCal.tefilahRules().amidah.mevarechHashanim == "ברכנו" && shemaKolenu) {
 			shemaKolenuElem.style.removeProperty("display")
@@ -581,20 +586,22 @@ class zmanimListUpdater {
 		}
 	}
 
-	shaahZmanits() {
-		const hourFormatter = new Intl.DateTimeFormat(settings.language() == 'hb' ? 'he' : 'en', {
-			timeStyle: "short",
-			hourCycle: "h11",
-			timeZone: "UTC"
-		});
+	/**
+	 * @param {HTMLElement} [shaotZmaniyotCont]
+	 */
+	shaahZmanits(shaotZmaniyotCont) {
+		/** @type {['gra', 'mga']} */
+		const psakArray = ['gra', 'mga'];
+		psakArray.forEach(shaahTemporal => {
+			const duration = this.zmanFuncs.getZmaniyotTime({ temporal: shaahTemporal, length: "hours" })
 
-		const mgaTime = new Date(this.zmanFuncs.coreZC.getTemporalHour(this.zmanFuncs.getAlotHashachar(), this.zmanFuncs.getTzait72Zmanit()));
-		document.querySelectorAll('[data-zfReplace="mgaShaahZmanit"]')
-			.forEach(mgaLi => mgaLi.innerHTML = hourFormatter.format(mgaTime).split(" ")[0]);
-
-		const graTime = new Date(this.zmanFuncs.coreZC.getShaahZmanisGra());
-		document.querySelectorAll('[data-zfReplace="graShaahZmanit"]')
-			.forEach(graLi => graLi.innerHTML = hourFormatter.format(graTime).split(" ")[0]);
+			/** @type {KosherZmanim.Temporal.DurationTotalOf[]} */
+			const formatTimeStrings = ["hours", "minutes"];
+			const formatTime = formatTimeStrings
+				.map(timeUnit => String(Math.trunc(duration.total(timeUnit))).padStart(2, '0'))
+				.join(":")
+			shaotZmaniyotCont.querySelector(`[data-zfReplace="${shaahTemporal}ShaahZmanit"]`).innerHTML = formatTime;
+		})
 	}
 
 	birkathHalevanaCheck() {

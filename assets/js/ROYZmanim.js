@@ -58,54 +58,39 @@ class ZmanimMathBase {
 	/**
 	 * @param {{
 	 * 	length: "hours"|"minutes";
-	 *  format: "milliseconds"|"seconds"|"minutes"|"hours"
 	 *  temporal: "gra"
 	 * }} param
-	 * @returns {number}
 	 */
-	getZmaniyotTime(param={ length: "hours", temporal: "gra", format: "milliseconds" }) {
-		const {length, format, temporal} = param;
+	getZmaniyotTime(param={ length: "hours", temporal: "gra" }) {
+		const {length, temporal} = param;
 
 		if (temporal !== "gra") return;
 		let timePeriod = this.coreZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
+
 		if (length == "minutes")
-			timePeriod /= 60;
+			timePeriod = KosherZmanim.Temporal.Duration.from({ nanoseconds: Math.trunc(timePeriod.total("nanoseconds") / 60) })
 
-		let timeByFormat = timePeriod;
-		switch (format) {
-			case "milliseconds":
-				break;
-			case "seconds":
-				timeByFormat /= 1000;
-				break;
-			case "minutes":
-				timeByFormat /= 60_000;
-				break;
-			case "hours":
-				timeByFormat = timeByFormat / 1000 / 60 / 60;
-				break;
-		}
-
-		return timeByFormat;
+		return timePeriod;
 	}
 
 	/**
 	 * @param {number} input
 	 * @param {{length: "hours"|"minutes"; measure: "gra"}} adjustments
-	 * @param {"milliseconds"|"seconds"|"minutes"|"hours"} returned
 	 */
 	fixedToZmaniyot(input, adjustments={length: "hours", measure: "gra"}, returned="milliseconds") {
 		if (isNaN(input)) return;
 		if (!this.getZmaniyotTime()) return;
 
-		return input * this.getZmaniyotTime({length: adjustments.length, temporal: adjustments.measure, format: returned});
+		return KosherZmanim.Temporal.Duration.from({
+			nanoseconds: Math.trunc(this.getZmaniyotTime({length: adjustments.length, temporal: adjustments.measure }).total("nanoseconds") * input)
+		});
 	}
 
 	/**
 	 * @param {KosherZmanim.Temporal.ZonedDateTime} time
 	 */
 	plagHaminchaCore(time) {
-		return time.subtract({ milliseconds: Math.trunc(this.fixedToZmaniyot(1.25, {length: "hours", measure: "gra"})) })
+		return time.subtract(this.fixedToZmaniyot(1.25, {length: "hours", measure: "gra"}));
 	}
 
 	/**
@@ -126,11 +111,11 @@ class GRAZmanim extends ZmanimMathBase {
 	}
 
 	getSofZmanShmaGRA() {
-		return this.zmanim.sunrise().add({ milliseconds: Math.trunc(this.fixedToZmaniyot(3, {length: "hours", measure: "gra"})) });
+		return this.zmanim.sunrise().add(this.fixedToZmaniyot(3, {length: "hours", measure: "gra"}));
     }
 
 	getSofZmanBrachothShma() {
-		return this.zmanim.sunrise().add({ milliseconds: Math.trunc(this.fixedToZmaniyot(4, {length: "hours", measure: "gra"})) });
+		return this.zmanim.sunrise().add(this.fixedToZmaniyot(4, {length: "hours", measure: "gra"}));
     }
 
 	/**
@@ -151,7 +136,7 @@ class GRAZmanim extends ZmanimMathBase {
 	 *         returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.
 	 */
 	getMinchaKetana() {
-		return this.zmanim.sunrise().add({ milliseconds: Math.trunc(this.fixedToZmaniyot(9.5, {length: "hours", measure: "gra"})) });
+		return this.zmanim.sunrise().add(this.fixedToZmaniyot(9.5, {length: "hours", measure: "gra"}));
 	}
 
 	getPlagHaminhaHalachaBrurah() {
@@ -179,13 +164,11 @@ class AlotTzeitZmanim extends GRAZmanim {
 	/**
 	 * @param {{
 	 * 	length: "hours"|"minutes";
-	 *  format: "milliseconds"|"seconds"|"minutes"|"hours"
 	 *  temporal: "gra"|"mga"
 	 * }} param
-	 * @returns {number}
 	 */
-	getZmaniyotTime(param={ length: "hours", temporal: "gra", format: "milliseconds" }) {
-		const {length, format, temporal} = param;
+	getZmaniyotTime(param={ length: "hours", temporal: "gra" }) {
+		const {length, temporal} = param;
 
 		let timePeriod;
 		switch (temporal) {
@@ -196,25 +179,11 @@ class AlotTzeitZmanim extends GRAZmanim {
 				timePeriod = this.coreZC.getTemporalHour(this.getAlotHashachar(), this.getTzait72Zmanit());
 				break;
 		}
+		
 		if (length == "minutes")
-			timePeriod /= 60;
+			timePeriod = KosherZmanim.Temporal.Duration.from({ nanoseconds: Math.trunc(timePeriod.total("nanoseconds") / 60) })
 
-		let timeByFormat = timePeriod;
-		switch (format) {
-			case "milliseconds":
-				break;
-			case "seconds":
-				timeByFormat /= 1000;
-				break;
-			case "minutes":
-				timeByFormat /= 60_000;
-				break;
-			case "hours":
-				timeByFormat = timeByFormat / 1000 / 60 / 60;
-				break;
-		}
-
-		return timeByFormat;
+		return timePeriod;
 	}
 
 	/**
@@ -226,19 +195,21 @@ class AlotTzeitZmanim extends GRAZmanim {
 		if (isNaN(input)) return;
 		if (!this.getZmaniyotTime()) return;
 
-		return input * this.getZmaniyotTime({length: adjustments.length, temporal: adjustments.measure, format: returned});
+		return KosherZmanim.Temporal.Duration.from({
+			nanoseconds: Math.trunc(this.getZmaniyotTime({length: adjustments.length, temporal: adjustments.measure }).total("nanoseconds") * input)
+		});
 	}
 
 	getSofZmanShmaMGA() {
-		return this.getAlotHashachar().add({ milliseconds: Math.trunc(this.fixedToZmaniyot(3, {length: "hours", measure: "mga"})) });
+		return this.getAlotHashachar().add(this.fixedToZmaniyot(3, {length: "hours", measure: "mga"}));
     }
 
 	getSofZmanAchilathHametz() {
-		return this.getAlotHashachar().add({ milliseconds: Math.trunc(this.fixedToZmaniyot(4, {length: "hours", measure: "mga"})) });
+		return this.getAlotHashachar().add(this.fixedToZmaniyot(4, {length: "hours", measure: "mga"}));
 	}
 
 	getSofZmanBiurHametz() {
-		return this.getAlotHashachar().add({ milliseconds: Math.trunc(this.fixedToZmaniyot(5, {length: "hours", measure: "mga"})) });
+		return this.getAlotHashachar().add(this.fixedToZmaniyot(5, {length: "hours", measure: "mga"}));
 	}
 
 	/**
@@ -275,7 +246,7 @@ class AlotTzeitZmanim extends GRAZmanim {
 	getMinhaGedolah() {
 		const timesToMeasure = [
 			this.getHatzoth().add({ minutes: 30 }),
-			this.getHatzoth().add({ milliseconds: Math.trunc(this.fixedToZmaniyot(30, {length: "minutes", measure: "gra"})) })
+			this.getHatzoth().add(this.fixedToZmaniyot(30, {length: "minutes", measure: "gra"}))
 		]
 		return timesToMeasure.sort(KosherZmanim.Temporal.ZonedDateTime.compare).at(-1) || null;
 	}
@@ -375,35 +346,27 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
      */
 	getAlotHashachar(zemaniyot={minutes:72, degree: 16.04}) {
 		return this.zmanim.sunrise()
-			.subtract({ milliseconds: Math.trunc(this.fixedToZmaniyot(zemaniyot.minutes, { length: "minutes", measure: "gra"})) });
+			.subtract(this.fixedToZmaniyot(zemaniyot.minutes, { length: "minutes", measure: "gra"}));
 	}
 
-	getMisheyakir(alotZemaniyot={minutes:72, degree: 16.04}, percentageForMisheyakir=(66/72)) {
+	getMisheyakir(alotZemaniyot={minutes:72, degree: 16.04}, percentageForMisheyakir=(6/72)) {
 		return this.zmanim.sunrise()
-			.subtract({
-				milliseconds: Math.trunc(this.fixedToZmaniyot((alotZemaniyot.minutes*percentageForMisheyakir), { length: "minutes", measure: "gra"}))
-			});
+			.subtract(this.fixedToZmaniyot((alotZemaniyot.minutes*percentageForMisheyakir), { length: "minutes", measure: "gra"}));
 	}
 
 	getTzait() {
 		return this.zmanim.sunset()
-			.add({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(13.5, {length: "minutes", measure: "gra"}))
-			})
+			.add(this.fixedToZmaniyot(13.5, {length: "minutes", measure: "gra"}))
 	}
 
 	getTzaitBenIshHai() {
 		return this.zmanim.sunset()
-			.add({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(27, {length: "minutes", measure: "gra"}))
-			})
+			.add(this.fixedToZmaniyot(27, {length: "minutes", measure: "gra"}))
 	}
 
 	getTzaitLechumra() {
 		return this.zmanim.sunset()
-			.add({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(20, {length: "minutes", measure: "gra"}))
-			})
+			.add(this.fixedToZmaniyot(20, {length: "minutes", measure: "gra"}))
 	}
 
 	getTzaitTaanit() {
@@ -416,9 +379,7 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
 
 	getTzait72Zmanit() {
 		return this.zmanim.sunset()
-			.add({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(72, {length: "minutes", measure: "gra"}))
-			});
+			.add(this.fixedToZmaniyot(72, {length: "minutes", measure: "gra"}));
 	}
 }
 
@@ -446,41 +407,35 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	getAlotHashachar(zemaniyot={minutes: 72, degree: 16.04}) {
 		const sunrisePercent = this.equinoxSeasonalHourPercentFromDegrees(zemaniyot.degree, false);
 		return this.zmanim.sunrise()
-			.subtract({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(sunrisePercent, {length: "hours", measure: "gra"}))
-			})
+			.subtract(this.fixedToZmaniyot(sunrisePercent, {length: "hours", measure: "gra"}))
 	}
 
-	getMisheyakir(alotZemaniyot={minutes: 72, degree: 16.04}, percentageForMisheyakir=(5/6)) {
+	getMisheyakir(alotZemaniyot={minutes: 72, degree: 16.04}, percentageForMisheyakir=(1/6)) {
 		const sunrisePercent = this.equinoxSeasonalHourPercentFromDegrees(alotZemaniyot.degree, false);
+		const fullAlot = this.fixedToZmaniyot(sunrisePercent, {length: "hours", measure: "gra"});
+		const misheyakir = KosherZmanim.Temporal.Duration.from({ nanoseconds: Math.trunc(fullAlot.total("nanoseconds") * percentageForMisheyakir) })
+
 		return this.zmanim.sunrise()
-			.subtract({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(sunrisePercent, {length: "hours", measure: "gra"}) * percentageForMisheyakir)
-			})
+			.subtract(fullAlot)
+			.add(misheyakir)
 	}
 
 	getTzait() {
 		const sunsetPercent = this.equinoxSeasonalHourPercentFromDegrees(3.77, true);
 		return this.zmanim.sunset()
-			.add({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
-			})
+			.add(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
 	}
 
 	getTzaitLechumra() {
 		const sunsetPercent = this.equinoxSeasonalHourPercentFromDegrees(5.135, true);
 		return this.zmanim.sunset()
-			.add({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
-			})
+			.add(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
 	}
 
 	getTzaitBenIshHai() {
 		const sunsetPercent = this.equinoxSeasonalHourPercentFromDegrees(6.563, true);
 		return this.zmanim.sunset()
-			.add({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
-			})
+			.add(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
 	}
 
 	getTzaitTaanitLChumra() {
@@ -503,9 +458,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	getTzait72Zmanit() {
 		const sunsetPercent = this.equinoxSeasonalHourPercentFromDegrees(16.01, true);
 		return this.zmanim.sunset()
-			.add({
-				milliseconds: Math.trunc(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
-			})
+			.add(this.fixedToZmaniyot(sunsetPercent, {length: "hours", measure: "gra"}))
 	}
 }
 

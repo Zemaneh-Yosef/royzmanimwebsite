@@ -165,6 +165,10 @@ export declare class GeoLocation {
 	private static readonly MINUTE_MILLIS;
 	/** constant for milliseconds in an hour (3,600,000) */
 	private static readonly HOUR_MILLIS;
+	/** constant for nanoseconds in a minute (60 * 1000 * 1000 * 1000) */
+	private static readonly MINUTE_NANOS;
+	/** constant for milliseconds in an hour (3,600,000) */
+	private static readonly HOUR_NANOS;
 	/**
 	 * Method to get the elevation in Meters.
 	 *
@@ -303,7 +307,7 @@ export declare class GeoLocation {
 	 */
 	setTimeZone(timeZoneId: string): void;
 	/**
-	 * A method that will return the location's local mean time offset in milliseconds from local <a
+	 * A method that will return the location's local mean time offset in nanoseconds from local <a
 	 * href="https://en.wikipedia.org/wiki/Standard_time">standard time</a>. The globe is split into 360&deg;, with
 	 * 15&deg; per hour of the day. For a local that is at a longitude that is evenly divisible by 15 (longitude % 15 ==
 	 * 0), at solar {@link AstronomicalCalendar#getSunTransit() noon} (with adjustment for the <a
@@ -315,7 +319,7 @@ export declare class GeoLocation {
 	 * href="https://en.wikipedia.org/wiki/Daylight_saving_time">Daylight saving time</a> offset since this class is
 	 * unaware of dates.
 	 *
-	 * @return the offset in milliseconds not accounting for Daylight saving time. A positive value will be returned
+	 * @return the offset in nanoseconds not accounting for Daylight saving time. A positive value will be returned
 	 *         East of the 15&deg; timezone line, and a negative value West of it.
 	 * @since 1.1
 	 */
@@ -876,19 +880,6 @@ export declare class AstronomicalCalendar {
 	 */
 	getEndAstronomicalTwilight(): Temporal.ZonedDateTime | null;
 	/**
-	 * A utility method that returns a date offset by the offset time passed in. Please note that the level of light
-	 * during twilight is not affected by elevation, so if this is being used to calculate an offset before sunrise or
-	 * after sunset with the intent of getting a rough "level of light" calculation, the sunrise or sunset time passed
-	 * to this method should be sea level sunrise and sunset.
-	 *
-	 * @param time
-	 *            the start time
-	 * @param offset
-	 *            the offset in milliseconds to add to the time.
-	 * @return the {@link java.util.Date} with the offset in milliseconds added to it
-	 */
-	static getTimeOffset(time: Temporal.ZonedDateTime | null, offset: number): Temporal.ZonedDateTime | null;
-	/**
 	 * A utility method that returns the time of an offset by degrees below or above the horizon of
 	 * {@link #getSunrise() sunrise}. Note that the degree offset is from the vertical, so for a calculation of 14&deg;
 	 * before sunrise, an offset of 14 + {@link #GEOMETRIC_ZENITH} = 104 would have to be passed as a parameter.
@@ -1018,7 +1009,7 @@ export declare class AstronomicalCalendar {
 	 *
 	 * @see #getTemporalHour()
 	 */
-	getTemporalHour(startOfday?: Temporal.ZonedDateTime | null, endOfDay?: Temporal.ZonedDateTime | null): number;
+	getTemporalHour(startOfday?: Temporal.ZonedDateTime | null, endOfDay?: Temporal.ZonedDateTime | null): Temporal.Duration | undefined;
 	/**
    * A method that returns "solar" midnight, or the time when the sun is at its <a
    * href="https://en.wikipedia.org/wiki/Nadir">nadir</a>.
@@ -1722,14 +1713,14 @@ export declare namespace Utils {
 }
 export declare namespace TimeZone {
 	/**
-	 * Returns the amount of time in milliseconds to add to UTC to get
+	 * Returns the amount of time in nanoseconds to add to UTC to get
 	 * standard time in this time zone. Because this value is not
 	 * affected by daylight saving time, it is called <I>raw
 	 * offset</I>.
 	 *
 	 * Since JS doesn't have a native function for this, use the lesser offset of January and July.
 	 *
-	 * @return the amount of raw offset time in milliseconds to add to UTC.
+	 * @return the amount of raw offset time in nanoseconds to add to UTC.
 	 */
 	function getRawOffset(timeZoneId: string): number;
 	/**
@@ -2528,7 +2519,7 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	   *         a null will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}
 	   *         documentation.
 	   */
-	getAlos72(): Temporal.ZonedDateTime | null;
+	getAlos72(): Temporal.ZonedDateTime | undefined;
 	/**
 	   * This method returns <em>chatzos</em> (midday) following most opinions that <em>chatzos</em> is the midpoint
 	   * between {@link #getSeaLevelSunrise sea level sunrise} and {@link #getSeaLevelSunset sea level sunset}. A day
@@ -2617,7 +2608,7 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	   *         and one where it does not set, a null will be returned See detailed explanation on top of the
 	   *         {@link AstronomicalCalendar} documentation.
 	   */
-	getTzais72(): Temporal.ZonedDateTime | null;
+	getTzais72(): Temporal.ZonedDateTime | undefined;
 	/**
 	   * A method to return candle lighting time, calculated as {@link #getCandleLightingOffset()} minutes before
 	   * {@link #getSeaLevelSunset() sea level sunset}. This will return the time for any day of the week, since it can be
@@ -2633,7 +2624,7 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	   * @see #getCandleLightingOffset()
 	   * @see #setCandleLightingOffset(double)
 	   */
-	getCandleLighting(): Temporal.ZonedDateTime | null;
+	getCandleLighting(): Temporal.ZonedDateTime | undefined;
 	/**
 	   * A generic method for calculating the latest <em>zman tfilah</em> (time to recite the morning prayers)
 	   * that is 4 * <em>shaos zmaniyos</em> (temporal hours) after the start of the day, calculated using the start and
@@ -2820,7 +2811,7 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	 * @see #getSeaLevelSunset()
 	 * @see ComplexZmanimCalendar#getShaahZmanisBaalHatanya()
 	 */
-	getShaahZmanisGra(): number;
+	getShaahZmanisGra(): Temporal.Duration | undefined;
 	/**
 	 * A method that returns a <em>shaah zmanis</em> (temporal hour) according to the opinion of the <em><a href=
 	 * "https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham (MGA)</a></em> based on a 72 minutes <em>alos</em>
@@ -2836,7 +2827,7 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	 *         where it does not set, {@link Long#MIN_VALUE} will be returned. See detailed explanation on top of the
 	 *         {@link AstronomicalCalendar} documentation.
 	 */
-	getShaahZmanisMGA(): number;
+	getShaahZmanisMGA(): Temporal.Duration | undefined;
 	/**
 	 * Default constructor will set a default {@link GeoLocation#GeoLocation()}, a default
 	 * {@link AstronomicalCalculator#getDefault() AstronomicalCalculator} and default the calendar to the current date.
@@ -2921,7 +2912,7 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	   * for those who want to use the <a href="https://en.wikipedia.org/wiki/Abraham_Cohen_Pimentel">Minchas Cohen</a> in Ma'amar 2:4
 	   * and the <a href="https://en.wikipedia.org/wiki/Hezekiah_da_Silva">Pri Chadash</a> who calculate <em>tzais</em> as a percentage
 	   * of the day after sunset. While the Minchas Cohen only applies this to 72 minutes or a 1/10 of the day around the world (based
-	   * on the equinox / equilux in Israel, this method allows calculations for any degrees level for any location.
+	   * on the equinox / equilux in Israel), this method allows calculations for any degrees level for any location.
 	   *
 	   * @param degrees
 	   *            the number of degrees below the horizon after sunset.
@@ -3330,7 +3321,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         where the sun may not reach low enough below the horizon for this calculation, a {@link Long#MIN_VALUE}
 	 *         will be returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.
 	 */
-	getShaahZmanis19Point8Degrees(): number;
+	getShaahZmanis19Point8Degrees(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) calculated using a 18&deg; dip. This calculation divides
 	 * the day based on the opinion of the <a href="https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham
@@ -3343,7 +3334,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         where the sun may not reach low enough below the horizon for this calculation, a {@link Long#MIN_VALUE}
 	 *         will be returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.
 	 */
-	getShaahZmanis18Degrees(): number;
+	getShaahZmanis18Degrees(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) calculated using a dip of 26&deg;. This calculation
 	 * divides the day based on the opinion of the <a href="https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen
@@ -3361,7 +3352,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         will be returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.
 	 * @see #getShaahZmanis120Minutes()
 	 */
-	getShaahZmanis26Degrees(): number;
+	getShaahZmanis26Degrees(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) calculated using a dip of 16.1&deg;. This calculation
 	 * divides the day based on the opinion that the day runs from dawn to dusk. Dawn for this calculation is when the
@@ -3382,7 +3373,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getMinchaKetana16Point1Degrees()
 	 * @see #getPlagHamincha16Point1Degrees()
 	 */
-	getShaahZmanis16Point1Degrees(): number;
+	getShaahZmanis16Point1Degrees(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (solar hour) according to the opinion of the <a href=
 	 * "https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham (MGA)</a>. This calculation
@@ -3400,7 +3391,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getTzais60()
 	 * @see #getPlagHamincha60Minutes()
 	 */
-	getShaahZmanis60Minutes(): number;
+	getShaahZmanis60Minutes(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (solar hour) according to the opinion of the <a href=
 	 * "https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham (MGA)</a>. This calculation divides the day
@@ -3414,7 +3405,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         where it does not set, a {@link Long#MIN_VALUE} will be returned. See detailed explanation on top of the
 	 *         {@link AstronomicalCalendar} documentation.
 	 */
-	getShaahZmanis72Minutes(): number;
+	getShaahZmanis72Minutes(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) according to the opinion of the <a href=
 	 * "https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham (MGA)</a> based on <em>alos</em> being
@@ -3431,7 +3422,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getAlos72Zmanis()
 	 * @see #getTzais72Zmanis()
 	 */
-	getShaahZmanis72MinutesZmanis(): number;
+	getShaahZmanis72MinutesZmanis(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) calculated using a dip of 90 minutes. This calculation
 	 * divides the day based on the opinion of the <a href="https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen
@@ -3443,7 +3434,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         where it does not set, a {@link Long#MIN_VALUE} will be returned. See detailed explanation on top of the
 	 *         {@link AstronomicalCalendar} documentation.
 	 */
-	getShaahZmanis90Minutes(): number;
+	getShaahZmanis90Minutes(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) according to the opinion of the <a href=
 	 * "https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham (MGA)</a> based on <em>alos</em> being
@@ -3460,7 +3451,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getAlos90Zmanis()
 	 * @see #getTzais90Zmanis()
 	 */
-	getShaahZmanis90MinutesZmanis(): number;
+	getShaahZmanis90MinutesZmanis(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) according to the opinion of the <a href=
 	 * "https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham (MGA)</a> based on <em>alos</em> being {@link
@@ -3477,7 +3468,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getAlos96Zmanis()
 	 * @see #getTzais96Zmanis()
 	 */
-	getShaahZmanis96MinutesZmanis(): number;
+	getShaahZmanis96MinutesZmanis(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) according to the opinion of the
 	 * <em>Chacham</em> Yosef Harari-Raful of Yeshivat Ateret Torah calculated with <em>alos</em> being 1/10th
@@ -3497,7 +3488,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getAteretTorahSunsetOffset()
 	 * @see #setAteretTorahSunsetOffset(double)
 	 */
-	getShaahZmanisAteretTorah(): number;
+	getShaahZmanisAteretTorah(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) used by some <em>zmanim</em> according to the opinion of
 	 * <a href="https://en.wikipedia.org/wiki/Yaakov_Moshe_Hillel">Rabbi Yaakov Moshe Hillel</a> as published in the
@@ -3517,7 +3508,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getMinchaKetanaAhavatShalom()
 	 * @see #getPlagAhavatShalom()
 	 */
-	getShaahZmanisAlos16Point1ToTzais3Point8(): number;
+	getShaahZmanisAlos16Point1ToTzais3Point8(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) used by some <em>zmanim</em> according to the opinion of
 	 * <a href="https://en.wikipedia.org/wiki/Yaakov_Moshe_Hillel">Rabbi Yaakov Moshe Hillel</a> as published in the
@@ -3535,7 +3526,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *
 	 * @see #getMinchaGedolaAhavatShalom()
 	 */
-	getShaahZmanisAlos16Point1ToTzais3Point7(): number;
+	getShaahZmanisAlos16Point1ToTzais3Point7(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) calculated using a dip of 96 minutes. This calculation
 	 * divides the day based on the opinion of the <a href="https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen
@@ -3548,7 +3539,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         where it does not set, a {@link Long#MIN_VALUE} will be returned. See detailed explanation on top of the
 	 *         {@link AstronomicalCalendar} documentation.
 	 */
-	getShaahZmanis96Minutes(): number;
+	getShaahZmanis96Minutes(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) calculated using a dip of 120 minutes. This calculation
 	 * divides the day based on the opinion of the <a href="https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen
@@ -3564,7 +3555,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         {@link AstronomicalCalendar} documentation.
 	 * @see #getShaahZmanis26Degrees()
 	 */
-	getShaahZmanis120Minutes(): number;
+	getShaahZmanis120Minutes(): Temporal.Duration | undefined;
 	/**
 	 * Method to return a <em>shaah zmanis</em> (temporal hour) according to the opinion of the <a href=
 	 * "https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham (MGA)</a> based on <em>alos</em> being {@link
@@ -3584,7 +3575,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	* @see #getAlos120Zmanis()
 	* @see #getTzais120Zmanis()
 	*/
-	getShaahZmanis120MinutesZmanis(): number;
+	getShaahZmanis120MinutesZmanis(): Temporal.Duration | undefined;
 	/**
 	 * This method should be used <em>lechumra</em> only and returns the time of <em>plag hamincha</em> based on sunrise
 	 * being 120 minutes <em>zmaniyos</em> or 1/6th of the day before sunrise. This is calculated as 10.75 hours after
@@ -3658,7 +3649,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getPlagHamincha60Minutes()
 	 * @see #getShaahZmanis60Minutes()
 	 */
-	getAlos60(): Temporal.ZonedDateTime | null;
+	getAlos60(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * Method to return <em>alos</em> (dawn) calculated using 72 minutes <em>zmaniyos</em> or 1/10th of the day before
 	 * sunrise. This is based on an 18-minute <em>Mil</em> so the time for 4 <em>Mil</em> is 72 minutes which is 1/10th
@@ -3689,7 +3680,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         a null will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}
 	 *         documentation.
 	 */
-	getAlos96(): Temporal.ZonedDateTime | null;
+	getAlos96(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * Method to return <em>alos</em> (dawn) calculated using 90 minutes <em>zmaniyos</em> or 1/8th of the day before
 	 * {@link #getSunrise() sunrise} or {@link #getSeaLevelSunrise() sea level sunrise} (depending on the {@link
@@ -3735,7 +3726,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         a null will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}
 	 *         documentation.
 	 */
-	getAlos90(): Temporal.ZonedDateTime | null;
+	getAlos90(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method should be used <em>lechumra</em> only and returns <em>alos</em> (dawn) calculated using 120 minutes
 	 * before {@link #getSeaLevelSunrise() sea level sunrise} (no adjustment for elevation is made) based on the time
@@ -3759,7 +3750,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getTzais120()
 	 * @see #getAlos26Degrees()
 	 */
-	getAlos120(): Temporal.ZonedDateTime | null;
+	getAlos120(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method should be used <em>lechumra</em> only and  method returns <em>alos</em> (dawn) calculated using
 	 * 120 minutes <em>zmaniyos</em> or 1/6th of the day before {@link #getSunrise() sunrise} or {@link
@@ -4154,7 +4145,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getSofZmanShmaFixedLocal()
 	 * @see #getSofZmanTfila2HoursBeforeChatzos()
 	 */
-	getSofZmanShma3HoursBeforeChatzos(): Temporal.ZonedDateTime | null;
+	getSofZmanShma3HoursBeforeChatzos(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the latest <em>zman krias shema</em> (time to recite Shema in the morning) according to the
 	 * opinion of the <a href="https://en.wikipedia.org/wiki/Avraham_Gombinern">Magen Avraham (MGA)</a> based
@@ -4422,7 +4413,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see ZmanimCalendar#getChatzos()
 	 * @see #getSofZmanShma3HoursBeforeChatzos()
 	 */
-	getSofZmanTfila2HoursBeforeChatzos(): Temporal.ZonedDateTime | null;
+	getSofZmanTfila2HoursBeforeChatzos(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns <em>mincha gedola</em> calculated as 30 minutes after {@link #getChatzos() <em>chatzos</em>}
 	 * and not 1/2 of a {@link #getShaahZmanisGra() <em>shaah zmanis</em>} after {@link #getChatzos() <em>chatzos</em>} as
@@ -4440,7 +4431,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getMinchaGedola()
 	 * @see #getMinchaGedolaGreaterThan30()
 	 */
-	getMinchaGedola30Minutes(): Temporal.ZonedDateTime | null;
+	getMinchaGedola30Minutes(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the time of <em>mincha gedola</em> according to the Magen Avraham with the day starting 72
 	 * minutes before sunrise and ending 72 minutes after sunset. This is the earliest time to pray <em>mincha</em>. For
@@ -4544,7 +4535,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getMinchaGedolaAhavatShalom()
 	 * @see #getPlagAhavatShalom()
 	 */
-	getMinchaKetanaAhavatShalom(): Temporal.ZonedDateTime | null;
+	getMinchaKetanaAhavatShalom(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the time of <em>mincha ketana</em> according to the Magen Avraham with the day
 	 * starting 72 minutes before sunrise and ending 72 minutes after sunset. This is the preferred earliest time to pray
@@ -4821,7 +4812,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getMinchaGedolaAhavatShalom()
 	 * @see #getMinchaKetanaAhavatShalom()
 	 */
-	getPlagAhavatShalom(): Temporal.ZonedDateTime | null;
+	getPlagAhavatShalom(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * Method to return the beginning of <em>bain hashmashos</em> of Rabbeinu Tam calculated when the sun is
 	 * {@link #ZENITH_13_POINT_24 13.24&deg;} below the western {@link #GEOMETRIC_ZENITH geometric horizon} (90&deg;)
@@ -4858,7 +4849,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         documentation.
 	 *
 	 */
-	getBainHashmashosRT58Point5Minutes(): Temporal.ZonedDateTime | null;
+	getBainHashmashosRT58Point5Minutes(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the beginning of <em>bain hashmashos</em> based on the calculation of 13.5 minutes (3/4 of an
 	 * 18-minute <em>Mil</em>) before <em>shkiah</em> calculated as {@link #getTzaisGeonim7Point083Degrees() 7.083&deg;}.
@@ -4870,7 +4861,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         documentation.
 	 * @see #getTzaisGeonim7Point083Degrees()
 	 */
-	getBainHashmashosRT13Point5MinutesBefore7Point083Degrees(): Temporal.ZonedDateTime | null;
+	getBainHashmashosRT13Point5MinutesBefore7Point083Degrees(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the beginning of <em>bain hashmashos</em> of Rabbeinu Tam calculated according to the
 	 * opinion of the <em>Divrei Yosef</em> (see Yisrael Vehazmanim) calculated 5/18th (27.77%) of the time between
@@ -4883,7 +4874,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         calculation, a null will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}
 	 *         documentation.
 	 */
-	getBainHashmashosRT2Stars(): Temporal.ZonedDateTime | null;
+	getBainHashmashosRT2Stars(): Temporal.ZonedDateTime | null | undefined;
 	/**
 	 * This method returns the beginning of <em>bain hashmashos</em> (twilight) according to the <a href=
 	 * "https://en.wikipedia.org/wiki/Eliezer_ben_Samuel">Yereim (Rabbi Eliezer of Metz)</a> calculated as 18 minutes
@@ -4896,7 +4887,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         documentation.
 	 * @see #getBainHashmashosYereim3Point05Degrees()
 	 */
-	getBainHashmashosYereim18Minutes(): Temporal.ZonedDateTime | null;
+	getBainHashmashosYereim18Minutes(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the beginning of <em>bain hashmashos</em> (twilight) according to the <a href=
 	 * "https://en.wikipedia.org/wiki/Eliezer_ben_Samuel">Yereim (Rabbi Eliezer of Metz)</a> calculated as the sun's
@@ -4940,7 +4931,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *
 	 * @see #getBainHashmashosYereim2Point8Degrees()
 	 */
-	getBainHashmashosYereim16Point875Minutes(): Temporal.ZonedDateTime | null;
+	getBainHashmashosYereim16Point875Minutes(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the beginning of <em>bain hashmashos</em> (twilight) according to the <a href=
 	 * "https://en.wikipedia.org/wiki/Eliezer_ben_Samuel">Yereim (Rabbi Eliezer of Metz)</a> calculated as the sun's
@@ -4975,7 +4966,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *
 	 * @see #getBainHashmashosYereim2Point1Degrees()
 	 */
-	getBainHashmashosYereim13Point5Minutes(): Temporal.ZonedDateTime | null;
+	getBainHashmashosYereim13Point5Minutes(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the beginning of <em>bain hashmashos</em> according to the <a href=
 	 * "https://en.wikipedia.org/wiki/Eliezer_ben_Samuel">Yereim (Rabbi Eliezer of Metz)</a> calculated as the sun's
@@ -5234,7 +5225,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getPlagHamincha60Minutes()
 	 * @see #getShaahZmanis60Minutes()
 	 */
-	getTzais60(): Temporal.ZonedDateTime | null;
+	getTzais60(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns <em>tzais</em> usually calculated as 40 minutes (configurable to any offset via
 	 * {@link #setAteretTorahSunsetOffset(double)}) after sunset. Please note that <em>Chacham</em> Yosef Harari-Raful
@@ -5251,7 +5242,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getAteretTorahSunsetOffset()
 	 * @see #setAteretTorahSunsetOffset(double)
 	 */
-	getTzaisAteretTorah(): Temporal.ZonedDateTime | null;
+	getTzaisAteretTorah(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * Returns the offset in minutes after sunset used to calculate <em>tzais</em> based on the calculations of
 	 * <em>Chacham</em> Yosef Harari-Raful of Yeshivat Ateret Torah calculations. The default value is 40 minutes.
@@ -5469,7 +5460,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getTzais19Point8Degrees()
 	 * @see #getAlos90()
 	 */
-	getTzais90(): Temporal.ZonedDateTime | null;
+	getTzais90(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method should be used <em>lechumra</em> only and returns <em>tzais</em> (nightfall) based on the calculations
 	 * of <a href="https://en.wikipedia.org/wiki/Avraham_Chaim_Naeh">Rav Chaim Naeh</a> that the time to walk the
@@ -5491,7 +5482,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	* @see #getTzais26Degrees()
 	* @see #getAlos120()
 	*/
-	getTzais120(): Temporal.ZonedDateTime | null;
+	getTzais120(): Temporal.ZonedDateTime;
 	/**
 	 * This method should be used <em>lechumra</em> only and returns <em>tzais</em> (dusk) calculated using 120 minutes
 	 * <em>zmaniyos</em> after {@link #getSeaLevelSunset() sea level sunset}. Since the <em>zman</em>
@@ -5582,7 +5573,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         documentation.
 	 * @see #getAlos96()
 	 */
-	getTzais96(): Temporal.ZonedDateTime | null;
+	getTzais96(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * A method that returns the local time for fixed <em>chatzos</em>. This time is noon and midnight adjusted from
 	 * standard time to account for the local latitude. The 360&deg; of the globe divided by 24 calculates to 15&deg;
@@ -5601,7 +5592,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @return the Date representing the local <em>chatzos</em>
 	 * @see GeoLocation#getLocalMeanTimeOffset()
 	 */
-	getFixedLocalChatzos(): Temporal.ZonedDateTime | null;
+	getFixedLocalChatzos(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * A method that returns the latest <em>zman krias shema</em> (time to recite Shema in the morning) calculated as 3
 	 * clock hours before {@link #getFixedLocalChatzos()}. Note that there are opinions brought down in Yisrael Vehazmanim
@@ -5628,7 +5619,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	*         #getSofZmanShma3HoursBeforeChatzos()} should be used to calculate <em>sof zman Tfila</em> using 3 fixed clock hours.
 	*         This will likely be removed in v3.0.
 	*/
-	getSofZmanShmaFixedLocal(): Temporal.ZonedDateTime | null;
+	getSofZmanShmaFixedLocal(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns the latest <em>zman tfila</em> (time to recite the morning prayers) calculated as 2 hours
 	 * before {@link #getFixedLocalChatzos()}. See the documentation on {@link #getSofZmanShmaFixedLocal()} showing
@@ -5651,7 +5642,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	*         #getSofZmanTfila2HoursBeforeChatzos()} should be used to calculate <em>sof zman Tfila</em> using 2 fixed
 	*         clock hours. This will likely be removed in v3.0.
 	*/
-	getSofZmanTfilaFixedLocal(): Temporal.ZonedDateTime | null;
+	getSofZmanTfilaFixedLocal(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * Returns the latest time of <em>Kidush Levana</em> according to the <a
 	 * href="https://en.wikipedia.org/wiki/Yaakov_ben_Moshe_Levi_Moelin">Maharil's</a> opinion that it is calculated as
@@ -5984,7 +5975,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getSunsetBaalHatanya()
 	 * @see #ZENITH_1_POINT_583
 	 */
-	getShaahZmanisBaalHatanya(): number;
+	getShaahZmanisBaalHatanya(): Temporal.Duration | undefined;
 	/**
 	 * Returns the <a href="https://en.wikipedia.org/wiki/Shneur_Zalman_of_Liadi">Baal Hatanya</a>'s <em>alos</em>
 	 * (dawn) calculated as the time when the sun is 16.9&deg; below the eastern {@link #GEOMETRIC_ZENITH geometric horizon}
@@ -6274,7 +6265,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @see #getFixedLocalChatzos()
 	 * @see #getMinchaKetanaGRAFixedLocalChatzosToSunset
 	 */
-	getMinchaGedolaGRAFixedLocalChatzos30Minutes(): Temporal.ZonedDateTime | null;
+	getMinchaGedolaGRAFixedLocalChatzos30Minutes(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * This method returns <a href="https://en.wikipedia.org/wiki/Moshe_Feinstein">Rav Moshe Feinstein's</a> opinion
 	 * of the calculation of <em>mincha ketana</em> (the preferred time to recite the <em>mincha prayers</em> according to
@@ -6319,7 +6310,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         a null will be returned. See detailed explanation on top of the {@link AstronomicalCalendar}
 	 *         documentation.
 	 */
-	getTzais50(): Temporal.ZonedDateTime | null;
+	getTzais50(): Temporal.ZonedDateTime | undefined;
 	/**
 	 * A method for calculating <em>samuch lemincha ketana</em>, / near <em>mincha ketana</em> time that is half an hour before
 	 * {@link #getMinchaKetana()} or is 9 * {@link #getShaahZmanisGra() <em>shaos zmaniyos</em>} (solar hours) after {@link
@@ -6889,21 +6880,6 @@ export declare class JewishDate {
 	 */
 	getDaysInJewishMonth(): number;
 	/**
-	 * Returns the absolute date of Jewish date. ND+ER
-	 *
-	 * @param year
-	 *            the Jewish year. The year can't be negative
-	 * @param month
-	 *            the Jewish month starting with Nisan. Nisan expects a value of 1 etc till Adar with a value of 12. For
-	 *            a leap year, 13 will be the expected value for Adar II. Use the constants {@link JewishDate#NISSAN}
-	 *            etc.
-	 * @param dayOfMonth
-	 *            the Jewish day of month. valid values are 1-30. If the day of month is set to 30 for a month that only
-	 *            has 29 days, the day will be set as 29.
-	 * @return the absolute date of the Jewish date.
-	 */
-	private static jewishDateToAbsDate;
-	/**
 	 * Returns the molad for a given year and month. Returns a JewishDate {@link Object} set to the date of the molad
 	 * with the {@link #getMoladHours() hours}, {@link #getMoladMinutes() minutes} and {@link #getMoladChalakim()
 	   * chalakim} set. In the current implementation, it sets the molad time based on a midnight date rollover. This
@@ -6943,18 +6919,6 @@ export declare class JewishDate {
 	 * @return the number of days
 	 */
 	getDaysSinceStartOfJewishYear(): number;
-	/**
-	 * returns the number of days from Rosh Hashana of the date passed in, to the full date passed in.
-	 *
-	 * @param year
-	 *            the Jewish year
-	 * @param month
-	 *            the Jewish month
-	 * @param dayOfMonth
-	 *            the day in the Jewish month
-	 * @return the number of days
-	 */
-	private static getDaysSinceStartOfJewishYear;
 	constructor(jewishYear: number, jewishMonth: number, jewishDayOfMonth: number);
 	constructor(molad: number);
 	constructor(date: Date);
