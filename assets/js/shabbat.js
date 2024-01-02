@@ -2,7 +2,7 @@
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
-import WebsiteCalendar from "./WebsiteCalendar.js"
+import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js"
 
 import {isEmojiSupported} from "../libraries/is-emoji-supported.js";
 if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
@@ -23,7 +23,7 @@ const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 
 const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 30 });
-const jCal = new WebsiteCalendar(shabbatDate)
+const jCal = new WebsiteLimudCalendar(shabbatDate)
 
 for (const title of document.getElementsByClassName('shabbatTitleCore'))
     title.innerHTML += jCal.getHebrewParasha().join(" / ") + " " + jCal.formatJewishYear().hebrew

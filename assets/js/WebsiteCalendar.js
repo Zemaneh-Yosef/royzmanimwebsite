@@ -7,80 +7,6 @@ import { settings } from "./settings/handler.js";
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
-	static hebrewParshaMap = {
-		[KosherZmanim.Parsha.NONE]: '',
-		[KosherZmanim.Parsha.BERESHIS]: '\u05D1\u05E8\u05D0\u05E9\u05D9\u05EA',
-		[KosherZmanim.Parsha.NOACH]: '\u05E0\u05D7',
-		[KosherZmanim.Parsha.LECH_LECHA]: '\u05DC\u05DA \u05DC\u05DA',
-		[KosherZmanim.Parsha.VAYERA]: '\u05D5\u05D9\u05E8\u05D0',
-		[KosherZmanim.Parsha.CHAYEI_SARA]: '\u05D7\u05D9\u05D9 \u05E9\u05E8\u05D4',
-		[KosherZmanim.Parsha.TOLDOS]: '\u05EA\u05D5\u05DC\u05D3\u05D5\u05EA',
-		[KosherZmanim.Parsha.VAYETZEI]: '\u05D5\u05D9\u05E6\u05D0',
-		[KosherZmanim.Parsha.VAYISHLACH]: '\u05D5\u05D9\u05E9\u05DC\u05D7',
-		[KosherZmanim.Parsha.VAYESHEV]: '\u05D5\u05D9\u05E9\u05D1',
-		[KosherZmanim.Parsha.MIKETZ]: '\u05DE\u05E7\u05E5',
-		[KosherZmanim.Parsha.VAYIGASH]: '\u05D5\u05D9\u05D2\u05E9',
-		[KosherZmanim.Parsha.VAYECHI]: '\u05D5\u05D9\u05D7\u05D9',
-		[KosherZmanim.Parsha.SHEMOS]: '\u05E9\u05DE\u05D5\u05EA',
-		[KosherZmanim.Parsha.VAERA]: '\u05D5\u05D0\u05E8\u05D0',
-		[KosherZmanim.Parsha.BO]: '\u05D1\u05D0',
-		[KosherZmanim.Parsha.BESHALACH]: '\u05D1\u05E9\u05DC\u05D7',
-		[KosherZmanim.Parsha.YISRO]: '\u05D9\u05EA\u05E8\u05D5',
-		[KosherZmanim.Parsha.MISHPATIM]: '\u05DE\u05E9\u05E4\u05D8\u05D9\u05DD',
-		[KosherZmanim.Parsha.TERUMAH]: '\u05EA\u05E8\u05D5\u05DE\u05D4',
-		[KosherZmanim.Parsha.TETZAVEH]: '\u05EA\u05E6\u05D5\u05D4',
-		[KosherZmanim.Parsha.KI_SISA]: '\u05DB\u05D9 \u05EA\u05E9\u05D0',
-		[KosherZmanim.Parsha.VAYAKHEL]: '\u05D5\u05D9\u05E7\u05D4\u05DC',
-		[KosherZmanim.Parsha.PEKUDEI]: '\u05E4\u05E7\u05D5\u05D3\u05D9',
-		[KosherZmanim.Parsha.VAYIKRA]: '\u05D5\u05D9\u05E7\u05E8\u05D0',
-		[KosherZmanim.Parsha.TZAV]: '\u05E6\u05D5',
-		[KosherZmanim.Parsha.SHMINI]: '\u05E9\u05DE\u05D9\u05E0\u05D9',
-		[KosherZmanim.Parsha.TAZRIA]: '\u05EA\u05D6\u05E8\u05D9\u05E2',
-		[KosherZmanim.Parsha.METZORA]: '\u05DE\u05E6\u05E8\u05E2',
-		[KosherZmanim.Parsha.ACHREI_MOS]: '\u05D0\u05D7\u05E8\u05D9 \u05DE\u05D5\u05EA',
-		[KosherZmanim.Parsha.KEDOSHIM]: '\u05E7\u05D3\u05D5\u05E9\u05D9\u05DD',
-		[KosherZmanim.Parsha.EMOR]: '\u05D0\u05DE\u05D5\u05E8',
-		[KosherZmanim.Parsha.BEHAR]: '\u05D1\u05D4\u05E8',
-		[KosherZmanim.Parsha.BECHUKOSAI]: '\u05D1\u05D7\u05E7\u05EA\u05D9',
-		[KosherZmanim.Parsha.BAMIDBAR]: '\u05D1\u05DE\u05D3\u05D1\u05E8',
-		[KosherZmanim.Parsha.NASSO]: '\u05E0\u05E9\u05D0',
-		[KosherZmanim.Parsha.BEHAALOSCHA]: '\u05D1\u05D4\u05E2\u05DC\u05EA\u05DA',
-		[KosherZmanim.Parsha.SHLACH]: '\u05E9\u05DC\u05D7 \u05DC\u05DA',
-		[KosherZmanim.Parsha.KORACH]: '\u05E7\u05E8\u05D7',
-		[KosherZmanim.Parsha.CHUKAS]: '\u05D7\u05D5\u05E7\u05EA',
-		[KosherZmanim.Parsha.BALAK]: '\u05D1\u05DC\u05E7',
-		[KosherZmanim.Parsha.PINCHAS]: '\u05E4\u05D9\u05E0\u05D7\u05E1',
-		[KosherZmanim.Parsha.MATOS]: '\u05DE\u05D8\u05D5\u05EA',
-		[KosherZmanim.Parsha.MASEI]: '\u05DE\u05E1\u05E2\u05D9',
-		[KosherZmanim.Parsha.DEVARIM]: '\u05D3\u05D1\u05E8\u05D9\u05DD',
-		[KosherZmanim.Parsha.VAESCHANAN]: '\u05D5\u05D0\u05EA\u05D7\u05E0\u05DF',
-		[KosherZmanim.Parsha.EIKEV]: '\u05E2\u05E7\u05D1',
-		[KosherZmanim.Parsha.REEH]: '\u05E8\u05D0\u05D4',
-		[KosherZmanim.Parsha.SHOFTIM]: '\u05E9\u05D5\u05E4\u05D8\u05D9\u05DD',
-		[KosherZmanim.Parsha.KI_SEITZEI]: '\u05DB\u05D9 \u05EA\u05E6\u05D0',
-		[KosherZmanim.Parsha.KI_SAVO]: '\u05DB\u05D9 \u05EA\u05D1\u05D5\u05D0',
-		[KosherZmanim.Parsha.NITZAVIM]: '\u05E0\u05E6\u05D1\u05D9\u05DD',
-		[KosherZmanim.Parsha.VAYEILECH]: '\u05D5\u05D9\u05DC\u05DA',
-		[KosherZmanim.Parsha.HAAZINU]: '\u05D4\u05D0\u05D6\u05D9\u05E0\u05D5',
-		[KosherZmanim.Parsha.VZOS_HABERACHA]: '\u05D5\u05D6\u05D0\u05EA \u05D4\u05D1\u05E8\u05DB\u05D4 ',
-		[KosherZmanim.Parsha.VAYAKHEL_PEKUDEI]: '\u05D5\u05D9\u05E7\u05D4\u05DC \u05E4\u05E7\u05D5\u05D3\u05D9',
-		[KosherZmanim.Parsha.TAZRIA_METZORA]: '\u05EA\u05D6\u05E8\u05D9\u05E2 \u05DE\u05E6\u05E8\u05E2',
-		[KosherZmanim.Parsha.ACHREI_MOS_KEDOSHIM]: '\u05D0\u05D7\u05E8\u05D9 \u05DE\u05D5\u05EA \u05E7\u05D3\u05D5\u05E9\u05D9\u05DD',
-		[KosherZmanim.Parsha.BEHAR_BECHUKOSAI]: '\u05D1\u05D4\u05E8 \u05D1\u05D7\u05E7\u05EA\u05D9',
-		[KosherZmanim.Parsha.CHUKAS_BALAK]: '\u05D7\u05D5\u05E7\u05EA \u05D1\u05DC\u05E7',
-		[KosherZmanim.Parsha.MATOS_MASEI]: '\u05DE\u05D8\u05D5\u05EA \u05DE\u05E1\u05E2\u05D9',
-		[KosherZmanim.Parsha.NITZAVIM_VAYEILECH]: '\u05E0\u05E6\u05D1\u05D9\u05DD \u05D5\u05D9\u05DC\u05DA',
-		[KosherZmanim.Parsha.SHKALIM]: '\u05E9\u05E7\u05DC\u05D9\u05DD',
-		[KosherZmanim.Parsha.ZACHOR]: '\u05D6\u05DB\u05D5\u05E8',
-		[KosherZmanim.Parsha.PARA]: '\u05E4\u05E8\u05D4',
-		[KosherZmanim.Parsha.HACHODESH]: '\u05D4\u05D7\u05D3\u05E9',
-		[KosherZmanim.Parsha.SHUVA]: '\u05E9\u05D5\u05D1\u05D4',
-		[KosherZmanim.Parsha.SHIRA]: '\u05E9\u05D9\u05E8\u05D4',
-		[KosherZmanim.Parsha.HAGADOL]: '\u05D4\u05D2\u05D3\u05D5\u05DC',
-		[KosherZmanim.Parsha.CHAZON]: '\u05D7\u05D6\u05D5\u05DF',
-		[KosherZmanim.Parsha.NACHAMU]: '\u05E0\u05D7\u05DE\u05D5',
-	  };
-
 	formatJewishFullDate() {
 		const hNum = new HebrewNumberFormatter();
 		return {
@@ -101,11 +27,13 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 	}
 
+	/** @returns {{en: string; he: string}} */
 	formatJewishMonth() {
-		return {
-			english: this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'}),
-			hebrew: this.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})
-		}
+		// @ts-ignore
+		return Object.fromEntries(
+			['en', 'he']
+				.map(locale => [locale, this.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
+		);
 	}
 
 	formatFancyDate() {
@@ -522,13 +450,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				}
 			}
 		}
-	}
-
-	getHebrewParasha() {
-		return [
-			WebsiteCalendar.hebrewParshaMap[this.shabbat().getParshah()] || "No Parasha this week",
-			WebsiteCalendar.hebrewParshaMap[this.shabbat().getSpecialShabbos()]
-		].filter(Boolean)
 	}
 
 	tefilahRules(checkErevTachanun=true) {

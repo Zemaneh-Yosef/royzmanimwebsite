@@ -33,7 +33,7 @@ const fastMonths = {
 if (!(jCal.getJewishMonth() in fastMonths))
     fastName = (jCal.getJewishMonth() == WebsiteCalendar.TISHREI ? "צום גדליה" : "תענית אסתר")
 else
-    fastName = ("צום " + n2words(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().hebrew)
+    fastName = ("צום " + n2words(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().he)
 
 for (const title of document.getElementsByClassName('shabbatTitleCore'))
     title.innerHTML += fastName + " " + jCal.formatJewishYear().hebrew

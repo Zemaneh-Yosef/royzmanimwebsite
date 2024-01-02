@@ -161,10 +161,6 @@ export declare class GeoLocation {
 	 * @see #getGeodesicFinalBearing(GeoLocation)
 	 */
 	private static readonly FINAL_BEARING;
-	/** constant for milliseconds in a minute (60,000) */
-	private static readonly MINUTE_MILLIS;
-	/** constant for milliseconds in an hour (3,600,000) */
-	private static readonly HOUR_MILLIS;
 	/** constant for nanoseconds in a minute (60 * 1000 * 1000 * 1000) */
 	private static readonly MINUTE_NANOS;
 	/** constant for milliseconds in an hour (3,600,000) */
@@ -1730,7 +1726,7 @@ export declare namespace TimeZone {
 	function getDisplayName(timeZoneId: string): string | null;
 	/**
 	 * Returns the amount of time to be added to local standard time to get local wall clock time.
-	 * The default implementation returns 3600000 milliseconds (i.e., one hour) if a call to useDaylightTime() returns true.
+	 * The default implementation returns 3600000000000 nanoseconds (i.e., one hour) if a call to useDaylightTime() returns true.
 	 * Otherwise, 0 (zero) is returned.
 	 * @param {string} timeZoneId
 	 * @return {number}
@@ -8199,6 +8195,1058 @@ export declare class YerushalmiYomiCalculator {
 	 * @return the number of special days
 	 */
 	private static getNumOfSpecialDays;
+}
+/**
+ * Tefila Rules is a utility class that covers the various <em>halachos</em> and <em>minhagim</em> regarding
+ * changes to daily <em>tefila</em> / prayers, based on the Jewish calendar. This is mostly useful for use in
+ * developing <em>siddur</em> type applications, but it is also valuable for <em>shul</em> calendars that set
+ * <em>tefila</em> times based on if <a href="https://en.wikipedia.org/wiki/Tachanun"><em>tachanun</em></a> is
+ * recited that day. There are many settings in this class to cover the vast majority of <em>minhagim</em>, but
+ * there are likely some not covered here. The source for many of the <em>chasidishe minhagim</em> can be found
+ * in the <a href="https://www.nli.org.il/he/books/NNL_ALEPH001141272/NLI">Minhag Yisrael Torah</a> on Orach
+ * Chaim 131.
+ * Dates used in specific communities such as specific <em>yahrzeits</em> or a holidays like Purim Mezhbizh
+ * (Medzhybizh) celebrated on 11 {@link JewishDate#TEVES <em>Teves</em>} or <a href=
+ * "https://en.wikipedia.org/wiki/Second_Purim#Purim_Saragossa_(18_Shevat)">Purim Saragossa</a> celebrated on
+ * the (17th or) 18th of {@link JewishDate#SHEVAT <em>Shevat</em>} are not (and likely will not be) supported by
+ * this class.
+ * <p>Sample code:
+ * <pre style="background: #FEF0C9; display: inline-block;">
+ * TefilaRules tr = new TefilaRules();
+ * JewishCalendar jewishCalendar = new JewishCalendar();
+ * HebrewDateFormatter hdf = new HebrewDateFormatter();
+ * jewishCalendar.setJewishDate(5783, JewishDate.TISHREI, 1); // Rosh Hashana
+ * System.out.println(hdf.format(jewishCalendar) + ": " + tr.isTachanunRecitedShacharis(jd));
+ * jewishCalendar.setJewishDate(5783, JewishDate.ADAR, 17);
+ * System.out.println(hdf.format(jewishCalendar) + ": " + tr.isTachanunRecitedShacharis(jewishCalendar));
+ * tr.setTachanunRecitedWeekOfPurim(false);
+ * System.out.println(hdf.format(jewishCalendar) + ": " + tr.isTachanunRecitedShacharis(jewishCalendar));</pre>
+ *
+ * @author &copy; Y. Paritcher 2019 - 2021
+ * @author &copy; Eliyahu Hershfeld 2019 - 2022
+ *
+ * @todo The following items may be added at a future date.
+ * <ol>
+ * <li><em>Lamnatzaiach</em></li>
+ * <li><em>Mizmor Lesoda</em></li>
+ * <li><em>Behab</em></li>
+ * <li><em>Selichos</em></li>
+ * <li>...</li>
+ * </ol>
+ */
+export declare class TefilaRules {
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecitedEndOfTishrei()
+	   * @see #setTachanunRecitedEndOfTishrei(boolean)
+	   */
+	private tachanunRecitedEndOfTishrei;
+	/**
+	   * The default value is <code>false</code>.
+	   * @see #isTachanunRecitedWeekAfterShavuos()
+	   * @see #setTachanunRecitedWeekAfterShavuos(boolean)
+	   */
+	private tachanunRecitedWeekAfterShavuos;
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecited13SivanOutOfIsrael()
+	   * @see #setTachanunRecited13SivanOutOfIsrael(boolean)
+	   */
+	private tachanunRecited13SivanOutOfIsrael;
+	/**
+	   * The default value is <code>false</code>.
+	   * @see #isTachanunRecitedPesachSheni()
+	   * @see #setTachanunRecitedPesachSheni(boolean)
+	   */
+	private tachanunRecitedPesachSheni;
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecited15IyarOutOfIsrael()
+	   * @see #setTachanunRecited15IyarOutOfIsrael(boolean)
+	   */
+	private tachanunRecited15IyarOutOfIsrael;
+	/**
+	   * The default value is <code>false</code>.
+	   * @see #isTachanunRecitedMinchaErevLagBaomer()
+	   * @see #setTachanunRecitedMinchaErevLagBaomer(boolean)
+	   */
+	private tachanunRecitedMinchaErevLagBaomer;
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecitedShivasYemeiHamiluim()
+	   * @see #setTachanunRecitedShivasYemeiHamiluim(boolean)
+	   */
+	private tachanunRecitedShivasYemeiHamiluim;
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecitedWeekOfHod()
+	   * @see #setTachanunRecitedWeekOfHod(boolean)
+	   */
+	private tachanunRecitedWeekOfHod;
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecitedWeekOfPurim()
+	   * @see #setTachanunRecitedWeekOfPurim(boolean)
+	   */
+	private tachanunRecitedWeekOfPurim;
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecitedFridays()
+	   * @see #setTachanunRecitedFridays(boolean)
+	   */
+	private tachanunRecitedFridays;
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecitedSundays()
+	   * @see #setTachanunRecitedSundays(boolean)
+	   */
+	private tachanunRecitedSundays;
+	/**
+	   * The default value is <code>true</code>.
+	   * @see #isTachanunRecitedMinchaAllYear()
+	   * @see #setTachanunRecitedMinchaAllYear(boolean)
+	   */
+	private tachanunRecitedMinchaAllYear;
+	/**
+	   * Returns if <em>tachanun</em> is recited during <em>shacharis</em> on the day in question. See the many
+	   * <em>minhag</em> based settings that are available in this class.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return if <em>tachanun</em> is recited during <em>shacharis</em>.
+	   * @see #isTachanunRecitedMincha(JewishCalendar)
+	   */
+	isTachanunRecitedShacharis(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <em>tachanun</em> is recited during <em>mincha</em> on the day in question.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return if <em>tachanun</em> is recited during <em>mincha</em>.
+	   * @see #isTachanunRecitedShacharis(JewishCalendar)
+	   */
+	isTachanunRecitedMincha(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if it is the Jewish day (starting the evening before) to start reciting <em>Vesein Tal Umatar Livracha</em>
+	   * (<em>Sheailas Geshamim</em>). In Israel this is the 7th day of {@link JewishDate#CHESHVAN <em>Marcheshvan</em>}.
+	   * Outside Israel recitation starts on the evening of December 4th (or 5th if it is the year before a civil leap year)
+	   * in the 21st century and shifts a day forward every century not evenly divisible by 400. This method will return true
+	   * if <em>vesein tal umatar</em> on the current Jewish date that starts on the previous night, so Dec 5/6 will be
+	   * returned by this method in the 21st century. <em>vesein tal umatar</em> is not recited on <em>Shabbos</em> and the
+	   * start date will be delayed a day when the start day is on a <em>Shabbos</em> (this can only occur out of Israel).
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   *
+	   * @return true if it is the first Jewish day (starting the prior evening of reciting <em>Vesein Tal Umatar Livracha</em>
+	   *         (<em>Sheailas Geshamim</em>).
+	   *
+	   * @see #isVeseinTalUmatarStartingTonight(JewishCalendar)
+	   * @see #isVeseinTalUmatarRecited(JewishCalendar)
+	   */
+	isVeseinTalUmatarStartDate(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if true if tonight is the first night to start reciting <em>Vesein Tal Umatar Livracha</em> (
+	   * <em>Sheailas Geshamim</em>). In Israel this is the 7th day of {@link JewishDate#CHESHVAN
+	   * <em>Marcheshvan</em>} (so the 6th will return true). Outside Israel recitation starts on the evening
+	   * of December 4th (or 5th if it is the year before a civil leap year) in the 21st century and shifts a
+	   * day forward every century not evenly divisible by 400. <em>Vesein tal umatar</em> is not recited on
+	   * <em>Shabbos</em> and the start date will be delayed a day when the start day is on a <em>Shabbos</em>
+	   * (this can only occur out of Israel).
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   *
+	   * @return true if it is the first Jewish day (starting the prior evening of reciting <em>Vesein Tal Umatar
+	   *         Livracha</em> (<em>Sheailas Geshamim</em>).
+	   *
+	   * @see #isVeseinTalUmatarStartDate(JewishCalendar)
+	   * @see #isVeseinTalUmatarRecited(JewishCalendar)
+	   */
+	isVeseinTalUmatarStartingTonight(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <em>Vesein Tal Umatar Livracha</em> (<em>Sheailas Geshamim</em>) is recited. This will return
+	   * true for the entire season, even on <em>Shabbos</em> when it is not recited.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   *
+	   * @return true if <em>Vesein Tal Umatar Livracha</em> (<em>Sheailas Geshamim</em>) is recited.
+	   *
+	   * @see #isVeseinTalUmatarStartDate(JewishCalendar)
+	   * @see #isVeseinTalUmatarStartingTonight(JewishCalendar)
+	   */
+	isVeseinTalUmatarRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <em>Vesein Beracha</em> is recited. It is recited from 15 {@link JewishDate#NISSAN <em>Nissan</em>} to the
+	   * point that {@link #isVeseinTalUmatarRecited(JewishCalendar) <em>vesein tal umatar</em> is recited}.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return true if <em>Vesein Beracha</em> is recited.
+	   * @see #isVeseinTalUmatarRecited(JewishCalendar)
+	   */
+	isVeseinBerachaRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if the date is the start date for reciting <em>Mashiv Haruach Umorid Hageshem</em>. The date is 22
+	   * {@link JewishDate#TISHREI <em>Tishrei</em>}.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return true if the date is the start date for reciting <em>Mashiv Haruach Umorid Hageshem</em>.
+	   * @see #isMashivHaruachEndDate(JewishCalendar)
+	   * @see #isMashivHaruachRecited(JewishCalendar)
+	   */
+	isMashivHaruachStartDate(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if the date is the end date for reciting <em>Mashiv Haruach Umorid Hageshem</em>. The date is 15
+	   * {@link JewishDate#NISSAN <em>Nissan</em>}.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return true if the date is the end date for reciting <em>Mashiv Haruach Umorid Hageshem</em>.
+	   * @see #isMashivHaruachStartDate(JewishCalendar)
+	   * @see #isMashivHaruachRecited(JewishCalendar)
+	   */
+	isMashivHaruachEndDate(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <em>Mashiv Haruach Umorid Hageshem</em> is recited. This period starts on 22 {@link
+	   * JewishDate#TISHREI <em>Tishrei</em>} and ends on the 15th day of {@link JewishDate#NISSAN <em>Nissan</em>}.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return true if <em>Mashiv Haruach Umorid Hageshem</em> is recited.
+	   * @see #isMashivHaruachStartDate(JewishCalendar)
+	   * @see #isMashivHaruachEndDate(JewishCalendar)
+	   */
+	isMashivHaruachRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <em>Morid Hatal</em> (or the lack of reciting <em>Mashiv Haruach</em> following <em>nussach Ashkenaz</em>) is
+	   * recited. This period starts on the 15th day of {@link JewishDate#NISSAN <em>Nissan</em>} and ends on 22 {@link
+	   * JewishDate#TISHREI <em>Tishrei</em>}.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   *
+	   * @return true if <em>Morid Hatal</em> (or the lack of reciting <em>Mashiv Haruach</em> following <em>nussach Ashkenaz</em>) is recited.
+	   */
+	isMoridHatalRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <em>Hallel</em> is recited on the day in question. This will return true for both <em>Hallel shalem</em>
+	   * and <em>Chatzi Hallel</em>. See {@link #isHallelShalemRecited(JewishCalendar)} to know if the complete <em>Hallel</em>
+	   * is recited.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return if <em>Hallel</em> is recited.
+	   * @see #isHallelShalemRecited(JewishCalendar)
+	   */
+	isHallelRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <em>hallel shalem</em> is recited on the day in question. This will always return false if {@link
+	   * #isHallelRecited(JewishCalendar)} returns false.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return if <em>hallel shalem</em> is recited.
+	   * @see #isHallelRecited(JewishCalendar)
+	   */
+	isHallelShalemRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <a href="https://en.wikipedia.org/wiki/Al_HaNissim"><em>Al HaNissim</em></a> is recited on the day in question.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return if <em>al hanissim</em> is recited.
+	   * @see JewishCalendar#isChanukah()
+	   * @see JewishCalendar#isPurim()
+	   * @see JewishCalendar#getIsMukafChoma()
+	   */
+	isAlHanissimRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Returns if <em>Yaaleh Veyavo</em> is recited on the day in question.
+	   *
+	   * @param jewishCalendar the Jewish calendar day.
+	   * @return if <em>Yaaleh Veyavo</em> is recited.
+	   * @see JewishCalendar#isPesach()
+	   * @see JewishCalendar#isShavuos()
+	   * @see JewishCalendar#isRoshHashana()
+	   * @see JewishCalendar#isYomKippur()
+	   * @see JewishCalendar#isSuccos()
+	   * @see JewishCalendar#isShminiAtzeres()
+	   * @see JewishCalendar#isSimchasTorah()
+	   * @see JewishCalendar#isRoshChodesh()
+	   */
+	isYaalehVeyavoRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	   * Is <em>tachanun</em> recited during the week of Purim, from the 11th through the 17th of {@link
+	   * JewishDate#ADAR <em>Adar</em>} (on a non-leap year, or {@link JewishDate#ADAR_II <em>Adar II</em>} on a leap year). Some
+	   * <em>chasidishe</em> communities do not recite <em>tachanun</em> during this period. See the <a href=
+	   * "https://www.nli.org.il/he/books/NNL_ALEPH001141272/NLI">Minhag Yisrael Torah</a> 131 and <a href=
+	   * "https://hebrewbooks.org/pdfpager.aspx?req=4692&st=&pgnum=70">Darkei Chaim Veshalom 191</a>who discuss the
+	   * <em>minhag</em> not to recite <em>tachanun</em>. Also see the <a href=
+	   * "https://hebrewbooks.org/pdfpager.aspx?req=8944&st=&pgnum=160">Mishmeres Shalom (Hadras Shalom)</a> who discusses the
+	   * <em>minhag</em> of not reciting it on the 16th and 17th.
+	   * @return If <em>tachanun</em> is set to be recited during the week of Purim from the 11th through the 17th of {@link
+	   *         JewishDate#ADAR <em>Adar</em>} (on a non-leap year, or {@link JewishDate#ADAR_II <em>Adar II</em>} on a leap year).
+	   * @see #setTachanunRecitedWeekOfPurim(boolean)
+	   */
+	isTachanunRecitedWeekOfPurim(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited during the week of Purim from the 11th through the 17th of {@link
+	   * JewishDate#ADAR <em>Adar</em>} (on a non-leap year), or {@link JewishDate#ADAR_II <em>Adar II</em>} (on a leap year).
+	   * @param tachanunRecitedWeekOfPurim Sets if <em>tachanun</em> is to recited during the week of Purim from the 11th
+	   *         through the 17th of {@link JewishDate#ADAR <em>Adar</em>} (on a non-leap year), or {@link JewishDate#ADAR_II
+	   *         <em>Adar II</em>} (on a leap year). Some <em>chasidishe</em> communities do not recite <em>tachanun</em>
+	   *         during this period.
+	   * @see #isTachanunRecitedWeekOfPurim()
+	   */
+	setTachanunRecitedWeekOfPurim(tachanunRecitedWeekOfPurim: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited during the <em>sefira</em> week of <em>Hod</em> (14 - 20 {@link JewishDate#IYAR <em>Iyar</em>},
+	   * or the 29th - 35th of the {@link JewishCalendar#getDayOfOmer() <em>Omer</em>}). Some <em>chasidishe</em> communities
+	   * do not recite <em>tachanun</em> during this week. See Minhag Yisrael Torah 131:Iyar.
+	   * @return If <em>tachanun</em> is set to be recited during the <em>sefira</em> week of <em>Hod</em> (14 - 20 {@link
+	   *         JewishDate#IYAR <em>Iyar</em>}, or the 29th - 35th of the {@link JewishCalendar#getDayOfOmer() <em>Omer</em>}).
+	   * @see #setTachanunRecitedWeekOfHod(boolean)
+	   */
+	isTachanunRecitedWeekOfHod(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited during the <em>sefira</em> week of <em>Hod</em> (14 - 20 {@link JewishDate#IYAR
+	   * <em>Iyar</em>}, or the 29th - 35th of the {@link JewishCalendar#getDayOfOmer() <em>Omer</em>}).
+	   * @param tachanunRecitedWeekOfHod Sets if <em>tachanun</em> should be recited during the <em>sefira</em> week of
+	   * <em>Hod</em>.
+	   * @see #isTachanunRecitedWeekOfHod()
+	   */
+	setTachanunRecitedWeekOfHod(tachanunRecitedWeekOfHod: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited at the end Of {@link JewishDate#TISHREI <em>Tishrei</em>}.The Magen Avraham 669:1 and the Pri
+	   * Chadash 131:7 state that some places to not recite <em>tachanun</em> during this period. The Sh"UT Chasam Sofer on Choshen
+	   * Mishpat 77 writes that this is the <em>minhag</em> in Ashkenaz. The Shaarei Teshuva 131:19 quotes the Sheyarie Kneses
+	   * Hagdola who also states that it should not be recited. The Aderes wanted to institute saying <em>tachanun</em> during this
+	   * period, but was dissuaded from this by Rav Shmuel Salant who did not want to change the <em>minhag</em> in Yerushalayim.
+	   * The Aruch Hashulchan is of the opinion that that this <em>minhag</em> is incorrect, and it should be recited, and The Chazon
+	   * Ish also recited <em>tachanun</em> during this period. See the Dirshu edition of the Mishna Berurah for details.
+	   * @return If <em>tachanun</em> is set to be recited at the end of {@link JewishDate#TISHREI <em>Tishrei</em>}.
+	   * @see #setTachanunRecitedEndOfTishrei(tachanunRecitedEndOfTishrei)
+	   */
+	isTachanunRecitedEndOfTishrei(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited at the end of {@link JewishDate#TISHREI <em>Tishrei</em>}.
+	   * @param tachanunRecitedEndOfTishrei is <em>tachanun</em> recited at the end of {@link JewishDate#TISHREI <em>Tishrei</em>}.
+	   * @see #isTachanunRecitedEndOfTishrei()
+	   */
+	setTachanunRecitedEndOfTishrei(tachanunRecitedEndOfTishrei: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited during the week after <em>Shavuos</em>. This is the opinion of the Pri Megadim
+	   * quoted by the Mishna Berurah. This is since <em>karbanos</em> of <em>Shavuos</em> have <em>tashlumim</em> for
+	   * 7 days, it is still considered like a Yom Tov. The Chazon Ish quoted in the Orchos Rabainu vol. 1 page 68
+	   * recited <em>tachanun</em> during this week.
+	   *
+	   * @return If <em>tachanun</em> is set to be recited during the week after Shavuos.
+	   * @see #setTachanunRecitedWeekAfterShavuos(boolean)
+	   */
+	isTachanunRecitedWeekAfterShavuos(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited during the week after <em>Shavuos</em>.
+	   * @param tachanunRecitedWeekAfterShavuos is <em>tachanun</em> recited during the week after Shavuos.
+	   * @see #isTachanunRecitedWeekAfterShavuos()
+	   */
+	setTachanunRecitedWeekAfterShavuos(tachanunRecitedWeekAfterShavuos: boolean): void;
+	/**
+	   * Is <em>tachanun</em> is recited on the 13th of {@link JewishDate#SIVAN <em>Sivan</em>} (<a href=
+	   * "https://en.wikipedia.org/wiki/Yom_tov_sheni_shel_galuyot"><em>Yom Tov Sheni shel Galuyos</em></a> of the 7th
+	   * day) outside Israel. This is brought down by the Shaarie Teshuva 131:19 quoting the <a href=
+	   * "https://hebrewbooks.org/pdfpager.aspx?req=41295&st=&pgnum=39">Sheyarei Kneses Hagedola 131:12</a>that
+	   * <em>tachanun</em> should not be recited on this day. Rav Shlomo Zalman Orbach in Halichos Shlomo on
+	   * Shavuos 12:16:25 is of the opinion that even in <em>chutz laaretz</em> it should be recited since the <em>yemei
+	   * Tashlumin</em> are counted based on Israel since that is where the <em>karbanos</em> are brought. Both
+	   * {@link #isTachanunRecitedShacharis(JewishCalendar)} and {@link #isTachanunRecitedMincha(JewishCalendar)}
+	   * only return false if the location is not set to {@link JewishCalendar#getInIsrael() Israel} and both
+	   * {@link #tachanunRecitedWeekAfterShavuos} and {@link #setTachanunRecited13SivanOutOfIsrael} are set to false.
+	   *
+	   * @return If <em>tachanun</em> is set to be recited on the 13th of {@link JewishDate#SIVAN <em>Sivan</em>} out of Israel.
+	   * @see #setTachanunRecited13SivanOutOfIsrael(isTachanunRecitedThirteenSivanOutOfIsrael)
+	   * @see #isTachanunRecitedWeekAfterShavuos()
+	   */
+	isTachanunRecited13SivanOutOfIsrael(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited on the 13th of {@link JewishDate#SIVAN <em>Sivan</em>} (<a href=
+	   * "https://en.wikipedia.org/wiki/Yom_tov_sheni_shel_galuyot"><em>Yom Tov Sheni shel Galuyos</em></a> of the 7th
+	   * day) outside Israel.
+	   * @param tachanunRecitedThirteenSivanOutOfIsrael sets if <em>tachanun</em> should be recited on the 13th of {@link
+	   *          JewishDate#SIVAN <em>Sivan</em>} out of Israel. Both {@link #isTachanunRecitedShacharis(JewishCalendar)} and
+	   *          {@link #isTachanunRecitedMincha(JewishCalendar)} only return false if the location is not set to {@link
+	   *          JewishCalendar#getInIsrael() Israel} and both {@link #tachanunRecitedWeekAfterShavuos} and
+	   *          {@link #setTachanunRecited13SivanOutOfIsrael} are set to false.
+	   * @see #isTachanunRecited13SivanOutOfIsrael()
+	   */
+	setTachanunRecited13SivanOutOfIsrael(tachanunRecitedThirteenSivanOutOfIsrael: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited on {@link JewishCalendar#PESACH_SHENI <em>Pesach Sheni</em>}. The Pri Chadash 131:7 states
+	   * that <em>tachanun</em> should not be recited. The Aruch Hashulchan states that this is the minhag of the <em>sephardim</em>.
+	   * the Shaarei Efraim 10:27 also mentions that it is not recited, as does the Siddur Yaavetz (Shaar Hayesod, Chodesh Iyar).
+	   * The Pri Megadim (Mishbetzes Hazahav 131:15) and the Chazon Ish (Erev Pesahc Shchal Beshabos, page 203 in <a href=
+	   * "https://he.wikipedia.org/wiki/%D7%A9%D7%A8%D7%99%D7%94_%D7%93%D7%91%D7%9C%D7%99%D7%A6%D7%A7%D7%99">Rav Sheraya
+	   * Devlitzky's</a> comments).
+	   *
+	   * @return If <em>tachanun</em> is recited on {@link JewishCalendar#PESACH_SHENI <em>Pesach Sheni</em>}.
+	   * @see #setTachanunRecitedPesachSheni(boolean)
+	   */
+	isTachanunRecitedPesachSheni(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited on {@link JewishCalendar#PESACH_SHENI <em>Pesach Sheni</em>}.
+	   * @param tachanunRecitedPesachSheni sets if <em>tachanun</em> should be recited on <em>Pesach Sheni</em>.
+	   * @see #isTachanunRecitedPesachSheni()
+	   */
+	setTachanunRecitedPesachSheni(tachanunRecitedPesachSheni: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited on 15 {@link JewishDate#IYAR <em>Iyar</em>} (<em>sfaika deyoma</em> of {@link JewishCalendar#PESACH_SHENI
+	   * <em>Pesach Sheni</em>}) out of Israel. If {@link #isTachanunRecitedPesachSheni()} is <code>true</code> this will be
+	   * ignored even if <code>false</code>.
+	   *
+	   * @return if <em>tachanun</em> is recited on 15 {@link JewishDate#IYAR <em>Iyar</em>}  (<em>sfaika deyoma</em> of {@link
+	   *          JewishCalendar#PESACH_SHENI <em>Pesach Sheni</em>} out of Israel. If {@link #isTachanunRecitedPesachSheni()}
+	   *          is <code>true</code> this will be ignored even if <code>false</code>.
+	   * @see #setTachanunRecited15IyarOutOfIsrael(boolean)
+	   * @see #setTachanunRecitedPesachSheni(boolean)
+	   * @see #isTachanunRecitedPesachSheni()
+	   */
+	isTachanunRecited15IyarOutOfIsrael(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited on the 15th of {@link JewishDate#IYAR <em>Iyar</em>}  (<a href=
+	   * "https://en.wikipedia.org/wiki/Yom_tov_sheni_shel_galuyot"><em>Yom Tov Sheni shel Galuyos</em></a> of
+	   * {@link JewishCalendar#PESACH_SHENI <em>Pesach Sheni</em>}) out of Israel. Ignored if {@link
+	   * #isTachanunRecitedPesachSheni()} is <code>true</code>.
+	   *
+	   * @param tachanunRecited15IyarOutOfIsrael if <em>tachanun</em> should be recited on the 15th of {@link JewishDate#IYAR
+	   *          <em>Iyar</em>} (<em>sfaika deyoma</em> of {@link JewishCalendar#PESACH_SHENI <em>Pesach Sheni</em>}) out of Israel.
+	   * @see #isTachanunRecited15IyarOutOfIsrael()
+	   */
+	setTachanunRecited15IyarOutOfIsrael(tachanunRecited15IyarOutOfIsrael: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited on <em>mincha</em> on <em>erev {@link JewishCalendar#LAG_BAOMER Lag Baomer}</em>.
+	   * @return if <em>tachanun</em> is recited in <em>mincha</em> on <em>erev</em>
+	   *          {@link JewishCalendar#LAG_BAOMER <em>Lag Baomer</em>}.
+	   * @see #setTachanunRecitedMinchaErevLagBaomer(boolean)
+	   */
+	isTachanunRecitedMinchaErevLagBaomer(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited on <em>erev {@link JewishCalendar#LAG_BAOMER Lag Baomer}</em>.
+	   * @param tachanunRecitedMinchaErevLagBaomer sets if <em>tachanun</em> should be recited on <em>mincha</em>
+	   *          of <em>erev {@link JewishCalendar#LAG_BAOMER Lag Baomer}</em>.
+	   * @see #isTachanunRecitedMinchaErevLagBaomer()
+	   */
+	setTachanunRecitedMinchaErevLagBaomer(tachanunRecitedMinchaErevLagBaomer: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited during the <em>Shivas Yemei Hamiluim</em>, from the 23 of {@link
+	   * JewishDate#ADAR <em>Adar</em>} on a non-leap-year or {@link JewishDate#ADAR_II <em>Adar II</em>} on a
+	   * leap year to the end of the month. Some <em>chasidishe</em> communities do not say <em>tachanun</em>
+	   * during this week. See <a href="https://hebrewbooks.org/pdfpager.aspx?req=4692&st=&pgnum=70">Darkei
+	   * Chaim Veshalom 191</a>.
+	   * @return if <em>tachanun</em> is recited during the <em>Shivas Yemei Hamiluim</em>, from the 23 of {@link
+	   *          JewishDate#ADAR <em>Adar</em>} on a non-leap-year or {@link JewishDate#ADAR_II <em>Adar II</em>}
+	   *          on a leap year to the end of the month.
+	   * @see #setTachanunRecitedShivasYemeiHamiluim(boolean)
+	   */
+	isTachanunRecitedShivasYemeiHamiluim(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited during the <em>Shivas Yemei Hamiluim</em>, from the 23 of
+	   * {@link JewishDate#ADAR <em>Adar</em>} on a non-leap-year or {@link JewishDate#ADAR_II <em>Adar II</em>}
+	   * on a leap year to the end of the month.
+	   * @param tachanunRecitedShivasYemeiHamiluim sets if <em>tachanun</em> should be recited during the
+	   *          <em>Shivas Yemei Hamiluim</em>.
+	   * @see #isTachanunRecitedShivasYemeiHamiluim()
+	   */
+	setTachanunRecitedShivasYemeiHamiluim(tachanunRecitedShivasYemeiHamiluim: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited on Fridays. Some <em>chasidishe</em> communities do not recite
+	   * <em>tachanun</em> on Fridays. See <a href="https://hebrewbooks.org/pdfpager.aspx?req=41190&st=&pgnum=10">Likutei
+	   * Maharich Vol 2 Seder Hanhagos Erev Shabbos</a>. This is also the <em>minhag</em> in Satmar.
+	   * @return if <em>tachanun</em> is recited on Fridays.
+	   * @see #setTachanunRecitedFridays(boolean)
+	   */
+	isTachanunRecitedFridays(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited on Fridays.
+	   * @param tachanunRecitedFridays sets if <em>tachanun</em> should be recited on Fridays. Some <em>chasidishe</em>
+	   *          communities do not recite <em>tachanun</em> on Fridays.
+	   * @see #isTachanunRecitedFridays()
+	   */
+	setTachanunRecitedFridays(tachanunRecitedFridays: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited on Sundays. Some <em>chasidishe</em> communities do not recite
+	   * <em>tachanun</em> on Sundays. See <a href="https://hebrewbooks.org/pdfpager.aspx?req=41190&st=&pgnum=10">Likutei
+	   * Maharich Vol 2 Seder Hanhagos Erev Shabbos</a>.
+	   * @return if <em>tachanun</em> is recited on Sundays.
+	   * @see #setTachanunRecitedSundays(boolean)
+	   */
+	isTachanunRecitedSundays(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited on Sundays.
+	   * @param tachanunRecitedSundays sets if <em>tachanun</em> should be recited on Sundays. Some <em>chasidishe</em>
+	   *          communities do not recite <em>tachanun</em> on Sundays.
+	   * @see #isTachanunRecitedSundays()
+	   */
+	setTachanunRecitedSundays(tachanunRecitedSundays: boolean): void;
+	/**
+	   * Is <em>tachanun</em> recited in <em>Mincha</em> the entire year. Some <em>chasidishe</em> communities do not recite
+	   * <em>tachanun</em> by <em>Mincha</em> all year round. See<a href=
+	   * "https://hebrewbooks.org/pdfpager.aspx?req=4751&st=&pgnum=105">Nemukei Orach Chaim 131:3</a>.
+	   * @return if <em>tachanun</em> is recited in <em>Mincha</em> the entire year.
+	   * @see #setTachanunRecitedMinchaAllYear(boolean)
+	   */
+	isTachanunRecitedMinchaAllYear(): boolean;
+	/**
+	   * Sets if <em>tachanun</em> should be recited in <em>Mincha</em> the entire year.
+	   * @param tachanunRecitedMinchaAllYear sets if <em>tachanun</em> should be recited by <em>mincha</em> all year. If set
+	   *          to false, {@link #isTachanunRecitedMincha(JewishCalendar)} will always return false. If set to true (the
+	   *          default), it will use the regular rules.
+	   * @see #isTachanunRecitedMinchaAllYear()
+	   */
+	setTachanunRecitedMinchaAllYear(tachanunRecitedMinchaAllYear: boolean): void;
+}
+/**
+ * The HebrewDateFormatter class formats a {@link JewishDate}.
+ *
+ * The class formats Jewish dates, numbers, <em>Daf Yomi</em> (<em>Bavli</em> and <em>Yerushalmi</em>), the <em>Omer</em>,
+ * <em>Parshas Hashavua</em> (including the special <em>parshiyos</em> of <em>Shekalim</em>, <em>Zachor</em>, <em>Parah</em>
+ * and <em>Hachodesh</em>), Yomim Tovim and the Molad (experimental) in Hebrew or Latin chars, and has various settings.
+ * Sample full date output includes (using various options):
+ * <ul>
+ * <li>21 Shevat, 5729</li>
+ * <li>&#x5DB;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5DB;&#x5D8;</li>
+ * <li>&#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5D4;&#x5F3;&#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;</li>
+ * <li>&#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5F4;&#x05E4; or
+ * &#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5F4;&#x05E3;</li>
+ * <li>&#x05DB;&#x05F3; &#x05E9;&#x05D1;&#x05D8; &#x05D5;&#x05F3; &#x05D0;&#x05DC;&#x05E4;&#x05D9;&#x05DD;</li>
+ * </ul>
+ *
+ * @see JewishDate
+ * @see JewishCalendar
+ *
+ * @author &copy; Eliyahu Hershfeld 2011 - 2015
+ */
+export declare class HebrewDateFormatter {
+	/**
+	 * See {@link #isHebrewFormat()} and {@link #setHebrewFormat(boolean)}.
+	 */
+	private hebrewFormat;
+	/**
+	 * See {@link #isUseLongHebrewYears()} and {@link #setUseLongHebrewYears(boolean)}.
+	 */
+	private useLonghebrewYears;
+	/**
+	 * See {@link #isUseGershGershayim()} and {@link #setUseGershGershayim(boolean)}.
+	 */
+	private useGershGershayim;
+	/**
+	 * See {@link #isLongWeekFormat()} and {@link #setLongWeekFormat(boolean)}.
+	 */
+	private longWeekFormat;
+	/**
+	 * See {@link #isUseFinalFormLetters()} and {@link #setUseFinalFormLetters(boolean)}.
+	 */
+	private useFinalFormLetters;
+	/**
+	 * The internal DateFormat.&nbsp; See {@link #isLongWeekFormat()} and {@link #setLongWeekFormat(boolean)}.
+	 */
+	private weekFormat;
+	/**
+	 * List of transliterated parshiyos using the default <em>Ashkenazi</em> pronunciation.&nbsp; The formatParsha method
+	   * uses this for transliterated <em>parsha</em> formatting.&nbsp; This list can be overridden (for <em>Sephardi</em>
+	   * English transliteration for example) by setting the {@link #setTransliteratedParshiosList(EnumMap)}.&nbsp; The list
+	   * includes double and special <em>parshiyos</em> is set as "<em>Bereshis, Noach, Lech Lecha, Vayera, Chayei Sara,
+	   * Toldos, Vayetzei, Vayishlach, Vayeshev, Miketz, Vayigash, Vayechi, Shemos, Vaera, Bo, Beshalach, Yisro, Mishpatim,
+	   * Terumah, Tetzaveh, Ki Sisa, Vayakhel, Pekudei, Vayikra, Tzav, Shmini, Tazria, Metzora, Achrei Mos, Kedoshim, Emor,
+	   * Behar, Bechukosai, Bamidbar, Nasso, Beha'aloscha, Sh'lach, Korach, Chukas, Balak, Pinchas, Matos, Masei, Devarim,
+	   * Vaeschanan, Eikev, Re'eh, Shoftim, Ki Seitzei, Ki Savo, Nitzavim, Vayeilech, Ha'Azinu, Vezos Habracha,
+	   * Vayakhel Pekudei, Tazria Metzora, Achrei Mos Kedoshim, Behar Bechukosai, Chukas Balak, Matos Masei, Nitzavim Vayeilech,
+	   * Shekalim, Zachor, Parah, Hachodesh,Shuva, Shira, Hagadol, Chazon, Nachamu</em>".
+	 *
+	 * @see #formatParsha(JewishCalendar)
+	 */
+	private transliteratedParshaMap;
+	/**
+	 * Unicode {@link EnumMap} of Hebrew <em>parshiyos</em>.&nbsp; The list includes double and special <em>parshiyos</em> and
+	   * contains <code>"&#x05D1;&#x05E8;&#x05D0;&#x05E9;&#x05D9;&#x05EA;, &#x05E0;&#x05D7;, &#x05DC;&#x05DA; &#x05DC;&#x05DA;,
+	 *  &#x05D5;&#x05D9;&#x05E8;&#x05D0;, &#x05D7;&#x05D9;&#x05D9; &#x05E9;&#x05E8;&#x05D4;,
+	 *  &#x05EA;&#x05D5;&#x05DC;&#x05D3;&#x05D5;&#x05EA;, &#x05D5;&#x05D9;&#x05E6;&#x05D0;, &#x05D5;&#x05D9;&#x05E9;&#x05DC;&#x05D7;,
+	 *  &#x05D5;&#x05D9;&#x05E9;&#x05D1;, &#x05DE;&#x05E7;&#x05E5;, &#x05D5;&#x05D9;&#x05D2;&#x05E9;, &#x05D5;&#x05D9;&#x05D7;&#x05D9;,
+	 *  &#x05E9;&#x05DE;&#x05D5;&#x05EA;, &#x05D5;&#x05D0;&#x05E8;&#x05D0;, &#x05D1;&#x05D0;, &#x05D1;&#x05E9;&#x05DC;&#x05D7;,
+	 *  &#x05D9;&#x05EA;&#x05E8;&#x05D5;, &#x05DE;&#x05E9;&#x05E4;&#x05D8;&#x05D9;&#x05DD;, &#x05EA;&#x05E8;&#x05D5;&#x05DE;&#x05D4;,
+	 *  &#x05EA;&#x05E6;&#x05D5;&#x05D4;, &#x05DB;&#x05D9; &#x05EA;&#x05E9;&#x05D0;, &#x05D5;&#x05D9;&#x05E7;&#x05D4;&#x05DC;,
+	 *  &#x05E4;&#x05E7;&#x05D5;&#x05D3;&#x05D9;, &#x05D5;&#x05D9;&#x05E7;&#x05E8;&#x05D0;, &#x05E6;&#x05D5;,
+	 *  &#x05E9;&#x05DE;&#x05D9;&#x05E0;&#x05D9;, &#x05EA;&#x05D6;&#x05E8;&#x05D9;&#x05E2;, &#x05DE;&#x05E6;&#x05E8;&#x05E2;,
+	 *  &#x05D0;&#x05D7;&#x05E8;&#x05D9; &#x05DE;&#x05D5;&#x05EA;, &#x05E7;&#x05D3;&#x05D5;&#x05E9;&#x05D9;&#x05DD;,
+	 *  &#x05D0;&#x05DE;&#x05D5;&#x05E8;, &#x05D1;&#x05D4;&#x05E8;, &#x05D1;&#x05D7;&#x05E7;&#x05EA;&#x05D9;,
+	 *  &#x05D1;&#x05DE;&#x05D3;&#x05D1;&#x05E8;, &#x05E0;&#x05E9;&#x05D0;, &#x05D1;&#x05D4;&#x05E2;&#x05DC;&#x05EA;&#x05DA;,
+	 *  &#x05E9;&#x05DC;&#x05D7; &#x05DC;&#x05DA;, &#x05E7;&#x05E8;&#x05D7;, &#x05D7;&#x05D5;&#x05E7;&#x05EA;, &#x05D1;&#x05DC;&#x05E7;,
+	 *  &#x05E4;&#x05D9;&#x05E0;&#x05D7;&#x05E1;, &#x05DE;&#x05D8;&#x05D5;&#x05EA;, &#x05DE;&#x05E1;&#x05E2;&#x05D9;,
+	 *  &#x05D3;&#x05D1;&#x05E8;&#x05D9;&#x05DD;, &#x05D5;&#x05D0;&#x05EA;&#x05D7;&#x05E0;&#x05DF;, &#x05E2;&#x05E7;&#x05D1;,
+	 *  &#x05E8;&#x05D0;&#x05D4;, &#x05E9;&#x05D5;&#x05E4;&#x05D8;&#x05D9;&#x05DD;, &#x05DB;&#x05D9; &#x05EA;&#x05E6;&#x05D0;,
+	 *  &#x05DB;&#x05D9; &#x05EA;&#x05D1;&#x05D5;&#x05D0;, &#5D9;&#x05E6;&#x05D1;&#x05D9;&#x05DD;, &#x05D5;&#x05D9;&#x05DC;&#x05DA;,
+	 *  &#x05D4;&#x05D0;&#x05D6;&#x05D9;&#x05E0;&#x05D5;, &#x05D5;&#x05D6;&#x05D0;&#x05EA; &#x05D4;&#x05D1;&#x05E8;&#x05DB;&#x05D4;,
+	 *  &#x05D5;&#x05D9;&#x05E7;&#x05D4;&#x05DC; &#x05E4;&#x05E7;&#x05D5;&#x05D3;&#x05D9;, &#x05EA;&#x05D6;&#x05E8;&#x05D9;&#x05E2;
+	 *  &#x05DE;&#x05E6;&#x05E8;&#x05E2;, &#x05D0;&#x05D7;&#x05E8;&#x05D9; &#x05DE;&#x05D5;&#x05EA;
+	 *  &#x05E7;&#x05D3;&#x05D5;&#x05E9;&#x05D9;&#x05DD;, &#x05D1;&#x05D4;&#x05E8; &#x05D1;&#x05D7;&#x05E7;&#x05EA;&#x05D9;,
+	 *  &#x05D7;&#x05D5;&#x05E7;&#x05EA; &#x05D1;&#x05DC;&#x05E7;, &#x05DE;&#x05D8;&#x05D5;&#x05EA; &#x05DE;&#x05E1;&#x05E2;&#x05D9;,
+	 *  &#x05E0;&#x05E6;&#x05D1;&#x05D9;&#x05DD; &#x05D5;&#x05D9;&#x05DC;&#x05DA;, &#x05E9;&#x05E7;&#x05DC;&#x05D9;&#x05DD;,
+	   *  &#x05D6;&#x05DB;&#x05D5;&#x05E8;, &#x05E4;&#x05E8;&#x05D4;, &#x05D4;&#x05D7;&#x05D3;&#x05E9;,
+	   *  &#x05E9;&#x05D5;&#x05D1;&#x05D4;,&#x05E9;&#x05D9;&#x05E8;&#x05D4;,&#x05D4;&#x05D2;&#x05D3;&#x05D5;&#x05DC;,
+	   *  &#x05D7;&#x05D6;&#x05D5;&#x05DF;,&#x05E0;&#x05D7;&#x05DE;&#x05D5;"</code>
+	 */
+	private readonly hebrewParshaMap;
+	/**
+	 * returns if the {@link #formatDayOfWeek(JewishDate)} will use the long format such as
+	 * &#x05E8;&#x05D0;&#x05E9;&#x05D5;&#x05DF; or short such as &#x05D0; when formatting the day of week in
+	 * {@link #isHebrewFormat() Hebrew}.
+	 *
+	 * @return the longWeekFormat
+	 * @see #setLongWeekFormat(boolean)
+	 * @see #formatDayOfWeek(JewishDate)
+	 */
+	isLongWeekFormat(): boolean;
+	/**
+	 * Setting to control if the {@link #formatDayOfWeek(JewishDate)} will use the long format such as
+	 * &#x05E8;&#x05D0;&#x05E9;&#x05D5;&#x05DF; or short such as &#x05D0; when formatting the day of week in
+	 * {@link #isHebrewFormat() Hebrew}.
+	 *
+	 * @param longWeekFormat
+	 *            the longWeekFormat to set
+	 */
+	setLongWeekFormat(longWeekFormat: boolean): void;
+	/**
+	 * The <a href="https://en.wikipedia.org/wiki/Geresh#Punctuation_mark">gersh</a> character is the &#x05F3; char
+	 * that is similar to a single quote and is used in formatting Hebrew numbers.
+	 */
+	private static readonly GERESH;
+	/**
+	 * The <a href="https://en.wikipedia.org/wiki/Gershayim#Punctuation_mark">gershyim</a> character is the &#x05F4; char
+	 * that is similar to a double quote and is used in formatting Hebrew numbers.
+	 */
+	private static readonly GERSHAYIM;
+	/**
+	 * Transliterated month names.&nbsp; Defaults to ["Nissan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Cheshvan",
+	 * "Kislev", "Teves", "Shevat", "Adar", "Adar II", "Adar I" ].
+	 * @see #getTransliteratedMonthList()
+	 * @see #setTransliteratedMonthList(String[])
+	 */
+	private transliteratedMonths;
+	/**
+	 * The Hebrew omer prefix charachter. It defaults to &#x05D1; producing &#x05D1;&#x05E2;&#x05D5;&#x05DE;&#x05E8;,
+	 * but can be set to &#x05DC; to produce &#x05DC;&#x05E2;&#x05D5;&#x05DE;&#x05E8; (or any other prefix).
+	 * @see #getHebrewOmerPrefix()
+	 * @see #setHebrewOmerPrefix(String)
+	 */
+	private hebrewOmerPrefix;
+	/**
+	 * The default value for formatting Shabbos (Saturday).&nbsp; Defaults to Shabbos.
+	 * @see #getTransliteratedShabbosDayOfWeek()
+	 * @see #setTransliteratedShabbosDayOfWeek(String)
+	 */
+	private transliteratedShabbosDayOfweek;
+	/**
+	 * Returns the day of Shabbos transliterated into Latin chars. The default uses Ashkenazi pronunciation "Shabbos".
+	 * This can be overwritten using the {@link #setTransliteratedShabbosDayOfWeek(String)}
+	 *
+	 * @return the transliteratedShabbos. The default list of months uses Ashkenazi pronunciation "Shabbos".
+	 * @see #setTransliteratedShabbosDayOfWeek(String)
+	 * @see #formatDayOfWeek(JewishDate)
+	 */
+	getTransliteratedShabbosDayOfWeek(): string;
+	/**
+	 * Setter to override the default transliterated name of "Shabbos" to alternate spelling such as "Shabbat" used by
+	 * the {@link #formatDayOfWeek(JewishDate)}
+	 *
+	 * @param transliteratedShabbos
+	 *            the transliteratedShabbos to set
+	 *
+	 * @see #getTransliteratedShabbosDayOfWeek()
+	 * @see #formatDayOfWeek(JewishDate)
+	 */
+	setTransliteratedShabbosDayOfWeek(transliteratedShabbos: string): void;
+	/**
+	 * See {@link #getTransliteratedHolidayList()} and {@link #setTransliteratedHolidayList(String[])}.
+	 */
+	private transliteratedHolidays;
+	/**
+	 * Returns the list of holidays transliterated into Latin chars. This is used by the
+	 * {@link #formatYomTov(JewishCalendar)} when formatting the Yom Tov String. The default list of months uses
+	 * Ashkenazi pronunciation in typical American English spelling.
+	 *
+	 * @return the list of transliterated holidays. The default list is currently ["Erev Pesach", "Pesach",
+	 *         "Chol Hamoed Pesach", "Pesach Sheni", "Erev Shavuos", "Shavuos", "Seventeenth of Tammuz", "Tishah B'Av",
+	 *         "Tu B'Av", "Erev Rosh Hashana", "Rosh Hashana", "Fast of Gedalyah", "Erev Yom Kippur", "Yom Kippur",
+	 *         "Erev Succos", "Succos", "Chol Hamoed Succos", "Hoshana Rabbah", "Shemini Atzeres", "Simchas Torah",
+	 *         "Erev Chanukah", "Chanukah", "Tenth of Teves", "Tu B'Shvat", "Fast of Esther", "Purim", "Shushan Purim",
+	 *         "Purim Katan", "Rosh Chodesh", "Yom HaShoah", "Yom Hazikaron", "Yom Ha'atzmaut", "Yom Yerushalayim",
+	 *         "Lag B'Omer","Shushan Purim Katan","Isru Chag"].
+	 *
+	 * @see #setTransliteratedMonthList(String[])
+	 * @see #formatYomTov(JewishCalendar)
+	 * @see #isHebrewFormat()
+	 */
+	getTransliteratedHolidayList(): string[];
+	/**
+	 * Sets the list of holidays transliterated into Latin chars. This is used by the
+	 * {@link #formatYomTov(JewishCalendar)} when formatting the Yom Tov String.
+	 *
+	 * @param transliteratedHolidays
+	 *            the transliteratedHolidays to set. Ensure that the sequence exactly matches the list returned by the
+	 *            default
+	 */
+	setTransliteratedHolidayList(transliteratedHolidays: string[]): void;
+	/**
+	 * Hebrew holiday array in the following format.<br><code>["&#x05E2;&#x05E8;&#x05D1; &#x05E4;&#x05E1;&#x05D7;",
+	 * "&#x05E4;&#x05E1;&#x05D7;", "&#x05D7;&#x05D5;&#x05DC; &#x05D4;&#x05DE;&#x05D5;&#x05E2;&#x05D3;
+	 * &#x05E4;&#x05E1;&#x05D7;", "&#x05E4;&#x05E1;&#x05D7; &#x05E9;&#x05E0;&#x05D9;", "&#x05E2;&#x05E8;&#x05D1;
+	 * &#x05E9;&#x05D1;&#x05D5;&#x05E2;&#x05D5;&#x05EA;", "&#x05E9;&#x05D1;&#x05D5;&#x05E2;&#x05D5;&#x05EA;",
+	 * "&#x05E9;&#x05D1;&#x05E2;&#x05D4; &#x05E2;&#x05E9;&#x05E8; &#x05D1;&#x05EA;&#x05DE;&#x05D5;&#x05D6;",
+	 * "&#x05EA;&#x05E9;&#x05E2;&#x05D4; &#x05D1;&#x05D0;&#x05D1;",
+	 * "&#x05D8;&#x05F4;&#x05D5; &#x05D1;&#x05D0;&#x05D1;",
+	 * "&#x05E2;&#x05E8;&#x05D1; &#x05E8;&#x05D0;&#x05E9; &#x05D4;&#x05E9;&#x05E0;&#x05D4;",
+	 * "&#x05E8;&#x05D0;&#x05E9; &#x05D4;&#x05E9;&#x05E0;&#x05D4;",
+	 * "&#x05E6;&#x05D5;&#x05DD; &#x05D2;&#x05D3;&#x05DC;&#x05D9;&#x05D4;",
+	 * "&#x05E2;&#x05E8;&#x05D1; &#x05D9;&#x05D5;&#x05DD; &#x05DB;&#x05D9;&#x05E4;&#x05D5;&#x05E8;",
+	 * "&#x05D9;&#x05D5;&#x05DD; &#x05DB;&#x05D9;&#x05E4;&#x05D5;&#x05E8;",
+	 * "&#x05E2;&#x05E8;&#x05D1; &#x05E1;&#x05D5;&#x05DB;&#x05D5;&#x05EA;",
+	 * "&#x05E1;&#x05D5;&#x05DB;&#x05D5;&#x05EA;",
+	 * "&#x05D7;&#x05D5;&#x05DC; &#x05D4;&#x05DE;&#x05D5;&#x05E2;&#x05D3; &#x05E1;&#x05D5;&#x05DB;&#x05D5;&#x05EA;",
+	 * "&#x05D4;&#x05D5;&#x05E9;&#x05E2;&#x05E0;&#x05D0; &#x05E8;&#x05D1;&#x05D4;",
+	 * "&#x05E9;&#x05DE;&#x05D9;&#x05E0;&#x05D9; &#x05E2;&#x05E6;&#x05E8;&#x05EA;",
+	 * "&#x05E9;&#x05DE;&#x05D7;&#x05EA; &#x05EA;&#x05D5;&#x05E8;&#x05D4;",
+	 * "&#x05E2;&#x05E8;&#x05D1; &#x05D7;&#x05E0;&#x05D5;&#x05DB;&#x05D4;",
+	 * "&#x05D7;&#x05E0;&#x05D5;&#x05DB;&#x05D4;", "&#x05E2;&#x05E9;&#x05E8;&#x05D4; &#x05D1;&#x05D8;&#x05D1;&#x05EA;",
+	 * "&#x05D8;&#x05F4;&#x05D5; &#x05D1;&#x05E9;&#x05D1;&#x05D8;",
+	 * "&#x05EA;&#x05E2;&#x05E0;&#x05D9;&#x05EA; &#x05D0;&#x05E1;&#x05EA;&#x05E8;",
+	 * "&#x05E4;&#x05D5;&#x05E8;&#x05D9;&#x05DD;",
+	 * "&#x05E4;&#x05D5;&#x05E8;&#x05D9;&#x05DD; &#x05E9;&#x05D5;&#x05E9;&#x05DF;",
+	 * "&#x05E4;&#x05D5;&#x05E8;&#x05D9;&#x05DD; &#x05E7;&#x05D8;&#x05DF;",
+	 * "&#x05E8;&#x05D0;&#x05E9; &#x05D7;&#x05D5;&#x05D3;&#x05E9;",
+	 * "&#x05D9;&#x05D5;&#x05DD; &#x05D4;&#x05E9;&#x05D5;&#x05D0;&#x05D4;",
+	 * "&#x05D9;&#x05D5;&#x05DD; &#x05D4;&#x05D6;&#x05D9;&#x05DB;&#x05E8;&#x05D5;&#x05DF;",
+	 * "&#x05D9;&#x05D5;&#x05DD; &#x05D4;&#x05E2;&#x05E6;&#x05DE;&#x05D0;&#x05D5;&#x05EA;",
+	 * "&#x05D9;&#x05D5;&#x05DD; &#x05D9;&#x05E8;&#x05D5;&#x05E9;&#x05DC;&#x05D9;&#x05DD;",
+	 * "&#x05DC;&#x05F4;&#x05D2; &#x05D1;&#x05E2;&#x05D5;&#x05DE;&#x05E8;",
+	 * "&#x05E4;&#x05D5;&#x05E8;&#x05D9;&#x05DD; &#x05E9;&#x05D5;&#x05E9;&#x05DF; &#x05E7;&#x05D8;&#x05DF;"]</code>
+	 */
+	private static readonly hebrewHolidays;
+	/**
+	 * Formats the Yom Tov (holiday) in Hebrew or transliterated Latin characters.
+	 *
+	 * @param jewishCalendar the JewishCalendar
+	 * @return the formatted holiday or an empty String if the day is not a holiday.
+	 * @see #isHebrewFormat()
+	 */
+	formatYomTov(jewishCalendar: JewishCalendar): string;
+	/**
+	 * Formats a day as Rosh Chodesh in the format of in the format of &#x05E8;&#x05D0;&#x05E9;
+	 * &#x05D7;&#x05D5;&#x05D3;&#x05E9; &#x05E9;&#x05D1;&#x05D8; or Rosh Chodesh Shevat. If it
+	 * is not Rosh Chodesh, an empty <code>String</code> will be returned.
+	 * @param jewishCalendar the JewishCalendar
+	 * @return The formatted <code>String</code> in the format of &#x05E8;&#x05D0;&#x05E9;
+	 * &#x05D7;&#x05D5;&#x05D3;&#x05E9; &#x05E9;&#x05D1;&#x05D8; or Rosh Chodesh Shevat. If it
+	 * is not Rosh Chodesh, an empty <code>String</code> will be returned.
+	 */
+	formatRoshChodesh(jewishCalendar: JewishCalendar): string;
+	/**
+	 * Returns if the formatter is set to use Hebrew formatting in the various formatting methods.
+	 *
+	 * @return the hebrewFormat
+	 * @see #setHebrewFormat(boolean)
+	 * @see #format(JewishDate)
+	 * @see #formatDayOfWeek(JewishDate)
+	 * @see #formatMonth(JewishDate)
+	 * @see #formatOmer(JewishCalendar)
+	 * @see #formatParsha(JewishCalendar)
+	 * @see #formatYomTov(JewishCalendar)
+	 */
+	isHebrewFormat(): boolean;
+	/**
+	 * Sets the formatter to format in Hebrew in the various formatting methods.
+	 *
+	 * @param hebrewFormat
+	 *            the hebrewFormat to set
+	 * @see #isHebrewFormat()
+	 * @see #format(JewishDate)
+	 * @see #formatDayOfWeek(JewishDate)
+	 * @see #formatMonth(JewishDate)
+	 * @see #formatOmer(JewishCalendar)
+	 * @see #formatParsha(JewishCalendar)
+	 * @see #formatYomTov(JewishCalendar)
+	 */
+	setHebrewFormat(hebrewFormat: boolean): void;
+	/**
+	 * Returns the Hebrew Omer prefix.&nbsp; By default it is the letter &#x05D1; producing
+	 * &#x05D1;&#x05E2;&#x05D5;&#x05DE;&#x05E8;, but it can be set to &#x05DC; to produce
+	 * &#x05DC;&#x05E2;&#x05D5;&#x05DE;&#x05E8; (or any other prefix) using the {@link #setHebrewOmerPrefix(String)}.
+	 *
+	 * @return the hebrewOmerPrefix
+	 *
+	 * @see #hebrewOmerPrefix
+	 * @see #setHebrewOmerPrefix(String)
+	 * @see #formatOmer(JewishCalendar)
+	 */
+	getHebrewOmerPrefix(): string;
+	/**
+	 * Method to set the Hebrew Omer prefix. By default it is the letter &#x5D1;, but this allows setting it to a
+	 * &#x5DC; (or any other prefix).
+	 *
+	 * @param hebrewOmerPrefix
+	 *            the hebrewOmerPrefix to set. You can use the Unicode &#92;u05DC to set it to &#x5DC;.
+	 * @see #getHebrewOmerPrefix()
+	 * @see #formatOmer(JewishCalendar)
+	 */
+	setHebrewOmerPrefix(hebrewOmerPrefix: string): void;
+	/**
+	 * Returns the list of months transliterated into Latin chars. The default list of months uses Ashkenazi
+	 * pronunciation in typical American English spelling. This list has a length of 14 with 3 variations for Adar -
+	 * "Adar", "Adar II", "Adar I"
+	 *
+	 * @return the list of months beginning in Nissan and ending in in "Adar", "Adar II", "Adar I". The default list is
+	 *         currently ["Nissan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Cheshvan", "Kislev", "Teves",
+	 *         "Shevat", "Adar", "Adar II", "Adar I"].
+	 * @see #setTransliteratedMonthList(String[])
+	 */
+	getTransliteratedMonthList(): string[];
+	/**
+	 * Setter method to allow overriding of the default list of months transliterated into into Latin chars. The default
+	 * uses Ashkenazi American English transliteration.
+	 *
+	 * @param transliteratedMonths
+	 *            an array of 14 month names that defaults to ["Nissan", "Iyar", "Sivan", "Tamuz", "Av", "Elul", "Tishrei",
+	 *            "Heshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"].
+	 * @see #getTransliteratedMonthList()
+	 */
+	setTransliteratedMonthList(transliteratedMonths: string[]): void;
+	/**
+	 * Unicode list of Hebrew months in the following format <code>["\u05E0\u05D9\u05E1\u05DF","\u05D0\u05D9\u05D9\u05E8",
+	 * "\u05E1\u05D9\u05D5\u05DF","\u05EA\u05DE\u05D5\u05D6","\u05D0\u05D1","\u05D0\u05DC\u05D5\u05DC",
+	 * "\u05EA\u05E9\u05E8\u05D9","\u05D7\u05E9\u05D5\u05DF","\u05DB\u05E1\u05DC\u05D5","\u05D8\u05D1\u05EA",
+	 * "\u05E9\u05D1\u05D8","\u05D0\u05D3\u05E8","\u05D0\u05D3\u05E8 \u05D1","\u05D0\u05D3\u05E8 \u05D0"]</code>
+	 *
+	 * @see #formatMonth(JewishDate)
+	 */
+	private hebrewMonths;
+	/**
+	 * Unicode list of Hebrew days of week in the format of <code>["&#x05E8;&#x05D0;&#x05E9;&#x05D5;&#x05DF;",
+	 * "&#x05E9;&#x05E0;&#x05D9;","&#x05E9;&#x05DC;&#x05D9;&#x05E9;&#x05D9;","&#x05E8;&#x05D1;&#x05D9;&#x05E2;&#x05D9;",
+	 * "&#x05D7;&#x05DE;&#x05D9;&#x05E9;&#x05D9;","&#x05E9;&#x05E9;&#x05D9;","&#x05E9;&#x05D1;&#x05EA;"]</code>
+	 */
+	private static readonly hebrewDaysOfWeek;
+	/**
+	 * Formats the day of week. If {@link #isHebrewFormat() Hebrew formatting} is set, it will display in the format
+	 * &#x05E8;&#x05D0;&#x05E9;&#x05D5;&#x05DF; etc. If Hebrew formatting is not in use it will return it in the format
+	 * of Sunday etc. There are various formatting options that will affect the output.
+	 *
+	 * @param jewishDate the JewishDate Object
+	 * @return the formatted day of week
+	 * @see #isHebrewFormat()
+	 * @see #isLongWeekFormat()
+	 */
+	formatDayOfWeek(jewishDate: JewishDate): string;
+	/**
+	 * Returns whether the class is set to use the Geresh &#x5F3; and Gershayim &#x5F4; in formatting Hebrew dates and
+	 * numbers. When true and output would look like &#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5F4;&#x5DB;
+	 * (or &#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5F4;&#x5DA;). When set to false, this output
+	 * would display as &#x5DB;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5DB;.
+	 *
+	 * @return true if set to use the Geresh &#x5F3; and Gershayim &#x5F4; in formatting Hebrew dates and numbers.
+	 */
+	isUseGershGershayim(): boolean;
+	/**
+	 * Sets whether to use the Geresh &#x5F3; and Gershayim &#x5F4; in formatting Hebrew dates and numbers. The default
+	 * value is true and output would look like &#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5F4;&#x5DB;
+	 * (or &#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5F4;&#x5DA;). When set to false, this output would
+	 * display as &#x5DB;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5DB; (or
+	 * &#x5DB;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5DA;). Single digit days or month or years such as &#x05DB;&#x05F3;
+	 * &#x05E9;&#x05D1;&#x05D8; &#x05D5;&#x05F3; &#x05D0;&#x05DC;&#x05E4;&#x05D9;&#x05DD; show the use of the Geresh.
+	 *
+	 * @param useGershGershayim
+	 *            set to false to omit the Geresh &#x5F3; and Gershayim &#x5F4; in formatting
+	 */
+	setUseGershGershayim(useGershGershayim: boolean): void;
+	/**
+	 * Returns whether the class is set to use the &#x05DE;&#x05E0;&#x05E6;&#x05E4;&#x05F4;&#x05DA; letters when
+	 * formatting years ending in 20, 40, 50, 80 and 90 to produce &#x05EA;&#x05E9;&#x05F4;&#x05E4; if false or
+	 * or &#x05EA;&#x05E9;&#x05F4;&#x05E3; if true. Traditionally non-final form letters are used, so the year
+	 * 5780 would be formatted as &#x05EA;&#x05E9;&#x05F4;&#x05E4; if the default false is used here. If this returns
+	 * true, the format &#x05EA;&#x05E9;&#x05F4;&#x05E3; would be used.
+	 *
+	 * @return true if set to use final form letters when formatting Hebrew years. The default value is false.
+	 */
+	isUseFinalFormLetters(): boolean;
+	/**
+	 * When formatting a Hebrew Year, traditionally years ending in 20, 40, 50, 80 and 90 are formatted using non-final
+	 * form letters for example &#x05EA;&#x05E9;&#x05F4;&#x05E4; for the year 5780. Setting this to true (the default
+	 * is false) will use the final form letters for &#x05DE;&#x05E0;&#x05E6;&#x05E4;&#x05F4;&#x05DA; and will format
+	 * the year 5780 as &#x05EA;&#x05E9;&#x05F4;&#x05E3;.
+	 *
+	 * @param useFinalFormLetters
+	 *            Set this to true to use final form letters when formatting Hebrew years.
+	 */
+	setUseFinalFormLetters(useFinalFormLetters: boolean): void;
+	/**
+	 * Returns whether the class is set to use the thousands digit when formatting. When formatting a Hebrew Year,
+	 * traditionally the thousands digit is omitted and output for a year such as 5729 (1969 Gregorian) would be
+	 * calculated for 729 and format as &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;. When set to true the long format year such
+	 * as &#x5D4;&#x5F3; &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8; for 5729/1969 is returned.
+	 *
+	 * @return true if set to use the thousands digit when formatting Hebrew dates and numbers.
+	 */
+	isUseLongHebrewYears(): boolean;
+	/**
+	 * When formatting a Hebrew Year, traditionally the thousands digit is omitted and output for a year such as 5729
+	 * (1969 Gregorian) would be calculated for 729 and format as &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;. This method
+	 * allows setting this to true to return the long format year such as &#x5D4;&#x5F3;
+	 * &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8; for 5729/1969.
+	 *
+	 * @param useLongHebrewYears
+	 *            Set this to true to use the long formatting
+	 */
+	setUseLongHebrewYears(useLongHebrewYears: boolean): void;
+	/**
+	 * Formats the Jewish date. If the formatter is set to Hebrew, it will format in the form, "day Month year" for
+	 * example &#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;, and the format
+	 * "21 Shevat, 5729" if not.
+	 *
+	 * @param jewishDate
+	 *            the JewishDate to be formatted
+	 * @return the formatted date. If the formatter is set to Hebrew, it will format in the form, "day Month year" for
+	 *         example &#x5DB;&#x5F4;&#x5D0; &#x5E9;&#x5D1;&#x5D8; &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;, and the format
+	 *         "21 Shevat, 5729" if not.
+	 */
+	format(jewishDate: JewishDate): string;
+	/**
+	 * Returns a string of the current Hebrew month such as "Tishrei". Returns a string of the current Hebrew month such
+	 * as "&#x5D0;&#x5D3;&#x5E8; &#x5D1;&#x5F3;".
+	 *
+	 * @param jewishDate
+	 *            the JewishDate to format
+	 * @return the formatted month name
+	 * @see #isHebrewFormat()
+	 * @see #setHebrewFormat(boolean)
+	 * @see #getTransliteratedMonthList()
+	 * @see #setTransliteratedMonthList(String[])
+	 */
+	formatMonth(jewishDate: JewishDate): string;
+	/**
+	 * Returns a String of the Omer day in the form &#x5DC;&#x5F4;&#x5D2; &#x5D1;&#x05E2;&#x05D5;&#x05DE;&#x5E8; if
+	 * Hebrew Format is set, or "Omer X" or "Lag B'Omer" if not. An empty string if there is no Omer this day.
+	 *
+	 * @param jewishCalendar
+	 *            the JewishCalendar to be formatted
+	 *
+	 * @return a String of the Omer day in the form or an empty string if there is no Omer this day. The default
+	 *         formatting has a &#x5D1;&#x5F3; prefix that would output &#x5D1;&#x05E2;&#x05D5;&#x05DE;&#x5E8;, but this
+	 *         can be set via the {@link #setHebrewOmerPrefix(String)} method to use a &#x5DC; and output
+	 *         &#x5DC;&#x5F4;&#x5D2; &#x5DC;&#x05E2;&#x05D5;&#x05DE;&#x5E8;.
+	 * @see #isHebrewFormat()
+	 * @see #getHebrewOmerPrefix()
+	 * @see #setHebrewOmerPrefix(String)
+	 */
+	formatOmer(jewishCalendar: JewishCalendar): string;
+	/**
+	 * Formats a molad.
+	 * TODO: Experimental and incomplete
+	 *
+	 * @param moladChalakim - the chalakim of the molad
+	 * @return the formatted molad. FIXME: define proper format in English and Hebrew.
+	 */
+	private static formatMolad;
+	/**
+	 * Returns the kviah in the traditional 3 letter Hebrew format where the first letter represents the day of week of
+	 * Rosh Hashana, the second letter represents the lengths of Cheshvan and Kislev ({@link JewishDate#SHELAIMIM
+	   * Shelaimim} , {@link JewishDate#KESIDRAN Kesidran} or {@link JewishDate#CHASERIM Chaserim}) and the 3rd letter
+	 * represents the day of week of Pesach. For example 5729 (1969) would return &#x5D1;&#x5E9;&#x5D4; (Rosh Hashana on
+	 * Monday, Shelaimim, and Pesach on Thursday), while 5771 (2011) would return &#x5D4;&#x5E9;&#x5D2; (Rosh Hashana on
+	 * Thursday, Shelaimim, and Pesach on Tuesday).
+	 *
+	 * @param jewishYear
+	 *            the Jewish year
+	 * @return the Hebrew String such as &#x5D1;&#x5E9;&#x5D4; for 5729 (1969) and &#x5D4;&#x5E9;&#x5D2; for 5771
+	 *         (2011).
+	 */
+	getFormattedKviah(jewishYear: number): string;
+	/**
+	 * Formats the <a href="https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a> Bavli in the format of
+	 * "&#x05E2;&#x05D9;&#x05E8;&#x05D5;&#x05D1;&#x05D9;&#x05DF; &#x05E0;&#x05F4;&#x05D1;" in {@link #isHebrewFormat() Hebrew},
+	 * or the transliterated format of "Eruvin 52".
+	 * @param daf the Daf to be formatted.
+	 * @return the formatted daf.
+	 */
+	formatDafYomiBavli(daf: Daf): string;
+	/**
+	 * Formats the <a href="https://en.wikipedia.org/wiki/Jerusalem_Talmud#Daf_Yomi_Yerushalmi">Daf Yomi Yerushalmi</a> in the format
+	 * of "&#x05E2;&#x05D9;&#x05E8;&#x05D5;&#x05D1;&#x05D9;&#x05DF; &#x05E0;&#x05F4;&#x05D1;" in {@link #isHebrewFormat() Hebrew}, or
+	 * the transliterated format of "Eruvin 52".
+	 *
+	 * @param daf the Daf to be formatted.
+	 * @return the formatted daf.
+	 */
+	formatDafYomiYerushalmi(daf: Daf): string;
+	/**
+	 * Returns a Hebrew formatted string of a number. The method can calculate from 0 - 9999.
+	 * <ul>
+	 * <li>Single digit numbers such as 3, 30 and 100 will be returned with a &#x5F3; (<a
+	 * href="https://en.wikipedia.org/wiki/Geresh">Geresh</a>) appended as at the end. For example &#x5D2;&#x5F3;,
+	 * &#x5DC;&#x5F3; and &#x5E7;&#x5F3;</li>
+	 * <li>multi digit numbers such as 21 and 769 will be returned with a &#x5F4; (<a
+	 * href="https://en.wikipedia.org/wiki/Gershayim">Gershayim</a>) between the second to last and last letters. For
+	 * example &#x5DB;&#x5F4;&#x5D0;, &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;</li>
+	 * <li>15 and 16 will be returned as &#x5D8;&#x5F4;&#x5D5; and &#x5D8;&#x5F4;&#x5D6;</li>
+	 * <li>Single digit numbers (years assumed) such as 6000 (%1000=0) will be returned as &#x5D5;&#x5F3;
+	 * &#x5D0;&#x5DC;&#x5E4;&#x5D9;&#x5DD;</li>
+	 * <li>0 will return &#x5D0;&#x5E4;&#x05E1;</li>
+	 * </ul>
+	 *
+	 * @param num
+	 *            the number to be formatted. It will trow an IllegalArgumentException if the number is &lt; 0 or &gt; 9999.
+	 * @return the Hebrew formatted number such as &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;
+	 * @see #isUseFinalFormLetters()
+	 * @see #isUseGershGershayim()
+	 * @see #isHebrewFormat()
+	 *
+	 */
+	formatHebrewNumber(num: number): string;
+	/**
+	 * Returns the list of transliterated parshiyos used by this formatter.
+	 *
+	 * @return the list of transliterated Parshios
+	 */
+	getTransliteratedParshiosList(): Record<Parsha, string>;
+	/**
+	 * Setter method to allow overriding of the default list of parshiyos transliterated into into Latin chars. The
+	 * default uses Ashkenazi American English transliteration.
+	 *
+	 * @param transliteratedParshaMap
+	 *            the transliterated Parshios as an EnumMap to set
+	 * @see #getTransliteratedParshiosList()
+	 */
+	setTransliteratedParshiosList(transliteratedParshaMap: Record<Parsha, string>): void;
+	/**
+	 * Returns a String with the name of the current parsha(ios). If the formatter is set to format in Hebrew, returns
+	 * a string of the current parsha(ios) in Hebrew for example &#x05D1;&#x05E8;&#x05D0;&#x05E9;&#x05D9;&#x05EA; or
+	 * &#x05E0;&#x05E6;&#x05D1;&#x05D9;&#x05DD; &#x05D5;&#x05D9;&#x05DC;&#x05DA; or an empty string if
+	 * are none. If not set to Hebrew, it returns a string of the parsha(ios) transliterated into Latin chars. The
+	 * default uses Ashkenazi pronunciation in typical American English spelling, for example Bereshis or
+	 * Nitzavim Vayeilech or an empty string if there are none.
+	 *
+	 * @param jewishCalendar the JewishCalendar Object
+	 * @return today's parsha(ios) in Hebrew for example, if the formatter is set to format in Hebrew, returns a string
+	 *         of the current parsha(ios) in Hebrew for example &#x05D1;&#x05E8;&#x05D0;&#x05E9;&#x05D9;&#x05EA; or
+	 *         &#x05E0;&#x05E6;&#x05D1;&#x05D9;&#x05DD; &#x05D5;&#x05D9;&#x05DC;&#x05DA; or an empty string if
+	 *         there are none. If not set to Hebrew, it returns a string of the parsha(ios) transliterated into Latin
+	 *         chars. The default uses Ashkenazi pronunciation in typical American English spelling, for example
+	 *         Bereshis or Nitzavim Vayeilech or an empty string if there are none.
+	 */
+	formatParsha(jewishCalendar: JewishCalendar): string;
+	/**
+	 * Returns a String with the name of the current special parsha of Shekalim, Zachor, Parah or Hachodesh or an
+	 * empty String for a non-special parsha. If the formatter is set to format in Hebrew, it returns a string of
+	 * the current special parsha in Hebrew, for example &#x05E9;&#x05E7;&#x05DC;&#x05D9;&#x05DD;,
+	 * &#x05D6;&#x05DB;&#x05D5;&#x05E8;, &#x05E4;&#x05E8;&#x05D4; or &#x05D4;&#x05D7;&#x05D3;&#x05E9;. An empty
+	 * string if the date is not a special parsha. If not set to Hebrew, it returns a string of the special parsha
+	 * transliterated into Latin chars. The default uses Ashkenazi pronunciation in typical American English spelling
+	 * Shekalim, Zachor, Parah or Hachodesh.
+	 *
+	 * @param jewishCalendar the JewishCalendar Object
+	 * @return today's special parsha. If the formatter is set to format in Hebrew, returns a string
+	 *         of the current special parsha  in Hebrew for in the format of &#x05E9;&#x05E7;&#x05DC;&#x05D9;&#x05DD;,
+	 *         &#x05D6;&#x05DB;&#x05D5;&#x05E8;, &#x05E4;&#x05E8;&#x05D4; or &#x05D4;&#x05D7;&#x05D3;&#x05E9; or an empty
+	 *         string if there are none. If not set to Hebrew, it returns a string of the special parsha transliterated
+	 *         into Latin chars. The default uses Ashkenazi pronunciation in typical American English spelling of Shekalim,
+	 *         Zachor, Parah or Hachodesh. An empty string if there are none.
+	 */
+	formatSpecialParsha(jewishCalendar: JewishCalendar): string;
 }
 export declare function getZmanimJson(options: Options): JsonOutput;
 export interface Options {

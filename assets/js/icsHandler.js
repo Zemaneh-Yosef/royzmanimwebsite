@@ -1,10 +1,11 @@
 // @ts-check
 
-import WebsiteCalendar, { getOrdinal } from "./WebsiteCalendar.js";
+import { getOrdinal } from "./WebsiteCalendar.js";
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
-import {ics} from "../libraries/ics/esbuild.js"
+import { ics } from "../libraries/ics/esbuild.js"
 import { Temporal, GeoLocation } from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { settings } from "./settings/handler.js";
+import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 
 /**
  * @param {Temporal.PlainDate|Temporal.ZonedDateTime} date
@@ -24,7 +25,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
     const baseDate = new Temporal.PlainDate(...plainDateParams).with({ day: 1, month: 1 })
     const geoLocation = new GeoLocation(...geoLocationData);
 
-    const jCal = new WebsiteCalendar(baseDate);
+    const jCal = new WebsiteLimudCalendar(baseDate);
     jCal.setInIsrael(isIsrael)
     const calc = (amudehHoraahZman ? new AmudehHoraahZmanim(geoLocation) : new OhrHachaimZmanim(geoLocation, useElevation));
     calc.setDate(baseDate);
@@ -114,7 +115,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
                     title: "Yom Kippur",
                     description: (settings.language() == "hb" ? 'ר"ת: ' : 'R"T: ') + calc.tomorrow().getTzaitRT().toLocaleString(...dtF)
                 })
-            else if (jCal.getJewishMonth() == WebsiteCalendar.AV)
+            else if (jCal.getJewishMonth() == WebsiteLimudCalendar.AV)
                 events.push({
                     start: calc.getShkiya().epochMilliseconds,
                     end: calc.tomorrow().getTzait().epochMilliseconds,

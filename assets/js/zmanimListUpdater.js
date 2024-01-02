@@ -2,7 +2,7 @@
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.js";
-import WebsiteCalendar from "./WebsiteCalendar.js";
+import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
 import { ChaiTables } from "./chaiTables.js";
 
@@ -13,7 +13,7 @@ class zmanimListUpdater {
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	constructor(geoLocation) {
-		this.jCal = new WebsiteCalendar();
+		this.jCal = new WebsiteLimudCalendar();
 		this.jCal.setUseModernHolidays(true);
 
 		/**
@@ -162,7 +162,9 @@ class zmanimListUpdater {
 		dateContainer.classList[boldDateHandler]("text-bold");
 
 		if (!this.buttonsInit) {
-			dateContainer.querySelector(`[data-zfReplace="primaryDate"]`).addEventListener('click', () => {
+			const downloadBtn = document.getElementById("downloadModalBtn");
+			downloadBtn.style.removeProperty("display")
+			downloadBtn.addEventListener('click', () => {
 				const geoLocationParams = [
 					this.geoLocation.getLocationName(),
 					this.geoLocation.getLatitude(),
@@ -184,13 +186,13 @@ class zmanimListUpdater {
 				)
 				const element = document.createElement('a');
 				element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
-				element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + " - " + this.geoLocation.getLocationName() + ".ics");
-	
+				element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
+
 				element.style.display = 'none';
 				document.body.appendChild(element);
-	
+
 				element.click();
-	
+
 				document.body.removeChild(element);
 			})
 
@@ -451,8 +453,8 @@ class zmanimListUpdater {
 					.forEach(element => element.innerHTML = tekufaDate.toLocaleString(...tekufaTF));
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
-					.forEach(element => element.innerHTML = this.jCal.formatJewishMonth().english);
-				tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = this.jCal.formatJewishMonth().hebrew;
+					.forEach(element => element.innerHTML = this.jCal.formatJewishMonth().en);
+				tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = this.jCal.formatJewishMonth().he;
 			}
 		} else {
 			document.querySelectorAll('[data-zfFind="Tekufa"]').forEach(
@@ -559,6 +561,7 @@ class zmanimListUpdater {
 	 * @param {HTMLElement} [tefilahRuleContainer]
 	 */
 	renderSeasonalRules(tefilahRuleContainer) {
+		/** @type {import('./WebsiteCalendar.js').default} */
 		let calForRules = this.jCal;
 		if (this.jCal.getDate().equals(KosherZmanim.Temporal.Now.plainDateISO())
 		 && this.zmanFuncs.getTzait().epochMilliseconds <= KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).epochMilliseconds) {
