@@ -31,42 +31,34 @@ breakout: true
             </button></div>
           </div>
         </li>
-        <li class="list-group-item" data-zfReplace="LocationName"></li>
-        <li class="list-group-item" data-zfFind="DafYomi">
-          <h6 class="lang lang-hb">הדף של היום</h6>
-          <h6 class="lang lang-et">Today's Daf</h6>
-          <h6 class="lang lang-en">Today's Talmud Page</h6>
-          <dl class="mb-0">
-            <div class="d-flex justify-content-between">
-              <dt class="lang lang-hb">בבלי</dt>
-              <dt class="lang lang-et">Bavli</dt>
-              <dt class="lang lang-en">Babylon Tractate</dt>
-              <dd class="m-0" data-zfReplace="dafBavli"></dd>
-            </div>
-            <div class="d-flex justify-content-between">
-              <dt class="lang lang-hb">ירושלמי</dt>
-              <dt class="lang lang-et">Yerushalmi</dt>
-              <dt class="lang lang-en">Jerusalemite Tractate</dt>
-              <dd class="m-0" data-zfReplace="DafYerushalmi"></dd>
-            </div>
-          </dl>
-        </li>
       </ul>
+    </div>
+    <div class="card mb-2">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <span class="lang lang-hb">לימוד יומי</span>
+          <span class="lang lang-et">Today's Limud</span>
+          <span class="lang lang-en">Today's Learning</span>
+        </h5>
+      </div>
+      <dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+        <div class="list-group-item d-flex justify-content-between">
+          <dt class="lang lang-hb">תלנוד בבלי</dt>
+          <dt class="lang lang-et">Talmud Bavli</dt>
+          <dt class="lang lang-en">Babylon Talmud</dt>
+          <dd class="m-0" data-zfReplace="dafBavli"></dd>
+        </div>
+        <div class="list-group-item d-flex justify-content-between">
+          <dt class="lang lang-hb">תלמוד ירושלמי (וילנה)</dt>
+          <dt class="lang lang-et">Talmud Yerushalmi (Vilna)</dt>
+          <dt class="lang lang-en">Jerusalemite Tractate (Vilna)</dt>
+          <dd class="m-0" data-zfReplace="DafYerushalmi"></dd>
+        </div>
+      </dl>
     </div>
   </div>
   <div id="zmanim">
-    <!-- <h3 class="text-center">
-      <span data-zfFind="luachOhrHachaim">
-        <span class="lang lang-hb">לוח אור החיים</span>
-        <span class="lang lang-et">Luach Ohr Hachaim</span>
-        <span class="lang lang-en">Ohr Hachaim Calendar</span>
-      </span>
-      <span data-zfFind="luachAmudehHoraah">
-        <span class="lang lang-hb">לוח עמודי הוראה</span>
-        <span class="lang lang-et">Luach Amudeh Hora'ah</span>
-        <span class="lang lang-en">Amudeh Hora'ah Calendar</span>
-      </span>
-    </h3> -->
+    <h3 class="text-center" data-zfReplace="LocationName"></h3>
     <div class="accordian" data-zfFind="calendarFormatter">
       {% for item in site.data.zmanim %}
         <details
@@ -222,7 +214,7 @@ breakout: true
         </li>
       </ul>
     </div>
-    <div class="card mb-2" data-zfReplace="ShaahZmanit">
+    <div class="card mb-2">
       <div class="card-header">
         <h5 class="mb-0">
           <span class="lang lang-hb">שעה זמנית</span>

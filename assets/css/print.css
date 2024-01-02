@@ -1,20 +1,26 @@
-#hd {
+header.navbar {
     display: none;
 }
 
 .accordian summary {
     color: black;
     background-color: transparent;
+    padding: .3rem .9rem;
 }
 
 .accordian summary:before {
     display: none;
 }
 
-li[zfReplace="dateContainer"] button {
+li[data-zfFind="dateContainer"] button,
+li[data-zfFind="dateContainer"] input {
     display: none;
 }
 
 .nextZman .timeDisplay::before {
     display: none;
+}
+
+h5[data-zfreplace="otherDate"]::before {
+    content: " • ";
 }
