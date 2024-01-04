@@ -17,11 +17,13 @@ breakout: true
             <span class="lang lang-en"><i class="fa fa-arrow-left"></i></span>
           </button>
           <div id="dateBox">
-            <h6 data-zfReplace="Day"></h6>
-            <h2 data-zfReplace="primaryDate"></h2>
-            <h5 data-zfReplace="secondaryDate" class="d-inline-block"></h5>
-            <input type="button" value="&#xf073;" class="fa btn btn-primary btn-floating">
-            <h5 data-zfReplace="otherDate" class="d-inline-block"></h5>
+            <h6 data-zfReplace="Day" style="margin-bottom: .125rem;"></h6>
+            <h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
+            <div class="d-flex" style="flex-direction: row; align-items: center; gap: .5rem; justify-content: center;">
+              <h5 data-zfReplace="secondaryDate" class="d-inline-block m-0"></h5>
+              <input type="button" value="&#xf073;" class="fa btn btn-primary btn-floating">
+              <h5 data-zfReplace="otherDate" class="d-inline-block m-0"></h5>
+            </div>
           </div>
           <button data-dateAlter="1" style="background: none; border: none; height: 100%;">
             <span class="lang lang-hb"><i class="fa fa-arrow-left"></i></span>

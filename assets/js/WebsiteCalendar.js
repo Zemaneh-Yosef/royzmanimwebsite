@@ -40,6 +40,30 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return `${daysForLocale('en')[this.getDate().dayOfWeek]}, ${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day)}`
 	}
 
+	/**
+	 * @param {'hb'|'en'|'en-et'} lang
+	 */
+	dateRenderer(lang) {
+		const en = `${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day, true)}, ${this.getDate().year}`
+		const { english: et, hebrew: hb } = this.formatJewishFullDate()
+
+		let date;
+		switch (lang) {
+			case 'hb':
+			default:
+				date = { primary: hb, secondary: en, other: et }
+				break;
+			case 'en-et':
+				date = { primary: et, secondary: en, other: hb }
+				break;
+			case 'en':
+				date = { primary: en, secondary: et, other: hb }
+				break;
+		}
+
+		return date;
+	}
+
 	getDayOfTheWeek() {
 		return {
 			english: daysForLocale('en')[this.getDate().dayOfWeek],
@@ -661,8 +685,15 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 }
 
-export function getOrdinal (/** @type {number} */ n) {
-	return n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
+/**
+ * @param {number} n 
+ * @param {boolean} [htmlSup]
+ */
+export function getOrdinal (n, htmlSup=false) {
+	return n.toString()
+		+ (htmlSup ? "<sup>" : "")
+		+ { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
+		+ (htmlSup ? "</sup>" : "")
 }
 
 /**

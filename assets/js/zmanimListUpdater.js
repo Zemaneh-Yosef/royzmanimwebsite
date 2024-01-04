@@ -129,27 +129,7 @@ class zmanimListUpdater {
 	 * @param {HTMLElement} [dateContainer]
 	 */
 	renderDateContainer(dateContainer) {
-		/** @type {{primary: string|null; secondary: string|null; other: string|null}} */
-		let date = {primary: null, secondary: null, other: null}
-
-		switch (settings.language()) {
-			case 'hb':
-			default:
-				date.primary = this.jCal.formatJewishFullDate().hebrew;
-				date.secondary = this.jCal.getDate().toLocaleString();
-				date.other = this.jCal.formatJewishFullDate().english;
-				break;
-			case 'en-et':
-				date.primary = this.jCal.formatJewishFullDate().english;
-				date.secondary = this.jCal.getDate().toLocaleString();
-				date.other = this.jCal.formatJewishFullDate().hebrew;
-				break;
-			case 'en':
-				date.primary = this.jCal.getDate().toLocaleString();
-				date.secondary = this.jCal.formatJewishFullDate().english;
-				date.other = this.jCal.formatJewishFullDate().hebrew;
-				break;
-		}
+		const date = this.jCal.dateRenderer(settings.language())
 
 		/** @type {(keyof date)[]} */
 		// @ts-ignore
