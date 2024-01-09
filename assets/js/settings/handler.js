@@ -95,32 +95,11 @@ const settings = Object.freeze({
                 });
             }
 
-            let degreeValid = true;
-
-            if (!(settingsURLOverride("tzeithIMdeg") || "").trim() || !isValidJSON(settingsURLOverride("tzeithIMdeg"))) {
-                degreeValid = false;
-            } else {
-                const degCheck = JSON.parse(settingsURLOverride("tzeithIMdeg"))
-                degreeValid = 'lat' in degCheck && 'lng' in degCheck;
-                degreeValid = degreeValid && !isNaN(settings.location.lat()) && !isNaN(settings.location.long());
-                degreeValid = degreeValid && degCheck.lat == settings.location.lat() && degCheck.lng == settings.location.long()
-                degreeValid = degreeValid && !isNaN(parseFloat(degCheck.degree))
-            }
-
-            if (!degreeValid) {
-                if (isNaN(settings.location.lat()) || isNaN(settings.location.long())) {
-                    return {
-                        minutes: parseInt(settingsURLOverride("tzeithIMmin")),
-                        degree: null
-                    };
-                }
-
-                /** @type {[string, number, number, number, string]} */
-                // @ts-ignore
-                const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
-                const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
+            if (!(settingsURLOverride("tzeithIMdeg") || "").trim()) {
+                const geoLocation = new KosherZmanim.GeoLocation("R Ovadia's house", 31.7898742, 35.1771491, 776, "UTC")
 
                 const aCalendar = new KosherZmanim.AstronomicalCalendar(geoLocation);
+                aCalendar.setDate(KosherZmanim.Temporal.Now.plainDateISO().with({ month: 3, day: 20 }))
                 const degree = aCalendar.getSunsetSolarDipFromOffset(parseInt(settingsURLOverride("tzeithIMmin")));
 
                 localStorage.setItem("tzeithIMdeg", degree.toString())

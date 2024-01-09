@@ -6,9 +6,13 @@
     et: Aloth Hashachar
     en: Dawn
   descriptionIncludeArray:
-    - zmanDescription/alot/body.md
-    - zmanDescription/alot/extra.md
-    - zmanDescription/alot/footer.md
+    short:
+      - zmanDescription/alot/body.md
+      - zmanDescription/alot/footer.md
+    long:
+      - zmanDescription/alot/body.md
+      - zmanDescription/alot/extra.md
+      - zmanDescription/alot/footer.md
   extraZmanim:
     - titles:
         hb: עלות השחר (5 מיל/שמינית מהיום)

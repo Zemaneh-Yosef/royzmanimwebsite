@@ -76,7 +76,13 @@ breakout: true
             <span class="lang lang-en">{{ item.names.en }}</span>
             <span class="timeDisplay ms-auto"></span>
           </summary>
-          <div class="accordianContent">{% capture my_include %}{% if item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}{% endcapture %}{{ my_include | markdownify }}</div>
+          <div class="accordianContent">
+            {% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
+
+---
+{% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
+            {% endcapture %}{{ my_include | markdownify }}
+          </div>
         </details>
       {% endfor %}
     </div>
@@ -85,7 +91,7 @@ breakout: true
     <div class="card mb-2 mt-2 mt-lg-0">
       <ul class="list-group list-group-flush">
         <li class="list-group-item" data-zfReplace="SpecialDay"></li>
-        <li class="list-group-item" data-zfFind="MourningPeriod">
+        <li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
           <div data-zfFind="SefirathHaomer">
             <h5>
               <span class="lang lang-hb">היום <span data-zfReplace="hbOmerDate"></span> לעומר</span>
@@ -175,7 +181,7 @@ breakout: true
           </ul>
         </li>
         <li class="list-group-item" data-zfReplace="Tachanun"></li>
-        <li class="list-group-item" data-zfFind="Chamah">
+        <li class="list-group-item" data-zfFind="Chamah" style="display: none;">
           <span class="lang lang-hb">ברכת החמה!</span>
           <span class="lang lang-et">Birchath Hachama!</span>
           <span class="lang lang-en">Blessing of the sun!</span>
@@ -197,8 +203,8 @@ breakout: true
             <span data-zfFind="ends-tonight"> - Ends tonight</span>
           </span>
         </li>
-        <li class="list-group-item" data-zfReplace="Hallel"></li>
-        <li class="list-group-item" data-zfReplace="Ulchaparat"></li>
+        <li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
+        <li class="list-group-item" data-zfReplace="Ulchaparat" style="display: none;"></li>
         <li class="list-group-item" data-zfFind="SeasonalPrayers">
           <span data-zfReplace="SeasonalPrayers"></span>
           <ul data-zfFind="ShemaKolenu">

@@ -89,6 +89,14 @@ body[dir=rtl] .accordian details[open] > summary:before {
   overflow: scroll;
 }
 
+.accordian .accordianContent hr:last-child {
+  display: none;
+}
+.accordian .accordianContent:has(hr:last-child) p:nth-last-child(2) {
+  padding-bottom: 0;
+}
+
+
 @keyframes shine {
   to {
     background-position: right -40px top 0;

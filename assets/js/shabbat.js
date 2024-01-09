@@ -22,14 +22,14 @@ const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 30 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 6 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
-
-for (const title of document.getElementsByClassName('shabbatTitleCore'))
-    title.innerHTML += jCal.getHebrewParasha().join(" / ") + " " + jCal.formatJewishYear().hebrew
 
 if (jCal.getDate().dayOfWeek != 6)
     throw new Error("Non-Saturday")
+
+for (const title of document.getElementsByClassName('shabbatTitleCore'))
+    title.innerHTML += jCal.getHebrewParasha().join(" / ") + " " + jCal.formatJewishYear().hebrew
 
 let shitot = {
     fri: document.getElementById('wrappedElement').getAttribute('data-functions-fri').split(" "),

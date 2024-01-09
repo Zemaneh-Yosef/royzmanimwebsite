@@ -76,9 +76,7 @@ export default class TekufahCalculator {
         let mjd = solarYearLength*(this.hebrewYear-1.75)-2051833;
         for (let index = 0; index < 6; index++) {
             mjd += solarYearLength/4;
-            let f = mjd-Math.floor(mjd);
-
-            f = (mjd-0.25)-Math.floor(mjd-0.25);
+            let f = (mjd-0.25)-Math.floor(mjd-0.25);
             temporalDates.push(fracday2hrmin(f, mjd2date(mjd-0.25)))
         }
 
@@ -95,9 +93,7 @@ export default class TekufahCalculator {
         let mjd = solarYearLength*(this.hebrewYear-1.75)-2051826;
         for (let index = 0; index < 6; index++) {
             mjd += solarYearLength/4;
-            let f = mjd-Math.floor(mjd);
-
-            f = (mjd-0.25)-Math.floor(mjd-0.25);
+            let f = (mjd-0.25)-Math.floor(mjd-0.25);
             temporalDates.push(fracday2hrmin(f, mjd2date(mjd-0.25)))
         }
 
