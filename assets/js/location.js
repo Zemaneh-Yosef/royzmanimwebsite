@@ -185,24 +185,30 @@ async function setLocation(name, admin, country, latitude, longitude) {
 
 			geoLocation.timeZone = data["timezoneId"];
 		} catch (e) {
-			iconography.error.style.removeProperty("display");
-			iconography.search.style.display = "none";
-			iconography.loading.style.display = "none"
-			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
-
-			console.error(e);
-			// This didn't come from getting the user's own location, because they already have the timezone
-			// This would come if the location was entered, that API worked and this one started to fail
-			// Crash the whole app in this case; it's not a matter of not being able to do things yourself
-
-			const error = {
-				PERMISSION_DENIED: 1,
-				POSITION_UNAVAILABLE: 2,
-				TIMEOUT: 3,
-				UNKNOWN_ERROR: 4,
-				code: 4
+			const attemptedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			if (attemptedTimezone)
+				alert("Timezone API error - The app will use your local timezone on your computer instead of the destination timezone. Please retry later for the intended timezone.")
+			else {
+				iconography.error.style.removeProperty("display");
+				iconography.search.style.display = "none";
+				iconography.loading.style.display = "none"
+				document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+	
+				console.error(e);
+				// This didn't come from getting the user's own location, because they already have the timezone
+				// This would come if the location was entered, that API worked and this one started to fail
+				// Crash the whole app in this case; it's not a matter of not being able to do things yourself
+	
+				const error = {
+					PERMISSION_DENIED: 1,
+					POSITION_UNAVAILABLE: 2,
+					TIMEOUT: 3,
+					UNKNOWN_ERROR: 4,
+					code: 4
+				}
+				showError(error);
+				return;
 			}
-			showError(error);
 		}
 	}
 
@@ -244,6 +250,9 @@ function getLocation() {
 		})
 }
 
+/**
+ * @param {GeolocationPosition} position 
+ */
 async function setLatLong (position) {
 	geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
