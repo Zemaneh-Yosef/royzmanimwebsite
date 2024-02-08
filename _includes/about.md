@@ -1,9 +1,4 @@
-<div style="text-align: center;">
-    <a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 25%;"></a>
-    <a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/app-store.png" style="width: 25%;"></a>
-</div>
-
-The "ROYZmanim" website was made to calculate timing information according to the Sepharadic opinion of Rabbi Ovadiah Yosef ZT"L and those of whom he quoted, much like the App Store and Play Store variants this was based on. In addition, it teaches how one can reach said calculations themselves, through detailed explanations for those that cannot read source code.
+Welcome to the זמני יוסף website, where we calculate Halachic timing according to HaRav Ovadia Yosef ZT"L for each user according to their location. In addition, we also provide explanations for the opinions so users can understand, as well as info-graphics for those wanting to share on social media.
 
 ### Basic Knowledge
 

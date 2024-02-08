@@ -6591,11 +6591,6 @@ export declare class JewishDate {
 	 * @return the last day of the Gregorian month
 	 */
 	getLastDayOfGregorianMonth(month: number): number;
-	/** Returns the absolute date (days since January 1, 0001 on the Gregorian calendar).
-	 * @see #getAbsDate()
-	 * @see #absDateToJewishDate()
-	 */
-	private gregorianAbsDate;
 	/**
 	 * Returns the number of days in a given month in a given month and year.
 	 *
@@ -6611,12 +6606,6 @@ export declare class JewishDate {
 	 * @param absDate - the absolute date
 	 */
 	private absDateToDate;
-	/**
-	 * Returns the absolute date (days since January 1, 0001 on the Gregorian calendar).
-	 *
-	 * @return the number of days since January 1, 1
-	 */
-	getAbsDate(): number;
 	/**
 	 * Computes the absolute date from a Gregorian date. ND+ER
 	 *
@@ -8052,7 +8041,6 @@ export declare class JewishCalendar extends JewishDate {
 	 * {@link HebrewDateFormatter#formatDafYomiBavli(Daf)} for the ability to format the daf in Hebrew or transliterated
 	 * masechta names.
 	 *
-	 * @deprecated This depends on a circular dependency. Use <pre>YomiCalculator.getDafYomiBavli(jewishCalendar)</pre> instead.
 	 * @return the daf as a {@link Daf}
 	 */
 	getDafYomiBavli(): Daf;
@@ -8061,10 +8049,27 @@ export declare class JewishCalendar extends JewishDate {
 	 * {@link HebrewDateFormatter#formatDafYomiYerushalmi(Daf)} for the ability to format the daf in Hebrew or transliterated
 	 * masechta names.
 	 *
-	 * @deprecated This depends on a circular dependency. Use <pre>YerushalmiYomiCalculator.getDafYomiYerushalmi(jewishCalendar)</pre> instead.
 	 * @return the daf as a {@link Daf}
 	 */
-	getDafYomiYerushalmi(): Daf;
+	getDafYomiYerushalmi(): Daf | null;
+	/**
+	 * Returns the equivalent Chafetz Chayim Yomi page for the date that this is set to
+	 */
+	getChafetzChayimYomi(): {
+		days: {
+			day: number;
+			monthCode: string;
+		}[];
+		title: string;
+		section: string;
+	} | {
+		days: {
+			day: number;
+			monthCode: string;
+		}[];
+		title: string;
+		section?: undefined;
+	} | undefined;
 	/**
 	   * Returns the elapsed days since <em>Tekufas Tishrei</em>. This uses <em>Tekufas Shmuel</em> (identical to the <a href=
 	   * "https://en.wikipedia.org/wiki/Julian_year_(astronomy)">Julian Year</a> with a solar year length of 365.25 days).
@@ -8146,7 +8151,7 @@ export declare class YomiCalculator {
 	 * @throws IllegalArgumentException
 	 *             if the date is prior to the September 11, 1923 start date of the first Daf Yomi cycle
 	 */
-	static getDafYomiBavli(calendar: JewishCalendar): Daf;
+	static getDafYomiBavli(calendar: JewishDate): Daf;
 	/**
 	 * Return the <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> from a Java Date.
 	 *
@@ -8186,7 +8191,7 @@ export declare class YerushalmiYomiCalculator {
 	 * @throws IllegalArgumentException
 	 *             if the date is prior to the February 2, 1980, the start date of the first Daf Yomi Yerushalmi cycle
 	 */
-	static getDafYomiYerushalmi(jewishCalendar: JewishCalendar): Daf | null;
+	static getDafYomiYerushalmi(jewishCalendar: JewishDate): Daf | null;
 	/**
 	 * Return the number of special days (Yom Kippur and Tisha B'Av) on which there is no daf, between the two given dates
 	 *
@@ -8195,6 +8200,23 @@ export declare class YerushalmiYomiCalculator {
 	 * @return the number of special days
 	 */
 	private static getNumOfSpecialDays;
+}
+export declare class ChafetzChayimYomiCalculator {
+	static getChafetzChayimYomi(jewishCalendar: JewishDate): {
+		days: {
+			day: number;
+			monthCode: string;
+		}[];
+		title: string;
+		section: string;
+	} | {
+		days: {
+			day: number;
+			monthCode: string;
+		}[];
+		title: string;
+		section?: undefined;
+	} | undefined;
 }
 /**
  * Tefila Rules is a utility class that covers the various <em>halachos</em> and <em>minhagim</em> regarding

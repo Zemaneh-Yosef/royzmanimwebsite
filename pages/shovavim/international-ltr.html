@@ -1,0 +1,232 @@
+---
+title: Shovavim International Times - LTR
+permalink: /shovavim/international/ltr
+breakout: true
+website: true
+---
+
+<style>
+    .shabbatRow:not(:nth-last-child(1)):not(:nth-last-child(2)):not(:nth-last-child(3)):not(:nth-last-child(4)) {
+        border-bottom: 0.10764262648009vw solid rgba(255,255,255,.5);
+    }
+
+    .columnHeaderBorder {
+        border-bottom: 0.21528525296017vw solid rgba(255,255,255, .75) !important;
+    }
+
+    .inlineLogo {
+        display: inline-block;
+        font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
+        background-image: linear-gradient(to bottom, #FFF2B3 0%, #D6B961 100%);
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-stroke: .02em rgba(0,0,0,.6);
+    }
+
+    .shabbatTitleCore {
+        font-family: 'Ryo Gothic PlusN', 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
+        font-size: calc(1.375rem + 2.75vw);
+        font-weight: 300;
+    }
+
+    :root {
+        --shabbat-font: 'Roboto', sans-serif;
+    }
+
+    #subtitle {
+        font-family: 'Neutro', var(--shabbat-font);
+        line-height: 1;
+        font-size: 2.4vw;
+    }
+
+    #dataElement {
+        grid-column: 1;
+        grid-row: 1;
+
+        background-color: rgba(0,0,0, .6);
+        background-image: url(/assets/images/flower-design-light.png);
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        border-radius: 3rem;
+        color: white;
+
+        margin: 2.75vw;
+        font-size: 1.65vw;
+        z-index: 5;
+    }
+
+    #gridElement {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 1.25fr;
+        padding: 2.5vw;
+    }
+
+    #wrapperElement {
+        width: 100%;
+        aspect-ratio: 4/5.3;
+        font-family: var(--shabbat-font);
+        display: grid;
+        align-items: center;
+    }
+
+    #backgroundImg {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+
+        grid-column: 1;
+        grid-row: 1;
+
+        background: black;
+    }
+
+    .friday {
+        border-inline-end: 0.21528525296017vw solid rgba(255,255,255,.75);
+    }
+
+    .rtBorder {
+        border-inline-start: 0.10764262648009vw dotted rgba(255,255,255,.5);
+    }
+
+    .timeshow {
+        text-align: center;
+    }
+
+    .explanation {
+        font-size: 0.6em;
+        font-family: var(--shabbat-font);
+    }
+
+    .imgFlag {
+        height: 1rem;
+        aspect-ratio: 1.25/1;
+        object-fit: cover;
+        vertical-align: text-top;
+    }
+
+    #sidebar, .navbar {
+        display: none !important;
+    }
+
+    .twoLine {
+        line-height: .8;
+        padding-top: .3rem;
+        padding-bottom: .2rem;
+    }
+
+    .bsD {
+        grid-column: 1;
+        grid-row: 1;
+        line-height: 1;
+        align-self: start;
+        text-align: right;
+        margin-top: 1.75vw;
+        margin-right: 2.15vw;
+        font-size: 1.291711517761vw;
+        font-family: 'Guttman Mantova', 'Courier New', Courier, monospace;
+    }
+
+    #halachotElem {
+        background:rgba(0,0,0,.5);
+        border-bottom-left-radius: 3rem;
+        border-bottom-right-radius: 3rem;
+
+        display: grid;
+        grid-template-columns: 1fr 3.5fr;
+        align-items: center;
+        text-align: center;
+    }
+
+    #halachotElem ul:last-child {
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    .maxWidthContainer {
+        width: clamp(16rem, 90vw, 90rem);
+    }
+
+    .commonColumnHeader {
+        line-height: .8;
+        font-family: 'Guttman Mantova', var(--shabbat-font);
+        font-weight: 500;
+        text-align: center;
+        padding-top: .3em;
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+<link href="/assets/fonts/shovavim/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+    <div id="backgroundImg"></div>
+    <span class="bsD">בס"ד</span>
+    <div id="dataElement">
+        <div id="gridElement"
+            data-functions="getAlotHashachar getNetz getShkiya"
+        >
+            <div style="grid-column: 1/span 4; text-align: center; position: relative;">
+                <h1 class="mb-0 shabbatTitleCore">SHOVAViM - Week </h1>
+                <h5 id="subtitle">על פי לוח <b>זמני יוסף</b> לשיטת הרה"ג עובדיה יוסף זצ"ל</h5>
+            </div>
+            <div style="grid-column: 1; grid-row: 2 / span 2; position: relative" class="columnHeaderBorder"><span style="font-weight: bold; width: 100%; margin-inline-start: 0.3vw; line-height: 1; position:absolute; bottom: 0.3vw; font-size: 1.4em;">International Places</span></div>
+            <div style="grid-column: 2 / span 2; grid-row: 2; font-weight: bold;" class="text-center friday">תחלית הצום</div>
+            <div id="getAlotHashacharHeader" style="grid-column: 2; grid-row: 3; padding-inline-end: 0.4em;" class="commonColumnHeader columnHeaderBorder">
+                עלות השחר<br>
+                <span class="explanation">(אכילה)</span>
+            </div>
+            <div id="getEarliestMinchaBirkatKohanimHeader" style="grid-column: 3; grid-row: 3; padding-inline-start: 0.4em; padding-inline-end: 0.4em;" class="commonColumnHeader columnHeaderBorder rtBorder friday">
+                הנץ החמה<br>
+                <span class="explanation">(מים, קפה, ותה)</span>
+            </div>
+            <div style="grid-column: 4; grid-row: 2; font-weight: bold;" class="text-center">צאת הצום</div>
+            <div id="getTzaitBenIshHaiHeader" style="grid-column: 4; grid-row: 3; padding-inline-start: 0.4em;" class="commonColumnHeader columnHeaderBorder">
+                שקיעת החמה<br>
+                <span class="explanation" style="unicode-bidi: plaintext;">(ברכת כהנים במנחה 30 דקות שוות לפני הזמן הזה)</span>
+            </div>
+            {% for item in site.data.designLocationList.int %}
+                <div class="shabbatRow timecalc {% if item.twoLine %}twoLine{% endif %}"
+                    {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+                    data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+                    data-timezone="{{ item.timezone }}"
+                    {% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+                    {% if item.doubleLocation %}data-double-location{% endif %}
+                    style='font-family: "Twemoji Country Flags", var(--shabbat-font);'>
+                    {%- assign check = item.flag | split:'.' | last -%}
+                    {% if check == "svg" %}
+                        <img class="imgFlag" src="{{ item.flag }}">
+                    {% else %}
+                        {{ item.flag }}
+                    {% endif %}
+                    {{ item.name.en }}
+                </div>
+                <div class="shabbatRow timeshow">Early Time</div>
+                <div class="shabbatRow timeshow rtBorder friday">BK Time</div>
+                <div class="shabbatRow timeshow">End Time 1</div>
+            {% endfor %}
+        </div>
+        <div id="halachotElem">
+            <div style="grid-column: 1; font-size: 0.75em;">
+                <img style="width: 95%; margin-bottom: 1rem;" src="/assets/images/r-netaneli.png">
+                Brought to you by<br><span class="inlineLogo" style="font-size: 3rem; line-height: 1;">זמני יוסף</span><br>available on mobile app stores
+            </div>
+            <div style="grid-column: 2; padding: .8em; font-size: 0.75em;">
+                <h1 style="font-family: 'Guttman Mantova', var(--shabbat-font);">
+                    Shovavim Guidelines - הרב אליהו נתנלי</h1>
+                Shovavim is a Kabbalistic time period where שערי שמים are open to rectify פגמי הברית through תפילה and תיקונים.<br>It starts from פרשת שמות and ends this year in פרשת תצוה.
+                <ul style="text-align: start; padding-top: .5em;">
+                    <li>One should fast at minimum three days of this period, preferably on a day that one isn't working (due to potential deterierations in work quality, effectively stealing from the employer) or Friday (which one cannot fast due to קדושת שבת). For most people, this means a Sunday fast is the most efficient. To make up for the days of the shovavim period that one wouldn't be fasting (84 days), one would donate a meal's worth of money to צדקה.</li>
+                    <li>To accept the fast, one should read רבון העולמים on the Mincha of the day before (for Shabbat, the text can be found in the weekday Tefilah), but one can still fast even without saying it.</li>
+                    <li>Kehilot with over six people fasting should treat this like a תענית with עננו in חזרת הש"ץ, reading of ויחל משה and ברכת כוהנים by מנחה (provided the כהן is also fasting), when done close to שקיעה.</li>
+                    <li>One should read תיקון כללי, a very important set of מזמורי תהילים and passages from the BIH's לשון חכמים.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="/assets/js/fast.js"></script>

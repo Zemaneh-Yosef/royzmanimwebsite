@@ -22,7 +22,7 @@ const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 13 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ month: 2, day: 10 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
 if (jCal.getDate().dayOfWeek != 6)
@@ -32,8 +32,8 @@ for (const title of document.getElementsByClassName('shabbatTitleCore'))
     title.innerHTML += jCal.getHebrewParasha().join(" / ") + " " + jCal.formatJewishYear().hebrew
 
 let shitot = {
-    fri: document.getElementById('wrappedElement').getAttribute('data-functions-fri').split(" "),
-    shab: document.getElementById('wrappedElement').getAttribute('data-functions-shab').split(" ")
+    fri: document.getElementById('gridElement').getAttribute('data-functions-fri').split(" "),
+    shab: document.getElementById('gridElement').getAttribute('data-functions-shab').split(" ")
 }
 
 const elems = document.getElementsByClassName('timecalc');
@@ -95,7 +95,7 @@ for (const elem of elems) {
             if (elem.hasAttribute('data-humra'))
                 rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
 
-            editElem.innerHTML += ` / <span class="explanation">(${document.getElementById('wrappedElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
+            editElem.innerHTML += ` / <span class="explanation">(${document.getElementById('gridElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
         }
     }
 

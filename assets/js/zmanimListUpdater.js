@@ -111,17 +111,6 @@ class zmanimListUpdater {
 
 		if (!internal) {
 			this.updateZmanimList();
-			/* if (window.luxon.DateTime.now().hasSame(date, 'day')) {
-				//at 12:00 AM the next day, update the zmanim to the next day's zmanim
-				var tomorrow = window.luxon.DateTime.now().plus({ days: 1 });
-				tomorrow = tomorrow.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-				var timeUntilTomorrow = tomorrow.diffNow().as("milliseconds");
-				this.countdownToNextDay = setTimeout(() => {
-					this.changeDate(tomorrow);
-				}, timeUntilTomorrow);
-			} else {
-				this.countdownToNextDay = null;
-			} */
 		}
 	}
 
@@ -523,18 +512,21 @@ class zmanimListUpdater {
 		if (this.jCal.getJewishYear() < 5684) {
 			daf.innerHTML = "N/A. Daf Yomi (Bavli) was only created on Rosh Hashanah 5684 and continues onto this day"
 		} else {
-			const dafObject = KosherZmanim.YomiCalculator.getDafYomiBavli(this.jCal);
+			const dafObject = this.jCal.getDafYomiBavli();
 			daf.innerHTML =
 				dafObject.getMasechta() + " " +
 				numberToHebrew(dafObject.getDaf());
 		}
 
-		const dafYerushalmiObject = KosherZmanim.YerushalmiYomiCalculator.getDafYomiYerushalmi(this.jCal);
+		const dafYerushalmiObject = this.jCal.getDafYomiYerushalmi();
 		if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
 			dafYerushalmi.innerHTML = dafYerushalmiObject.getYerushalmiMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
 		}
+
+		const chafetzChayimYomi = this.jCal.getChafetzChayimYomi();
+		dafContainer.querySelector('[data-zfReplace="ccYomi"]').innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A"
 	}
 
 	/**
@@ -576,12 +568,12 @@ class zmanimListUpdater {
 		/** @type {['gra', 'mga']} */
 		const psakArray = ['gra', 'mga'];
 		psakArray.forEach(shaahTemporal => {
-			const duration = this.zmanFuncs.getZmaniyotTime({ temporal: shaahTemporal, length: "hours" })
+			const duration = this.zmanFuncs.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ hours: 1 }), shaahTemporal)
 
 			/** @type {KosherZmanim.Temporal.DurationTotalOf[]} */
 			const formatTimeStrings = ["hours", "minutes"];
 			const formatTime = formatTimeStrings
-				.map(timeUnit => String(Math.trunc(duration.total(timeUnit))).padStart(2, '0'))
+				.map(timeUnit => String(Math.trunc(duration.total(timeUnit)) % 60).padStart(2, '0'))
 				.join(":")
 			shaotZmaniyotCont.querySelector(`[data-zfReplace="${shaahTemporal}ShaahZmanit"]`).innerHTML = formatTime;
 		})

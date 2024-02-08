@@ -718,7 +718,7 @@ function monthForLocale(localeName, weekday = 'long') {
 	  .map((day) => format(new Date(Date.UTC(2021, day, 1))));
 }
 
-class HebrewNumberFormatter {
+export class HebrewNumberFormatter {
 	static GERESH = '\u05F3';
 	static GERSHAYIM = '\u05F4';
 

@@ -11,6 +11,7 @@ class ZmanimMathBase {
 	 */
 	constructor(geoLocation) {
 		this.coreZC = new KosherZmanim.ZmanimCalendar(geoLocation)
+		this.coreZC.getAstronomicalCalculator().setRefraction(34.478885263888294 / 60)
 		this.tekufaCalc = new TekufahCalculator(this.coreZC.getDate().withCalendar("hebrew").year);
 
 		/* getElevationAdjustedSunrise & getElevationAdjustedSunset are protected. Manually make the Object */
@@ -53,16 +54,6 @@ class ZmanimMathBase {
 
 		// @ts-ignore
 		return calc;
-	}
-
-	/**
-	 * @param {"gra"} dayCalc
-	 */
-	getSeasonalHour(dayCalc="gra") {
-		if (dayCalc !== "gra") return;
-		let timePeriod = this.coreZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
-
-		return timePeriod;
 	}
 
 	/**
@@ -156,23 +147,6 @@ class GRAZmanim extends ZmanimMathBase {
 }
 
 class AlotTzeitZmanim extends GRAZmanim {
-	/**
-	 * @param {"gra"|"mga"} dayCalc
-	 */
-	getSeasonalHour(dayCalc="gra") {
-		let timePeriod;
-		switch (dayCalc) {
-			case 'gra':
-				timePeriod = this.coreZC.getTemporalHour(this.zmanim.sunrise(), this.zmanim.sunset());
-				break;
-			case 'mga':
-				timePeriod = this.coreZC.getTemporalHour(this.getAlotHashachar(), this.getTzait72Zmanit());
-				break;
-		}
-
-		return timePeriod;
-	}
-
 	/**
 	 * @param {KosherZmanim.Temporal.Duration} input
 	 * @param {"gra"|"mga"} dayCalc
