@@ -193,6 +193,7 @@ async function setLocation(name, admin, country, latitude, longitude) {
 			if (attemptedTimezone)
 				alert("Timezone API error - The app will use your local timezone on your computer instead of the destination timezone. Please retry later for the intended timezone.")
 			else {
+				document.getElementById("Main").disabled = false;
 				iconography.error.style.removeProperty("display");
 				iconography.search.style.display = "none";
 				iconography.loading.style.display = "none"
@@ -234,17 +235,17 @@ function getLocation() {
 		errorBox.style.display = "block";
 	}
 
-	getCoordinates({maximumAge:60000, timeout:5000, enableHighAccuracy:true})
-		.then(pos => {
-			iconography.error.style.display = "none";
-			iconography.search.style.display = "none";
-			iconography.loading.style.removeProperty("display");
-			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
+	document.getElementById("Main").disabled = true;
+	iconography.error.style.display = "none";
+	iconography.search.style.display = "none";
+	iconography.loading.style.removeProperty("display");
+	document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
 
-			return setLatLong(pos)
-		})
+	getCoordinates({maximumAge:60000, timeout:9000, enableHighAccuracy:true})
+		.then(pos => setLatLong(pos))
 		.then(() => openCalendarWithLocationInfo())
 		.catch((e) => {
+			document.getElementById("Main").disabled = false;
 			iconography.error.style.removeProperty("display");
 			iconography.search.style.display = "none";
 			iconography.loading.style.display = "none"

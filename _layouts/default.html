@@ -30,42 +30,49 @@
 				<img src="/assets/images/icon-text.png" alt="Zemaneh Yosef Icon" style="width: 100%">
 			</a>
 			<ul class="nav nav-pills nav-flush flex-column mt-auto text-center">
+				<li>
+					<a href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Molad Calculator" data-bs-original-title="Molad Calculator">
+						<i class="fa fa-moon" aria-hidden="true"></i>
+					</a>
+				</li>
 				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Mobile App Download">
 					<a class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#mobileModal">
 						<i class="fa fa-mobile" aria-hidden="true"></i>
 					</a>
 				</li>
 				<li id="downloadModalBtn" class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Download (SLOW!!!)" style="display: none">
-					<a class="nav-link py-3 border-bottom rounded-0" aria-label="Mobile">
+					<a class="nav-link py-3 border-bottom rounded-0" aria-label="Download the page">
 						<i class="fa fa-download" aria-hidden="true"></i>
 					</a>
 				</li>
-				<li>
-					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Orders" data-bs-original-title="Orders">
-						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Orders"><use xlink:href="#table"></use></svg>
-					</a>
-				</li>
-				<li>
-					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Products" data-bs-original-title="Products">
-						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Products"><use xlink:href="#grid"></use></svg>
-					</a>
-				</li>
-				<li>
-					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Customers" data-bs-original-title="Customers">
-						<svg class="bi pe-none" width="24" height="24" role="img" aria-label="Customers"><use xlink:href="#people-circle"></use></svg>
+				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Settings">
+					<a class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#settingsModal">
+						<i class="fa fa-cogs" aria-hidden="true"></i>
 					</a>
 				</li>
 			</ul>
 			<div class="dropdown border-top">
 				<a href="#" class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-					<img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
+					<i class="fa fa-question-circle" aria-hidden="true"></i>
 				</a>
-				<ul class="dropdown-menu text-small shadow" s>
-					<li><a class="dropdown-item" href="#">New project...</a></li>
-					<li><a class="dropdown-item" href="#">Settings</a></li>
-					<li><a class="dropdown-item" href="#">Profile</a></li>
+				<ul class="dropdown-menu text-small shadow">
+					<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#aboutModal">
+						<span class="lang lang-hb">על אודות</span>
+						<span class="lang lang-et">About</span>
+						<span class="lang lang-en">About</span>
+					</a></li>
+					<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#creditModal">
+						<span class="lang lang-hb">נקודות זכות</span>
+						<span class="lang lang-et">Credits</span>
+						<span class="lang lang-en">Credits</span>
+					</a></li>
+					<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#haskamotModal">
+						<span class="lang lang-hb">השקמות</span>
+						<span class="lang lang-et">Haskamot</span>
+						<span class="lang lang-en">Approbations</span>
+					</a></li>
 					<li><hr class="dropdown-divider"></li>
-					<li><a class="dropdown-item" href="#">Sign out</a></li>
+					<li><a class="dropdown-item" href="https://github.com/elyahu41/royzmanimwebsite">Source Code</a></li>
 				</ul>
 			</div>
 		</div>
@@ -95,15 +102,24 @@
 								</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#calendarModal">
-									calendarModal
-								</a>
-							</li>
-							<li class="nav-item">
 								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#aboutModal">
 									<span class="lang lang-hb">על אודות</span>
 									<span class="lang lang-et">About</span>
 									<span class="lang lang-en">About</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#creditModal">
+									<span class="lang lang-hb">נקודות זכות</span>
+									<span class="lang lang-et">Credits</span>
+									<span class="lang lang-en">Credits</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#haskamotModal">
+									<span class="lang lang-hb">השקמות</span>
+									<span class="lang lang-et">Haskamot</span>
+									<span class="lang lang-en">Approbations</span>
 								</a>
 							</li>
 						</ul>
@@ -127,9 +143,24 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade modal-xl" id="creditModal" tabindex="-1" aria-labelledby="creditModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="aboutModalLabel">Credits</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">{% capture my_include %}{% include credits.md %}{% endcapture %}
+						{{ my_include | markdownify }}</div>
+				</div>
+			</div>
+		</div>
+		{% include modals/haskamot.html %}
 		{% include modals/settings.html %}
+		{% comment %}
 		{% include modals/calendar.html %}
 		{% include modals/chaiTable.html %}
+		{% endcomment %}
 		{% include modals/mobile.html %}
 		{% include toasts/failToast.html toastId="ctFailToast" errorText="ChaiTable did not return a table. Please be in contact with us to check what went wrong." %}
 		{% if page.accordian %}<script src="/assets/js/accordian.js"></script>{% endif %}
