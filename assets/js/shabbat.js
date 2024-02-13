@@ -56,7 +56,8 @@ for (const elem of elems) {
 
     /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
     const dtF = ['en', {
-        hourCycle: window.location.href.includes('usa') ? "h12" : "h24",
+        // @ts-ignore
+        hourCycle: elem.getAttribute("data-format"),
         hour: 'numeric',
         minute: '2-digit'
     }];
@@ -90,7 +91,7 @@ for (const elem of elems) {
 
         editElem.innerHTML = time.toLocaleString(...dtF);
 
-        if (shabShita == 'getTzaitShabbath' && elem.getAttribute('data-timezone') == 'Asia/Jerusalem') {
+        if (shabShita == 'getTzaitShabbath' && elem.getAttribute('data-timezone') == 'Asia/Jerusalem' && !shitot.shab.includes('getTzaitRT')) {
             let rTime = currentCalc.getTzaitRT()
             if (elem.hasAttribute('data-humra'))
                 rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
@@ -111,6 +112,7 @@ for (const elem of elems) {
             if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
                 editElem = elem;
                 for (let i of ['', ...shitot.fri, ...shitot.shab]) {
+                    // @ts-ignore
                     editElem.style.display = 'none';
                     editElem = editElem.nextElementSibling;
                 }

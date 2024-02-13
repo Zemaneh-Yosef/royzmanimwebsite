@@ -76,11 +76,19 @@ async function updateList(event) {
 	if (q.length < 3)
 		return;
 
-	pool = q;
-	await delay(1000);
-	if (pool !== q) {
-		console.log('Skipping to next implementation');
-		return;
+	if (!((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)) {
+		pool = q;
+		await delay(1000);
+		if (pool !== q) {
+			console.log('Skipping to next implementation');
+			return;
+		}
+	} else {
+		document.getElementById("Main").disabled = true;
+		iconography.error.style.display = "none";
+		iconography.search.style.display = "none";
+		iconography.loading.style.removeProperty("display");
+		document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
 	}
 
 	try {
@@ -122,6 +130,7 @@ async function updateList(event) {
 			}
 			const multiZip = (!locationName || !data.geonames.find(geoName => geoNameTitleGenerator(geoName).includes(q) || geoNameTitleGenerator(geoName).includes(q.split(',')[0]))) && (data.postalcodes || data.geonames).length !== 1;
 			if (!geoName || multiZip) {
+				document.getElementById("Main").disabled = false;
 				iconography.error.style.removeProperty("display");
 				iconography.search.style.display = "none";
 				iconography.loading.style.display = "none"
@@ -131,11 +140,6 @@ async function updateList(event) {
 				toastBootstrap.show()
 				return;
 			}
-
-			iconography.error.style.display = "none";
-			iconography.search.style.display = "none";
-			iconography.loading.style.removeProperty("display");
-			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
 
 			await setLocation(
 				geoName.name || geoName.placeName,

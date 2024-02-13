@@ -1,26 +1,100 @@
 ny:
-  - name: Brooklyn
+  - name: |
+      New York City<br>
+      <span class="sml">+ Teaneck & Passaic NJ, Staten Is. & Monsey NY</span>
+    twoLine: True
     # Shul: Beth Torah
     lat: 40.622795584652465
     lng: -73.96960885888677
     timezone: America/New_York
-  - name: Queens
-    # Shul: LCM
-    lat: 40.72422011698068
-    lng: -73.81530756686105
+    humra: 2
+    timeFormat: h12
+  - name: Atlanta, GA
+    # Location: Chabad of Toco Hills
+    lat: 33.814254855365846
+    lng: -84.32203439424957
     timezone: America/New_York
-  - name: Great Neck
-    # Shul: Sha'areh Rachamim
-    lat: 40.805467328968
-    lng: -73.73504996377702
+    timeFormat: h12
+  - name: Baltimore, MD
+    #flag: https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg
+    # Location: Ner Yisrael
+    lat: 39.38871045313417
+    lng: -76.75324161009378
     timezone: America/New_York
-  - name: Monsey
-    # Shul: Tiferet Torah
-    lat: 41.097186104272055
-    lng: -74.07527436954092
+    humra: 0
+    timeFormat: h12
+  - name: |
+      Deal, NJ<br>
+      <span class="sml">+ Lakewood, NJ</span>
+    twoLine: True
+    # Location: Beth Medrash Govoha
+    lat: 40.09562417811022
+    lng: -74.22206003964102
     timezone: America/New_York
-  - name: Five Towns
-    # Shul: Young Israel of Woodmere
-    lat: 40.635454217158106
-    lng: -73.72009668319862
+    humra: 1
+    timeFormat: h12
+  - name: Montreal, CA
+    # Location: Academy Yeshiva Yavne
+    lat: 45.4612709318975
+    lng: -73.66436583221801
     timezone: America/New_York
+    humra: 0
+    timeFormat: h24
+  - name: Miami, FL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
+    # Location: Chabad of Midtown Miami
+    lat: 25.804507405080564
+    lng: -80.19053877936163
+    timezone: America/New_York
+    doubleLocation: True
+    humra: 0
+    timeFormat: h12
+  - name: Tampa, FL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
+    # Location: 
+    lat: 27.987052274209734
+    lng: -82.57645831769476
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h12
+israel:
+  - name:
+      en: Jerusalem
+      hb: ירושלים
+    flag: 🇮🇱
+    # Location: Kotel
+    lat: 31.776766188649376
+    lng: 35.23450233337062
+    timezone: Asia/Jerusalem
+    elevation: 788
+    humra: 0
+  - name:
+      en: Haifa
+      hb: חיפה
+    flag: 🇮🇱
+    # Location: Yeshiva Mevaser Shalom
+    lat: 32.77959008665043
+    lng: 34.99117381483697
+    timezone: Asia/Jerusalem
+    elevation: 282
+    humra: 0
+  - name:
+      en: Tel-Aviv
+      hb: תל-אביב
+    flag: 🇮🇱
+    # Location: Central Chabad of Tel Aviv
+    lat: 32.070030475322845
+    lng: 34.773052506343284
+    timezone: Asia/Jerusalem
+    elevation: 19
+    humra: 0
+  - name:
+      en: Bet Shemesh
+      hb: בית שמש
+    flag: 🇮🇱
+    # Location: Netzach Yisrael
+    lat: 31.722984873344494
+    lng: 34.99215294269103
+    timezone: Asia/Jerusalem
+    elevation: 275
+    humra: 0

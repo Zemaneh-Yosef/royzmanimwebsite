@@ -153,6 +153,7 @@ for (const elem of elems) {
 			if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
 				editElem = elem;
 				for (let i of ['', ...methods]) {
+					// @ts-ignore
 					editElem.style.display = 'none';
 					editElem = editElem.nextElementSibling;
 				}

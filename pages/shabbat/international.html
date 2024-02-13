@@ -186,6 +186,7 @@ website: true
                 {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
                 data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
                 data-timezone="{{ item.timezone }}"
+                data-format="h24"
                 {% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
                 {% if item.doubleLocation %}data-double-location{% endif %}
                 style='font-family: "Twemoji Country Flags", var(--shabbat-font);'>

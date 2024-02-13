@@ -1,6 +1,6 @@
 ---
-title: Shabbat East Coast Times
-permalink: /shabbat-design/east
+title: Shabbat Israel Times
+permalink: /shabbat-design/israel
 breakout: true
 website: true
 ---
@@ -23,7 +23,7 @@ website: true
         position: relative;
         display: grid;
 
-        background-image: url("/assets/images/shabbat-abstract/bg-ltr.png"), linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
+        background-image: url("/assets/images/shabbat-abstract/bg-rtl.png"), linear-gradient(-45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
         background-size: cover;
     }
 
@@ -34,14 +34,17 @@ website: true
     #imgFooter {
         justify-self: end;
         align-self: end;
-        text-transform: uppercase;
-        text-align: right;
+        text-align: end;
         font-weight: 600;
         font-size: 1.625em;
         line-height: 1.2;
         padding-bottom: 1rem;
-        padding-right: 1rem;
+        padding-left: 1rem;
         z-index: 3;
+    }
+
+    #imgFooter span {
+        unicode-bidi: isolate;
     }
 
     .footerBold {
@@ -50,7 +53,7 @@ website: true
 
     .absRotateText {
         position: absolute;
-        transform: rotateZ(3.5deg);
+        transform: rotateZ(-3.5deg);
         text-align: center;
         font-family: 'Guttman Mantova';
         line-height: 1;
@@ -58,7 +61,7 @@ website: true
 
     #wrapperElement .shabbatTitleCore {
         top: 10.75vw;
-        right: 3.5vw;
+        left: 3.5vw;
         font-size: 4em;
         font-family: 'FrankRuehl', serif;
         font-weight: 500;
@@ -71,34 +74,37 @@ website: true
         align-self: end;
         width: 30%;
         z-index: 3;
+        direction: rtl;
+        transform: rotateY(180deg);
     }
 
     .lechaDodi {
         transform: rotateZ(7deg);
         color: #F6E3A9;
+        z-index: 3;
     }
 
     #lechaDodi {
         top: 32.5vw;
-        right: 4vw;
+        left: 4vw;
         font-size: 4vw;
     }
 
     #likratKalah {
-        top: 36vw;
-        right: 8.5vw;
+        top: 37.5vw;
+        left: 8.5vw;
         font-size: 4vw;
     }
 
     #pnehShabbathNekabelah {
         top: 41.5vw;
-        right: 2.5vw;
+        left: 2.5vw;
         font-size: 4vw;
     }
 
     #zemanehShab {
         font-family: 'Frank Ruhl Libre';
-        right: 2.9vw;
+        left: 2.9vw;
         font-size: 10vw;
         font-weight: 900;
         top: 2.75vw;
@@ -107,17 +113,18 @@ website: true
 
     #gridElement {
         position: absolute;
-        grid-template-columns: 1fr .8fr .8fr .8fr;
-        left: 1vw;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        right: 1vw;
         top: 14vw;
         display: grid;
+        font-size: 3.25vw;
     }
 
     #shabbatCandles {
         position: absolute;
         align-self: end;
         width: 80%;
-        right:0;
+        left:0;
         bottom: 5vw;
         z-index: 1;
         opacity: 50%;
@@ -127,6 +134,7 @@ website: true
         align-self: end;
         width: 100%;
         z-index: 2;
+        transform: rotateY(180deg);
     }
 
     .timeshow {
@@ -139,21 +147,20 @@ website: true
         margin-bottom: .3vw;
         padding-top: .25vw;
         padding-bottom: .25vw;
-        font-size: 2vw;
         font-weight: 600;
     }
 
     .timecalc {
         background-color: #F1E79F;
         font-weight: 700;
-        padding-left: 0.5vw;
-        padding-right: 1vw;
+        padding-right: 0.5vw;
+        padding-left: 1vw;
         text-transform: uppercase;
-        border-right: .25vw solid black;
+        border-left: .25vw solid black;
     }
 
     .shabbatRowBg {
-        background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
+        background: linear-gradient(-90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
         grid-column: 2 / span 3; 
         margin-top: .3vw;
         margin-bottom: .3vw;
@@ -161,16 +168,16 @@ website: true
     }
 
     .header {
-        padding: 0.5vw;
+        padding: 0.5em;
         background: #D9BB65;
         margin-left: .6vw;
         margin-right: .6vw;
         color: black;
         text-transform: uppercase;
         text-align: center;
-        line-height: 1.2;
+        line-height: 1;
         font-weight: 600;
-        font-size: 19px;
+        font-size: .6em;
     }
 
     .tableShadow {
@@ -205,33 +212,27 @@ website: true
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
-<div id="wrapperElement">
+<div id="wrapperElement" dir="rtl">
     <img src="/assets/images/shabbat-abstract/shabbat-candles.png" id="shabbatCandles" />
     <img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
     <div id="gridElement"
         data-functions-fri="getCandleLighting"
         data-functions-shab="getTzaitShabbath getTzaitRT"
     >
-        <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">NA East Coast Locations</div>
-        <div class="header tableShadow">Shabbat Starts<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
-        <div class="header tableShadow">Shabbat Ends</div>
-        <div class="header tableShadow">Rabbenu Tam</div>
-        {% for item in site.data.designLocationList.ny %}{% assign gridRow = forloop.index | plus: 1 %}
+        <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">לארץ ישראל</div>
+        <div class="header tableShadow">התחלת שבת<br><span style="font-weight: 400;">הדלכת נרות</span></div>
+        <div class="header tableShadow">צאת שבת</div>
+        <div class="header tableShadow">רבינו תם</div>
+        {% for item in site.data.designLocationList.israel %}{% assign gridRow = forloop.index | plus: 1 %}
             <div class="shabbatRow tableShadow timecalc {% if item.twoLine %}twoLine{% endif %}"
                 {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
                 data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
                 data-timezone="{{ item.timezone }}"
-                data-format="{{ item.timeFormat }}"
+                data-format="h24"
                 {% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
                 {% if item.doubleLocation %}data-double-location{% endif %}
                 style="grid-column: 1; grid-row: {{ gridRow }};">
-                {%- assign check = item.flag | split:'.' | last -%}
-                {% if check == "svg" %}
-                    <img class="imgFlag" src="{{ item.flag }}">
-                {% else %}
-                    {{ item.flag }}
-                {% endif %}
-                {{ item.name }}
+                {{ item.name.hb }}
             </div>
             <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: {{ gridRow }};">Start Time</div>
             <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: {{ gridRow }};">End Time</div>
@@ -245,8 +246,8 @@ website: true
     <span id="pnehShabbathNekabelah" class="absRotateText lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
     <span class="shabbatTitleCore absRotateText">פרשת </span>
     <div id="imgFooter">
-        Halachic Shabbat Times according to Rabbi Ovadia Yosef ZT"L.<br>
-        Brought to you by <span class="inlineLogo">זמני יוסף</span>, available on iOS & Android • royzmanim.com
+        זמנים לשבת לשיטת הרה"ג עובדיה יוסף זצ"ל.<br>
+        <span>הובא לך ע"י <span class="inlineLogo">זמני יוסף</span>, אחשו על iOS & Android</span> • <span>royzmanim.com</span>
     </div>
     <img src="/assets/images/MARAN.png" id="maran">
 </div>
