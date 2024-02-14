@@ -86,8 +86,8 @@ class zmanimListUpdater {
 			this.dtF[1].second = '2-digit'
 		}
 
-		this.chaiTableInfo = new ChaiTables(this.geoLocation);
-		this.chaiTableInfo.initForm();
+		//this.chaiTableInfo = new ChaiTables(this.geoLocation);
+		//this.chaiTableInfo.initForm();
 
 		this.lastData = {
 			'parsha': undefined,
@@ -359,13 +359,14 @@ class zmanimListUpdater {
 
 		document.querySelectorAll('[data-zfFind="BirchatHalevana"]').forEach(
 			(/**@type {HTMLElement} */birchatHalevana) => {
-				if (!this.birkathHalevanaCheck().current) {
+				const birLev = this.jCal.birkathHalevanaCheck(this.zmanFuncs);
+				console.log(birLev, birLev.data.start.toLocaleString())
+				if (!birLev.current) {
 					birchatHalevana.style.display = "none";
 					return;
 				}
 
 				birchatHalevana.style.removeProperty("display");
-				//birchatHalevana.
 			}
 		)
 
@@ -522,7 +523,7 @@ class zmanimListUpdater {
 		if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
-			dafYerushalmi.innerHTML = dafYerushalmiObject.getYerushalmiMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
+			dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
 		}
 
 		const chafetzChayimYomi = this.jCal.getChafetzChayimYomi();
@@ -577,43 +578,6 @@ class zmanimListUpdater {
 				.join(":")
 			shaotZmaniyotCont.querySelector(`[data-zfReplace="${shaahTemporal}ShaahZmanit"]`).innerHTML = formatTime;
 		})
-	}
-
-	birkathHalevanaCheck() {
-		const dateObjs = {
-			start: this.jCal.getTchilasZmanKidushLevana7Days(),
-			end: this.jCal.getSofZmanKidushLevana15Days(),
-			current: this.jCal.getDate()
-		}
-
-		if ([KosherZmanim.JewishCalendar.AV, KosherZmanim.JewishCalendar.TISHREI].includes(this.jCal.getJewishMonth())) {
-			const monthCalc = new KosherZmanim.ZmanimCalendar(this.zmanFuncs.coreZC.getGeoLocation());
-			monthCalc.setUseElevation(this.zmanFuncs.coreZC.isUseElevation())
-
-			switch (this.jCal.getJewishMonth()) {
-				case KosherZmanim.JewishCalendar.AV:
-					const tishaBeav = this.jCal.clone();
-					tishaBeav.setJewishDayOfMonth(9);
-					if (tishaBeav.getDayOfWeek() == 7)
-						tishaBeav.setJewishDayOfMonth(10);
-	
-					monthCalc.setDate(tishaBeav.getDate());
-					break;
-				case KosherZmanim.JewishCalendar.TISHREI:
-					const yomKippur = this.jCal.clone();
-					yomKippur.setJewishDayOfMonth(10);
-	
-					monthCalc.setDate(yomKippur.getDate());
-					break;
-			}
-
-			dateObjs.start = (monthCalc.isUseElevation() ? monthCalc.getSunset() : monthCalc.getSeaLevelSunset());
-		}
-
-		return {
-			current: compare(dateObjs.start.epochMilliseconds, dateObjs.current.toZonedDateTime(this.geoLocation.getTimeZone()).epochMilliseconds, dateObjs.end.epochMilliseconds),
-			data: dateObjs
-		}
 	}
 
 	setNextUpcomingZman() {
@@ -693,17 +657,6 @@ function numberToHebrew(num) {
 	}
 	return buffer.join("");
 }
-
-/**
- * @param {number} a
- * @param {number} middle
- * @param {number} end
- */
-function compare(a, middle, end, inclusive=true) {
-	var min = Math.min.apply(Math, [a, end]),
-	  max = Math.max.apply(Math, [a, end]);
-	return inclusive ? middle >= min && middle <= max : middle > min && middle < max;
-  };
 
 if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 	window.location.href = "/"

@@ -683,6 +683,46 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 		return clonedCal;
 	}
+
+	/**
+	 * @param {AmudehHoraahZmanim | OhrHachaimZmanim} zmanCalc
+	 */
+	birkathHalevanaCheck(zmanCalc) {
+		const dateObjs = {
+			start: this.getTchilasZmanKidushLevana7Days(),
+			current: this.getDate().toZonedDateTime(zmanCalc.coreZC.getGeoLocation().getTimeZone()).with({ hour: 11, minute: 59 }),
+			end: this.getSofZmanKidushLevana15Days()
+		}
+
+		if ([KosherZmanim.JewishCalendar.AV, KosherZmanim.JewishCalendar.TISHREI].includes(this.getJewishMonth())) {
+			const monthCalc = new KosherZmanim.ZmanimCalendar(zmanCalc.coreZC.getGeoLocation());
+			monthCalc.setUseElevation(zmanCalc.coreZC.isUseElevation())
+
+			switch (this.getJewishMonth()) {
+				case KosherZmanim.JewishCalendar.AV:
+					const tishaBeav = this.clone();
+					tishaBeav.setJewishDayOfMonth(9);
+					if (tishaBeav.getDayOfWeek() == 7)
+						tishaBeav.setJewishDayOfMonth(10);
+	
+					monthCalc.setDate(tishaBeav.getDate());
+					break;
+				case KosherZmanim.JewishCalendar.TISHREI:
+					const yomKippur = this.clone();
+					yomKippur.setJewishDayOfMonth(10);
+	
+					monthCalc.setDate(yomKippur.getDate());
+					break;
+			}
+
+			dateObjs.start = (monthCalc.isUseElevation() ? monthCalc.getSunset() : monthCalc.getSeaLevelSunset());
+		}
+
+		return {
+			current: rangeDates(dateObjs.start, dateObjs.current, dateObjs.end),
+			data: dateObjs
+		}
+	}
 }
 
 /**
@@ -827,3 +867,16 @@ export class HebrewNumberFormatter {
 		return sb;
 	}
 }
+
+/**
+ * @param {KosherZmanim.Temporal.ZonedDateTime} start
+ * @param {KosherZmanim.Temporal.ZonedDateTime} middle
+ * @param {KosherZmanim.Temporal.ZonedDateTime} end
+ */
+function rangeDates(start, middle, end, inclusive=true) {
+	const acceptedValues = [1];
+	if (inclusive)
+	  acceptedValues.push(0);
+  
+	return acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(end, middle))
+};

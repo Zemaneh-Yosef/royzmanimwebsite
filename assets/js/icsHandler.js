@@ -21,7 +21,7 @@ const exportDate = (date) => [date.year, date.month, date.day]
  * @param {boolean} isIsrael
 	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: string|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
  */
-export default function icsExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList) {
+export default function icsExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList, monthView=true) {
     const baseDate = new Temporal.PlainDate(...plainDateParams).with({ day: 1, month: 1 })
     const geoLocation = new GeoLocation(...geoLocationData);
 
@@ -56,10 +56,18 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
             description: dailyZmanim
         })
 
+        if (jCal.getTchilasZmanKidushLevana7Days().dayOfYear == jCal.getDate().dayOfYear) {
+            events.push({
+                start: jCal.getTchilasZmanKidushLevana7Days().epochMilliseconds,
+                end: calc.chainDate(jCal.getMoladAsDate().with({ hour: 0, minute: 0 }).add({ days: 16 }).toPlainDate()).getAlotHashachar().epochMilliseconds,
+                title: "Birkat Halevana - Month of " + jCal.formatJewishMonth().en
+            })
+        }
+
         if (jCal.tomorrow().getDayOfOmer() !== -1) {
             events.push({
                 start: calc.getTzait().epochMilliseconds,
-                end: calc.tomorrow().getAlotHashachar().epochMilliseconds,
+                end: monthView ? calc.coreZC.getDate().toZonedDateTime(geoLocation.getTimeZone()).with({ hour: 11, minute: 59 }).epochMilliseconds : calc.tomorrow().getAlotHashachar().epochMilliseconds,
                 title: "Sefirat Haomer - Night " + jCal.tomorrow().getDayOfOmer()
             })
         }

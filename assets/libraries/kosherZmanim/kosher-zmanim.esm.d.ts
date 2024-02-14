@@ -7213,12 +7213,7 @@ export declare class JewishDate {
 	 */
 	clone(): JewishDate;
 }
-/**
- * An Object representing a <em>daf</em> (page) in the <a href="https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a> cycle.
- *
- * @author &copy; Eliyahu Hershfeld 2011 - 2019
- */
-export declare class Daf {
+declare abstract class Daf {
 	/**
 	 * {@link #getMasechtaNumber()} and {@link #setMasechtaNumber(int)}.
 	 */
@@ -7228,37 +7223,13 @@ export declare class Daf {
 	 */
 	private daf;
 	/**
-	 * See {@link #getMasechtaTransliterated()} and {@link #setMasechtaTransliterated(String[])}.
-	 */
-	private static masechtosBavliTransliterated;
-	/**
-	 * See {@link #getMasechta()}.
-	 */
-	private static readonly masechtosBavli;
-	/**
-	 * See {@link #getYerushalmiMasechtaTransliterated()}.
-	 */
-	private static masechtosYerushalmiTransliterated;
-	/**
-	 * See {@link #getYerushalmiMasechta()}.
-	 */
-	private static readonly masechtosYerushalmi;
-	/**
-	 * Gets the <em>masechta</em> number of the currently set <em>Daf</em>. The sequence is: Berachos, Shabbos, Eruvin,
-	   * Pesachim, Shekalim, Yoma, Sukkah, Beitzah, Rosh Hashana, Taanis, Megillah, Moed Katan, Chagigah, Yevamos, Kesubos,
-	   * Nedarim, Nazir, Sotah, Gitin, Kiddushin, Bava Kamma, Bava Metzia, Bava Basra, Sanhedrin, Makkos, Shevuos, Avodah
-	   * Zarah, Horiyos, Zevachim, Menachos, Chullin, Bechoros, Arachin, Temurah, Kerisos, Meilah, Kinnim, Tamid, Midos and
-	   * Niddah.
+	 * Gets the <em>masechta</em> number of the currently set <em>Daf</em>.
 	 * @return the masechtaNumber
 	 * @see #setMasechtaNumber(int)
 	 */
 	getMasechtaNumber(): number;
 	/**
-	 * Set the <em>masechta</em> number in the order of the Daf Yomi. The sequence is: Berachos, Shabbos, Eruvin, Pesachim,
-	 * Shekalim, Yoma, Sukkah, Beitzah, Rosh Hashana, Taanis, Megillah, Moed Katan, Chagigah, Yevamos, Kesubos, Nedarim,
-	 * Nazir, Sotah, Gitin, Kiddushin, Bava Kamma, Bava Metzia, Bava Basra, Sanhedrin, Makkos, Shevuos, Avodah Zarah,
-	 * Horiyos, Zevachim, Menachos, Chullin, Bechoros, Arachin, Temurah, Kerisos, Meilah, Kinnim, Tamid, Midos and
-	 * Niddah.
+	 * Set the <em>masechta</em> number in the order of the Daf Yomi.
 	 *
 	 * @param masechtaNumber
 	 *            the <em>masechta</em> number in the order of the Daf Yomi to set.
@@ -7282,6 +7253,92 @@ export declare class Daf {
 	   * @param daf the <em>daf</em> (page) number.
 	 */
 	setDaf(daf: number): void;
+	/**
+	 * Returns the transliterated name of the <em>masechta</em> (tractate) of the Daf Yomi.
+	   *
+	   * @return the transliterated name of the <em>masechta</em> (tractate) of the Daf Yomi such as Berachos.
+	 * @see #setMasechtaTransliterated(String[])
+	 */
+	abstract getMasechtaTransliterated(): string;
+	/**
+	 * Returns the <em>masechta</em> (tractate) of the Daf Yomi in Hebrew.
+	 *
+	 * @return the <em>masechta</em> (tractate) of the Daf Yomi in Hebrew. As an example, it will return
+	   *         &#x05D1;&#x05E8;&#x05DB;&#x05D5;&#x05EA; for Berachos.
+	 */
+	abstract getMasechta(): string;
+}
+/**
+ * This class calculates the Daf Yomi Bavli page (daf) for a given date. To calculate Daf Yomi Yerushalmi
+ * use the {@link YerushalmiYomiCalculator}. The library may cover Mishna Yomi etc. at some point in the future.
+ *
+ * @author &copy; Bob Newell (original C code)
+ * @author &copy; Eliyahu Hershfeld 2011 - 2019
+ * @version 0.0.1
+ */
+export declare class YomiCalculator {
+	/**
+	 * The start date of the first Daf Yomi Bavli cycle of September 11, 1923 / Rosh Hashana 5684.
+	 */
+	private static readonly dafYomiStartDate;
+	/** The start date of the first Daf Yomi Bavli cycle in the Julian calendar. Used internally for claculations. */
+	private static readonly dafYomiJulianStartDay;
+	/**
+	 * The date that the pagination for the Daf Yomi <em>Maseches Shekalim</em> changed to use the commonly used Vilna
+	 * Shas pagination from the no longer commonly available Zhitomir / Slavuta Shas used by Rabbi Meir Shapiro.
+	 */
+	private static readonly shekalimChangeDate;
+	/** The Julian date that the cycle for Shekalim changed.
+	 * @see #getDafYomiBavli(JewishCalendar) for details.
+	 */
+	private static readonly shekalimJulianChangeDay;
+	/**
+	 * Returns the <a href="https://en.wikipedia.org/wiki/Daf_yomi">Daf Yomi</a> <a
+	 * href="https://en.wikipedia.org/wiki/Talmud">Bavli</a> {@link DafBavliYomi} for a given date. The first Daf Yomi cycle
+	 * started on Rosh Hashana 5684 (September 11, 1923) and calculations prior to this date will result in an
+	 * IllegalArgumentException thrown. For historical calculations (supported by this method), it is important to note
+	 * that a change in length of the cycle was instituted starting in the eighth Daf Yomi cycle beginning on June 24,
+	 * 1975. The Daf Yomi Bavli cycle has a single masechta of the Talmud Yerushalmi - Shekalim as part of the cycle.
+	 * Unlike the Bavli where the number of daf per masechta was standardized since the original <a
+	 * href="https://en.wikipedia.org/wiki/Daniel_Bomberg">Bomberg Edition</a> published from 1520 - 1523, there is no
+	 * uniform page length in the Yerushalmi. The early cycles had the Yerushalmi Shekalim length of 13 days following the
+	 * <a href=
+	 * "https://he.wikipedia.org/wiki/%D7%93%D7%A4%D7%95%D7%A1_%D7%A1%D7%9C%D7%90%D7%95%D7%95%D7%99%D7%98%D7%90">Slavuta/Zhytomyr</a>
+	 * Shas used by <a href="https://en.wikipedia.org/wiki/Meir_Shapiro">Rabbi Meir Shapiro</a>. With the start of the eighth Daf Yomi
+	 * cycle beginning on June 24, 1975 the length of the Yerushalmi Shekalim was changed from 13 to 22 daf to follow
+	 * the <a href="https://en.wikipedia.org/wiki/Vilna_Edition_Shas">Vilna Shas</a> that is in common use today.
+	 *
+	 * @param calendar
+	 *            the calendar date for calculation
+	 * @return the {@link DafBavliYomi}.
+	 *
+	 * @throws IllegalArgumentException
+	 *             if the date is prior to the September 11, 1923 start date of the first Daf Yomi cycle
+	 */
+	static getDafYomiBavli(calendar: JewishDate): DafBavliYomi;
+	/**
+	 * Return the <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> from a Java Date.
+	 *
+	 * @param date
+	 *            The Java Date
+	 * @return the Julian day number corresponding to the date
+	 */
+	private static getJulianDay;
+}
+/**
+ * An Object representing a <em>daf</em> (page) in the <a href="https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a> cycle.
+ *
+ * @author &copy; Eliyahu Hershfeld 2011 - 2019
+ */
+export declare class DafBavliYomi extends Daf {
+	/**
+	 * See {@link #getMasechtaTransliterated()} and {@link #setMasechtaTransliterated(String[])}.
+	 */
+	private static masechtosBavliTransliterated;
+	/**
+	 * See {@link #getMasechta()}.
+	 */
+	private static readonly masechtosBavli;
 	/**
 	 * Returns the transliterated name of the <em>masechta</em> (tractate) of the Daf Yomi. The list of <em>mashechtos</em>
 	   * is: Berachos, Shabbos, Eruvin, Pesachim, Shekalim, Yoma, Sukkah, Beitzah, Rosh Hashana, Taanis, Megillah, Moed Katan,
@@ -7324,6 +7381,61 @@ export declare class Daf {
 	   *         &#x05D1;&#x05E8;&#x05DB;&#x05D5;&#x05EA; for Berachos.
 	 */
 	getMasechta(): string;
+}
+/**
+ * This class calculates the <a href="https://en.wikipedia.org/wiki/Jerusalem_Talmud">Talmud Yerusalmi</a> <a href=
+ * "https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a> page ({@link DafYomiYerushalmi}) for the a given date.
+ *
+ * @author &copy; elihaidv
+ * @author &copy; Eliyahu Hershfeld 2017 - 2019
+ */
+export declare class YerushalmiYomiCalculator {
+	/**
+	 * The start date of the first Daf Yomi Yerushalmi cycle of February 2, 1980 / 15 Shevat, 5740.
+	 */
+	private static readonly DAF_YOMI_START_DAY;
+	/** The number of pages in the Talmud Yerushalmi. */
+	private static readonly WHOLE_SHAS_DAFS;
+	/** The number of pages per <em>masechta</em> (tractate). */
+	private static readonly BLATT_PER_MASECHTA;
+	/**
+	 * Returns the <a href="https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a>
+	 * <a href="https://en.wikipedia.org/wiki/Jerusalem_Talmud">Yerusalmi</a> page ({@link DafYomiYerushalmi}) for a given date.
+	 * The first Daf Yomi cycle started on 15 Shevat (Tu Bishvat) 5740 (February, 2, 1980) and calculations
+	 * prior to this date will result in an IllegalArgumentException thrown. A null will be returned on Tisha B'Av or
+	 * Yom Kippur.
+	 *
+	 * @param jewishCalendar
+	 *            the calendar date for calculation
+	 * @return the {@link DafYomiYerushalmi} or null if the date is on Tisha B'Av or Yom Kippur.
+	 *
+	 * @throws IllegalArgumentException
+	 *             if the date is prior to the February 2, 1980, the start date of the first Daf Yomi Yerushalmi cycle
+	 */
+	static getDafYomiYerushalmi(jewishCalendar: JewishDate): DafYomiYerushalmi | null;
+	/**
+	 * Return the number of special days (Yom Kippur and Tisha B'Av) on which there is no daf, between the two given dates
+	 *
+	 * @param start - start date to calculate
+	 * @param end - end date to calculate
+	 * @return the number of special days
+	 */
+	private static getNumOfSpecialDays;
+}
+/**
+ * An Object representing a <em>daf</em> (page) in the <a href="https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a> cycle.
+ *
+ * @author &copy; Eliyahu Hershfeld 2011 - 2019
+ */
+export declare class DafYomiYerushalmi extends Daf {
+	/**
+	 * See {@link #getYerushalmiMasechtaTransliterated()}.
+	 */
+	private static masechtosYerushalmiTransliterated;
+	/**
+	 * See {@link #getYerushalmiMasechta()}.
+	 */
+	private static readonly masechtosYerushalmi;
 	/**
 	 * Returns the transliterated name of the <em>masechta</em> (tractate) of the Daf Yomi in Yerushalmi. The list of
 	   * <em>mashechtos</em> is:
@@ -7334,27 +7446,27 @@ export declare class Daf {
 	   *
 	   * @return the transliterated name of the <em>masechta</em> (tractate) of the Daf Yomi such as Berachos.
 	 */
-	getYerushalmiMasechtaTransliterated(): string;
+	getMasechtaTransliterated(): string;
 	/**
 	 * Setter method to allow overriding of the default list of Yerushalmi <em>masechtos</em> transliterated into into Latin chars.
 	   * The default uses Ashkenazi American English transliteration.
 	   *
 	   * @param masechtosYerushalmiTransliterated the list of transliterated Yerushalmi <em>masechtos</em> to set.
 	 */
-	static setYerushalmiMasechtaTransliterated(masechtosYerushalmiTransliterated: string[]): void;
+	static setMasechtaTransliterated(masechtosYerushalmiTransliterated: string[]): void;
 	/**
 	   * Getter method to allow retrieving the list of Yerushalmi <em>masechtos</em> transliterated into into Latin chars.
 	   * The default uses Ashkenazi American English transliteration.
 	   *
 	   * @return the array of transliterated <em>masechta</em> (tractate) names of the Daf Yomi Yerushalmi.
 	   */
-	static getYerushalmiMasechtosTransliterated(): string[];
+	static getMasechtosTransliterated(): string[];
 	/**
 	   * Getter method to allow retrieving the list of Yerushalmi <em>masechtos</em>.
 	   *
 	   * @return the array of Hebrew <em>masechta</em> (tractate) names of the Daf Yomi Yerushalmi.
 	   */
-	static getYerushalmiMasechtos(): string[];
+	static getMasechtos(): string[];
 	/**
 	 * Returns the Yerushalmi <em>masechta</em> (tractate) of the Daf Yomi in Hebrew. As an example, it will return
 	   * &#x05D1;&#x05E8;&#x05DB;&#x05D5;&#x05EA; for Berachos.
@@ -7362,7 +7474,7 @@ export declare class Daf {
 	   * @return the Yerushalmi <em>masechta</em> (tractate) of the Daf Yomi in Hebrew. As an example, it will return
 	   *         &#x05D1;&#x05E8;&#x05DB;&#x05D5;&#x05EA; for Berachos.
 	 */
-	getYerushalmiMasechta(): string;
+	getMasechta(): string;
 }
 /**
  * List of <em>parshiyos</em> or special <em>Shabasos</em>. {@link #NONE} indicates a week without a <em>parsha</em>, while the enum for
@@ -8041,17 +8153,17 @@ export declare class JewishCalendar extends JewishDate {
 	 * {@link HebrewDateFormatter#formatDafYomiBavli(Daf)} for the ability to format the daf in Hebrew or transliterated
 	 * masechta names.
 	 *
-	 * @return the daf as a {@link Daf}
+	 * @return the daf as a {@link DafBavliYomi}
 	 */
-	getDafYomiBavli(): Daf;
+	getDafYomiBavli(): DafBavliYomi;
 	/**
 	 * Returns the Daf Yomi (Yerushalmi) for the date that the calendar is set to. See the
 	 * {@link HebrewDateFormatter#formatDafYomiYerushalmi(Daf)} for the ability to format the daf in Hebrew or transliterated
 	 * masechta names.
 	 *
-	 * @return the daf as a {@link Daf}
+	 * @return the daf as a {@link DafYomiYerushalmi}
 	 */
-	getDafYomiYerushalmi(): Daf | null;
+	getDafYomiYerushalmi(): DafYomiYerushalmi | null;
 	/**
 	 * Returns the equivalent Chafetz Chayim Yomi page for the date that this is set to
 	 */
@@ -8103,103 +8215,6 @@ export declare class JewishCalendar extends JewishDate {
 	 * @see Object#equals(Object)
 	 */
 	equals(jewishCalendar: JewishCalendar): boolean;
-}
-/**
- * This class calculates the Daf Yomi Bavli page (daf) for a given date. To calculate Daf Yomi Yerushalmi
- * use the {@link YerushalmiYomiCalculator}. The library may cover Mishna Yomi etc. at some point in the future.
- *
- * @author &copy; Bob Newell (original C code)
- * @author &copy; Eliyahu Hershfeld 2011 - 2019
- * @version 0.0.1
- */
-export declare class YomiCalculator {
-	/**
-	 * The start date of the first Daf Yomi Bavli cycle of September 11, 1923 / Rosh Hashana 5684.
-	 */
-	private static readonly dafYomiStartDate;
-	/** The start date of the first Daf Yomi Bavli cycle in the Julian calendar. Used internally for claculations. */
-	private static readonly dafYomiJulianStartDay;
-	/**
-	 * The date that the pagination for the Daf Yomi <em>Maseches Shekalim</em> changed to use the commonly used Vilna
-	 * Shas pagination from the no longer commonly available Zhitomir / Slavuta Shas used by Rabbi Meir Shapiro.
-	 */
-	private static readonly shekalimChangeDate;
-	/** The Julian date that the cycle for Shekalim changed.
-	 * @see #getDafYomiBavli(JewishCalendar) for details.
-	 */
-	private static readonly shekalimJulianChangeDay;
-	/**
-	 * Returns the <a href="https://en.wikipedia.org/wiki/Daf_yomi">Daf Yomi</a> <a
-	 * href="https://en.wikipedia.org/wiki/Talmud">Bavli</a> {@link Daf} for a given date. The first Daf Yomi cycle
-	 * started on Rosh Hashana 5684 (September 11, 1923) and calculations prior to this date will result in an
-	 * IllegalArgumentException thrown. For historical calculations (supported by this method), it is important to note
-	 * that a change in length of the cycle was instituted starting in the eighth Daf Yomi cycle beginning on June 24,
-	 * 1975. The Daf Yomi Bavli cycle has a single masechta of the Talmud Yerushalmi - Shekalim as part of the cycle.
-	 * Unlike the Bavli where the number of daf per masechta was standardized since the original <a
-	 * href="https://en.wikipedia.org/wiki/Daniel_Bomberg">Bomberg Edition</a> published from 1520 - 1523, there is no
-	 * uniform page length in the Yerushalmi. The early cycles had the Yerushalmi Shekalim length of 13 days following the
-	 * <a href=
-	 * "https://he.wikipedia.org/wiki/%D7%93%D7%A4%D7%95%D7%A1_%D7%A1%D7%9C%D7%90%D7%95%D7%95%D7%99%D7%98%D7%90">Slavuta/Zhytomyr</a>
-	 * Shas used by <a href="https://en.wikipedia.org/wiki/Meir_Shapiro">Rabbi Meir Shapiro</a>. With the start of the eighth Daf Yomi
-	 * cycle beginning on June 24, 1975 the length of the Yerushalmi Shekalim was changed from 13 to 22 daf to follow
-	 * the <a href="https://en.wikipedia.org/wiki/Vilna_Edition_Shas">Vilna Shas</a> that is in common use today.
-	 *
-	 * @param calendar
-	 *            the calendar date for calculation
-	 * @return the {@link Daf}.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if the date is prior to the September 11, 1923 start date of the first Daf Yomi cycle
-	 */
-	static getDafYomiBavli(calendar: JewishDate): Daf;
-	/**
-	 * Return the <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> from a Java Date.
-	 *
-	 * @param date
-	 *            The Java Date
-	 * @return the Julian day number corresponding to the date
-	 */
-	private static getJulianDay;
-}
-/**
- * This class calculates the <a href="https://en.wikipedia.org/wiki/Jerusalem_Talmud">Talmud Yerusalmi</a> <a href=
- * "https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a> page ({@link Daf}) for the a given date.
- *
- * @author &copy; elihaidv
- * @author &copy; Eliyahu Hershfeld 2017 - 2019
- */
-export declare class YerushalmiYomiCalculator {
-	/**
-	 * The start date of the first Daf Yomi Yerushalmi cycle of February 2, 1980 / 15 Shevat, 5740.
-	 */
-	private static readonly DAF_YOMI_START_DAY;
-	/** The number of pages in the Talmud Yerushalmi. */
-	private static readonly WHOLE_SHAS_DAFS;
-	/** The number of pages per <em>masechta</em> (tractate). */
-	private static readonly BLATT_PER_MASECHTA;
-	/**
-	 * Returns the <a href="https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a>
-	 * <a href="https://en.wikipedia.org/wiki/Jerusalem_Talmud">Yerusalmi</a> page ({@link Daf}) for a given date.
-	 * The first Daf Yomi cycle started on 15 Shevat (Tu Bishvat) 5740 (February, 2, 1980) and calculations
-	 * prior to this date will result in an IllegalArgumentException thrown. A null will be returned on Tisha B'Av or
-	 * Yom Kippur.
-	 *
-	 * @param jewishCalendar
-	 *            the calendar date for calculation
-	 * @return the {@link Daf} or null if the date is on Tisha B'Av or Yom Kippur.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if the date is prior to the February 2, 1980, the start date of the first Daf Yomi Yerushalmi cycle
-	 */
-	static getDafYomiYerushalmi(jewishCalendar: JewishDate): Daf | null;
-	/**
-	 * Return the number of special days (Yom Kippur and Tisha B'Av) on which there is no daf, between the two given dates
-	 *
-	 * @param start - start date to calculate
-	 * @param end - end date to calculate
-	 * @return the number of special days
-	 */
-	private static getNumOfSpecialDays;
 }
 export declare class ChafetzChayimYomiCalculator {
 	static getChafetzChayimYomi(jewishCalendar: JewishDate): {
@@ -9179,14 +9194,6 @@ export declare class HebrewDateFormatter {
 	 */
 	getFormattedKviah(jewishYear: number): string;
 	/**
-	 * Formats the <a href="https://en.wikipedia.org/wiki/Daf_Yomi">Daf Yomi</a> Bavli in the format of
-	 * "&#x05E2;&#x05D9;&#x05E8;&#x05D5;&#x05D1;&#x05D9;&#x05DF; &#x05E0;&#x05F4;&#x05D1;" in {@link #isHebrewFormat() Hebrew},
-	 * or the transliterated format of "Eruvin 52".
-	 * @param daf the Daf to be formatted.
-	 * @return the formatted daf.
-	 */
-	formatDafYomiBavli(daf: Daf): string;
-	/**
 	 * Formats the <a href="https://en.wikipedia.org/wiki/Jerusalem_Talmud#Daf_Yomi_Yerushalmi">Daf Yomi Yerushalmi</a> in the format
 	 * of "&#x05E2;&#x05D9;&#x05E8;&#x05D5;&#x05D1;&#x05D9;&#x05DF; &#x05E0;&#x05F4;&#x05D1;" in {@link #isHebrewFormat() Hebrew}, or
 	 * the transliterated format of "Eruvin 52".
@@ -9194,7 +9201,7 @@ export declare class HebrewDateFormatter {
 	 * @param daf the Daf to be formatted.
 	 * @return the formatted daf.
 	 */
-	formatDafYomiYerushalmi(daf: Daf): string;
+	formatDafYomi(daf: Daf): string;
 	/**
 	 * Returns a Hebrew formatted string of a number. The method can calculate from 0 - 9999.
 	 * <ul>
