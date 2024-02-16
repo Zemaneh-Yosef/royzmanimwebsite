@@ -323,35 +323,7 @@
     hb: פלג המנחה הלכה ברורה
     et: Plag HaMincha Lefi Halacha Brurah
     en: Plag HaMincha (R David Yosef)
-  description: |-
-    <p>
-    Plag HaMincha, literally "Half of Mincha," is the midpoint between
-    Mincha Ketana and sunset. Since Mincha Ketana is 2 and a half hours
-    before sunset, Plag is half of that at an hour and 15 minutes before
-    sunset.
-    </p>
-    <p>
-    You can start saying Arvit/Maariv by this time according to Rabbi
-    Yehudah in (ברכות כ'ו ע'א).
-    </p>
-    <p>A person should not accept Shabbat before this time as well.</p>
-    <p>
-    The Halacha Berurah says to calculate this time by subtracting an
-    hour and 15 zmaniyot minutes from sunrise. However, the Yalkut Yosef
-    says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes
-    before Tzeit (13.5 zmaniyot minutes).
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, both ways to calculate this zman are
-    shown. The only difference is that the tzait of the Amudei Horaah is
-    used instead of the regular 13.5 zmaniyot minutes.
-    </p>
-    <p>
-    The GR\"A calculates a zmaniyot/seasonal hour by taking the time
-    between sunrise and sunset (elevation included) and divides it into
-    12 equal parts. Then we divide one of those 12 parts into 60 to get
-    a zmaniyot/seasonal minute.
-    </p>
+  descriptionInclude: zmanDescription/plagHamincha.md
 - id: plagHaminhaYY
   attributes:
     yomTovInclusive:
@@ -362,35 +334,7 @@
     hb: פלג המנחה ילקות יוסף
     et: Plag HaMincha Lefi Yalkut Yosef
     en: Plag HaMincha (R Yitzhak Yosef)
-  description: |-
-    <p>
-    Plag HaMincha, literally "Half of Mincha," is the midpoint between
-    Mincha Ketana and sunset. Since Mincha Ketana is 2 and a half hours
-    before sunset, Plag is half of that at an hour and 15 minutes before
-    sunset.
-    </p>
-    <p>
-    You can start saying Arvit/Maariv by this time according to Rabbi
-    Yehudah in (ברכות כ'ו ע'א).
-    </p>
-    <p>A person should not accept Shabbat before this time as well.</p>
-    <p>
-    The Halacha Berurah says to calculate this time by subtracting an
-    hour and 15 zmaniyot minutes from sunrise. However, the Yalkut Yosef
-    says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes
-    before Tzeit (13.5 zmaniyot minutes).
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, both ways to calculate this zman are
-    shown. The only difference is that the tzait of the Amudei Horaah is
-    used instead of the regular 13.5 zmaniyot minutes.
-    </p>
-    <p>
-    The GR\"A calculates a zmaniyot/seasonal hour by taking the time
-    between sunrise and sunset (elevation included) and divides it into
-    12 equal parts. Then we divide one of those 12 parts into 60 to get
-    a zmaniyot/seasonal minute.
-    </p>
+  descriptionInclude: zmanDescription/plagHamincha.md
 - id: candleLighting
   attributes:
     yomTovInclusive:
