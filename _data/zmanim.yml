@@ -558,6 +558,7 @@
     30 fixed minutes after sunset. This degree is interpreted as 30
     minutes after sunset all year round in Israel.
     </p>
+  specialDropdownContent: True
 - id: rt
   attributes:
     yomTovInclusive:
