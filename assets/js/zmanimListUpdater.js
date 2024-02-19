@@ -360,13 +360,38 @@ class zmanimListUpdater {
 		document.querySelectorAll('[data-zfFind="BirchatHalevana"]').forEach(
 			(/**@type {HTMLElement} */birchatHalevana) => {
 				const birLev = this.jCal.birkathHalevanaCheck(this.zmanFuncs);
-				console.log(birLev, birLev.data.start.toLocaleString())
 				if (!birLev.current) {
 					birchatHalevana.style.display = "none";
 					return;
 				}
 
 				birchatHalevana.style.removeProperty("display");
+				birchatHalevana.querySelectorAll('[data-zfReplace="date-en-end"]').forEach(
+					endDate => endDate.innerHTML = birLev.data.end.toLocaleString("en", {day: 'numeric', month: 'short'})
+				)
+				birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]').innerHTML =
+					birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'})
+
+				console.log(birLev.data.start.dayOfYear, this.jCal.getDate().dayOfYear)
+				if (birLev.data.start.dayOfYear == this.jCal.getDate().dayOfYear) {
+					birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
+						startsToday => startsToday.style.removeProperty("display")
+					)
+				} else {
+					birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
+						startsToday => startsToday.style.display = "none"
+					)
+				}
+
+				if (birLev.data.end.dayOfYear == this.jCal.getDate().dayOfYear) {
+					birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
+						endsToday => endsToday.style.removeProperty("display")
+					)
+				} else {
+					birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
+						endsToday => endsToday.style.display = "none"
+					)
+				}
 			}
 		)
 

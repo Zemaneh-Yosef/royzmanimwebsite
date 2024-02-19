@@ -56,11 +56,13 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
             description: dailyZmanim
         })
 
-        if (jCal.getTchilasZmanKidushLevana7Days().dayOfYear == jCal.getDate().dayOfYear) {
+        const birkLev = jCal.birkathHalevanaCheck(calc)
+        if (birkLev.data.start.dayOfYear == jCal.getDate().dayOfYear) {
             events.push({
-                start: jCal.getTchilasZmanKidushLevana7Days().epochMilliseconds,
-                end: calc.chainDate(jCal.getMoladAsDate().with({ hour: 0, minute: 0 }).add({ days: 16 }).toPlainDate()).getAlotHashachar().epochMilliseconds,
-                title: "Birkat Halevana - Month of " + jCal.formatJewishMonth().en
+                start: calc.getShkiya().epochMilliseconds,
+                end: calc.chainDate(jCal.getDate().withCalendar("hebrew").with({ day: 15 })).getAlotHashachar().epochMilliseconds,
+                title: "Birkat Halevana - Month of " + jCal.formatJewishMonth().en,
+                description: "End-time of the Rama (Stringent): " + birkLev.data.end.toLocaleString()
             })
         }
 

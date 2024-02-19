@@ -719,7 +719,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 
 		return {
-			current: rangeDates(dateObjs.start, dateObjs.current, dateObjs.end),
+			current: rangeDates(dateObjs.start, dateObjs.current, dateObjs.end, true),
 			data: dateObjs
 		}
 	}

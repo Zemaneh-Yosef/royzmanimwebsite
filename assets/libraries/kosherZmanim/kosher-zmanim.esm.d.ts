@@ -163,7 +163,7 @@ export declare class GeoLocation {
 	private static readonly FINAL_BEARING;
 	/** constant for nanoseconds in a minute (60 * 1000 * 1000 * 1000) */
 	private static readonly MINUTE_NANOS;
-	/** constant for milliseconds in an hour (3,600,000) */
+	/** constant for nanoseconds in an hour (3,600,000) */
 	private static readonly HOUR_NANOS;
 	/**
 	 * Method to get the elevation in Meters.
@@ -739,10 +739,8 @@ export declare class AstronomicalCalendar {
 	static readonly NAUTICAL_ZENITH: number;
 	/** Sun's zenith at astronomical twilight (108&deg;). */
 	static readonly ASTRONOMICAL_ZENITH: number;
-	/** constant for milliseconds in a minute (60,000) */
-	static readonly MINUTE_MILLIS: number;
-	/** constant for milliseconds in an hour (3,600,000) */
-	static readonly HOUR_MILLIS: number;
+	/** constant for nanoseconds in an hour (3,600,000) */
+	static readonly HOUR_NANOS: number;
 	/**
 	 * The Java Calendar encapsulated by this class to track the current date used by the class
 	 */
@@ -5388,6 +5386,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 *         documentation.
 	 * @see #getAlos72Zmanis()
 	 */
+	private getMesheyakirAteretTorah;
 	/**
 	 * Method to return <em>tzais</em> (dusk) calculated as 72 minutes zmaniyos, or 1/10th of the day after
 	 * {@link #getSeaLevelSunset() sea level sunset}. This is the way that the <a href=
