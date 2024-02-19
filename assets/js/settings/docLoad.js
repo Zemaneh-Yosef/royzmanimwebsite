@@ -1,4 +1,6 @@
-import { handleLanguage } from "./handler.js";
+// @ts-check
+
+import { handleLanguage, settings } from "./handler.js";
 import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/bundle.esm.js"
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,14 +10,44 @@ document.addEventListener("DOMContentLoaded", () => {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new window.bootstrap.Tooltip(tooltipTriggerEl))
 
-    if (localStorage.getItem("calendarSource") == "ohrHachaim") {
+    if (settings.calendarToggle.hourCalculators() == "seasonal") {
         document.getElementById("ohrHachaim").checked = true;
         document.getElementById("amudehHoraah").checked = false;
+    } else {
+        document.getElementById("ohrHachaim").checked = false;
+        document.getElementById("amudehHoraah").checked = true;
     }
 
-    if (localStorage.getItem("timeFormat") == "h12") {
+    if (settings.timeFormat() == "h12") {
         document.getElementById("12h").checked = true;
         document.getElementById("24h").checked = false;
+    } else {
+        document.getElementById("12h").checked = false;
+        document.getElementById("24h").checked = true;
+    }
+
+    if (settings.language() == "hb") {
+        document.getElementById('hebrew').checked = true;
+        document.getElementById('enet').checked = false;
+        document.getElementById('enli').checked = false;
+    } else if (settings.language() == "en-et") {
+        document.getElementById('hebrew').checked = false;
+        document.getElementById('enet').checked = true;
+        document.getElementById('enli').checked = false;
+    } else {
+        document.getElementById('hebrew').checked = false;
+        document.getElementById('enet').checked = false;
+        document.getElementById('enli').checked = true;
+    }
+
+    if (document.getElementById('showSeconds') && document.getElementById('onHoverSeconds')) {
+        if (settings.seconds()) {
+            document.getElementById('showSeconds').checked = true;
+            document.getElementById('onHoverSeconds').checked = false;
+        } else {
+            document.getElementById('showSeconds').checked = false;
+            document.getElementById('onHoverSeconds').checked = true;
+        }
     }
 
     document.getElementById('languageSelector').addEventListener('click', () => {
@@ -35,10 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("tekufa", "arbitrary");
         }
 
-        if (window.zmanimListUpdater2) {
+        if (window.zmanimListUpdater2)
             window.zmanimListUpdater2.resetCalendar()
-            window.zmanimListUpdater2.updateZmanimList()
-        }
     })
 
     document.getElementById('timeFormatter').addEventListener('click', () => {
@@ -47,4 +77,13 @@ document.addEventListener("DOMContentLoaded", () => {
             window.zmanimListUpdater2.resetCalendar();
         }
     })
+
+    if (document.getElementById('secondsShow'))
+        document.getElementById('secondsShow').addEventListener('click', () => {
+            console.log('seconds show')
+            localStorage.setItem("seconds", document.getElementById("showSeconds").checked ? "true" : "false");
+            if (window.zmanimListUpdater2) {
+                window.zmanimListUpdater2.resetCalendar();
+            }
+        })
 })

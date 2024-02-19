@@ -82,18 +82,18 @@ body.lang-en .lang:not(.lang-en) {
   
   #wideGrid > #generic {
     grid-area: crucial;
-    margin-right: .5rem;
+    margin-inline-end: .5rem;
     margin-bottom: .5rem;
   }
   
   #wideGrid > #zmanim {
     grid-area: zmanim;
-    margin-left: .5rem;
+    margin-inline-start: .5rem;
   }
   
   #wideGrid > #special {
     grid-area: extra;
-    margin-right: .5rem;
+    margin-inline-end: .5rem;
     margin-top: .5rem;
   }
 }
