@@ -164,7 +164,7 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
         }
     }
 
-    Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
+    /* Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
         new Input(formOutline).update();
         if (zmanimLanguage == "hb") {
             const formLabels = [...formOutline.getElementsByTagName('label')].filter(label => label.classList.contains('form-label'));
@@ -173,7 +173,7 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
                 formLabel.style.marginLeft = (0).toString();
             }
         }
-    });
+    }); */
 
     if (save)
         localStorage.setItem("zmanimLanguage", zmanimLanguage)

@@ -160,7 +160,7 @@
     border: none;
 }
 
-body[dir="rtl"] .input-group-lg>.input-group-text {
+/* body[dir="rtl"] .input-group-lg>.input-group-text {
     padding-right: 1rem;
     padding-left: 0;
-}
+} */

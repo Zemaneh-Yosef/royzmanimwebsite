@@ -131,8 +131,8 @@
 }
 
 .form-control-plaintext.form-control-lg,.form-control-plaintext.form-control-sm {
-    padding-right: 0;
-    padding-left: 0
+    padding-inline-end: 0;
+    padding-inline-start: 0
 }
 
 .form-control-sm {
@@ -233,7 +233,7 @@ textarea.form-control-lg {
 }
 
 .form-select[multiple],.form-select[size]:not([size="1"]) {
-    padding-right: .75rem;
+    padding-inline-end: .75rem;
     background-image: none
 }
 
@@ -249,7 +249,7 @@ textarea.form-control-lg {
 .form-select-sm {
     padding-top: .25rem;
     padding-bottom: .25rem;
-    padding-left: .5rem;
+    padding-inline-start: .5rem;
     font-size: .775rem;
     border-radius: .25rem
 }
@@ -257,7 +257,7 @@ textarea.form-control-lg {
 .form-select-lg {
     padding-top: .5rem;
     padding-bottom: .5rem;
-    padding-left: 1rem;
+    padding-inline-start: 1rem;
     font-size: 1rem;
     border-radius: .5rem
 }
@@ -265,25 +265,25 @@ textarea.form-control-lg {
 .form-check {
     display: block;
     min-height: 1.6rem;
-    padding-left: 1.5em;
+    padding-inline-start: 1.5em;
     margin-bottom: .125rem
 }
 
 .form-check .form-check-input {
-    float: left;
-    margin-left: -1.5em
+    float: inline-start;
+    margin-inline-start: -1.5em;
 }
 
 .form-check-reverse {
-    padding-right: 1.5em;
-    padding-left: 0;
-    text-align: right
+    padding-inline-end: 1.5em;
+    padding-inline-start: 0;
+    text-align: end
 }
 
 .form-check-reverse .form-check-input {
-    float: right;
-    margin-right: -1.5em;
-    margin-left: 0
+    float: inline-end;
+    margin-inline-end: -1.5em;
+    margin-inline-start: 0
 }
 
 .form-check-input {
@@ -345,12 +345,12 @@ textarea.form-control-lg {
 }
 
 .form-switch {
-    padding-left: 2.5em
+    padding-inline-start: 2.5em
 }
 
 .form-switch .form-check-input {
     width: 2em;
-    margin-left: -2.5em;
+    margin-inline-start: -2.5em;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3E%3Ccircle r='3' fill='rgba(0, 0, 0, 0.25)'/%3E%3C/svg%3E");
     background-position: 0;
     border-radius: 2em;
@@ -373,18 +373,18 @@ textarea.form-control-lg {
 }
 
 .form-switch.form-check-reverse {
-    padding-right: 2.5em;
-    padding-left: 0
+    padding-inline-end: 2.5em;
+    padding-inline-start: 0
 }
 
 .form-switch.form-check-reverse .form-check-input {
-    margin-right: -2.5em;
-    margin-left: 0
+    margin-inline-end: -2.5em;
+    margin-inline-start: 0
 }
 
 .form-check-inline {
     display: inline-block;
-    margin-right: 1rem
+    margin-inline-end: 1rem
 }
 
 .btn-check {
@@ -637,7 +637,7 @@ textarea.form-control-lg {
 }
 
 .input-group-lg>.form-select,.input-group-sm>.form-select {
-    padding-right: 3rem
+    padding-inline-end: 3rem
 }
 
 .input-group.has-validation>.dropdown-toggle:nth-last-child(n+4),.input-group.has-validation>.form-floating:nth-last-child(n+3)>.form-control,.input-group.has-validation>.form-floating:nth-last-child(n+3)>.form-select,.input-group.has-validation>:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating),.input-group:not(.has-validation)>.dropdown-toggle:nth-last-child(n+3),.input-group:not(.has-validation)>.form-floating:not(:last-child)>.form-control,.input-group:not(.has-validation)>.form-floating:not(:last-child)>.form-select,.input-group:not(.has-validation)>:not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating) {
@@ -646,7 +646,7 @@ textarea.form-control-lg {
 }
 
 .input-group>:not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
-    margin-left: -1px;
+    margin-inline-start: -1px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0
 }
@@ -668,7 +668,7 @@ textarea.form-control-lg {
 }
 
 .form-control.is-valid,.was-validated .form-control:valid {
-    padding-right: calc(1.6em + .75rem);
+    padding-inline-end: calc(1.6em + .75rem);
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath fill='%2314a44d' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right calc(.4em + .1875rem) center;
@@ -676,12 +676,12 @@ textarea.form-control-lg {
 }
 
 .was-validated textarea.form-control:valid,textarea.form-control.is-valid {
-    padding-right: calc(1.6em + .75rem);
+    padding-inline-end: calc(1.6em + .75rem);
     background-position: top calc(.4em + .1875rem) right calc(.4em + .1875rem)
 }
 
 .form-select.is-valid:not([multiple]):not([size]),.form-select.is-valid:not([multiple])[size="1"],.was-validated .form-select:valid:not([multiple]):not([size]),.was-validated .form-select:valid:not([multiple])[size="1"] {
-    padding-right: 4.125rem;
+    padding-inline-end: 4.125rem;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%234f4f4f' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E"),url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath fill='%2314a44d' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3E%3C/svg%3E");
     background-position: right .75rem center,center right 2.25rem;
     background-size: 16px 12px,calc(.8em + .375rem) calc(.8em + .375rem)
@@ -711,7 +711,7 @@ textarea.form-control-lg {
 }
 
 .form-control.is-invalid,.was-validated .form-control:invalid {
-    padding-right: calc(1.6em + .75rem);
+    padding-inline-end: calc(1.6em + .75rem);
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc4c64'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3E%3Ccircle cx='6' cy='8.2' r='.6' fill='%23dc4c64' stroke='none'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right calc(.4em + .1875rem) center;
@@ -719,12 +719,12 @@ textarea.form-control-lg {
 }
 
 .was-validated textarea.form-control:invalid,textarea.form-control.is-invalid {
-    padding-right: calc(1.6em + .75rem);
+    padding-inline-end: calc(1.6em + .75rem);
     background-position: top calc(.4em + .1875rem) right calc(.4em + .1875rem)
 }
 
 .form-select.is-invalid:not([multiple]):not([size]),.form-select.is-invalid:not([multiple])[size="1"],.was-validated .form-select:invalid:not([multiple]):not([size]),.was-validated .form-select:invalid:not([multiple])[size="1"] {
-    padding-right: 4.125rem;
+    padding-inline-end: 4.125rem;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%234f4f4f' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E"),url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc4c64'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3E%3Ccircle cx='6' cy='8.2' r='.6' fill='%23dc4c64' stroke='none'/%3E%3C/svg%3E");
     background-position: right .75rem center,center right 2.25rem;
     background-size: 16px 12px,calc(.8em + .375rem) calc(.8em + .375rem)
@@ -790,7 +790,7 @@ textarea.form-control-lg {
 }
 
 .form-outline .form-icon-trailing {
-    padding-right: 2rem!important
+    padding-inline-end: 2rem!important
 }
 
 .form-outline .form-control {
@@ -840,8 +840,12 @@ textarea.form-control-lg {
     top: 0;
     height: 100%;
     width: .5rem;
-    border-right: none;
+    border-inline-end: none;
     border-radius: .25rem 0 0 .25rem
+}
+
+.form-outline .form-control~.form-notch .form-notch-leading:dir(rtl) {
+    border-radius: 0 .25rem .25rem 0;
 }
 
 .form-outline .form-control~.form-notch .form-notch-middle {
@@ -849,15 +853,19 @@ textarea.form-control-lg {
     width: auto;
     max-width: calc(100% - 1rem);
     height: 100%;
-    border-right: none;
-    border-left: none
+    border-inline-end: none;
+    border-inline-start: none
 }
 
 .form-outline .form-control~.form-notch .form-notch-trailing {
     flex-grow: 1;
     height: 100%;
-    border-left: none;
+    border-inline-start: none;
     border-radius: 0 .25rem .25rem 0
+}
+
+.form-outline .form-control~.form-notch .form-notch-trailing:dir(rtl) {
+    border-radius: .25rem 0 0 .25rem;
 }
 
 .form-outline .form-control:not(.placeholder-active)::-moz-placeholder {
@@ -885,17 +893,17 @@ textarea.form-control-lg {
 }
 
 .form-outline .form-control.active~.form-notch .form-notch-middle,.form-outline .form-control:focus~.form-notch .form-notch-middle {
-    border-right: none;
-    border-left: none;
+    border-inline-end: none;
+    border-inline-start: none;
     border-top: 1px solid transparent
 }
 
 .form-outline .form-control.active~.form-notch .form-notch-leading,.form-outline .form-control:focus~.form-notch .form-notch-leading {
-    border-right: none
+    border-inline-end: none
 }
 
 .form-outline .form-control.active~.form-notch .form-notch-trailing,.form-outline .form-control:focus~.form-notch .form-notch-trailing {
-    border-left: none
+    border-inline-start: none
 }
 
 .form-outline .form-control.disabled,.form-outline .form-control:disabled,.form-outline .form-control[readonly] {
@@ -1051,7 +1059,7 @@ textarea.form-control-lg {
 .form-check-input[type=checkbox] {
     border-radius: .25rem;
     margin-top: .19em;
-    margin-right: 6px
+    margin-inline-end: 6px
 }
 
 .form-check-input[type=checkbox]:focus:after {
@@ -1076,8 +1084,8 @@ textarea.form-control-lg {
     height: .8125rem;
     border: .125rem solid #fff;
     border-top: 0;
-    border-left: 0 /*!rtl:ignore*/;
-    margin-left: .25rem;
+    border-inline-start: 0 /*!rtl:ignore*/;
+    margin-inline-start: .25rem;
     margin-top: -1px
 }
 
@@ -1090,7 +1098,7 @@ textarea.form-control-lg {
     width: 1.25rem;
     height: 1.25rem;
     margin-top: .125em;
-    margin-right: 4px
+    margin-inline-end: 4px
 }
 
 .form-check-input[type=radio]:before {
@@ -1130,7 +1138,7 @@ textarea.form-control-lg {
 }
 
 .form-check-label {
-    padding-left: .15rem
+    padding-inline-start: .15rem
 }
 
 .form-check-label:hover {
@@ -1145,7 +1153,7 @@ textarea.form-control-lg {
     height: .875rem;
     background-color: rgba(0,0,0,.25);
     margin-top: .3em;
-    margin-right: 8px
+    margin-inline-end: 8px
 }
 
 .form-switch .form-check-input:after {
@@ -1182,7 +1190,7 @@ textarea.form-control-lg {
 }
 
 .form-switch .form-check-input:checked:focus:before {
-    margin-left: 1.0625rem;
+    margin-inline-start: 1.0625rem;
     transform: scale(1);
     transition: box-shadow .2s,transform .2s
 }
@@ -1200,7 +1208,7 @@ textarea.form-control-lg {
     width: 1.25rem;
     height: 1.25rem;
     margin-top: -3px;
-    margin-left: 1.0625rem;
+    margin-inline-start: 1.0625rem;
     transition: background-color .2s,transform .2s
 }
 
@@ -1231,12 +1239,12 @@ textarea.form-control-lg {
 }
 
 .input-group-text>.form-check-input[type=checkbox] {
-    margin-left: 1px;
-    margin-right: 1px
+    margin-inline-start: 1px;
+    margin-inline-end: 1px
 }
 
 .input-group-text>.form-check-input[type=radio] {
-    margin-right: 0
+    margin-inline-end: 0
 }
 
 .input-group-lg>.form-control {
@@ -1264,12 +1272,12 @@ textarea.form-control-lg {
 }
 
 .input-group.form-outline .input-group-text {
-    border-left: 0
+    border-inline-start: 0
 }
 
 .input-group.form-outline input+.input-group-text {
     border: 0;
-    border-left: 1px solid #bdbdbd
+    border-inline-start: 1px solid #bdbdbd
 }
 
 .input-group .form-outline:not(:first-child),.input-group .form-outline:not(:first-child) .form-notch-leading,.input-group .select-wrapper:not(:first-child),.input-group .select-wrapper:not(:first-child) .form-notch-leading {
@@ -1283,7 +1291,7 @@ textarea.form-control-lg {
 }
 
 .input-group>[class*=btn-outline-]+[class*=btn-outline-] {
-    border-left: 0
+    border-inline-start: 0
 }
 
 .input-group>.btn[class*=btn-outline-] {
@@ -1468,7 +1476,7 @@ textarea.form-control-lg {
 }
 
 .form-check-inline .form-check-input~.valid-feedback {
-    margin-left: .5em
+    margin-inline-start: .5em
 }
 
 .form-switch .form-check-input.is-valid:focus:before,.was-validated .form-switch .form-check-input:valid:focus:before {
@@ -1638,7 +1646,7 @@ textarea.form-control-lg {
 }
 
 .form-check-inline .form-check-input~.invalid-feedback {
-    margin-left: .5em
+    margin-inline-start: .5em
 }
 
 .form-switch .form-check-input.is-invalid:focus:before,.was-validated .form-switch .form-check-input:invalid:focus:before {
@@ -1947,7 +1955,7 @@ textarea.form-control-lg {
 }
 
 .input-group.form-outline input+.input-group-text {
-    border-left-color: hsla(0,0%,100%,.7)
+    border-inline-start-color: hsla(0,0%,100%,.7)
 }
 
 .loading-spinner {
