@@ -148,3 +148,11 @@ body.lang-en .lang:not(.lang-en) {
   text-align: center;
   padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
 }
+
+@media (max-width: 991.98px) {
+  .form-outline .form-control~.form-notch > * {
+    border-bottom: none !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+}
