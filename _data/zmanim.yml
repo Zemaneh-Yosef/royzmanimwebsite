@@ -361,6 +361,7 @@
     ${getCandleLightingOffset()} regular minutes before
     sunset (elevation included).
     </p>
+  specialDropdownContent: True
 - id: sunset
   attributes:
     yomTovInclusive:

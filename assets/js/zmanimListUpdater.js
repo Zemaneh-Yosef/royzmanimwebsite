@@ -485,12 +485,12 @@ class zmanimListUpdater {
 
 				timeSlot.querySelector('.timeDisplay').innerHTML = zmanInfo[zmanId].luxonObj.toLocaleString(...this.dtF)
 
-				/* if (timeSlot.hasAttribute('specialDropdownContent')) {
+				if (timeSlot.hasAttribute('data-specialDropdownContent')) {
 					const description = timeSlot.querySelector('.accordianContent');
 					description.innerHTML = description.innerHTML
-						.replaceAll('${getAteretTorahSunsetOffset()}', this.zmanMethods.coreCZC.getAteretTorahSunsetOffset().toString())
-						.replaceAll('${getCandleLightingOffset()}', this.zmanMethods.coreCZC.getCandleLightingOffset().toString())
-				} */
+						.replaceAll('${getAteretTorahSunsetOffset()}', settings.customTimes.tzeithIssurMelakha().minutes.toString())
+						.replaceAll('${getCandleLightingOffset()}', settings.customTimes.candleLighting().toString())
+				}
 
 				if (zmanInfo[zmanId].title.hb)
 					timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb
