@@ -1,41 +1,37 @@
 .list-group-item,
-.list-group,
-:root {
-  --mdb-list-group-color: white;
-}
-
-:root {
-  --mdb-card-bg: #424242;
-  --mdb-list-group-border-color: hsla(0,0%,100%,.20);
+.list-group {
+  --bs-list-group-bg: #212529;
+  --bs-list-group-color: white;
+  --bs-list-group-border-color: var(--bs-border-color);
 }
 
 .card {
-  background-color: var(--mdb-card-bg);
+  --bs-card-bg: #212529;
 }
 
-.navbar {
-  background-color: #303030;
+.accordian summary {
+  --accordian-bg: #212529;
 }
 
-.navbar-toggler-icon {
-  filter: invert(1);
+.modal {
+  --bs-modal-bg: #212529;
 }
 
-#logo_light {
-  display: inline-block;
+:root {
+  --bs-body-bg: #1A1D2A;
 }
 
-#logo_dark {
-  display: none;
+.navbar, #sidebar {
+  background-color: #373E5C;
 }
 
-body {
+/* body {
   --mdb-body-bg: #212529;
 }
 
 .toast {
   --mdb-toast-bg: #303030
-}
+} */
 
 .accordian .accordianContent {
   background: #303030;

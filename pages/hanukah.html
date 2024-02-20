@@ -1,0 +1,149 @@
+---
+title: Chanukah Times
+permalink: /hanukah
+breakout: true
+---
+
+<style>
+    .shabbatRow:not(:nth-last-child(1)):not(:nth-last-child(2)):not(:nth-last-child(3)) {
+        border-bottom: 0.10764262648009vw solid rgba(255,255,255,.5);
+    }
+
+    .shabbatRow:nth-child(2), .shabbatRow:nth-child(3) {
+        border-bottom: 0.21528525296017vw solid rgba(255,255,255,.5) !important;
+    }
+
+    .shabbatTitleCore {
+        font-family: 'Guttman Mantova-Decor', 'Blade Runner Movie Font';
+        font-size: calc(1.375rem + 2.85vw);
+    }
+
+    .shabbatTitleViewable {
+        background-image: linear-gradient(to bottom, #FFF2B3 0%, #D6B961 100%);
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-stroke: 0.064585575888052vw rgba(0,0,0,.6);
+        text-shadow: rgba(0, 0, 0, 0.12) 0 0.10615711252654vw 0.31847133757962vw, rgba(0, 0, 0, 0.24) 0 0.10615711252654vw 0.21231422505308vw;
+        position: relative;
+        z-index: 5;
+    }
+
+    .shabbatAbso {
+        position: absolute;
+        color: #E15517;
+        opacity: 50%;
+        top: 0.175vw;
+        left: 0.175vw;
+        width: 100%;
+        filter: blur(0.086114101184069vw);
+        z-index: 4;
+    }
+
+    #subtitle {
+        font-family: 'Guttman Mantova', var(--shabbat-font);
+        line-height: 1;
+        font-size: 2.35vw;
+    }
+
+    :root {
+        --shabbat-font: 'Roboto', sans-serif;
+    }
+
+    #innerDisplay {
+        background-color: rgba(41, 44, 64, .44);
+        background-image: url(/assets/images/hanukah/bg.png);
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        color: white;
+        padding: 2.25vw;
+        position: relative;
+        font-size: 1.4vw;
+        height: 100%;
+    }
+
+    .friday {
+        border-right: 0.21528525296017vw solid black;
+    }
+
+    .motzSha {
+        padding-left: 0.53821313240043vw;
+    }
+
+    .timeshow {
+        text-align: center;
+        align-self: center;
+    }
+
+    .explanation {
+        font-size: 0.86114101184069vw;
+        font-family: var(--shabbat-font);
+    }
+
+    #sidebar {
+        display: none !important;
+    }
+
+    .maxWidthContainer {
+        width: clamp(16rem, 90vw, 90rem);
+    }
+
+    .shabbatRow img {
+        height: 1em;
+        vertical-align: baseline;
+        padding-right: .6ch;
+        filter: invert(1);
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="/assets/chanukah/stylesheet.css" rel="stylesheet">
+
+<div style="width: 100%; aspect-ratio: 6/4; padding: 3vw; background: url(/assets/images/hanukah/completebg.png); background-size: cover; position: relative; font-family: var(--shabbat-font)">
+    <span style="position:absolute; line-height: 1; top: 0.86114101184069vw; right: 0.86114101184069vw; font-size: 1.291711517761vw; font-family: 'Guttman Mantova', 'Courier New', Courier, monospace;">בס"ד</span>
+    <div id="innerDisplay">
+        <div style="display: grid;grid-template-columns: 1fr auto auto;" data-columns="getTzait getTzaitBenIshHai">
+            <div style="grid-column: 1/ span 3; text-align: center; line-height: 1; position: relative" class="mb-2">
+                <h1 class="mb-0 shabbatTitleCore shabbatTitleViewable"> - זמני חנוכה לספרדים </h1>
+                <h1 class="mb-0 shabbatTitleCore shabbatAbso"> - זמני חנוכה לספרדים </h1>
+                With the exception of Friday & Saturday, one should light within 30 minutes after Rabbi Ovadia Yosef's time below.<br>
+                <span id="plagElement" style="font-size: .75em; color: rgb(204,204,204);">(Opinions that went over this time were not included in the flyer)</span>
+            </div>
+            <div style="grid-column: 1; grid-row: 2; font-weight: bold;">Day</div>
+            <!--<div style="grid-column: 2; grid-row: 2; font-weight: bold; padding-right: 0.53821313240043vw; text-align: center; line-height: 1; font-family: 'Guttman Mantova', var(--shabbat-font);">
+                הכי מוקדם<br>
+                <span class="explanation">(Sunset - NOAA calendar)</span>
+            </div> -->
+            <div style="grid-column: 2; grid-row: 2; font-weight: bold; padding-right: 0.53821313240043vw; text-align: center; line-height: 1; font-family: 'Guttman Mantova', var(--shabbat-font);">
+                לשיטת מרן עובדיה<br>
+                <span class="explanation">13.5m - adjusted-seasonal</span>
+            </div>
+            <div style="grid-column: 3; grid-row: 2; font-weight: bold; padding-left: 0.53821313240043vw; text-align: center; line-height: 1; font-family: 'Guttman Mantova', var(--shabbat-font);">
+                לשיטת הבא"ח<br>
+                <span class="explanation">27m - adjusted-seasonal</span>
+            </div>
+        </div>
+        <div class="mt-2" style="position: absolute; bottom: 2.25vw; width: 100%; text-align: center; font-size: .825em;">
+            Looking for Rabbi Ovadia Yosef Zemanim? Install our app or visit our website to see explanations, other Zemanim and more!
+            <div class="d-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
+                <div style="border-radius: .5rem; background: black; width: 7.5em; padding: .5rem;">
+                    <div style="border-radius: .5rem; background: white;">
+                        <img src="/assets/images/app-store-qr.png" style="width: 100%">
+                    </div>
+                    App Store
+                </div>
+                <div style="border-radius: .5rem; background: black; width: 7.5em; padding: .5rem;">
+                    <div style="border-radius: .5rem; background: white;">
+                        <img src="/assets/images/gplay-qr.png" style="width: 100%">
+                    </div>
+                    Play Store
+                </div>
+            </div>
+            https://royzmanim.com
+        </div>
+    </div>
+</div>
+
+<script type="module" src="/assets/js/chanukah.js"></script>

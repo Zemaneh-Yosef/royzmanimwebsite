@@ -1,6 +1,10 @@
 {
 	"devDependencies": {
-		"@types/jquery": "^3.5.16",
-		"@types/jqueryui": "^1.12.17"
+		"@types/jquery": "^3.5.26",
+		"@types/jqueryui": "^1.12.19"
+	},
+	"dependencies": {
+		"ics": "^3.7.2",
+		"temporal-polyfill": "^0.1.1"
 	}
 }

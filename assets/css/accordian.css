@@ -1,64 +1,104 @@
 .accordian summary {
-    outline: none;
-    padding: .5rem .9rem;
-    display: flex;
-    align-items: center;
-    background: var(--mdb-card-bg);
-    color: var(--mdb-list-group-color);
-    padding-left: 1.2rem;
-    position: relative;
-    cursor: pointer;
-  }
-  
-  .accordian summary .timeDisplay {
-    font-weight: bold;
-  }
-  
-  .accordian details:not(:last-child) {
-    border-bottom: var(--mdb-list-group-border-width) solid var(--mdb-list-group-border-color);
-  }
-  
-  .accordian details summary::-webkit-details-marker {
-    display: none;
-  }
-  
-  .accordian details[open] {
-    border-top: 1px solid black;
-    box-shadow: 0 1px 6px -2px black;
-    z-index: 12;
-    position: relative;
-  }
+  --bs-list-group-color: var(--bs-body-color);
+  --accordian-bg: white;
+  outline: none;
+  padding: .5rem .9rem;
+  display: flex;
+  align-items: center;
+  background: var(--accordian-bg);
+  color: var(--bs-list-group-color);
+  padding-left: 1.2rem;
+  position: relative;
+  cursor: pointer;
+}
 
-  .accordian details[open] > summary:before {
-    transform: rotate(90deg);
-  }
-  
-  .accordian summary:before {
-    content: "";
-    border-width: 0.4rem;
-    border-style: solid;
-    border-color: transparent transparent transparent var(--mdb-list-group-color);
-    transform: rotate(0);
-    transform-origin: left center;
-    transition: 0.25s transform ease;
-    margin-right: 0.25rem;
-  }
+.accordian {
+  box-shadow: 0 2px 15px -3px rgba(0,0,0,0.07),0 10px 20px -2px rgba(0,0,0,0.04);
+}
 
-  body[dir=rtl] .accordian summary:before {
-    border-color: transparent var(--mdb-list-group-color) transparent transparent;
-    margin-right: 0;
-    margin-left: 0.25rem;
-    transform-origin: right center;
-  }
+.accordian details {
+  position: relative;
+}
 
-  body[dir=rtl] .accordian details[open] > summary:before {
-    transform: rotate(-90deg) translateX(3px) translateY(-3px);
+.accordian summary .timeDisplay {
+  font-weight: bold;
+}
+
+.accordian details.loading::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  background-size: 40px 100%;
+  background-repeat: no-repeat;
+  background-position: left -40px top 0;
+  -webkit-animation: shine 1s ease infinite;
+          animation: shine 1s ease infinite;
+  z-index: 2;
+  opacity: .25;
+}
+
+.accordian details:not(:last-child) {
+  border-bottom:  var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.accordian details summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordian details[open] {
+  border-top: 1px solid black;
+  box-shadow: 0 1px 6px -2px black;
+  z-index: 12;
+  position: relative;
+}
+
+.accordian details[open] > summary:before {
+  transform: rotate(90deg);
+}
+
+.accordian summary:before {
+  content: "";
+  border-width: 0.4rem;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--bs-list-group-color);
+  transform: rotate(0);
+  transform-origin: left center;
+  transition: 0.25s transform ease;
+  margin-right: 0.25rem;
+}
+
+body[dir=rtl] .accordian summary:before {
+  border-color: transparent var(--bs-list-group-color) transparent transparent;
+  margin-right: 0;
+  margin-left: 0.25rem;
+  transform-origin: right center;
+}
+
+body[dir=rtl] .accordian details[open] > summary:before {
+  transform: rotate(-90deg) translateX(3px) translateY(-3px);
+}
+
+.accordian .accordianContent {
+  padding: 10px;
+  border: 2px solid var(--bs-card-bg);
+  border-top: none;
+  background: white;
+  max-height: 60vh;
+  overflow: scroll;
+}
+
+.accordian .accordianContent hr:last-child {
+  display: none;
+}
+.accordian .accordianContent:has(hr:last-child) p:nth-last-child(2) {
+  padding-bottom: 0;
+}
+
+
+@keyframes shine {
+  to {
+    background-position: right -40px top 0;
   }
-  
-  .accordian .accordianContent {
-    border-top: none;
-    padding: 10px;
-    border: 2px solid var(--mdb-card-bg);
-    border-top: none;
-    background: white;
-  }
+}

@@ -1,20 +1,34 @@
 ---
 - id: alot
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
   timeGetter: getAlotHashachar
   names:
     hb: עלות השחר
     et: Aloth Hashachar
     en: Dawn
-  descriptionInclude: zmanDescription/aloth.md
+  descriptionIncludeArray:
+    short:
+      - zmanDescription/alot/body.md
+      - zmanDescription/alot/footer.md
+    long:
+      - zmanDescription/alot/body.md
+      - zmanDescription/alot/extra.md
+      - zmanDescription/alot/footer.md
+  extraZmanim:
+    - titles:
+        hb: עלות השחר (5 מיל/שמינית מהיום)
+        et: Alot Hashachar (5 mil/⅛<sup>th</sup> of the day)
+        en: Dawn (5 mil/⅛<sup>th</sup> of the day)
+      timeGetter:
+        functionCall: getAlotHashachar
+        param: {minutes: 90, degree: 19.8}
+    - titles:
+        hb: עלות השחר (4 מיל - 24 דקות)
+        et: Alot Hashachar (4 mil - 24 minutes each)
+        en: Dawn (4 mil - 24 minutes each)
+      timeGetter:
+        functionCall: getAlotHashachar
+        param: {minutes: 96, degree: 23.8}
 - id: earliestTefilin
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
   timeGetter: getMisheyakir
   names:
     hb: טלית ותפילין
@@ -261,6 +275,18 @@
     In Luach Amudei Horaah mode, this time is calculated the same way as
     above except no elevation is included.
     </p>
+#- id: minhaGedolaBenTzion
+#  attributes:
+#    yomTovInclusive:
+#    luachInclusive:
+#    condition:
+#  timeGetter: 
+#  names:
+#    hb: מנחה גדולה לחומרא
+#    et: Minha Gedolah LeHumra
+#    en: Earliest Minha (Stringent)
+#  description: |-
+#    <p>This stringent Minha Gedolah is according to the opinion of Rabbi Ben-Tzion Aba-Shaul, who calculates it as 7 seasonal minutes after hatzot</p>
 - id: minhaKetana
   attributes:
     yomTovInclusive:
@@ -297,35 +323,7 @@
     hb: פלג המנחה הלכה ברורה
     et: Plag HaMincha Lefi Halacha Brurah
     en: Plag HaMincha (R David Yosef)
-  description: |-
-    <p>
-    Plag HaMincha, literally "Half of Mincha," is the midpoint between
-    Mincha Ketana and sunset. Since Mincha Ketana is 2 and a half hours
-    before sunset, Plag is half of that at an hour and 15 minutes before
-    sunset.
-    </p>
-    <p>
-    You can start saying Arvit/Maariv by this time according to Rabbi
-    Yehudah in (ברכות כ'ו ע'א).
-    </p>
-    <p>A person should not accept Shabbat before this time as well.</p>
-    <p>
-    The Halacha Berurah says to calculate this time by subtracting an
-    hour and 15 zmaniyot minutes from sunrise. However, the Yalkut Yosef
-    says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes
-    before Tzeit (13.5 zmaniyot minutes).
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, both ways to calculate this zman are
-    shown. The only difference is that the tzait of the Amudei Horaah is
-    used instead of the regular 13.5 zmaniyot minutes.
-    </p>
-    <p>
-    The GR\"A calculates a zmaniyot/seasonal hour by taking the time
-    between sunrise and sunset (elevation included) and divides it into
-    12 equal parts. Then we divide one of those 12 parts into 60 to get
-    a zmaniyot/seasonal minute.
-    </p>
+  descriptionInclude: zmanDescription/plagHamincha.md
 - id: plagHaminhaYY
   attributes:
     yomTovInclusive:
@@ -336,35 +334,7 @@
     hb: פלג המנחה ילקות יוסף
     et: Plag HaMincha Lefi Yalkut Yosef
     en: Plag HaMincha (R Yitzhak Yosef)
-  description: |-
-    <p>
-    Plag HaMincha, literally "Half of Mincha," is the midpoint between
-    Mincha Ketana and sunset. Since Mincha Ketana is 2 and a half hours
-    before sunset, Plag is half of that at an hour and 15 minutes before
-    sunset.
-    </p>
-    <p>
-    You can start saying Arvit/Maariv by this time according to Rabbi
-    Yehudah in (ברכות כ'ו ע'א).
-    </p>
-    <p>A person should not accept Shabbat before this time as well.</p>
-    <p>
-    The Halacha Berurah says to calculate this time by subtracting an
-    hour and 15 zmaniyot minutes from sunrise. However, the Yalkut Yosef
-    says to calculate it as 1 hour and 15 zmaniyot/seasonal minutes
-    before Tzeit (13.5 zmaniyot minutes).
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, both ways to calculate this zman are
-    shown. The only difference is that the tzait of the Amudei Horaah is
-    used instead of the regular 13.5 zmaniyot minutes.
-    </p>
-    <p>
-    The GR\"A calculates a zmaniyot/seasonal hour by taking the time
-    between sunrise and sunset (elevation included) and divides it into
-    12 equal parts. Then we divide one of those 12 parts into 60 to get
-    a zmaniyot/seasonal minute.
-    </p>
+  descriptionInclude: zmanDescription/plagHamincha.md
 - id: candleLighting
   attributes:
     yomTovInclusive:
@@ -391,6 +361,7 @@
     ${getCandleLightingOffset()} regular minutes before
     sunset (elevation included).
     </p>
+  specialDropdownContent: True
 - id: sunset
   attributes:
     yomTovInclusive:
@@ -587,6 +558,7 @@
     30 fixed minutes after sunset. This degree is interpreted as 30
     minutes after sunset all year round in Israel.
     </p>
+  specialDropdownContent: True
 - id: rt
   attributes:
     yomTovInclusive:

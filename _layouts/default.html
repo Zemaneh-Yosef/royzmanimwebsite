@@ -12,83 +12,159 @@
 		<meta name="mobile-web-app-capable" content="yes" />
 
 		{% if page.accordian %}<link rel="stylesheet" href="/assets/css/accordian.css" />{% endif %}
-		<link id="mdb" href="/assets/libraries/mdbootstrap/css/mdb.min.css" rel="stylesheet" crossorigin="anonymous"/>
-		<link id="mdbd" href="/assets/libraries/mdbootstrap/css/mdb.dark.min.css" media="screen and (prefers-color-scheme: dark)" rel="stylesheet" crossorigin="anonymous"/>
+		<link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
+		<link href="/assets/libraries/mdbootstrap/light.css" rel="stylesheet" crossorigin="anonymous"/>
+		<link href="/assets/libraries/mdbootstrap/dark.css" media="screen and (prefers-color-scheme: dark)" rel="stylesheet" crossorigin="anonymous"/>
 		<link rel="stylesheet" href="/assets/css/mdbcorrection.css" />
+		<link rel="stylesheet" href="/assets/libraries/forkAwesome/css/fork-awesome.min.css" integrity="sha256-XoaMnoYC5TH6/+ihMEnospgm0J1PM/nioxbOUdnM8HY=" crossorigin="anonymous">
+		<link href="/assets/libraries/materialComp/material-components-web.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="/assets/css/style.css" />
 		<link rel="stylesheet" href="/assets/css/dark.css" media="screen and (prefers-color-scheme: dark)">
 		<link rel="stylesheet" media="print" href="/assets/css/print.css" />
-		<link rel="stylesheet" href="/assets/libraries/forkAwesome/css/fork-awesome.min.css" integrity="sha256-XoaMnoYC5TH6/+ihMEnospgm0J1PM/nioxbOUdnM8HY=" crossorigin="anonymous">
-		<link href="/assets/libraries/materialComp/material-components-web.min.css" rel="stylesheet">
 		<link href="/favicon.ico" rel="icon" type="image/x-icon" />
 	</head>
-	<body>
-		<header class="navbar navbar-expand-lg bg-body-tertiary mb-3">
-			<div class="container-fluid">
-			  <a class="navbar-brand" href="/">
-				<img id="logo_dark" src="/assets/images/ro_flag.png" alt="Link to the Home Page"/>
-				<img id="logo_light" src="/assets/images/ro_flag_light.png" alt="Link to the Home Page"/>
-				<span id="bannerText">
-					<span class="lang lang-hb">לוח מרן זצ"ל</span>
-				    <span class="lang lang-et">Rabbi Ovadiah Yosef Calendar</span>
-			    	<span class="lang lang-en">Rabbi Ovadiah Yosef Calendar</span>
-				</span>
-			  </a>
-			  <button class="navbar-toggler ms-auto" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			  </button>
-			  <nav class="collapse navbar-collapse" id="navbarNavDropdown">
-				<ul class="navbar-nav ms-auto mb-2 mb-lg-0" style="text-align: end;">
-				  <li class="nav-item">
-					<a class="nav-link" href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" target="_blank">
-						<span class="lang lang-hb">לוח של מולד</span>
-				        <span class="lang lang-et">Molad Calendar</span>
-			    	    <span class="lang lang-en">New-Moon Calendar</span>
+	<body class="d-flex">
+		<script src="/assets/js/settings/docLoadBlock.js"></script>
+		<div class="d-none d-lg-flex flex-column flex-shrink-0" id="sidebar">
+			<a href="/" id="sidebarLogo" class="link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
+				<img src="/assets/images/icon-text.png" alt="Zemaneh Yosef Icon" style="width: 100%">
+			</a>
+			<ul class="nav nav-pills nav-flush flex-column mt-auto text-center">
+				<li>
+					<a href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Molad Calculator" data-bs-original-title="Molad Calculator">
+						<i class="fa fa-moon-o fa-fw" aria-hidden="true"></i>
 					</a>
-				  </li>
-				  <li class="nav-item">
-					<a class="nav-link" data-mdb-toggle="modal" data-mdb-target="#settingsModal">
-						<span class="lang lang-hb">תְצוּרָה</span>
-				        <span class="lang lang-et">Settings</span>
-			    	    <span class="lang lang-en">Settings</span>
+				</li>
+				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Mobile App Download">
+					<a class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#mobileModal">
+						<i class="fa fa-mobile fa-fw" aria-hidden="true"></i>
 					</a>
-				  </li>
-				  <!-- <li class="nav-item">
-					<a class="nav-link" data-mdb-toggle="modal" data-mdb-target="#ctModal">
-						CTZmanim
+				</li>
+				<li id="downloadModalBtn" class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Download (SLOW!!!)" style="display: none">
+					<a class="nav-link py-3 border-bottom rounded-0" aria-label="Download the page">
+						<i class="fa fa-download fa-fw" aria-hidden="true"></i>
 					</a>
-				  </li> -->
-				  <li class="nav-item">
-					<a class="nav-link" data-mdb-toggle="modal" data-mdb-target="#aboutModal">
+				</li>
+				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Settings">
+					<a class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#settingsModal">
+						<i class="fa fa-cogs fa-fw" aria-hidden="true"></i>
+					</a>
+				</li>
+			</ul>
+			<div class="dropdown border-top">
+				<a href="#" class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+					<i class="fa fa-question-circle" aria-hidden="true"></i>
+				</a>
+				<ul class="dropdown-menu text-small shadow">
+					<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#aboutModal">
 						<span class="lang lang-hb">על אודות</span>
-				        <span class="lang lang-et">About</span>
-			    	    <span class="lang lang-en">About</span>
-					</a>
-				  </li>
+						<span class="lang lang-et">About</span>
+						<span class="lang lang-en">About</span>
+					</a></li>
+					<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#creditModal">
+						<span class="lang lang-hb">נקודות זכות</span>
+						<span class="lang lang-et">Credits</span>
+						<span class="lang lang-en">Credits</span>
+					</a></li>
+					<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#haskamotModal">
+						<span class="lang lang-hb">השקמות</span>
+						<span class="lang lang-et">Haskamot</span>
+						<span class="lang lang-en">Approbations</span>
+					</a></li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item" href="https://github.com/elyahu41/royzmanimwebsite">Source Code</a></li>
 				</ul>
-			  </nav>
-		  	</div>
-		</header>
-		<main {% if page.breakout != true %}class="maxWidthContainer"{% endif %}>
-			{{ content }}
-		</main>
+			</div>
+		</div>
+		<div style="flex: 1 1;">
+			<header class="navbar d-lg-none mb-1">
+				<div class="container-fluid">
+					<a class="navbar-brand" href="/">
+						<img id="logo" src="/assets/images/logo.png" alt="Link to the Home Page"/>
+					</a>
+					<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<nav class="collapse navbar-collapse" id="navbarNavDropdown">
+						<ul class="navbar-nav ms-auto mb-2 mb-lg-0" style="text-align: end;">
+							<li class="nav-item">
+								<a class="nav-link" href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" target="_blank">
+									<span class="lang lang-hb">לוח של מולד</span>
+									<span class="lang lang-et">Molad Calendar</span>
+									<span class="lang lang-en">New-Moon Calendar</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#settingsModal">
+									<span class="lang lang-hb">תְצוּרָה</span>
+									<span class="lang lang-et">Settings</span>
+									<span class="lang lang-en">Settings</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#aboutModal">
+									<span class="lang lang-hb">על אודות</span>
+									<span class="lang lang-et">About</span>
+									<span class="lang lang-en">About</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#creditModal">
+									<span class="lang lang-hb">נקודות זכות</span>
+									<span class="lang lang-et">Credits</span>
+									<span class="lang lang-en">Credits</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#haskamotModal">
+									<span class="lang lang-hb">השקמות</span>
+									<span class="lang lang-et">Haskamot</span>
+									<span class="lang lang-en">Approbations</span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</header>
+			<main class="maxWidthContainer mt-2">
+				{{ content }}
+			</main>
+		</div>
 		<!-- Modal -->
 		<div class="modal fade modal-xl" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title" id="aboutModalLabel">About Our Website</h5>
-						<button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">{% capture my_include %}{% include about.md %}{% endcapture %}
 						{{ my_include | markdownify }}</div>
 				</div>
 			</div>
 		</div>
+		<div class="modal fade modal-xl" id="creditModal" tabindex="-1" aria-labelledby="creditModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="aboutModalLabel">Credits</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">{% capture my_include %}{% include credits.md %}{% endcapture %}
+						{{ my_include | markdownify }}</div>
+				</div>
+			</div>
+		</div>
+		{% include modals/haskamot.html %}
 		{% include modals/settings.html %}
+		{% comment %}
+		{% include modals/calendar.html %}
 		{% include modals/chaiTable.html %}
+		{% endcomment %}
+		{% include modals/mobile.html %}
+		{% include toasts/failToast.html toastId="ctFailToast" errorText="ChaiTable did not return a table. Please be in contact with us to check what went wrong." %}
 		{% if page.accordian %}<script src="/assets/js/accordian.js"></script>{% endif %}
 		<script src="/assets/js/settings/docLoad.js" type="module"></script>
-		<script type="text/javascript" src="/assets/libraries/mdbootstrap/js/mdb.min.js"></script>
+		<script src="/assets/libraries/bootstrap/js/bootstrap.bundle.min.js"></script>
 	</body>
 </html>

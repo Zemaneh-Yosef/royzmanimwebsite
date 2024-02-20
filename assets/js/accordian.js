@@ -1,4 +1,6 @@
-let accordionEntries = [...document.querySelectorAll('.accordian details')]
+// @ts-check
+
+let accordionElements = [...document.querySelectorAll('.accordian details')]
 
 class Accordion {
     /**
@@ -8,10 +10,14 @@ class Accordion {
       // Store the <details> element
       this.el = el;
       // Store the <summary> element
-      this.summary = el.querySelector('summary');
+      const summary = el.getElementsByTagName('summary')[0]
+      if (summary instanceof HTMLElement)
+        this.summary = summary;
       // Store the <div class="content"> element
-      this.content = el.querySelector('.accordianContent');
-  
+      const content = el.getElementsByClassName('accordianContent')[0]
+      if (content instanceof HTMLElement)
+        this.content = content
+
       // Store the animation object (so we can cancel it if needed)
       this.animation = null;
       // Store if the element is closing
@@ -122,6 +128,6 @@ class Accordion {
       this.el.style.removeProperty('height');
       this.el.style.removeProperty('overflow');
     }
-  }
+}
 
-accordionEntries = accordionEntries.map((/** @type {HTMLDetailsElement} */ el) => new Accordion(el))
+let accordionEntries = accordionElements.map((/** @type {HTMLDetailsElement} */ el) => new Accordion(el))

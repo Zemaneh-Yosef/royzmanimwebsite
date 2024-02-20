@@ -1,4 +1,6 @@
-- **Town Search:** You can search for a location either by its name or the ZIP code. Enter it in the search bar below, then hit the Enter key on your keyboard. (If you're using a device that doesn't have one, click on the search icon instead)<br>
-  _Disclaimer: The results of this search bar are based on a 3rd party website and are not guaranteed to match what you are looking for. If you are not sure about the results, please use the manual location button._
-- **Location Detector:** Give the site consent to determine your location (and its relevant times) based on the GPS coordinates reported by a browser. VPN's and Proxies will affect the results.
+- **Name Search:** Search for a location by its name using the input field below, and submit it by hitting the "Enter" key on your keyboard (or the search icon on the left of the input field). As you type out your input, auto-complete suggestions will appear.
+- COMING SOON: ~~**ZIP Search:** Using a ZIP code instead of a location name will open a new menu, where you could narrow down your location from the ZIP code. This is needed to accomodate other countries that may use the same postal code, as well as ZIP codes that [cover too much ground](https://kosherjava.com/2018/09/05/zip-codes-and-zmanim-use-with-care/).~~
+- **Location Detector:** Use your GPS coordinates (as given by your web browser; VPNs and proxies will affect this result) to use your precise location for the calculations. You will need to give the website browser permission.
 - **Manual (Advanced):** Input customized longtitude and latitude inputs. Useful for the most precision.
+
+_Disclaimer: The results of this search bar are based on a 3rd party website and are not guaranteed to match what you are looking for. If you are not sure about the results, please use the manual location button._

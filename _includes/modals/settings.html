@@ -6,7 +6,7 @@
                 <h3>Settings</h3>
                 <h6>These settings automatically save when they're changed and should be automatically reflected on the page.</h6>
             </div>
-          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <div class="d-lg-flex">
@@ -70,6 +70,23 @@
                 </div>
             </div>
             <!-- <hr>
+            <div class="d-lg-flex">
+                <div style="flex: 1 1;">
+                    <h4>Seconds display</h4>
+                    <p>Due to potential variations in atmospheric conditions based on refractions (pressure, humidity, etc...), precision is guaranteed to be <b>unreliable</b> for per-second calculations. In extreme cases, they can cause discrepancies of up to two minutes.</p>
+                    <p>(All this applies to pure-NOAA calculations, which is what's used for all times by default. However, ChaiTables provided times are proven to be more accurate, whether by switching all calculations to their sea-level listed times [Israel Only] or visible sunrise)</p>
+                </div>
+                <div>
+                    <div class="btn-group" id="secondsShow">
+                        <input type="radio" class="btn-check" name="secondDisplay" id="onHoverSeconds" autocomplete="off" checked />
+                        <label class="btn btn-secondary" for="onHover">Hide (reveal on Hover)</label>
+
+                        <input type="radio" class="btn-check" name="secondDisplay" id="showSeconds" autocomplete="off" />
+                        <label class="btn btn-secondary" for="showSeconds">Show by default</label>
+                    </div>
+                </div>
+            </div>
+            <hr>
             <h4>Customizable Times</h4>
             <div class="d-lg-flex">
                 <div style="flex: 1 1;">

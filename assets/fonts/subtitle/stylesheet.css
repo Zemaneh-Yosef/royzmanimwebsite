@@ -1,0 +1,144 @@
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-BoldItalic.woff2') format('woff2'),
+        url('Neutro-BoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-Black.woff2') format('woff2'),
+        url('Neutro-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-BlackItalic.woff2') format('woff2'),
+        url('Neutro-BlackItalic.woff') format('woff');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-Bold.woff2') format('woff2'),
+        url('Neutro-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-LightItalic.woff2') format('woff2'),
+        url('Neutro-LightItalic.woff') format('woff');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-Medium.woff2') format('woff2'),
+        url('Neutro-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-DemiBold.woff2') format('woff2'),
+        url('Neutro-DemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-Heavy.woff2') format('woff2'),
+        url('Neutro-Heavy.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-DemiBoldItalic.woff2') format('woff2'),
+        url('Neutro-DemiBoldItalic.woff') format('woff');
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-Italic.woff2') format('woff2'),
+        url('Neutro-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-HeavyItalic.woff2') format('woff2'),
+        url('Neutro-HeavyItalic.woff') format('woff');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-Light.woff2') format('woff2'),
+        url('Neutro-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-Regular.woff2') format('woff2'),
+        url('Neutro-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-Thin.woff2') format('woff2'),
+        url('Neutro-Thin.woff') format('woff');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-ThinItalic.woff2') format('woff2'),
+        url('Neutro-ThinItalic.woff') format('woff');
+    font-weight: 100;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Neutro';
+    src: url('Neutro-MediumItalic.woff2') format('woff2'),
+        url('Neutro-MediumItalic.woff') format('woff');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+

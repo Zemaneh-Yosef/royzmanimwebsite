@@ -1,42 +1,79 @@
 // @ts-check
 
-// Comment the following lines before going live!
-import * as KosherZmanim from "./libraries/dev/kosher-zmanim.esm.js"
-import n2words from "./libraries/n2wordsrollup.js";
+import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import n2words from "../libraries/n2words.js";
+import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
+import { settings } from "./settings/handler.js";
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
-    setUpDateFormatter() {
-        this.dateFormatter = {
-            english: new KosherZmanim.HebrewDateFormatter(),
-            hebrew: new KosherZmanim.HebrewDateFormatter()
-        }
-
-        this.dateFormatter.hebrew.setHebrewFormat(true);
-        this.dateFormatter.english.setTransliteratedMonthList(["Nissan", "Iyar", "Sivan", "Tamuz", "Av", "Elul", "Tishri", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II", "Adar I"])
-    }
-
-	formatJewishDate() {
+	formatJewishFullDate() {
+		const hNum = new HebrewNumberFormatter();
 		return {
-			english: this.dateFormatter.english.format(this),
-			hebrew: this.dateFormatter.hebrew.format(this)
+			english: this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"}),
+			hebrew: [
+				hNum.formatHebrewNumber(this.getJewishDayOfMonth()),
+				this.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'}) + ',',
+				hNum.formatHebrewNumber(this.getJewishYear()),
+			].join(' ')
 		}
+	}
+
+	formatJewishYear() {
+		const hNum = new HebrewNumberFormatter();
+		return {
+			english: this.getJewishYear(),
+			hebrew: hNum.formatHebrewNumber(this.getJewishYear())
+		}
+	}
+
+	/** @returns {{en: string; he: string}} */
+	formatJewishMonth() {
+		// @ts-ignore
+		return Object.fromEntries(
+			['en', 'he']
+				.map(locale => [locale, this.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
+		);
+	}
+
+	formatFancyDate() {
+		return `${daysForLocale('en')[this.getDate().dayOfWeek]}, ${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day)}`
+	}
+
+	/**
+	 * @param {'hb'|'en'|'en-et'} lang
+	 */
+	dateRenderer(lang) {
+		const en = `${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day, true)}, ${this.getDate().year}`
+		const { english: et, hebrew: hb } = this.formatJewishFullDate()
+
+		let date;
+		switch (lang) {
+			case 'hb':
+			default:
+				date = { primary: hb, secondary: en, other: et }
+				break;
+			case 'en-et':
+				date = { primary: et, secondary: en, other: hb }
+				break;
+			case 'en':
+				date = { primary: en, secondary: et, other: hb }
+				break;
+		}
+
+		return date;
 	}
 
 	getDayOfTheWeek() {
 		return {
-			english: this.getDate().toJSDate().toLocaleDateString("en-US", { weekday: "long" }),
-			hebrew: "יום " + this.dateFormatter.hebrew.formatDayOfWeek(this)
+			english: daysForLocale('en')[this.getDate().dayOfWeek],
+			hebrew: daysForLocale('he-u-ca-hebrew')[this.getDate().dayOfWeek]
 		}
 	}
 
 	tomorrow() {
-		const currentDate = this.getDate().toJSDate()
-		const followingDate = new Date(currentDate)
-		followingDate.setDate(currentDate.getDate() + 1);
-
-		const nextJewishCalendar = new WebsiteCalendar(followingDate);
-        this.setUpDateFormatter();
+		const nextJewishCalendar = new WebsiteCalendar(this.getDate());
+		nextJewishCalendar.setDate(nextJewishCalendar.getDate().add({ days: 1 }))
 		if (this.isUseModernHolidays())
 			nextJewishCalendar.setUseModernHolidays(true);
 
@@ -44,15 +81,18 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	shabbat() {
-		const currentDate = this.getDate().toJSDate()
-		const shabbatDate = new Date(currentDate)
-		shabbatDate.setDate(currentDate.getDate() + ((6 + (7 - currentDate.getDay())) % 7));
-
-		const shabbatJewishCalendar = new WebsiteCalendar(shabbatDate);
+		const nextJewishCalendar = new WebsiteCalendar(this.getDate());
 		if (this.isUseModernHolidays())
-			shabbatJewishCalendar.setUseModernHolidays(true);
+			nextJewishCalendar.setUseModernHolidays(true);
 
-		return shabbatJewishCalendar
+		for (let index = 0; index < 7; index++) {
+			if (nextJewishCalendar.getDate().dayOfWeek == 6)
+				break;
+
+			nextJewishCalendar.setDate(nextJewishCalendar.getDate().add({ days: 1 }));
+		}
+
+		return nextJewishCalendar
 	}
 
 	isTaanitBechorot() {
@@ -61,6 +101,146 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			((this.getJewishDayOfMonth() === 14 && this.getDayOfWeek() !== 7) ||
 			 (this.getJewishDayOfMonth() === 12 && this.getDayOfWeek() === 5))
 		);
+	}
+
+	/**
+	 * @param {boolean} independent
+	 * @param {AmudehHoraahZmanim|OhrHachaimZmanim} zmanCalc
+	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: string|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
+	 */
+	getZmanimInfo(independent, zmanCalc, zmanList) {
+		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: { hb: string, en: string, "en-et": string }}>} */
+		const calculatedZmanim = {}
+
+		for (const [zmanId, zmanInfo] of Object.entries(zmanList)) {
+			calculatedZmanim[zmanId] = {
+				display: 1,
+				code: [],
+				luxonObj: null,
+				title: {
+					hb: null,
+					en: null,
+					"en-et": null
+				}
+			}
+
+			if (independent) {
+				calculatedZmanim[zmanId].title.hb = zmanInfo.title.hb
+				calculatedZmanim[zmanId].title.en = zmanInfo.title.en
+				calculatedZmanim[zmanId].title['en-et'] = zmanInfo.title['en-et']
+			}
+
+			if (zmanInfo.yomTovInclusive) {
+				// @ts-ignore
+				if (this.getYomTovIndex() !== KosherZmanim.JewishCalendar[zmanInfo.yomTovInclusive])
+					calculatedZmanim[zmanId].display = 0;
+					calculatedZmanim[zmanId].code.push('non-proper Yom Tov day')
+			}
+
+			if (zmanInfo.luachInclusive) {
+				if (!['degrees', 'seasonal'].includes(zmanInfo.luachInclusive)
+				 || settings.calendarToggle.hourCalculators() !== zmanInfo.luachInclusive
+				 || (zmanInfo.luachInclusive == 'degrees' && this.getInIsrael())) {
+					calculatedZmanim[zmanId].display = -1;
+					calculatedZmanim[zmanId].code.push('wrong luach')
+					continue;
+				}
+			}
+
+			if (zmanInfo.function) {
+				calculatedZmanim[zmanId].luxonObj = zmanCalc[zmanInfo.function]()
+			}
+
+			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
+			switch (zmanId) {
+				case 'candleLighting':
+					const tzetCandle = (this.hasCandleLighting() && this.isAssurBemelacha() && this.getDayOfWeek() !== 6);
+					const shabbatCandles = ((this.hasCandleLighting() && !this.isAssurBemelacha()) || this.getDayOfWeek() === 6);
+
+					if (!tzetCandle && !shabbatCandles) {
+						calculatedZmanim[zmanId].display = -1;
+						calculatedZmanim[zmanId].code.push('not-shabbat')
+						continue;
+					} else
+						calculatedZmanim[zmanId].luxonObj = (tzetCandle ? zmanCalc.getTzaitShabbath({minutes: 40, degree: 7.14 }) : zmanCalc.getCandleLighting());
+
+					break;
+				case 'tzeitShabbat':
+					if (this.isAssurBemelacha() && !this.hasCandleLighting()) {
+						let customMinuteDisplay = `(${settings.customTimes.tzeithIssurMelakha().minutes}m${(zmanCalc instanceof AmudehHoraahZmanim && `/${settings.customTimes.tzeithIssurMelakha().degree}°`) || ""})`
+						if (this.isYomTovAssurBemelacha() && this.getDayOfWeek() == 7) {
+							calculatedZmanim[zmanId].title.hb = `צאת השבת וחג ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzait Shabbat & Yom Tov ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.en = `Shabbat & Yom Tov Ends ${customMinuteDisplay}`;
+						} else if (this.getDayOfWeek() == 7) {
+							calculatedZmanim[zmanId].title.hb = `צאת השבת ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzait Shabbat ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.en = `Shabbat Ends ${customMinuteDisplay}`;
+						} else {
+							calculatedZmanim[zmanId].title.hb = `צאת חג ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzait Yom Tov ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.en = `Yom Tov Ends ${customMinuteDisplay}`;
+						}
+					} else {
+						calculatedZmanim[zmanId].display = 0;
+						calculatedZmanim[zmanId].code.push("Not a day with Tzet")
+					}
+					break;
+				case 'tzeit':
+					if ((this.isAssurBemelacha() && !this.hasCandleLighting()) || (this.isTaanis() && zmanCalc instanceof AmudehHoraahZmanim)) {
+						calculatedZmanim[zmanId].display = 0;
+						calculatedZmanim[zmanId].code.push("Isur Melacha Tzet")
+					}
+					break;
+				case 'tzeitLechumra':
+					if (this.isTaanis() && this.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR) {
+						calculatedZmanim[zmanId].title.hb = "צאת תענית (צאת הכוכבים)";
+						calculatedZmanim[zmanId].title['en-et'] = "Tzeit Ta'anith (Tzeit Hakochavim)";
+						calculatedZmanim[zmanId].title.en = "Fast Ends (Nightfall)";
+					} else {
+						calculatedZmanim[zmanId].title.hb = "צאת הכוכבים לחומרא";
+						calculatedZmanim[zmanId].title['en-et'] = "Tzait Hakokhavim LeKhumra";
+						calculatedZmanim[zmanId].title.en = "Nightfall (Stringent)";
+					}
+					break;
+				case 'tzeitTaanitLChumra':
+					if (!settings.calendarToggle.tzeitTaanitHumra()) {
+						calculatedZmanim[zmanId].display = 0;
+						calculatedZmanim[zmanId].code.push("Settings-Hidden")
+					}
+					break;
+				case 'rt':
+					if (calculatedZmanim[zmanId].luxonObj) {
+						if (calculatedZmanim[zmanId].luxonObj.epochMilliseconds == zmanCalc.getTzait72Zmanit().epochMilliseconds) {
+							calculatedZmanim[zmanId].title.hb = 'ר"ת (זמנית)';
+							calculatedZmanim[zmanId].title['en-et'] = "Rabbeinu Tam (Zmanit)";
+							calculatedZmanim[zmanId].title.en = "Rabbeinu Tam (Seasonal)";
+						} else {
+							calculatedZmanim[zmanId].title.hb = 'ר"ת (קבוע)';
+							calculatedZmanim[zmanId].title['en-et'] = "Rabbeinu Tam (Kavuah)";
+							calculatedZmanim[zmanId].title.en = "Rabbeinu Tam (Fixed)";
+						}
+					}
+			}
+
+			if (zmanInfo.condition) {
+				switch (zmanInfo.condition) {
+					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
+					case 'isTaanit':
+						if (!(this.isTaanis() && this.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)) {
+							calculatedZmanim[zmanId].display = 0;
+							calculatedZmanim[zmanId].code.push("Not a fast day")
+						}
+				}
+			}
+
+			if (!calculatedZmanim[zmanId].luxonObj) {
+				calculatedZmanim[zmanId].display = -2;
+				calculatedZmanim[zmanId].code.push("Invalid Date");
+			}
+		}
+
+		return calculatedZmanim;
 	}
 
 	getYomTov() {
@@ -102,7 +282,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"english-translated": "Hoshanah Rabba - 7th day of Sukkoth",
 				"english": "7th day of Sukkoth (Hoshana Rabba)"
 			},
-		
+
 			// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 			// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 			[KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: {
@@ -113,7 +293,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": (this.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
 				"english": (this.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
 			},
-		
+
 			// Semi-Holidays & Fasts
 			[KosherZmanim.JewishCalendar.PESACH_SHENI]: {
 				"hebrew": "פסח שני",
@@ -138,7 +318,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			[KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH]: {
 				"hebrew": 'צום גדליע (השבעי)',
 				"english-translated": "Tzom Gedalia (7<sup>th</sup> month)",
-				"english": "Fast of the 5<sup>th</sup> month"
+				"english": "Fast of the 7<sup>th</sup> month"
 			},
 			[KosherZmanim.JewishCalendar.TENTH_OF_TEVES]: {
 				"hebrew": 'צום העשירי',
@@ -174,7 +354,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": "ראש חודש",
 				english: "Rosh Hodesh"
 			},
-		
+
 			// Modern-Day Celebrations
 			[KosherZmanim.JewishCalendar.YOM_HASHOAH]: {
 				hebrew: "יום השועה",
@@ -226,10 +406,12 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		else if (this.tomorrow().isTaanitBechorot())
 			result.push("Erev Ta'anit Bechorot")
 
+		/** @type {['en-u-ca-hebrew', { month: "long" }]} */
+		const dateFormatter = ['en-u-ca-hebrew', { month: "long" }]
 		if (this.isRoshChodesh())
-			result.push(this.dateFormatter.english.formatRoshChodesh(this))
+			result.push("Rosh Hodesh " + this.getDate().toLocaleString(...dateFormatter))
 		else if (this.tomorrow().isRoshChodesh())
-			result.push("Erev " + this.dateFormatter.english.formatRoshChodesh(this.tomorrow()))
+			result.push("Erev Rosh Hodesh " + this.getDate().toLocaleString(...dateFormatter))
 
 		const dayOfChanukah = this.getDayOfChanukah();
 		if (dayOfChanukah != -1) {
@@ -292,13 +474,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				}
 			}
 		}
-	}
-
-	getHebrewParasha() {
-		return [
-			this.dateFormatter.hebrew.formatParsha(this.shabbat()) || "No Parasha this week",
-			this.dateFormatter.hebrew.formatSpecialParsha(this.shabbat())
-		].filter(Boolean)
 	}
 
 	tefilahRules(checkErevTachanun=true) {
@@ -405,90 +580,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return tefilahRuleObj;
 	}
 
-	getTekufa() {
-		var INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
-		const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
-	
-		var days =
-			KosherZmanim.JewishDate.getJewishCalendarElapsedDays(this.getJewishYear()) +
-			jewishDate.getDaysSinceStartOfJewishYear() +
-			INITIAL_TEKUFA_OFFSET -
-			1; // total days since first Tekufas Tishrei event
-	
-		var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
-		var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
-		if (tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) {
-			// if the tekufa happens in the upcoming 24 hours
-			return ((1.0 - tekufaDaysElapsed) * 24.0) % 24; // rationalize the tekufa event to number of hours since start of jewish day
-		} else {
-			return null;
-		}
-	}
-
-    /**
-     * @param {number} tekufaID
-     */
-    getTekufaName(tekufaID) {
-		if (!this.dateFormatter)
-			this.setUpDateFormatter();
-
-        const tekufaMonths = [6,9,0,3];
-        const jewishDate = new KosherZmanim.JewishDate();
-
-        const tekufaName = {
-            english: [...tekufaMonths].map(month => this.dateFormatter.english.getTransliteratedMonthList()[month]),
-            hebrew: [...tekufaMonths].map(month => {
-                jewishDate.setJewishMonth(month + 1);
-                return this.dateFormatter.hebrew.formatMonth(jewishDate)
-            })
-        }
-
-        return Object.fromEntries(
-            Object.entries(tekufaName)
-                .map(([key, array]) => [key, array[tekufaID]])
-        )
-    }
-
-	/**
-	 * @param {boolean} [amudehHoraah]
-	 */
-	getTekufaAsDate(amudehHoraah) {
-		const hours = this.getTekufa() - 6;
-		let minutes = Math.floor((hours - Math.floor(hours)) * 60);
-
-		if (amudehHoraah)
-			minutes -= 21;
-
-		const date = window.luxon.DateTime.fromObject({
-			year: this.getGregorianYear(),
-			month: this.getGregorianMonth() + 1,
-			day: this.getGregorianDayOfMonth(),
-			hour: 0,
-			minute: 0,
-			second: 0,
-			millisecond: 0,
-		},
-			{ zone: "UTC+2" }
-		).plus({ hours: Math.trunc(hours), minutes: minutes });
-		return date;
-	}
-
-	getTekufaID() {
-		const INITIAL_TEKUFA_OFFSET = 12.625; // the number of days Tekufas Tishrei occurs before JEWISH_EPOCH
-
-		const jewishDate = new KosherZmanim.JewishDate(this.getJewishYear(), this.getJewishMonth(), this.getJewishDayOfMonth());
-		var days =
-			KosherZmanim.JewishDate.getJewishCalendarElapsedDays(this.getJewishYear()) +
-			jewishDate.getDaysSinceStartOfJewishYear() +
-			INITIAL_TEKUFA_OFFSET -
-			1; // total days since first Tekufas Tishrei event
-
-		var solarDaysElapsed = days % 365.25; // total days elapsed since start of solar year
-		var currentTekufaNumber = Math.floor(solarDaysElapsed / 91.3125); // the number of days that have passed since a tekufa event
-		var tekufaDaysElapsed = solarDaysElapsed % 91.3125; // the number of days that have passed since a tekufa event
-		return ((tekufaDaysElapsed > 0 && tekufaDaysElapsed <= 1) ? currentTekufaNumber : null); //0 for Tishrei, 1 for Tevet, 2, for Nissan, 3 for Tammuz
-	}
-
 	isBarechAleinu() {
 		if (
 			this.getJewishMonth() === KosherZmanim.JewishDate.NISSAN &&
@@ -584,8 +675,208 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			shechiyanu: threeWeeks && (this.getDayOfWeek() !== 7 || (this.getDayOfWeek() == 7 && !validAv))
 		}
 	}
+
+	clone() {
+		const clonedCal = new WebsiteCalendar(this.getDate())
+		clonedCal.setInIsrael(this.getInIsrael())
+		clonedCal.setUseModernHolidays(this.isUseModernHolidays())
+
+		return clonedCal;
+	}
+
+	/**
+	 * @param {AmudehHoraahZmanim | OhrHachaimZmanim} zmanCalc
+	 */
+	birkathHalevanaCheck(zmanCalc) {
+		const dateObjs = {
+			start: this.getTchilasZmanKidushLevana7Days(),
+			current: this.getDate().toZonedDateTime(zmanCalc.coreZC.getGeoLocation().getTimeZone()).with({ hour: 11, minute: 59 }),
+			end: this.getSofZmanKidushLevana15Days()
+		}
+
+		if ([KosherZmanim.JewishCalendar.AV, KosherZmanim.JewishCalendar.TISHREI].includes(this.getJewishMonth())) {
+			const monthCalc = new KosherZmanim.ZmanimCalendar(zmanCalc.coreZC.getGeoLocation());
+			monthCalc.setUseElevation(zmanCalc.coreZC.isUseElevation())
+
+			switch (this.getJewishMonth()) {
+				case KosherZmanim.JewishCalendar.AV:
+					const tishaBeav = this.clone();
+					tishaBeav.setJewishDayOfMonth(9);
+					if (tishaBeav.getDayOfWeek() == 7)
+						tishaBeav.setJewishDayOfMonth(10);
+	
+					monthCalc.setDate(tishaBeav.getDate());
+					break;
+				case KosherZmanim.JewishCalendar.TISHREI:
+					const yomKippur = this.clone();
+					yomKippur.setJewishDayOfMonth(10);
+	
+					monthCalc.setDate(yomKippur.getDate());
+					break;
+			}
+
+			dateObjs.start = (monthCalc.isUseElevation() ? monthCalc.getSunset() : monthCalc.getSeaLevelSunset());
+		}
+
+		return {
+			current: rangeDates(dateObjs.start, dateObjs.current, dateObjs.end, true),
+			data: dateObjs
+		}
+	}
 }
 
-function getOrdinal (/** @type {number} */ n) {
-	return n.toString() + { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
+/**
+ * @param {number} n 
+ * @param {boolean} [htmlSup]
+ */
+export function getOrdinal (n, htmlSup=false) {
+	return n.toString()
+		+ (htmlSup ? "<sup>" : "")
+		+ { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
+		+ (htmlSup ? "</sup>" : "")
 }
+
+/**
+ * @param {string | string[]} localeName
+ * @param {"short" | "long" | "narrow"} [weekday] 
+ */
+function daysForLocale(localeName, weekday = 'long') {
+	const {format} = new Intl.DateTimeFormat(localeName, { weekday });
+	const array = [...Array(7).keys()]
+	  .map((day) => format(new Date(Date.UTC(2021, 8, day))));
+	array.unshift(undefined);
+	return array;
+}
+
+/**
+ * @param {string | string[]} localeName
+ * @param {"short" | "long" | "narrow" | "numeric" | "2-digit"} [weekday] 
+ */
+function monthForLocale(localeName, weekday = 'long') {
+	const {format} = new Intl.DateTimeFormat(localeName, { month: weekday });
+	return [...Array(13).keys()]
+	  .map((day) => format(new Date(Date.UTC(2021, day, 1))));
+}
+
+export class HebrewNumberFormatter {
+	static GERESH = '\u05F3';
+	static GERSHAYIM = '\u05F4';
+
+	constructor() {
+		this.finalFormLetters = true;
+		this.gershGershayim = true;
+		this.useLonghebrewYears = false;
+	}
+
+	/**
+   * Returns a Hebrew formatted string of a number. The method can calculate from 0 - 9999.
+   * <ul>
+   * <li>Single digit numbers such as 3, 30 and 100 will be returned with a &#x5F3; (<a
+   * href="https://en.wikipedia.org/wiki/Geresh">Geresh</a>) appended as at the end. For example &#x5D2;&#x5F3;,
+   * &#x5DC;&#x5F3; and &#x5E7;&#x5F3;</li>
+   * <li>multi digit numbers such as 21 and 769 will be returned with a &#x5F4; (<a
+   * href="https://en.wikipedia.org/wiki/Gershayim">Gershayim</a>) between the second to last and last letters. For
+   * example &#x5DB;&#x5F4;&#x5D0;, &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;</li>
+   * <li>15 and 16 will be returned as &#x5D8;&#x5F4;&#x5D5; and &#x5D8;&#x5F4;&#x5D6;</li>
+   * <li>Single digit numbers (years assumed) such as 6000 (%1000=0) will be returned as &#x5D5;&#x5F3;
+   * &#x5D0;&#x5DC;&#x5E4;&#x5D9;&#x5DD;</li>
+   * <li>0 will return &#x5D0;&#x5E4;&#x05E1;</li>
+   * </ul>
+   *
+   * @param {number} num
+   *            the number to be formatted. It will trow an IllegalArgumentException if the number is &lt; 0 or &gt; 9999.
+   * @return the Hebrew formatted number such as &#x5EA;&#x5E9;&#x5DB;&#x5F4;&#x5D8;
+   */
+	formatHebrewNumber(num) {
+		if (num !== Math.trunc(num)) throw new Error('number must be an integer.');
+	
+		if (num < 0) {
+		  throw new Error('negative numbers can\'t be formatted');
+		} else if (num > 9999) {
+		  throw new Error('numbers > 9999 can\'t be formatted');
+		}
+	
+		const ALAFIM = 'אלפים';
+		const EFES = 'אפס';
+
+		const jHundreds = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"];
+		const jTens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
+		const jTenEnds = ["", "י", "ך", "ל", "ם", "ן", "ס", "ע", "ף", "ץ"];
+		const tavTaz = ["טו", "טז"];
+		const jOnes = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+	
+		if (num === 0) { // do we really need this? Should it be applicable to a date?
+		  return EFES;
+		}
+		const shortNumber = num % 1000; // discard thousands
+		// next check for all possible single Hebrew digit years
+		const singleDigitNumber = (shortNumber < 11 || (shortNumber < 100 && shortNumber % 10 === 0) || (shortNumber <= 400 && shortNumber % 100 === 0));
+		const thousands = Math.trunc(num / 1000); // get # thousands
+		let sb = '';
+		// append thousands to String
+		if (num % 1000 === 0) { // in year is 5000, 4000 etc
+		  sb = sb.concat(jOnes[thousands]);
+		  if (this.gershGershayim) {
+			sb = sb.concat(HebrewNumberFormatter.GERESH);
+		  }
+		  sb = sb.concat(' ');
+		  sb = sb.concat(ALAFIM); // add # of thousands plus word thousand (overide alafim boolean)
+		  return sb;
+		} else if (this.useLonghebrewYears && num >= 1000) { // if alafim boolean display thousands
+		  sb = sb.concat(jOnes[thousands]);
+		  if (this.gershGershayim) {
+			sb = sb.concat(HebrewNumberFormatter.GERESH); // append thousands quote
+		  }
+		  sb = sb.concat(' ');
+		}
+		num = num % 1000; // remove 1000s
+		const hundreds = Math.trunc(num / 100); // # of hundreds
+		sb = sb.concat(jHundreds[hundreds]); // add hundreds to String
+		num = num % 100; // remove 100s
+		if (num === 15) { // special case 15
+		  sb = sb.concat(tavTaz[0]);
+		} else if (num === 16) { // special case 16
+		  sb = sb.concat(tavTaz[1]);
+		} else {
+		  const tens = Math.trunc(num / 10);
+		  if (num % 10 === 0) { // if evenly divisable by 10
+			if (!singleDigitNumber) {
+			  if (this.finalFormLetters) {
+				sb = sb.concat(jTenEnds[tens]); // years like 5780 will end with a final form &#x05E3;
+			  } else {
+				sb = sb.concat(jTens[tens]); // years like 5780 will end with a regular &#x05E4;
+			  }
+			} else {
+			  sb = sb.concat(jTens[tens]); // standard letters so years like 5050 will end with a regular nun
+			}
+		  } else {
+			sb = sb.concat(jTens[tens]);
+			num = num % 10;
+			sb = sb.concat(jOnes[num]);
+		  }
+		}
+		if (this.gershGershayim) {
+		  if (singleDigitNumber) {
+			sb = sb.concat(HebrewNumberFormatter.GERESH); // append single quote
+		  } else { // append double quote before last digit
+			sb = sb.substr(0, sb.length - 1)
+			  .concat(HebrewNumberFormatter.GERSHAYIM)
+			  .concat(sb.substr(sb.length - 1, 1));
+		  }
+		}
+		return sb;
+	}
+}
+
+/**
+ * @param {KosherZmanim.Temporal.ZonedDateTime} start
+ * @param {KosherZmanim.Temporal.ZonedDateTime} middle
+ * @param {KosherZmanim.Temporal.ZonedDateTime} end
+ */
+function rangeDates(start, middle, end, inclusive=true) {
+	const acceptedValues = [1];
+	if (inclusive)
+	  acceptedValues.push(0);
+  
+	return acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(end, middle))
+};

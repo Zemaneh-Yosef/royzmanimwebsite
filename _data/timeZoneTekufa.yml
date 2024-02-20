@@ -1,0 +1,87 @@
+- timezone: America/New_York
+  locations:
+    - New York
+    - New Jersey
+    - Florida
+    - Quebec
+    - Maryland
+    - Massachusetts
+    - Ohio
+    - Pennsylvania
+    - Connecticut
+- timezone: America/Chicago
+  locations:
+    - Texas
+    - Chicago
+    - Illinois
+- timezone: America/Anchorage
+  locations:
+    - Anchorage
+- timezone: America/Denver
+  locations:
+    - Colorado
+    - Arizona
+- timezone: America/Log_Angeles
+  locations:
+    - Nevada
+    - California
+- timezone: America/Puerto_Rico
+  locations:
+    - Puerto Rico
+- timezone: Asia/Jerusalem
+  locations:
+    - Israel
+- timezone: Europe/London
+  locations:
+    - United Kingdom
+- timezone: Africa/Casablanca
+  locations:
+    - Morocco
+- timezone: Australia/Melbourne
+  locations:
+    - Australia (Melbourne)
+- timezone: Australia/Sydney
+  locations:
+    - Australia (Sydney)
+- timezone: Europe/Budapest
+  locations:
+    - Hungary
+- timezone: America/Argentina/Buenos_Aires
+  locations:
+    - Argentina
+- timezone: Asia/Dubai
+  locations:
+    - Dubai
+- timezone: Europe/Gibraltar
+  locations:
+    - Gibraltar
+- timezone: Europe/Istanbul
+  locations:
+    - Turkey
+- timezone: Africa/Johannesburg
+  locations:
+    - Johannesburg
+- timezone: America/Mexico_City
+  locations:
+    - Mexico
+- timezone: Europe/Moscow
+  locations:
+    - Russia (Moscow)
+- timezone: America/Panama
+  locations:
+    - Panama
+- timezone: Europe/Paris
+  locations:
+    - France
+- timezone: America/Sao_Paulo
+  locations:
+    - Brazil (São Paulo)
+- timezone: Asia/Tehran
+  locations:
+    - Iran
+- timezone: Europe/Kyiv
+  locations:
+    - Ukraine
+- timezone: Europe/Vienna
+  locations:
+    - Austria

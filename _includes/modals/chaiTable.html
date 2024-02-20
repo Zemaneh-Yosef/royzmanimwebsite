@@ -2,22 +2,23 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h3 class="modal-title">ChaiTables - More accurate Sunrise time</h3>
-				<button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+				<h3 class="modal-title">ChaiTables Downloader</h3>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<p>To use ChaiTables' Netz data, please insert your country as well as the metroarea you reside in:</p>
-				<div class="mdc-select mdc-select--outlined mdc-select--required">
-					<div class="mdc-select__anchor" aria-required="true" aria-labelledby="outlined-select-label">
+				<p>ChaiTables is what the אור החיים calendar uses to get visible sunrise times (as explained in the description for sunrise). Use this modal to scrape the website's listed times of the Jewish years <span class="hb-start-year"></span>-<span class="hb-end-year"></span>.so that you could </p>
+				<p>To use ChaiTables' Netz data, please insert your country as well as the metropolitan area (MA for short) you reside in:</p>
+				<div class="mdc-select mdc-select--outlined mdc-select--required" id="MAIndex">
+					<div class="mdc-select__anchor" aria-required="true" aria-labelledby="MAIndex-select-label">
 					  <span class="mdc-notched-outline">
 						<span class="mdc-notched-outline__leading"></span>
 						<span class="mdc-notched-outline__notch">
-						  <span id="outlined-select-label" class="mdc-floating-label">Country Selector</span>
+						  <span id="MAIndex-select-label" class="mdc-floating-label">Country Selector</span>
 						</span>
 						<span class="mdc-notched-outline__trailing"></span>
 					  </span>
 					  <span class="mdc-select__selected-text-container">
-						<span id="demo-selected-text" class="mdc-select__selected-text"></span>
+						<span id="MAIndex-selected-text" class="mdc-select__selected-text"></span>
 					  </span>
 					  <span class="mdc-select__dropdown-icon">
 						<svg
@@ -54,16 +55,14 @@
 				</div>
 				{% for location in site.data.chaiTable %}
 				<div class="mdc-select mdc-select--outlined" id="{{location.info.value}}MetroArea">
-					<div class="mdc-select__anchor" aria-labelledby="outlined-select-label">
+					<div class="mdc-select__anchor" aria-labelledby="{{location.info.value}}Select-label">
 					  <span class="mdc-notched-outline">
 						<span class="mdc-notched-outline__leading"></span>
-						<span class="mdc-notched-outline__notch">
-						  <span id="outlined-select-label" class="mdc-floating-label">Metropolitician Area selector for {{ location.info.title }}</span>
-						</span>
+						<span class="mdc-notched-outline__notch"><span id="{{location.info.value}}Select-label" class="mdc-floating-label">MA of {{ location.info.title }}</span></span>
 						<span class="mdc-notched-outline__trailing"></span>
 					  </span>
 					  <span class="mdc-select__selected-text-container">
-						<span id="demo-selected-text" class="mdc-select__selected-text"></span>
+						<span id="{{location.info.value}}Selected-text" class="mdc-select__selected-text"></span>
 					  </span>
 					  <span class="mdc-select__dropdown-icon">
 						<svg
@@ -100,6 +99,9 @@
 				</div>
 				{%endfor%}
     		</div>
+			<div class="modal-footer">
+				<button type="button" disabled class="btn btn-primary" id="gctnd">Get ChaiTables Netz Data</button>
+			</div>
     	</div>
     </div>
 </div>

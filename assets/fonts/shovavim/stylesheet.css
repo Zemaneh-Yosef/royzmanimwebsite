@@ -1,0 +1,41 @@
+@font-face {
+    font-family: 'Ryo Gothic PlusN';
+    src: url('Ryo-Gothic-PlusN-UH.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ryo Gothic PlusN';
+    src: url('Ryo-Gothic-PlusN-H.woff') format('woff');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ryo Gothic PlusN';
+    src: url('Ryo-Gothic-PlusN-B.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ryo Gothic PlusN';
+    src: url('Ryo-Gothic-PlusN-R.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ryo Gothic PlusN';
+    src: url('Ryo-Gothic-PlusN-M.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ryo Gothic PlusN';
+    src: url('Ryo-Gothic-PlusN-L.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}

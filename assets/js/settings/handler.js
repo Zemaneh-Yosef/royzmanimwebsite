@@ -1,15 +1,34 @@
 // @ts-check
 
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import { Input } from "../../libraries/mdbootstrap/bundle.esm.js"
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
 /** @param {string} param */
 const settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
-const defaultSettings = (variedTocheck, defaultSetting) => {
+
+/**
+ * @param {string} variedTocheck
+ * @param {string} defaultSetting
+ */
+function defaultSettings (variedTocheck, defaultSetting) {
     if (urlParams.has(variedTocheck) || localStorage.getItem(variedTocheck))
         return settingsURLOverride(variedTocheck);
     else
         return defaultSetting
+}
+
+/**
+ * @param {string} str
+ */
+function isValidJSON(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }
 
 const settings = Object.freeze({
@@ -53,7 +72,7 @@ const settings = Object.freeze({
         timezone: () => settingsURLOverride("timeZone")
     },
 
-    calendar: {
+    calendarToggle: {
         /** @returns {'seasonal'|'degrees'} */
         // @ts-ignore
         hourCalculators: () => ['seasonal', 'degrees'].includes(settingsURLOverride("hourCalculators")) ? settingsURLOverride("hourCalculators") : 'degrees',
@@ -61,7 +80,40 @@ const settings = Object.freeze({
         tzeitTaanitHumra: () => settingsURLOverride("tzeitTaanitHumra") == "true",
         /** @returns {'hatzoth'|'arbitrary'} */
         // @ts-ignore
-        tekufa: () => ['hatzoth', 'arbitrary'].includes(settingsURLOverride("tekufa")) ? settingsURLOverride("tekufa") : 'hatzoth'
+        tekufaMidpoint: () => ['hatzoth', 'arbitrary'].includes(settingsURLOverride("tekufa")) ? settingsURLOverride("tekufa") : 'hatzoth',
+        /** @returns {'shemuel'|'adabaravah'} */
+        // @ts-ignore
+        tekufaCalc: () => ['shemuel', 'adabaravah'].includes(settingsURLOverride("tekufaCalc")) ? settingsURLOverride("tekufaCalc") : 'shemuel'
+    },
+    customTimes: {
+        candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
+        tzeithIssurMelakha: () => {
+            if (!(settingsURLOverride("tzeithIMmin") || "").trim() || isNaN(parseInt(settingsURLOverride("tzeithIMmin")))) {
+                return (settings.calendarToggle.hourCalculators() == "seasonal" ? { minutes: 40, degree: null } : {
+                    minutes: 30,
+                    degree: 7.14
+                });
+            }
+
+            if (!(settingsURLOverride("tzeithIMdeg") || "").trim()) {
+                const geoLocation = new KosherZmanim.GeoLocation("R Ovadia's house", 31.7898742, 35.1771491, 776, "UTC")
+
+                const aCalendar = new KosherZmanim.AstronomicalCalendar(geoLocation);
+                aCalendar.setDate(KosherZmanim.Temporal.Now.plainDateISO().with({ month: 3, day: 20 }))
+                const degree = aCalendar.getSunsetSolarDipFromOffset(parseInt(settingsURLOverride("tzeithIMmin")));
+
+                localStorage.setItem("tzeithIMdeg", degree.toString())
+                return {
+                    minutes: parseInt(settingsURLOverride("tzeithIMmin")),
+                    degree
+                }
+            }
+
+            return {
+                minutes: parseInt(settingsURLOverride("tzeithIMmin")),
+                degree: parseInt(settingsURLOverride("tzeithIMdeg"))
+            }
+        }
     }
 })
 
@@ -74,13 +126,9 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
             document.body.classList.remove("lang-en", "lang-en-et");
             document.body.classList.add("lang-hb");
 
-            const mdbCSSLink = document.getElementById("mdb");
-            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/css/mdb.rtl.min.css")
-                mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.rtl.min.css")
-
-            const darkmdbCSSLink = document.getElementById("mdbd");
-            if (darkmdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/css/mdb.dark.rtl.min.css")
-                darkmdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.rtl.min.css")
+            const bsCSSLink = document.getElementById("bs");
+            if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
+                bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
 
             document.body.dir = "rtl";
 
@@ -91,13 +139,9 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
             document.body.classList.remove("lang-hb", "lang-en");
             document.body.classList.add("lang-en-et");
 
-            const mdbCSSLink = document.getElementById("mdb");
-            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/css/mdb.min.css")
-                mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.min.css")
-
-            const darkmdbCSSLink = document.getElementById("mdbd");
-            if (darkmdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
-                darkmdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
+            const bsCSSLink = document.getElementById("bs");
+            if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
+                bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
 
             document.body.dir = "ltr"
 
@@ -108,13 +152,9 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
             document.body.classList.remove("lang-hb", "lang-en-et");
             document.body.classList.add("lang-en");
 
-            const mdbCSSLink = document.getElementById("mdb");
-            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/css/mdb.min.css")
-                mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.min.css")
-
-            const darkmdbCSSLink = document.getElementById("mdbd");
-            if (darkmdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
-                darkmdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/css/mdb.dark.min.css")
+            const bsCSSLink = document.getElementById("bs");
+            if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
+                bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
 
             document.body.dir = "ltr"
 
@@ -124,16 +164,16 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
         }
     }
 
-    Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
-        // @ts-ignore
-        new mdb.Input(formOutline).update();
+    /* Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
+        new Input(formOutline).update();
         if (zmanimLanguage == "hb") {
-            /** @type {HTMLElement} */
-            const formLabel = formOutline.querySelector('.form-label');
-            formLabel.style.marginRight = formLabel.style.marginLeft;
-            formLabel.style.marginLeft = (0).toString();
+            const formLabels = [...formOutline.getElementsByTagName('label')].filter(label => label.classList.contains('form-label'));
+            for (const formLabel of formLabels) {
+                formLabel.style.marginRight = formLabel.style.marginLeft;
+                formLabel.style.marginLeft = (0).toString();
+            }
         }
-    });
+    }); */
 
     if (save)
         localStorage.setItem("zmanimLanguage", zmanimLanguage)

@@ -67,11 +67,42 @@ const geoNameTitleGenerator = (geoName) => [...new Set([geoName.name || geoName.
 	geoName.adminName1 || geoName.adminCode1,
 	geoName.countryName || geoName.countryCode])].filter(Boolean).join(", ");
 
+let pool;
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 /** @param {KeyboardEvent|MouseEvent} event */
 async function updateList(event) {
+	document.getElementById("Main").classList.remove("is-warning")
+	document.getElementById("notEnoughChar").style.display = "none";
+
+	iconography.error.style.display = "none";
+	iconography.search.style.removeProperty("display");
+	iconography.loading.style.display = "none"
+	document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+
 	const q = document.getElementById("Main").value;
-	if (q.length < 3)
+	if (q.length < 3) {
+		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
+			document.getElementById("Main").classList.add('is-warning')
+			document.getElementById("notEnoughChar").style.removeProperty("display")
+		}
 		return;
+	}
+
+	if (!((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)) {
+		pool = q;
+		await delay(1000);
+		if (pool !== q) {
+			console.log('Skipping to next implementation');
+			return;
+		}
+	} else {
+		document.getElementById("Main").disabled = true;
+		iconography.error.style.display = "none";
+		iconography.search.style.display = "none";
+		iconography.loading.style.removeProperty("display");
+		document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
+	}
 
 	try {
 		let locationName = true;
@@ -112,20 +143,16 @@ async function updateList(event) {
 			}
 			const multiZip = (!locationName || !data.geonames.find(geoName => geoNameTitleGenerator(geoName).includes(q) || geoNameTitleGenerator(geoName).includes(q.split(',')[0]))) && (data.postalcodes || data.geonames).length !== 1;
 			if (!geoName || multiZip) {
+				document.getElementById("Main").disabled = false;
 				iconography.error.style.removeProperty("display");
 				iconography.search.style.display = "none";
 				iconography.loading.style.display = "none"
 				document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
 
-				const toastBootstrap = mdb.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
+				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
 				toastBootstrap.show()
 				return;
 			}
-
-			iconography.error.style.display = "none";
-			iconography.search.style.display = "none";
-			iconography.loading.style.removeProperty("display");
-			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
 
 			await setLocation(
 				geoName.name || geoName.placeName,
@@ -135,11 +162,6 @@ async function updateList(event) {
 			);
 			openCalendarWithLocationInfo();
 		} else {
-			iconography.error.style.display = "none";
-			iconography.search.style.removeProperty("display");
-			iconography.loading.style.display = "none"
-			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
-
 			const list = document.getElementById("locationNames");
 			list.querySelectorAll('*').forEach(n => n.remove());
 			for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
@@ -175,24 +197,31 @@ async function setLocation(name, admin, country, latitude, longitude) {
 
 			geoLocation.timeZone = data["timezoneId"];
 		} catch (e) {
-			iconography.error.style.removeProperty("display");
-			iconography.search.style.display = "none";
-			iconography.loading.style.display = "none"
-			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
-
-			console.error(e);
-			// This didn't come from getting the user's own location, because they already have the timezone
-			// This would come if the location was entered, that API worked and this one started to fail
-			// Crash the whole app in this case; it's not a matter of not being able to do things yourself
-
-			const error = {
-				PERMISSION_DENIED: 1,
-				POSITION_UNAVAILABLE: 2,
-				TIMEOUT: 3,
-				UNKNOWN_ERROR: 4,
-				code: 4
+			const attemptedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			if (attemptedTimezone)
+				alert("Timezone API error - The app will use your local timezone on your computer instead of the destination timezone. Please retry later for the intended timezone.")
+			else {
+				document.getElementById("Main").disabled = false;
+				iconography.error.style.removeProperty("display");
+				iconography.search.style.display = "none";
+				iconography.loading.style.display = "none"
+				document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+	
+				console.error(e);
+				// This didn't come from getting the user's own location, because they already have the timezone
+				// This would come if the location was entered, that API worked and this one started to fail
+				// Crash the whole app in this case; it's not a matter of not being able to do things yourself
+	
+				const error = {
+					PERMISSION_DENIED: 1,
+					POSITION_UNAVAILABLE: 2,
+					TIMEOUT: 3,
+					UNKNOWN_ERROR: 4,
+					code: 4
+				}
+				showError(error);
+				return;
 			}
-			showError(error);
 		}
 	}
 
@@ -214,17 +243,17 @@ function getLocation() {
 		errorBox.style.display = "block";
 	}
 
-	getCoordinates({maximumAge:60000, timeout:5000, enableHighAccuracy:true})
-		.then(pos => {
-			iconography.error.style.display = "none";
-			iconography.search.style.display = "none";
-			iconography.loading.style.removeProperty("display");
-			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
+	document.getElementById("Main").disabled = true;
+	iconography.error.style.display = "none";
+	iconography.search.style.display = "none";
+	iconography.loading.style.removeProperty("display");
+	document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
 
-			return setLatLong(pos)
-		})
+	getCoordinates({maximumAge:60000, timeout:9000, enableHighAccuracy:true})
+		.then(pos => setLatLong(pos))
 		.then(() => openCalendarWithLocationInfo())
 		.catch((e) => {
+			document.getElementById("Main").disabled = false;
 			iconography.error.style.removeProperty("display");
 			iconography.search.style.display = "none";
 			iconography.loading.style.display = "none"
@@ -234,6 +263,9 @@ function getLocation() {
 		})
 }
 
+/**
+ * @param {GeolocationPosition} position 
+ */
 async function setLatLong (position) {
 	geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -248,6 +280,7 @@ async function setLatLong (position) {
 		location = data.geonames[0]; // TODO: If there are other False positives
 	} catch (e) {
 		// Only thing this is good for is the location name - if there is a problem, then just have the thing say "Your Location"
+		// Only dependency of the location name is to determine whether one is in Israel or not
 		console.error(e);
 		// set up date formatting parameters
 		const ops = {year: 'numeric'};
@@ -269,7 +302,7 @@ async function setLatLong (position) {
 function showError(error) {
 	const errorObjectBuilder = {
 		[error.PERMISSION_DENIED]: "User denied the request for Geolocation. Please allow location access in your browser settings."
-		+ '<img src="chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />',
+		+ '<img src="/assets/images/chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />',
 		[error.POSITION_UNAVAILABLE]: "Location information is unavailable.",
 		[error.TIMEOUT]: "The request to get user location timed out.",
 		[error.UNKNOWN_ERROR]: "An unknown error occured. Please report this on our GitHub repository"
@@ -337,3 +370,21 @@ function openCalendarWithLocationInfo() {
 	const params = new URLSearchParams(geoLocation);
 	window.location.href = "calendar?" + params.toString();
 }
+
+window.addEventListener('load', function(e) {
+	if (navigator.onLine)
+		return;
+
+	document.getElementById("Main").disabled = true;
+	document.getElementById("offlineText").style.removeProperty("display");
+}, false);
+
+window.addEventListener('online', function(e) {
+	document.getElementById("Main").disabled = false;
+	document.getElementById("offlineText").style.display = "none";
+}, false);
+
+window.addEventListener('offline', function(e) {
+	document.getElementById("Main").disabled = true;
+	document.getElementById("offlineText").style.removeProperty("display");
+}, false);

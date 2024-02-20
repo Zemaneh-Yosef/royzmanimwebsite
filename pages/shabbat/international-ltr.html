@@ -1,0 +1,225 @@
+---
+title: Shabbat International Times
+permalink: /shabbat/international/ltr
+breakout: true
+website: true
+---
+
+<style>
+    .shabbatRow:not(:nth-last-child(2)):not(:nth-last-child(3)):not(:nth-last-child(4)):not(:nth-last-child(5)) {
+        border-bottom: 0.10764262648009vw solid black;
+    }
+
+    .columnHeaderBorder {
+        border-bottom: 0.21528525296017vw solid black !important;
+    }
+
+    .shabbatTitleCore {
+        font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
+        font-size: calc(1.375rem + 3.25vw);
+    }
+
+    .shabbatTitleViewable {
+        background-image: linear-gradient(to bottom, #FFF2B3 0%, #D6B961 100%);
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-stroke: 0.064585575888052vw rgba(0,0,0,.6);
+        text-shadow: rgba(0, 0, 0, 0.12) 0 0.10615711252654vw 0.31847133757962vw, rgba(0, 0, 0, 0.24) 0 0.10615711252654vw 0.21231422505308vw;
+        position: relative;
+        z-index: 5;
+        background-size: 100% 80%;
+        background-repeat: no-repeat;
+    }
+
+    .shabbatAbso {
+        position: absolute;
+        color: black;
+        opacity: 50%;
+        top: .2vw;
+        left: .2vw;
+        width: 100%;
+        text-align: center;
+        filter: blur(0.07vw);
+        z-index: 4;
+    }
+
+    #subtitle {
+        font-family: 'Guttman Mantova', 'Courier New', Courier, monospace;
+        line-height: 1;
+        font-size: 2.4vw;
+    }
+
+    :root {
+        --shabbat-font: 'Roboto', sans-serif;
+    }
+
+    #gridElement {
+        display: grid;
+        grid-template-columns: 2.2fr 1fr 1fr 1fr;
+        background-color: rgba(214, 211, 191, .86);
+        background-image: url(/assets/images/shabbat-candles.png);
+        background-position: bottom center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        color: black;
+        padding: 2.5vw;
+        font-size: 1.45vw;
+        flex: 1 1;
+    }
+
+    #wrapperElement {
+        width: 100%;
+        aspect-ratio: 4/5.3;
+        padding: 2.75vw;
+        background: url(/assets/images/shabbat-bg.png);
+        background-size: cover;
+        position: relative;
+        font-family: var(--shabbat-font);
+        background-position-x: center;
+        display: flex;
+        align-items: center;
+    }
+
+    .friday {
+        border-inline-end: 0.21528525296017vw solid black;
+    }
+
+    .rtBorder {
+        border-inline-start: 0.10764262648009vw dotted black;
+    }
+
+    .timeshow {
+        text-align: center;
+    }
+
+    .explanation {
+        font-size: 0.75em;
+        font-family: var(--shabbat-font);
+    }
+
+    .imgFlag {
+        height: 1rem;
+        aspect-ratio: 1.25/1;
+        object-fit: cover;
+        vertical-align: text-top;
+    }
+
+    #sidebar, .navbar {
+        display: none !important;
+    }
+
+    .twoLine {
+        line-height: .8;
+        padding-top: .3rem;
+        padding-bottom: .2rem;
+    }
+
+    .bsD {
+        position: absolute;
+        line-height: 1;
+        top: 4.75vw;
+        right: 2.15vw;
+        font-size: 1.291711517761vw;
+        font-family: 'Guttman Mantova', 'Courier New', Courier, monospace;
+    }
+
+    .israelMarchTop {
+        position:absolute;
+        line-height: 1;
+        top: 5.25vw;
+        width: calc(100% - 6vw);
+        text-align: center;
+        font-size: 3.5vw;
+        font-family: 'dharma_gothic_ebold', 'Courier New', Courier, monospace;
+    }
+
+    .israelMarchBottom {
+        position:absolute;
+        line-height: 1;
+        bottom: 5vw;
+        width: calc(100% - 6vw);
+        text-align: center;
+        font-size: 3.5vw;
+        font-family: 'dharma_gothic_ebold', 'Courier New', Courier, monospace;
+    }
+
+    .maxWidthContainer {
+        width: clamp(16rem, 90vw, 90rem);
+    }
+
+    .commonColumnHeader {
+        line-height: .8;
+        font-family: 'Guttman Mantova', var(--shabbat-font);
+        font-weight: 500;
+        text-align: center;
+        padding-top: .3em;
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- <link href="/assets/shabbat/stylesheet.css" rel="stylesheet"> -->
+
+<div id="wrapperElement">
+    <span class="bsD">בס"ד</span>
+    <!-- <span class="israelMarchTop">MARCH FOR ISRAEL EDITION</span>
+    <span class="israelMarchBottom">Join thousands of Jews accross the USA in keeping Shabbat!</span> -->
+    <div id="gridElement"
+        data-functions-fri="getPlagHaminhaHalachaBrurah getCandleLighting"
+        data-functions-shab="getTzaitShabbath"
+        data-rt-text="RT"
+    >
+        <div style="grid-column: 1/span 4; text-align: center; position: relative;">
+            <h1 class="mb-0 shabbatTitleCore shabbatTitleViewable">זמני שבת בינלאומי - פרשת </h1>
+            <h1 class="mb-0 shabbatTitleCore shabbatAbso">זמני שבת בינלאומי - פרשת </h1>
+            <h5 id="subtitle">על פי לוח <b>זמני יוסף</b> לשיטת הרה"ג עובדיה יוסף זצ"ל</h5>
+        </div>
+        <div style="grid-column: 1; grid-row: 2 / span 2; position: relative" class="columnHeaderBorder"><span style="font-weight: bold; width:100%; margin-inline-start: 0.3vw; line-height: 1; position:absolute; bottom: 0.3vw; font-size: 1.4em;">מקום</span></div>
+        <div style="grid-column: 2 / span 2; grid-row: 2; font-weight: bold;" class="text-center friday">הכנסת שבת (יום ששי לפני שקיעה)</div>
+        <div style="grid-column: 2; grid-row: 3; padding-inline-end: 0.4em;" class="commonColumnHeader columnHeaderBorder">פלג המנחה (תוספת)</div>
+        <div style="grid-column: 3; grid-row: 3; padding-inline-end: 0.4em; padding-inline-start: 0.4em;" class="friday commonColumnHeader columnHeaderBorder rtBorder">הדלקת נרות</div>
+        <div style="grid-column: 4; grid-row: 2 / span 2; font-weight: bold;" class="text-center columnHeaderBorder">צאת שבת<br><span class="commonColumnHeader">(היום הבא אחרי שקיעה)</span></div>
+        {% for item in site.data.fullLocationList.int %}
+            <div class="shabbatRow timecalc {% if item.twoLine %}twoLine{% endif %}"
+                {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+                data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+                data-timezone="{{ item.timezone }}"
+                data-format="h24"
+                {% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+                {% if item.doubleLocation %}data-double-location{% endif %}
+                style='font-family: "Twemoji Country Flags", var(--shabbat-font);'>
+                {%- assign check = item.flag | split:'.' | last -%}
+                {% if check == "svg" %}
+                    <img class="imgFlag" src="{{ item.flag }}">
+                {% else %}
+                    {{ item.flag }}
+                {% endif %}
+                {{ item.name.en }}
+            </div>
+            <div class="shabbatRow timeshow">Early Time</div>
+            <div class="shabbatRow timeshow rtBorder friday">Start Time</div>
+            <div class="shabbatRow timeshow">End Time</div>
+        {% endfor %}
+        <div class="mt-2" style="grid-column: 1/span 4; text-align: center; font-size: .825em;">
+            We invite you to explore our {% if page.website %}website and{% endif %} mobile apps to access other <i>Z'manim</i> & explanations
+            <div class="d-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
+                <div style="border-radius: .5rem; background: black; width: 10em; padding: .5rem;">
+                    <div style="border-radius: .5rem; background: white;">
+                        <img src="/assets/images/app-store-qr.png" style="width: 100%">
+                    </div>
+                    App Store
+                </div>
+                <div style="border-radius: .5rem; background: black; width: 10em; padding: .5rem;">
+                    <div style="border-radius: .5rem; background: white;">
+                        <img src="/assets/images/gplay-qr.png" style="width: 100%">
+                    </div>
+                    Play Store
+                </div>
+            </div>
+            {% if page.website %}https://royzmanim.com{% endif %}
+        </div>
+    </div>
+</div>
+
+<script type="module" src="/assets/js/shabbat.js"></script>
