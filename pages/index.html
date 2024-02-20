@@ -16,6 +16,11 @@ permalink: /
         <span class="lang lang-et">{{ englishWelcomeText | markdownify }}</span>
         <span class="lang lang-en">{{ englishWelcomeText | markdownify }}</span>
 
+        <p class="border" id="error" style="display: none">
+          <!--Hidden until shown-->
+        </p>
+        <div id="offlineText" style="display: none;">Seems like you're temporarily disconnected! The search bar needs an internet connection to function.</div>
+        <div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough characters. Please try again with a minimum of three characters</div>
         <div dir="ltr" class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
           <span class="input-group-text" id="inputGroup-sizing-lg">
             <i class="fa fa-search" aria-hidden="true" onclick="updateList(event)"></i>
@@ -73,9 +78,6 @@ permalink: /
           <select id="timezoneInput"></select
           ><br /><br />
           <button class="button-18" onclick="manualLocationSubmit()">Submit</button>
-        </p>
-        <p class="border" id="error" style="display: none">
-          <!--Hidden until shown-->
         </p>
       </div>
     </div>

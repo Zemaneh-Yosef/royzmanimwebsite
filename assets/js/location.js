@@ -72,9 +72,22 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 
 /** @param {KeyboardEvent|MouseEvent} event */
 async function updateList(event) {
+	document.getElementById("Main").classList.remove("is-warning")
+	document.getElementById("notEnoughChar").style.display = "none";
+
+	iconography.error.style.display = "none";
+	iconography.search.style.removeProperty("display");
+	iconography.loading.style.display = "none"
+	document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+
 	const q = document.getElementById("Main").value;
-	if (q.length < 3)
+	if (q.length < 3) {
+		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
+			document.getElementById("Main").classList.add('is-warning')
+			document.getElementById("notEnoughChar").style.removeProperty("display")
+		}
 		return;
+	}
 
 	if (!((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)) {
 		pool = q;
@@ -149,11 +162,6 @@ async function updateList(event) {
 			);
 			openCalendarWithLocationInfo();
 		} else {
-			iconography.error.style.display = "none";
-			iconography.search.style.removeProperty("display");
-			iconography.loading.style.display = "none"
-			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
-
 			const list = document.getElementById("locationNames");
 			list.querySelectorAll('*').forEach(n => n.remove());
 			for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
@@ -294,7 +302,7 @@ async function setLatLong (position) {
 function showError(error) {
 	const errorObjectBuilder = {
 		[error.PERMISSION_DENIED]: "User denied the request for Geolocation. Please allow location access in your browser settings."
-		+ '<img src="chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />',
+		+ '<img src="/assets/images/chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />',
 		[error.POSITION_UNAVAILABLE]: "Location information is unavailable.",
 		[error.TIMEOUT]: "The request to get user location timed out.",
 		[error.UNKNOWN_ERROR]: "An unknown error occured. Please report this on our GitHub repository"
@@ -362,3 +370,21 @@ function openCalendarWithLocationInfo() {
 	const params = new URLSearchParams(geoLocation);
 	window.location.href = "calendar?" + params.toString();
 }
+
+window.addEventListener('load', function(e) {
+	if (navigator.onLine)
+		return;
+
+	document.getElementById("Main").disabled = true;
+	document.getElementById("offlineText").style.removeProperty("display");
+}, false);
+
+window.addEventListener('online', function(e) {
+	document.getElementById("Main").disabled = false;
+	document.getElementById("offlineText").style.display = "none";
+}, false);
+
+window.addEventListener('offline', function(e) {
+	document.getElementById("Main").disabled = true;
+	document.getElementById("offlineText").style.removeProperty("display");
+}, false);

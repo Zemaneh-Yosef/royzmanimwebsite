@@ -164,3 +164,13 @@
     padding-right: 1rem;
     padding-left: 0;
 } */
+
+.form-outline .form-control.is-warning~.form-notch .form-notch-leading,
+.form-outline .form-control.is-warning~.form-notch .form-notch-middle,
+.form-outline .form-control.is-warning~.form-notch .form-notch-trailing {
+    border-color: rgb(var(--bs-warning-rgb));
+}
+
+.form-outline .form-control.is-warning~.form-label {
+    color: rgb(var(--bs-warning-rgb));
+}
