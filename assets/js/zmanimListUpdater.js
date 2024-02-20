@@ -283,7 +283,6 @@ class zmanimListUpdater {
 			}
 		}
 
-
 		for (const [key, value] of Object.entries(this.jCal.mourningHalachot())) {
 			/** @type {HTMLElement} */
 			const halachaIndex = mourningDiv.querySelector(`[data-zfFind="${key}"]`);
