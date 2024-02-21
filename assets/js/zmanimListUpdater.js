@@ -7,6 +7,7 @@ import { settings } from "./settings/handler.js";
 import { ChaiTables } from "./chaiTables.js";
 
 import icsExport from "./icsHandler.js";
+import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 
 class zmanimListUpdater {
 	/**
@@ -531,6 +532,8 @@ class zmanimListUpdater {
 	 * @param {HTMLElement} [dafContainer]
 	 */
 	renderDafYomi(dafContainer) {
+		const hNum = new HebrewNumberFormatter();
+
 		const daf = dafContainer.querySelector('[data-zfReplace="dafBavli"]');
 		const dafYerushalmi = dafContainer.querySelector('[data-zfReplace="DafYerushalmi"]');
 
@@ -540,14 +543,14 @@ class zmanimListUpdater {
 			const dafObject = this.jCal.getDafYomiBavli();
 			daf.innerHTML =
 				dafObject.getMasechta() + " " +
-				numberToHebrew(dafObject.getDaf());
+				hNum.formatHebrewNumber(dafObject.getDaf());
 		}
 
 		const dafYerushalmiObject = this.jCal.getDafYomiYerushalmi();
 		if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
 			dafYerushalmi.innerHTML = "N/A";
 		} else {
-			dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + numberToHebrew(dafYerushalmiObject.getDaf());
+			dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
 		}
 
 		const chafetzChayimYomi = this.jCal.getChafetzChayimYomi();
@@ -630,56 +633,6 @@ class zmanimListUpdater {
 	isNextUpcomingZman(zman) {
 		return !(this.nextUpcomingZman == null || !(zman.epochMilliseconds == this.nextUpcomingZman.epochMilliseconds))
 	};
-}
-
-/**
- * @param {number} num
- */
-function numberToHebrew(num) {
-	var buffer = [];
-	if (num <= 0 || num >= 6000) return null; // only support 1-5999 for now, since that's all we need, but could be extended
-	var let1000 = [" א'", " ב'", " ג'", " ד'", " ה'"];
-	var let100 = ["ק", "ר", "ש", "ת"];
-	var let10 = ["י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
-	var let1 = ["א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
-
-	if (num >= 100) {
-		if (num >= 1000) {
-			buffer.push(let1000[Math.floor(num) / 1000 - 1]);
-			num %= 1000;
-		}
-
-		if (num < 500) {
-			buffer.push(let100[Math.floor(num) / 100 - 1]);
-		} else if (num < 900) {
-			buffer.push("ת");
-			buffer.push(let100[(Math.floor(num) - 400) / 100 - 1]);
-		} else {
-			buffer.push("תת");
-			buffer.push(let100[(Math.floor(num) - 800) / 100 - 1]);
-		}
-
-		num %= 100;
-	}
-	switch (num) {
-		// Avoid letter combinations from the Tetragrammaton
-		case 16:
-			buffer.push("טז");
-			break;
-		case 15:
-			buffer.push("טו");
-			break;
-		default:
-			if (num >= 10) {
-				buffer.push(let10[Math.floor(num / 10) - 1]);
-				num %= 10;
-			}
-			if (num > 0) {
-				buffer.push(let1[Math.floor(num) - 1]);
-			}
-			break;
-	}
-	return buffer.join("");
 }
 
 if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
