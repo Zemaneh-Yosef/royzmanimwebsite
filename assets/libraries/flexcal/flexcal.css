@@ -1,5 +1,4 @@
 /* allow using an icon font instead of the images from jQuery UI */
-@import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css");
 .fontawesome .ui-icon{
 	background-image:none !important;
 	text-indent: 0 !important;
@@ -7,9 +6,6 @@
 }
 .fontawesome .ui-icon span {
 	text-indent: -99999px; /* move text for icon replacement */
-}
-button.fa:before {
-	font-family: FontAwesome !important;
 }
 .fa-text:before {
 	padding: 0 0.2em; /* some space around the icon */

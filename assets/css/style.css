@@ -156,3 +156,28 @@ body.lang-en .lang:not(.lang-en) {
     border-bottom-right-radius: 0 !important;
   }
 }
+
+#cardDateContainer {
+  padding: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+#cardDateContainer > button {
+  background: none;
+  border: none;
+  height: 100%;
+  grid-row: 1 / span 2; /* for mobile */
+}
+
+#cardDateContainer .inputRow {
+  font-family: var(--bs-body-font-family), ForkAwesome;
+  border-radius: 0;
+}
+
+@media (max-width: 767.98px) {
+  h5[data-zfreplace="otherDate"]::before {
+    content: " • ";
+  }
+}

@@ -10,8 +10,8 @@ breakout: true
     <div class="card mb-2">
       <ul class="list-group list-group-flush">
         <li class="list-group-item" data-zfReplace="Parasha"></li>
-        <li class="list-group-item d-grid p-0" data-zfFind="dateContainer" style="grid-template-columns: auto 1fr auto; align-items: center;">
-          <button data-dateAlter="-1" style="background: none; border: none; height: 100%;">
+        <li class="list-group-item" id="cardDateContainer" data-zfFind="dateContainer">
+          <button data-dateAlter="-1" style="grid-column: 1;">
             <span class="lang lang-hb"><i class="fa fa-arrow-right"></i></span>
             <span class="lang lang-et"><i class="fa fa-arrow-left"></i></span>
             <span class="lang lang-en"><i class="fa fa-arrow-left"></i></span>
@@ -21,15 +21,16 @@ breakout: true
             <h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
             <div class="d-flex" style="flex-direction: row; align-items: center; gap: .5rem; justify-content: center;">
               <h5 data-zfReplace="secondaryDate" class="d-inline-block m-0"></h5>
-              <input type="button" value="&#xf073;" class="fa btn btn-primary btn-floating">
+              <input type="button" value="&#xf073;" class="fa btn btn-primary btn-floating d-none d-md-block">
               <h5 data-zfReplace="otherDate" class="d-inline-block m-0"></h5>
             </div>
           </div>
-          <button data-dateAlter="1" style="background: none; border: none; height: 100%;">
+          <button data-dateAlter="1" style="grid-column: 3;">
             <span class="lang lang-hb"><i class="fa fa-arrow-left"></i></span>
             <span class="lang lang-et"><i class="fa fa-arrow-right"></i></span>
             <span class="lang lang-en"><i class="fa fa-arrow-right"></i></span>
           </button>
+          <input type="button" value="&#xf073; Select a date" class="fa inputRow d-md-none btn btn-primary">
         </li>
       </ul>
     </div>
@@ -283,7 +284,7 @@ breakout: true
   </div>
 </div>
 
-<!--
+{% comment %}
 <div id="tvLayout">
     <section class="wideView" calendarFormatter>
       {% for item in site.data.zmanim %}
@@ -302,7 +303,7 @@ breakout: true
       {% endfor %}
     </section>
 </div>
--->
+{% endcomment %}
 
 
 <noscript>This website requires JavaScript to run</noscript>
@@ -317,20 +318,12 @@ breakout: true
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     for (const dateContainer of document.querySelectorAll('[data-zfFind="dateContainer"]'))
-      $(dateContainer.getElementsByTagName("input")[0]).flexcal({
-        calendars: ["en", "jewish", "he-jewish"],
-        selected: "en",
-      });
+      for (const inputField of dateContainer.getElementsByTagName("input"))
+        $(inputField).flexcal({
+          calendars: ["en", "jewish", "he-jewish"],
+          selected: "en",
+        });
   });
 </script>
-
-<!--
-  <script src="/assets/js/libraries/kosher-zmanim.min.js"></script> 
-<script src="/assets/js/ROYZmanim.js" type="text/javascript"></script>
-<script src="/assets/js/WebsiteCalendar.js" type="text/javascript"></script>
-<script src="/assets/js/libraries/decimal.js" type="text/javascript"></script>
-<script src="/assets/js/libraries/n2words.js" type="text/javascript"></script>
-<script src="/assets/js/zmanimListUpdater.js" type="text/javascript"></script>
--->
 
 <script src="/assets/js/zmanimListUpdater.js" type="module"></script>

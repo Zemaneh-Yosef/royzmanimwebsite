@@ -30,6 +30,7 @@
 			var self = this;
 			if (this.options.box) this.options.hideOnOutsideClick = false; // never auto-hide for inline boxes
 			this._hideOnOutsideClick(this.options.hideOnOutsideClick);
+			//this._hideOnEscape(this.options.hideOnOutsideClick);
 			// if options.position is an object suitable for passing to $.fn.position (field 'my' is defined) then use it; otherwise use the string shortcuts
 			this._position = {
 				of: this.element.closest('.card'), // the input element that flexcal was called on
@@ -85,13 +86,22 @@
 		},
 		_createBox: function(){
 			var self = this;
-			var box = this.options.box ?
-				$(this.options.box) :
-				$('<div/>').appendTo('body').css({position: 'absolute', display: 'none'});
+			let box;
+			if (this.options.box)
+				box = $(this.options.box)
+			else {
+				const boxElem = document.createElement("div");
+				boxElem.style.position = "absolute"
+				boxElem.style.display = "none";
+
+				document.body.appendChild(boxElem)
+				box = $(boxElem)
+			}
+
 			box.addClass(this.options['class']).
 				on("keydown", function(e) {
 					if (e.keyCode == $.ui.keyCode.ESCAPE) {
-						self.element.focus();
+						self.element.trigger("focus");
 						if (self.options.hideOnOutsideClick) self.hide();
 					}
 				});
@@ -109,11 +119,25 @@
 			var self = this;
 			this._hider = this._hider || function(e){ if(!self._isClickInside(e)) self.hide(); };
 			if (flag){
-				$('body').on ('click', this._hider);
-			}else{
-				$('body').off ('click', this._hider);
+				document.body.addEventListener("click", this._hider);
+			} else {
+				document.body.removeEventListener("click", this._hider);
 			}
 		},
+		/*_hideOnEscape: function(flag) {
+			var self=this;
+			this._hiderEsc = this._hiderEsc || function(e){ if (e.keyCode == $.ui.keyCode.ESCAPE) {
+				if (this._triggerElement) {
+					this._triggerElement.blur()
+				}
+				self.hide();
+			}}
+			if (flag){
+				document.body.addEventListener("keyup", this._hiderEsc);
+			} else {
+				document.body.removeEventListener("keyup", this._hiderEsc);
+			}
+		}, */
 		destroy: function() {
 			if (!this.options.box) this._box().remove();
 			if (this._triggerElement) this._triggerElement.unbind ('.textpopup');
