@@ -57,10 +57,15 @@ try {
 		resetCalendar(geoLocation = this.geoLocation) {
 			this.geoLocation = geoLocation;
 	
-			document.querySelectorAll('[data-zfReplace="LocationName"]')
-				.forEach(locationName => locationName.innerHTML = geoLocation.getLocationName() || "No Location Name Provided");
+			if (geoLocation.getLocationName()) {
+				document.querySelectorAll('[data-zfReplace="LocationName"]')
+					.forEach(locationName => locationName.innerHTML = geoLocation.getLocationName());
 	
-			this.jCal.setInIsrael(geoLocation.getLocationName().toLowerCase().includes('israel'));
+				this.jCal.setInIsrael(geoLocation.getLocationName().toLowerCase().includes('israel'));
+			} else {
+				document.querySelectorAll('[data-zfReplace="LocationName"]')
+					.forEach(locationName => locationName.innerHTML = "No location name provided")
+			}
 	
 			const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')].filter(elem => elem instanceof HTMLElement);
 			const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')].filter(elem => elem instanceof HTMLElement);
