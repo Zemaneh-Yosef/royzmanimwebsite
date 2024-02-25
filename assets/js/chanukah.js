@@ -77,8 +77,12 @@ for (let i = 0; i <= 7; i++) {
     calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
 }
 
+const pmHB = Object.values(timeSchedule)
+    .map(list => list.plagHamincha)
+    .sort(rZTDsort)[0]
+
 document.getElementById("plagElement").innerHTML =
-    `(One who cannot wait until this time may light no earlier than "Plag Hamincha HB" [${Object.values(timeSchedule).map(list => list.plagHamincha).sort(KosherZmanim.Temporal.ZonedDateTime.compare).at(-1).toLocaleString(...timeFormatAttr)}])`
+    `(One who cannot wait until this time may light no earlier than "Plag Hamincha HB" [${pmHB.toLocaleString(...timeFormatAttr)}])`
 
 let index = 1;
 let baseElem = document.getElementById("innerDisplay").firstElementChild.lastElementChild;
@@ -133,4 +137,13 @@ for (const [day, times] of Object.entries(timeSchedule)) {
     }
 
     index++;
+}
+
+/**
+ * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} a
+ * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} b
+ */
+function rZTDsort(a,b) {
+	const pSort = KosherZmanim.Temporal.ZonedDateTime.compare(a, b);
+	return pSort * -1;
 }

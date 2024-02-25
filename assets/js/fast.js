@@ -136,7 +136,7 @@ for (const elem of elems) {
 			times.push(time)
 		}
 
-		const finalTime = times.sort(KosherZmanim.Temporal.ZonedDateTime.compare).at(action == 'subtract' ? 0 : -1)
+		const finalTime = times.sort(KosherZmanim.Temporal.ZonedDateTime.compare)[action == 'subtract' ? 0 : times.length - 1]
 		editElem.setAttribute('data-milisecondValue', finalTime.epochMilliseconds.toString())
 		editElem.innerHTML = finalTime.toLocaleString(...dtF);
 	}

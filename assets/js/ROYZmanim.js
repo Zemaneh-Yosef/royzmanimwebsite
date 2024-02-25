@@ -5,6 +5,15 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { settings } from "./settings/handler.js";
 import TekufahCalculator from "./tekufot.js";
 
+/**
+ * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} a
+ * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} b
+ */
+function rZTDsort(a,b) {
+	const pSort = KosherZmanim.Temporal.ZonedDateTime.compare(a, b);
+	return pSort * -1;
+}
+
 class ZmanimMathBase {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
@@ -229,7 +238,7 @@ class AlotTzeitZmanim extends GRAZmanim {
 			this.getHatzoth().add({ minutes: 30 }),
 			this.getHatzoth().add(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ minutes: 30 })))
 		]
-		return timesToMeasure.sort(KosherZmanim.Temporal.ZonedDateTime.compare).at(-1) || null;
+		return timesToMeasure.sort(rZTDsort)[0] || null;
 	}
 
 	getPlagHaminhaYalkutYosef() {
@@ -407,7 +416,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getTzaitTaanitLChumra() {
-		return [this.getTzaitLechumra(), super.getTzaitTaanitLChumra()].sort(KosherZmanim.Temporal.ZonedDateTime.compare).at(-1);
+		return [this.getTzaitLechumra(), super.getTzaitTaanitLChumra()].sort(rZTDsort)[0];
 	}
 
 	/**
