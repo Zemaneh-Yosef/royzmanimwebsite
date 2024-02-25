@@ -1,7 +1,7 @@
 // @ts-check
 
 import { handleLanguage, settings } from "./handler.js";
-import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/bundle.esm.js"
+import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.esm.js"
 
 document.addEventListener("DOMContentLoaded", () => {
     handleLanguage();

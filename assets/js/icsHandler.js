@@ -2,7 +2,7 @@
 
 import { getOrdinal } from "./WebsiteCalendar.js";
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
-import { ics } from "../libraries/ics/esbuild.js"
+import { ics } from "../libraries/ics/ics.esm.js"
 import { Temporal, GeoLocation } from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { settings } from "./settings/handler.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
