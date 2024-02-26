@@ -14,6 +14,14 @@ import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 const exportDate = (date) => [date.year, date.month, date.day]
 
 /**
+ * @param {boolean} monthView 
+ * @param {AmudehHoraahZmanim | OhrHachaimZmanim} calc 
+ * @returns {number} 
+ */
+const monViewNight = (monthView, calc) =>
+    (monthView ? calc.getTzait().with({ hour: 23, minute: 59, second: 59 }) : calc.tomorrow().getAlotHashachar()).epochMilliseconds
+
+/**
  * @param {boolean} amudehHoraahZman
  * @param {[number, number, number, string | Temporal.CalendarProtocol]} plainDateParams
  * @param {[string, number, number, number, string]} geoLocationData
@@ -69,7 +77,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
         if (jCal.tomorrow().getDayOfOmer() !== -1) {
             events.push({
                 start: calc.getTzait().epochMilliseconds,
-                end: monthView ? calc.coreZC.getDate().toZonedDateTime(geoLocation.getTimeZone()).with({ hour: 11, minute: 59 }).epochMilliseconds : calc.tomorrow().getAlotHashachar().epochMilliseconds,
+                end: monViewNight(monthView, calc),
                 title: "Sefirat Haomer - Night " + jCal.tomorrow().getDayOfOmer()
             })
         }
@@ -89,7 +97,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
             if (jCal.getDate().dayOfWeek == 6)
                 events.push({
                     start: calc.getTzaitShabbath().epochMilliseconds,
-                    end: calc.tomorrow().getAlotHashachar().epochMilliseconds,
+                    end: monViewNight(monthView, calc),
                     title: "Hanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night of Hanukah"
                 })
             else if (jCal.getDate().dayOfWeek !== 5)
@@ -147,7 +155,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
         ...obj,
         calName:
             (calc instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah Calendar" : "Ohr Hachaim Calendar")
-            + " - " + calc.coreZC.getGeoLocation().getLocationName(),
+            + ` (${baseDate.year}) - ` + calc.coreZC.getGeoLocation().getLocationName(),
         startInputType: "utc",
         endInputType: "utc"
     }));

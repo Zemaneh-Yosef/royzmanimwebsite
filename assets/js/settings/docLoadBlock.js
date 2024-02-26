@@ -11,7 +11,12 @@ var landscapeMQ = window.matchMedia("(prefers-color-scheme: dark)");
 landscapeMQ.addEventListener("change", handleThemeChange);
 handleThemeChange(landscapeMQ)
 
-if (typeof BigInt !== "function") {
+var lockSite = (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.Locale !== "function")
+var hebLocal = new Intl.Locale("he")
+if (!("getCalendars" in hebLocal ? hebLocal.getCalendars() : hebLocal.calendars).includes("hebrew"))
+    lockSite = true
+
+if (lockSite) {
     var modal = document.getElementById("unsupportedModal");
     modal.classList.add("show");
     modal.style.display = "block";
@@ -23,7 +28,6 @@ if (typeof BigInt !== "function") {
     backdrop.classList.add("modal-backdrop", "fade", "show");
     document.body.appendChild(backdrop)
 } else {
-
     var queryString = window.location.search;
     var urlParams = new URLSearchParams(queryString);
 
@@ -86,4 +90,5 @@ if (typeof BigInt !== "function") {
     }
     
     handleLanguage();
+    console.log("made it here")
 }
