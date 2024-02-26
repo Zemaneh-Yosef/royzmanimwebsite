@@ -3,7 +3,7 @@
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
-import n2words from "../libraries/n2words.js";
+import n2words from "../libraries/n2words.esm.js";
 
 import {isEmojiSupported} from "../libraries/is-emoji-supported.js";
 import { HebrewNumberFormatter, getOrdinal } from "./WebsiteCalendar.js";

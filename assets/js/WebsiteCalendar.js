@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import n2words from "../libraries/n2words.js";
+import n2words from "../libraries/n2words.esm.js";
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
 import { settings } from "./settings/handler.js";
 
