@@ -1,8 +1,9 @@
-### Website Credits
+### זמני יוסף Project
 
 - **Elyahu Jacobi:** Lead Programmer, App Designer & Halachic Ohr Hachaim calendar implementation
 - **Maor N:** Contracted work for the following: Website design, code clean up, type-safety and עמודי הוראה's implementation
-- Rabbinical Credits listed below with their Haskamot
+
+The Rabbis who gave their Haskamot have also contributed to the app. Their credits are listed right next to their Haskamot on the Haskamot modal.
 
 ### External API Credits
 

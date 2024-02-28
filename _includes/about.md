@@ -1,6 +1,6 @@
 Welcome to the זמני יוסף website, where we calculate Halachic times based on the teachings of HaRav Ovadia Yosef ZT"L and other Sepharadic leaders for each user according to their location. Beyond relying on what he's written throughout his Sefarim (quoted in the description of each time slot), our reported times can match either of the two following calendars:
 
-- The **Ohr Hachaim** calendar was made by *Rabbi Shelomo Benizri* of Yeshivat "Ohr Hachaim". This is the calendar Maran zt"l used in Israel, as well as what R' Yitzhak Yosef says to use outside Eretz Yisrael (עיין יצחק ג' דף ר"ל).
+- The **Ohr Hachaim** calendar was made by *Rabbi Shelomo Benizri* of Yeshivat "Ohr Hachaim". This is the calendar Maran zt"l used in Israel, as well as what R' Yitzhak Yosef says to use outside Eretz Yisrael (עין יצחק ג' דף ר"ל).
 - The **Amudeh Horaah** calendar was made for places outside Eretz Yisrael by *Rabbi Leeor Dahan*, author of the Mishnah Berurah commentary of that same name. These use adjusted-seasonal minutes for dawn/night-based Halachic times, as an interpretation of R' David Yosef's Halacha Berurah (סימן רס"א ה' י"ג).
 
 Our per-location calculations are even more accurate than printed materials, due to taking your exact location into account rather than the town as a whole. We also include options to use a visible sunrise, which would match when you in your specific location would see the sun rather than be bound by the town.
