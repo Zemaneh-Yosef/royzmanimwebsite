@@ -406,12 +406,17 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		else if (this.tomorrow().isTaanitBechorot())
 			result.push("Erev Ta'anit Bechorot")
 
-		/** @type {['en-u-ca-hebrew', { month: "long" }]} */
-		const dateFormatter = ['en-u-ca-hebrew', { month: "long" }]
-		if (this.isRoshChodesh())
-			result.push("Rosh Hodesh " + this.getDate().toLocaleString(...dateFormatter))
-		else if (this.tomorrow().isRoshChodesh())
-			result.push("Erev Rosh Hodesh " + this.getDate().toLocaleString(...dateFormatter))
+		if (this.isRoshChodesh() || this.tomorrow().isRoshChodesh() || this.tomorrow().isRoshChodesh()) {
+			if (!(!this.isRoshChodesh() && !this.tomorrow().isRoshChodesh())) {
+				const erevRoshHodesh = (!this.isRoshChodesh() && this.tomorrow().isRoshChodesh())
+
+				const definiteRoshHodeshDay = this.tomorrow().tomorrow().isRoshChodesh() ?
+					this.tomorrow().tomorrow()
+					: this.tomorrow();
+
+				result.push((erevRoshHodesh ? "Erev " : "") + "Rosh Hodesh " + definiteRoshHodeshDay.formatJewishMonth().en)
+			}
+		}
 
 		const dayOfChanukah = this.getDayOfChanukah();
 		if (dayOfChanukah != -1) {
