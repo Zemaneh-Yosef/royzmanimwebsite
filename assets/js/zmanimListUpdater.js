@@ -439,22 +439,35 @@ class zmanimListUpdater {
 
 		const tekufaDate = this.zmanFuncs.nextTekufa(settings.calendarToggle.tekufaMidpoint() !== "hatzoth");
 		if (this.jCal.getDate().toZonedDateTime(this.zmanFuncs.coreZC.getGeoLocation().getTimeZone()).until(tekufaDate).total('days') < 1) {
+			/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
+			const tekufaTF = [this.dtF[0], { ...this.dtF[1] }]
+			delete tekufaTF[1].second
+
+			const nextTekufaJDate = [1, 4, 7, 10]
+				.map(month => new KosherZmanim.JewishDate(this.jCal.getJewishYear(), month, 15))
+				.sort((jDateA, jDateB) => {
+					const durationA = this.jCal.getDate().until(jDateA.getDate())
+					const durationB = this.jCal.getDate().until(jDateB.getDate())
+
+					return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
+				})[0]
+
+			const nextTekufotNames = Object.fromEntries(
+				['en', 'he']
+					.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
+			);
 			for (let tekufa of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
 				if (!(tekufa instanceof HTMLElement))
 					continue;
 
 				tekufa.style.removeProperty("display");
 
-				/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-				const tekufaTF = [this.dtF[0], { ...this.dtF[1] }]
-				delete tekufaTF[1].second
-
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaTime"]'))
 					.forEach(element => element.innerHTML = tekufaDate.toLocaleString(...tekufaTF));
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
-					.forEach(element => element.innerHTML = this.jCal.formatJewishMonth().en);
-				tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = this.jCal.formatJewishMonth().he;
+					.forEach(element => element.innerHTML = nextTekufotNames.en);
+				tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
 			}
 		} else {
 			document.querySelectorAll('[data-zfFind="Tekufa"]').forEach(
