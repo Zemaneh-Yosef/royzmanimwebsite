@@ -206,12 +206,12 @@ async function setLocation(name, admin, country, latitude, longitude) {
 				iconography.search.style.display = "none";
 				iconography.loading.style.display = "none"
 				document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
-	
+
 				console.error(e);
 				// This didn't come from getting the user's own location, because they already have the timezone
 				// This would come if the location was entered, that API worked and this one started to fail
 				// Crash the whole app in this case; it's not a matter of not being able to do things yourself
-	
+
 				const error = {
 					PERMISSION_DENIED: 1,
 					POSITION_UNAVAILABLE: 2,

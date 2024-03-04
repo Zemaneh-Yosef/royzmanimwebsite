@@ -10,6 +10,7 @@ class ChaiTables {
 	 */
 	constructor(geoL) {
 		this.geoL = geoL;
+		this.modal = new window.bootstrap.Modal(document.getElementById("ctModal"));
 	}
 
 	/**
@@ -45,7 +46,6 @@ class ChaiTables {
 
 		const isIsraelCities = this.selectedCountry == "Eretz_Yisroel";
 		const utcOffsetNoDST = KosherZmanim.TimeZone.getRawOffset(this.geoL.getTimeZone())
-		const utcOffsetDST = KosherZmanim.TimeZone.getOffset(this.geoL.getTimeZone(), jewishCalendar.getDate().toZonedDateTime(this.geoL.getTimeZone()).epochMilliseconds)
 
 		const urlParams = {
 			'TableType': (isIsraelCities ? "BY" : "Chai"),
@@ -56,8 +56,8 @@ class ChaiTables {
 			"eroslatitude": (isIsraelCities ? 0.0 : this.geoL.getLatitude()),
 			"eroslongitude": (isIsraelCities ? 0.0 : switchLongitude ? -this.geoL.getLongitude() : this.geoL.getLongitude()),
 			eroshgt: 0.0,
-			geotz: utcOffsetNoDST / (1000 * 60 * 60),
-			DST: utcOffsetNoDST !== utcOffsetDST ? "ON" : "OFF",
+			geotz: KosherZmanim.Temporal.Duration.from({ nanoseconds: utcOffsetNoDST }).total('hour'),
+			DST: "ON",
 			exactcoord: "OFF",
 			MetroArea: (isIsraelCities ? this.indexOfMetroArea : "jerusalem"),
 			types: type,
@@ -72,7 +72,7 @@ class ChaiTables {
 			AllowShaving: "OFF"
 		};
 
-		const url = new URL("http://www.chaitables.com/cgi-bin/ChaiTables.cgi/")
+		const url = new URL("http://chaitables.com/cgi-bin/ChaiTables.cgi/")
 		for (let [key, value] of Object.entries(urlParams)) {
 			if (typeof value !== "string") {
 				value = value.toString()
@@ -99,25 +99,43 @@ class ChaiTables {
 		if (!zmanTable)
 			return;
 
-		const isLeapYear = loopCal.isJewishLeapYear();
-		const monthIndexers = (!isLeapYear ? [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6] : [8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5, 6, 7])
 		for (let rowIndexString of Object.keys(zmanTable.rows)) {
 			let rowIndex = parseInt(rowIndexString);
 
 			if (rowIndex == 0)
 				continue;
 
-			for (let [monthValue, monthCellIndex] of monthIndexers.entries()) {
-				const zmanTime = zmanTable.rows[rowIndex].cells[monthCellIndex].innerText.trim()
+			for (let monthIndexString of Object.keys(zmanTable.rows[rowIndex].cells)) {
+				let monthIndex = parseInt(monthIndexString);
+				if (monthIndex == 0 || monthIndex == zmanTable.rows[rowIndex].cells.length - 1)
+					continue;
+
+				const zmanTime = zmanTable.rows[rowIndex].cells[monthIndex].innerText.trim()
 				if (!zmanTime) {
 					console.log('skipping', zmanTime)
 					continue;
 				}
-				const [hour, minute, second] = zmanTime.split(":").map(time=> parseInt(time))
 
-				loopCal.setJewishDate(loopCal.getJewishYear(), 1+monthValue, parseInt(zmanTable.rows[rowIndex].cells[0].innerText))
+				loopCal.setDate(
+					loopCal.getDate()
+						.withCalendar("hebrew")
+						.with({ month: monthIndex, day: parseInt(zmanTable.rows[rowIndex].cells[0].innerText) })
+						.withCalendar("iso8601")
+				);
+
+				if (zmanTable.rows[rowIndex].cells[monthIndex].innerHTML.includes("<u") && loopCal.getDate().dayOfWeek !== 6) {
+					console.error("non-Shabbat underline. Something must be wrong", {
+						jDate: loopCal.getDate().toString({ calendarName: "always" }),
+						ctScrapeMonth: zmanTable.rows[0].cells[monthIndex].innerText,
+						ctScrapeDay: parseInt(zmanTable.rows[rowIndex].cells[0].innerText)
+
+					})
+					continue;
+				}
+
+				const [hour, minute, second] = zmanTime.split(":").map(time=> parseInt(time))
 				const time = loopCal.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour, minute, second })
-				times.push(time.epochMilliseconds)
+				times.push(time.epochSeconds)
 			}
 		}
 
@@ -137,7 +155,8 @@ class ChaiTables {
 		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 1; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
 			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413, true);
 
-			const ctFetch = await fetch('http://localhost:8080/' + ctLink.toString());
+			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replaceAll('https://', '').replaceAll('http://', ''));
+			console.log(ctFetch.url)
 			const ctResponse = await ctFetch.text()
 			const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
 
@@ -157,7 +176,7 @@ class ChaiTables {
 		const selectors = Array.from(document.getElementsByClassName("mdc-select")).map((/** @type {HTMLSelectElement} */elem) => elem);
 		const MDCSelectors = selectors.map(selectElem => new MDCSelect(selectElem))
 
-		let MASubFormEvent = () => submitBtn.removeAttribute('disabled');
+		const MASubFormEvent = () => submitBtn.removeAttribute('disabled');
 
 		const primaryIndex = selectors.find(select => select.id == 'MAIndex');
 		const hideAllForms = () => {
@@ -178,6 +197,7 @@ class ChaiTables {
 			const highlightedSelector = selectors.find(select => select.id == chngEvnt.detail.value + "MetroArea");
 			highlightedSelector.style.removeProperty('display');
 			highlightedSelector.addEventListener('MDCSelect:change', MASubFormEvent)
+			highlightedSelector.focus();
 		})
 
 		submitBtn.addEventListener('click', async () => {
@@ -186,12 +206,13 @@ class ChaiTables {
 			const ctData = await this.formatInterfacer();
 
 			if (!ctData.times.length) {
-				const toastBootstrap = window.bs.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
+				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
 				toastBootstrap.show();
 				return;
 			}
 
-			localStorage.setItem("ctNetz", JSON.stringify(ctData))
+			localStorage.setItem("ctNetz", JSON.stringify(ctData));
+			this.modal.hide();
 		});
 	}
 }

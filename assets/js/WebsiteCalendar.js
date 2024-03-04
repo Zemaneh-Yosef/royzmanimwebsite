@@ -153,6 +153,36 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (zmanId) {
+				case 'sunrise':
+					let visibleSunrise = null;
+					if (localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
+						const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
+						if (ctNetz.lat == zmanCalc.coreZC.getGeoLocation().getLatitude()
+						 && ctNetz.lng == zmanCalc.coreZC.getGeoLocation().getLongitude()) {
+							/** @type {KosherZmanim.Temporal.ZonedDateTime[]} */
+							const timeSheet = ctNetz.times
+								.map((/** @type {number} */ value) => KosherZmanim.Temporal.Instant
+									.fromEpochSeconds(value)
+									.toZonedDateTimeISO(zmanCalc.coreZC.getGeoLocation().getTimeZone())
+								)
+
+							visibleSunrise = timeSheet.find(zDT => Math.abs(calculatedZmanim[zmanId].luxonObj.until(zDT).total('hour')) <= 1)
+						}
+					}
+
+					if (visibleSunrise) {
+						calculatedZmanim[zmanId].title.hb = 'הנץ';
+						calculatedZmanim[zmanId].title['en-et'] = 'HaNetz';
+						calculatedZmanim[zmanId].title.en = 'Sunrise';
+
+						calculatedZmanim[zmanId].luxonObj = visibleSunrise
+					} else {
+						console.log("NoVisibleSunrise")
+						calculatedZmanim[zmanId].title.hb = 'הנץ (משור)';
+						calculatedZmanim[zmanId].title['en-et'] = 'HaNetz (Mishor)';
+						calculatedZmanim[zmanId].title.en = 'Sunrise (Sea Level)';
+					}
+					break;
 				case 'candleLighting':
 					const tzetCandle = (this.hasCandleLighting() && this.isAssurBemelacha() && this.getDayOfWeek() !== 6);
 					const shabbatCandles = ((this.hasCandleLighting() && !this.isAssurBemelacha()) || this.getDayOfWeek() === 6);
@@ -162,7 +192,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						calculatedZmanim[zmanId].code.push('not-shabbat')
 						continue;
 					} else
-						calculatedZmanim[zmanId].luxonObj = (tzetCandle ? zmanCalc.getTzaitShabbath({minutes: 40, degree: 7.14 }) : zmanCalc.getCandleLighting());
+						calculatedZmanim[zmanId].luxonObj = (tzetCandle ? zmanCalc.getTzaitShabbath() : zmanCalc.getCandleLighting());
 
 					break;
 				case 'tzeitShabbat':
@@ -454,7 +484,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			},
 			title: {
 				en: {
-					mainCount: getOrdinal(super.getDayOfOmer()) + "day",
+					mainCount: getOrdinal(super.getDayOfOmer()),
 					subCount: {
 						days: getOrdinal(days) + " day",
 						weeks: getOrdinal(weeks) + " week",
@@ -885,3 +915,15 @@ function rangeDates(start, middle, end, inclusive=true) {
   
 	return acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(end, middle))
 };
+
+/**
+ * @param {string} str
+ */
+function isValidJSON(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}

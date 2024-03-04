@@ -92,8 +92,8 @@ class zmanimListUpdater {
 			this.dtF[1].second = '2-digit'
 		}
 
-		//this.chaiTableInfo = new ChaiTables(this.geoLocation);
-		//this.chaiTableInfo.initForm();
+		this.chaiTableInfo = new ChaiTables(this.geoLocation);
+		this.chaiTableInfo.initForm();
 
 		this.lastData = {
 			'parsha': undefined,

@@ -10,9 +10,10 @@ class Accordion {
 		// Store the <details> element
 		this.el = el;
 		// Store the <summary> element
-		const summary = el.getElementsByTagName('summary')[0]
-		if (summary instanceof HTMLElement)
-			this.summary = summary;
+		this.summary = el.getElementsByTagName('summary')[0]
+		if (!this.summary)
+			return;
+
 		// Store the <div class="content"> element
 		const content = el.getElementsByClassName('accordianContent')[0]
 		if (content instanceof HTMLElement)
@@ -32,6 +33,9 @@ class Accordion {
 	 * @param {MouseEvent} e
 	 */
 	onClick(e) {
+		if (!this.summary)
+			return;
+
 		// Stop default behaviour from the browser
 		e.preventDefault();
 		// Add an overflow on the <details> to avoid content overflowing
@@ -46,9 +50,12 @@ class Accordion {
 	}
 
 	shrink() {
+		if (!this.summary)
+			return;
+
 		// Set the element as "being closed"
 		this.isClosing = true;
-		
+
 		// Store the current height of the element
 		const startHeight = `${this.el.offsetHeight}px`;
 		// Calculate the height of the summary
@@ -76,6 +83,9 @@ class Accordion {
 	}
 
 	open() {
+		if (!this.summary)
+			return;
+
 		accordionEntries.filter(elem => elem.el.open).forEach(elem => elem.shrink())
 		// Apply a fixed height on the element
 		this.el.style.height = `${this.el.offsetHeight}px`;
@@ -86,6 +96,9 @@ class Accordion {
 	}
 
 	expand() {
+		if (!this.summary)
+			return;
+
 		// Set the element as "being expanding"
 		this.isExpanding = true;
 		// Get the current fixed height of the element
@@ -117,6 +130,9 @@ class Accordion {
 	 * @param {boolean} open
 	 */
 	onAnimationFinish(open) {
+		if (!this.summary)
+			return;
+
 		// Set the open attribute based on the parameter
 		this.el.open = open;
 		// Clear the stored animation

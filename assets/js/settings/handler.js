@@ -19,18 +19,6 @@ function defaultSettings (variedTocheck, defaultSetting) {
         return defaultSetting
 }
 
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-    try {
-        JSON.parse(str);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
 const settings = Object.freeze({
 	seconds: () => settingsURLOverride("seconds") == "true",
     /** @return {'h11'|'h12'|'h23'|'h24'} */
