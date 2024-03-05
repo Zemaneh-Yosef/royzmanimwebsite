@@ -5,6 +5,11 @@ accordian: true
 breakout: true
 ---
 
+<noscript>
+  <h1>This site requires JavaScript to function</h1>
+  <p>However, you are free to look at descriptions</p>
+</noscript>
+
 <div id="wideGrid" class="maxWidthContainer">
   <div id="generic">
     <div class="card mb-2">
@@ -221,10 +226,22 @@ breakout: true
             <li class="lang lang-en">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
           </ul>
         </li>
-        <li class="list-group-item" data-zfFind="Tekufa">
-          <span class="lang lang-hb">תקופה <span data-zfReplace="tekufaName-hb"></span> היום בשעה <span data-zfReplace="tekufaTime"></span></span>
-          <span class="lang lang-et">Tekufa <span data-zfReplace="tekufaName-en"></span> is today at <span data-zfReplace="tekufaTime"></span></span>
-          <span class="lang lang-en">The <span data-zfReplace="tekufaName-en"></span> season is today at <span data-zfReplace="tekufaTime"></span></span>
+        <li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
+          <a data-bs-toggle="modal" data-bs-target="#tekufaModal">
+            <i class="fa fa-info-circle"></i>
+          </a>
+          <span class="lang lang-hb">
+            <b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+            <small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+          </span>
+          <span class="lang lang-et">
+            <b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
+            <small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+          </span>
+          <span class="lang lang-en">
+            <b>The <span data-zfReplace="tekufaName-en"></span> season</b> is at <span data-zfReplace="tekufaTime"></span><br>
+            <small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+          </span>
         </li>
       </ul>
     </div>
@@ -305,8 +322,6 @@ breakout: true
 </div>
 {% endcomment %}
 
-
-<noscript>This website requires JavaScript to run</noscript>
 <script src="/assets/libraries/flexcal/jquery-3.7.0.min.js"></script>
 <script src="/assets/libraries/flexcal/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="/assets/libraries/flexcal/flexcal.css" />
@@ -325,5 +340,24 @@ breakout: true
         });
   });
 </script>
+
+{% capture tekufaEng %}{% include zmanDescription/tekufa/english.md %}{% endcapture %}
+{% capture tekufaHeb %}{% include zmanDescription/tekufa/hebrew.md %}{% endcapture %}
+
+<div class="modal fade modal-xl" id="tekufaModal" tabindex="-1" aria-labelledby="tekufaModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tekufaModalLabel">Tekufa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <span class="lang lang-hb">{{ tekufaHeb | markdownify }}</span>
+        <span class="lang lang-et">{{ tekufaEng | markdownify }}</span>
+        <span class="lang lang-en">{{ tekufaEng | markdownify }}</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="/assets/js/zmanimListUpdater.js" type="module"></script>

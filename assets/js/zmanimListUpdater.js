@@ -464,6 +464,13 @@ class zmanimListUpdater {
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaTime"]'))
 					.forEach(element => element.innerHTML = tekufaDate.toLocaleString(...tekufaTF));
+				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaFastTime"]'))
+					.forEach(element => element.innerHTML =
+						[
+							tekufaDate.subtract({ minutes: 30 }).toLocaleString(...tekufaTF),
+							tekufaDate.add({ minutes: 30 }).toLocaleString(...tekufaTF),
+						].join('-')
+					);
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
 					.forEach(element => element.innerHTML = nextTekufotNames.en);
