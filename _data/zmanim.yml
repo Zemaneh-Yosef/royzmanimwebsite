@@ -89,25 +89,9 @@
   timeGetter: getSofZmanShmaMGA
   names:
     hb: סוף זמן שמע מג'א
-    et: Sof Zman Shma MG'A
-    en: Latest Shma MG'A
-  description: |-
-    <p>
-    This is the latest time a person can fulfill his obligation to say
-    Shma everyday according to the Magen Avraham.
-    </p>
-    <p>
-    The Magen Avraham/Terumat HeDeshen calculate this time as 3
-    zmaniyot/seasonal hours after Alot HaShachar (Dawn). They calculate
-    a zmaniyot/seasonal hour by taking the time between Alot HaShachar
-    (Dawn) and Tzeit Hachocavim (Nightfall) of Rabbeinu Tam and divide
-    it into 12 equal parts.
-    </p>
-    <p class="mb-0">
-    In Luach Amudei Horaah mode, this time is calculated the same way as
-    above except using the skewed Alot/Tzait of the Amudei Horaah
-    calendar, and no elevation is included.
-    </p>
+    et: Sof Zman Shema (MG'A)
+    en: Latest Shema (MG'A)
+  descriptionInclude: zmanDescription/kriatShema.md
 - id: latestShmaGRA
   attributes:
     yomTovInclusive:
@@ -116,23 +100,9 @@
   timeGetter: getSofZmanShmaGRA
   names:
     hb: סוף זמן שמע גר'א
-    et: Sof Zman Shma GR'A
-    en: Latest Shma GR'A
-  description: |-
-    <p>
-    This is the latest time a person can fulfill his obligation to say
-    Shma everyday according to the GR"A (HaGaon Rabbeinu Eliyahu)
-    </p>
-    <p>
-    The GR"A calculates this time as 3 zmaniyot/seasonal hours after
-    sunrise (elevation included). The GR"A calculates a
-    zmaniyot/seasonal hour by taking the time between sunrise and sunset
-    (elevation included) and divides it into 12 equal parts.
-    </p>
-    <p class="mb-0">
-    In Luach Amudei Horaah mode, this time is calculated the same way as
-    above except no elevation is included.
-    </p>
+    et: Sof Zman Shema (GR'A)
+    en: Latest Shema (GR'A)
+  descriptionInclude: zmanDescription/kriatShema.md
 - id: SofZmanAchilatChametz
   attributes:
     yomTovInclusive: EREV_PESACH
