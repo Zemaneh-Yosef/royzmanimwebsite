@@ -11,17 +11,7 @@ var landscapeMQ = window.matchMedia("(prefers-color-scheme: dark)");
 landscapeMQ.addEventListener("change", handleThemeChange);
 handleThemeChange(landscapeMQ)
 
-var lockSite = (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.Locale !== "function")
-
-var hebLocal = new Intl.Locale("he")
-// @ts-ignore
-var calArray = ("getCalendars" in hebLocal ? hebLocal.getCalendars() : hebLocal.calendars)
-if (calArray && !calArray.includes("hebrew"))
-    lockSite = true
-
-// We check if the "getCalendars" exist because Firefox did not implement it,
-// yet it implemented a Hebrew calendar
-if (lockSite) {
+if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supportedValuesOf !== "function" || !Intl.supportedValuesOf('calendar').includes('hebrew')) {
     var modal = document.getElementById("unsupportedModal");
     modal.classList.add("show");
     modal.style.display = "block";

@@ -1,6 +1,3 @@
-// Order of Operations
-// Check if Hebrew: Use 
-
 const getJSON = async (/** @type {RequestInfo | URL} */ url) => await (await fetch(url)).json();
 const geoLocation = {
 	locationName: '',
@@ -29,16 +26,10 @@ function showManualLocationSettings() {
 	 */
 	let select = document.getElementById("timezoneInput");
 	if (!select.options.length) {
-		if (!Intl.supportedValuesOf) {
-			let opt = new Option("Your browser does not support Intl.supportedValuesOf().", null, true, true);
-			opt.disabled = true;
-			select.options.add(opt);
-		} else {
-			for (const timeZone of Intl.supportedValuesOf("timeZone")) {
-				select.options.add(new Option(timeZone));
-			}
-			select.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		for (const timeZone of Intl.supportedValuesOf("timeZone")) {
+			select.options.add(new Option(timeZone));
 		}
+		select.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	}
 }
 

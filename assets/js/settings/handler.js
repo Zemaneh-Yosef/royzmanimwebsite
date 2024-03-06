@@ -8,6 +8,8 @@ const urlParams = new URLSearchParams(queryString);
 /** @param {string} param */
 const settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
 
+window.customTZAlert = false;
+
 /**
  * @param {string} variedTocheck
  * @param {string} defaultSetting
@@ -57,7 +59,32 @@ const settings = Object.freeze({
         lat: () => parseFloat(settingsURLOverride("lat")),
         long: () => parseFloat(settingsURLOverride("long")),
         elevation: () => parseFloat(settingsURLOverride("elevation")) || 0,
-        timezone: () => settingsURLOverride("timeZone")
+        timezone: () => {
+            if (settingsURLOverride("timeZone")) {
+                if (!Intl.supportedValuesOf('timeZone').includes(settingsURLOverride("timeZone")) && !window.customTZAlert) {
+                    alert("custom timezone found; expect issues.")
+                    window.customTZAlert = true;
+                }
+
+                return settingsURLOverride("timeZone");
+            }
+
+            if (Intl.DateTimeFormat() && Intl.DateTimeFormat().resolvedOptions() && Intl.DateTimeFormat().resolvedOptions().timeZone) {
+                if (!window.customTZAlert) {
+                    alert("timezone not found in the request; using the system local.")
+                    window.customTZAlert = true;
+                }
+
+                return Intl.DateTimeFormat().resolvedOptions().timeZone;
+            }
+
+            if (!window.customTZAlert) {
+                alert("UTC timezone used due to inability to get system timezone. Please set the timezone via the URL params");
+                window.customTZAlert = true;
+            }
+
+            return "UTC";
+        }
     },
 
     calendarToggle: {
