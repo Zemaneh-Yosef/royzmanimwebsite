@@ -1,8 +1,8 @@
 Dawn is the time that rays of sun can be seen in the lit up Eastern part of the sky (Rosh, Brachot 4:1; Rambam Pirush Mishnayot Yoma 3:1; Shulchan Aruch O.C. 89:1). Halachically, it is the time that we transition from night into day, where the new day's commandments can start being fulfilled (although in an unideal fasion; preferably, these should wait until הנץ החמה/sunrise. However, if one has already done it erroniously or has a pressing need, they are still exempt).
 
-- The Night-Time Shema (when omitted due to negligence), Tikkun Hatzot, and the evening prayer are no longer recitable past this time.
-- Despite this being an unideal time to pray, considering that its obligation has started, one may no longer eat until the end of his prayer.
-- Wearing Tallit & Tefilin requires Misheyakir, as they have an explicit start time within Brachot Bavli.
+- The Night-Time Shema (when omitted due to negligence), Tikkun Hatzot, and the evening prayer are no longer recitable past this time
+- Despite this being an unideal time to pray, considering that its obligation has started, one may no longer eat until the end of his prayer
+- Tallit & Tefilin have separate rules from dawn and sunrise; that will be explained in the Misheyakir section
 
 ---
 

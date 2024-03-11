@@ -500,7 +500,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					}
 				},
 				hb: {
-					mainCount: hbTitle.join(),
+					mainCount: hbTitle.join(" "),
 					subCount: {
 						days: dayCount.join(" "),
 						weeks: weeksCount.join(" "),
