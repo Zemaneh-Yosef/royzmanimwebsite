@@ -37,29 +37,22 @@ class ChaiTables {
 	 *             5 is astronomical sunset.
 	 * @param {KosherZmanim.JewishDate} jewishCalendar the desired hebrew year for the chaitable link
 	 * @param {Number} userId the user id for the chaitables link
-	 * @param {Boolean} switchLongitude
 	 */
-	getChaiTablesLink(searchradius, type, jewishCalendar, userId, switchLongitude) {
+	getChaiTablesLink(searchradius, type, jewishCalendar, userId) {
 		if (type < 0 || type > 5) {
 			throw new Error("type of tables must be between 0 and 5");
 		}
 
-		const isIsraelCities = this.selectedCountry == "Eretz_Yisroel";
-		const utcOffsetNoDST = KosherZmanim.TimeZone.getRawOffset(this.geoL.getTimeZone())
-
 		const urlParams = {
-			'TableType': (isIsraelCities ? "BY" : "Chai"),
 			'country': this.selectedCountry,
-			'USAcities1': (isIsraelCities ? 1 : this.indexOfMetroArea),
 			USAcities2: 0,
-			searchradius: (isIsraelCities ? "" : this.selectedCountry == "Israel" ? 2 : searchradius),
-			"eroslatitude": (isIsraelCities ? 0.0 : this.geoL.getLatitude()),
-			"eroslongitude": (isIsraelCities ? 0.0 : switchLongitude ? -this.geoL.getLongitude() : this.geoL.getLongitude()),
 			eroshgt: 0.0,
-			geotz: KosherZmanim.Temporal.Duration.from({ nanoseconds: utcOffsetNoDST }).total('hour'),
+			geotz:
+				KosherZmanim.Temporal.Duration.from({
+					nanoseconds: KosherZmanim.TimeZone.getRawOffset(this.geoL.getTimeZone())
+				}).total('hour'),
 			DST: "ON",
 			exactcoord: "OFF",
-			MetroArea: (isIsraelCities ? this.indexOfMetroArea : "jerusalem"),
 			types: type,
 			RoundSecond: -1,
 			AddCushion: 0,
@@ -71,6 +64,23 @@ class ChaiTables {
 			Language: "English",
 			AllowShaving: "OFF"
 		};
+
+		if (this.selectedCountry == "Eretz_Yisroel") {
+			Object.assign(urlParams, {
+				'TableType': "BY",
+				'USAcities1': 1,
+				MetroArea: this.indexOfMetroArea
+			});
+		} else {
+			Object.assign(urlParams, {
+				TableType: "Chai",
+				USAcities1: this.indexOfMetroArea,
+				searchradius: this.selectedCountry == "Israel" ? 2 : searchradius,
+				eroslatitude: this.geoL.getLatitude(),
+				eroslongitude: -this.geoL.getLongitude(),
+				MetroArea: "jerusalem"
+			});
+		}
 
 		const url = new URL("http://chaitables.com/cgi-bin/ChaiTables.cgi/")
 		for (let [key, value] of Object.entries(urlParams)) {
@@ -133,7 +143,7 @@ class ChaiTables {
 					continue;
 				}
 
-				const [hour, minute, second] = zmanTime.split(":").map(time=> parseInt(time))
+				const [hour, minute, second] = zmanTime.split(":").map(time => parseInt(time))
 				const time = loopCal.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour, minute, second })
 				times.push(time.epochSeconds)
 			}
@@ -153,9 +163,9 @@ class ChaiTables {
 		}
 
 		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 1; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
-			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413, true);
+			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413);
 
-			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, '');
+			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
 			console.log(ctFetch.url)
 			const ctResponse = await ctFetch.text()
 			const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
