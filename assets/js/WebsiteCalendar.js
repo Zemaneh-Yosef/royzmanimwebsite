@@ -27,13 +27,14 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 	}
 
-	/** @returns {{en: string; he: string}} */
 	formatJewishMonth() {
-		// @ts-ignore
-		return Object.fromEntries(
-			['en', 'he']
-				.map(locale => [locale, this.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
-		);
+		return ['en', 'he']
+			.map(locale => [locale, this.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
+			.reduce(function (obj, [key, val]) {
+				//@ts-ignore
+				obj[key] = val
+				return obj
+			}, {})
 	}
 
 	formatFancyDate() {

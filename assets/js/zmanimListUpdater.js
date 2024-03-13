@@ -27,7 +27,7 @@ class zmanimListUpdater {
 		/** @type {null|NodeJS.Timeout} */ // It's not node but whatever
 		this.countdownToNextDay = null;
 
-		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
+		this.zmanimList = Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
 			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), {
 				function: timeSlot.getAttribute('data-timeGetter'),
 				yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
@@ -44,7 +44,12 @@ class zmanimListUpdater {
 					arrayEntry[0] !== null
 					// @ts-ignore
 				&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
-			))
+			)
+			.reduce(function (obj, [key, val]) {
+				//@ts-ignore
+				obj[key] = val
+				return obj
+			}, {})
 
 		this.resetCalendar(geoLocation);
 
@@ -452,10 +457,14 @@ class zmanimListUpdater {
 					return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
 				})[0]
 
-			const nextTekufotNames = Object.fromEntries(
-				['en', 'he']
+			const nextTekufotNames = ['en', 'he']
 					.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
-			);
+					.reduce(function (obj, [key, val]) {
+						//@ts-ignore
+						obj[key] = val
+						return obj
+					}, {})
+
 			for (let tekufa of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
 				if (!(tekufa instanceof HTMLElement))
 					continue;
