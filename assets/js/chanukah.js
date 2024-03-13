@@ -19,7 +19,7 @@ const jCal = new WebsiteCalendar()
 
 for (const title of document.getElementsByClassName('shabbatTitleCore')) {
 	title.innerHTML = [
-		`<span style="font-size: 0.85em">${settings.location.name().toLowerCase().replaceAll(' ', '  ')}</span>`,
+		`<span style="font-size: 0.85em">${settings.location.name().toLowerCase().replace(/ /g, '  ')}</span>`,
 		title.innerHTML,
 		jCal.formatJewishYear().hebrew
 	].join('')

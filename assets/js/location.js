@@ -170,7 +170,7 @@ async function updateList(event) {
 
 async function setLocation(name, admin, country, latitude, longitude) {
 	if (country)
-		country = country.replaceAll("Palestine", "Israel")
+		country = country.split("Palestine").join("Israel")
 
 	geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
 

@@ -155,7 +155,7 @@ class ChaiTables {
 		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 1; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
 			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413, true);
 
-			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replaceAll('https://', '').replaceAll('http://', ''));
+			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, '');
 			console.log(ctFetch.url)
 			const ctResponse = await ctFetch.text()
 			const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");

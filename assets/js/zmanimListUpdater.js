@@ -513,8 +513,8 @@ class zmanimListUpdater {
 				if (timeSlot.hasAttribute('data-specialDropdownContent')) {
 					const description = timeSlot.querySelector('.accordianContent');
 					description.innerHTML = description.innerHTML
-						.replaceAll('${getAteretTorahSunsetOffset()}', settings.customTimes.tzeithIssurMelakha().minutes.toString())
-						.replaceAll('${getCandleLightingOffset()}', settings.customTimes.candleLighting().toString())
+						.split('${getAteretTorahSunsetOffset()}').join(settings.customTimes.tzeithIssurMelakha().minutes.toString())
+						.split('${getCandleLightingOffset()}').join(settings.customTimes.candleLighting().toString())
 				}
 
 				if (zmanInfo[zmanId].title.hb)
