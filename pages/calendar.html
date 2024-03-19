@@ -12,6 +12,13 @@ chaiTable: true
 
 <div id="wideGrid" class="maxWidthContainer">
   <div id="generic">
+    <h3 class="text-center text-decoration-underline mb-0" data-zfReplace="LocationName"></h3>
+    <p class="text-center" data-zfFind="LocationYerushalayimLine">
+      <a data-bs-toggle="modal" data-bs-target="#locationModal"><i class="fa fa-info-circle"></i></a>
+      <span class="lang lang-hb">כיוון תפילה: </span>
+      <span class="lang lang-et">Tefilah Direction: </span>
+      <span class="lang lang-en">Prayer Direction: </span>
+    </p>
     <div class="card mb-2">
       <ul class="list-group list-group-flush">
         <li class="list-group-item" data-zfReplace="Parasha"></li>
@@ -70,7 +77,6 @@ chaiTable: true
     </div>
   </div>
   <div id="zmanim">
-    <h3 class="text-center" data-zfReplace="LocationName"></h3>
     <div class="accordian" data-zfFind="calendarFormatter">
       {% for item in site.data.zmanim %}
         <details
@@ -359,5 +365,6 @@ chaiTable: true
     </div>
   </div>
 </div>
+{% include modals/location.html %}
 
 <script src="/assets/js/zmanimListUpdater.js" type="module"></script>

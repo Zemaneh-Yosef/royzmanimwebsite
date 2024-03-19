@@ -9,6 +9,8 @@ import { ChaiTables } from "./chaiTables.js";
 import icsExport from "./icsHandler.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 
+const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
+
 class zmanimListUpdater {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
@@ -61,15 +63,18 @@ class zmanimListUpdater {
 	 */
 	resetCalendar(geoLocation = this.geoLocation) {
 		this.geoLocation = geoLocation;
+		const locationModal = document.getElementById('locationModal')
 
 		if (geoLocation.getLocationName()) {
 			document.querySelectorAll('[data-zfReplace="LocationName"]')
 				.forEach(locationName => locationName.innerHTML = geoLocation.getLocationName());
 
 			this.jCal.setInIsrael(geoLocation.getLocationName().toLowerCase().includes('israel'));
+			locationModal.querySelector('.modal-title').innerHTML += geoLocation.getLocationName();
 		} else {
 			document.querySelectorAll('[data-zfReplace="LocationName"]')
 				.forEach(locationName => locationName.innerHTML = "No location name provided")
+			locationModal.querySelector('.modal-title').innerHTML += "unknown";
 		}
 
 		const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')].filter(elem => elem instanceof HTMLElement);
@@ -83,6 +88,21 @@ class zmanimListUpdater {
 			amudehHoraahIndicators.forEach((/** @type {HTMLElement} */ ind) => ind.style.display = 'none');
 			this.zmanFuncs = new OhrHachaimZmanim(geoLocation, true)
 		}
+
+		document.querySelectorAll('[data-zfFind="LocationYerushalayimLine"]')
+			.forEach(jerusalemLine =>
+				jerusalemLine.appendChild(
+					document.createTextNode(this.zmanFuncs.coreZC.getGeoLocation().getRhumbLineBearing(harHabait).toFixed(2) + "°")
+				)
+			)
+
+		locationModal.querySelector('[data-zfReplace="locationLat"]').innerHTML = geoLocation.getLatitude().toString()
+		locationModal.querySelector('[data-zfReplace="locationLng"]').innerHTML = geoLocation.getLongitude().toString()
+
+		locationModal.querySelectorAll('[data-zfFind="locationElev"]').forEach(elevElem =>
+			elevElem.insertAdjacentText('afterend', geoLocation.getElevation().toString()))
+		locationModal.querySelectorAll('[data-zfFind="locationTimeZone"]').forEach(elevElem =>
+			elevElem.insertAdjacentText('afterend', geoLocation.getTimeZone()))
 
 		this.zmanFuncs.coreZC.setCandleLightingOffset(settings.candleLighting());
 
@@ -385,20 +405,24 @@ class zmanimListUpdater {
 				console.log(birLev.data.start.dayOfYear, this.jCal.getDate().dayOfYear)
 				if (birLev.data.start.dayOfYear == this.jCal.getDate().dayOfYear) {
 					birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
+						//@ts-ignore
 						startsToday => startsToday.style.removeProperty("display")
 					)
 				} else {
 					birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
+						//@ts-ignore
 						startsToday => startsToday.style.display = "none"
 					)
 				}
 
 				if (birLev.data.end.dayOfYear == this.jCal.getDate().dayOfYear) {
 					birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
+						//@ts-ignore
 						endsToday => endsToday.style.removeProperty("display")
 					)
 				} else {
 					birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
+						//@ts-ignore
 						endsToday => endsToday.style.display = "none"
 					)
 				}
@@ -482,7 +506,10 @@ class zmanimListUpdater {
 					);
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
+					//@ts-ignore
 					.forEach(element => element.innerHTML = nextTekufotNames.en);
+
+				//@ts-ignore
 				tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
 			}
 		} else {
