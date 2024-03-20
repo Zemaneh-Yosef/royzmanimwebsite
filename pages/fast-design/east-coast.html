@@ -1,0 +1,273 @@
+---
+title: Fast East Coast Times
+permalink: /fast-design/east
+breakout: true
+website: true
+---
+
+<style>
+    .maxWidthContainer {
+        width: clamp(16rem, 90vw, 90rem);
+        font-family: 'Neutro';
+        color: #30344F;
+    }
+
+    #sidebar, .navbar {
+        display: none !important;
+    }
+
+    #wrapperElement {
+        width: 100%;
+        aspect-ratio: 6 / 4.6;
+
+        position: relative;
+        display: grid;
+
+        background-image: url("/assets/images/shabbat-abstract/bg-ltr.png"), linear-gradient(45deg, #854949 0%, #2E092A 100%);
+        background-size: cover;
+    }
+
+    #wrapperElement > *:not(.absRotateText):not(#bottomWave):not(#imgFooter) {
+        grid-area: 1/1;
+    }
+
+    #imgFooter {
+        justify-self: end;
+        position: absolute;
+        text-transform: uppercase;
+        text-align: right;
+        font-weight: 600;
+        font-size: 1.5em;
+        line-height: 1.2;
+        top: 72.125%;
+        width: 80%;
+        z-index: 4;
+        text-align: center;
+    }
+
+    .footerBold {
+        font-weight: 700;
+    }
+
+    .absRotateText {
+        position: absolute;
+        text-align: center;
+        font-family: 'Guttman Mantova';
+        transform: rotateZ(3deg);
+        line-height: 1;
+    }
+
+    #subtitle {
+        top: 9vw;
+        right: 7vw;
+        font-size: 2.5em;
+        font-family: 'FrankRuehl', serif;
+        font-weight: 500;
+        color: #F6E2AF;
+    }
+
+    #maran {
+        position: absolute;
+        align-self: end;
+        width: 28%;
+        z-index: 2;
+        transform: rotateY(180deg);
+        justify-self: end;
+        top: 18%;
+    }
+
+    #zemanehShab {
+        font-family: 'Frank Ruhl Libre';
+        right: 2.9vw;
+        font-size: 7vw;
+        font-weight: 900;
+        top: 2.75vw;
+        color: #D9BB65;
+    }
+
+    #gridElement {
+        position: absolute;
+        grid-template-columns: 1fr .8fr .8fr .8fr;
+        left: 1vw;
+        top: 13vw;
+        display: grid;
+    }
+
+    #bottomWave {
+        position: absolute;
+        width: 100%;
+        z-index: 3;
+        top: 65%;
+        transform: scaleY(0.5);
+    }
+
+    .timeshow {
+        text-align: center;
+        z-index: 5;
+    }
+
+    .shabbatRow {
+        margin-top: .3vw;
+        margin-bottom: .3vw;
+        padding-top: .25vw;
+        padding-bottom: .25vw;
+        font-size: 2vw;
+        font-weight: 600;
+    }
+
+    .timecalc {
+        background-color: #F1E79F;
+        font-weight: 700;
+        padding-left: 0.5vw;
+        padding-right: 1vw;
+        text-transform: uppercase;
+        border-right: .25vw solid black;
+    }
+
+    .shabbatRowBg {
+        background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
+        grid-column: 2 / span 3; 
+        margin-top: .3vw;
+        margin-bottom: .3vw;
+        z-index: 2;
+    }
+
+    .header {
+        padding: 0.5vw;
+        background: #D9BB65;
+        margin-left: .6vw;
+        margin-right: .6vw;
+        color: black;
+        text-transform: uppercase;
+        text-align: center;
+        line-height: 1.2;
+        font-weight: 600;
+        font-size: 19px;
+    }
+
+    .tableShadow {
+        box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+        -webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+        -moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+    }
+
+    .shabBorder {
+        border-right: .125vw solid black;
+    }
+
+    .twoLine {
+        line-height: .3;
+        padding-top: 1.25vw;
+    }
+
+    .sml {
+        font-size: 10px;
+    }
+
+    .inlineLogo {
+        display: inline-block;
+        font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
+        vertical-align: text-top;
+        font-size: 1.1em;
+    }
+
+    #halachot {
+        align-self: end;
+        width: 100%;
+        height: 24%;
+        background: linear-gradient(90deg, #D6B961 0%, #EEDF9A 100%);
+        z-index: 3;
+    }
+
+    #imgFooter ul {
+        text-align: start;
+        font-size: 0.95em;
+        text-transform: none;
+        padding-left: 6em;
+        margin-bottom: 2.5em;
+    }
+
+    #basket {
+        position: absolute;
+        bottom: 11.125%;
+        z-index: 4;
+        left: 4.75em;
+        filter: drop-shadow(0 0 0.75rem #FFFFFF88);
+        transform: scale(.8) rotate(25deg);
+    }
+
+    #layehudim {
+        font-family: 'Guttman Mantova';
+        align-self: end;
+        justify-self: start;
+        bottom: 3.5rem;
+        left: 1rem;
+        z-index: 5;
+        font-size: 2em;
+        line-height: 1.2;
+        text-align: center;
+        transform: rotate(25deg);
+        position: absolute;
+        font-weight: bold;
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+    <img src="/assets/images/shabbat-abstract/bottom-wave-fade.png" id="bottomWave" />
+    <div id="gridElement"
+        data-functions="getAlotHashachar getEarliestMinchaBirkatKohanim getTzaitLechumra"
+    >
+        <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">NA East Coast Locations</div>
+        <div class="header tableShadow">Fast Starts</div>
+        <div class="header tableShadow">Mincha Birkat Kohanim</div>
+        <div class="header tableShadow">Fast Ends</div>
+        {% for item in site.data.designLocationList.ny %}{% assign gridRow = forloop.index | plus: 1 %}
+            <div class="shabbatRow tableShadow timecalc {% if item.twoLine %}twoLine{% endif %}"
+                {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+                data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+                data-timezone="{{ item.timezone }}"
+                data-format="{{ item.timeFormat }}"
+                {% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+                {% if item.doubleLocation %}data-double-location{% endif %}
+                style="grid-column: 1; grid-row: {{ gridRow }};">
+                {%- assign check = item.flag | split:'.' | last -%}
+                {% if check == "svg" %}
+                    <img class="imgFlag" src="{{ item.flag }}">
+                {% else %}
+                    {{ item.flag }}
+                {% endif %}
+                {{ item.name }}
+            </div>
+            <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: {{ gridRow }};">Start Time</div>
+            <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: {{ gridRow }};">End Time</div>
+            <div class="shabbatRow timeshow shabBorder" style="grid-column: 4; grid-row: {{ gridRow }};">Machmir Time</div>
+            <div class="shabbatRowBg tableShadow" style="grid-row: {{ gridRow }};"></div>
+        {% endfor %}
+    </div>
+    <span id="zemanehShab" class="absRotateText shabbatTitleCore"></span>
+    <span id="subtitle" class="absRotateText">פרשת </span>
+    <div id="imgFooter">
+        <h2 style="font-weight: bold;">Relevant Halachot</h2>
+        <ul>
+            <li>Due to the תענית this year not falling out on ערב פורים, there will be Tachanun by Mincha</li>
+            <li>One should give the money for זכר למחצית השקל on the day of the fast itself.<br> ~Yalkut Yosef Purim 5780, p239, from <span dir="rtl">ברכות בבלי ו:</span> - <span style="unicode-bidi: isolate;">"אָמַר מָר זוּטְרָא: אַגְרָא דְתַעֲנִיתָא — צִדְקְתָא."</span>.<br><br>
+            This year, it is worth around 8 USD & 29 NIS.</li>
+        </ul>
+        Brought to you by <span class="inlineLogo">זמני יוסף</span>, Halachic times according to Rabbi Ovadia Yosef zt"l<br>
+        Now available on iOS & Android • royzmanim.com
+    </div>
+    <img src="/assets/images/MARAN.png" id="maran">
+    <img src="/assets/images/purim-basket.png" id="basket">
+    <div id="halachot"></div>
+    <div id="layehudim">
+        לַיְּהוּדִ֕ים הָֽיְתָ֥ה אוֹרָ֖ה<br>
+        וְשִׂמְחָ֑ה וְשָׂשֹׂ֖ן וִיקָֽר׃
+    </div>
+</div>
+
+<script type="module" src="/assets/js/fast.js"></script>

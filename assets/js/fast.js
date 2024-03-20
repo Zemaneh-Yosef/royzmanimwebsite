@@ -19,7 +19,7 @@ if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 	document.head.appendChild(n)
 }
 
-const jCal = new WebsiteLimudCalendar(5784, WebsiteLimudCalendar.TEVES, 10);
+const jCal = new WebsiteLimudCalendar(5784, WebsiteLimudCalendar.ADAR_II, 11);
 let calendars = [];
 
 const shovavim = window.location.href.includes('shovavim');
@@ -67,7 +67,7 @@ if (shovavim) {
 		title.innerHTML += fastName + " " + jCal.formatJewishYear().hebrew
 
 	const locales = [];
-	if (window.location.href.includes('usa') || window.location.href.includes('ltr'))
+	if (window.location.href.includes('usa') || window.location.href.includes('ltr') || window.location.href.includes('east'))
 		locales.push('en');
 	/*if (!window.location.href.includes('usa'))
 		locales.push('fa', 'ar-u-ca-islamic-umalqura'); */
@@ -76,8 +76,10 @@ if (shovavim) {
 	//if (!window.location.href.includes('usa'))
 	//    calendars[2] = calendars[2].replace(/0/g, '۰').replace(/1/g, '۱').replace(/2/g, '۲').replace(/3/g, '۳').replace(/4/g, '٤').replace(/5/g, '٥').replace(/6/g, '٦').replace(/7/g, '۷').replace(/8/g, '۸').replace(/9/g, '۹')
 
-	if (!(jCal.getJewishMonth() in fastMonths))
-		calendars.push(`${jCal.getDayOfTheWeek().hebrew}, ${jCal.formatJewishFullDate().hebrew}`)
+	if (!(jCal.getJewishMonth() in fastMonths)) {
+		const hnF = new HebrewNumberFormatter();
+		calendars.push(`${jCal.getDayOfTheWeek().hebrew}, ${hnF.formatHebrewNumber(jCal.getJewishDayOfMonth())} ${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})}`)
+	}
 }
 
 document.getElementById("subtitle").innerHTML = calendars.map(text=> `<span style="unicode-bidi: isolate;">${text}</span>`).join(" • ")
@@ -110,7 +112,8 @@ for (const elem of elems) {
 
 	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 	const dtF = ['en', {
-		hourCycle: window.location.href.includes('usa') ? "h12" : "h24",
+		// @ts-ignore
+		hourCycle: elem.getAttribute("data-format"),
 		hour: 'numeric',
 		minute: '2-digit'
 	}];

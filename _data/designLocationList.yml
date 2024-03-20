@@ -33,7 +33,7 @@ ny:
     timezone: America/New_York
     humra: 1
     timeFormat: h12
-  - name: Montreal, CA
+  - name: Montreal, QC
     # Location: Academy Yeshiva Yavne
     lat: 45.4612709318975
     lng: -73.66436583221801
