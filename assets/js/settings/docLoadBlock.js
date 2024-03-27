@@ -58,6 +58,10 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
                 if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
                     bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
 
+                var mdbCSSLink = document.getElementById("mdb");
+                if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out-rtl.css")
+                    mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out-rtl.css")
+
                 document.body.dir = "rtl";
                 break;
             } case 'en-et': {
@@ -68,6 +72,10 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
                 if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
                     bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
 
+                var mdbCSSLink = document.getElementById("mdb");
+                if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
+                    mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out.css")
+
                 document.body.dir = "ltr"
                 break;
             } case 'en': {
@@ -77,6 +85,10 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
                 var bsCSSLink = document.getElementById("bs");
                 if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
                     bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
+
+                var mdbCSSLink = document.getElementById("mdb");
+                if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
+                    mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out.css")
 
                 document.body.dir = "ltr"
                 break;

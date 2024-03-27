@@ -181,3 +181,11 @@ body.lang-en .lang:not(.lang-en) {
     content: " • ";
   }
 }
+
+.form-outline .form-control~.form-label {
+  will-change: transform, color;
+  -webkit-transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+          transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  transform: translateY(-.125rem);
+}

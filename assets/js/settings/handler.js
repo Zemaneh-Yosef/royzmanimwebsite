@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
-//import { Input } from "../../libraries/mdbootstrap/bundle.esm.js"
+import { Input } from "../../libraries/mdbootstrap/mdb.esm.js"
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
@@ -145,6 +145,10 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
             if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
                 bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
 
+            const mdbCSSLink = document.getElementById("mdb");
+            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out-rtl.css")
+                mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out-rtl.css")
+
             document.body.dir = "rtl";
 
             langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'hebrew').forEach(btnOfGroup => btnOfGroup.checked = false);
@@ -157,6 +161,10 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
             const bsCSSLink = document.getElementById("bs");
             if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
                 bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
+
+            const mdbCSSLink = document.getElementById("mdb");
+            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
+                mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out.css")
 
             document.body.dir = "ltr"
 
@@ -171,6 +179,10 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
             if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
                 bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
 
+            const mdbCSSLink = document.getElementById("mdb");
+            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
+                mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out.css")
+
             document.body.dir = "ltr"
 
             langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'enli').forEach(btnOfGroup => btnOfGroup.checked = false);
@@ -179,7 +191,7 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
         }
     }
 
-    /* Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
+    Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
         new Input(formOutline).update();
         if (zmanimLanguage == "hb") {
             const formLabels = [...formOutline.getElementsByTagName('label')].filter(label => label.classList.contains('form-label'));
@@ -188,7 +200,7 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
                 formLabel.style.marginLeft = (0).toString();
             }
         }
-    }); */
+    });
 
     if (save)
         localStorage.setItem("zmanimLanguage", zmanimLanguage)

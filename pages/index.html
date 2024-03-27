@@ -21,7 +21,7 @@ permalink: /
         </p>
         <div id="offlineText" style="display: none;">Seems like you're temporarily disconnected! The search bar needs an internet connection to function.</div>
         <div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough characters. Please try again with a minimum of three characters</div>
-        <div dir="ltr" class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
+        <div class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
           <span class="input-group-text" id="inputGroup-sizing-lg">
             <i class="fa fa-search" aria-hidden="true" onclick="updateList(event)"></i>
             <div class="spinner-border" style="display: none;" role="status">
@@ -31,7 +31,7 @@ permalink: /
           </span>
           <input list="locationNames" autocomplete="postal-code" type="search" id="Main" onkeyup="updateList(event)" class="form-control form-control-lg" style="z-index: 2" />
           <datalist id="locationNames"></datalist>
-          <label class="form-label" for="form1">Insert location name/ZIP code</label>
+          <label class="form-label" for="form1">Insert location name/ZIP code (English only)</label>
           <button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block" onclick="getLocation()">
             <i class="fa fa-map-marker"></i>
           </button>
