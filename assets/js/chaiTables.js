@@ -1,6 +1,6 @@
 //@ts-check
 
-import { MDCSelect } from "../libraries/materialComp/selector.js"
+import "../libraries/materialComp/materialweb.js"
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 export { ChaiTables }
 
@@ -183,8 +183,7 @@ class ChaiTables {
 	initForm() {
 		const submitBtn = document.getElementById('gctnd');
 
-		const selectors = Array.from(document.getElementsByClassName("mdc-select")).map((/** @type {HTMLSelectElement} */elem) => elem);
-		const MDCSelectors = selectors.map(selectElem => new MDCSelect(selectElem))
+		const selectors = Array.from(document.getElementsByTagName("md-outlined-select")).map((/** @type {HTMLSelectElement} */elem) => elem);
 
 		const MASubFormEvent = () => submitBtn.removeAttribute('disabled');
 
@@ -195,24 +194,25 @@ class ChaiTables {
 
 			const previouslySelectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
 			if (previouslySelectedMASel)
-				previouslySelectedMASel.removeEventListener('MDCSelect:change', MASubFormEvent)
+				previouslySelectedMASel.removeEventListener('change', MASubFormEvent)
 
 			selectors.filter(selector => selector.id.endsWith('MetroArea')).forEach(selector=>selector.style.display = 'none')
 		}
 
 		hideAllForms();
-		primaryIndex.addEventListener('MDCSelect:change', (/** @type {Event & { detail: { value: string; index: number }}} */chngEvnt) => {
+		primaryIndex.addEventListener('change', (chngEvnt) => {
 			hideAllForms();
 
-			const highlightedSelector = selectors.find(select => select.id == chngEvnt.detail.value + "MetroArea");
+			console.log()
+			const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
 			highlightedSelector.style.removeProperty('display');
-			highlightedSelector.addEventListener('MDCSelect:change', MASubFormEvent)
+			highlightedSelector.addEventListener('change', MASubFormEvent)
 			highlightedSelector.focus();
 		})
 
 		submitBtn.addEventListener('click', async () => {
 			const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
-			this.setOtherData(MDCSelectors[0].value, MDCSelectors[selectors.indexOf(selectedMASel)].selectedIndex);
+			this.setOtherData(selectors[0].value, selectors[selectors.indexOf(selectedMASel)].selectedIndex);
 			const ctData = await this.formatInterfacer();
 
 			if (!ctData.times.length) {

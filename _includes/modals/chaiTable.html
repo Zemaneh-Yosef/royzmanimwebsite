@@ -8,95 +8,23 @@
 			<div class="modal-body">
 				<p>ChaiTables is what the אור החיים calendar uses to get visible sunrise times (as explained in the description for sunrise). Use this modal to scrape the website's listed times of the Jewish years <span class="hb-start-year"></span>-<span class="hb-end-year"></span>.so that you could </p>
 				<p>To use ChaiTables' Netz data, please insert your country as well as the metropolitan area (MA for short) you reside in:</p>
-				<div class="mdc-select mdc-select--outlined mdc-select--required" id="MAIndex">
-					<div class="mdc-select__anchor" aria-required="true" aria-labelledby="MAIndex-select-label">
-					  <span class="mdc-notched-outline">
-						<span class="mdc-notched-outline__leading"></span>
-						<span class="mdc-notched-outline__notch">
-						  <span id="MAIndex-select-label" class="mdc-floating-label">Country Selector</span>
-						</span>
-						<span class="mdc-notched-outline__trailing"></span>
-					  </span>
-					  <span class="mdc-select__selected-text-container">
-						<span id="MAIndex-selected-text" class="mdc-select__selected-text"></span>
-					  </span>
-					  <span class="mdc-select__dropdown-icon">
-						<svg
-							class="mdc-select__dropdown-icon-graphic"
-							viewBox="7 10 10 5" focusable="false">
-						  <polygon
-							  class="mdc-select__dropdown-icon-inactive"
-							  stroke="none"
-							  fill-rule="evenodd"
-							  points="7 10 12 15 17 10">
-						  </polygon>
-						  <polygon
-							  class="mdc-select__dropdown-icon-active"
-							  stroke="none"
-							  fill-rule="evenodd"
-							  points="7 15 12 10 17 15">
-						  </polygon>
-						</svg>
-					  </span>
-					</div>
-					<div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth">
-						<ul class="mdc-list" role="listbox" aria-label="Food picker listbox">
-						<li class="mdc-list-item mdc-list-item--selected" aria-selected="true" data-value="" role="option">
-							<span class="mdc-list-item__ripple"></span>
-						</li>
-						{% for location in site.data.chaiTable %}
-						<li class="mdc-list-item" aria-selected="false" data-value="{{location.info.value}}" role="option">
-							<span class="mdc-list-item__ripple"></span>
-							<span class="mdc-list-item__text">{{ location.info.title }}</span>
-						</li>
-						{% endfor %}
-						</ul>
-					</div>
-				</div>
+				<md-outlined-select id="MAIndex" required label="Country Selector">
+					<md-select-option selected aria-label="blank"></md-select-option>
+					{% for location in site.data.chaiTable %}
+					<md-select-option value="{{location.info.value}}">
+						<div slot="headline">{{ location.info.title }}</div>
+					</md-select-option>
+					{% endfor %}
+				</md-outlined-select>
 				{% for location in site.data.chaiTable %}
-				<div class="mdc-select mdc-select--outlined" id="{{location.info.value}}MetroArea">
-					<div class="mdc-select__anchor" aria-labelledby="{{location.info.value}}Select-label">
-					  <span class="mdc-notched-outline">
-						<span class="mdc-notched-outline__leading"></span>
-						<span class="mdc-notched-outline__notch"><span id="{{location.info.value}}Select-label" class="mdc-floating-label">MA of {{ location.info.title }}</span></span>
-						<span class="mdc-notched-outline__trailing"></span>
-					  </span>
-					  <span class="mdc-select__selected-text-container">
-						<span id="{{location.info.value}}Selected-text" class="mdc-select__selected-text"></span>
-					  </span>
-					  <span class="mdc-select__dropdown-icon">
-						<svg
-							class="mdc-select__dropdown-icon-graphic"
-							viewBox="7 10 10 5" focusable="false">
-						  <polygon
-							  class="mdc-select__dropdown-icon-inactive"
-							  stroke="none"
-							  fill-rule="evenodd"
-							  points="7 10 12 15 17 10">
-						  </polygon>
-						  <polygon
-							  class="mdc-select__dropdown-icon-active"
-							  stroke="none"
-							  fill-rule="evenodd"
-							  points="7 15 12 10 17 15">
-						  </polygon>
-						</svg>
-					  </span>
-					</div>
-					<div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth">
-						<ul class="mdc-list" role="listbox" aria-label="Food picker listbox">
-						<li class="mdc-list-item mdc-list-item--selected" aria-selected="true" data-value="" role="option">
-							<span class="mdc-list-item__ripple"></span>
-						</li>
-						{% for metropolitician in location.metroAreas %}
-						<li class="mdc-list-item" aria-selected="false" data-value="{{metropolitician}}" role="option">
-							<span class="mdc-list-item__ripple"></span>
-							<span class="mdc-list-item__text">{{ metropolitician | replace: "_", " " }}</span>
-						</li>
-						{% endfor %}
-						</ul>
-					</div>
-				</div>
+				<md-outlined-select id="{{location.info.value}}MetroArea" label="MA of {{ location.info.title }}">
+					<md-select-option selected aria-label="blank"></md-select-option>
+					{% for metropolitician in location.metroAreas %}
+					<md-select-option value="{{metropolitician}}">
+						<div slot="headline">{{ metropolitician | replace: "_", " " }}</div>
+					</md-select-option>
+					{% endfor %}
+				</md-outlined-select>
 				{%endfor%}
     		</div>
 			<div class="modal-footer">
