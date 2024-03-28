@@ -59,6 +59,7 @@ class ZmanimMathBase {
 		}
 
 		calc.coreZC.setAstronomicalCalculator(this.coreZC.getAstronomicalCalculator())
+		calc.coreZC.setCandleLightingOffset(this.coreZC.getCandleLightingOffset())
 		calc.setDate(date);
 
 		// @ts-ignore

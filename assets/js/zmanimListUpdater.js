@@ -217,6 +217,55 @@ class zmanimListUpdater {
 	}
 
 	/**
+	 * @param {HTMLElement} [parashaBar]
+	 */
+	renderParashaBar(parashaBar) {
+		const parashaText = this.jCal.getHebrewParasha().join(" / ");
+		if (this.lastData.parsha !== parashaText) {
+			this.lastData.parsha = parashaText
+			for (const parashaElem of parashaBar.querySelectorAll('[data-zfReplace="Parasha"]'))
+				parashaElem.innerHTML = this.lastData.parsha
+		}
+
+		switch (this.jCal.getDate().dayOfWeek) {
+			case 5:
+			case 6: {
+				/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
+				const shabTF = [this.dtF[0], { ...this.dtF[1] }]
+				delete shabTF[1].second
+
+				for (const candleLighting of parashaBar.querySelectorAll('[data-zfReplace="CandleLighting"]')) {
+					candleLighting.parentElement.style.removeProperty("display")
+					candleLighting.innerHTML =
+						(this.jCal.getDate().dayOfWeek == 5 ? this.zmanFuncs : this.zmanFuncs.chainDate(this.jCal.getDate().subtract({ days: 1 })))
+						.getCandleLighting().toLocaleString(...shabTF)
+				}
+
+				for (const tzetShabbat of parashaBar.querySelectorAll('[data-zfReplace="TzetShabbat"]')) {
+					tzetShabbat.parentElement.style.removeProperty("display")
+					tzetShabbat.innerHTML = this.zmanFuncs.chainDate(this.jCal.shabbat().getDate()).getTzaitShabbath().toLocaleString(...shabTF)
+				}
+
+				for (const tzetRT of parashaBar.querySelectorAll('[data-zfReplace="TzetRT"]')) {
+					tzetRT.parentElement.style.removeProperty("display");
+					tzetRT.innerHTML = this.zmanFuncs.chainDate(this.jCal.shabbat().getDate()).getTzaitRT().toLocaleString(...shabTF);
+				}
+
+				break;
+			}
+			default: {
+				for (const candleLighting of parashaBar.querySelectorAll('[data-zfReplace="CandleLighting"]'))
+					candleLighting.parentElement.style.display = "none";
+
+				for (const tzetShabbat of parashaBar.querySelectorAll('[data-zfReplace="TzetShabbat"]'))
+					tzetShabbat.parentElement.style.display = "none"
+
+				break;
+			}
+		}
+	}
+
+	/**
 	 * @param {HTMLElement} [mourningDiv]
 	 */
 	writeMourningPeriod(mourningDiv) {
@@ -331,12 +380,9 @@ class zmanimListUpdater {
 				this.renderDateContainer(dateContainer);
 		}
 
-		const parashaText = this.jCal.getHebrewParasha().join(" / ");
-		if (this.lastData.parsha !== parashaText) {
-			this.lastData.parsha = parashaText
-			for (const parashaElem of document.querySelectorAll('[data-zfReplace="Parasha"]'))
-				parashaElem.innerHTML = parashaText
-		}
+		for (const parashaElem of document.querySelectorAll('[data-zfFind="Parasha"]'))
+			if (parashaElem instanceof HTMLElement)
+				this.renderParashaBar(parashaElem);
 
 		const dayText = Object.values(this.jCal.getDayOfTheWeek()).join(" / ");
 		if (this.lastData.day !== dayText) {
@@ -550,7 +596,7 @@ class zmanimListUpdater {
 					const description = timeSlot.querySelector('.accordianContent');
 					description.innerHTML = description.innerHTML
 						.split('${getAteretTorahSunsetOffset()}').join(settings.customTimes.tzeithIssurMelakha().minutes.toString())
-						.split('${getCandleLightingOffset()}').join(settings.customTimes.candleLighting().toString())
+						.split('${getCandleLightingOffset()}').join(this.zmanFuncs.coreZC.getCandleLightingOffset().toString())
 				}
 
 				if (zmanInfo[zmanId].title.hb)

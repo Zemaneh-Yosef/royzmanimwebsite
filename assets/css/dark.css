@@ -30,3 +30,7 @@
 }
 
 :root,:host{--md-sys-color-background:#161217;--md-sys-color-on-background:#eae0e8;--md-sys-color-surface:#161217;--md-sys-color-surface-dim:#161217;--md-sys-color-surface-bright:#3d373e;--md-sys-color-surface-container-lowest:#110d12;--md-sys-color-surface-container-low:#1f1a20;--md-sys-color-surface-container:#231e24;--md-sys-color-surface-container-high:#2d282e;--md-sys-color-surface-container-highest:#393339;--md-sys-color-on-surface:#eae0e8;--md-sys-color-surface-variant:#4d444f;--md-sys-color-on-surface-variant:#d0c2d0;--md-sys-color-inverse-surface:#eae0e8;--md-sys-color-inverse-on-surface:#342f35;--md-sys-color-outline:#998d9a;--md-sys-color-outline-variant:#4d444f;--md-sys-color-shadow:#000000;--md-sys-color-scrim:#000000;--md-sys-color-surface-tint:#eab2ff;--md-sys-color-primary:#f3ccff;--md-sys-color-on-primary:#4d1168;--md-sys-color-primary-container:#d997f3;--md-sys-color-on-primary-container:#40005a;--md-sys-color-inverse-primary:#80459a;--md-sys-color-secondary:#dcbce4;--md-sys-color-on-secondary:#3e2848;--md-sys-color-secondary-container:#4f3758;--md-sys-color-on-secondary-container:#eacaf3;--md-sys-color-tertiary:#ffced1;--md-sys-color-on-tertiary:#5c1723;--md-sys-color-tertiary-container:#f9949e;--md-sys-color-on-tertiary-container:#4d0b19;--md-sys-color-error:#ffb4ab;--md-sys-color-on-error:#690005;--md-sys-color-error-container:#93000a;--md-sys-color-on-error-container:#ffdad6;}
+
+.handleSvg svg path {
+  fill: white;
+}

@@ -189,3 +189,9 @@ body.lang-en .lang:not(.lang-en) {
   z-index: 2;
   transform: translateY(-.125rem);
 }
+
+.handleSvg svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: unset;
+}

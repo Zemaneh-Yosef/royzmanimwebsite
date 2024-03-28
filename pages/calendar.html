@@ -6,330 +6,356 @@ chaiTable: true
 ---
 
 <noscript>
-  <h1>This site requires JavaScript to function</h1>
-  <p>However, you are free to look at descriptions</p>
+	<h1>This site requires JavaScript to function</h1>
+	<p>However, you are free to look at descriptions</p>
 </noscript>
 
 <div id="wideGrid" class="maxWidthContainer">
-  <div id="generic">
-    <h3 class="text-center text-decoration-underline mb-0" data-zfReplace="LocationName"></h3>
-    <p class="text-center" data-zfFind="LocationYerushalayimLine">
-      <a data-bs-toggle="modal" data-bs-target="#locationModal"><i class="fa fa-info-circle"></i></a>
-      <span class="lang lang-hb">כיוון תפילה: </span>
-      <span class="lang lang-et">Tefilah Direction: </span>
-      <span class="lang lang-en">Prayer Direction: </span>
-    </p>
-    <div class="card mb-2">
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item" data-zfReplace="Parasha"></li>
-        <li class="list-group-item" id="cardDateContainer" data-zfFind="dateContainer">
-          <button data-dateAlter="-1" style="grid-column: 1;">
-            <span class="lang lang-hb"><i class="fa fa-arrow-right"></i></span>
-            <span class="lang lang-et"><i class="fa fa-arrow-left"></i></span>
-            <span class="lang lang-en"><i class="fa fa-arrow-left"></i></span>
-          </button>
-          <div id="dateBox">
-            <h6 data-zfReplace="Day" style="margin-bottom: .125rem;"></h6>
-            <h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
-            <div class="d-flex" style="flex-direction: row; align-items: center; gap: .5rem; justify-content: center;">
-              <h5 data-zfReplace="secondaryDate" class="d-inline-block m-0"></h5>
-              <input type="button" value="&#xf073;" class="fa btn btn-primary btn-floating d-none d-md-block">
-              <h5 data-zfReplace="otherDate" class="d-inline-block m-0"></h5>
-            </div>
-          </div>
-          <button data-dateAlter="1" style="grid-column: 3;">
-            <span class="lang lang-hb"><i class="fa fa-arrow-left"></i></span>
-            <span class="lang lang-et"><i class="fa fa-arrow-right"></i></span>
-            <span class="lang lang-en"><i class="fa fa-arrow-right"></i></span>
-          </button>
-          <input type="button" value="&#xf073; Select a date" class="fa inputRow d-md-none btn btn-primary">
-        </li>
-      </ul>
-    </div>
-    <div class="card mb-2">
-      <div class="card-header">
-        <h5 class="mb-0">
-          <span class="lang lang-hb">לימוד יומי</span>
-          <span class="lang lang-et">Today's Limud</span>
-          <span class="lang lang-en">Today's Learning</span>
-        </h5>
-      </div>
-      <dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
-        <div class="list-group-item d-flex justify-content-between">
-          <dt class="lang lang-hb">תלנוד בבלי</dt>
-          <dt class="lang lang-et">Talmud Bavli</dt>
-          <dt class="lang lang-en">Babylon Talmud</dt>
-          <dd class="m-0" data-zfReplace="dafBavli"></dd>
-        </div>
-        <div class="list-group-item d-flex justify-content-between">
-          <dt class="lang lang-hb">תלמוד ירושלמי (וילנה)</dt>
-          <dt class="lang lang-et">Talmud Yerushalmi (Vilna)</dt>
-          <dt class="lang lang-en">Jerusalemite Tractate (Vilna)</dt>
-          <dd class="m-0" data-zfReplace="DafYerushalmi"></dd>
-        </div>
-        <div class="list-group-item d-flex justify-content-between">
-          <dt class="lang lang-hb">חפץ חיים יומי</dt>
-          <dt class="lang lang-et">Chafetz Chayim Yomi</dt>
-          <dt class="lang lang-en">Daily Chafetz Chayim</dt>
-          <dd class="m-0" data-zfReplace="ccYomi"></dd>
-        </div>
-      </dl>
-    </div>
-  </div>
-  <div id="zmanim">
-    <div class="accordian" data-zfFind="calendarFormatter">
-      {% for item in site.data.zmanim %}
-        <details
-          data-zmanid="{{ item.id }}"
-          class="loading"
-          {% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
-          {% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
-          {% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-          {% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-          {% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-          {% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
-        >
-          <summary>
-            <span class="lang lang-hb">{{ item.names.hb }}</span>
-            <span class="lang lang-et">{{ item.names.et }}</span>
-            <span class="lang lang-en">{{ item.names.en }}</span>
-            <span class="timeDisplay ms-auto"></span>
-          </summary>
-          <div class="accordianContent">
-            {% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
+	<div id="generic">
+		<h3 class="text-center text-decoration-underline mb-0" data-zfReplace="LocationName"></h3>
+		<p class="text-center" data-zfFind="LocationYerushalayimLine">
+			<a data-bs-toggle="modal" data-bs-target="#locationModal"><i class="fa fa-info-circle"></i></a>
+			<span class="lang lang-hb">כיוון תפילה: </span>
+			<span class="lang lang-et">Tefilah Direction: </span>
+			<span class="lang lang-en">Prayer Direction: </span>
+		</p>
+		<div class="card mb-2">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item" data-zfFind="Parasha">
+					<div class="d-none d-lg-flex justify-content-between handleSvg">
+						<span><i class="fa fa-fire" aria-hidden="true"></i> <span data-zfReplace="CandleLighting"></span></span>
+						<span class="flex-fill text-center" data-zfReplace="Parasha"></span>
+						<span>
+							{% include havdalah.svg %}
+							<span data-zfReplace="TzetShabbat"></span>
+						</span>
+					</div>
+					<div class="d-lg-none">
+						<span data-zfReplace="Parasha"></span>
+						<ul class="lang lang-hb">
+							<li>הדלכת נרות: <span data-zfReplace="CandleLighting"></span></li>
+							<li>צאת שבת: <span data-zfReplace="TzetShabbat"></span> (ר"ת: <span data-zfReplace="TzetRT"></span>)</li>
+						</ul>
+						<ul class="lang lang-en">
+							<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
+							<li>Shabbat Ends: <span data-zfReplace="TzetShabbat"></span> (RT: <span data-zfReplace="TzetRT"></span>)</li>
+						</ul>
+						<ul class="lang lang-et">
+							<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
+							<li>Tzet Shabbat: <span data-zfReplace="TzetShabbat"></span> (RT: <span data-zfReplace="TzetRT"></span>)</li>
+						</ul>
+					</div>
+				</li>
+				<li class="list-group-item" id="cardDateContainer" data-zfFind="dateContainer">
+					<button data-dateAlter="-1" style="grid-column: 1;">
+						<span class="lang lang-hb"><i class="fa fa-arrow-right"></i></span>
+						<span class="lang lang-et"><i class="fa fa-arrow-left"></i></span>
+						<span class="lang lang-en"><i class="fa fa-arrow-left"></i></span>
+					</button>
+					<div id="dateBox">
+						<h6 data-zfReplace="Day" style="margin-bottom: .125rem;"></h6>
+						<h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
+						<div class="d-flex" style="flex-direction: row; align-items: center; gap: .5rem; justify-content: center;">
+							<h5 data-zfReplace="secondaryDate" class="d-inline-block m-0"></h5>
+							<input type="button" value="&#xf073;" class="fa btn btn-primary btn-floating d-none d-md-block">
+							<h5 data-zfReplace="otherDate" class="d-inline-block m-0"></h5>
+						</div>
+					</div>
+					<button data-dateAlter="1" style="grid-column: 3;">
+						<span class="lang lang-hb"><i class="fa fa-arrow-left"></i></span>
+						<span class="lang lang-et"><i class="fa fa-arrow-right"></i></span>
+						<span class="lang lang-en"><i class="fa fa-arrow-right"></i></span>
+					</button>
+					<input type="button" value="&#xf073; Select a date" class="fa inputRow d-md-none btn btn-primary">
+				</li>
+			</ul>
+		</div>
+		<div class="card mb-2">
+			<div class="card-header">
+				<h5 class="mb-0">
+					<span class="lang lang-hb">לימוד יומי</span>
+					<span class="lang lang-et">Today's Limud</span>
+					<span class="lang lang-en">Today's Learning</span>
+				</h5>
+			</div>
+			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">תלנוד בבלי</dt>
+					<dt class="lang lang-et">Talmud Bavli</dt>
+					<dt class="lang lang-en">Babylon Talmud</dt>
+					<dd class="m-0" data-zfReplace="dafBavli"></dd>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">תלמוד ירושלמי (וילנה)</dt>
+					<dt class="lang lang-et">Talmud Yerushalmi (Vilna)</dt>
+					<dt class="lang lang-en">Jerusalemite Tractate (Vilna)</dt>
+					<dd class="m-0" data-zfReplace="DafYerushalmi"></dd>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">חפץ חיים יומי</dt>
+					<dt class="lang lang-et">Chafetz Chayim Yomi</dt>
+					<dt class="lang lang-en">Daily Chafetz Chayim</dt>
+					<dd class="m-0" data-zfReplace="ccYomi"></dd>
+				</div>
+			</dl>
+		</div>
+	</div>
+	<div id="zmanim">
+		<div class="accordian" data-zfFind="calendarFormatter">
+			{% for item in site.data.zmanim %}
+				<details
+					data-zmanid="{{ item.id }}"
+					class="loading"
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
+				>
+					<summary>
+						<span class="lang lang-hb">{{ item.names.hb }}</span>
+						<span class="lang lang-et">{{ item.names.et }}</span>
+						<span class="lang lang-en">{{ item.names.en }}</span>
+						<span class="timeDisplay ms-auto"></span>
+					</summary>
+					<div class="accordianContent">
+						{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
 
 ---
 {% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
-            {% endcapture %}{{ my_include | markdownify }}
-          </div>
-        </details>
-      {% endfor %}
-    </div>
-  </div>
-  <div id="special">
-    <div class="card mb-2 mt-2 mt-lg-0">
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
-        <li class="list-group-item" data-zfFind="SpecialDay" style="display: none;">
-          <span data-zfFind="10Tevet">
-            
-          </span>
-        </li>
-        <li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
-          <div data-zfFind="SefirathHaomer">
-            <h5>
-              <span class="lang lang-hb">היום <span data-zfReplace="hbOmerDate"></span> לעומר</span>
-              <span class="lang lang-et">Today is <span data-zfReplace="etNumOmerCount"></span> of the Omer</span>
-              <span class="lang lang-en"><span data-zfReplace="enOrdOmerCount"></span> day of the Omer</span>
-            </h5>
-            <p class="lang lang-hb">שהם <span data-zfReplace="hbOmerDays"></span></p>
-            <p class="lang lang-et">which <span data-zfReplace="etOmer"></span></p>
-            <p class="lang lang-en" data-zfReplace="enOmer"></p>
-            <hr data-zfFind="omerRules">
-          </div>
-          <div data-zfFind="ThreeWeeksHeader">
-            <h5>
-              <span class="lang lang-hb">
-                <span data-zfFind="threeWeeks">שלושה שבועות</span>
-                <span data-zfFind="nineDays">תשעה ימים</span>
-                <span data-zfFind="weekOf">שבוע שחל בו</span>
-              </span>
-              <span class="lang lang-et">
-                <span data-zfFind="threeWeeks">Three Weeks</span>
-                <span data-zfFind="nineDays">Nine Days</span>
-                <span data-zfFind="weekOf">The week of Tisha Beav</span>
-              </span>
-              <span class="lang lang-en">
-                <span data-zfFind="threeWeeks">Three Weeks</span>
-                <span data-zfFind="nineDays">Nine Days</span>
-                <span data-zfFind="weekOf">The week of Tisha Beav</span>
-              </span>
-            </h5>
-          </div>
-          <ul>
-            <li data-zfFind="haircuts">
-              <span class="lang lang-hb">לא לקחת תשפורת</span>
-              <span class="lang lang-et">No taking haircuts</span>
-              <span class="lang lang-en">No taking haircuts</span>
-            </li>
-            <li data-zfFind="shechiyanu">
-              <span class="lang lang-hb">לא לברך שהכינו</span>
-              <span class="lang lang-et">No blessings of shechiyanu</span>
-              <span class="lang lang-en">No blessings of shechiyanu</span>
-            </li>
-            <li data-zfFind="music">
-              <span class="lang lang-hb">לא לשמוע למוזיקה</span>
-              <span class="lang lang-et">No listening to music</span>
-              <span class="lang lang-en">No listening to music</span>
-            </li>
-            <li data-zfFind="wedding">
-              <span class="lang lang-hb">לא לתחתן</span>
-              <span class="lang lang-et">No weddings</span>
-              <span class="lang lang-en">No weddings</span>
-            </li>
-            <li data-zfFind="purchaseClothing">
-              <span class="lang lang-hb">אסור לקנות בגדים חדשים</span>
-              <span class="lang lang-et">No purchasing new clothing</span>
-              <span class="lang lang-en">No purchasing new clothing</span>
-            </li>
-            <li data-zfFind="swimming">
-              <span class="lang lang-hb">השחייה אסורה</span>
-              <span class="lang lang-et">No swimming</span>
-              <span class="lang lang-en">No swimming</span>
-            </li>
-            <li data-zfFind="construction">
-              <span class="lang lang-hb">אין בנייה</span>
-              <span class="lang lang-et">No construction</span>
-              <span class="lang lang-en">No construction</span>
-            </li>
-            <li data-zfFind="meat">
-              <span class="lang lang-hb">לא לאכול בשר ולשתות יין</span>
-              <span class="lang lang-et">No consumption of meat or wine</span>
-              <span class="lang lang-en">No consumption of meat or wine</span>
-            </li>
-            <li data-zfFind="showering">
-              <span class="lang lang-hb">אין להתקלח עם מים חמים</span>
-              <span class="lang lang-et">No showering with hot water</span>
-              <span class="lang lang-en">No showering with hot water</span>
-            </li>
-            <li data-zfFind="laundry">
-              <span class="lang lang-hb">אין כביסה או לבישת בגדים טריים</span>
-              <span class="lang lang-et">No laundry or wearing freshly laundered clothing</span>
-              <span class="lang lang-en">No laundry or wearing freshly laundered clothing</span>
-            </li>
-            <li data-zfFind="wearingClothing">
-              <span class="lang lang-hb">לא ללבוש בגדים חדשים</span>
-              <span class="lang lang-et">No wearing new clothing</span>
-              <span class="lang lang-en">No wearing new clothing</span>
-            </li>
-          </ul>
-        </li>
-        <li class="list-group-item" data-zfReplace="Tachanun"></li>
-        <li class="list-group-item" data-zfFind="Chamah" style="display: none;">
-          <span class="lang lang-hb">ברכת החמה!</span>
-          <span class="lang lang-et">Birchath Hachama!</span>
-          <span class="lang lang-en">Blessing of the sun!</span>
-        </li>
-        <li class="list-group-item" data-zfFind="BirchatHalevana">
-          <span class="lang lang-hb">
-            ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
-            <span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
-            <span data-zfFind="ends-tonight"> - נגמר בלילה</span>
-          </span>
-          <span class="lang lang-et">
-            Birchath Halevana (until the night of <span data-zfReplace="date-en-end"></span>)
-            <span data-zfFind="starts-tonight"> - Starts tonight</span>
-            <span data-zfFind="ends-tonight"> - Ends tonight</span>
-          </span>
-          <span class="lang lang-en">
-            Blessing of the moon (until the night of <span data-zfReplace="date-en-end"></span>)
-            <span data-zfFind="starts-tonight"> - Starts tonight</span>
-            <span data-zfFind="ends-tonight"> - Ends tonight</span>
-          </span>
-        </li>
-        <li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
-        <li class="list-group-item" data-zfReplace="Ulchaparat" style="display: none;"></li>
-        <li class="list-group-item" data-zfFind="SeasonalPrayers">
-          <span data-zfReplace="SeasonalPrayers"></span>
-          <ul data-zfFind="ShemaKolenu">
-            <li class="lang lang-hb">בשמע קולנו: "ותן טל ומתר לברכה"</li>
-            <li class="lang lang-et">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
-            <li class="lang lang-en">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
-          </ul>
-        </li>
-        <li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
-          <a data-bs-toggle="modal" data-bs-target="#tekufaModal">
-            <i class="fa fa-info-circle"></i>
-          </a>
-          <span class="lang lang-hb">
-            <b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
-            <small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
-          </span>
-          <span class="lang lang-et">
-            <b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
-            <small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
-          </span>
-          <span class="lang lang-en">
-            <b>The <span data-zfReplace="tekufaName-en"></span> season</b> is at <span data-zfReplace="tekufaTime"></span><br>
-            <small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
-          </span>
-        </li>
-      </ul>
-    </div>
-    <div class="card mb-2">
-      <div class="card-header">
-        <h5 class="mb-0">
-          <span class="lang lang-hb">שעה זמנית</span>
-          <span class="lang lang-et">Sha'ah Zmanith</span>
-          <span class="lang lang-en">Seasonal Hour</span>
-        </h5>
-      </div>
-      <dl class="list-group list-group-flush lh-sm" data-zfFind="shaahZmanit">
-        <div class="list-group-item d-flex justify-content-between">
-          <dt class="lang lang-hb">
-            גר"א (װילנער גאון)<br>
-            <small class="fw-normal">מהנץ החמה עד שקיעה</small>
-          </dt>
-          <dt class="lang lang-et">
-            GR"A (Vilna Gaon)<br>
-            <small class="fw-normal">From Hanetz until Sheqi'a</small>
-          </dt>
-          <dt class="lang lang-en">
-            GR"A (Vilna Gaon)<br>
-            <small class="fw-normal">From sunrise until sunset</small>
-          </dt>
-          <dd class="m-0" data-zfReplace="graShaahZmanit"></dd>
-        </div>
-        <div class="list-group-item d-flex justify-content-between">
-          <dt class="lang lang-hb">
-            מג"א (מגן אברהם)<br>
-            <small class="fw-normal">
-              מעלות השחר עד צאת הכוכבים
-              <span data-zfFind="luachAmudehHoraah">(לוח עמודי הוראה)</span>
-              <span data-zfFind="luachOhrHachaim">(לוח אור החיים)</span>
-            </small>
-          </dt>
-          <dt class="lang lang-et">
-            MG"A (Maghen Avraham)<br>
-            <small class="fw-normal">
-              From Alot Hashahar until Tzeit Hakokhavim
-              <span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
-              <span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
-            </small>
-          </dt>
-          <dt class="lang lang-en">
-            MG"A (Maghen Avraham)<br>
-            <small class="fw-normal">
-              From Dawn until Nightfall
-              <span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
-              <span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
-            </small>
-          </dt>
-          <dd class="m-0" data-zfReplace="mgaShaahZmanit"></dd>
-        </div>
-      </dl>
-    </div>
-  </div>
+						{% endcapture %}{{ my_include | markdownify }}
+					</div>
+				</details>
+			{% endfor %}
+		</div>
+	</div>
+	<div id="special">
+		<div class="card mb-2 mt-2 mt-lg-0">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
+				<li class="list-group-item" data-zfFind="SpecialDay" style="display: none;">
+					<span data-zfFind="10Tevet">
+						<span class="lang lang-hb">צום העשירי</span>
+						<span class="lang lang-et">Fast of the 10<sup>th</sup> [Month]<span data-zfFind="erevTzom">'s Eve</span></span>
+						<span class="lang lang-en">10<sup>th</sup> of Tevet Fast<span data-zfFind="erevTzom">'s Eve</span></span>
+					</span>
+				</li>
+				<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
+					<div data-zfFind="SefirathHaomer">
+						<h5>
+							<span class="lang lang-hb">היום <span data-zfReplace="hbOmerDate"></span> לעומר</span>
+							<span class="lang lang-et">Today is <span data-zfReplace="etNumOmerCount"></span> of the Omer</span>
+							<span class="lang lang-en"><span data-zfReplace="enOrdOmerCount"></span> day of the Omer</span>
+						</h5>
+						<p class="lang lang-hb">שהם <span data-zfReplace="hbOmerDays"></span></p>
+						<p class="lang lang-et">which <span data-zfReplace="etOmer"></span></p>
+						<p class="lang lang-en" data-zfReplace="enOmer"></p>
+						<hr data-zfFind="omerRules">
+					</div>
+					<div data-zfFind="ThreeWeeksHeader">
+						<h5>
+							<span class="lang lang-hb">
+								<span data-zfFind="threeWeeks">שלושה שבועות</span>
+								<span data-zfFind="nineDays">תשעה ימים</span>
+								<span data-zfFind="weekOf">שבוע שחל בו</span>
+							</span>
+							<span class="lang lang-et">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</span>
+							<span class="lang lang-en">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</span>
+						</h5>
+					</div>
+					<ul>
+						<li data-zfFind="haircuts">
+							<span class="lang lang-hb">לא לקחת תשפורת</span>
+							<span class="lang lang-et">No taking haircuts</span>
+							<span class="lang lang-en">No taking haircuts</span>
+						</li>
+						<li data-zfFind="shechiyanu">
+							<span class="lang lang-hb">לא לברך שהכינו</span>
+							<span class="lang lang-et">No blessings of shechiyanu</span>
+							<span class="lang lang-en">No blessings of shechiyanu</span>
+						</li>
+						<li data-zfFind="music">
+							<span class="lang lang-hb">לא לשמוע למוזיקה</span>
+							<span class="lang lang-et">No listening to music</span>
+							<span class="lang lang-en">No listening to music</span>
+						</li>
+						<li data-zfFind="wedding">
+							<span class="lang lang-hb">לא לתחתן</span>
+							<span class="lang lang-et">No weddings</span>
+							<span class="lang lang-en">No weddings</span>
+						</li>
+						<li data-zfFind="purchaseClothing">
+							<span class="lang lang-hb">אסור לקנות בגדים חדשים</span>
+							<span class="lang lang-et">No purchasing new clothing</span>
+							<span class="lang lang-en">No purchasing new clothing</span>
+						</li>
+						<li data-zfFind="swimming">
+							<span class="lang lang-hb">השחייה אסורה</span>
+							<span class="lang lang-et">No swimming</span>
+							<span class="lang lang-en">No swimming</span>
+						</li>
+						<li data-zfFind="construction">
+							<span class="lang lang-hb">אין בנייה</span>
+							<span class="lang lang-et">No construction</span>
+							<span class="lang lang-en">No construction</span>
+						</li>
+						<li data-zfFind="meat">
+							<span class="lang lang-hb">לא לאכול בשר ולשתות יין</span>
+							<span class="lang lang-et">No consumption of meat or wine</span>
+							<span class="lang lang-en">No consumption of meat or wine</span>
+						</li>
+						<li data-zfFind="showering">
+							<span class="lang lang-hb">אין להתקלח עם מים חמים</span>
+							<span class="lang lang-et">No showering with hot water</span>
+							<span class="lang lang-en">No showering with hot water</span>
+						</li>
+						<li data-zfFind="laundry">
+							<span class="lang lang-hb">אין כביסה או לבישת בגדים טריים</span>
+							<span class="lang lang-et">No laundry or wearing freshly laundered clothing</span>
+							<span class="lang lang-en">No laundry or wearing freshly laundered clothing</span>
+						</li>
+						<li data-zfFind="wearingClothing">
+							<span class="lang lang-hb">לא ללבוש בגדים חדשים</span>
+							<span class="lang lang-et">No wearing new clothing</span>
+							<span class="lang lang-en">No wearing new clothing</span>
+						</li>
+					</ul>
+				</li>
+				<li class="list-group-item" data-zfReplace="Tachanun"></li>
+				<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
+					<span class="lang lang-hb">ברכת החמה!</span>
+					<span class="lang lang-et">Birchath Hachama!</span>
+					<span class="lang lang-en">Blessing of the sun!</span>
+				</li>
+				<li class="list-group-item" data-zfFind="BirchatHalevana">
+					<span class="lang lang-hb">
+						ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
+						<span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
+						<span data-zfFind="ends-tonight"> - נגמר בלילה</span>
+					</span>
+					<span class="lang lang-et">
+						Birchath Halevana (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+					<span class="lang lang-en">
+						Blessing of the moon (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+				</li>
+				<li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
+				<li class="list-group-item" data-zfReplace="Ulchaparat" style="display: none;"></li>
+				<li class="list-group-item" data-zfFind="SeasonalPrayers">
+					<span data-zfReplace="SeasonalPrayers"></span>
+					<ul data-zfFind="ShemaKolenu">
+						<li class="lang lang-hb">בשמע קולנו: "ותן טל ומתר לברכה"</li>
+						<li class="lang lang-et">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
+						<li class="lang lang-en">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
+					</ul>
+				</li>
+				<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
+					<a data-bs-toggle="modal" data-bs-target="#tekufaModal">
+						<i class="fa fa-info-circle"></i>
+					</a>
+					<span class="lang lang-hb">
+						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+					<span class="lang lang-et">
+						<b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+					<span class="lang lang-en">
+						<b>The <span data-zfReplace="tekufaName-en"></span> season</b> is at <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+				</li>
+			</ul>
+		</div>
+		<div class="card mb-2">
+			<div class="card-header">
+				<h5 class="mb-0">
+					<span class="lang lang-hb">שעה זמנית</span>
+					<span class="lang lang-et">Sha'ah Zmanith</span>
+					<span class="lang lang-en">Seasonal Hour</span>
+				</h5>
+			</div>
+			<dl class="list-group list-group-flush lh-sm" data-zfFind="shaahZmanit">
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">
+						גר"א (װילנער גאון)<br>
+						<small class="fw-normal">מהנץ החמה עד שקיעה</small>
+					</dt>
+					<dt class="lang lang-et">
+						GR"A (Vilna Gaon)<br>
+						<small class="fw-normal">From Hanetz until Sheqi'a</small>
+					</dt>
+					<dt class="lang lang-en">
+						GR"A (Vilna Gaon)<br>
+						<small class="fw-normal">From sunrise until sunset</small>
+					</dt>
+					<dd class="m-0" data-zfReplace="graShaahZmanit"></dd>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">
+						מג"א (מגן אברהם)<br>
+						<small class="fw-normal">
+							מעלות השחר עד צאת הכוכבים
+							<span data-zfFind="luachAmudehHoraah">(לוח עמודי הוראה)</span>
+							<span data-zfFind="luachOhrHachaim">(לוח אור החיים)</span>
+						</small>
+					</dt>
+					<dt class="lang lang-et">
+						MG"A (Maghen Avraham)<br>
+						<small class="fw-normal">
+							From Alot Hashahar until Tzeit Hakokhavim
+							<span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
+							<span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
+						</small>
+					</dt>
+					<dt class="lang lang-en">
+						MG"A (Maghen Avraham)<br>
+						<small class="fw-normal">
+							From Dawn until Nightfall
+							<span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
+							<span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
+						</small>
+					</dt>
+					<dd class="m-0" data-zfReplace="mgaShaahZmanit"></dd>
+				</div>
+			</dl>
+		</div>
+	</div>
 </div>
 
 {% comment %}
 <div id="tvLayout">
-    <section class="wideView" calendarFormatter>
-      {% for item in site.data.zmanim %}
-        <article
-          zmanid="{{ item.id }}"
-          {% if item.timeGetter %}timeGetter="{{ item.timeGetter }}"{% endif %}
-          {% if item.attributes.luachInclusive %}luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-          {% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-          {% if item.attributes.condition %}condition="{{ item.attributes.condition }}"{% endif %}
-        >
-          <span class="lang lang-hb">{{ item.names.hb }}</span>
-          <span class="lang lang-et">{{ item.names.et }}</span>
-          <span class="lang lang-en">{{ item.names.en }}</span>
-          <span class="timeDisplay"></span>
-        </article>
-      {% endfor %}
-    </section>
+		<section class="wideView" calendarFormatter>
+			{% for item in site.data.zmanim %}
+				<article
+					zmanid="{{ item.id }}"
+					{% if item.timeGetter %}timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.attributes.luachInclusive %}luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}condition="{{ item.attributes.condition }}"{% endif %}
+				>
+					<span class="lang lang-hb">{{ item.names.hb }}</span>
+					<span class="lang lang-et">{{ item.names.et }}</span>
+					<span class="lang lang-en">{{ item.names.en }}</span>
+					<span class="timeDisplay"></span>
+				</article>
+			{% endfor %}
+		</section>
 </div>
 {% endcomment %}
 
@@ -342,33 +368,33 @@ chaiTable: true
 <!--All these files just to include flexcal.js for a jewish calendar popup widget-->
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    for (const dateContainer of document.querySelectorAll('[data-zfFind="dateContainer"]'))
-      for (const inputField of dateContainer.getElementsByTagName("input"))
-        $(inputField).flexcal({
-          calendars: ["en", "jewish", "he-jewish"],
-          selected: "en",
-        });
-  });
+	document.addEventListener("DOMContentLoaded", () => {
+		for (const dateContainer of document.querySelectorAll('[data-zfFind="dateContainer"]'))
+			for (const inputField of dateContainer.getElementsByTagName("input"))
+				$(inputField).flexcal({
+					calendars: ["en", "jewish", "he-jewish"],
+					selected: "en",
+				});
+	});
 </script>
 
 {% capture tekufaEng %}{% include zmanDescription/tekufa/english.md %}{% endcapture %}
 {% capture tekufaHeb %}{% include zmanDescription/tekufa/hebrew.md %}{% endcapture %}
 
 <div class="modal fade modal-xl" id="tekufaModal" tabindex="-1" aria-labelledby="tekufaModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="tekufaModalLabel">Tekufa</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <span class="lang lang-hb">{{ tekufaHeb | markdownify }}</span>
-        <span class="lang lang-et">{{ tekufaEng | markdownify }}</span>
-        <span class="lang lang-en">{{ tekufaEng | markdownify }}</span>
-      </div>
-    </div>
-  </div>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tekufaModalLabel">Tekufa</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<span class="lang lang-hb">{{ tekufaHeb | markdownify }}</span>
+				<span class="lang lang-et">{{ tekufaEng | markdownify }}</span>
+				<span class="lang lang-en">{{ tekufaEng | markdownify }}</span>
+			</div>
+		</div>
+	</div>
 </div>
 {% include modals/location.html %}
 
