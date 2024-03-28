@@ -448,7 +448,6 @@ class zmanimListUpdater {
 				birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]').innerHTML =
 					birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'})
 
-				console.log(birLev.data.start.dayOfYear, this.jCal.getDate().dayOfYear)
 				if (birLev.data.start.dayOfYear == this.jCal.getDate().dayOfYear) {
 					birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
 						//@ts-ignore

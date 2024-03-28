@@ -166,7 +166,6 @@ class ChaiTables {
 			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413);
 
 			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
-			console.log(ctFetch.url)
 			const ctResponse = await ctFetch.text()
 			const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
 
@@ -203,7 +202,6 @@ class ChaiTables {
 		primaryIndex.addEventListener('change', (chngEvnt) => {
 			hideAllForms();
 
-			console.log()
 			const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
 			highlightedSelector.style.removeProperty('display');
 			highlightedSelector.addEventListener('change', MASubFormEvent)

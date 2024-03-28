@@ -178,7 +178,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 						calculatedZmanim[zmanId].luxonObj = visibleSunrise
 					} else {
-						console.log("NoVisibleSunrise")
 						calculatedZmanim[zmanId].title.hb = 'הנץ (משור)';
 						calculatedZmanim[zmanId].title['en-et'] = 'HaNetz (Mishor)';
 						calculatedZmanim[zmanId].title.en = 'Sunrise (Sea Level)';

@@ -195,3 +195,24 @@ body.lang-en .lang:not(.lang-en) {
   height: 1em;
   vertical-align: unset;
 }
+
+.form-outline .form-control.is-warning~.form-notch div,
+.form-outline .form-control.is-warning:focus~.form-notch div {
+  border-color: rgb(var(--bs-warning-rgb));
+}
+
+.form-outline .form-control.is-warning:focus~.form-notch .form-notch-leading {
+  box-shadow: -1px 0 rgb(var(--bs-warning-rgb)), 0 1px rgb(var(--bs-warning-rgb)), 0 -1px rgb(var(--bs-warning-rgb));
+}
+
+.form-outline .form-control.is-warning:focus~.form-notch .form-notch-middle {
+  box-shadow: 0 1px rgb(var(--bs-warning-rgb));
+}
+
+.form-outline .form-control.is-warning:focus~.form-notch .form-notch-trailing {
+  box-shadow: 1px 0 rgb(var(--bs-warning-rgb)), 0 -1px rgb(var(--bs-warning-rgb)), 0 1px rgb(var(--bs-warning-rgb));
+}
+
+.form-outline .form-control.is-warning~.form-label {
+    color: rgb(var(--bs-warning-rgb));
+}
