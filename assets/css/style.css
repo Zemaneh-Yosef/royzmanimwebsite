@@ -216,3 +216,21 @@ body.lang-en .lang:not(.lang-en) {
 .form-outline .form-control.is-warning~.form-label {
     color: rgb(var(--bs-warning-rgb));
 }
+
+#manualLocationButton {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: .25rem;
+  border-top-right-radius: .25rem;
+}
+
+:dir(rtl) #manualLocationButton {
+  border-top-left-radius: .25rem;
+  border-bottom-left-radius: .25rem;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.input-group-lg>.btn, .input-group-lg>.form-control, .input-group-lg>.form-select, .input-group-lg>.input-group-text {
+  border-radius: .25rem;
+}

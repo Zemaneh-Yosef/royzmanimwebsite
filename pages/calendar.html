@@ -22,12 +22,15 @@ chaiTable: true
 		<div class="card mb-2">
 			<ul class="list-group list-group-flush">
 				<li class="list-group-item" data-zfFind="Parasha">
-					<div class="d-none d-lg-flex justify-content-between handleSvg">
+					<div class="d-none d-lg-flex justify-content-between handleSvg align-items-center">
 						<span><i class="fa fa-fire" aria-hidden="true"></i> <span data-zfReplace="CandleLighting"></span></span>
 						<span class="flex-fill text-center" data-zfReplace="Parasha"></span>
-						<span>
+						<span style="text-align: center; line-height: .8;">
 							{% include havdalah.svg %}
-							<span data-zfReplace="TzetShabbat"></span>
+							<span data-zfReplace="TzetShabbat"></span><br>
+							<span class="lang lang-hb" style="font-size: .75em;">(ר"ת: <span data-zfReplace="TzetRT"></span>)</span>
+							<span class="lang lang-en" style="font-size: .75em;">(R"T: <span data-zfReplace="TzetRT"></span>)</span>
+							<span class="lang lang-et" style="font-size: .75em;">(R"T: <span data-zfReplace="TzetRT"></span>)</span>
 						</span>
 					</div>
 					<div class="d-lg-none">
