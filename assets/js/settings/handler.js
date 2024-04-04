@@ -2,12 +2,12 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { Input } from "../../libraries/mdbootstrap/mdb.esm.js"
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
+const urlParams = new URLSearchParams(window.location.search);
 
 /** @param {string} param */
 const settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
 
+// @ts-ignore
 window.customTZAlert = false;
 
 /**
@@ -61,8 +61,11 @@ const settings = Object.freeze({
         elevation: () => parseFloat(settingsURLOverride("elevation")) || 0,
         timezone: () => {
             if (settingsURLOverride("timeZone")) {
-                if (!Intl.supportedValuesOf('timeZone').includes(settingsURLOverride("timeZone")) && !window.customTZAlert) {
-                    alert("custom timezone found; expect issues.")
+                if (!Intl.supportedValuesOf('timeZone').includes(settingsURLOverride("timeZone"))
+                // @ts-ignore
+                && !window.customTZAlert) {
+                    alert("custom timezone found; expect issues.");
+                    // @ts-ignore
                     window.customTZAlert = true;
                 }
 
@@ -70,16 +73,20 @@ const settings = Object.freeze({
             }
 
             if (Intl.DateTimeFormat() && Intl.DateTimeFormat().resolvedOptions() && Intl.DateTimeFormat().resolvedOptions().timeZone) {
+                // @ts-ignore
                 if (!window.customTZAlert) {
                     alert("timezone not found in the request; using the system local.")
+                    // @ts-ignore
                     window.customTZAlert = true;
                 }
 
                 return Intl.DateTimeFormat().resolvedOptions().timeZone;
             }
 
+            // @ts-ignore
             if (!window.customTZAlert) {
                 alert("UTC timezone used due to inability to get system timezone. Please set the timezone via the URL params");
+                // @ts-ignore
                 window.customTZAlert = true;
             }
 

@@ -66,20 +66,29 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 
 		const birkLev = jCal.birkathHalevanaCheck(calc)
 		if (birkLev.data.start.dayOfYear == jCal.getDate().dayOfYear) {
+			const jMonth = jCal.formatJewishMonth()
 			events.push({
 				start: calc.getShkiya().epochMilliseconds,
 				end: calc.chainDate(jCal.getDate().withCalendar("hebrew").with({ day: 15 })).getAlotHashachar().epochMilliseconds,
-				title: "Birkat Halevana - Month of " + jCal.formatJewishMonth().en,
+				// @ts-ignore
+				title: settings.language() == "hb" ? "ברכת הלבנה - חדש " + jMonth.he : "Birkat Halevana - Month of " + jMonth.en,
 				description: "End-time of the Rama (Stringent): " + birkLev.data.end.toLocaleString()
 			})
 		}
 
 		if (jCal.tomorrow().getDayOfOmer() !== -1) {
-			events.push({
+			const omerInfo = jCal.tomorrow().getOmerInfo();
+			const calendarEvent = {
 				start: calc.getTzait().epochMilliseconds,
 				end: monViewNight(monthView, calc),
-				title: "Sefirat Haomer - Night " + jCal.tomorrow().getDayOfOmer()
-			})
+				title: "Sefirat Haomer - Night " + jCal.tomorrow().getDayOfOmer(),
+				description: `היום ${omerInfo.title.hb.mainCount} לעומר`
+			};
+
+			if (jCal.tomorrow().getDayOfOmer() >= 7)
+				calendarEvent.description += ` שהם ${omerInfo.title.hb.subCount.toString()}`;
+
+			events.push(calendarEvent)
 		}
 
 		if (jCal.getDate().dayOfWeek == 5 && !jCal.tomorrow().isYomTovAssurBemelacha()) {
