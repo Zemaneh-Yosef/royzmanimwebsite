@@ -199,7 +199,7 @@ class ChaiTables {
 		}
 
 		hideAllForms();
-		primaryIndex.addEventListener('change', (chngEvnt) => {
+		primaryIndex.addEventListener('change', (/** @type {Event & { target: HTMLSelectElement }} */chngEvnt) => {
 			hideAllForms();
 
 			const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
