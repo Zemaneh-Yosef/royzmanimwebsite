@@ -4,81 +4,122 @@ permalink: /
 ---
 
 <div class="modal" style="position: static; display: block; height: auto;">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-center">Set your location! | בחר את המיקום שלך!</h5>
-      </div>
-      <div class="modal-body">
-        {% capture hebrewWelcomeText %}{% include homepage/hebrew.md %}{% endcapture %}
-        {% capture englishWelcomeText %}{% include homepage/english.md %}{% endcapture %}
-        <span class="lang lang-hb">{{ hebrewWelcomeText | markdownify }}</span>
-        <span class="lang lang-et">{{ englishWelcomeText | markdownify }}</span>
-        <span class="lang lang-en">{{ englishWelcomeText | markdownify }}</span>
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-center">Set your location! | בחר את המיקום שלך!</h5>
+			</div>
+			<div class="modal-body">
+				{% capture hebrewWelcomeText %}{% include homepage/hebrew.md %}{% endcapture %}
+				{% capture englishWelcomeText %}{% include homepage/english.md %}{% endcapture %}
+				<span class="lang lang-hb">{{ hebrewWelcomeText | markdownify }}</span>
+				<span class="lang lang-et">{{ englishWelcomeText | markdownify }}</span>
+				<span class="lang lang-en">{{ englishWelcomeText | markdownify }}</span>
+				<p class="border" id="error" style="display: none">
+					<!--Hidden until shown-->
+				</p>
+				<div id="offlineText" style="display: none;">Seems like you're temporarily disconnected! The search bar needs an internet connection to function.</div>
+				<div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough characters. Please try again with a minimum of three characters</div>
+				<div class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
+					<span class="input-group-text" id="inputGroup-sizing-lg">
+						<i class="fa fa-search" aria-hidden="true" onclick="updateList(event)"></i>
+						<div class="spinner-border" style="display: none;" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+						<i class="fa fa-times-circle" style="display: none" aria-hidden="true"></i>
+					</span>
+					<input list="locationNames" autocomplete="postal-code" type="search" id="Main" onkeyup="updateList(event)" class="form-control form-control-lg" style="z-index: 2" />
+					<datalist id="locationNames"></datalist>
+					<label class="form-label" for="form1">Insert location name/ZIP code (English only)</label>
+					<button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block" onclick="getLocation()">
+						<i class="fa fa-map-marker"></i>
+					</button>
+					<button type="button" data-mdb-ripple-init class="btn btn-primary d-none d-lg-block" id="manualLocationButton" onclick="showManualLocationSettings()" style=" padding-right: .9rem; padding-left: .9rem;">
+						<i class="fa fa-caret-square-o-down"></i>
+					</button>
+				</div>
+				<button type="button" data-mdb-ripple-init class="btn btn-success d-lg-none" onclick="getLocation()" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7)">
+					<i class="fa fa-map-marker"></i> Use my device location
+				</button>
+				<button type="button" data-mdb-ripple-init class="btn btn-primary mb-2 d-lg-none" onclick="showManualLocationSettings()" style="width: 100%; margin-left: -1px; border-radius: 0 0 .25rem .25rem; border-left: 1px solid hsla(0,0%,100%,.7); border: 1px solid hsla(0,0%,100%,.7); border-top: none;">
+					<i class="fa fa-caret-square-o-down"></i> Advanced Location Manager
+				</button>
 
-        <p class="border" id="error" style="display: none">
-          <!--Hidden until shown-->
-        </p>
-        <div id="offlineText" style="display: none;">Seems like you're temporarily disconnected! The search bar needs an internet connection to function.</div>
-        <div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough characters. Please try again with a minimum of three characters</div>
-        <div class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
-          <span class="input-group-text" id="inputGroup-sizing-lg">
-            <i class="fa fa-search" aria-hidden="true" onclick="updateList(event)"></i>
-            <div class="spinner-border" style="display: none;" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <i class="fa fa-times-circle" style="display: none" aria-hidden="true"></i>
-          </span>
-          <input list="locationNames" autocomplete="postal-code" type="search" id="Main" onkeyup="updateList(event)" class="form-control form-control-lg" style="z-index: 2" />
-          <datalist id="locationNames"></datalist>
-          <label class="form-label" for="form1">Insert location name/ZIP code (English only)</label>
-          <button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block" onclick="getLocation()">
-            <i class="fa fa-map-marker"></i>
-          </button>
-          <button type="button" data-mdb-ripple-init class="btn btn-primary d-none d-lg-block" id="manualLocationButton" onclick="showManualLocationSettings()" style=" padding-right: .9rem; padding-left: .9rem;">
-            <i class="fa fa-caret-square-o-down"></i>
-          </button>
-        </div>
-        <button type="button" data-mdb-ripple-init class="btn btn-success d-lg-none" onclick="getLocation()" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7)">
-          <i class="fa fa-map-marker"></i> Use my device location
-        </button>
-        <button type="button" data-mdb-ripple-init class="btn btn-primary mb-2 d-lg-none" onclick="showManualLocationSettings()" style="width: 100%; margin-left: -1px; border-radius: 0 0 .25rem .25rem; border-left: 1px solid hsla(0,0%,100%,.7); border: 1px solid hsla(0,0%,100%,.7); border-top: none;">
-          <i class="fa fa-caret-square-o-down"></i> Advanced Location Manager
-        </button>
+				<div class="form-check">
+					<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked/>
+					<label class="form-check-label" for="flexRadioDefault2">Adjusted Minutes based on Location (לוח עמודי הוראה) - Disabled in Israel</label>
+				</div>
 
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked/>
-          <label class="form-check-label" for="flexRadioDefault2">Adjusted Minutes based on Location (לוח עמודי הוראה) - Disabled in Israel</label>
-        </div>
+				<div class="form-check">
+					<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
+					<label class="form-check-label" for="flexRadioDefault1">Fixed Israel Minutes (לוח אור החיים)</label>
+				</div>
 
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
-          <label class="form-check-label" for="flexRadioDefault1">Fixed Israel Minutes (לוח אור החיים)</label>
-        </div>
+				<p class="border" id="manualLocation" style="display: none">
+					<!--Hidden until shown-->
+					Enter your location manually here: <br />
+					<input type="text" id="cityInput" placeholder="City Name? (optional)"><br><br>
+					<input type="text" id="latInput" placeholder="Latitude?" /><br><br>
+					<input type="text" id="longInput" placeholder="Longitude?" /><br><br>
+					<input type="text" id="elevationInput" placeholder="Elevation in meters? (optional)"><br><br>
+					Timezone: <select id="timezoneInput"></select><br><br>
+					<button class="button-18" onclick="manualLocationSubmit()">Submit</button>
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
 
-        <p class="border" id="manualLocation" style="display: none">
-          <!--Hidden until shown-->
-          Enter your location manually here: <br />
-          <input
-          type="text"
-          id="cityInput"
-          placeholder="City Name? (optional)"
-          /><br /><br />
-          <input type="text" id="latInput" placeholder="Latitude?" /><br /><br />
-          <input type="text" id="longInput" placeholder="Longitude?" /><br /><br />
-          <input
-          type="text"
-          id="elevationInput"
-          placeholder="Elevation in meters? (optional)"
-          /><br /><br />
-          Timezone?
-          <select id="timezoneInput"></select
-          ><br /><br />
-          <button class="button-18" onclick="manualLocationSubmit()">Submit</button>
-        </p>
-      </div>
-    </div>
-  </div>
+{% capture tekufaEng %}{% include zmanDescription/tekufa/english.md %}{% endcapture %}
+{% capture tekufaHeb %}{% include zmanDescription/tekufa/hebrew.md %}{% endcapture %}
+
+<div class="modal fade modal-xl" id="tekufaModal" tabindex="-1" aria-labelledby="tekufaModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tekufaModalLabel">Tekufa</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<span class="lang lang-hb">
+					{{ tekufaHeb | markdownify }}
+					<hr>
+					אתה יכול להשתמש ב-<b>זמני יוסף</b> כדי ללמוד עוד על התקופות ומידע אחר של זמנים!
+					יציאה ממודל זה כדי להשתמש בגרסת האתר, או להוריד את האפליקציה שלנו ל-iOS ו-Android בחנויות המתאימות.
+				</span>
+				<span class="lang lang-et">
+					{{ tekufaEng | markdownify }}
+					<hr>
+					You can use <b>Zemaneh Yosef</b> to learn more about the Tekufot & other Zemanim information!
+					Exit this modal to use the website version, or download our iOS and Android app on their respective stores.
+				</span>
+				<span class="lang lang-en">
+					{{ tekufaEng | markdownify }}
+					<hr>
+					You can use <b>Zemaneh Yosef</b> to learn more about the Tekufot & other Zemanim information!
+					Exit this modal to use the website version, or download our iOS and Android app on their respective stores.
+				</span>
+				<div style="text-align: center;">
+					<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/app-store.png" style="width: 25%;" loading="lazy"></a>
+					<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 25%;" loading="lazy"></a><br>
+					<div class="d-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
+							<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="display: block; border-radius: .5rem; background: black; width: 25%; padding: .5rem;">
+									<div style="border-radius: .5rem; background: white;">
+											<img src="/assets/images/app-store-qr.png" style="width: 100%" loading="lazy">
+									</div>
+									App Store
+							</a>
+							<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="display: block; border-radius: .5rem; background: black; width: 25%; padding: .5rem;">
+									<div style="border-radius: .5rem; background: white;">
+											<img src="/assets/images/gplay-qr.png" style="width: 100%" loading="lazy">
+									</div>
+									Play Store
+							</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 {% include toasts/failToast.html toastId="inaccessibleToast" errorText="Location inaccessible. Please try again!" %}

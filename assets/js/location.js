@@ -10,6 +10,12 @@ const geoLocation = {
 let maxRows = 5;
 let maxPossibleRows = 0;
 
+document.addEventListener("DOMContentLoaded", function(){
+	if (urlParams.get('modalShow') == 'tekufa') {
+		window.bootstrap.Modal.getOrCreateInstance(document.getElementById("tekufaModal")).show()
+	}
+});
+
 const errorBox = document.getElementById("error");
 
 function showManualLocationSettings() {
@@ -69,7 +75,8 @@ async function updateList(event) {
 	iconography.error.style.display = "none";
 	iconography.search.style.removeProperty("display");
 	iconography.loading.style.display = "none"
-	document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+	document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.25rem';
+	document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.25rem';
 
 	const q = document.getElementById("Main").value;
 	if (q.length < 3) {
@@ -93,6 +100,7 @@ async function updateList(event) {
 		iconography.search.style.display = "none";
 		iconography.loading.style.removeProperty("display");
 		document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
+		document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.5rem';
 	}
 
 	try {
@@ -138,7 +146,8 @@ async function updateList(event) {
 				iconography.error.style.removeProperty("display");
 				iconography.search.style.display = "none";
 				iconography.loading.style.display = "none"
-				document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+				document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.25rem';
+				document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.25rem';
 
 				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
 				toastBootstrap.show()
@@ -196,7 +205,8 @@ async function setLocation(name, admin, country, latitude, longitude) {
 				iconography.error.style.removeProperty("display");
 				iconography.search.style.display = "none";
 				iconography.loading.style.display = "none"
-				document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+				document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.25rem';
+				document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.25rem';
 
 				console.error(e);
 				// This didn't come from getting the user's own location, because they already have the timezone
@@ -239,6 +249,7 @@ function getLocation() {
 	iconography.search.style.display = "none";
 	iconography.loading.style.removeProperty("display");
 	document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
+	document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.5rem';
 
 	getCoordinates({maximumAge:60000, timeout:9000, enableHighAccuracy:true})
 		.then(pos => setLatLong(pos))
@@ -247,8 +258,9 @@ function getLocation() {
 			document.getElementById("Main").disabled = false;
 			iconography.error.style.removeProperty("display");
 			iconography.search.style.display = "none";
-			iconography.loading.style.display = "none"
-			document.getElementsByClassName("input-group-text")[0].style.removeProperty("padding-left");
+			iconography.loading.style.display = "none";
+			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.25rem';
+			document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.25rem';
 
 			showError(e)
 		})
