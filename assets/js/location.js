@@ -10,12 +10,6 @@ const geoLocation = {
 let maxRows = 5;
 let maxPossibleRows = 0;
 
-document.addEventListener("DOMContentLoaded", function(){
-	if (urlParams.get('modalShow') == 'tekufa') {
-		window.bootstrap.Modal.getOrCreateInstance(document.getElementById("tekufaModal")).show()
-	}
-});
-
 const errorBox = document.getElementById("error");
 
 function showManualLocationSettings() {
@@ -75,8 +69,8 @@ async function updateList(event) {
 	iconography.error.style.display = "none";
 	iconography.search.style.removeProperty("display");
 	iconography.loading.style.display = "none"
-	document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.25rem';
-	document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.25rem';
+	document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '1rem';
+	document.getElementsByClassName("input-group-text")[0].style.paddingRight = '1rem';
 
 	const q = document.getElementById("Main").value;
 	if (q.length < 3) {
@@ -146,8 +140,8 @@ async function updateList(event) {
 				iconography.error.style.removeProperty("display");
 				iconography.search.style.display = "none";
 				iconography.loading.style.display = "none"
-				document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.25rem';
-				document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.25rem';
+				document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '1rem';
+				document.getElementsByClassName("input-group-text")[0].style.paddingRight = '1rem';
 
 				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
 				toastBootstrap.show()
@@ -195,7 +189,9 @@ async function setLocation(name, admin, country, latitude, longitude) {
 			});
 			const data = await getJSON("https://secure.geonames.org/timezoneJSON?" + params);
 
-			geoLocation.timeZone = data["timezoneId"];
+			geoLocation.timeZone = data["timezoneId"]
+				.replaceAll("Asia/Gaza", "Asia/Jerusalem")
+				.replaceAll("Asia/Hebron", "Asia/Jerusalem");
 		} catch (e) {
 			const attemptedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 			if (attemptedTimezone)
@@ -205,8 +201,8 @@ async function setLocation(name, admin, country, latitude, longitude) {
 				iconography.error.style.removeProperty("display");
 				iconography.search.style.display = "none";
 				iconography.loading.style.display = "none"
-				document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.25rem';
-				document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.25rem';
+				document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '1rem';
+				document.getElementsByClassName("input-group-text")[0].style.paddingRight = '1rem';
 
 				console.error(e);
 				// This didn't come from getting the user's own location, because they already have the timezone
@@ -259,8 +255,8 @@ function getLocation() {
 			iconography.error.style.removeProperty("display");
 			iconography.search.style.display = "none";
 			iconography.loading.style.display = "none";
-			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.25rem';
-			document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.25rem';
+			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '1rem';
+			document.getElementsByClassName("input-group-text")[0].style.paddingRight = '1rem';
 
 			showError(e)
 		})
@@ -374,20 +370,18 @@ function openCalendarWithLocationInfo() {
 	window.location.href = "calendar?" + params.toString();
 }
 
-window.addEventListener('load', function(e) {
-	if (navigator.onLine)
-		return;
+const networkStatus = {
+	online: () => { document.getElementById("Main").disabled = false; document.getElementById("offlineText").style.display = "none" },
+	offline: () => { document.getElementById("Main").disabled = true; document.getElementById("offlineText").style.removeProperty("display") }
+}
 
-	document.getElementById("Main").disabled = true;
-	document.getElementById("offlineText").style.removeProperty("display");
-}, false);
+document.addEventListener("DOMContentLoaded", function(){
+	if (urlParams.get('modalShow') == 'tekufa') {
+		window.bootstrap.Modal.getOrCreateInstance(document.getElementById("tekufaModal")).show()
+	}
 
-window.addEventListener('online', function(e) {
-	document.getElementById("Main").disabled = false;
-	document.getElementById("offlineText").style.display = "none";
-}, false);
+	if (!navigator.onLine) networkStatus.offline();
+});
 
-window.addEventListener('offline', function(e) {
-	document.getElementById("Main").disabled = true;
-	document.getElementById("offlineText").style.removeProperty("display");
-}, false);
+window.addEventListener('online', () => networkStatus.online());
+window.addEventListener('offline', () => networkStatus.offline());
