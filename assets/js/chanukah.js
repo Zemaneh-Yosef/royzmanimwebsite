@@ -14,7 +14,8 @@ if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 
-const calc = (settings.location.timezone() == 'Asia/Jerusalem' ? new OhrHachaimZmanim(geoLocation, true) : (new AmudehHoraahZmanim(geoLocation)))
+const calc = (settings.location.timezone() == 'Asia/Jerusalem' ? new OhrHachaimZmanim(geoLocation, true) : (new AmudehHoraahZmanim(geoLocation)));
+calc.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha());
 const jCal = new WebsiteCalendar()
 
 for (const title of document.getElementsByClassName('shabbatTitleCore')) {

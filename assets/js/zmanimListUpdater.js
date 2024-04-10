@@ -25,6 +25,7 @@ class zmanimListUpdater {
 		this.nextUpcomingZman = null;
 
 		this.buttonsInit = false;
+		this.midDownload = false;
 
 		/** @type {null|NodeJS.Timeout} */ // It's not node but whatever
 		this.countdownToNextDay = null;
@@ -62,6 +63,12 @@ class zmanimListUpdater {
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	resetCalendar(geoLocation = this.geoLocation) {
+		this.zmanInfoSettings = {
+			hourCalculator: settings.calendarToggle.hourCalculators(),
+			tzeithIssurMelakha: settings.customTimes.tzeithIssurMelakha(),
+			tzeitTaanitHumra: settings.calendarToggle.tzeitTaanitHumra()
+		};
+
 		this.geoLocation = geoLocation;
 		const locationModal = document.getElementById('locationModal')
 
@@ -88,6 +95,8 @@ class zmanimListUpdater {
 			amudehHoraahIndicators.forEach((/** @type {HTMLElement} */ ind) => ind.style.display = 'none');
 			this.zmanFuncs = new OhrHachaimZmanim(geoLocation, true)
 		}
+
+		this.zmanFuncs.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha())
 
 		document.querySelectorAll('[data-zfFind="LocationYerushalayimLine"]')
 			.forEach(jerusalemLine =>
@@ -165,6 +174,11 @@ class zmanimListUpdater {
 			const downloadBtn = document.getElementById("downloadModalBtn");
 			downloadBtn.style.removeProperty("display")
 			downloadBtn.addEventListener('click', () => {
+				if (this.midDownload)
+					return;
+
+				this.midDownload = true;
+
 				const geoLocationParams = [
 					this.geoLocation.getLocationName(),
 					this.geoLocation.getLatitude(),
@@ -174,26 +188,55 @@ class zmanimListUpdater {
 				];
 	
 				const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
-	
-				const icsData = icsExport(
+
+				const icsParams = [
 					this.zmanFuncs instanceof AmudehHoraahZmanim,
 					[isoYear, isoMonth, isoDay, isoCalendar],
 					// @ts-ignore
 					geoLocationParams,
 					this.zmanFuncs.coreZC.isUseElevation(),
 					this.jCal.getInIsrael(),
-					this.zmanimList
-				)
-				const element = document.createElement('a');
-				element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
-				element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
+					this.zmanimList,
+					true,
+					{
+						language: settings.language() == "hb" ? "he" : settings.language(),
+						timeFormat: settings.timeFormat(), seconds: settings.seconds(),
+						zmanInfoSettings: this.zmanInfoSettings,
+						calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()]
+					}
+				]
 
-				element.style.display = 'none';
-				document.body.appendChild(element);
+				if (window.Worker) {
+					const myWorker = new Worker("/assets/js/icsHandler.js", { type: "module" });
+					myWorker.postMessage(icsParams)
+					myWorker.addEventListener("message", (message) => {
+						console.log("received message from other thread")
+						const element = document.createElement('a');
+						element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(message.data));
+						element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
 
-				element.click();
+						element.style.display = 'none';
+						document.body.appendChild(element);
 
-				document.body.removeChild(element);
+						element.click();
+
+						document.body.removeChild(element);
+						this.midDownload = false;
+					})
+				} else {
+					const icsData = icsExport.apply(icsExport, icsParams)
+					const element = document.createElement('a');
+					element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
+					element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
+
+					element.style.display = 'none';
+					document.body.appendChild(element);
+
+					element.click();
+
+					document.body.removeChild(element);
+					this.midDownload = false;
+				}
 			})
 
 			for (const dateChanger of Array.from(dateContainer.getElementsByTagName('button')).filter(btn => btn.hasAttribute('data-dateAlter'))) {
@@ -563,7 +606,7 @@ class zmanimListUpdater {
 			)
 		}
 
-		const zmanInfo = this.jCal.getZmanimInfo(false,this.zmanFuncs,this.zmanimList);
+		const zmanInfo = this.jCal.getZmanimInfo(false, this.zmanFuncs, this.zmanimList, this.zmanInfoSettings);
 		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]')) {
 			for (const timeSlot of calendarContainer.children) {
 				if (!(timeSlot instanceof HTMLElement))
@@ -720,7 +763,7 @@ class zmanimListUpdater {
 
 		for (const time of [0, 1]) {
 			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO().add({ days: time }), true);
-			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false,this.zmanFuncs,this.zmanimList)).filter(obj => obj.display == 1).map(time => time.luxonObj));
+			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false,this.zmanFuncs,this.zmanimList,this.zmanInfoSettings)).filter(obj => obj.display == 1).map(time => time.luxonObj));
 		}
 
 		this.changeDate(currentSelectedDate, true); //reset the date to the current date

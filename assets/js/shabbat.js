@@ -2,6 +2,7 @@
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
+import { settings } from "./settings/handler.js"
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js"
 
 import {isEmojiSupported} from "../libraries/is-emoji-supported.js";
@@ -20,7 +21,9 @@ if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
+ohrHachaimCal.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha());
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
+amudehHoraahCal.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha());
 
 const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 6 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
@@ -83,7 +86,7 @@ for (const elem of elems) {
 
 		/** @type {KosherZmanim.Temporal.ZonedDateTime} */
 		// @ts-ignore
-		let time = (shabShita == 'getTzaitShabbath' ? currentCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 }) : currentCalc[shabShita]());
+		let time = (currentCalc[shabShita]());
 
 		if (elem.hasAttribute('data-humra'))
 			time = time.add({minutes: parseInt(elem.getAttribute('data-humra'))})
@@ -107,8 +110,9 @@ for (const elem of elems) {
 
 			const baseCalc = (baseLocation.getAttribute('data-timezone') == 'Asia/Jerusalem' ? new OhrHachaimZmanim(doubleLocations[stateLocation].geo, true) : new AmudehHoraahZmanim(doubleLocations[stateLocation].geo))
 			baseCalc.setDate(shabbatDate);
+			baseCalc.configSettings(currentCalc.rtKulah, currentCalc.shabbatObj)
 
-			const compTimes = baseCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 }).until(currentCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 })).total({ unit: 'minutes' })
+			const compTimes = baseCalc.getTzaitShabbath().until(currentCalc.getTzaitShabbath()).total({ unit: 'minutes' })
 			if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
 				editElem = elem;
 				for (let i of ['', ...shitot.fri, ...shitot.shab]) {
@@ -154,7 +158,7 @@ for (const elem of elems) {
 
 					const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map(
 						//@ts-ignore
-						calc => (shabShita == 'getTzaitShabbath' ? calc.getTzaitShabbath({ minutes: 30, degree: 7.14 }) : calc[shabShita]())
+						calc => (calc[shabShita]())
 							.add({minutes: !baseLocation.hasAttribute('data-humra') ? 0 : parseInt(baseLocation.getAttribute('data-humra'))})
 					)
 

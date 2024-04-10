@@ -2,7 +2,6 @@
 
 // Comment the following line before going live (as well as the export line on the bottom)!
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { settings } from "./settings/handler.js";
 import TekufahCalculator from "./tekufot.js";
 
 /**
@@ -61,6 +60,10 @@ class ZmanimMathBase {
 		calc.coreZC.setAstronomicalCalculator(this.coreZC.getAstronomicalCalculator())
 		calc.coreZC.setCandleLightingOffset(this.coreZC.getCandleLightingOffset())
 		calc.setDate(date);
+
+		if (this instanceof AlotTzeitZmanim)
+			// @ts-ignore
+			calc.configSettings(this.rtKulah, this.shabbatObj);
 
 		// @ts-ignore
 		return calc;
@@ -158,6 +161,15 @@ class GRAZmanim extends ZmanimMathBase {
 
 class AlotTzeitZmanim extends GRAZmanim {
 	/**
+	 * @param {boolean} rtKulah
+	 * @param {{ minutes: number; degree: number; }} shabbatObj
+	 */
+	configSettings(rtKulah, shabbatObj) {
+		this.rtKulah = rtKulah;
+		this.shabbatObj = shabbatObj;
+	}
+
+	/**
 	 * @param {KosherZmanim.Temporal.Duration} input
 	 * @param {"gra"|"mga"} dayCalc
 	 */
@@ -252,7 +264,7 @@ class AlotTzeitZmanim extends GRAZmanim {
 			this.zmanim.sunset().add({ minutes: 72 })
 		];
 
-		if (settings.calendarToggle.rtKulah()) 
+		if (this.rtKulah) 
 			return rtTimes.sort(KosherZmanim.Temporal.ZonedDateTime.compare)[0]
 		else
 			return rtTimes[0];
@@ -357,7 +369,7 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
 		return this.zmanim.sunset().add({ minutes: 20 });
 	}
 
-	getTzaitShabbath(shabbatTimeObj = settings.customTimes.tzeithIssurMelakha()) {
+	getTzaitShabbath(shabbatTimeObj = this.shabbatObj) {
 		return this.zmanim.sunset().add({ minutes: shabbatTimeObj.minutes });
 	}
 
@@ -424,7 +436,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
      * Actual A"H implementation of Tzeit Shabbat
      * @returns {KosherZmanim.Temporal.ZonedDateTime} The return value.
      */
-	getTzaitShabbath(shabbatTimeObj=settings.customTimes.tzeithIssurMelakha()) {
+	getTzaitShabbath(shabbatTimeObj=this.shabbatObj) {
 		const degree = shabbatTimeObj.degree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH;
 		const sunsetOffset = this.coreZC.getSunsetOffsetByDegrees(degree);
 		if (!sunsetOffset || sunsetOffset.epochMilliseconds > this.getSolarMidnight().epochMilliseconds)

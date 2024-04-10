@@ -111,8 +111,10 @@ const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 ohrHachaimCal.setDate(jCal.getDate())
+ohrHachaimCal.configSettings(false, { minutes: 30, degree: 7.14 })
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 amudehHoraahCal.setDate(jCal.getDate())
+ohrHachaimCal.configSettings(true, { minutes: 30, degree: 7.14 })
 
 const isIsrael = (/** @type {Element} */ elem) => elem.getAttribute('data-timezone') == 'Asia/Jerusalem'
 
@@ -156,7 +158,7 @@ for (const elem of elems) {
 			const extremeCalc = currentCalc.chainDate(currentCalc.coreZC.getDate().add({ days: extremeDay }));
 			/** @type {KosherZmanim.Temporal.ZonedDateTime} */
 			// @ts-ignore
-			let time = (shita == 'getTzaitShabbath' ? extremeCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 }) : extremeCalc[shita]());
+			let time = extremeCalc[shita]();
 			if (elem.hasAttribute('data-humra')) {
 				time = time[action]({minutes: parseInt(elem.getAttribute('data-humra'))})
 			}
@@ -176,9 +178,10 @@ for (const elem of elems) {
 
 			const baseCalc = (isIsrael(baseLoc) ? new OhrHachaimZmanim(dupLocs[stateLoc].geo, true) : new AmudehHoraahZmanim(dupLocs[stateLoc].geo))
 			baseCalc.setDate(jCal.getDate());
+			baseCalc.configSettings(currentCalc.rtKulah, currentCalc.shabbatObj);
 
-			const compTimes = baseCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 })
-				.until(currentCalc.getTzaitShabbath({ minutes: 30, degree: 7.14 }))
+			const compTimes = baseCalc.getTzaitShabbath()
+				.until(currentCalc.getTzaitShabbath())
 				.total({ unit: 'minutes' })
 			if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLoc.getAttribute('data-timezone')) {
 				editElem = elem;
@@ -201,7 +204,7 @@ for (const elem of elems) {
 
 					const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map(
 						//@ts-ignore
-						calc => (shita == 'getTzaitShabbath' ? calc.getTzaitShabbath({ minutes: 30, degree: 7.14 }) : calc[shita]())
+						calc => (calc[shita]())
 							.subtract({minutes: !baseLoc.hasAttribute('data-humra') ? 0 : parseInt(baseLoc.getAttribute('data-humra'))})
 					)
 
