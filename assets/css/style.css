@@ -142,13 +142,6 @@ body.lang-en .lang:not(.lang-en) {
   box-shadow: 3px 0 5px 0 rgba(0,0,0,.5);
 }
 
-#dateBox {
-  border-left: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
-  border-right: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
-  text-align: center;
-  padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
-}
-
 @media (max-width: 991.98px) {
   .form-outline .form-control~.form-notch > * {
     border-bottom: none !important;
@@ -157,11 +150,23 @@ body.lang-en .lang:not(.lang-en) {
   }
 }
 
-#cardDateContainer {
-  padding: 0;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
+#dateBox {
+  text-align: center;
+}
+
+@media screen {
+  #dateBox {
+    border-left: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+    border-right: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+    padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
+  }
+
+  #cardDateContainer {
+    padding: 0;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+  }
 }
 
 #cardDateContainer > button {

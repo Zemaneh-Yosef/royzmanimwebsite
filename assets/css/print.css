@@ -4,7 +4,6 @@ header.navbar {
 
 .accordian summary {
     color: black;
-    background-color: transparent;
     padding: .3rem .9rem;
 }
 
@@ -14,7 +13,7 @@ header.navbar {
 
 li[data-zfFind="dateContainer"] button,
 li[data-zfFind="dateContainer"] input {
-    display: none;
+    display: none !important;
 }
 
 .nextZman .timeDisplay::before {
