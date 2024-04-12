@@ -1,0 +1,7 @@
+Even before the night of Pesach itself (the 15th), we find a Biblical prohibition on Erev Pesach to own and derive benefit on Hametz from midday onwards, based on a Derasha of the word "אך" in "אַ֚ךְ בַּיּ֣וֹם הָרִאשׁ֔וֹן תַּשְׁבִּ֥יתו שאר מבתיכֶ֑ם" (sourced from Pesachim Bavli 5a). However, there is a special Rabbinic commandment to burn it by the 5<sup>th</sup> hour of the day, as well as to stop eating from it by the 4<sup>th</sup> hour of the day (sourced from Mishnayoth Pesachim 1:4).
+
+---
+
+These hours are calculated by dividing the time from *Alot Hashachar* until *Tzet Hakokhavim* into 12 timeframes, called "seasonal hours". Although we usually only calculate this way for Keriath Shema due to its Biblical nature, we are stringent for the matter of Hametz on Pesach as well (as recorded in the Pri Hadash, beginning of Siman 443 & Hazon Ovadia II pg. 37).
+- Yalkut Yosef on Pesach (5775 edition) pg. 652 records a leniency for children to use the seasonal hours from sunrise->sunset if they still want to eat Hametz. This time would match what we report for "Sof Zman Berachot Shema"
+- To calculate as such in a synchronized fashion (so that the midpoint of both sunrise->sunset + alot->tzet line up), one would need to measure Tzet Hakochavim by Rabbenu Tam's time; otherwise, there is a missing 58.5 minutes between the time of the Geonic Tzet Hakochavim and Rabbenu Tam's (counterpoint would be the Ben Ish Hai's calculations, which are indeed shifted by that time).

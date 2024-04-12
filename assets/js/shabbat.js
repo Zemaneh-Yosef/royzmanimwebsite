@@ -25,7 +25,7 @@ ohrHachaimCal.configSettings(settings.calendarToggle.rtKulah(), settings.customT
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 amudehHoraahCal.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha());
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 6 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 13 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
 if (jCal.getDate().dayOfWeek != 6)

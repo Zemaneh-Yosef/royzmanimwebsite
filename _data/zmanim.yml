@@ -113,20 +113,7 @@
     hb: סוף זמן אכילת חמץ
     et: Sof Zman Achilat Chametz
     en: Latest Time to Eat Chametz
-  description: |-
-    <p>This is the latest time a person can eat chametz.</p>
-    <p>
-    This is calculated as 4 zmaniyot/seasonal hours, according to the
-    Magen Avraham, after Alot HaShachar (Dawn) with elevation included.
-    Since Chametz is a mitzvah from the torah, we are stringent and we
-    use the Magen Avraham's time to calculate the last time a person can
-    eat chametz.
-    </p>
-    <p class="mb-0">
-    In Luach Amudei Horaah mode, this time is calculated the same way as
-    above except using the skewed Alot/Tzait of the Amudei Horaah
-    calendar, and no elevation is included.
-    </p>
+  descriptionInclude: zmanDescription/hametz.md
 - id: SofZmanBiurChametz
   attributes:
     yomTovInclusive: EREV_PESACH
@@ -137,21 +124,7 @@
     hb: סוף זמן ביעור חמץ
     et: Sof Zman Biur Chametz
     en: Latest Time to Burn Chametz
-  description: |-
-    <p>
-    This is the latest time a person can own chametz before pesach
-    begins. You should get rid of all chametz in your possession by this
-    time.
-    </p>
-    <p>
-    This is calculated as 5 zmaniyot/seasonal hours, according to the
-    MG"A, after Alot HaShachar (Dawn) with elevation included.
-    </p>
-    <p class="mb-0">
-    In Luach Amudei Horaah mode, this time is calculated the same way as
-    above except using the skewed Alot/Tzait of the Amudei Horaah
-    calendar, and no elevation is included.
-    </p>
+  descriptionInclude: zmanDescription/hametz.md
 - id: latestBrachotShmaGRA
   attributes:
     yomTovInclusive:
