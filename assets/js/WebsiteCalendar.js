@@ -193,7 +193,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						calculatedZmanim[zmanId].code.push('not-shabbat')
 						continue;
 					} else
-						calculatedZmanim[zmanId].luxonObj = (tzetCandle ? zmanCalc.getTzaitShabbath() : zmanCalc.getTzait());
+						calculatedZmanim[zmanId].luxonObj = (tzetCandle ? zmanCalc.getTzaitShabbath() : zmanCalc.getTzaitLechumra());
 
 					break;
 				case 'tzeitShabbat':
