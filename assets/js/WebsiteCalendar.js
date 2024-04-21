@@ -185,15 +185,18 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					}
 					break;
 				case 'candleLighting':
-					const tzetCandle = (this.hasCandleLighting() && this.isAssurBemelacha() && this.getDayOfWeek() !== 6);
-					const shabbatCandles = ((this.hasCandleLighting() && !this.isAssurBemelacha()) || this.getDayOfWeek() === 6);
-
-					if (!tzetCandle && !shabbatCandles) {
+					if (!this.hasCandleLighting()) {
 						calculatedZmanim[zmanId].display = -1;
 						calculatedZmanim[zmanId].code.push('not-shabbat')
 						continue;
-					} else
-						calculatedZmanim[zmanId].luxonObj = (tzetCandle ? zmanCalc.getTzaitShabbath() : zmanCalc.getTzaitLechumra());
+					} else {
+						if (this.getDayOfWeek() === 6 || !this.isAssurBemelacha())
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.getCandleLighting();
+						else if (this.getDayOfWeek() === 7)
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.getTzaitShabbath();
+						else
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.getTzaitLechumra();
+					}
 
 					break;
 				case 'tzeitShabbat':
