@@ -21,11 +21,16 @@ if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
-ohrHachaimCal.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha());
+ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
-amudehHoraahCal.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha());
+amudehHoraahCal.configSettings(
+	document.getElementById('gridElement').hasAttribute('data-force-rtkulah') ?
+		document.getElementById('gridElement').getAttribute('data-force-rtkulah') == "true" :
+		true,
+	settings.customTimes.tzeithIssurMelakha()
+);
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 13 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 20 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
 if (jCal.getDate().dayOfWeek != 6)

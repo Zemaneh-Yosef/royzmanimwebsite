@@ -217,9 +217,10 @@ website: true
     <div id="gridElement"
         data-functions-fri="getCandleLighting"
         data-functions-shab="getTzaitShabbath getTzaitRT"
+        data-force-rtkulah="false"
     >
         <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">לארץ ישראל</div>
-        <div class="header tableShadow">התחלת שבת<br><span style="font-weight: 400;">הדלכת נרות</span></div>
+        <div class="header tableShadow">התחלת שבת<br><span style="font-weight: 400;">הדלקת נרות</span></div>
         <div class="header tableShadow">צאת שבת</div>
         <div class="header tableShadow">רבינו תם</div>
         {% for item in site.data.designLocationList.israel %}{% assign gridRow = forloop.index | plus: 1 %}

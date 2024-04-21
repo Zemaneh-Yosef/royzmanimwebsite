@@ -1,7 +1,66 @@
 ny:
   - name: |
-      New York City<br>
-      <span class="sml">+ Teaneck & Passaic NJ, Staten Is. & Monsey NY</span>
+      Five Boroughs, NY<br>
+      <span class="sml">+ Teaneck & Passaic NJ, 5 Towns & Great Neck NY</span>
+    twoLine: True
+    # Shul: Beth Torah
+    lat: 40.622795584652465
+    lng: -73.96960885888677
+    timezone: America/New_York
+    humra: 2
+    timeFormat: h12
+  - name: Atlanta, GA
+    # Location: Chabad of Toco Hills
+    lat: 33.814254855365846
+    lng: -84.32203439424957
+    timezone: America/New_York
+    timeFormat: h12
+  - name: Baltimore, MD
+    #flag: https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg
+    # Location: Ner Yisrael
+    lat: 39.38871045313417
+    lng: -76.75324161009378
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h12
+  - name: |
+      Deal, NJ<br>
+      <span class="sml">+ Lakewood, NJ</span>
+    twoLine: True
+    # Location: Beth Medrash Govoha
+    lat: 40.09562417811022
+    lng: -74.22206003964102
+    timezone: America/New_York
+    humra: 1
+    timeFormat: h12
+  - name: Montreal, QC
+    # Location: Academy Yeshiva Yavne
+    lat: 45.4612709318975
+    lng: -73.66436583221801
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h24
+  - name: Miami, FL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
+    # Location: Chabad of Midtown Miami
+    lat: 25.804507405080564
+    lng: -80.19053877936163
+    timezone: America/New_York
+    doubleLocation: True
+    humra: 0
+    timeFormat: h12
+  - name: Tampa, FL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
+    # Location: 
+    lat: 27.987052274209734
+    lng: -82.57645831769476
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h12
+tallNy:
+  - name: |
+      Five Boroughs, NY<br>
+      <span class="sml">+ Teaneck & Passaic NJ<br>+ 5 Towns & Great Neck NY</span>
     twoLine: True
     # Shul: Beth Torah
     lat: 40.622795584652465
@@ -98,3 +157,94 @@ israel:
     timezone: Asia/Jerusalem
     elevation: 275
     humra: 0
+lcm:
+  - name: |
+      Five Boroughs, NY<br>
+      <span class="sml">+ Teaneck & Passaic NJ, 5 Towns & Great Neck NY</span>
+    twoLine: True
+    # Shul: Beth Torah
+    lat: 40.622795584652465
+    lng: -73.96960885888677
+    timezone: America/New_York
+    humra: 2
+    timeFormat: h12
+  - name: Atlanta, GA
+    # Location: Chabad of Toco Hills
+    lat: 33.814254855365846
+    lng: -84.32203439424957
+    timezone: America/New_York
+    timeFormat: h12
+  - name: Baltimore, MD
+    #flag: https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg
+    # Location: Ner Yisrael
+    lat: 39.38871045313417
+    lng: -76.75324161009378
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h12
+  - name: Dallas, TX
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg
+    # Location: Congregation Toras Chaim
+    lat: 32.99741715565875
+    lng: -96.78097876171452
+    timezone: America/Chicago
+    humra: 1
+    timeFormat: h12
+  - name: Houston, TX
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg
+    # Location: Uptown Chabad
+    lat: 29.743773687328083
+    lng: -95.4515488015217
+    timezone: America/Chicago
+    humra: 1
+    timeFormat: h12
+  - name: |
+      Lakewood, NJ<br>
+      <span class="sml">+ Deal, NJ</span>
+    twoLine: True
+    # Location: Beth Medrash Govoha
+    lat: 40.09562417811022
+    lng: -74.22206003964102
+    timezone: America/New_York
+    humra: 1
+    timeFormat: h12
+  - name: Los Angeles, CA
+    #flag: https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_California.svg
+    # Location: Valley Torah High School
+    lat: 34.1688520530159
+    lng: -118.40607216944592
+    timezone: America/Los_Angeles
+    humra: 1
+    timeFormat: h12
+  - name: Montreal, QC
+    # Location: Academy Yeshiva Yavne
+    lat: 45.4612709318975
+    lng: -73.66436583221801
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h24
+  - name: |
+      Miami, FL<br>
+      <span class="sml">+ Boca Raton & Hollywood</span>
+    twoLine: True
+    # Location: Chabad of Midtown Miami
+    lat: 25.804507405080564
+    lng: -80.19053877936163
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h12
+  - name: Tampa, FL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
+    # Location: 
+    lat: 27.987052274209734
+    lng: -82.57645831769476
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h12
+  - name: Toronto, ON
+    # Location: Agudas Yisrael of Toronto
+    lat: 43.735631103552414
+    lng: -79.43261235761372
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h24
