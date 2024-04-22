@@ -227,7 +227,7 @@ website: true
         <div class="header tableShadow">Fast Starts</div>
         <div class="header tableShadow">Mincha Birkat Kohanim</div>
         <div class="header tableShadow">Fast Ends</div>
-        {% for item in site.data.designLocationList.ny %}{% assign gridRow = forloop.index | plus: 1 %}
+        {% for item in site.data.designLocationList.east %}{% assign gridRow = forloop.index | plus: 1 %}
             <div class="shabbatRow tableShadow timecalc {% if item.twoLine %}twoLine{% endif %}"
                 {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
                 data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
