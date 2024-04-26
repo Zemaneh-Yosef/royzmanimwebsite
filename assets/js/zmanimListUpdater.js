@@ -309,6 +309,74 @@ class zmanimListUpdater {
 	}
 
 	/**
+	 * @param {HTMLElement} [fastContainer]
+	 */
+	renderFastIndex(fastContainer) {
+		const todayFast = this.jCal.isTaanis() || this.jCal.isTaanisBechoros();
+		if (!todayFast && !this.jCal.tomorrow().isTaanis() && !this.jCal.tomorrow().isTaanisBechoros()) {
+			fastContainer.style.display = "none";
+			return;
+		}
+		fastContainer.style.removeProperty("display");
+
+		const fastJCal = this.jCal.isTaanis() || this.jCal.isTaanisBechoros() ? this.jCal : this.jCal.tomorrow();
+		const fastCalc = this.zmanFuncs.chainDate(fastJCal.getDate());
+		const nameElements = [...fastContainer.getElementsByTagName("h5")];
+		nameElements.forEach(element => element.style.display = "none");
+		
+		const ourFast = nameElements.find(element => element.getAttribute("data-zfFind") == fastJCal.getYomTovIndex().toString());
+		ourFast.style.removeProperty("display");
+		if (todayFast) {
+			ourFast.querySelectorAll('[data-zfFind="erevTzom"]').forEach(element => element.style.display = "none")
+		} else {
+			ourFast.querySelectorAll('[data-zfFind="erevTzom"]').forEach(element => element.style.removeProperty("display"))
+		}
+
+		if ([KosherZmanim.JewishCalendar.TISHA_BEAV, KosherZmanim.JewishCalendar.YOM_KIPPUR].includes(fastJCal.getYomTovIndex())) {
+			fastContainer.querySelector('[data-zfFind="oneDayTimes"]').style.display = "none";
+
+			const multiDayTimesList = fastContainer.querySelector('[data-zfFind="twoDayTimes"]');
+			const erevTzom = multiDayTimesList.firstElementChild;
+			if (erevTzom.lastChild.nodeType == Node.TEXT_NODE) {
+				erevTzom.lastChild.remove();
+			}
+
+			const erevCalc = this.zmanFuncs.chainDate(fastJCal.getDate().subtract({ days: 1 }));
+			const timeOnErev =
+				(fastJCal.getYomTovIndex() == KosherZmanim.JewishCalendar.YOM_KIPPUR ? erevCalc.getCandleLighting() : erevCalc.getShkiya())
+			erevTzom.appendChild(document.createTextNode(timeOnErev.toLocaleString(...this.dtF)));
+
+			if (this.jCal.isTaanis()) {
+				erevTzom.querySelectorAll('[data-zfFind="erevTzom"]').forEach(element => element.style.display = "none")
+			} else {
+				erevTzom.querySelectorAll('[data-zfFind="erevTzom"]').forEach(element => element.style.removeProperty("display"))
+			}
+
+			const yomTzom = multiDayTimesList.lastElementChild;
+			if (yomTzom.lastChild.nodeType == Node.TEXT_NODE)
+				yomTzom.lastChild.remove();
+
+			if (fastJCal.getYomTovIndex() == KosherZmanim.JewishCalendar.YOM_KIPPUR) {
+				yomTzom.appendChild(document.createTextNode(
+					fastCalc.getTzaitShabbath().toLocaleString(...this.dtF) + ` (R"T: ${fastCalc.getTzaitRT().toLocaleString(...this.dtF)})`
+				));
+			} else {
+				yomTzom.appendChild(document.createTextNode(fastCalc.getTzaitLechumra().toLocaleString(...this.dtF)))
+			}
+		} else {
+			fastContainer.querySelector('[data-zfFind="twoDayTimes"]').style.display = "none";
+			const timeBox = fastContainer.querySelector('[data-zfFind="oneDayTimes"]');
+			if (timeBox.lastChild.nodeType == Node.TEXT_NODE) {
+				timeBox.lastChild.remove();
+			}
+
+			timeBox.appendChild(document.createTextNode(
+				fastCalc.getAlotHashachar().toLocaleString(...this.dtF) + ' - ' + fastCalc.getTzaitLechumra().toLocaleString(...this.dtF)
+			))
+		}
+	}
+
+	/**
 	 * @param {HTMLElement} [mourningDiv]
 	 */
 	writeMourningPeriod(mourningDiv) {
@@ -418,10 +486,13 @@ class zmanimListUpdater {
 	}
 
 	updateZmanimList() {
-		for (let dateContainer of document.querySelectorAll('[data-zfFind="dateContainer"]')) {
+		for (const dateContainer of document.querySelectorAll('[data-zfFind="dateContainer"]'))
 			if (dateContainer instanceof HTMLElement)
 				this.renderDateContainer(dateContainer);
-		}
+
+		for (const fastContainer of document.querySelectorAll('[data-zfFind="FastDays"]'))
+			if (fastContainer instanceof HTMLElement)
+				this.renderFastIndex(fastContainer)
 
 		for (const parashaElem of document.querySelectorAll('[data-zfFind="Parasha"]'))
 			if (parashaElem instanceof HTMLElement)

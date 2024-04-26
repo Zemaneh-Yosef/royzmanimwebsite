@@ -90,7 +90,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 			};
 
 			if (jCal.tomorrow().getDayOfOmer() >= 7)
-				calendarEvent.description += ` שהם ${omerInfo.title.hb.subCount.toString()}`;
+				calendarEvent.description += `, שהם ${omerInfo.title.hb.subCount.toString()}`;
 
 			events.push(calendarEvent)
 		}

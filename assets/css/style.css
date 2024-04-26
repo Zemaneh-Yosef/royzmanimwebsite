@@ -239,3 +239,7 @@ body.lang-en .lang:not(.lang-en) {
 .input-group-lg>.btn, .input-group-lg>.form-control, .input-group-lg>.form-select, .input-group-lg>.input-group-text {
   border-radius: .25rem;
 }
+
+li[data-zfFind="FastDays"] h5 {
+  margin-bottom: 0;
+}

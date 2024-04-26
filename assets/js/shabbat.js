@@ -30,7 +30,7 @@ amudehHoraahCal.configSettings(
 	settings.customTimes.tzeithIssurMelakha()
 );
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 20 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 27 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
 if (jCal.getDate().dayOfWeek != 6)
@@ -43,6 +43,8 @@ let shitot = {
 	fri: document.getElementById('gridElement').getAttribute('data-functions-fri').split(" "),
 	shab: document.getElementById('gridElement').getAttribute('data-functions-shab').split(" ")
 }
+
+const backday = parseInt(document.getElementById('gridElement').getAttribute('data-backday')) || 1
 
 const elems = document.getElementsByClassName('timecalc');
 /** @type {Record<string, {elem: Element; geo: KosherZmanim.GeoLocation}>} */
@@ -72,7 +74,7 @@ for (const elem of elems) {
 
 	let editElem = elem;
 
-	currentCalc.setDate(shabbatDate.subtract({ days: 1 }));
+	currentCalc.setDate(shabbatDate.subtract({ days: backday }));
 	for (const friShita of shitot.fri) {
 		editElem = editElem.nextElementSibling
 
@@ -133,8 +135,8 @@ for (const elem of elems) {
 
 				let baseEditElem = baseLocation;
 				editElem = elem;
-				currentCalc.setDate(shabbatDate.subtract({ days: 1 }));
-				baseCalc.setDate(shabbatDate.subtract({ days: 1 }));
+				currentCalc.setDate(shabbatDate.subtract({ days: backday }));
+				baseCalc.setDate(shabbatDate.subtract({ days: backday }));
 				for (const friShita of shitot.fri) {
 					editElem = editElem.nextElementSibling
 					baseEditElem = baseEditElem.nextElementSibling;

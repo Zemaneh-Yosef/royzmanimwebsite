@@ -1,0 +1,37 @@
+east:
+  - name: |
+      Five Boroughs, NY<br>
+      <span class="sml">+ 5 Towns & Great Neck</span>
+    twoLine: True
+    # Shul: Beth Torah
+    lat: 40.622795584652465
+    lng: -73.96960885888677
+    timezone: America/New_York
+    humra: 2
+    timeFormat: h12
+  - name: |
+      Deal, NJ<br>
+      <span class="sml">+ Lakewood</span>
+    twoLine: True
+    # Location: Beth Medrash Govoha
+    lat: 40.09562417811022
+    lng: -74.22206003964102
+    timezone: America/New_York
+    humra: 1
+    timeFormat: h12
+  - name: Montreal, QC
+    # Location: Academy Yeshiva Yavne
+    lat: 45.4612709318975
+    lng: -73.66436583221801
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h24
+  - name: Miami, FL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
+    # Location: Chabad of Midtown Miami
+    lat: 25.804507405080564
+    lng: -80.19053877936163
+    timezone: America/New_York
+    doubleLocation: True
+    humra: 0
+    timeFormat: h12

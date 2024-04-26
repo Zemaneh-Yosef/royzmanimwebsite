@@ -95,14 +95,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return nextJewishCalendar
 	}
 
-	isTaanitBechorot() {
-		return (
-			this.getJewishMonth() === KosherZmanim.JewishDate.NISSAN &&
-			((this.getJewishDayOfMonth() === 14 && this.getDayOfWeek() !== 7) ||
-			 (this.getJewishDayOfMonth() === 12 && this.getDayOfWeek() === 5))
-		);
-	}
-
 	/**
 	 * @param {boolean} independent
 	 * @param {AmudehHoraahZmanim|OhrHachaimZmanim} zmanCalc
@@ -298,10 +290,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": "ראש השנה",
 				"english": "Rosh Hashana"
 			},
-			[KosherZmanim.JewishCalendar.YOM_KIPPUR]: {
-				"hebrew": "יום קיפור",
-				"english": "Yom Kippur",
-			},
 			[KosherZmanim.JewishCalendar.SUCCOS]: {
 				"hebrew": "סוכות",
 				"english": "Sukkoth"
@@ -337,26 +325,9 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": "לג בעומר",
 				"english": "Lag Baomer"
 			},
-			[KosherZmanim.JewishCalendar.SEVENTEEN_OF_TAMMUZ]: {
-				"hebrew": "צום הרביעי",
-				"english": "Fast of the 4<sup>th</sup> month"
-			},
-			[KosherZmanim.JewishCalendar.TISHA_BEAV]: {
-				"hebrew": "צום החמישי",
-				"english": "Fast of the 5<sup>th</sup> month"
-			},
 			[KosherZmanim.JewishCalendar.TU_BEAV]: {
 				"hebrew": 'ט"ו באב',
 				"english": "Tu Be'av"
-			},
-			[KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH]: {
-				"hebrew": 'צום גדליע (השבעי)',
-				"english-translated": "Tzom Gedalia (7<sup>th</sup> month)",
-				"english": "Fast of the 7<sup>th</sup> month"
-			},
-			[KosherZmanim.JewishCalendar.TENTH_OF_TEVES]: {
-				"hebrew": 'צום העשירי',
-				"english": "Fast of the 10<sup>th</sup> month"
 			},
 			[KosherZmanim.JewishCalendar.TU_BESHVAT]: {
 				"hebrew": 'ט"ו בשבת',
@@ -369,11 +340,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN]: {
 				"hebrew": "שושן פורים קתן",
 				"english": "Shushan Purim Katan"
-			},
-			[KosherZmanim.JewishCalendar.FAST_OF_ESTHER]: {
-				"hebrew": "תענית אסתר",
-				"english-translated": "Ta'anith Ester",
-				"english": "Fast of Ester"
 			},
 			[KosherZmanim.JewishCalendar.PURIM]: {
 				"hebrew": "פורים",
@@ -434,11 +400,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 			result.push(yomTovTitle.join(" / "))
 		}
-
-		if (this.isTaanitBechorot())
-			result.push("Ta'anit Bechorot");
-		else if (this.tomorrow().isTaanitBechorot())
-			result.push("Erev Ta'anit Bechorot")
 
 		if (this.isRoshChodesh() || this.tomorrow().isRoshChodesh() || this.tomorrow().isRoshChodesh()) {
 			if (!(!this.isRoshChodesh() && !this.tomorrow().isRoshChodesh())) {
