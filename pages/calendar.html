@@ -12,7 +12,7 @@ chaiTable: true
 
 <div id="wideGrid" class="maxWidthContainer">
 	<div id="generic">
-		<h3 class="text-center text-decoration-underline mb-0" data-zfReplace="LocationName"></h3>
+		<h3 class="text-center mb-0" data-zfReplace="LocationName"></h3>
 		<p class="text-center" data-zfFind="LocationYerushalayimLine">
 			<a data-bs-toggle="modal" data-bs-target="#locationModal"><i class="fa fa-info-circle"></i></a>
 			<span class="lang lang-hb">כיוון תפילה: </span>
@@ -164,15 +164,15 @@ chaiTable: true
 				</li>
 				<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
 					<div data-zfFind="SefirathHaomer">
-						<h5>
+						<h5 class="mb-0">
 							<span class="lang lang-hb">היום <span data-zfReplace="hbOmerDate"></span> לעומר</span>
 							<span class="lang lang-et">Today is <span data-zfReplace="etNumOmerCount"></span> of the Omer</span>
 							<span class="lang lang-en"><span data-zfReplace="enOrdOmerCount"></span> day of the Omer</span>
 						</h5>
-						<p class="lang lang-hb">שהם <span data-zfReplace="hbOmerDays"></span></p>
-						<p class="lang lang-et">which <span data-zfReplace="etOmer"></span></p>
-						<p class="lang lang-en" data-zfReplace="enOmer"></p>
-						<hr data-zfFind="omerRules">
+						<p class="lang lang-hb mb-0">שהם <span data-zfReplace="hbOmerDays"></span></p>
+						<p class="lang lang-et mb-0">which <span data-zfReplace="etOmer"></span></p>
+						<p class="lang lang-en mb-0" data-zfReplace="enOmer"></p>
+						<hr class="my-1" data-zfFind="omerRules">
 					</div>
 					<div data-zfFind="ThreeWeeksHeader">
 						<h5>
@@ -332,7 +332,7 @@ chaiTable: true
 				</div>
 			</dl>
 		</div>
-		<div class="card mb-2">
+		<div class="card">
 			<div class="card-header">
 				<h5 class="mb-0">
 					<span class="lang lang-hb">שעה זמנית</span>

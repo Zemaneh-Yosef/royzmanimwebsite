@@ -1,0 +1,32 @@
+{
+    "name": "זמני יוסף",
+    "short_name": "זמני יוסף",
+    "start_url": "https://royzmanim.com",
+    "display": "standalone",
+    "description": "The platform to calculate Zemanim according to Maran Ovadia Yosef zt\"l",
+    "lang": "en-US",
+    "dir": "auto",
+    "theme_color": "#373E5C",
+    "background_color": "#1A1D2A",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/assets/images/icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "related_applications": [
+        {
+            "platform":"itunes",
+            "url": "https://apps.apple.com/us/app/%D7%96%D7%9E%D7%A0%D7%99-%D7%99%D7%95%D7%A1%D7%A3-r-ovadia-zmanim/id6448838987"
+        },
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar",
+            "id": "com.EJ.ROvadiahYosefCalendar"
+        }
+    ],
+    "prefer_related_applications": true
+}

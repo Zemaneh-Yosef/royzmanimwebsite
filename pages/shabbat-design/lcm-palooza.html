@@ -84,11 +84,12 @@ website: true
     }
 
     #likratKalah {
-        top: 27.5%;
+        top: 40%;
         right: 1%;
         position: absolute;
         width: 42.5%;
         border-radius: 5%;
+        z-index: 2;
     }
 
     #zemanehShab {
@@ -192,6 +193,7 @@ website: true
         font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
         vertical-align: text-top;
         font-size: 1.1em;
+        font-weight: 500;
     }
 </style>
 
@@ -205,8 +207,7 @@ website: true
     <img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
     <div id="gridElement"
         data-functions-fri="getCandleLighting"
-        data-functions-shab="getTzaitRT"
-        data-force-rtkulah="false"
+        data-functions-shab="getTzait72Zmanit"
     >
         <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">LCM Homes</div>
         <div class="header tableShadow">Contest Begins<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
@@ -234,12 +235,12 @@ website: true
         {% endfor %}
     </div>
     <span id="zemanehShab" class="absRotateText">Shabbos Chazara Contest</span>
-    <span id="lechaDodi">During non-laining or חזרת הש"ץ times, learn Daf's <b>ט-י"ב</b> to get a ticket!</span>
+    <span id="lechaDodi">During non-laining or חזרת הש"ץ times, learn Daf's <b>י"ג-ט"ז</b> to get a ticket!<br><br>Check out the special מראה מקומות from the Rosh Yeshiva!</span>
     <img src="/assets/images/shabbat-abstract/lcm-ad.png" id="likratKalah">
     <span class="shabbatTitleCore absRotateText">פרשת </span>
     <div id="imgFooter">
-        Halachic Shabbat Times calculated by LCM student Maor Neim & alumni Elyahu Jacobi.<br>
-        Download our app for Halachic Times according to Rabbi Ovadia Yosef zt"l, available on iOS & Android • royzmanim.com
+        Calculated by LCM student Maor Neim & alumni Elyahu Jacobi via our <span class="inlineLogo">זמני יוסף</span> platform.<br>
+        Download for Halachic Times according to Rabbi Ovadia Yosef zt"l, available on iOS & Android • royzmanim.com
     </div>
 </div>
 

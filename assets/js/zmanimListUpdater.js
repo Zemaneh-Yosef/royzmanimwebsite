@@ -72,17 +72,59 @@ class zmanimListUpdater {
 		this.geoLocation = geoLocation;
 		const locationModal = document.getElementById('locationModal')
 
-		if (geoLocation.getLocationName()) {
-			document.querySelectorAll('[data-zfReplace="LocationName"]')
-				.forEach(locationName => locationName.innerHTML = geoLocation.getLocationName());
+		const locationTitles = {
+			modal: geoLocation.getLocationName() || "unknown",
+			pageTitle: geoLocation.getLocationName() || "No location name provided"
+		};
 
-			this.jCal.setInIsrael(geoLocation.getLocationName().toLowerCase().includes('israel'));
-			locationModal.querySelector('.modal-title').innerHTML += geoLocation.getLocationName();
-		} else {
-			document.querySelectorAll('[data-zfReplace="LocationName"]')
-				.forEach(locationName => locationName.innerHTML = "No location name provided")
-			locationModal.querySelector('.modal-title').innerHTML += "unknown";
+		const shareIcon = document.createElement('i');
+		shareIcon.classList.add("fa", "fa-share-alt");
+		const shareData = {
+			title: "Zemanim for " + locationTitles.modal,
+			text: "Find all the Zemanim on Zemaneh Yosef",
+			url: window.location.href
+		};
+		const shareFunction = async () => {
+			try {
+				if ('share' in navigator)
+					await navigator.share(shareData);
+			} catch (e) {
+				console.error(e);
+			}
 		}
+
+		this.jCal.setInIsrael(locationTitles.modal.toLowerCase().includes('israel'));
+		document.querySelectorAll('[data-zfReplace="LocationName"]')
+			.forEach(locationNameElem => {
+				while (locationNameElem.firstChild)
+					locationNameElem.firstChild.remove();
+
+				if (locationModal.contains(locationNameElem)) {
+					// We want to preserve the "Location name for" text
+					if (locationNameElem.parentElement.firstElementChild.tagName == "I")
+						locationNameElem.parentElement.firstElementChild.remove();
+
+					if ('canShare' in navigator && navigator.canShare(shareData)) {
+						const modalShareIcon = shareIcon.cloneNode();
+						modalShareIcon.addEventListener("click", shareFunction)
+						locationNameElem.parentElement.insertBefore(modalShareIcon, locationNameElem.parentElement.firstChild);
+					}
+
+					locationNameElem.appendChild(document.createTextNode(locationTitles.modal));
+				} else {
+					if ('canShare' in navigator && navigator.canShare(shareData)) {
+						const documentShareIcon = shareIcon.cloneNode();
+						documentShareIcon.addEventListener("click", shareFunction)
+						locationNameElem.appendChild(documentShareIcon);
+						locationNameElem.appendChild(document.createTextNode(" "));
+					}
+
+					const locationTextElem = document.createElement("span");
+					locationTextElem.classList.add('text-decoration-underline');
+					locationTextElem.appendChild(document.createTextNode(locationTitles.pageTitle))
+					locationNameElem.appendChild(locationTextElem)
+				}
+			});
 
 		const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')].filter(elem => elem instanceof HTMLElement);
 		const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')].filter(elem => elem instanceof HTMLElement);
@@ -431,7 +473,7 @@ class zmanimListUpdater {
 			/** @type {HTMLElement} */
 			const enDescription = mourningDiv.querySelector('[data-zfReplace="enOmer"]');
 			if (this.jCal.getDayOfOmer() >= 7) {
-				enDescription.parentElement.style.removeProperty("display");
+				enDescription.style.removeProperty("display");
 				enDescription.innerHTML = omerInfo.title.en.subCount.toString();
 			} else {
 				enDescription.style.display = 'none';
@@ -441,14 +483,8 @@ class zmanimListUpdater {
 			const omerRules = mourningDiv.querySelector('[data-zfFind="omerRules"]')
 			if (Object.values(this.jCal.mourningHalachot()).every(elem => elem == false)) {
 				omerRules.style.display = "none"
-				enDescription.classList.add("mb-0")
-				etDescription.parentElement.classList.add("mb-0")
-				hbDescription.parentElement.classList.add("mb-0")
 			} else {
-				omerRules.style.removeProperty("display")
-				enDescription.classList.remove("mb-0")
-				etDescription.parentElement.classList.remove("mb-0")
-				hbDescription.parentElement.classList.remove("mb-0")
+				omerRules.style.removeProperty("display");
 			}
 		} else {
 			sefirathHaomer.style.display = 'none';
