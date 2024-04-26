@@ -36,8 +36,13 @@ const jCal = new WebsiteLimudCalendar(shabbatDate)
 if (jCal.getDate().dayOfWeek != 6)
 	throw new Error("Non-Saturday")
 
+let parashaText = document.getElementsByClassName('shabbatTitleCore')[0].innerHTML + jCal.getHebrewParasha().join(" / ");
+if (jCal.getHebrewParasha().join(" / ") == "No Parasha this week"
+&& [5,6].includes(jCal.getDate().dayOfWeek)
+&& [KosherZmanim.JewishCalendar.NISSAN, KosherZmanim.JewishCalendar.TISHREI].includes(jCal.getJewishMonth()))
+   parashaText = "חול המועד " + (jCal.getDate().withCalendar("hebrew").month == 1 ? "סוכות" : "פסח");
 for (const title of document.getElementsByClassName('shabbatTitleCore'))
-	title.innerHTML += jCal.getHebrewParasha().join(" / ") + " " + jCal.formatJewishYear().hebrew
+	title.innerHTML = parashaText + " " + jCal.formatJewishYear().hebrew
 
 let shitot = {
 	fri: document.getElementById('gridElement').getAttribute('data-functions-fri').split(" "),

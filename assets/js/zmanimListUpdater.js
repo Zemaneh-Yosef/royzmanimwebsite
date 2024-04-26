@@ -263,7 +263,12 @@ class zmanimListUpdater {
 	 * @param {HTMLElement} [parashaBar]
 	 */
 	renderParashaBar(parashaBar) {
-		const parashaText = this.jCal.getHebrewParasha().join(" / ");
+		let parashaText = this.jCal.getHebrewParasha().join(" / ");
+		if (parashaText == "No Parasha this week"
+		 && [5,6].includes(this.jCal.getDate().dayOfWeek)
+		 && [KosherZmanim.JewishCalendar.NISSAN, KosherZmanim.JewishCalendar.TISHREI].includes(this.jCal.getJewishMonth()))
+			parashaText = "חול המועד " + (this.jCal.getDate().withCalendar("hebrew").month == 1 ? "סוכות" : "פסח");
+
 		if (this.lastData.parsha !== parashaText) {
 			this.lastData.parsha = parashaText
 			for (const parashaElem of parashaBar.querySelectorAll('[data-zfReplace="Parasha"]'))

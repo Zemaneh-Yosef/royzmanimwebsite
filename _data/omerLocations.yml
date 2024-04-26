@@ -35,3 +35,65 @@ east:
     doubleLocation: True
     humra: 0
     timeFormat: h12
+central:
+  - name: Chicago, IL
+    #flag: https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Illinois.svg
+    # Location: Mikor
+    lat: 42.013667229573805
+    lng: -87.70204125651325
+    timezone: America/Chicago
+    timeFormat: h12
+  - name: Houston, TX
+    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg
+    # Location: Uptown Chabad
+    lat: 29.743773687328083
+    lng: -95.4515488015217
+    timezone: America/Chicago
+    humra: 1
+    timeFormat: h12
+  - name: Phoenix, AZ
+    #flag: https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arizona.svg
+    # Location: Young Israel of Pheonix
+    lat: 33.528400
+    lng: -112.065002
+    timezone: America/Denver
+    humra: 0
+    timeFormat: h12
+  - name: Toronto, ON
+    # Location: Agudas Yisrael of Toronto
+    lat: 43.735631103552414
+    lng: -79.43261235761372
+    timezone: America/New_York
+    humra: 0
+    timeFormat: h24
+west:
+  - name: Las Vegas, NV
+    #flag: "https://upload.wikimedia.org/wikipedia/commons/7/74/State_Seal_of_Nevada.svg"
+    # Location: Mesivta of Las Vagas
+    lat: 36.141846544208185
+    lng: -115.28237053926483
+    timezone: America/Los_Angeles
+    humra: 0
+    timeFormat: h12
+  - name: Los Angeles, CA
+    #flag: https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_California.svg
+    # Location: Valley Torah High School
+    lat: 34.1688520530159
+    lng: -118.40607216944592
+    timezone: America/Los_Angeles
+    humra: 1
+    timeFormat: h12
+  - name: San Diego, CA
+    # Location: Adat Yeshurun
+    lat: 32.86391004347926
+    lng: -117.23910506437377
+    timezone: America/Los_Angeles
+    timeFormat: h12
+  - name: Seattle, WA
+    #flag: https://upload.wikimedia.org/wikipedia/commons/5/54/Flag_of_Washington.svg
+    # Location: Sephardic Bikur Holim Congregation
+    lat: 47.54453824815417
+    lng: -122.26683403258228
+    timezone: America/Los_Angeles
+    humra: 0
+    timeFormat: h12
