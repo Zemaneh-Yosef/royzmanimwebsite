@@ -1,6 +1,6 @@
 ---
-title: Shabbat East Coast Times
-permalink: /shabbat-design/east
+title: Pesach West NA Times
+permalink: /pesach/2ndDay/west
 breakout: true
 website: true
 ---
@@ -23,7 +23,7 @@ website: true
         position: relative;
         display: grid;
 
-        background-image: url("/assets/images/shabbat-abstract/bg-ltr.png"), linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
+        background-image: url("/assets/images/shabbat-abstract/bg-ltr-pesach.png");
         background-size: cover;
     }
 
@@ -32,15 +32,15 @@ website: true
     }
 
     #imgFooter {
-        justify-self: end;
+        justify-self: start;
         align-self: end;
         text-transform: uppercase;
-        text-align: right;
+        text-align: start;
         font-weight: 600;
         font-size: 1.625em;
         line-height: 1.2;
         padding-bottom: 1rem;
-        padding-right: 1rem;
+        padding-left: 1rem;
         z-index: 3;
     }
 
@@ -56,51 +56,41 @@ website: true
         line-height: 1;
     }
 
-    #wrapperElement .shabbatTitleCore {
-        top: 10.75vw;
-        right: 3.25vw;
-        font-size: 3.9em;
-        font-family: 'FrankRuehl', serif;
+    #wrapperElement #dateElement {
+        top: 9.5vw;
+        right: 4.25vw;
+        font-size: 1.9em;
+        font-family: 'Neutro', serif;
         font-weight: 500;
-        width: 35vw;
-        color: #F6E2AF;
+        width: 41vw;
+        color: #001524;
     }
 
     #maran {
         grid-area: 1/1;
         align-self: end;
-        width: 28%;
+        justify-self: end;
+        width: 25%;
         z-index: 3;
-    }
-
-    .lechaDodi {
-        transform: rotateZ(7deg);
-        color: #F6E3A9;
-        font-size: 3vw;
+        transform: rotateY(180deg);
     }
 
     #lechaDodi {
-        top: 37vw;
-        right: 4vw;
-    }
-
-    #likratKalah {
-        top: 39.5vw;
-        right: 8.5vw;
-    }
-
-    #pnehShabbathNekabelah {
-        top: 43.5vw;
-        right: 2.5vw;
+        top: 73%;
+        left: 4vw;
+        text-align: center;
+        transform: rotateZ(-7deg);
+        color: #001524;
+        font-size: 3vw;
     }
 
     #zemanehShab {
         font-family: 'Frank Ruhl Libre';
         right: 2.9vw;
-        font-size: 10vw;
+        font-size: 7vw;
         font-weight: 900;
         top: 2.75vw;
-        color: #D9BB65;
+        color: #001524;
     }
 
     #gridElement {
@@ -127,11 +117,6 @@ website: true
         z-index: 2;
     }
 
-    .timeshow {
-        text-align: center;
-        z-index: 5;
-    }
-
     .shabbatRow {
         margin-top: .3vw;
         margin-bottom: .3vw;
@@ -142,7 +127,7 @@ website: true
     }
 
     .timecalc {
-        background-color: #F1E79F;
+        background-color: #D9BB65;
         font-weight: 700;
         padding-left: 0.5vw;
         padding-right: 1vw;
@@ -150,8 +135,13 @@ website: true
         border-right: .25vw solid black;
     }
 
+    .timeshow {
+        z-index: 5;
+        text-align: center;
+    }
+
     .shabbatRowBg {
-        background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
+        background: linear-gradient(90deg, #F2A541 0%, #DCD1BB 100%);
         grid-column: 2 / span 3; 
         margin-top: .3vw;
         margin-bottom: .3vw;
@@ -169,6 +159,10 @@ website: true
         line-height: 1.2;
         font-weight: 600;
         font-size: 19px;
+    }
+
+    .header sup {
+        text-transform: none;
     }
 
     .tableShadow {
@@ -204,17 +198,18 @@ website: true
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
 <div id="wrapperElement">
-    <img src="/assets/images/shabbat-abstract/shabbat-candles.png" id="shabbatCandles" />
-    <img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
+    <img src="/assets/images/shabbat-abstract/seder-plate.png" id="shabbatCandles" />
+    <img src="/assets/images/shabbat-abstract/bottom-wave-pesach.png" id="bottomWave" />
     <div id="gridElement"
-        data-functions-backday-1="getCandleLighting"
-        data-functions-backday-0="getTzaitShabbath getTzaitRT"
+        data-functions-backday-2="getCandleLighting"
+        data-functions-backday-1="getTzaitLechumra"
+        data-functions-backday-0="getTzaitShabbath"
     >
-        <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">NA East Coast Locations</div>
-        <div class="header tableShadow">Shabbat Starts<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
-        <div class="header tableShadow">Shabbat Ends</div>
-        <div class="header tableShadow">Rabbenu Tam</div>
-        {% for item in site.data.designLocationList.east %}{% assign gridRow = forloop.index | plus: 1 %}
+        <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">West NA Locations</div>
+        <div class="header tableShadow">Erev Yom Tov<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
+        <div class="header tableShadow">1<sup>st</sup> Day Yom Tov<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
+        <div class="header tableShadow">2<sup>nd</sup> Day Yom Tov<br><span style="font-weight: 400;">(End of Y"T)</span></div>
+        {% for item in site.data.designLocationList.west %}{% assign gridRow = forloop.index | plus: 1 %}
             <div class="shabbatRow tableShadow timecalc {% if item.twoLine %}twoLine{% endif %}"
                 {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
                 data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
@@ -237,13 +232,11 @@ website: true
             <div class="shabbatRowBg tableShadow" style="grid-row: {{ gridRow }};"></div>
         {% endfor %}
     </div>
-    <span id="zemanehShab" class="absRotateText">זמני שבת</span>
-    <span id="lechaDodi" class="absRotateText lechaDodi">לְכָה דוֹדִי</span>
-    <span id="likratKalah" class="absRotateText lechaDodi">לִקְרַאת כַּלָּה</span>
-    <span id="pnehShabbathNekabelah" class="absRotateText lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
-    <span class="shabbatTitleCore absRotateText">פרשת </span>
+    <span id="zemanehShab" class="absRotateText">זמני פסח תשפ"ד</span>
+    <span id="lechaDodi" class="absRotateText lechaDodi">בְּצֵאת יִשְׂרָאֵל מִמִּצְרָיִם<br>בֵּית יַעֲקֹב מֵעַם לֹעֵז</span>
+    <span id="dateElement" class="absRotateText">פרשת </span>
     <div id="imgFooter">
-        Halachic Shabbat Times according to Rabbi Ovadia Yosef ZT"L.<br>
+        Halachic Pesach Times according to Rabbi Ovadia Yosef ZT"L.<br>
         Brought to you by <span class="inlineLogo">זמני יוסף</span>, available on iOS & Android • royzmanim.com
     </div>
     <img src="/assets/images/MARAN.png" id="maran">

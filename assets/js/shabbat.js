@@ -25,26 +25,31 @@ ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 amudehHoraahCal.configSettings(true, settings.customTimes.tzeithIssurMelakha());
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 27 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 30 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
-if (jCal.getDate().dayOfWeek != 6)
-	throw new Error("Non-Saturday")
+//if (jCal.getDate().dayOfWeek != 6)
+//	throw new Error("Non-Saturday")
 
-let parashaText = document.getElementsByClassName('shabbatTitleCore')[0].innerHTML + jCal.getHebrewParasha().join(" / ");
-if (jCal.getHebrewParasha().join(" / ") == "No Parasha this week"
-&& [5,6].includes(jCal.getDate().dayOfWeek)
-&& [KosherZmanim.JewishCalendar.NISSAN, KosherZmanim.JewishCalendar.TISHREI].includes(jCal.getJewishMonth()))
-   parashaText = "חול המועד " + (jCal.getDate().withCalendar("hebrew").month == 1 ? "סוכות" : "פסח");
-for (const title of document.getElementsByClassName('shabbatTitleCore'))
-	title.innerHTML = parashaText + " " + jCal.formatJewishYear().hebrew
-
-let shitot = {
-	fri: document.getElementById('gridElement').getAttribute('data-functions-fri').split(" "),
-	shab: document.getElementById('gridElement').getAttribute('data-functions-shab').split(" ")
+if (document.getElementsByClassName('shabbatTitleCore').length) {
+	let parashaText = document.getElementsByClassName('shabbatTitleCore')[0].innerHTML + jCal.getHebrewParasha().join(" / ");
+	if (jCal.getHebrewParasha().join(" / ") == "No Parasha this week"
+	&& [5,6].includes(jCal.getDate().dayOfWeek)
+	&& [KosherZmanim.JewishCalendar.NISSAN, KosherZmanim.JewishCalendar.TISHREI].includes(jCal.getJewishMonth()))
+	   parashaText = "חול המועד " + (jCal.getDate().withCalendar("hebrew").month == 1 ? "סוכות" : "פסח");
+	for (const title of document.getElementsByClassName('shabbatTitleCore'))
+		title.innerHTML = parashaText + " " + jCal.formatJewishYear().hebrew
 }
 
-const backday = parseInt(document.getElementById('gridElement').getAttribute('data-backday')) || 1
+let shitotOptions = document.getElementById("gridElement")
+	.getAttributeNames()
+	.filter(attr => attr.startsWith('data-functions-backday'))
+
+if (document.getElementById("dateElement")) {
+	const earliestDay = shabbatDate.subtract({ days: parseInt(shitotOptions[0].replace('data-functions-backday-', '')) });
+	const earliestJCal = new WebsiteLimudCalendar(earliestDay)
+	document.getElementById("dateElement").innerHTML = earliestJCal.formatFancyDate() + " - " + jCal.formatFancyDate() + ", " + earliestDay.year;
+}
 
 const elems = document.getElementsByClassName('timecalc');
 /** @type {Record<string, {elem: Element; geo: KosherZmanim.GeoLocation}>} */
@@ -74,39 +79,35 @@ for (const elem of elems) {
 
 	let editElem = elem;
 
-	currentCalc.setDate(shabbatDate.subtract({ days: backday }));
-	for (const friShita of shitot.fri) {
-		editElem = editElem.nextElementSibling
+	for (const shitotDay of shitotOptions) {
+		currentCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
+		const plag = currentCalc.getPlagHaminhaHalachaBrurah();
 
-		/** @type {KosherZmanim.Temporal.ZonedDateTime} */
-		// @ts-ignore
-		let time = currentCalc[friShita]()
-		if (elem.hasAttribute('data-humra'))
-			time = time.subtract({minutes: parseInt(elem.getAttribute('data-humra'))})
-		editElem.setAttribute('data-milisecondValue', time.epochMilliseconds.toString())
-		editElem.innerHTML = time.toLocaleString(...dtF);
-	}
+		for (const timeFunc of document.getElementById('gridElement').getAttribute(shitotDay).split(" ")) {
+			editElem = editElem.nextElementSibling
 
-	currentCalc.setDate(shabbatDate);
-	for (const shabShita of shitot.shab) {
-		editElem = editElem.nextElementSibling
+			/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+			// @ts-ignore
+			let time = currentCalc[timeFunc]()
 
-		/** @type {KosherZmanim.Temporal.ZonedDateTime} */
-		// @ts-ignore
-		let time = (currentCalc[shabShita]());
-
-		if (elem.hasAttribute('data-humra'))
-			time = time.add({minutes: parseInt(elem.getAttribute('data-humra'))})
-		editElem.setAttribute('data-milisecondValue', time.epochMilliseconds.toString())
-
-		editElem.innerHTML = time.toLocaleString(...dtF);
-
-		if (shabShita == 'getTzaitShabbath' && elem.getAttribute('data-timezone') == 'Asia/Jerusalem' && !shitot.shab.includes('getTzaitRT')) {
-			let rTime = currentCalc.getTzaitRT()
+			const LeKhumra = shitotOptions.length >= 2 ?
+				shitotDay !== shitotOptions[0] : 
+				KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1
 			if (elem.hasAttribute('data-humra'))
-				rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
+				time = time[LeKhumra ? 'add' : 'subtract']({minutes: parseInt(elem.getAttribute('data-humra'))});
 
-			editElem.innerHTML += ` / <span class="explanation">(${document.getElementById('gridElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
+			editElem.setAttribute('data-milisecondValue', time.epochMilliseconds.toString())
+			editElem.innerHTML = time.toLocaleString(...dtF);
+
+			if (timeFunc == 'getTzaitShabbath'
+			 && document.getElementById('gridElement').hasAttribute('data-rt-text')
+			 && !document.getElementById('gridElement').getAttribute(shitotDay).includes('getTzaitRT')) {
+				let rTime = currentCalc.getTzaitRT()
+				if (elem.hasAttribute('data-humra'))
+					rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
+	
+				editElem.innerHTML += ` / <span class="explanation">(${document.getElementById('gridElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
+			}
 		}
 	}
 
@@ -122,7 +123,7 @@ for (const elem of elems) {
 			const compTimes = baseCalc.getTzaitShabbath().until(currentCalc.getTzaitShabbath()).total({ unit: 'minutes' })
 			if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
 				editElem = elem;
-				for (let i of ['', ...shitot.fri, ...shitot.shab]) {
+				for (let _i of ['', ...shitotOptions.map(attrName => document.getElementById("gridElement").getAttribute(attrName).split(" ")).flat()]) {
 					// @ts-ignore
 					editElem.style.display = 'none';
 					editElem = editElem.nextElementSibling;
@@ -135,47 +136,39 @@ for (const elem of elems) {
 
 				let baseEditElem = baseLocation;
 				editElem = elem;
-				currentCalc.setDate(shabbatDate.subtract({ days: backday }));
-				baseCalc.setDate(shabbatDate.subtract({ days: backday }));
-				for (const friShita of shitot.fri) {
-					editElem = editElem.nextElementSibling
-					baseEditElem = baseEditElem.nextElementSibling;
+				for (const shitotDay of shitotOptions) {
+					currentCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
+					baseCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
+					const plag = currentCalc.getPlagHaminhaHalachaBrurah();
+			
+					for (const timeFunc of document.getElementById('gridElement').getAttribute(shitotDay).split(" ")) {
+						editElem = editElem.nextElementSibling;
+						baseEditElem = baseEditElem.nextElementSibling;
 
-					const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map(
-						//@ts-ignore
-						calc => calc[friShita]()
-							.subtract({minutes: !baseLocation.hasAttribute('data-humra') ? 0 : parseInt(baseLocation.getAttribute('data-humra'))})
-					)
+						const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map((calc, index) => {
+							/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+							// @ts-ignore
+							let time = calc[timeFunc]()
 
-					if (!Math.trunc(curCalcTime.until(baseCalcTime).total({ unit: "minute" })) || curCalcTime.until(baseCalcTime).total({ unit: "minute" }) < 0) {
-						console.log("new one was later, continue")
-						continue;
+							const LeKhumra = shitotOptions.length >= 2 ?
+								parseInt(shitotDay.replace('data-functions-backday-', '')) == 0 : 
+								KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1;
+							if ((index == 0 ? elem : baseLocation).hasAttribute('data-humra'))
+								time = time[LeKhumra ? 'add' : 'subtract']({
+									minutes: parseInt((index == 0 ? elem : baseLocation).getAttribute('data-humra'))
+								});
+
+							return time;
+						})
+			
+						if (!Math.trunc(curCalcTime.until(baseCalcTime).total({ unit: "minute" })) || curCalcTime.until(baseCalcTime).total({ unit: "minute" }) < 0) {
+							console.log("new one was later, continue")
+							continue;
+						}
+	
+						baseEditElem.setAttribute('data-milisecondValue', curCalcTime.epochMilliseconds.toString())
+						baseEditElem.innerHTML = curCalcTime.toLocaleString(...dtF)
 					}
-
-					baseEditElem.setAttribute('data-milisecondValue', curCalcTime.epochMilliseconds.toString())
-					baseEditElem.innerHTML = curCalcTime.toLocaleString(...dtF)
-				}
-
-				currentCalc.setDate(shabbatDate);
-				baseCalc.setDate(shabbatDate);
-
-				for (const shabShita of shitot.shab) {
-					editElem = editElem.nextElementSibling
-					baseEditElem = baseEditElem.nextElementSibling;
-
-					const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map(
-						//@ts-ignore
-						calc => (calc[shabShita]())
-							.add({minutes: !baseLocation.hasAttribute('data-humra') ? 0 : parseInt(baseLocation.getAttribute('data-humra'))})
-					)
-
-					if (!Math.trunc(curCalcTime.until(baseCalcTime).total({ unit: "minute" })) || curCalcTime.until(baseCalcTime).total({ unit: "minute" }) > 0) {
-						console.log("new one was earlier, continue")
-						continue;
-					}
-
-					baseEditElem.setAttribute('data-milisecondValue', curCalcTime.epochMilliseconds.toString())
-					baseEditElem.innerHTML = curCalcTime.toLocaleString(...dtF)
 				}
 			}
 		} else {

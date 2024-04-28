@@ -130,8 +130,7 @@ for (const locationTitleElem of elems) {
 
 const lastDayYT = dayB4ErevPesach.add({ days: (anyIsrael ? 2 : 3) });
 const lastDayYTjCal = new WebsiteLimudCalendar(lastDayYT);
-for (const title of document.getElementsByClassName('shabbatTitleCore'))
-	title.innerHTML =
-		jCal.formatFancyDate() + " - " + lastDayYTjCal.formatFancyDate() + ", " + dayB4ErevPesach.year;
+document.getElementById("dateElement").innerHTML =
+	jCal.formatFancyDate() + " - " + lastDayYTjCal.formatFancyDate() + ", " + dayB4ErevPesach.year;
 
 jCal.dateRenderer('en').primary

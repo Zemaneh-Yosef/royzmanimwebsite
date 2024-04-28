@@ -55,8 +55,8 @@ website: true
     }
 
     #subtitle {
-        top: 8vw;
-        right: 4vw;
+        top: 11vw;
+        right: 6.5vw;
         font-size: 2.75em;
         font-weight: 500;
         width: 45vw;
@@ -91,11 +91,22 @@ website: true
 
     #zemanehShab {
         font-family: 'BankGothic';
-        right: 2.9vw;
+        right: 10vw;
         font-size: 4.5vw;
         top: 3.75vw;
         color: #E9AA63;
         text-shadow: 0 0 15px #E9AA63, 0 0 25px #E9AA63, 0 0 35px #e60073, 0 0 45px #e60073, 0 0 55px #e60073, 0 0 65px #e60073, 0 0 75px #e60073;
+        line-height: .6;
+    }
+
+    #two {
+        font-family: 'BankGothic';
+        right: 2.9vw;
+        font-size: 10vw;
+        top: 3.75vw;
+        color: #E9AA63;
+        text-shadow: 0 0 15px #E9AA63, 0 0 25px #E9AA63, 0 0 35px #e60073, 0 0 45px #e60073, 0 0 55px #e60073, 0 0 65px #e60073, 0 0 75px #e60073;
+        line-height: .6;
     }
 
     #gridElement {
@@ -191,6 +202,7 @@ website: true
         font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
         vertical-align: text-top;
         font-size: 1.1em;
+        font-weight: 500;
     }
 </style>
 
@@ -203,9 +215,8 @@ website: true
     <img src="/assets/images/shabbat-abstract/seder-plate.png" id="shabbatCandles" />
     <img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
     <div id="gridElement"
-        data-functions-fri="getCandleLighting"
-        data-functions-shab="getTzait72Zmanit"
-        data-backday="2"
+        data-functions-backday-2="getCandleLighting"
+        data-functions-backday-0="getTzait72Zmanit"
     >
         <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">LCM Homes</div>
         <div class="header tableShadow">Contest Begins<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
@@ -232,12 +243,16 @@ website: true
             <div class="shabbatRowBg tableShadow" style="grid-row: {{ gridRow }};"></div>
         {% endfor %}
     </div>
-    <span id="zemanehShab" class="absRotateText"><span style="color: #FFD8C7; font-size: .8em;">The</span> Chazara Games</span>
+    <span id="zemanehShab" class="absRotateText">
+        <span style="color: #FFD8C7; font-size: .8em;">The</span> Chazara Games
+        <br><span style="color: white; font-size: .8em; text-shadow: 0 0 15px #FFFFFF44, 0 0 25px #FFFFFF44, 0 0 35px #e6007344, 0 0 45px #e6007344, 0 0 55px #e6007344, 0 0 65px #e6007344, 0 0 75px #e6007344;">Catching Bren</span>
+    </span>
+    <span id="two" class="absRotateText">2</span>
     <span id="lechaDodi">Log your Amudim, to either enter a raffle per Amud learned or win a special prize for learning the most!</span>
     <img src="/assets/images/shabbat-abstract/lcm-ad.png" id="likratKalah">
-    <span id="subtitle" class="absRotateText">1st Yom Tov, April 22nd-24th</span>
+    <span id="subtitle" class="absRotateText">2<sup>nd</sup> days Yom Tov, April 28th-30th</span>
     <div id="imgFooter">
-        Times calculated by LCM student Maor Neim & alumni Elyahu Jacobi, based on our Zemaneh Yosef app<br>
+        Calculated by LCM student Maor Neim & alumni Elyahu Jacobi via our <span class="inlineLogo">זמני יוסף</span> platform.<br>
         Download for Halachic Times according to Rabbi Ovadia Yosef zt"l, available on iOS & Android • royzmanim.com
     </div>
 </div>

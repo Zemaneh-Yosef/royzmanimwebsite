@@ -167,7 +167,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 
 	const labeledEvents = events.map(obj => ({
 		...obj,
-		calName:
+		title:
 			(calc instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah Calendar" : "Ohr Hachaim Calendar")
 			+ ` (${baseDate.year}) - ` + calc.coreZC.getGeoLocation().getLocationName(),
 		startInputType: "utc",

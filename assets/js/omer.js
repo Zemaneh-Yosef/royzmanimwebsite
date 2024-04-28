@@ -5,7 +5,8 @@ import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js"
 
-const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
+const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO().add({ days: 2}));
+jCal.setInIsrael(false);
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
@@ -20,7 +21,7 @@ amudehHoraahCal.configSettings(
 );
 amudehHoraahCal.setDate(jCal.getDate())
 
-if (jCal.getDate().dayOfWeek == 6 && !window.location.href.includes("forceShabbat")) {
+if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.location.href.includes("forceShabbat")) {
 	document.getElementById("gridElement").remove();
 	document.getElementById("earliestTimeAlert").remove();
 } else {
