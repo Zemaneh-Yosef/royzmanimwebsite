@@ -20,41 +20,41 @@ amudehHoraahCal.configSettings(
 );
 amudehHoraahCal.setDate(jCal.getDate())
 
-const elems = document.getElementsByClassName('timecalc');
-for (const elem of elems) {
-    if (jCal.getDate().dayOfWeek == 6 && !window.location.href.includes("forceShabbat")) {
-        elem.remove();
-        continue;
-    }
+if (jCal.getDate().dayOfWeek == 6 && !window.location.href.includes("forceShabbat")) {
+	document.getElementById("gridElement").remove();
+	document.getElementById("earliestTimeAlert").remove();
+} else {
+	const elems = document.getElementsByClassName('timecalc');
+	for (const elem of elems) {
+		const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
+		const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
 
-	const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
-	const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
-
-	const geoLocationsParams = [
-		"null",
-		parseFloat(elem.getAttribute("data-lat")),
-		parseFloat(elem.getAttribute('data-lng')),
-		elevation,
-		elem.getAttribute('data-timezone')
-	]
-	// @ts-ignore
-	currentCalc.coreZC.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
-
-	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-	const dtF = ['en', {
+		const geoLocationsParams = [
+			"null",
+			parseFloat(elem.getAttribute("data-lat")),
+			parseFloat(elem.getAttribute('data-lng')),
+			elevation,
+			elem.getAttribute('data-timezone')
+		]
 		// @ts-ignore
-		hourCycle: elem.getAttribute("data-format"),
-		hour: 'numeric',
-		minute: '2-digit'
-	}];
+		currentCalc.coreZC.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
 
-    const times = (jCal.getDate().dayOfWeek == 6 ? [currentCalc.getTzaitShabbath(), currentCalc.getTzaitRT()] : [currentCalc.getTzait()])
-        .map(time => time.add({ minutes: (!elem.hasAttribute('data-humra') ? 0 : parseInt(elem.getAttribute('data-humra')) )}));
+		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
+		const dtF = ['en', {
+			// @ts-ignore
+			hourCycle: elem.getAttribute("data-format"),
+			hour: 'numeric',
+			minute: '2-digit'
+		}];
 
-    const timeElem = elem.nextElementSibling;
-	timeElem.innerHTML =
-        times[0].toLocaleString(...dtF)
-        + (jCal.getDate().dayOfWeek == 6 ? ` (R"T: ${times[1].toLocaleString(...dtF)})` : "");
+		const times = (jCal.getDate().dayOfWeek == 6 ? [currentCalc.getTzaitShabbath(), currentCalc.getTzaitRT()] : [currentCalc.getTzait()])
+			.map(time => time.add({ minutes: (!elem.hasAttribute('data-humra') ? 0 : parseInt(elem.getAttribute('data-humra')) )}));
+
+		const timeElem = elem.nextElementSibling;
+		timeElem.innerHTML =
+			times[0].toLocaleString(...dtF)
+			+ (jCal.getDate().dayOfWeek == 6 ? ` (R"T: ${times[1].toLocaleString(...dtF)})` : "");
+	}
 }
 
 document.getElementById("nightOf").appendChild(document.createTextNode(
