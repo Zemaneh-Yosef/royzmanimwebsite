@@ -244,7 +244,22 @@ class zmanimListUpdater {
 						language: settings.language() == "hb" ? "he" : settings.language(),
 						timeFormat: settings.timeFormat(), seconds: settings.seconds(),
 						zmanInfoSettings: this.zmanInfoSettings,
-						calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()]
+						calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
+						fasts: Object.fromEntries([...document.querySelector('[data-zfFind="FastDays"]').getElementsByTagName("h5")]
+							.map(ogHeading => {
+								/** @type {HTMLHeadingElement} */
+								// @ts-ignore
+								const heading = ogHeading.cloneNode(true);
+								const [ he, et, en ] = [...heading.children]
+									.map(langElem => {
+										while (langElem.querySelector('[data-zfFind="erevTzom"]'))
+											langElem.querySelector('[data-zfFind="erevTzom"]').remove()
+
+										return langElem.innerHTML.replace(/<.*?>/gm, '');
+									})
+
+								return [heading.getAttribute("data-zfFind"), { he, "en-et": et, en }]
+							}))
 					}
 				]
 

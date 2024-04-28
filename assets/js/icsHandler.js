@@ -28,7 +28,7 @@ const monViewNight = (monthView, calc) =>
  * @param {boolean} isIsrael
  * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
  * @param {boolean} monthView
- * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]> }} funcSettings
+ * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]>; fasts: Record<string, { "en-et": string; en: string; he: string; }> }} funcSettings
  */
 export default function icsExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList, monthView=true, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams).with({ day: 1, month: 1 })
@@ -157,7 +157,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 				events.push({
 					start: calc.tomorrow().getAlotHashachar().epochMilliseconds,
 					end: calc.tomorrow().getTzait().epochMilliseconds,
-					title: jCal.tomorrow().getYomTov()
+					title: funcSettings.fasts[jCal.tomorrow().getYomTovIndex().toString()][funcSettings.language]
 				})
 		}
 
