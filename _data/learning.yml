@@ -1,0 +1,16 @@
+---
+- limud: dafBavli
+  text:
+    en: Babylon Talmud
+    et: Talmud Bavli
+    hb: תלנוד בבלי
+- limud: DafYerushalmi
+  text:
+    en: Jerusalemite Tractate (Vilna)
+    et: Talmud Yerushalmi (Vilna)
+    hb: תלמוד ירושלמי (וילנה)
+- limud: ccYomi
+  text:
+    en: Daily Chafetz Chayim
+    et: Chafetz Chayim Yomi
+    hb: חפץ חיים יומי

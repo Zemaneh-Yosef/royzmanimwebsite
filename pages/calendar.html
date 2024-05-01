@@ -109,41 +109,13 @@ chaiTable: true
 			<ul class="list-group list-group-flush">
 				<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
 				<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
-					<h5 data-zfFind="22">
-						<span class="lang lang-hb"><span data-zfFind="erevTzom">ערב</span> צום העשירי</span>
-						<span class="lang lang-et"><span data-zfFind="erevTzom">Erev</span> Fast of the 10<sup>th</sup> [Month]</span>
-						<span class="lang lang-en">10<sup>th</sup> of Tevet Fast<span data-zfFind="erevTzom">'s Eve</span></span>
+					{% for fast in site.data.fasts %}
+					<h5 data-zfFind="{{ fast.yomTovIndex }}">
+						<span class="lang lang-hb">{{ fast.text.hb }}</span>
+						<span class="lang lang-et">{{ fast.text.et }}</span>
+						<span class="lang lang-en">{{ fast.text.en }}</span>
 					</h5>
-					<h5 data-zfFind="11">
-						<span class="lang lang-hb"><span data-zfFind="erevTzom">ערב</span> צום גדליע (השבעי)</span>
-						<span class="lang lang-et"><span data-zfFind="erevTzom">Erev</span> Tzom Gedalia (Fast of the 7<sup>th</sup>)</span>
-						<span class="lang lang-en">Fast of Gedalia (7<sup>th</sup> month)<span data-zfFind="erevTzom">'s Eve</span></span>
-					</h5>
-					<h5 data-zfFind="6">
-						<span class="lang lang-hb"><span data-zfFind="erevTzom">ערב</span> צום הרביעי</span>
-						<span class="lang lang-et"><span data-zfFind="erevTzom">Erev</span> Fast of the 4<sup>th</sup> [Month]</span>
-						<span class="lang lang-en">17<sup>th</sup> of Tammuz Fast<span data-zfFind="erevTzom">'s Eve</span></span>
-					</h5>
-					<h5 data-zfFind="24">
-						<span class="lang lang-hb"><span data-zfFind="erevTzom">ערב</span> תענית אסתר</span>
-						<span class="lang lang-et"><span data-zfFind="erevTzom">Erev</span> Ta'anith Ester</span>
-						<span class="lang lang-en">Fast of Ester<span data-zfFind="erevTzom">'s Eve</span></span>
-					</h5>
-					<h5 data-zfFind="7">
-						<span class="lang lang-hb"><span data-zfFind="erevTzom">ערב</span> צום החמישי</span>
-						<span class="lang lang-et"><span data-zfFind="erevTzom">Erev</span> Fast of the 5<sup>th</sup> [Month]</span>
-						<span class="lang lang-en">9<sup>th</sup> of Av<span data-zfFind="erevTzom">'s Eve</span></span>
-					</h5>
-					<h5 data-zfFind="13">
-						<span class="lang lang-hb"><span data-zfFind="erevTzom">ערב</span> יום כיפור</span>
-						<span class="lang lang-et"><span data-zfFind="erevTzom">Erev</span> Yom Kippur</span>
-						<span class="lang lang-en">Yom Kippur<span data-zfFind="erevTzom">'s Eve</span></span>
-					</h5>
-					<h5 data-zfFind="0">
-						<span class="lang lang-hb"><span data-zfFind="erevTzom">ערב</span> תענית בכור</span>
-						<span class="lang lang-et"><span data-zfFind="erevTzom">Erev</span> Ta'anith Bechor</span>
-						<span class="lang lang-en">Fast of the Firstborn<span data-zfFind="erevTzom">'s Eve</span></span>
-					</h5>
+					{% endfor %}
 					<span data-zfFind="oneDayTimes">
 						<b class="lang lang-en">Fast Times: </b>
 						<b class="lang lang-et">Fast Times: </b>
@@ -194,61 +166,13 @@ chaiTable: true
 						</h5>
 					</div>
 					<ul>
-						<li data-zfFind="haircuts">
-							<span class="lang lang-hb">לא לקחת תשפורת</span>
-							<span class="lang lang-et">No taking haircuts</span>
-							<span class="lang lang-en">No taking haircuts</span>
+						{% for minhag in site.data.mourningMinhag %}
+						<li data-zfFind="{{ minhag.topic }}">
+							<span class="lang lang-hb">{{ minhag.text.hb }}</span>
+							<span class="lang lang-et">{{ minhag.text.en }}</span>
+							<span class="lang lang-en">{{ minhag.text.en }}</span>
 						</li>
-						<li data-zfFind="shechiyanu">
-							<span class="lang lang-hb">לא לברך שהכינו</span>
-							<span class="lang lang-et">No blessings of shechiyanu</span>
-							<span class="lang lang-en">No blessings of shechiyanu</span>
-						</li>
-						<li data-zfFind="music">
-							<span class="lang lang-hb">לא לשמוע למוזיקה</span>
-							<span class="lang lang-et">No listening to music</span>
-							<span class="lang lang-en">No listening to music</span>
-						</li>
-						<li data-zfFind="wedding">
-							<span class="lang lang-hb">לא לתחתן</span>
-							<span class="lang lang-et">No weddings</span>
-							<span class="lang lang-en">No weddings</span>
-						</li>
-						<li data-zfFind="purchaseClothing">
-							<span class="lang lang-hb">אסור לקנות בגדים חדשים</span>
-							<span class="lang lang-et">No purchasing new clothing</span>
-							<span class="lang lang-en">No purchasing new clothing</span>
-						</li>
-						<li data-zfFind="swimming">
-							<span class="lang lang-hb">השחייה אסורה</span>
-							<span class="lang lang-et">No swimming</span>
-							<span class="lang lang-en">No swimming</span>
-						</li>
-						<li data-zfFind="construction">
-							<span class="lang lang-hb">אין בנייה</span>
-							<span class="lang lang-et">No construction</span>
-							<span class="lang lang-en">No construction</span>
-						</li>
-						<li data-zfFind="meat">
-							<span class="lang lang-hb">לא לאכול בשר ולשתות יין</span>
-							<span class="lang lang-et">No consumption of meat or wine</span>
-							<span class="lang lang-en">No consumption of meat or wine</span>
-						</li>
-						<li data-zfFind="showering">
-							<span class="lang lang-hb">אין להתקלח עם מים חמים</span>
-							<span class="lang lang-et">No showering with hot water</span>
-							<span class="lang lang-en">No showering with hot water</span>
-						</li>
-						<li data-zfFind="laundry">
-							<span class="lang lang-hb">אין כביסה או לבישת בגדים טריים</span>
-							<span class="lang lang-et">No laundry or wearing freshly laundered clothing</span>
-							<span class="lang lang-en">No laundry or wearing freshly laundered clothing</span>
-						</li>
-						<li data-zfFind="wearingClothing">
-							<span class="lang lang-hb">לא ללבוש בגדים חדשים</span>
-							<span class="lang lang-et">No wearing new clothing</span>
-							<span class="lang lang-en">No wearing new clothing</span>
-						</li>
+						{% endfor %}
 					</ul>
 				</li>
 				<li class="list-group-item" data-zfReplace="Tachanun"></li>
@@ -312,24 +236,14 @@ chaiTable: true
 				</h5>
 			</div>
 			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+				{% for learning in site.data.learning %}
 				<div class="list-group-item d-flex justify-content-between">
-					<dt class="lang lang-hb">תלנוד בבלי</dt>
-					<dt class="lang lang-et">Talmud Bavli</dt>
-					<dt class="lang lang-en">Babylon Talmud</dt>
-					<dd class="m-0" data-zfReplace="dafBavli"></dd>
+					<dt class="lang lang-hb">{{ learning.text.hb }}</dt>
+					<dt class="lang lang-et">{{ learning.text.et }}</dt>
+					<dt class="lang lang-en">{{ learning.text.en }}</dt>
+					<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 				</div>
-				<div class="list-group-item d-flex justify-content-between">
-					<dt class="lang lang-hb">תלמוד ירושלמי (וילנה)</dt>
-					<dt class="lang lang-et">Talmud Yerushalmi (Vilna)</dt>
-					<dt class="lang lang-en">Jerusalemite Tractate (Vilna)</dt>
-					<dd class="m-0" data-zfReplace="DafYerushalmi"></dd>
-				</div>
-				<div class="list-group-item d-flex justify-content-between">
-					<dt class="lang lang-hb">חפץ חיים יומי</dt>
-					<dt class="lang lang-et">Chafetz Chayim Yomi</dt>
-					<dt class="lang lang-en">Daily Chafetz Chayim</dt>
-					<dd class="m-0" data-zfReplace="ccYomi"></dd>
-				</div>
+				{% endfor %}
 			</dl>
 		</div>
 		<div class="card">
