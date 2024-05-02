@@ -1,11 +1,11 @@
 // @ts-check
 
-import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
-import { settings } from "./settings/handler.js"
-import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js"
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
+import { settings } from "../settings/handler.js"
+import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js"
 
-import {isEmojiSupported} from "../libraries/is-emoji-supported.js";
+import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
 if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 	const n = document.createElement("style");
 	const fontName = "Twemoji Country Flags"; //BabelStone Flags

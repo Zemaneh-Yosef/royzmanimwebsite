@@ -1,9 +1,9 @@
 // @ts-check
 
-import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
-import WebsiteCalendar from "./WebsiteCalendar.js"
-import { settings } from "./settings/handler.js";
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
+import WebsiteCalendar from "../WebsiteCalendar.js"
+import { settings } from "../settings/handler.js";
 
 if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 	window.location.href = "/"

@@ -1,9 +1,9 @@
 // @ts-check
 
-import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
-import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
-import { settings } from "./settings/handler.js"
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
+import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import { settings } from "../settings/handler.js"
 
 const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
