@@ -5,7 +5,7 @@ import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js"
 
-const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO().add({ days: 2}));
+const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
