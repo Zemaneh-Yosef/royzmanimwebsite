@@ -381,24 +381,44 @@ class zmanimListUpdater {
 		}
 		fastContainer.style.removeProperty("display");
 
+		/**
+		 * @param {Element} contElem
+		 */
+		function hideErev(contElem, inverse=false) {
+			const cond = (inverse ? !todayFast : todayFast)
+			contElem.querySelectorAll('[data-zfFind="erevTzom"]')
+				.forEach(elem => {
+					if (!(elem instanceof HTMLElement))
+						return;
+
+					if (cond)
+						elem.style.display = "none";
+					else
+						elem.style.removeProperty("display");
+				});
+		}
+
 		const fastJCal = this.jCal.isTaanis() || this.jCal.isTaanisBechoros() ? this.jCal : this.jCal.tomorrow();
 		const fastCalc = this.zmanFuncs.chainDate(fastJCal.getDate());
 		const nameElements = [...fastContainer.getElementsByTagName("h5")];
 		nameElements.forEach(element => element.style.display = "none");
 		
 		const ourFast = nameElements.find(element => element.getAttribute("data-zfFind") == fastJCal.getYomTovIndex().toString());
+		hideErev(ourFast);
 		ourFast.style.removeProperty("display");
-		if (todayFast) {
-			ourFast.querySelectorAll('[data-zfFind="erevTzom"]').forEach(element => element.style.display = "none")
-		} else {
-			ourFast.querySelectorAll('[data-zfFind="erevTzom"]').forEach(element => element.style.removeProperty("display"))
-		}
+
+		/** @type {Record<'multiDay' | 'oneDay', HTMLElement>} */
+		const timeList = {
+			multiDay: fastContainer.querySelector('[data-zfFind="twoDayTimes"]'),
+			oneDay: fastContainer.querySelector('[data-zfFind="oneDayTimes"]')
+		};
 
 		if ([KosherZmanim.JewishCalendar.TISHA_BEAV, KosherZmanim.JewishCalendar.YOM_KIPPUR].includes(fastJCal.getYomTovIndex())) {
-			fastContainer.querySelector('[data-zfFind="oneDayTimes"]').style.display = "none";
+			timeList.oneDay.style.display = "none";
+			timeList.multiDay.style.removeProperty("display");
 
-			const multiDayTimesList = fastContainer.querySelector('[data-zfFind="twoDayTimes"]');
-			const erevTzom = multiDayTimesList.firstElementChild;
+			const erevTzom = timeList.multiDay.firstElementChild;
+			hideErev(erevTzom);
 			if (erevTzom.lastChild.nodeType == Node.TEXT_NODE) {
 				erevTzom.lastChild.remove();
 			}
@@ -408,13 +428,8 @@ class zmanimListUpdater {
 				(fastJCal.getYomTovIndex() == KosherZmanim.JewishCalendar.YOM_KIPPUR ? erevCalc.getCandleLighting() : erevCalc.getShkiya())
 			erevTzom.appendChild(document.createTextNode(timeOnErev.toLocaleString(...this.dtF)));
 
-			if (this.jCal.isTaanis()) {
-				erevTzom.querySelectorAll('[data-zfFind="erevTzom"]').forEach(element => element.style.display = "none")
-			} else {
-				erevTzom.querySelectorAll('[data-zfFind="erevTzom"]').forEach(element => element.style.removeProperty("display"))
-			}
-
-			const yomTzom = multiDayTimesList.lastElementChild;
+			const yomTzom = timeList.multiDay.lastElementChild;
+			hideErev(yomTzom, true);
 			if (yomTzom.lastChild.nodeType == Node.TEXT_NODE)
 				yomTzom.lastChild.remove();
 
@@ -426,13 +441,13 @@ class zmanimListUpdater {
 				yomTzom.appendChild(document.createTextNode(fastCalc.getTzaitLechumra().toLocaleString(...this.dtF)))
 			}
 		} else {
-			fastContainer.querySelector('[data-zfFind="twoDayTimes"]').style.display = "none";
-			const timeBox = fastContainer.querySelector('[data-zfFind="oneDayTimes"]');
-			if (timeBox.lastChild.nodeType == Node.TEXT_NODE) {
-				timeBox.lastChild.remove();
+			timeList.multiDay.style.display = "none";
+			timeList.oneDay.style.removeProperty("display")
+			if (timeList.oneDay.lastChild.nodeType == Node.TEXT_NODE) {
+				timeList.oneDay.lastChild.remove();
 			}
 
-			timeBox.appendChild(document.createTextNode(
+			timeList.oneDay.appendChild(document.createTextNode(
 				fastCalc.getAlotHashachar().toLocaleString(...this.dtF) + ' - ' + fastCalc.getTzaitLechumra().toLocaleString(...this.dtF)
 			))
 		}

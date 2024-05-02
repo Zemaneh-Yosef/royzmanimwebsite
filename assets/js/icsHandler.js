@@ -74,7 +74,6 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 			events.push({
 				start: calc.getShkiya().epochMilliseconds,
 				end: calc.chainDate(jCal.getDate().withCalendar("hebrew").with({ day: 15 })).getAlotHashachar().epochMilliseconds,
-				// @ts-ignore
 				title: funcSettings.language == "he" ? "ברכת הלבנה - חדש " + jMonth.he : "Birkat Halevana - Month of " + jMonth.en,
 				description: "End-time of the Rama (Stringent): " + birkLev.data.end.toLocaleString()
 			})

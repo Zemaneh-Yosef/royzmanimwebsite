@@ -26,7 +26,9 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 	}
 
+	/** @returns {{en: string; he: string}} */
 	formatJewishMonth() {
+		// @ts-ignore
 		return ['en', 'he']
 			.map(locale => [locale, this.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
 			.reduce(function (obj, [key, val]) {
@@ -480,8 +482,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const yomTovIndex = this.getYomTovIndex();
 
 		const mashivHarush = {
-			start: new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.TISHREI, 22),
-			end: new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 15)
+			start: new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.TISHREI, 22).getDate(),
+			end: new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 15).getDate()
 		}
 
 		const normalAmidah = !(this.getDayOfWeek() == 7 || [
@@ -566,7 +568,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			hallel: hallel,
 			tachanun: todaysTachanun ? 2 : 0,
 			amidah: {
-				"mechayehHametim": (this.isInBetween(mashivHarush.start, mashivHarush.end) ? "משיב הרוח" : "מוריד הטל"),
+				"mechayehHametim": (KosherZmanim.temporalExtended.rangeDates(mashivHarush.start, this.getDate(), mashivHarush.end) ? "משיב הרוח" : "מוריד הטל"),
 				"mevarechHashanim": (!normalAmidah ? null :
 					(this.isBarechAleinu() ? "ברך עלינו" : "ברכנו")),
 				"ulChaparatPesha": (!this.isRoshChodesh() ? null : ulChaparatPesha)
@@ -637,14 +639,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const validAv = (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 8);
 
 		return validAv || validTamuz || validSefira
-	}
-
-	/**
-	 * @param {KosherZmanim.JewishDate} startDate
-	 * @param {KosherZmanim.JewishDate} endDate
-	 */
-	isInBetween(startDate, endDate) {
-		return (this.compareTo(startDate) > 0 && this.compareTo(endDate) < 0);
 	}
 
 	/*
