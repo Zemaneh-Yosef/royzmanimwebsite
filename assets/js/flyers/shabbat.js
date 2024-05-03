@@ -25,11 +25,11 @@ ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 amudehHoraahCal.configSettings(true, settings.customTimes.tzeithIssurMelakha());
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 30 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 4 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
-//if (jCal.getDate().dayOfWeek != 6)
-//	throw new Error("Non-Saturday")
+if (jCal.getDate().dayOfWeek != 6)
+	throw new Error("Non-Saturday")
 
 if (document.getElementsByClassName('shabbatTitleCore').length) {
 	let parashaText = document.getElementsByClassName('shabbatTitleCore')[0].innerHTML + jCal.getHebrewParasha().join(" / ");

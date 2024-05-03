@@ -133,7 +133,7 @@ class ChaiTables {
 						.withCalendar("iso8601")
 				);
 
-				if (zmanTable.rows[rowIndex].cells[monthIndex].innerHTML.includes("<u") && loopCal.getDate().dayOfWeek !== 6) {
+				if (zmanTable.rows[rowIndex].cells[monthIndex].innerHTML.toLowerCase().includes("<u") && loopCal.getDate().dayOfWeek !== 6) {
 					console.error("non-Shabbat underline. Something must be wrong", {
 						jDate: loopCal.getDate().toString({ calendarName: "always" }),
 						ctScrapeMonth: zmanTable.rows[0].cells[monthIndex].innerText,

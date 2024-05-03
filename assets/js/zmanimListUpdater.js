@@ -206,7 +206,9 @@ class zmanimListUpdater {
 		// @ts-ignore
 		const dateKeys = Object.keys(date);
 		for (const dateName of dateKeys) {
-			dateContainer.querySelector(`[data-zfReplace="${dateName}Date"]`).innerHTML = date[dateName]
+			const dateDisplay = dateContainer.querySelector(`[data-zfReplace="${dateName}Date"]`);
+			dateDisplay.setAttribute('dir', date[dateName].dir);
+			dateDisplay.innerHTML = date[dateName].text;
 		}
 
 		const boldDateHandler = (this.jCal.getDate().equals(KosherZmanim.Temporal.Now.plainDateISO())) ? 'add' : 'remove'

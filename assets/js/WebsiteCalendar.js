@@ -46,8 +46,18 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 * @param {'hb'|'en'|'en-et'} lang
 	 */
 	dateRenderer(lang) {
-		const en = `${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day, true)}, ${this.getDate().year}`
-		const { english: et, hebrew: hb } = this.formatJewishFullDate()
+		const en = {
+			text: `${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day, true)}, ${this.getDate().year}`,
+			dir: 'ltr'
+		}
+		const et = {
+			text: this.formatJewishFullDate().english,
+			dir: 'ltr'
+		}
+		const hb = {
+			text: this.formatJewishFullDate().hebrew,
+			dir: 'rtl'
+		}
 
 		let date;
 		switch (lang) {
