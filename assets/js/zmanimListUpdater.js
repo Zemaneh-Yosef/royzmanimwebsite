@@ -265,25 +265,8 @@ class zmanimListUpdater {
 					}
 				]
 
-				if (window.Worker) {
-					const myWorker = new Worker("/assets/js/icsHandler.js", { type: "module" });
-					myWorker.postMessage(icsParams)
-					myWorker.addEventListener("message", (message) => {
-						console.log("received message from other thread")
-						const element = document.createElement('a');
-						element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(message.data));
-						element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
-
-						element.style.display = 'none';
-						document.body.appendChild(element);
-
-						element.click();
-
-						document.body.removeChild(element);
-						this.midDownload = false;
-					})
-				} else {
-					const icsData = icsExport.apply(icsExport, icsParams)
+				/** @param {ReturnType<typeof icsExport>} icsData */
+				const postDataReceive = (icsData) => {
 					const element = document.createElement('a');
 					element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
 					element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
@@ -295,6 +278,18 @@ class zmanimListUpdater {
 
 					document.body.removeChild(element);
 					this.midDownload = false;
+				}
+
+				if (window.Worker) {
+					const myWorker = new Worker("/assets/js/icsHandler.js", { type: "module" });
+					myWorker.postMessage(icsParams)
+					myWorker.addEventListener("message", (message) => {
+						console.log("received message from other thread");
+						postDataReceive(message.data);
+					})
+				} else {
+					const icsData = icsExport.apply(icsExport, icsParams)
+					postDataReceive(icsData)
 				}
 			})
 
@@ -474,41 +469,27 @@ class zmanimListUpdater {
 			sefirathHaomer.style.removeProperty("display");
 			threeWeeks.style.display = "none";
 
-			const omerInfo = this.jCal.getOmerInfo();
+			const eachLang = Object.fromEntries(Array.from(sefirathHaomer.children)
+				.filter(elem => elem.tagName == "DIV")
+				.map(elem => [Array.from(elem.classList)[1].replace('lang-', ''), elem]));
 
-			// Hebrew
-			mourningDiv.querySelector('[data-zfReplace="hbOmerDate"]').innerHTML =
-				omerInfo.title.hb.mainCount;
+			for (const [lang, elem] of Object.entries(eachLang)) {
+				for (const completeCount of elem.querySelectorAll('[data-zfReplace="completeCount"]')) {
+					const jCalOmer = (completeCount.getAttribute('data-omerDay') == 'tomorrow' ? this.jCal.tomorrow() : this.jCal)
+					// @ts-ignore
+					completeCount.innerHTML = jCalOmer.getOmerInfo().title[lang].mainCount
+				}
 
-			const hbDescription = mourningDiv.querySelector('[data-zfReplace="hbOmerDays"]');
-			if (this.jCal.getDayOfOmer() >= 7) {
-				hbDescription.parentElement.style.removeProperty("display");
-				hbDescription.innerHTML = omerInfo.title.hb.subCount.toString();
-			} else {
-				hbDescription.parentElement.style.display = 'none';
-			}
-
-			// English
-			mourningDiv.querySelector('[data-zfReplace="etNumOmerCount"]').innerHTML =
-				omerInfo.title.et.mainCount;
-			const etDescription = mourningDiv.querySelector('[data-zfReplace="etOmer"]');
-			if (this.jCal.getDayOfOmer() >= 7) {
-				etDescription.parentElement.style.removeProperty("display");
-				etDescription.innerHTML = omerInfo.title.et.subCount.toString();
-			} else {
-				etDescription.parentElement.style.display = 'none';
-			}
-
-			mourningDiv.querySelector('[data-zfReplace="enOrdOmerCount"]').innerHTML =
-				omerInfo.title.en.mainCount;
-
-			/** @type {HTMLElement} */
-			const enDescription = mourningDiv.querySelector('[data-zfReplace="enOmer"]');
-			if (this.jCal.getDayOfOmer() >= 7) {
-				enDescription.style.removeProperty("display");
-				enDescription.innerHTML = omerInfo.title.en.subCount.toString();
-			} else {
-				enDescription.style.display = 'none';
+				for (const indCount of elem.querySelectorAll('[data-zfReplace="indCount"]')) {
+					const jCalOmer = (indCount.getAttribute('data-omerDay') == 'tomorrow' ? this.jCal.tomorrow() : this.jCal)
+					if (jCalOmer.getDayOfOmer() >= 7) {
+						indCount.parentElement.style.removeProperty("display");
+						// @ts-ignore
+						indCount.innerHTML = jCalOmer.getOmerInfo().title[lang].subCount.toString();
+					} else {
+						indCount.parentElement.style.display = 'none';
+					}
+				}
 			}
 
 			/** @type {HTMLElement} */

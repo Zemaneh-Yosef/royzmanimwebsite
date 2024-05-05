@@ -8216,23 +8216,6 @@ export declare class JewishCalendar extends JewishDate {
 	 */
 	equals(jewishCalendar: JewishCalendar): boolean;
 }
-export declare class ChafetzChayimYomiCalculator {
-	static getChafetzChayimYomi(jewishCalendar: JewishDate): {
-		days: {
-			day: number;
-			monthCode: string;
-		}[];
-		title: string;
-		section: string;
-	} | {
-		days: {
-			day: number;
-			monthCode: string;
-		}[];
-		title: string;
-		section?: undefined;
-	} | undefined;
-}
 /**
  * Tefila Rules is a utility class that covers the various <em>halachos</em> and <em>minhagim</em> regarding
  * changes to daily <em>tefila</em> / prayers, based on the Jewish calendar. This is mostly useful for use in
@@ -8729,6 +8712,2279 @@ export declare class TefilaRules {
 	   * @see #isTachanunRecitedMinchaAllYear()
 	   */
 	setTachanunRecitedMinchaAllYear(tachanunRecitedMinchaAllYear: boolean): void;
+}
+export declare class ChafetzChayimYomiCalculator {
+	static getChafetzChayimYomi(jewishCalendar: JewishDate): {
+		days: {
+			day: number;
+			monthCode: string;
+		}[];
+		title: string;
+		section: string;
+	} | {
+		days: {
+			day: number;
+			monthCode: string;
+		}[];
+		title: string;
+		section?: undefined;
+	} | undefined;
+}
+export declare class HiloulahYomiCalculator {
+	static getHiloulah(jewishCalendar: JewishDate): {
+		en: never[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[];
+		he: never[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[] | {
+			name: string;
+			source: string;
+		}[];
+	};
 }
 /**
  * The HebrewDateFormatter class formats a {@link JewishDate}.

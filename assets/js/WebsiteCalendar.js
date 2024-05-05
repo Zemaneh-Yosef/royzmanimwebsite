@@ -461,10 +461,10 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			},
 			title: {
 				en: {
-					mainCount: getOrdinal(super.getDayOfOmer()),
+					mainCount: getOrdinal(super.getDayOfOmer(), true),
 					subCount: {
-						days: getOrdinal(days) + " day",
-						weeks: getOrdinal(weeks) + " week",
+						days: getOrdinal(days, true) + " day",
+						weeks: getOrdinal(weeks, true) + " week",
 						toString: function () { return (!weeks ? "" :[this.weeks].concat(days ? [this.days] : []).join(" • ")); }
 					}
 				},
