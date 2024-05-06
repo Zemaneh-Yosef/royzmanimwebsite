@@ -81,55 +81,43 @@
     et: HaNetz (Mishor)
     en: Sunrise (Sea Level)
   descriptionInclude: zmanDescription/hanetz.md
-- id: latestShmaMGA
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
-  timeGetter: getSofZmanShmaMGA
+- id: latestShma
+  shitot:
+    - names:
+        hb: מג'א
+        en: MG'A
+        et: MG'A
+      timeGetter: getSofZmanShmaMGA
+    - names:
+        hb: גר'א
+        en: GR'A
+        et: GR'A
+      timeGetter: getSofZmanShmaGRA
   names:
-    hb: סוף זמן שמע מג'א
-    et: Sof Zman Shema (MG'A)
-    en: Latest Shema (MG'A)
+    hb: סוף זמן שמע
+    et: Sof Zman Shema
+    en: Latest Shema
   descriptionInclude: zmanDescription/kriatShema.md
-- id: latestShmaGRA
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
-  timeGetter: getSofZmanShmaGRA
-  names:
-    hb: סוף זמן שמע גר'א
-    et: Sof Zman Shema (GR'A)
-    en: Latest Shema (GR'A)
-  descriptionInclude: zmanDescription/kriatShema.md
-- id: SofZmanAchilatChametz
+- id: SofZmanChametz
+  shitot:
+    - names:
+        hb: אכילת
+        en: Eating
+        et: Achilath
+      timeGetter: getSofZmanAchilathHametz
+    - names:
+        hb: ביעור
+        en: Burning
+        et: Biur
+      timeGetter: getSofZmanBiurHametz
   attributes:
     yomTovInclusive: EREV_PESACH
-    luachInclusive:
-    condition:
-  timeGetter: getSofZmanAchilathHametz
   names:
     hb: סוף זמן אכילת חמץ
     et: Sof Zman Achilat Chametz
     en: Latest Time to Eat Chametz
   descriptionInclude: zmanDescription/hametz.md
-- id: SofZmanBiurChametz
-  attributes:
-    yomTovInclusive: EREV_PESACH
-    luachInclusive:
-    condition:
-  timeGetter: getSofZmanBiurHametz
-  names:
-    hb: סוף זמן ביעור חמץ
-    et: Sof Zman Biur Chametz
-    en: Latest Time to Burn Chametz
-  descriptionInclude: zmanDescription/hametz.md
 - id: latestBrachotShmaGRA
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
   timeGetter: getSofZmanBrachothShma
   names:
     hb: סוף זמן ברכות שמע
@@ -152,10 +140,6 @@
     above except no elevation is included.
     </p>
 - id: hatzoth
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
   timeGetter: getHatzoth
   names:
     hb: חצות

@@ -95,6 +95,63 @@ chaiTable: true
 			<div class="tab-pane fade show active" id="zemanim-tab-pane" role="tabpanel" aria-labelledby="zemanim-tab" tabindex="0">
 				<div class="accordian" data-zfFind="calendarFormatter">
 					{% for item in site.data.zmanim %}
+						{% if item.shitot %}
+						{% for mobileZman in item.shitot%}
+						<details
+							data-zmanid="{{ item.id }}{{ mobileZman.name.en }}"
+							class="loading d-lg-none"
+							data-timeGetter="{{ mobileZman.timeGetter }}"
+							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+							{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+							{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+							{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
+						>
+							<summary>
+								<span class="lang lang-hb">{{ item.names.hb }} - {{ mobileZman.name.hb }}</span>
+								<span class="lang lang-et">{{ item.names.et }} - {{ mobileZman.name.et }}</span>
+								<span class="lang lang-en">{{ item.names.en }} - {{ mobileZman.name.en }}</span>
+								<span class="timeDisplay ms-auto"></span>
+							</summary>
+							<div class="accordianContent">
+								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
+
+---
+{% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
+								{% endcapture %}{{ my_include | markdownify }}
+							</div>
+						</details>
+						{% endfor %}
+						<details
+							data-zmanid="{{ item.id }}"
+							class="loading d-none d-lg-block"
+							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+							{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+							{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+							{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
+						>
+							<summary>
+								<span class="lang lang-hb">{{ item.names.hb }}</span>
+								<span class="lang lang-et">{{ item.names.et }}</span>
+								<span class="lang lang-en">{{ item.names.en }}</span>
+								<span class="timeDisplay d-flex ms-auto">
+									{% for pcDisplay in item.shitot %}
+									<span class="d-flex flex-column">
+										{{ pcDisplay.names.en }}
+									</span>
+									{% endfor %}
+								</span>
+							</summary>
+							<div class="accordianContent">
+								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
+
+	---
+	{% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
+								{% endcapture %}{{ my_include | markdownify }}
+							</div>
+						</details>
+						{% else %}
 						<details
 							data-zmanid="{{ item.id }}"
 							class="loading"
@@ -119,6 +176,7 @@ chaiTable: true
 								{% endcapture %}{{ my_include | markdownify }}
 							</div>
 						</details>
+						{% endif %}
 					{% endfor %}
 				</div>
 				<div class="card mt-2">
@@ -403,4 +461,4 @@ chaiTable: true
 </div>
 {% include modals/location.html %}
 
-<script src="/assets/js/zmanimListUpdater.js" type="module"></script>
+<!-- <script src="/assets/js/zmanimListUpdater.js" type="module"></script> -->

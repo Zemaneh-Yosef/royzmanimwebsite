@@ -30,7 +30,7 @@ class zmanimListUpdater {
 		/** @type {null|NodeJS.Timeout} */ // It's not node but whatever
 		this.countdownToNextDay = null;
 
-		this.zmanimList = Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
+		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
 			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), {
 				function: timeSlot.getAttribute('data-timeGetter'),
 				yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
@@ -47,12 +47,7 @@ class zmanimListUpdater {
 					arrayEntry[0] !== null
 					// @ts-ignore
 				&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
-			)
-			.reduce(function (obj, [key, val]) {
-				//@ts-ignore
-				obj[key] = val
-				return obj
-			}, {})
+			))
 
 		this.resetCalendar(geoLocation);
 
@@ -303,9 +298,7 @@ class zmanimListUpdater {
 
 			for (const calendarBtn of dateContainer.getElementsByTagName('input')) {
 				calendarBtn.addEventListener('calendarInsert',
-					() => this.changeDate(KosherZmanim.Temporal.PlainDate
-						.from(calendarBtn.getAttribute("date-value"))
-					)
+					() => this.changeDate(KosherZmanim.Temporal.PlainDate.from(calendarBtn.getAttribute("date-value")))
 				)
 			}
 
