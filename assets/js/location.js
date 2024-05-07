@@ -171,14 +171,21 @@ async function updateList(event) {
 	}
 }
 
+/**
+ *  @param {string} name 
+ *  @param {string} admin
+ *  @param {string} country
+ *  @param {number} latitude
+ *  @param {number} longitude
+*/
 async function setLocation(name, admin, country, latitude, longitude) {
 	if (country)
 		country = country.split("Palestine").join("Israel")
 
 	geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
 
-	geoLocation.lat = latitude;
-	geoLocation.long = longitude;
+	geoLocation.lat = latitude.toFixed(5);
+	geoLocation.long = longitude.toFixed(5);
 
 	if (!geoLocation.timeZone) {
 		try {
@@ -271,8 +278,8 @@ async function setLatLong (position) {
 	let location;
 	try {
 		const params = new URLSearchParams({
-			'lat': position.coords.latitude,
-			'lng': position.coords.longitude,
+			'lat': position.coords.latitude.toFixed(5),
+			'lng': position.coords.longitude.toFixed(5),
 			'username': 'Elyahu41'
 		});
 		const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
@@ -350,7 +357,7 @@ async function getAverageElevation (lat, long) {
 		console.error(e);
 	}
 
-	return (elevations.length ? elevations.reduce( ( p, c ) => p + c, 0 ) / elevations.length : 0);
+	return (elevations.length ? elevations.reduce( ( p, c ) => p + c, 0 ) / elevations.length : 0).toFixed(2);
 }
 
 function openCalendarWithLocationInfo() {

@@ -94,8 +94,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 			events.push(calendarEvent)
 		}
 
-		if (jCal.getDate().dayOfWeek == 5 && !jCal.tomorrow().isYomTovAssurBemelacha()) {
-			console.log(jCal.getDate().toLocaleString())
+		if (jCal.getDate().dayOfWeek == 5 && !jCal.tomorrow().isYomTovAssurBemelacha() && !jCal.tomorrow().isYomKippur()) {
 			const parasha = jCal.getHebrewParasha().join(" / ");
 			events.push({
 				title: "שבת " + (parasha == "No Parasha this week" ? jCal.tomorrow().getYomTov() : parasha)
