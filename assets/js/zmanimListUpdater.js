@@ -151,20 +151,42 @@ class zmanimListUpdater {
 		locationModal.querySelector('[data-zfReplace="locationLat"]').innerHTML = geoLocation.getLatitude().toString()
 		locationModal.querySelector('[data-zfReplace="locationLng"]').innerHTML = geoLocation.getLongitude().toString()
 
-		locationModal.querySelectorAll('[data-zfFind="locationElev"]').forEach(elevElem =>
-			elevElem.insertAdjacentText('afterend', geoLocation.getElevation().toString()))
-		locationModal.querySelectorAll('[data-zfFind="locationTimeZone"]').forEach(elevElem =>
-			elevElem.insertAdjacentText('afterend', geoLocation.getTimeZone()))
+		locationModal.querySelectorAll('[data-zfFind="locationElev"]').forEach(elevElem => {
+			if (elevElem.nextSibling.nodeType == Node.TEXT_NODE)
+				elevElem.nextSibling.remove();
+
+			elevElem.insertAdjacentText('afterend', geoLocation.getElevation().toFixed(1))
+		})
+		locationModal.querySelectorAll('[data-zfFind="locationTimeZone"]').forEach(tzElem => {
+			if (tzElem.nextSibling.nodeType == Node.TEXT_NODE)
+				tzElem.nextSibling.remove();
+
+			tzElem.insertAdjacentText('afterend', geoLocation.getTimeZone())
+		})
 
 		/** @type {HTMLElement} */
 		const locationMapElem = locationModal.querySelector('[data-zfFind="locationMap"]')
-		const locationMap = leaflet.map(locationMapElem).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 13);
 
-		leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-		}).addTo(locationMap);
-
-		locationModal.addEventListener('show.bs.modal', () => window.dispatchEvent(new Event('resize')))
+		this.locationMap = null;
+		locationModal.addEventListener('shown.bs.modal', () => {
+			this.locationMap = leaflet.map(locationMapElem, {
+				dragging: false,
+				minZoom: 16,
+				touchZoom: 'center',
+				scrollWheelZoom: 'center'
+			}).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 13);
+			leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+			}).addTo(this.locationMap);
+			leaflet.polyline([
+				[geoLocation.getLatitude(), geoLocation.getLongitude()],
+				[harHabait.getLatitude(), harHabait.getLongitude()]
+			], { color: 'red' }).addTo(this.locationMap)
+		})
+		locationModal.addEventListener('hidden.bs.modal', () => {
+			this.locationMap.remove();
+			this.locationMap = null
+		});
 
 		this.zmanFuncs.coreZC.setCandleLightingOffset(settings.candleLighting());
 
