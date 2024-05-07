@@ -243,3 +243,7 @@ body.lang-en .lang:not(.lang-en) {
 li[data-zfFind="FastDays"] h5 {
   margin-bottom: 0;
 }
+
+#locationModal img {
+  max-height: none;
+}
