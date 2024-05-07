@@ -5,7 +5,7 @@ import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.j
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
 import { ChaiTables } from "./chaiTables.js";
-import * as leaflet from "../libraries/leaflet/leaflet-src.esm.js"
+import * as leaflet from "../libraries/leaflet/leaflet.js"
 
 import icsExport from "./icsHandler.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
