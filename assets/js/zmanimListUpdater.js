@@ -5,6 +5,7 @@ import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.j
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
 import { ChaiTables } from "./chaiTables.js";
+import * as leaflet from "../libraries/leaflet/leaflet-src.esm.js"
 
 import icsExport from "./icsHandler.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
@@ -154,6 +155,16 @@ class zmanimListUpdater {
 			elevElem.insertAdjacentText('afterend', geoLocation.getElevation().toString()))
 		locationModal.querySelectorAll('[data-zfFind="locationTimeZone"]').forEach(elevElem =>
 			elevElem.insertAdjacentText('afterend', geoLocation.getTimeZone()))
+
+		/** @type {HTMLElement} */
+		const locationMapElem = locationModal.querySelector('[data-zfFind="locationMap"]')
+		const locationMap = leaflet.map(locationMapElem).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 13);
+
+		leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		}).addTo(locationMap);
+
+		locationModal.addEventListener('show.bs.modal', () => window.dispatchEvent(new Event('resize')))
 
 		this.zmanFuncs.coreZC.setCandleLightingOffset(settings.candleLighting());
 
