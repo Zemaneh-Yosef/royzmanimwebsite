@@ -908,7 +908,37 @@ class zmanimListUpdater {
 			if (shaahZmanitCont instanceof HTMLElement)
 				this.shaahZmanits(shaahZmanitCont);
 		}
-		
+
+		const leilouNishmat = KosherZmanim.HiloulahYomiCalculator.getHiloulah(this.jCal)
+		for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {
+			while (leilouNishmatList.firstElementChild) {
+				leilouNishmatList.firstElementChild.remove()
+			}
+
+			const hLang = leilouNishmatList.getAttribute('data-zfIndex')
+			if (!leilouNishmat[hLang].length) {
+				const li = document.createElement('li');
+				li.classList.add('list-group-item');
+				li.appendChild(document.createTextNode(leilouNishmatList.getAttribute('data-fillText')));
+				leilouNishmatList.appendChild(li);
+
+				continue;
+			}
+
+			for (const neshama of leilouNishmat[hLang]) {
+				const li = document.createElement('li');
+				li.classList.add('list-group-item');
+
+				const name = document.createElement("b");
+				name.appendChild(document.createTextNode(neshama.name));
+
+				li.appendChild(name)
+				if (neshama.source)
+					li.appendChild(document.createTextNode(` (${neshama.source})`));
+
+				leilouNishmatList.appendChild(li);
+			}
+		}
 	}
 
 	/**
