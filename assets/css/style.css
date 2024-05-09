@@ -270,5 +270,5 @@ li[data-zfFind="FastDays"] h5 {
 }
 .subShita.leftBorderForShita {
   padding-inline-start: 1ch;
-  border-left: .125ch solid var(--bs-body-color);
+  border-inline-start: .125ch solid var(--bs-body-color);
 }
