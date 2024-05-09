@@ -805,18 +805,19 @@ class zmanimListUpdater {
 
 						shita.lastElementChild.innerHTML = zmanInfo[completeName].luxonObj.toLocaleString(...this.dtF)
 
+						const validMergeTitle = 'merge_title' in zmanInfo[completeName];
 						// We're going to affect the main row title since the only time we actually change the title for multi-row is tzet for fasts
-						if (zmanInfo[completeName].merge_title.hb)
+						if (validMergeTitle && zmanInfo[completeName].merge_title.hb)
 							timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[completeName].merge_title.hb
 						else if (zmanInfo[completeName].title.hb)
 							timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[completeName].title.hb
 
-						if (zmanInfo[completeName].merge_title.en)
+						if (validMergeTitle && zmanInfo[completeName].merge_title.en)
 							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].merge_title.en
 						else if (zmanInfo[completeName].title.en)
 							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].title.en
 
-						if (zmanInfo[completeName].merge_title["en-et"])
+						if (validMergeTitle && zmanInfo[completeName].merge_title["en-et"])
 							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].merge_title["en-et"]
 						else if (zmanInfo[completeName].title["en-et"])
 							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].title["en-et"]
