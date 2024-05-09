@@ -98,20 +98,29 @@ chaiTable: true
 						{% if item.shitot %}
 						{% for mobileZman in item.shitot%}
 						<details
-							data-zmanid="{{ item.id }}{{ mobileZman.name.en }}"
+							data-zmanid="{{ item.id }}-{{ mobileZman.id }}"
 							class="loading d-lg-none"
 							data-timeGetter="{{ mobileZman.timeGetter }}"
 							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
-							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-							{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-							{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-							{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
+							{% if mobileZman.attributes.luachInclusive %}data-luachInclusive="{{ mobileZman.attributes.luachInclusive }}"{% endif %}
+							{% if mobileZman.attributes.yomTovInclusive %}data-yomTovInclusive="{{ mobileZman.attributes.yomTovInclusive }}"{% endif %}
+							{% if mobileZman.attributes.condition %}data-condition="{{ mobileZman.attributes.condition }}"{% endif %}
+							{% if mobileZman.attributes.luachInclusive or mobileZman.attributes.yomTovInclusive or mobileZman.attributes.condition %}style="display: none;"{% endif %}
 						>
 							<summary>
-								<span class="lang lang-hb">{{ item.names.hb }} - {{ mobileZman.name.hb }}</span>
-								<span class="lang lang-et">{{ item.names.et }} - {{ mobileZman.name.et }}</span>
-								<span class="lang lang-en">{{ item.names.en }} - {{ mobileZman.name.en }}</span>
-								<span class="timeDisplay ms-auto"></span>
+								<div class="accordianText">
+									<span class="lang lang-hb">{{ item.names.hb }} - {{ mobileZman.name.hb }}</span>
+									<span class="lang lang-et">{{ item.names.et }} - {{ mobileZman.name.et }}</span>
+									<span class="lang lang-en">{{ item.names.en }} - {{ mobileZman.name.en }}</span>
+								</div>
+								<span class="timeDisplay">
+									<div class="upNextText" style="display: none;">
+										<span class="lang lang-hb">הבא...</span>
+										<span class="lang lang-et">Up next...</span>
+										<span class="lang lang-en">Up next...</span>
+									</div>
+									<div></div>
+								</span>
 							</summary>
 							<div class="accordianContent">
 								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
@@ -126,19 +135,23 @@ chaiTable: true
 							data-zmanid="{{ item.id }}"
 							class="loading d-none d-lg-block"
 							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
-							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-							{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-							{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-							{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
 						>
 							<summary>
-								<span class="lang lang-hb">{{ item.names.hb }}</span>
-								<span class="lang lang-et">{{ item.names.et }}</span>
-								<span class="lang lang-en">{{ item.names.en }}</span>
-								<span class="timeDisplay d-flex ms-auto">
+								<div class="accordianText">
+									<span class="lang lang-hb">{{ item.names.hb }}</span>
+									<span class="lang lang-et">{{ item.names.et }}</span>
+									<span class="lang lang-en">{{ item.names.en }}</span>
+								</div>
+								<span class="timeDisplay flex-row">
 									{% for pcDisplay in item.shitot %}
-									<span class="d-flex flex-column">
-										{{ pcDisplay.names.en }}
+									<span class="subShita" data-subZmanId="{{ pcDisplay.id }}">
+										<div class="upNextText" style="display: none;">
+											<span class="lang lang-hb">הבא...</span>
+											<span class="lang lang-et">Up next...</span>
+											<span class="lang lang-en">Up next...</span>
+										</div>
+										<span style="font-size: .75em;">{{ pcDisplay.names.en }}</span>
+										<span></span>
 									</span>
 									{% endfor %}
 								</span>
@@ -163,10 +176,19 @@ chaiTable: true
 							{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
 						>
 							<summary>
-								<span class="lang lang-hb">{{ item.names.hb }}</span>
-								<span class="lang lang-et">{{ item.names.et }}</span>
-								<span class="lang lang-en">{{ item.names.en }}</span>
-								<span class="timeDisplay ms-auto"></span>
+								<div class="accordianText">
+									<span class="lang lang-hb">{{ item.names.hb }}</span>
+									<span class="lang lang-et">{{ item.names.et }}</span>
+									<span class="lang lang-en">{{ item.names.en }}</span>
+								</div>
+								<span class="timeDisplay">
+									<div class="upNextText" style="display: none;">
+										<span class="lang lang-hb">הבא...</span>
+										<span class="lang lang-et">Up next...</span>
+										<span class="lang lang-en">Up next...</span>
+									</div>
+									<div></div>
+								</span>
 							</summary>
 							<div class="accordianContent">
 								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
@@ -461,5 +483,5 @@ chaiTable: true
 </div>
 {% include modals/location.html %}
 
-<!-- <link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
-<script src="/assets/js/zmanimListUpdater.js" type="module"></script> -->
+<link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
+<script src="/assets/js/zmanimListUpdater.js" type="module"></script>

@@ -114,7 +114,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 * @param {{ hourCalculator: "degrees" | "seasonal"; tzeithIssurMelakha: { minutes: number; degree: number;}; tzeitTaanitHumra: boolean; }} funcSettings 
 	 */
 	getZmanimInfo(independent, zmanCalc, zmanList, funcSettings) {
-		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: { hb: string, en: string, "en-et": string }}>} */
+		/** @typedef {{ hb: string, en: string, "en-et": string }} langType */
+		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType}>} */
 		const calculatedZmanim = {}
 
 		for (const [zmanId, zmanInfo] of Object.entries(zmanList)) {
@@ -123,6 +124,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				code: [],
 				luxonObj: null,
 				title: {
+					hb: null,
+					en: null,
+					"en-et": null
+				},
+				merge_title: {
 					hb: null,
 					en: null,
 					"en-et": null
@@ -224,18 +230,22 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						calculatedZmanim[zmanId].code.push("Not a day with Tzet")
 					}
 					break;
-				case 'tzeit':
+				case 'tzeit-regular':
 					if ((this.isAssurBemelacha() && !this.hasCandleLighting()) || (this.isTaanis() && zmanCalc instanceof AmudehHoraahZmanim)) {
 						calculatedZmanim[zmanId].display = 0;
 						calculatedZmanim[zmanId].code.push("Isur Melacha Tzet")
 					}
 					break;
-				case 'tzeitLechumra':
+				case 'tzeit-humra':
 					if (this.isTaanis() && this.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR) {
 						calculatedZmanim[zmanId].title.hb = "צאת תענית (צאת הכוכבים)";
 						calculatedZmanim[zmanId].title['en-et'] = "Tzeit Ta'anith (Tzeit Hakochavim)";
 						calculatedZmanim[zmanId].title.en = "Fast Ends (Nightfall)";
 					} else {
+						calculatedZmanim[zmanId].merge_title.hb = "צאת הכוכבים";
+						calculatedZmanim[zmanId].merge_title['en-et'] = "Tzait Hakokhavim";
+						calculatedZmanim[zmanId].merge_title.en = "Nightfall";
+
 						calculatedZmanim[zmanId].title.hb = "צאת הכוכבים לחומרא";
 						calculatedZmanim[zmanId].title['en-et'] = "Tzait Hakokhavim LeKhumra";
 						calculatedZmanim[zmanId].title.en = "Nightfall (Stringent)";

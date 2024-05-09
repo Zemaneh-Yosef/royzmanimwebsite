@@ -88,11 +88,13 @@
         en: MG'A
         et: MG'A
       timeGetter: getSofZmanShmaMGA
+      id: mga
     - names:
         hb: גר'א
         en: GR'A
         et: GR'A
       timeGetter: getSofZmanShmaGRA
+      id: gra
   names:
     hb: סוף זמן שמע
     et: Sof Zman Shema
@@ -105,13 +107,17 @@
         en: Eating
         et: Achilath
       timeGetter: getSofZmanAchilathHametz
+      id: eating
+      attributes:
+        yomTovInclusive: EREV_PESACH
     - names:
         hb: ביעור
         en: Burning
         et: Biur
       timeGetter: getSofZmanBiurHametz
-  attributes:
-    yomTovInclusive: EREV_PESACH
+      id: burning
+      attributes:
+        yomTovInclusive: EREV_PESACH
   names:
     hb: סוף זמן אכילת חמץ
     et: Sof Zman Achilat Chametz
@@ -168,16 +174,24 @@
     In Luach Amudei Horaah mode, this time is calculated the same way as
     above except no elevation is included.
     </p>
-- id: minhaGedola
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
-  timeGetter: getMinhaGedolah
+- id: minha
+  shitot:
+    - names:
+        hb: גדולה
+        en: Gedolah
+        et: Earliest
+      timeGetter: getMinhaGedolah
+      id: gedolah
+    - names:
+        hb: קטנה
+        en: Ketanah
+        et: Preferable
+      timeGetter: getMinchaKetana
+      id: ketanah
   names:
-    hb: מנחה גדולה
-    et: Minha Gedola
-    en: Earliest Minha
+    hb: זמן מנחה
+    et: Zman Minha
+    en: Times for Minha
   description: |-
     <p>
     Minha Gedolah, literally "Greater Mincha", is the earliest time a
@@ -202,65 +216,24 @@
     In Luach Amudei Horaah mode, this time is calculated the same way as
     above except no elevation is included.
     </p>
-#- id: minhaGedolaBenTzion
-#  attributes:
-#    yomTovInclusive:
-#    luachInclusive:
-#    condition:
-#  timeGetter: 
-#  names:
-#    hb: מנחה גדולה לחומרא
-#    et: Minha Gedolah LeHumra
-#    en: Earliest Minha (Stringent)
-#  description: |-
-#    <p>This stringent Minha Gedolah is according to the opinion of Rabbi Ben-Tzion Aba-Shaul, who calculates it as 7 seasonal minutes after hatzot</p>
-- id: minhaKetana
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
-  timeGetter: getMinchaKetana
+- id: plagHaminha
+  shitot:
+    - names:
+        hb: ה"ב
+        en: H"B
+        et: H"B
+      timeGetter: getPlagHaminhaHalachaBrurah
+      id: hb
+    - names:
+        hb: י"י
+        en: Y"Y
+        et: Y"Y
+      timeGetter: getPlagHaminhaYalkutYosef
+      id: yy
   names:
-    hb: מנחה קטנה
-    et: Minha Ketana
-    en: Minha Ketana
-  description: |-
-    <p>
-    Minha Ketana, literally "Lesser Mincha", is the most preferred time
-    a person can say Mincha according to some poskim.
-    </p>
-    <p>
-    It is called Mincha Ketana because there is less time left until
-    sunset.
-    </p>
-    <p>
-    This time is calculated as 9 and a half zmaniyot/seasonal hours
-    after sunrise. The GR"A calculates a zmaniyot/seasonal hour by
-    taking the time between sunrise and sunset (elevation included) and
-    divides it into 12 equal parts. Then we divide one of those 12 parts
-    into 60 to get a zmaniyot/seasonal minute.
-    </p>
-- id: plagHaminhaHB
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
-  timeGetter: getPlagHaminhaHalachaBrurah
-  names:
-    hb: פלג המנחה הלכה ברורה
-    et: Plag HaMincha Lefi Halacha Brurah
-    en: Plag HaMincha (R David Yosef)
-  descriptionInclude: zmanDescription/plagHamincha.md
-- id: plagHaminhaYY
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
-  timeGetter: getPlagHaminhaYalkutYosef
-  names:
-    hb: פלג המנחה ילקות יוסף
-    et: Plag HaMincha Lefi Yalkut Yosef
-    en: Plag HaMincha (R Yitzhak Yosef)
+    hb: פלג המנחה
+    et: Plag HaMincha
+    en: Plag HaMincha
   descriptionInclude: zmanDescription/plagHamincha.md
 - id: candleLighting
   attributes:
@@ -326,11 +299,21 @@
     done before this time.
     </p>
 - id: tzeit
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
-  timeGetter: getTzait
+  shitot:
+    - names:
+        hb: 13.5
+        en: 13.5
+        et: 13.5
+      timeGetter: getTzait
+      id: regular
+    - names:
+        hb: לחומרה
+        en: Humra
+        et: Stringent
+      timeGetter: getTzaitLechumra
+      id: humra
+      attributes:
+        luachInclusive: degrees
   names:
     hb: צאת הכוכבים
     et: Tzait Hakokhavim
@@ -343,44 +326,6 @@
     <p>
     This is the latest time a person can say Mincha according Rav
     Ovadiah Yosef Z"TL. A person should start mincha at least 2 minutes
-    before this time.
-    </p>
-    <p>
-    This time is calculated as 13 and a half zmaniyot/seasonal minutes
-    after sunset (elevation included).
-    </p>
-    <p>
-    The GR\"A calculates a zmaniyot/seasonal hour by taking the time
-    between sunrise and sunset (elevation included) and divides it into
-    12 equal parts. Then we divide one of those 12 parts into 60 to get
-    a zmaniyot/seasonal minute.
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, this time is calculated by finding out
-    the amount of minutes between sunset and 3.86 degrees below the
-    horizon on an equal day, then we add that amount of zmaniyot minutes
-    to sunset to get the time of Tzeit/Nightfall. We use 3.86 degrees
-    below the horizon because that is the time when it is 13.5 minutes
-    after sunset in Israel.
-    </p>
-- id: tzeitLechumra
-  attributes:
-    yomTovInclusive:
-    luachInclusive: degrees
-    condition:
-  timeGetter: getTzaitLechumra
-  names:
-    hb: צאת הכוכבים לחומרא
-    et: Tzait Hakokhavim LeKhumra
-    en: Nightfall (Stringent)
-  description: |-
-    <p>
-    Tzeit/Nightfall is the time when the next halachic day starts after
-    Bein Hashmashot/twilight finishes.
-    </p>
-    <p>
-    This is the latest time a person can say Mincha according Rav
-    Ovadiah Yosef Z\"TL. A person should start mincha at least 2 minutes
     before this time.
     </p>
     <p>

@@ -764,49 +764,132 @@ class zmanimListUpdater {
 					continue;
 
 				if (!timeSlot.hasAttribute('data-zmanid')) {
-					timeSlot.style.display = 'none';
+					timeSlot.style.setProperty('display', 'none', 'important');
 					continue;
 				}
 
-				const zmanId = timeSlot.getAttribute('data-zmanid');
-				if (!(zmanId in zmanInfo) || zmanInfo[zmanId].display == -1) {
-					timeSlot.style.display = 'none';
-					continue;
+				let zmanId = timeSlot.getAttribute('data-zmanid');
+				const timeDisplay = timeSlot.getElementsByClassName('timeDisplay')[0]
+				if (!(zmanId in zmanInfo)) {
+					if (!Object.keys(zmanInfo).find((value) => value.startsWith(zmanId))) {
+						timeSlot.style.setProperty('display', 'none', 'important');
+						continue;
+					}
+
+					// Now we know it's a proper sub-function, but we need to now determine how to display each sub-function
+					let allRowsHidden = true;
+					let firstAlreadyGone = false;
+					for (const shita of timeDisplay.querySelectorAll('[data-subZmanId]')) {
+						const completeName = timeSlot.getAttribute('data-zmanid') + '-' + shita.getAttribute('data-subZmanId');
+
+						if (zmanInfo[completeName].display == -1) {
+							shita.style.setProperty('display', 'none', 'important');
+							continue;
+						}
+
+						if (zmanInfo[completeName].display == -2) {
+							allRowsHidden = false;
+							timeSlot.style.removeProperty("display");
+							timeDisplay.lastElementChild.innerHTML = "XX:XX"
+							continue;
+						}
+
+						/** @type {HTMLElement} */
+						// @ts-ignore
+						const upNextElem = shita.firstElementChild;
+						if (this.isNextUpcomingZman(zmanInfo[completeName].luxonObj)) {
+							upNextElem.style.removeProperty("display")
+						} else {
+							upNextElem.style.display = "none";
+						}
+
+						shita.lastElementChild.innerHTML = zmanInfo[completeName].luxonObj.toLocaleString(...this.dtF)
+
+						// We're going to affect the main row title since the only time we actually change the title for multi-row is tzet for fasts
+						if (zmanInfo[completeName].merge_title.hb)
+							timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[completeName].merge_title.hb
+						else if (zmanInfo[completeName].title.hb)
+							timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[completeName].title.hb
+
+						if (zmanInfo[completeName].merge_title.en)
+							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].merge_title.en
+						else if (zmanInfo[completeName].title.en)
+							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].title.en
+
+						if (zmanInfo[completeName].merge_title["en-et"])
+							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].merge_title["en-et"]
+						else if (zmanInfo[completeName].title["en-et"])
+							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].title["en-et"]
+
+						// Calculate but hide! Can be derived via Inspect Element
+						if (!zmanInfo[completeName].display)
+							shita.style.setProperty('display', 'none', 'important');
+						else {
+							allRowsHidden = false;
+							shita.style.removeProperty('display');
+
+							if (!firstAlreadyGone) {
+								firstAlreadyGone = true;
+								shita.classList.remove("leftBorderForShita");
+							} else {
+								shita.classList.add("leftBorderForShita")
+							}
+						}
+					}
+
+					// Calculate but hide! Can be derived via Inspect Element
+					if (allRowsHidden)
+						timeSlot.style.setProperty('display', 'none', 'important');
+					else {
+						timeSlot.style.removeProperty('display')
+						timeSlot.classList.remove('loading')
+					}
+				} else {
+					if (zmanInfo[zmanId].display == -1) {
+						timeSlot.style.setProperty('display', 'none', 'important');
+						continue;
+					}
+
+					if (zmanInfo[zmanId].display == -2) {
+						timeSlot.style.removeProperty("display");
+						timeDisplay.lastElementChild.innerHTML = "XX:XX"
+						continue;
+					}
+
+					/** @type {HTMLElement} */
+					// @ts-ignore
+					const upNextElem = timeDisplay.firstElementChild;
+					if (this.isNextUpcomingZman(zmanInfo[zmanId].luxonObj)) {
+						upNextElem.style.removeProperty("display")
+					} else {
+						upNextElem.style.display = "none";
+					}
+
+					timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].luxonObj.toLocaleString(...this.dtF)
+
+					if (zmanInfo[zmanId].title.hb)
+						timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb
+
+					if (zmanInfo[zmanId].title.en)
+						timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en
+
+					if (zmanInfo[zmanId].title["en-et"])
+						timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[zmanId].title["en-et"];
+
+					// Calculate but hide! Can be derived via Inspect Element
+					if (!zmanInfo[zmanId].display)
+						timeSlot.style.setProperty('display', 'none', 'important');
+					else {
+						timeSlot.style.removeProperty('display')
+						timeSlot.classList.remove('loading')
+					}
 				}
-
-				if (zmanInfo[zmanId].display == -2) {
-					timeSlot.style.removeProperty("display");
-					timeSlot.querySelector('.timeDisplay').innerHTML = "XX:XX"
-					continue;
-				}
-
-				const actionToClass = (this.isNextUpcomingZman(zmanInfo[zmanId].luxonObj) ? "add" : "remove")
-				timeSlot.classList[actionToClass]("nextZman")
-
-				timeSlot.querySelector('.timeDisplay').innerHTML = zmanInfo[zmanId].luxonObj.toLocaleString(...this.dtF)
 
 				if (timeSlot.hasAttribute('data-specialDropdownContent')) {
 					const description = timeSlot.querySelector('.accordianContent');
 					description.innerHTML = description.innerHTML
 						.split('${getAteretTorahSunsetOffset()}').join(settings.customTimes.tzeithIssurMelakha().minutes.toString())
 						.split('${getCandleLightingOffset()}').join(this.zmanFuncs.coreZC.getCandleLightingOffset().toString())
-				}
-
-				if (zmanInfo[zmanId].title.hb)
-					timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb
-
-				if (zmanInfo[zmanId].title.en)
-					timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en
-
-				if (zmanInfo[zmanId].title["en-et"])
-					timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[zmanId].title["en-et"]
-
-				// Calculate but hide! Can be derived via Inspect Element
-				if (!zmanInfo[zmanId].display)
-					timeSlot.style.display = 'none';
-				else {
-					timeSlot.style.removeProperty('display')
-					timeSlot.classList.remove('loading')
 				}
 			}
 		}
