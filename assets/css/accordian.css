@@ -4,6 +4,7 @@
   outline: none;
   padding: .5rem .9rem;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   background: var(--accordian-bg);
   color: var(--bs-list-group-color);
@@ -54,11 +55,11 @@
   position: relative;
 }
 
-.accordian details[open] > summary:before {
+.accordian details[open] > summary .accordianText:before {
   transform: rotate(90deg);
 }
 
-.accordian summary:before {
+.accordian summary .accordianText:before {
   content: "";
   border-width: 0.4rem;
   border-style: solid;
@@ -67,16 +68,17 @@
   transform-origin: left center;
   transition: 0.25s transform ease;
   margin-right: 0.25rem;
+  display: inline-block;
 }
 
-body[dir=rtl] .accordian summary:before {
+body[dir=rtl] .accordian summary .accordianText:before {
   border-color: transparent var(--bs-list-group-color) transparent transparent;
   margin-right: 0;
   margin-left: 0.25rem;
   transform-origin: right center;
 }
 
-body[dir=rtl] .accordian details[open] > summary:before {
+body[dir=rtl] .accordian details[open] > summary .accordianText:before {
   transform: rotate(-90deg) translateX(3px) translateY(-3px);
 }
 
@@ -85,7 +87,7 @@ body[dir=rtl] .accordian details[open] > summary:before {
   border: 2px solid var(--bs-card-bg);
   border-top: none;
   background: white;
-  max-height: 60vh;
+  max-height: 35vh;
   overflow: scroll;
 }
 
