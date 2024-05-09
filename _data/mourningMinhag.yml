@@ -1,21 +1,17 @@
 ---
 - topic: haircuts
-  displayExclude: THREE_WEEKS_TWO
   text:
     en: No taking haircuts
     hb: לא לקחת תשפורת
 - topic: shechiyanu
-  display: 
   text:
     en: No blessings of Shehechiyanu
     hb: לא לברך שהכינו
 - topic: music
-  displayExclude: HOL_HAMOED
   text:
     en: No listening to music
     hb: לא לשמוע למוזיקה
 - topic: wedding
-  displayExclude: THREE_WEEKS
   text:
     en: No weddings
     hb: לא לתחתן
