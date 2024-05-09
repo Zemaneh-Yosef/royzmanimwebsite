@@ -75,225 +75,33 @@ chaiTable: true
 		</div>
 	</div>
 	<div id="zmanim">
-		<ul class="nav nav-tabs" id="myTab" role="tablist">
-			<li class="nav-item" role="presentation">
-				<button class="nav-link active" id="zemanim-tab" data-bs-toggle="tab" data-bs-target="#zemanim-tab-pane" type="button" role="tab" aria-controls="zemanim-tab-pane" aria-selected="true">
-					<span class="lang lang-en">Times Display</span>
-					<span class="lang lang-et">Zemanim Display</span>
-					<span class="lang lang-hb">זמנים</span>
-				</button>
-			</li>
-			<li class="nav-item" role="presentation">
-				<button class="nav-link" id="limud-tab" data-bs-toggle="tab" data-bs-target="#limud-tab-pane" type="button" role="tab" aria-controls="limud-tab-pane" aria-selected="false">
-					<span class="lang lang-en">Learning Display</span>
-					<span class="lang lang-et">Limud Display</span>
-					<span class="lang lang-hb">לימודים</span>
-				</button>
-			</li>
-		</ul>
-		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade show active" id="zemanim-tab-pane" role="tabpanel" aria-labelledby="zemanim-tab" tabindex="0">
-				<div class="accordian" data-zfFind="calendarFormatter">
-					{% for item in site.data.zmanim %}
-						{% if item.shitot %}
-						{% for mobileZman in item.shitot%}
-						<details
-							data-zmanid="{{ item.id }}-{{ mobileZman.id }}"
-							class="loading d-lg-none"
-							data-timeGetter="{{ mobileZman.timeGetter }}"
-							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
-							{% if mobileZman.attributes.luachInclusive %}data-luachInclusive="{{ mobileZman.attributes.luachInclusive }}"{% endif %}
-							{% if mobileZman.attributes.yomTovInclusive %}data-yomTovInclusive="{{ mobileZman.attributes.yomTovInclusive }}"{% endif %}
-							{% if mobileZman.attributes.condition %}data-condition="{{ mobileZman.attributes.condition }}"{% endif %}
-							{% if mobileZman.attributes.luachInclusive or mobileZman.attributes.yomTovInclusive or mobileZman.attributes.condition %}style="display: none;"{% endif %}
-						>
-							<summary>
-								<div class="accordianText">
-									<span class="lang lang-hb">{{ item.names.hb }} - {{ mobileZman.names.hb }}</span>
-									<span class="lang lang-et">{{ item.names.et }} - {{ mobileZman.names.et }}</span>
-									<span class="lang lang-en">{{ item.names.en }} - {{ mobileZman.names.en }}</span>
-								</div>
-								<span class="timeDisplay">
-									<div class="upNextText" style="display: none;">
-										<span class="lang lang-hb">הבא...</span>
-										<span class="lang lang-et">Up next...</span>
-										<span class="lang lang-en">Up next...</span>
-									</div>
-									<div></div>
-								</span>
-							</summary>
-							<div class="accordianContent">
-								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
+		<div class="accordian" data-zfFind="calendarFormatter">
+			{% for item in site.data.zmanim %}
+				<details
+					data-zmanid="{{ item.id }}"
+					class="loading"
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
+				>
+					<summary>
+						<span class="lang lang-hb">{{ item.names.hb }}</span>
+						<span class="lang lang-et">{{ item.names.et }}</span>
+						<span class="lang lang-en">{{ item.names.en }}</span>
+						<span class="timeDisplay ms-auto"></span>
+					</summary>
+					<div class="accordianContent">
+						{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
 
 ---
 {% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
-								{% endcapture %}{{ my_include | markdownify }}
-							</div>
-						</details>
-						{% endfor %}
-						<details
-							data-zmanid="{{ item.id }}"
-							class="loading d-none d-lg-block"
-							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
-						>
-							<summary>
-								<div class="accordianText">
-									<span class="lang lang-hb">{{ item.names.hb }}</span>
-									<span class="lang lang-et">{{ item.names.et }}</span>
-									<span class="lang lang-en">{{ item.names.en }}</span>
-								</div>
-								<span class="timeDisplay flex-row">
-									{% for pcDisplay in item.shitot %}
-									<span class="subShita" data-subZmanId="{{ pcDisplay.id }}">
-										<div class="upNextText" style="display: none;">
-											<span class="lang lang-hb">הבא...</span>
-											<span class="lang lang-et">Up next...</span>
-											<span class="lang lang-en">Up next...</span>
-										</div>
-										<span style="font-size: .75em;">{{ pcDisplay.names.en }}</span>
-										<span></span>
-									</span>
-									{% endfor %}
-								</span>
-							</summary>
-							<div class="accordianContent">
-								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
-
-	---
-	{% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
-								{% endcapture %}{{ my_include | markdownify }}
-							</div>
-						</details>
-						{% else %}
-						<details
-							data-zmanid="{{ item.id }}"
-							class="loading"
-							{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
-							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
-							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-							{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-							{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-							{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
-						>
-							<summary>
-								<div class="accordianText">
-									<span class="lang lang-hb">{{ item.names.hb }}</span>
-									<span class="lang lang-et">{{ item.names.et }}</span>
-									<span class="lang lang-en">{{ item.names.en }}</span>
-								</div>
-								<span class="timeDisplay">
-									<div class="upNextText" style="display: none;">
-										<span class="lang lang-hb">הבא...</span>
-										<span class="lang lang-et">Up next...</span>
-										<span class="lang lang-en">Up next...</span>
-									</div>
-									<div></div>
-								</span>
-							</summary>
-							<div class="accordianContent">
-								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
-
----
-{% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
-								{% endcapture %}{{ my_include | markdownify }}
-							</div>
-						</details>
-						{% endif %}
-					{% endfor %}
-				</div>
-				<div class="card mt-2">
-					<div class="card-header">
-						<h5 class="mb-0">
-							<span class="lang lang-hb">שעה זמנית</span>
-							<span class="lang lang-et">Sha'ah Zmanith</span>
-							<span class="lang lang-en">Seasonal Hour</span>
-						</h5>
+						{% endcapture %}{{ my_include | markdownify }}
 					</div>
-					<dl class="list-group list-group-flush lh-sm" data-zfFind="shaahZmanit">
-						<div class="list-group-item d-flex justify-content-between">
-							<dt class="lang lang-hb">
-								גר"א (װילנער גאון)<br>
-								<small class="fw-normal">מהנץ החמה עד שקיעה</small>
-							</dt>
-							<dt class="lang lang-et">
-								GR"A (Vilna Gaon)<br>
-								<small class="fw-normal">From Hanetz until Sheqi'a</small>
-							</dt>
-							<dt class="lang lang-en">
-								GR"A (Vilna Gaon)<br>
-								<small class="fw-normal">From sunrise until sunset</small>
-							</dt>
-							<dd class="m-0" data-zfReplace="graShaahZmanit"></dd>
-						</div>
-						<div class="list-group-item d-flex justify-content-between">
-							<dt class="lang lang-hb">
-								מג"א (מגן אברהם)<br>
-								<small class="fw-normal">
-									מעלות השחר עד צאת הכוכבים
-									<span data-zfFind="luachAmudehHoraah">(לוח עמודי הוראה)</span>
-									<span data-zfFind="luachOhrHachaim">(לוח אור החיים)</span>
-								</small>
-							</dt>
-							<dt class="lang lang-et">
-								MG"A (Maghen Avraham)<br>
-								<small class="fw-normal">
-									From Alot Hashahar until Tzeit Hakokhavim
-									<span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
-									<span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
-								</small>
-							</dt>
-							<dt class="lang lang-en">
-								MG"A (Maghen Avraham)<br>
-								<small class="fw-normal">
-									From Dawn until Nightfall
-									<span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
-									<span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
-								</small>
-							</dt>
-							<dd class="m-0" data-zfReplace="mgaShaahZmanit"></dd>
-						</div>
-					</dl>
-				</div>
-			</div>
-			<div class="tab-pane fade" id="limud-tab-pane" role="tabpanel" aria-labelledby="limud-tab" tabindex="0">
-				<div class="card mb-2 lang lang-hb">
-					<div class="card-header"><h5 class="mb-0">לעילוי נשמות</h5></div>
-					<ul class="list-group list-group-flush" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
-						<li class="list-group-item">אין היום</li>
-					</ul>
-				</div>
-				<div class="card mb-2 lang lang-et">
-					<div class="card-header"><h5 class="mb-0">Leiloui Neshamoth</h5></div>
-					<ul class="list-group list-group-flush" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-				</div>
-				<div class="card mb-2 lang lang-en">
-					<div class="card-header"><h5 class="mb-0">In the merit of...</h5></div>
-					<ul class="list-group list-group-flush" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-				</div>
-				<div class="card mb-2">
-					<div class="card-header">
-						<h5 class="mb-0">
-							<span class="lang lang-hb">לימוד יומי</span>
-							<span class="lang lang-et">Today's Limud</span>
-							<span class="lang lang-en">Today's Learning</span>
-						</h5>
-					</div>
-					<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
-						{% for learning in site.data.learning %}
-						<div class="list-group-item d-flex justify-content-between">
-							<dt class="lang lang-hb">{{ learning.text.hb }}</dt>
-							<dt class="lang lang-et">{{ learning.text.et }}</dt>
-							<dt class="lang lang-en">{{ learning.text.en }}</dt>
-							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
-						</div>
-						{% endfor %}
-					</dl>
-				</div>
-			</div>
+				</details>
+			{% endfor %}
 		</div>
 	</div>
 	<div id="special">
@@ -328,33 +136,14 @@ chaiTable: true
 				</li>
 				<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
 					<div data-zfFind="SefirathHaomer">
-						<div class="lang lang-en">
-							<h5 class="mb-0"><span data-zfReplace="completeCount"></span> day of the Omer</h5>
-							<p><span data-zfReplace="indCount"></span></p>
-							<p class="mb-0">
-								<b>Tonight:</b>
-								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> day of the Omer<span> -
-								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
-							</p>
-						</div>
-						<div class="lang lang-et">
-							<h5 class="mb-0">Today is <span data-zfReplace="completeCount"></span> of the Omer</h5>
-							<p>which <span data-zfReplace="indCount"></span></p>
-							<p class="mb-0">
-								<b>Tonight:</b>
-								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> of the Omer<span>, which
-								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
-							</p>
-						</div>
-						<div class="lang lang-hb">
-							<h5 class="mb-0">היום <span data-zfReplace="completeCount"></span> לעומר</h5>
-							<p>שהם <span data-zfReplace="indCount"></span></p>
-							<p class="mb-0">
-								<b>הלילה:</b>
-								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לעומר, שהם
-								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span>
-							</p>
-						</div>
+						<h5 class="mb-0">
+							<span class="lang lang-hb">היום <span data-zfReplace="hbOmerDate"></span> לעומר</span>
+							<span class="lang lang-et">Today is <span data-zfReplace="etNumOmerCount"></span> of the Omer</span>
+							<span class="lang lang-en"><span data-zfReplace="enOrdOmerCount"></span> day of the Omer</span>
+						</h5>
+						<p class="lang lang-hb mb-0">שהם <span data-zfReplace="hbOmerDays"></span></p>
+						<p class="lang lang-et mb-0">which <span data-zfReplace="etOmer"></span></p>
+						<p class="lang lang-en mb-0" data-zfReplace="enOmer"></p>
 						<hr class="my-1" data-zfFind="omerRules">
 					</div>
 					<div data-zfFind="ThreeWeeksHeader">
@@ -437,6 +226,78 @@ chaiTable: true
 					</span>
 				</li>
 			</ul>
+		</div>
+		<div class="card mb-2">
+			<div class="card-header">
+				<h5 class="mb-0">
+					<span class="lang lang-hb">לימוד יומי</span>
+					<span class="lang lang-et">Today's Limud</span>
+					<span class="lang lang-en">Today's Learning</span>
+				</h5>
+			</div>
+			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+				{% for learning in site.data.learning %}
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">{{ learning.text.hb }}</dt>
+					<dt class="lang lang-et">{{ learning.text.et }}</dt>
+					<dt class="lang lang-en">{{ learning.text.en }}</dt>
+					<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
+				</div>
+				{% endfor %}
+			</dl>
+		</div>
+		<div class="card">
+			<div class="card-header">
+				<h5 class="mb-0">
+					<span class="lang lang-hb">שעה זמנית</span>
+					<span class="lang lang-et">Sha'ah Zmanith</span>
+					<span class="lang lang-en">Seasonal Hour</span>
+				</h5>
+			</div>
+			<dl class="list-group list-group-flush lh-sm" data-zfFind="shaahZmanit">
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">
+						גר"א (װילנער גאון)<br>
+						<small class="fw-normal">מהנץ החמה עד שקיעה</small>
+					</dt>
+					<dt class="lang lang-et">
+						GR"A (Vilna Gaon)<br>
+						<small class="fw-normal">From Hanetz until Sheqi'a</small>
+					</dt>
+					<dt class="lang lang-en">
+						GR"A (Vilna Gaon)<br>
+						<small class="fw-normal">From sunrise until sunset</small>
+					</dt>
+					<dd class="m-0" data-zfReplace="graShaahZmanit"></dd>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">
+						מג"א (מגן אברהם)<br>
+						<small class="fw-normal">
+							מעלות השחר עד צאת הכוכבים
+							<span data-zfFind="luachAmudehHoraah">(לוח עמודי הוראה)</span>
+							<span data-zfFind="luachOhrHachaim">(לוח אור החיים)</span>
+						</small>
+					</dt>
+					<dt class="lang lang-et">
+						MG"A (Maghen Avraham)<br>
+						<small class="fw-normal">
+							From Alot Hashahar until Tzeit Hakokhavim
+							<span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
+							<span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
+						</small>
+					</dt>
+					<dt class="lang lang-en">
+						MG"A (Maghen Avraham)<br>
+						<small class="fw-normal">
+							From Dawn until Nightfall
+							<span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
+							<span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
+						</small>
+					</dt>
+					<dd class="m-0" data-zfReplace="mgaShaahZmanit"></dd>
+				</div>
+			</dl>
 		</div>
 	</div>
 </div>
