@@ -31,7 +31,7 @@ class zmanimListUpdater {
 		/** @type {null|NodeJS.Timeout} */ // It's not node but whatever
 		this.countdownToNextDay = null;
 
-		this.zmanimList = Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
+		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
 			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), {
 				function: timeSlot.getAttribute('data-timeGetter'),
 				yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
@@ -48,12 +48,7 @@ class zmanimListUpdater {
 					arrayEntry[0] !== null
 					// @ts-ignore
 				&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
-			)
-			.reduce(function (obj, [key, val]) {
-				//@ts-ignore
-				obj[key] = val
-				return obj
-			}, {})
+			))
 
 		this.resetCalendar(geoLocation);
 
@@ -298,25 +293,8 @@ class zmanimListUpdater {
 					}
 				]
 
-				if (window.Worker) {
-					const myWorker = new Worker("/assets/js/icsHandler.js", { type: "module" });
-					myWorker.postMessage(icsParams)
-					myWorker.addEventListener("message", (message) => {
-						console.log("received message from other thread")
-						const element = document.createElement('a');
-						element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(message.data));
-						element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
-
-						element.style.display = 'none';
-						document.body.appendChild(element);
-
-						element.click();
-
-						document.body.removeChild(element);
-						this.midDownload = false;
-					})
-				} else {
-					const icsData = icsExport.apply(icsExport, icsParams)
+				/** @param {ReturnType<typeof icsExport>} icsData */
+				const postDataReceive = (icsData) => {
 					const element = document.createElement('a');
 					element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
 					element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
@@ -328,6 +306,18 @@ class zmanimListUpdater {
 
 					document.body.removeChild(element);
 					this.midDownload = false;
+				}
+
+				if (window.Worker) {
+					const myWorker = new Worker("/assets/js/icsHandler.js", { type: "module" });
+					myWorker.postMessage(icsParams)
+					myWorker.addEventListener("message", (message) => {
+						console.log("received message from other thread");
+						postDataReceive(message.data);
+					})
+				} else {
+					const icsData = icsExport.apply(icsExport, icsParams)
+					postDataReceive(icsData)
 				}
 			})
 
@@ -341,9 +331,7 @@ class zmanimListUpdater {
 
 			for (const calendarBtn of dateContainer.getElementsByTagName('input')) {
 				calendarBtn.addEventListener('calendarInsert',
-					() => this.changeDate(KosherZmanim.Temporal.PlainDate
-						.from(calendarBtn.getAttribute("date-value"))
-					)
+					() => this.changeDate(KosherZmanim.Temporal.PlainDate.from(calendarBtn.getAttribute("date-value")))
 				)
 			}
 
@@ -507,41 +495,27 @@ class zmanimListUpdater {
 			sefirathHaomer.style.removeProperty("display");
 			threeWeeks.style.display = "none";
 
-			const omerInfo = this.jCal.getOmerInfo();
+			const eachLang = Object.fromEntries(Array.from(sefirathHaomer.children)
+				.filter(elem => elem.tagName == "DIV")
+				.map(elem => [Array.from(elem.classList)[1].replace('lang-', ''), elem]));
 
-			// Hebrew
-			mourningDiv.querySelector('[data-zfReplace="hbOmerDate"]').innerHTML =
-				omerInfo.title.hb.mainCount;
+			for (const [lang, elem] of Object.entries(eachLang)) {
+				for (const completeCount of elem.querySelectorAll('[data-zfReplace="completeCount"]')) {
+					const jCalOmer = (completeCount.getAttribute('data-omerDay') == 'tomorrow' ? this.jCal.tomorrow() : this.jCal)
+					// @ts-ignore
+					completeCount.innerHTML = jCalOmer.getOmerInfo().title[lang].mainCount
+				}
 
-			const hbDescription = mourningDiv.querySelector('[data-zfReplace="hbOmerDays"]');
-			if (this.jCal.getDayOfOmer() >= 7) {
-				hbDescription.parentElement.style.removeProperty("display");
-				hbDescription.innerHTML = omerInfo.title.hb.subCount.toString();
-			} else {
-				hbDescription.parentElement.style.display = 'none';
-			}
-
-			// English
-			mourningDiv.querySelector('[data-zfReplace="etNumOmerCount"]').innerHTML =
-				omerInfo.title.et.mainCount;
-			const etDescription = mourningDiv.querySelector('[data-zfReplace="etOmer"]');
-			if (this.jCal.getDayOfOmer() >= 7) {
-				etDescription.parentElement.style.removeProperty("display");
-				etDescription.innerHTML = omerInfo.title.et.subCount.toString();
-			} else {
-				etDescription.parentElement.style.display = 'none';
-			}
-
-			mourningDiv.querySelector('[data-zfReplace="enOrdOmerCount"]').innerHTML =
-				omerInfo.title.en.mainCount;
-
-			/** @type {HTMLElement} */
-			const enDescription = mourningDiv.querySelector('[data-zfReplace="enOmer"]');
-			if (this.jCal.getDayOfOmer() >= 7) {
-				enDescription.style.removeProperty("display");
-				enDescription.innerHTML = omerInfo.title.en.subCount.toString();
-			} else {
-				enDescription.style.display = 'none';
+				for (const indCount of elem.querySelectorAll('[data-zfReplace="indCount"]')) {
+					const jCalOmer = (indCount.getAttribute('data-omerDay') == 'tomorrow' ? this.jCal.tomorrow() : this.jCal)
+					if (jCalOmer.getDayOfOmer() >= 7) {
+						indCount.parentElement.style.removeProperty("display");
+						// @ts-ignore
+						indCount.innerHTML = jCalOmer.getOmerInfo().title[lang].subCount.toString();
+					} else {
+						indCount.parentElement.style.display = 'none';
+					}
+				}
 			}
 
 			/** @type {HTMLElement} */
@@ -790,49 +764,132 @@ class zmanimListUpdater {
 					continue;
 
 				if (!timeSlot.hasAttribute('data-zmanid')) {
-					timeSlot.style.display = 'none';
+					timeSlot.style.setProperty('display', 'none', 'important');
 					continue;
 				}
 
-				const zmanId = timeSlot.getAttribute('data-zmanid');
-				if (!(zmanId in zmanInfo) || zmanInfo[zmanId].display == -1) {
-					timeSlot.style.display = 'none';
-					continue;
+				let zmanId = timeSlot.getAttribute('data-zmanid');
+				const timeDisplay = timeSlot.getElementsByClassName('timeDisplay')[0]
+				if (!(zmanId in zmanInfo)) {
+					if (!Object.keys(zmanInfo).find((value) => value.startsWith(zmanId))) {
+						timeSlot.style.setProperty('display', 'none', 'important');
+						continue;
+					}
+
+					// Now we know it's a proper sub-function, but we need to now determine how to display each sub-function
+					let allRowsHidden = true;
+					let firstAlreadyGone = false;
+					for (const shita of timeDisplay.querySelectorAll('[data-subZmanId]')) {
+						const completeName = timeSlot.getAttribute('data-zmanid') + '-' + shita.getAttribute('data-subZmanId');
+
+						if (zmanInfo[completeName].display == -1) {
+							shita.style.setProperty('display', 'none', 'important');
+							continue;
+						}
+
+						if (zmanInfo[completeName].display == -2) {
+							allRowsHidden = false;
+							timeSlot.style.removeProperty("display");
+							timeDisplay.lastElementChild.innerHTML = "XX:XX"
+							continue;
+						}
+
+						/** @type {HTMLElement} */
+						// @ts-ignore
+						const upNextElem = shita.firstElementChild;
+						if (this.isNextUpcomingZman(zmanInfo[completeName].luxonObj)) {
+							upNextElem.style.removeProperty("display")
+						} else {
+							upNextElem.style.display = "none";
+						}
+
+						shita.lastElementChild.innerHTML = zmanInfo[completeName].luxonObj.toLocaleString(...this.dtF)
+
+						// We're going to affect the main row title since the only time we actually change the title for multi-row is tzet for fasts
+						if (zmanInfo[completeName].merge_title.hb)
+							timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[completeName].merge_title.hb
+						else if (zmanInfo[completeName].title.hb)
+							timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[completeName].title.hb
+
+						if (zmanInfo[completeName].merge_title.en)
+							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].merge_title.en
+						else if (zmanInfo[completeName].title.en)
+							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].title.en
+
+						if (zmanInfo[completeName].merge_title["en-et"])
+							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].merge_title["en-et"]
+						else if (zmanInfo[completeName].title["en-et"])
+							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].title["en-et"]
+
+						// Calculate but hide! Can be derived via Inspect Element
+						if (!zmanInfo[completeName].display)
+							shita.style.setProperty('display', 'none', 'important');
+						else {
+							allRowsHidden = false;
+							shita.style.removeProperty('display');
+
+							if (!firstAlreadyGone) {
+								firstAlreadyGone = true;
+								shita.classList.remove("leftBorderForShita");
+							} else {
+								shita.classList.add("leftBorderForShita")
+							}
+						}
+					}
+
+					// Calculate but hide! Can be derived via Inspect Element
+					if (allRowsHidden)
+						timeSlot.style.setProperty('display', 'none', 'important');
+					else {
+						timeSlot.style.removeProperty('display')
+						timeSlot.classList.remove('loading')
+					}
+				} else {
+					if (zmanInfo[zmanId].display == -1) {
+						timeSlot.style.setProperty('display', 'none', 'important');
+						continue;
+					}
+
+					if (zmanInfo[zmanId].display == -2) {
+						timeSlot.style.removeProperty("display");
+						timeDisplay.lastElementChild.innerHTML = "XX:XX"
+						continue;
+					}
+
+					/** @type {HTMLElement} */
+					// @ts-ignore
+					const upNextElem = timeDisplay.firstElementChild;
+					if (this.isNextUpcomingZman(zmanInfo[zmanId].luxonObj)) {
+						upNextElem.style.removeProperty("display")
+					} else {
+						upNextElem.style.display = "none";
+					}
+
+					timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].luxonObj.toLocaleString(...this.dtF)
+
+					if (zmanInfo[zmanId].title.hb)
+						timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb
+
+					if (zmanInfo[zmanId].title.en)
+						timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en
+
+					if (zmanInfo[zmanId].title["en-et"])
+						timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[zmanId].title["en-et"];
+
+					// Calculate but hide! Can be derived via Inspect Element
+					if (!zmanInfo[zmanId].display)
+						timeSlot.style.setProperty('display', 'none', 'important');
+					else {
+						timeSlot.style.removeProperty('display')
+						timeSlot.classList.remove('loading')
+					}
 				}
-
-				if (zmanInfo[zmanId].display == -2) {
-					timeSlot.style.removeProperty("display");
-					timeSlot.querySelector('.timeDisplay').innerHTML = "XX:XX"
-					continue;
-				}
-
-				const actionToClass = (this.isNextUpcomingZman(zmanInfo[zmanId].luxonObj) ? "add" : "remove")
-				timeSlot.classList[actionToClass]("nextZman")
-
-				timeSlot.querySelector('.timeDisplay').innerHTML = zmanInfo[zmanId].luxonObj.toLocaleString(...this.dtF)
 
 				if (timeSlot.hasAttribute('data-specialDropdownContent')) {
 					const description = timeSlot.querySelector('.accordianContent');
 					description.innerHTML = description.innerHTML
 						.split('${getAteretTorahSunsetOffset()}').join(settings.customTimes.tzeithIssurMelakha().minutes.toString())
 						.split('${getCandleLightingOffset()}').join(this.zmanFuncs.coreZC.getCandleLightingOffset().toString())
-				}
-
-				if (zmanInfo[zmanId].title.hb)
-					timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb
-
-				if (zmanInfo[zmanId].title.en)
-					timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en
-
-				if (zmanInfo[zmanId].title["en-et"])
-					timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[zmanId].title["en-et"]
-
-				// Calculate but hide! Can be derived via Inspect Element
-				if (!zmanInfo[zmanId].display)
-					timeSlot.style.display = 'none';
-				else {
-					timeSlot.style.removeProperty('display')
-					timeSlot.classList.remove('loading')
 				}
 			}
 		}
@@ -851,7 +908,37 @@ class zmanimListUpdater {
 			if (shaahZmanitCont instanceof HTMLElement)
 				this.shaahZmanits(shaahZmanitCont);
 		}
-		
+
+		const leilouNishmat = KosherZmanim.HiloulahYomiCalculator.getHiloulah(this.jCal)
+		for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {
+			while (leilouNishmatList.firstElementChild) {
+				leilouNishmatList.firstElementChild.remove()
+			}
+
+			const hLang = leilouNishmatList.getAttribute('data-zfIndex')
+			if (!leilouNishmat[hLang].length) {
+				const li = document.createElement('li');
+				li.classList.add('list-group-item');
+				li.appendChild(document.createTextNode(leilouNishmatList.getAttribute('data-fillText')));
+				leilouNishmatList.appendChild(li);
+
+				continue;
+			}
+
+			for (const neshama of leilouNishmat[hLang]) {
+				const li = document.createElement('li');
+				li.classList.add('list-group-item');
+
+				const name = document.createElement("b");
+				name.appendChild(document.createTextNode(neshama.name));
+
+				li.appendChild(name)
+				if (neshama.source)
+					li.appendChild(document.createTextNode(` (${neshama.source})`));
+
+				leilouNishmatList.appendChild(li);
+			}
+		}
 	}
 
 	/**
