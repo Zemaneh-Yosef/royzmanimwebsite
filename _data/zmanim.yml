@@ -192,30 +192,7 @@
     hb: זמן מנחה
     et: Zman Minha
     en: Times for Minha
-  description: |-
-    <p>
-    Minha Gedolah, literally "Greater Mincha", is the earliest time a
-    person can say Mincha. It is also the preferred time a person should
-    say Mincha according to some poskim.
-    </p>
-    <p>
-    It is called Mincha Gedolah because there is a lot of time left
-    until sunset.
-    </p>
-    <p>A person should ideally start saying Korbanot AFTER this time.</p>
-    <p>
-    This time is calculated as 30 regular minutes after Chatzot
-    (Mid-day). However, if the zmaniyot/seasonal minutes are longer, we
-    use those minutes instead to be stringent. The GR"A calculates a
-    zmaniyot/seasonal hour by taking the time between sunrise and sunset
-    (elevation included) and divides it into 12 equal parts. Then we
-    divide one of those 12 parts into 60 to get a zmaniyot/seasonal
-    minute.
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, this time is calculated the same way as
-    above except no elevation is included.
-    </p>
+  descriptionInclude: zmanDescription/mincha.md
 - id: plagHaminha
   shitot:
     - names:
