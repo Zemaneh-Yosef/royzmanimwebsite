@@ -456,7 +456,7 @@ class zmanimListUpdater {
 			if (yomTzom.lastChild.nodeType == Node.TEXT_NODE)
 				yomTzom.lastChild.remove();
 
-			if (fastJCal.getYomTovIndex() == KosherZmanim.JewishCalendar.YOM_KIPPUR) {
+			if (this.jCal.isYomKippur()) {
 				yomTzom.appendChild(document.createTextNode(
 					fastCalc.getTzaitShabbath().toLocaleString(...this.dtF) + ` (R"T: ${fastCalc.getTzaitRT().toLocaleString(...this.dtF)})`
 				));

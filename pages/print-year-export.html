@@ -18,7 +18,7 @@ layout: nothing
 		text-align: center;
 		grid-auto-columns: 1fr;
 		font-size: .6em;
-		page-break-after: always;
+		line-height: 1.25;
 	}
 
 	.tableCell {
@@ -29,6 +29,7 @@ layout: nothing
 		font-weight: bold;
 		padding-right: .125em;
 		padding-left: .125em;
+		align-content: center;
 	}
 
 	[data-zyHeader] {
@@ -36,9 +37,18 @@ layout: nothing
 		line-height: 1;
 	}
 
+	[data-zyHeader]:not(:first-of-type) {
+		page-break-before: always;
+	}
+
 	[data-zyHeader]>*:not(h3) {
 		font-family: 'Guttman Mantova-Decor', 'Javar';
 		margin-bottom: 0;
+	}
+
+	.special {
+		display: flex;
+		
 	}
 </style>
 

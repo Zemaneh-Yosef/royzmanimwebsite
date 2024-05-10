@@ -237,7 +237,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					}
 					break;
 				case 'tzeit-humra':
-					if (this.isTaanis() && this.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR) {
+					if (this.isTaanis() && !this.isYomKippur()) {
 						calculatedZmanim[zmanId].title.hb = "צאת תענית (צאת הכוכבים)";
 						calculatedZmanim[zmanId].title['en-et'] = "Tzeit Ta'anith (Tzeit Hakochavim)";
 						calculatedZmanim[zmanId].title.en = "Fast Ends (Nightfall)";
@@ -275,7 +275,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				switch (zmanInfo.condition) {
 					// Default: isTaanis - Cannot use that method because we're supposed to exclude YomKippur
 					case 'isTaanit':
-						if (!(this.isTaanis() && this.getYomTovIndex() !== KosherZmanim.JewishCalendar.YOM_KIPPUR)) {
+						if (!(this.isTaanis() && !this.isYomKippur())) {
 							calculatedZmanim[zmanId].display = 0;
 							calculatedZmanim[zmanId].code.push("Not a fast day")
 						}

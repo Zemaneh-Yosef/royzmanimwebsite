@@ -48,11 +48,22 @@ function handleShita (/** @type {string} */ shita) {
         case 'special':
             if (jCal.getDayOfWeek() === 7)
                 div.appendChild(document.createTextNode(WebsiteLimudCalendar.hebrewParshaMap[jCal.getParshah()]))
+            if (jCal.isRoshChodesh()) {
+                if (jCal.getDayOfWeek() === 7)
+                    div.appendChild(document.createElement("br"));
+
+                div.appendChild(document.createTextNode("ראש השנה"));
+                div.style.fontWeight = "bold";
+            }
             break;
         case 'date':
             div.innerHTML =
                 jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " + jCal.getDate().toLocaleString('en', { day: 'numeric' }) + "<br>"
-                + hNum.formatHebrewNumber(jCal.getJewishDayOfMonth()) + " " + jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})
+                + hNum.formatHebrewNumber(jCal.getJewishDayOfMonth()) + " " + jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'});
+
+            if (jCal.isRoshChodesh())
+                div.style.fontWeight = "bold";
+
             break;
         case 'candleLighting':
             if (jCal.hasCandleLighting()) {
@@ -78,6 +89,13 @@ function handleShita (/** @type {string} */ shita) {
             div.appendChild(document.createTextNode(zmanCalc[shita]().toLocaleString(...dtF)));
     }
 
+    if (jCal.isTaanis()
+     && !jCal.isYomKippur()
+     && jCal.getYomTovIndex() !== WebsiteLimudCalendar.TISHA_BEAV
+     && ['getAlotHashachar', 'getTzaitLechumra'].includes(shita)) {
+        div.style.fontWeight = "bold";
+    }
+
     return div;
 }
 
@@ -95,7 +113,7 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
         zmanCalc.setDate(jCal.getDate());
 
         for (const shita of listAllShitot) {
-            const cell = handleShita(shita)
+            const cell = handleShita(shita);
             tableFirstHalf.appendChild(cell)
         }
     }
