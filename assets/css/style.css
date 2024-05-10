@@ -57,18 +57,6 @@ body {
   border-right:1px solid black;
 }
 
-body.lang-hb .lang:not(.lang-hb) {
-  display: none;
-}
-
-body.lang-en-et .lang:not(.lang-et) {
-  display: none;
-}
-
-body.lang-en .lang:not(.lang-en) {
-  display: none;
-}
-
 @media (min-width: 992px) {
   #wideGrid {
     display: grid;

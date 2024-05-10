@@ -1,0 +1,117 @@
+---
+- timeGetter: getAlotHashachar
+  names:
+    hb: עלות השחר
+    et: Aloth Hashachar
+    en: Dawn
+- timeGetter: getMisheyakir
+  names:
+    hb: טלית ותפילין
+    et: Misheyakir
+    en: Misheyakir
+- timeGetter: getNetz
+  names:
+    hb: הנץ
+    et: HaNetz
+    en: Sunrise
+- shitot:
+    - names:
+        hb: מג'א
+        en: MG'A
+        et: MG'A
+      timeGetter: getSofZmanShmaMGA
+      id: mga
+    - names:
+        hb: גר'א
+        en: GR'A
+        et: GR'A
+      timeGetter: getSofZmanShmaGRA
+      id: gra
+  names:
+    hb: סוף זמן שמע
+    et: Sof Zman Shema
+    en: Latest Shema
+- timeGetter: getSofZmanBrachothShma
+  names:
+    hb: סוף זמן ברכות שמע
+    et: Sof Shach.
+    en: Latest Shach.
+- timeGetter: getHatzoth
+  names:
+    hb: חצות
+    et: Hatsoth
+    en: Midday
+- shitot:
+    - names:
+        hb: גדולה
+        en: Gedolah
+        et: Earliest
+      timeGetter: getMinhaGedolah
+      id: gedolah
+    - names:
+        hb: קטנה
+        en: Ketanah
+        et: Preferable
+      timeGetter: getMinchaKetana
+      id: ketanah
+  names:
+    hb: זמן מנחה
+    et: Zman Minḥa
+    en: Minḥa Times
+  descriptionInclude: zmanDescription/mincha.md
+- shitot:
+    - names:
+        hb: ה"ב
+        en: H"B
+        et: H"B
+      timeGetter: getPlagHaminhaHalachaBrurah
+      id: hb
+    - names:
+        hb: י"י
+        en: Y"Y
+        et: Y"Y
+      timeGetter: getPlagHaminhaYalkutYosef
+      id: yy
+  names:
+    hb: פלג המנחה
+    et: Plag HaMinḥa
+    en: Plag HaMinḥa
+- timeGetter: getShkiya
+  names:
+    hb: שקיעה
+    et: Sheqi'a
+    en: Sunset
+- shitot:
+    - names:
+        hb: 13.5
+        en: 13.5
+        et: 13.5
+      timeGetter: getTzait
+      id: regular
+    - names:
+        hb: לחומרה
+        en: Humra
+        et: Stringent
+      timeGetter: getTzaitLechumra
+      id: humra
+      attributes:
+        luachInclusive: degrees
+  names:
+    hb: צאת הכוכבים
+    et: Tzait Hakokhavim
+    en: Nightfall
+- timeGetter: candleLighting
+  names:
+    hb: הדלקת נרות
+    et: Candle Lighting
+    en: Candle Lighting
+- timeGetter: getTzaitShabbath
+  names:
+    hb: צאת שבת
+    et: Tzait Shabbat
+    en: Shabbat End
+- timeGetter: getTzaitRT
+  names:
+    hb: ר״ת
+    et: Rabbeinu Tam
+    en: Rabbeinu Tam

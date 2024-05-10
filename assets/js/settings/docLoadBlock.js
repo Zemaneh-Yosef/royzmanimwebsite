@@ -13,15 +13,17 @@ handleThemeChange(landscapeMQ)
 
 if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supportedValuesOf !== "function" || !Intl.supportedValuesOf('calendar').includes('hebrew')) {
     var modal = document.getElementById("unsupportedModal");
-    modal.classList.add("show");
-    modal.style.display = "block";
+    if (modal) {
+        modal.classList.add("show");
+        modal.style.display = "block";
 
-    document.body.classList.add("modal-open");
-    document.body.style.overflow = "hidden";
+        document.body.classList.add("modal-open");
+        document.body.style.overflow = "hidden";
 
-    var backdrop = document.createElement("div");
-    backdrop.classList.add("modal-backdrop", "fade", "show");
-    document.body.appendChild(backdrop)
+        var backdrop = document.createElement("div");
+        backdrop.classList.add("modal-backdrop", "fade", "show");
+        document.body.appendChild(backdrop)
+    }
 } else {
     var queryString = window.location.search;
     var urlParams = new URLSearchParams(queryString);
@@ -55,12 +57,16 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
                 document.body.classList.add("lang-hb");
 
                 var bsCSSLink = document.getElementById("bs");
-                if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
+                if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
                     bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
 
                 var mdbCSSLink = document.getElementById("mdb");
-                if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out-rtl.css")
+                if (mdbCSSLink && mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out-rtl.css")
                     mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out-rtl.css")
+
+                var bsrCSSLink = document.getElementById("bsr");
+                if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot-rtl.min.css")
+                    bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot-rtl.min.css")
 
                 document.body.dir = "rtl";
                 break;
@@ -69,12 +75,16 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
                 document.body.classList.add("lang-en-et");
 
                 var bsCSSLink = document.getElementById("bs");
-                if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
+                if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
                     bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
 
                 var mdbCSSLink = document.getElementById("mdb");
-                if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
+                if (mdbCSSLink && mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
                     mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out.css")
+
+                var bsrCSSLink = document.getElementById("bsr");
+                if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot.min.css")
+                    bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot.min.css")
 
                 document.body.dir = "ltr"
                 break;
@@ -83,12 +93,16 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
                 document.body.classList.add("lang-en");
 
                 var bsCSSLink = document.getElementById("bs");
-                if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
+                if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
                     bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
 
                 var mdbCSSLink = document.getElementById("mdb");
-                if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
+                if (mdbCSSLink && mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
                     mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out.css")
+
+                var bsrCSSLink = document.getElementById("bsr");
+                if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot.min.css")
+                    bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot.min.css")
 
                 document.body.dir = "ltr"
                 break;
