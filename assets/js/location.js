@@ -184,8 +184,8 @@ async function setLocation(name, admin, country, latitude, longitude) {
 
 	geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
 
-	geoLocation.lat = latitude.toFixed(5);
-	geoLocation.long = longitude.toFixed(5);
+	geoLocation.lat = parseFloat(parseFloat(latitude).toFixed(5));
+	geoLocation.long = parseFloat(parseFloat(longitude).toFixed(5));
 
 	if (!geoLocation.timeZone) {
 		try {

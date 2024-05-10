@@ -30,7 +30,23 @@ layout: nothing
 		padding-right: .125em;
 		padding-left: .125em;
 	}
+
+	[data-zyHeader] {
+		text-align: center;
+		line-height: 1;
+	}
+
+	[data-zyHeader]>*:not(h3) {
+		font-family: 'Guttman Mantova-Decor', 'Javar';
+		margin-bottom: 0;
+	}
 </style>
+
+<div data-zyHeader>
+	<h1>זמני יוסף</h1>
+	<h6 style="font-size: .5em;">Rabbi Ovadiah Yosef Calendar</h6>
+	<h3>Current Location: </h3>
+</div>
 
 <div class="tableGrid" data-zyTemplate>
 	<div class="tableHeader" data-zyData="special" style="grid-row: 1 / span 2;"></div>

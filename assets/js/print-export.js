@@ -35,12 +35,12 @@ const dtF = [settings.language() == 'hb' ? 'he' : 'en', {
 }];
 
 const listAllShitot = Array.from(document.querySelectorAll('[data-zyData]')).map(elem => elem.getAttribute('data-zyData'))
-const baseTable = document.getElementsByClassName('tableGrid')[0]
+const baseTable = document.getElementsByClassName('tableGrid')[0];
+
+const header = document.querySelector('[data-zyHeader] h3');
+header.appendChild(document.createTextNode(geoLocation.getLocationName()))
 
 let plainDateForLoop = jCal.getDate()
-
-const monthsToAccommodate = new Array(plainDateForLoop.monthsInYear);
-
 function handleShita (/** @type {string} */ shita) {
     const div = document.createElement('div');
     div.classList.add('tableCell')
@@ -85,6 +85,7 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
     plainDateForLoop = plainDateForLoop.with({ month: mIndex });
     jCal.setDate(jCal.getDate().with({ month: mIndex }));
 
+    baseTable.parentElement.appendChild(header.parentElement.cloneNode(true))
     /** @type {Element} */
     // @ts-ignore
     const tableFirstHalf = baseTable.cloneNode(true);
@@ -100,6 +101,7 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
     }
     baseTable.parentElement.appendChild(tableFirstHalf)
 
+    baseTable.parentElement.appendChild(header.parentElement.cloneNode(true))
     /** @type {Element} */
     // @ts-ignore
     const tableSecondHalf = baseTable.cloneNode(true);
@@ -116,4 +118,5 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
     baseTable.parentElement.appendChild(tableSecondHalf);
 }
 
+header.parentElement.remove();
 baseTable.remove();
