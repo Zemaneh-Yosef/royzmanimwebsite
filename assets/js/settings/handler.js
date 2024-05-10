@@ -149,51 +149,69 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
             document.body.classList.add("lang-hb");
 
             const bsCSSLink = document.getElementById("bs");
-            if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
+            if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
                 bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
 
             const mdbCSSLink = document.getElementById("mdb");
-            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out-rtl.css")
+            if (mdbCSSLink && mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out-rtl.css")
                 mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out-rtl.css")
+
+            const bsrCSSLink = document.getElementById("bsr");
+            if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot-rtl.min.css")
+                bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot-rtl.min.css")
 
             document.body.dir = "rtl";
 
-            langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'hebrew').forEach(btnOfGroup => btnOfGroup.checked = false);
-            langSelectors.find(btnOfGroup=>btnOfGroup.id == 'hebrew').checked = true;
+            if (langSelectors.length) {
+                langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'hebrew').forEach(btnOfGroup => btnOfGroup.checked = false);
+                langSelectors.find(btnOfGroup=>btnOfGroup.id == 'hebrew').checked = true;
+            }
             break;
         } case 'en-et': {
             document.body.classList.remove("lang-hb", "lang-en");
             document.body.classList.add("lang-en-et");
 
             const bsCSSLink = document.getElementById("bs");
-            if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
+            if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
                 bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
 
             const mdbCSSLink = document.getElementById("mdb");
-            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
+            if (mdbCSSLink && mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
                 mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out.css")
+
+            const bsrCSSLink = document.getElementById("bsr");
+            if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot.min.css")
+                bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot.min.css")
 
             document.body.dir = "ltr"
 
-            langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'enet').forEach(btnOfGroup => btnOfGroup.checked = false);
-            langSelectors.find(btnOfGroup=>btnOfGroup.id == 'enet').checked = true;
+            if (langSelectors.length) {
+                langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'enet').forEach(btnOfGroup => btnOfGroup.checked = false);
+                langSelectors.find(btnOfGroup=>btnOfGroup.id == 'enet').checked = true;
+            }
             break;
         } case 'en': {
             document.body.classList.remove("lang-hb", "lang-en-et");
             document.body.classList.add("lang-en");
 
             const bsCSSLink = document.getElementById("bs");
-            if (bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
+            if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
                 bsCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap.min.css")
 
             const mdbCSSLink = document.getElementById("mdb");
-            if (mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
+            if (mdbCSSLink && mdbCSSLink.getAttribute("href") !== "/assets/libraries/mdbootstrap/out.css")
                 mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out.css")
+
+            const bsrCSSLink = document.getElementById("bsr");
+            if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot.min.css")
+                bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot.min.css")
 
             document.body.dir = "ltr"
 
-            langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'enli').forEach(btnOfGroup => btnOfGroup.checked = false);
-            langSelectors.find(btnOfGroup=>btnOfGroup.id == 'enli').checked = true;
+            if (langSelectors.length) {
+                langSelectors.filter(btnOfGroup=>btnOfGroup.id !== 'enli').forEach(btnOfGroup => btnOfGroup.checked = false);
+                langSelectors.find(btnOfGroup=>btnOfGroup.id == 'enli').checked = true;
+            }
             break;
         }
     }
