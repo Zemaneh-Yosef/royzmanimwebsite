@@ -65,8 +65,8 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
                     mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out-rtl.css")
 
                 var bsrCSSLink = document.getElementById("bsr");
-                if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot-rtl.min.css")
-                    bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot-rtl.min.css")
+                if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot.rtl.min.css")
+                    bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot.rtl.min.css")
 
                 document.body.dir = "rtl";
                 break;

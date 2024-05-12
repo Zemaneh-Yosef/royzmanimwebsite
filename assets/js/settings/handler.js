@@ -157,8 +157,8 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
                 mdbCSSLink.setAttribute("href", "/assets/libraries/mdbootstrap/out-rtl.css")
 
             const bsrCSSLink = document.getElementById("bsr");
-            if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot-rtl.min.css")
-                bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot-rtl.min.css")
+            if (bsrCSSLink && bsrCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap-reboot.rtl.min.css")
+                bsrCSSLink.setAttribute("href", "/assets/libraries/bootstrap/css/bootstrap-reboot.rtl.min.css")
 
             document.body.dir = "rtl";
 

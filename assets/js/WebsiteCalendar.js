@@ -371,11 +371,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": "שושן פורים",
 				"english": "Shushan Purim"
 			},
-		
-			[KosherZmanim.JewishCalendar.ROSH_CHODESH]: {
-				"hebrew": "ראש חודש",
-				english: "Rosh Hodesh"
-			},
 
 			// Modern-Day Celebrations
 			[KosherZmanim.JewishCalendar.YOM_HASHOAH]: {
