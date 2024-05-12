@@ -127,16 +127,16 @@
   timeGetter: getSofZmanBrachothShma
   names:
     hb: סוף זמן ברכות שמע
-    et: Sof Zman Berachot Shma
-    en: Latest Berachot Shma
+    et: Sof Zman Berachot Shema
+    en: Latest Berachot Shema
   description: |-
     <p>
-    This is the latest time a person can say the Brachot Shma according
-    to the GR"A. However, a person can still say Pisukei D'Zimra until
-    Chatzot.
+    This is the latest time a person can say the Brachot Shema according
+    to the GR"A. However, a person can still say Pisukei DeZimra until
+    Hatzot.
     </p>
     <p>
-    The GR"A calculates this time as 4 zmaniyot/seasonal hours after
+    The GR"A calculates this time as 4 zemaniyot/seasonal hours after
     sunrise (elevation included). The GR"A calculates a
     zmaniyot/seasonal hour by taking the time between sunrise and sunset
     (elevation included) and divides it into 12 equal parts.
@@ -468,7 +468,7 @@
   timeGetter: getSolarMidnight
   names:
     hb: חצות לילה
-    et: Chatzot Layla
+    et: Hatzot Layla
     en: Midnight
   description: |-
     <p>
