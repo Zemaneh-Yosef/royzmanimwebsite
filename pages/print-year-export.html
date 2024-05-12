@@ -35,9 +35,6 @@ layout: nothing
 	[data-zyHeader] {
 		text-align: center;
 		line-height: 1;
-	}
-
-	[data-zyHeader]:not(:first-of-type) {
 		page-break-before: always;
 	}
 
@@ -48,9 +45,40 @@ layout: nothing
 
 	.special {
 		display: flex;
-		
+	}
+
+	.explanationPreface {
+		line-height: 1.4;
+	}
+
+	.explanationPreface p {
+		margin-bottom: .5rem;
+		font-size: .8em;
 	}
 </style>
+
+<div class="explanationPreface">
+	<h4>Explanation</h4>
+	<p>This piece will only go through conclusions that we hold differently from other mainstream calendars; descriptions on individual Zemanim can instead be found in the back of this calendar.</p>
+
+	<h6>Sunrise/Sunset</h6>
+	<p>These times are the fundamentals for all Halachic Zemanim, which is provided to us via the <b>NOAA algorithm</b>. The Amudeh Hora'ah calendar does not use elevation.</p>
+	<p>For sunrise, we offer "Visible Sunrise" scraping from the ChaiTables.com website.</p>
+
+	<h6>Seasonal Hours + Alot/Tzet</h6>
+	<p>We use seasonal hours for both times within the day <b>and</b> times before sunrise/after sunset. In the later's case, the Amudeh Hora'ah calendar uses degrees to represent seasonal minutes on an equinox day, thereby matching the astronomy on the equinox day while still using seasonal minutes.</p>
+	<p>Since we hold a mil is 18 minutes, 3/4<sup>th</sup>'s of a mil is 13 ½ minutes (used for Geonim's nightfall) and 4 mil is 72 minutes (used for dawn and R"T's nightfall). For special occasions (such as ending a fast), we would switch to the Rambam's mil equivalence of 24 minutes, making 3/4<sup>th</sup> of it as 18 minutes. From there, we would round it up to the nearest 10, making it 20 seasonal minutes after sunset.</p>
+	<p>All of our times are calculated seasonally according to the GR"A (from sunrise -> sunset), with the exception of Keriath Shema & times associated with Hametz. In addition, we use fixed minutes for Mincha Gedolah in the winter (as a 30 minute minimum) and pure degrees for Tzet Shabbath (7.14 degrees below the horizon, to match 30 minutes in Israel on an equinox day).</p>
+
+	<h6>Plag Hamincha</h6>
+	<p>In addition to the GR"A's Plag Hamincha (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berurah), we offer the time for Plag Hamincha according to R' Yitzhak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).</p>
+
+	<h6>Candle Lighting</h6>
+	<p>Although the timeframe before sunset is varied according to minhag, Halacha dictates it cannot be over 30 fixed minutes unless one would accept Shabbat at the moment they light (even for Sepharadim who typically aren't concerned from these words of the Beha"g). Our calendar default uses 20 minutes, based on trying to count backwards from sunset 3/4<sup>th</sup>'s of the Rambam's mil (which is 24 minutes), rounded up to the closest number.</p>
+
+	<h6>Rabbenu Tam</h6>
+	<p>Although Rabbi Ovadia was known to hold by R"T's seasonal minutes in both stringent and lenient matters, both R' David Yosef & R' Yitzhak Yosef held otherwise for the stringency, saying one need only to cap it off at 72 fixed minutes. This is the shita used in the Amudeh Hora'ah calendar, where it would give late times beyond what R"T himself would hold.</p>
+</div>
 
 <div data-zyHeader>
 	<h1>זמני יוסף</h1>
