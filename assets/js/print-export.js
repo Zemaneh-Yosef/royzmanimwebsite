@@ -36,6 +36,10 @@ const dtF = [settings.language() == 'hb' ? 'he' : 'en', {
 
 const listAllShitot = Array.from(document.querySelectorAll('[data-zyData]')).map(elem => elem.getAttribute('data-zyData'))
 const baseTable = document.getElementsByClassName('tableGrid')[0];
+baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName('tableHeader'))
+    .filter(elem => !elem.hasAttribute('data-zyHeaderContainer'))
+    .map(elem => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.6fr'))
+    .join(" ");
 
 const header = document.querySelector('[data-zyHeader] h3');
 header.appendChild(document.createTextNode(geoLocation.getLocationName()))
