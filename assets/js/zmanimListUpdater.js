@@ -309,7 +309,7 @@ class zmanimListUpdater {
 				}
 
 				if (window.Worker) {
-					const myWorker = new Worker("/assets/js/icsHandler.js", { type: "module" });
+					const myWorker = new Worker("/assets/js/features/icsHandler.js", { type: "module" });
 					myWorker.postMessage(icsParams)
 					myWorker.addEventListener("message", (message) => {
 						console.log("received message from other thread");
