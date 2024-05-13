@@ -4,10 +4,10 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
-import { ChaiTables } from "./chaiTables.js";
+import { ChaiTables } from "./features/chaiTables.js";
 import * as leaflet from "../libraries/leaflet/leaflet.js"
 
-import icsExport from "./icsHandler.js";
+import icsExport from "./features/icsHandler.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");

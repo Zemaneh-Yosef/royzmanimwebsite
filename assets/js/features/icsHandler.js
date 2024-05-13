@@ -1,10 +1,12 @@
 // @ts-check
 
-import { getOrdinal } from "./WebsiteCalendar.js";
-import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
-import { ics } from "../libraries/ics/ics.esm.js"
-import { Temporal, GeoLocation } from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
-import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
+import { getOrdinal } from "../WebsiteCalendar.js";
+import { AmudehHoraahZmanim, OhrHachaimZmanim } from "../ROYZmanim.js";
+import { ics } from "../../libraries/ics/ics.esm.js"
+import { Temporal, GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
+import n2words from "../../libraries/n2words.esm.js";
 
 /**
  * @param {Temporal.PlainDate|Temporal.ZonedDateTime} date
@@ -79,16 +81,21 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 			})
 		}
 
-		if (jCal.tomorrow().getDayOfOmer() !== -1) {
+		const count = jCal.tomorrow().getDayOfOmer();
+		if (count !== -1) {
 			const omerInfo = jCal.tomorrow().getOmerInfo();
 			const calendarEvent = {
 				start: calc.getTzait().epochMilliseconds,
 				end: monViewNight(monthView, calc),
-				title: "Sefirat Haomer - Night " + jCal.tomorrow().getDayOfOmer(),
+				title: {
+					"he": "ספירת העומר - ליל " + (count in n2wordsOrdinal ? n2wordsOrdinal[count] : n2words(count)),
+					"en": "Sefirat Haomer - Night " + count,
+					"en-et": "Sefirat Haomer - Night " + count
+				}[funcSettings.language],
 				description: `היום ${omerInfo.title.hb.mainCount} לעומר`
 			};
 
-			if (jCal.tomorrow().getDayOfOmer() >= 7)
+			if (count >= 7)
 				calendarEvent.description += `, שהם ${omerInfo.title.hb.subCount.toString()}`;
 
 			events.push(calendarEvent)
@@ -106,17 +113,23 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 		}
 
 		if (jCal.tomorrow().isChanukah()) {
+			const title = {
+				"he": "חנוכה - ליל " + n2wordsOrdinal[jCal.tomorrow().getDayOfChanukah()],
+				"en": "Hanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night",
+				"en-et": "Hanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night"
+			}[funcSettings.language];
+
 			if (jCal.getDate().dayOfWeek == 6)
 				events.push({
 					start: calc.getTzaitShabbath().epochMilliseconds,
 					end: monViewNight(monthView, calc),
-					title: "Hanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night of Hanukah"
+					title
 				})
 			else if (jCal.getDate().dayOfWeek !== 5)
 				events.push({
 					start: calc.getTzait().epochMilliseconds,
 					end: calc.getTzait().add({ minutes: 30 }).epochMilliseconds,
-					title: "Hanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night of Hanukah"
+					title
 				})
 		}
 
@@ -125,16 +138,36 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 			events.push({
 				start: calc.getShkiya().epochMilliseconds,
 				end: definiteDayOfNextMonth.getShkiya().epochMilliseconds,
-				title: "Rosh Hodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'})
+				title: {
+					"he": "ראש חודש " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'}),
+					"en": "Rosh Hodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'}),
+					"en-et": "Rosh Hodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'})
+				}[funcSettings.language]
 			});
 		}
 
 		if (jCal.tomorrow().isRoshHashana() && !jCal.isRoshHashana()) {
-			events.push({
-				start: calc.getCandleLighting().epochMilliseconds,
-				end: calc.tomorrow().tomorrow().getTzaitShabbath().epochMilliseconds,
-				title: "Rosh Hashanah"
-			})
+			const transitionTime = (jCal.getDayOfWeek() == 5 ? calc.tomorrow().getTzaitShabbath() : calc.tomorrow().getTzaitLechumra())
+			events.push(
+				{
+					start: calc.getCandleLighting().epochMilliseconds,
+					end: transitionTime.epochMilliseconds,
+					title: {
+						he: "ראש השנה - יום א",
+						en: "Rosh Hashana - Day I",
+						"en-et": "Rosh Hashana - Day I"
+					}[funcSettings.language]
+				},
+				{
+					start: transitionTime.epochMilliseconds,
+					end: calc.tomorrow().tomorrow().getTzaitShabbath().epochMilliseconds,
+					title: {
+						he: "ראש השנה - יום ב",
+						en: "Rosh Hashana - Day II",
+						"en-et": "Rosh Hashana - Day II"
+					}[funcSettings.language]
+				}
+			)
 		}
 
 		if (jCal.tomorrow().isTaanis()) {
@@ -142,19 +175,16 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 				events.push({
 					start: calc.getCandleLighting().epochMilliseconds,
 					end: calc.tomorrow().getTzaitShabbath().epochMilliseconds,
-					title: "Yom Kippur",
+					title: funcSettings.fasts[jCal.tomorrow().getYomTovIndex().toString()][funcSettings.language],
 					description: (funcSettings.language == "he" ? 'ר"ת: ' : 'R"T: ') + calc.tomorrow().getTzaitRT().toLocaleString(...dtF)
-				})
-			else if (jCal.getJewishMonth() == WebsiteLimudCalendar.AV)
-				events.push({
-					start: calc.getShkiya().epochMilliseconds,
-					end: calc.tomorrow().getTzait().epochMilliseconds,
-					title: "Tisha Be'av"
 				})
 			else
 				events.push({
-					start: calc.tomorrow().getAlotHashachar().epochMilliseconds,
-					end: calc.tomorrow().getTzait().epochMilliseconds,
+					start:
+						(jCal.getJewishMonth() == WebsiteLimudCalendar.AV
+							? calc.getShkiya()
+							: calc.tomorrow().getAlotHashachar()).epochMilliseconds,
+					end: calc.tomorrow()[amudehHoraahZman ? 'getTzaitLechumra' : 'getTzaitTaanit']().epochMilliseconds,
 					title: funcSettings.fasts[jCal.tomorrow().getYomTovIndex().toString()][funcSettings.language]
 				})
 		}
@@ -166,8 +196,8 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 	const labeledEvents = events.map(obj => ({
 		...obj,
 		calName:
-			(calc instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah Calendar" : "Ohr Hachaim Calendar")
-			+ ` (${baseDate.year}) - ` + calc.coreZC.getGeoLocation().getLocationName(),
+			(calc instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
+			+ ` Calendar (${baseDate.year}) - ` + calc.coreZC.getGeoLocation().getLocationName(),
 		startInputType: "utc",
 		endInputType: "utc"
 	}));

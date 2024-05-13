@@ -1,6 +1,6 @@
 ---
-title: Sefirat Haomer - East
-permalink: /omer/east
+title: Sefirat Haomer - Mil Basin
+permalink: /omer/milbasin
 breakout: true
 website: true
 ---
@@ -42,11 +42,11 @@ website: true
         justify-self: start;
         align-self: end;
         text-align: start;
-        font-size: 1.2em;
+        font-size: 1.275em;
         font-weight: 500;
         font-style: italic;
         line-height: 1.3;
-        padding-bottom: .5em;
+        padding-bottom: .25em;
         padding-inline-start: .5em;
     }
 
@@ -60,7 +60,7 @@ website: true
     #gridElement {
         justify-self: center;
         align-self: center;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr;
         row-gap: 1em;
         display: grid;
         margin-block-end: 30em;
@@ -90,8 +90,9 @@ website: true
 
     #gridElement > .timeBox {
         background-color: #DAC06B;
-        font-size: 1.75vw;
+        font-size: 2.5vw;
         z-index: 2;
+        transform: scale(2);
     }
 
     .twoLine {
@@ -211,28 +212,17 @@ website: true
     </div>
     <div id="earliestTimeAlert">Earliest time to count*</div>
     <div id="gridElement">
-        {% for item in site.data.omerLocations.east %}
-            <div class="timecalc {% if item.twoLine %}twoLine{% endif %}"
-                {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
-                data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
-                data-timezone="{{ item.timezone }}"
-                data-format="{{ item.timeFormat }}"
-                {% if item.humra %}data-humra="{{ item.humra }}"{% endif %}>
-                {%- assign check = item.flag | split:'.' | last -%}
-                {% if check == "svg" %}
-                    <img class="imgFlag" src="{{ item.flag }}">
-                {% else %}
-                    {{ item.flag }}
-                {% endif %}
-                {{ item.name }}
-            </div>
-            <div class="timeBox"></div>
-        {% endfor %}
+        <div class="timecalc d-none"
+            data-lat="40.61385313885733" data-lng="-73.91164582565503"
+            data-timezone="America/New_York"
+            data-format="h12">
+        </div>
+        <div class="timeBox"></div>
     </div>
     <div id="footer">
         This time of "<b>צאת הכוכבים</b>" represents the opinion held by Rabbi Ovadia Yosef zt"l;<br>
         confirm with your Posek if you suspect a different opinion would be followed instead.<br>
-        For unlisted locations, look at the <span class="inlineLogo">זמני יוסף</span> application, now on iOS and Android - royzmanim.com
+        For locations other than <b>Mil Basin, NY</b>, look at the <span class="inlineLogo">זמני יוסף</span> application, now on iOS and Android - royzmanim.com
     </div>
     <img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
     <div id="bracha">

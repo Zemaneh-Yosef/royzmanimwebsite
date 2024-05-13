@@ -444,14 +444,14 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		// Hebrew Attributes
 		const hbName = n2words(this.getDayOfOmer());
 
-		const dayWords = ["יום", "ימים"]
+		const dayWords = ["יוֹם", "יָמִים"]
 		const verb = dayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)];
 
 		const hbTitle = [hbName, verb];
 		if (this.getDayOfOmer() == 1)
 			hbTitle.reverse()
 
-		const weeksCount = [n2words(weeks), "שבוע" + (weeks >= 2 ? "ות" : "")]
+		const weeksCount = [n2words(weeks), (weeks >= 2 ? "שָׁבוּעוֹת" : "שָׁבוּעַ")]
 		if (weeks == 1)
 			weeksCount.reverse()
 
@@ -674,7 +674,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			music: noHolHamoed,
 			haircuts: validOmer || this.isShvuaShechalBo(),
 			wedding: validOmer || validAv,
-			purchaseClothing: validOmer || validAv,
+			purchaseClothing: validAv,
 			swimming: this.isShvuaShechalBo(),
 			construction: this.isShvuaShechalBo(),
 			meat: validAv && this.getDayOfWeek() !== 7,

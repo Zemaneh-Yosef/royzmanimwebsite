@@ -1,10 +1,10 @@
 //@ts-check
 
-import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
-import { OhrHachaimZmanim, AmudehHoraahZmanim } from "./ROYZmanim.js";
-import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
-import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
-import { settings } from "./settings/handler.js";
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
+import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
+import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import { settings } from "../settings/handler.js";
 
 const hNum = new HebrewNumberFormatter();
 
@@ -204,6 +204,12 @@ function handleShita (/** @type {string} */ shita) {
                             'en': "Fast of Gedalia"
                         }[settings.language()]));
                         break;
+                    case WebsiteLimudCalendar.YOM_KIPPUR:
+                        div.appendChild(document.createTextNode({
+                            "hb": "יום כיפור",
+                            "en": "Yom Kippur",
+                            "en-et": "Yom Kippur"
+                        }[settings.language()]));
                     default:
                         div.appendChild(document.createTextNode({
                             'hb': "צום",

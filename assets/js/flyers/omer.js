@@ -67,6 +67,6 @@ document.getElementById("nightOf").appendChild(document.createTextNode(
 const omerjCal = jCal.tomorrow();
 document.getElementById("omerCount").appendChild(document.createTextNode(omerjCal.getDayOfOmer().toString().padStart(2, "0")));
 
-let countText = omerjCal.getOmerInfo().title.hb.mainCount + ` לעומר` +
-	(omerjCal.getDayOfOmer() >= 7 ? `, שהם ` + omerjCal.getOmerInfo().title.hb.subCount.toString() : '');
+let countText = omerjCal.getOmerInfo().title.hb.mainCount + ` לָעֹמֶר` +
+	(omerjCal.getDayOfOmer() >= 7 ? `, שֶׁהֵם ` + omerjCal.getOmerInfo().title.hb.subCount.toString() : '');
 document.getElementById("hayom").appendChild(document.createTextNode(countText));

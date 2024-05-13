@@ -1,7 +1,7 @@
 //@ts-check
 
-import "../libraries/materialComp/materialweb.js"
-import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import "../../libraries/materialComp/materialweb.js"
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
 export { ChaiTables }
 
 class ChaiTables {
