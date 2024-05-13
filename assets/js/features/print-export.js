@@ -57,7 +57,7 @@ function handleShita (/** @type {string} */ shita) {
 
                 div.appendChild(document.createTextNode({
                     'hb': "ראש חדש",
-                    "en-et": "Rosh Hodesh",
+                    "en-et": "Rosh Ḥodesh",
                     'en': "New Month"
                 }[settings.language()]));
                 div.style.fontWeight = "bold";
@@ -75,7 +75,7 @@ function handleShita (/** @type {string} */ shita) {
                 },
                 [KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH]: {
                     en: "Intermediary",
-                    "en-et": "Hol HaMoedh",
+                    "en-et": "Ḥol HaMoedh",
                     hb: "חול המועד"
                 },
                 [KosherZmanim.JewishCalendar.SHAVUOS]: {
@@ -95,7 +95,7 @@ function handleShita (/** @type {string} */ shita) {
                 },
                 [KosherZmanim.JewishCalendar.CHOL_HAMOED_SUCCOS]: {
                     hb: "חול המועד",
-                    "en-et": "Hol HaMoedh",
+                    "en-et": "Ḥol HaMoedh",
                     en: "Intermediary"
                 },
                 [KosherZmanim.JewishCalendar.HOSHANA_RABBA]: {

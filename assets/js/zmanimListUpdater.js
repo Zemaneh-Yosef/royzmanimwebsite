@@ -681,13 +681,13 @@ class zmanimListUpdater {
 				} else {
 					switch (this.jCal.tefilahRules().tachanun) {
 						case 2:
-							tachanun.innerHTML = "No Tachanun";
+							tachanun.innerHTML = "No Taḥanun";
 							break;
 						case 1:
-							tachanun.innerHTML = "Only Tachanun at Shacharit";
+							tachanun.innerHTML = "Only Taḥanun at Shacharit";
 							break;
 						case 0:
-							tachanun.innerHTML = "Calendar-Tachanun Day";
+							tachanun.innerHTML = "Calendar-Taḥanun Day";
 					}
 				}
 			}

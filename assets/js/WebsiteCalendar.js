@@ -432,7 +432,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 		const dayOfChanukah = this.getDayOfChanukah();
 		if (dayOfChanukah != -1) {
-			result.push(getOrdinal(dayOfChanukah) + " day of Hanukah");
+			result.push(getOrdinal(dayOfChanukah) + " day of Ḥanukah");
 		}
 		return result;
 	}

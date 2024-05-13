@@ -89,8 +89,8 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 				end: monViewNight(monthView, calc),
 				title: {
 					"he": "ספירת העומר - ליל " + (count in n2wordsOrdinal ? n2wordsOrdinal[count] : n2words(count)),
-					"en": "Sefirat Haomer - Night " + count,
-					"en-et": "Sefirat Haomer - Night " + count
+					"en": "Sefirath Haomer - Night " + count,
+					"en-et": "Sefirath Haomer - Night " + count
 				}[funcSettings.language],
 				description: `היום ${omerInfo.title.hb.mainCount} לעומר`
 			};
@@ -115,8 +115,8 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 		if (jCal.tomorrow().isChanukah()) {
 			const title = {
 				"he": "חנוכה - ליל " + n2wordsOrdinal[jCal.tomorrow().getDayOfChanukah()],
-				"en": "Hanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night",
-				"en-et": "Hanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night"
+				"en": "Ḥanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night",
+				"en-et": "Ḥanukah - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night"
 			}[funcSettings.language];
 
 			if (jCal.getDate().dayOfWeek == 6)
@@ -140,8 +140,8 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 				end: definiteDayOfNextMonth.getShkiya().epochMilliseconds,
 				title: {
 					"he": "ראש חודש " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'}),
-					"en": "Rosh Hodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'}),
-					"en-et": "Rosh Hodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'})
+					"en": "Rosh Ḥodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'}),
+					"en-et": "Rosh Ḥodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'})
 				}[funcSettings.language]
 			});
 		}
