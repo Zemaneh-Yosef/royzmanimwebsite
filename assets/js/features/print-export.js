@@ -5,6 +5,7 @@ import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { settings } from "../settings/handler.js";
+import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 
 const hNum = new HebrewNumberFormatter();
 
@@ -38,7 +39,7 @@ const listAllShitot = Array.from(document.querySelectorAll('[data-zyData]')).map
 const baseTable = document.getElementsByClassName('tableGrid')[0];
 baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName('tableHeader'))
     .filter(elem => !elem.hasAttribute('data-zyHeaderContainer'))
-    .map(elem => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.6fr'))
+    .map(elem => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
     .join(" ");
 
 const header = document.querySelector('[data-zyHeader] h3');
@@ -232,7 +233,7 @@ function handleShita (/** @type {string} */ shita) {
                     + jCal.getDate().toLocaleString('en', { month: "short", day: "numeric" })
                     break;
                 case 'hb':
-                    dateFormat = jCal.getDate().toLocaleString('he-u-ca-hebrew', {weekday: 'narrow'}) + " " + hNum.formatHebrewNumber(jCal.getJewishDayOfMonth()) + "<br>"
+                    dateFormat = (jCal.getDayOfWeek() == 7 ? "שבת" : n2wordsOrdinal[jCal.getDayOfWeek()]) + " - " + hNum.formatHebrewNumber(jCal.getJewishDayOfMonth()) + "<br>"
                     + jCal.getDate().toLocaleString('en', { month: "short", day: "numeric" })
             }
             div.innerHTML = dateFormat;
