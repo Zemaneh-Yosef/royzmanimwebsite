@@ -332,3 +332,4 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
 
 header.parentElement.remove();
 baseTable.remove();
+window.print();
