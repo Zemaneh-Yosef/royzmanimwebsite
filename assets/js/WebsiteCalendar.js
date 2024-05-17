@@ -459,6 +459,14 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		if (days == 1)
 			dayCount.reverse()
 
+		/**
+		 * @param {{ days: any; weeks: any; toString?: (() => string) | (() => string) | (() => string); }} data
+		 * @param {string} connector
+		 */
+		function fullSubCount (data, connector) {
+			return (!weeks ? "" :[data.weeks].concat(days ? [data.days] : []).join(connector));
+		}
+
 		return {
 			info: {
 				days,
@@ -470,7 +478,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					subCount: {
 						days: getOrdinal(days, true) + " day",
 						weeks: getOrdinal(weeks, true) + " week",
-						toString: function () { return (!weeks ? "" :[this.weeks].concat(days ? [this.days] : []).join(" • ")); }
+						toString: function () { return fullSubCount(this, " • "); }
 					}
 				},
 				et: {
@@ -478,7 +486,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					subCount: {
 						days: (days == 1 ? "a day" : days + " days"),
 						weeks: (weeks == 1 ? "is a week" : "are " + weeks + " weeks"),
-						toString: function () { return (!weeks ? "" : [this.weeks].concat(days ? [this.days] : []).join(" and ")) }
+						toString: function () { return fullSubCount(this, " and "); }
 					}
 				},
 				hb: {
@@ -486,7 +494,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					subCount: {
 						days: dayCount.join(" "),
 						weeks: weeksCount.join(" "),
-						toString: function () { return (!weeks ? "" : [this.weeks].concat(days ? [this.days] : []).join(" ו")) }
+						toString: function () { return fullSubCount(this, " " + ([2,3].includes(days) ? 'וּ' : 'וְ')); }
 					}
 				}
 			}

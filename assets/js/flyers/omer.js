@@ -25,6 +25,9 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 	document.getElementById("gridElement").remove();
 	document.getElementById("earliestTimeAlert").remove();
 } else {
+	if (jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) {
+		document.getElementById("earliestTimeAlert").innerHTML = "Proper time of night"
+	}
 	const elems = document.getElementsByClassName('timecalc');
 	for (const elem of elems) {
 		const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
@@ -48,13 +51,13 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 			minute: '2-digit'
 		}];
 
-		const times = (jCal.getDate().dayOfWeek == 6 ? [currentCalc.getTzaitShabbath(), currentCalc.getTzaitRT()] : [currentCalc.getTzait()])
+		const times = ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) ? [currentCalc.getTzaitShabbath(), currentCalc.getTzaitRT()] : [currentCalc.getTzait()])
 			.map(time => time.add({ minutes: (!elem.hasAttribute('data-humra') ? 0 : parseInt(elem.getAttribute('data-humra')) )}));
 
 		const timeElem = elem.nextElementSibling;
 		timeElem.innerHTML =
 			times[0].toLocaleString(...dtF)
-			+ (jCal.getDate().dayOfWeek == 6 ? ` (R"T: ${times[1].toLocaleString(...dtF)})` : "");
+			+ (jCal.getDate().dayOfWeek == 6 ? `<br><span style="font-size: .5em;">(R"T: ${times[1].toLocaleString(...dtF)})</span>` : "");
 	}
 }
 
