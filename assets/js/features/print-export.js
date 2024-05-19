@@ -6,6 +6,7 @@ import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { settings } from "../settings/handler.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
+import { Previewer } from "../../libraries/paged.js"
 
 const hNum = new HebrewNumberFormatter();
 
@@ -296,7 +297,7 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
     for (let index = 1; index < (plainDateForLoop.daysInMonth / 2); index++) {
         plainDateForLoop = plainDateForLoop.with({ day: index })
         jCal.setDate(plainDateForLoop.withCalendar("iso8601"))
-        zmanCalc.setDate(plainDateForLoop.withCalendar("iso8601"));
+        zmanCalc.setDate(plainDateForLoop.withCalendar("iso8601"))
 
         for (const shita of listAllShitot) {
             const cell = handleShita(shita);
@@ -320,7 +321,7 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
     for (let index = Math.ceil(plainDateForLoop.daysInMonth / 2); index < plainDateForLoop.daysInMonth + 1; index++) {
         plainDateForLoop = plainDateForLoop.with({ day: index })
         jCal.setDate(plainDateForLoop.withCalendar("iso8601"))
-        zmanCalc.setDate(plainDateForLoop.withCalendar("iso8601"));
+        zmanCalc.setDate(plainDateForLoop.withCalendar("iso8601"))
 
         for (const shita of listAllShitot) {
             const cell = handleShita(shita)
@@ -332,4 +333,23 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
 
 header.parentElement.remove();
 baseTable.remove();
-window.print();
+
+document.documentElement.setAttribute('forceLight', '')
+document.documentElement.removeAttribute('data-bs-theme');
+let paged = new Previewer();
+paged.size = {
+    width: {
+        value: 8.5,
+        unit: "in"
+    },
+    height: {
+        value: 11,
+        unit: "in"
+    },
+    format: undefined,
+    orientation: "landscape"
+}
+let flow = paged.preview(document.querySelector('[data-printFind]'), ["/assets/css/footnotes.css"], document.querySelector('[data-printFind]').parentElement).then((flow) => {
+	console.log("Rendered", flow.total, "pages.");
+    window.print();
+})
