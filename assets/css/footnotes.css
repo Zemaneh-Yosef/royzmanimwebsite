@@ -1,6 +1,7 @@
 @page {
     size: letter landscape;
-    margin: 20mm;
+    bleed: 0;
+    margin: 10mm;
 }
 
 @page {

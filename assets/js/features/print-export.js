@@ -337,19 +337,9 @@ baseTable.remove();
 document.documentElement.setAttribute('forceLight', '')
 document.documentElement.removeAttribute('data-bs-theme');
 let paged = new Previewer();
-paged.size = {
-    width: {
-        value: 8.5,
-        unit: "in"
-    },
-    height: {
-        value: 11,
-        unit: "in"
-    },
-    format: undefined,
-    orientation: "landscape"
-}
-let flow = paged.preview(document.querySelector('[data-printFind]'), ["/assets/css/footnotes.css"], document.querySelector('[data-printFind]').parentElement).then((flow) => {
+const finalExplanation = document.querySelector('[data-printFind]');
+let flow = paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement).then((flow) => {
 	console.log("Rendered", flow.total, "pages.");
+    finalExplanation.remove()
     window.print();
 })
