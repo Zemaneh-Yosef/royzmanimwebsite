@@ -31260,8 +31260,8 @@ class Footnotes extends Handler {
 		let noteContentBounds = noteContent.getBoundingClientRect();
 		let { width } = noteContentBounds;
 
-		noteInnerContent.style.columnWidth = Math.round(width) + "px";
-		noteInnerContent.style.columnGap = "calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left))";
+		//noteInnerContent.style.columnWidth = Math.round(width) + "px";
+		//noteInnerContent.style.columnGap = "calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left))";
 
 		// Get overflow
 		let layout = new Layout(noteArea, undefined, chunker.settings);

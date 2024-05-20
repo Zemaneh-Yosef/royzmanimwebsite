@@ -10,28 +10,25 @@
 
 @page {
     @footnote {
-        border-top: dashed red 1px;
+        border-top: dashed black 1px;
+        padding-top: 6.25px;
         float: bottom;
     }
 }
  
 span.footnote { 
     float: footnote; 
+    footnote-policy: block;
 }
  
 .footnote::footnote-call {
     content: counter(footnote, decimal) " ";
-    color: green;
     vertical-align: super;
     font-size: 0.8em;
 }
  
 .footnote::footnote-marker {
-    content: counter(footnote, lower-roman);
-    font-size: 14pt;
-    color: red;
-    display: inline-block;
-    width: 2em;
-    padding-right: 1em;
+    font-size: 1.3em;
+    color: black;
     text-align: right;
 }

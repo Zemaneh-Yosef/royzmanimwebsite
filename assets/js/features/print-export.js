@@ -340,6 +340,13 @@ let paged = new Previewer();
 const finalExplanation = document.querySelector('[data-printFind]');
 let flow = paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement).then((flow) => {
 	console.log("Rendered", flow.total, "pages.");
-    finalExplanation.remove()
+
+    finalExplanation.remove();
+
+    Array.from(document.getElementsByClassName('pagedjs_footnote_inner_content'))
+        .forEach(elem => {
+            if (elem instanceof HTMLElement)
+                elem.style.setProperty('columns', '4')
+        })
     window.print();
 })
