@@ -10,7 +10,9 @@
 
 @page {
     @footnote {
-        border-top: dashed black 1px;
+        border-top-style: dashed;
+        border-top-width: 1px;
+        border-top-color: black;
         padding-top: 6.25px;
         float: bottom;
     }
