@@ -8,6 +8,11 @@ import { settings } from "../settings/handler.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { Previewer } from "../../libraries/paged.js"
 
+if (new URLSearchParams(window.location.search).has('lessContrast')) {
+    document.documentElement.style.setProperty('--bs-body-bg', 'snow');
+    document.documentElement.style.setProperty('--bs-body-color', '#1A0033');
+}
+
 const hNum = new HebrewNumberFormatter();
 
 if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
@@ -293,14 +298,20 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
                     settings.language() == "en" ? 'en' : settings.language().replace('hb', 'he') + '-u-ca-hebrew',
                     { month: "long" }
                 )
-        ))
-    for (let index = 1; index < (plainDateForLoop.daysInMonth / 2); index++) {
+        ));
+
+    const halfDaysInMonth = Math.floor(plainDateForLoop.daysInMonth / 2);
+    for (let index = 1; index <= halfDaysInMonth; index++) {
         plainDateForLoop = plainDateForLoop.with({ day: index })
         jCal.setDate(plainDateForLoop.withCalendar("iso8601"))
         zmanCalc.setDate(plainDateForLoop.withCalendar("iso8601"))
 
         for (const shita of listAllShitot) {
             const cell = handleShita(shita);
+
+            if (index !== halfDaysInMonth)
+                cell.style.borderBottom = '1px solid #21252922';
+
             tableFirstHalf.appendChild(cell)
         }
     }
@@ -318,13 +329,19 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
                     { month: "long" }
                 )
         ))
-    for (let index = Math.ceil(plainDateForLoop.daysInMonth / 2); index < plainDateForLoop.daysInMonth + 1; index++) {
+
+    const lastDayOfMonth = plainDateForLoop.daysInMonth;
+    for (let index = Math.ceil(plainDateForLoop.daysInMonth / 2); index <= lastDayOfMonth; index++) {
         plainDateForLoop = plainDateForLoop.with({ day: index })
         jCal.setDate(plainDateForLoop.withCalendar("iso8601"))
         zmanCalc.setDate(plainDateForLoop.withCalendar("iso8601"))
 
         for (const shita of listAllShitot) {
             const cell = handleShita(shita)
+
+            if (index !== lastDayOfMonth)
+                cell.style.borderBottom = '1px solid #21252922';
+
             tableSecondHalf.appendChild(cell)
         }
     }
@@ -336,17 +353,38 @@ baseTable.remove();
 
 document.documentElement.setAttribute('forceLight', '')
 document.documentElement.removeAttribute('data-bs-theme');
-let paged = new Previewer();
+
 const finalExplanation = document.querySelector('[data-printFind]');
-let flow = paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement).then((flow) => {
-	console.log("Rendered", flow.total, "pages.");
 
-    finalExplanation.remove();
+let paged = new Previewer();
+let flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
+console.log("Rendered", flow.total, "pages.");
 
-    Array.from(document.getElementsByClassName('pagedjs_footnote_inner_content'))
-        .forEach(elem => {
-            if (elem instanceof HTMLElement)
-                elem.style.setProperty('columns', '4')
-        })
-    window.print();
-})
+finalExplanation.style.display = "none";
+
+Array.from(document.getElementsByClassName('pagedjs_footnote_inner_content'))
+    .forEach(elem => {
+        if (elem instanceof HTMLElement)
+            elem.style.setProperty('columns', '4')
+    });
+
+const elems = [
+    'pagedjs_margin-top-left-corner-holder',
+    'pagedjs_margin-top',
+    'pagedjs_margin-top-right-corner-holder',
+    'pagedjs_margin-right',
+    'pagedjs_margin-left',
+    'pagedjs_margin-bottom-left-corner-holder',
+    'pagedjs_margin-bottom',
+    'pagedjs_margin-bottom-right-corner-holder',
+    'pagedjs_pagebox'
+]
+    .map(className => Array.from(document.getElementsByClassName(className)))
+    .flat();
+
+['top', 'right', 'left', 'bottom']
+    .forEach(dir => elems.forEach(elem => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
+
+Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEach(elem => elem.style.gridRow = 'unset')
+
+window.print();

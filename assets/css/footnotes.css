@@ -24,11 +24,10 @@ span.footnote {
 .footnote::footnote-call {
     content: counter(footnote, decimal) " ";
     vertical-align: super;
-    font-size: 0.8em;
+    font-size: smaller;
 }
  
 .footnote::footnote-marker {
     font-size: 1.3em;
-    color: black;
     text-align: right;
 }
