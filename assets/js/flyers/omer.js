@@ -28,6 +28,10 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 	if (jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) {
 		document.getElementById("earliestTimeAlert").innerHTML = "Proper time of night"
 	}
+	if (jCal.hasCandleLighting()) {
+		[document.getElementById("menorah"), document.getElementById('wallText')]
+			.forEach(imgToReplace => imgToReplace.setAttribute("src", imgToReplace.getAttribute("src").replace("digital", "print")));
+	}
 	const elems = document.getElementsByClassName('timecalc');
 	for (const elem of elems) {
 		const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);

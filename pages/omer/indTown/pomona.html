@@ -168,22 +168,6 @@ website: true
         -moz-box-shadow: 0 0 20px 0px rgba(0,0,0,0.75);
     }
 
-    #bracha {
-        font-family: "Guttman Mantova";
-        text-align: center;
-        unicode-bidi: plaintext;
-        color: #ffd373;
-        font-size: 3.25em;
-        position: absolute;
-        top: 40.75%;
-        right: 1.25%;
-        text-shadow: 0px 0px 16px rgba(0, 0, 0, 0.8);
-        filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, .7));
-        line-height: 1.25;
-        width: 65%;
-        font-weight: 600;
-    }
-
     #hayom {
         font-family: "Guttman Mantova";
         color: #D6A03E;
@@ -198,29 +182,6 @@ website: true
         text-shadow: 0px 0px 16px rgba(0, 0, 0, 0.8);
         filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, .7));
         unicode-bidi: plaintext;
-    }
-
-    .harachaman {
-        font-family: "Guttman Mantova";
-        text-align: center;
-        align-self: end;
-        justify-self: end;
-        margin-bottom: 17.5rem;
-        color: transparent;
-        font-size: 3.25em;
-        width: 65%;
-        padding-right: 1.25%;
-        line-height: 1.25;
-    }
-
-    #actualHaDisplay.harachaman {
-        background-image: linear-gradient(#ffd373 10%,#ffd37377 37.5%, #ffd373 55%, #ffd37377 78%);
-        -webkit-background-clip: text;
-        filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, .7));
-    }
-
-    .harachaman:not(#actualHaDisplay) {
-        text-shadow: 0px 0px 16px rgba(0, 0, 0, 0.8);
     }
 
     #bsD {
@@ -242,9 +203,13 @@ website: true
         filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
     }
 
-    .imgHarahaman {
-        width:100%;
+    #wallText {
+        align-self: end;
+        justify-self: end;
+        margin-bottom: 17rem;
+        margin-right: 3.25%;
         filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+        width: 60%;
     }
 </style>
 
@@ -275,15 +240,9 @@ website: true
         For locations other than <b>Pomona, NY</b>, use our <span class="inlineLogo">זמני יוסף</span> application for iOS and Android - royzmanim.com
     </div>
     <img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
-    <!--<div id="bracha">
-        בָּרוּךְ אַתָּה יְהֹוָה,<br>
-        אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם<br>
-        אֲשֶׁר קִדְּשָֽׁנוּ בְּמִצְוֹתָיו וְצִוָּֽנוּ<br>
-        עַל סְפִירַת הָעֹֽמֶר:
-    </div> -->
-    <img src="/assets/images/sefira/menorah.svg" id="menorah">
+    <img src="/assets/images/sefira/menorah-digital.svg" id="menorah">
     <div id="hayom">הַיּוֹם </div>
-    <img class="imgHarahaman" src="/assets/images/sefira/harahaman.png" />
+    <img id="wallText" src="/assets/images/sefira/wall-text-digital.png" />
 </div>
 
 <script type="module" src="/assets/js/flyers/omer.js"></script>
