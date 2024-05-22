@@ -6,6 +6,9 @@ chaiTable: true
 layout: nothing
 ---
 
+{% capture fullExpl %}{% include printcal/explanation.md %}{% endcapture %}
+{% capture differences %}{% include printcal/differences.md %}{% endcapture %}
+
 <noscript>
 	<h1>This site requires JavaScript to function</h1>
 	<p>However, you are free to look at descriptions</p>
@@ -57,8 +60,10 @@ layout: nothing
 
 	.explanationPreface p,
 	.explanationPreface ol,
+	.explanationPreface ul,
 	.pagedjs_pages p,
-	.pagedjs_pages ol {
+	.pagedjs_pages ol,
+	.pagedjs_pages ul {
 		margin-bottom: .5rem;
 		font-size: .8em;
 		text-align: justify;
@@ -98,41 +103,7 @@ layout: nothing
 	<h4 style="text-align: center;">Differences Explanation</h4>
 	<p style="text-align: center;">This piece will only go through conclusions that we hold differently from other mainstream calendars; descriptions on individual Zemanim (as well as sources) can instead be found in the back of this calendar.</p>
 
-	<div style="columns: 3; margin-bottom: .5em;">
-		<h6>Sunrise/Sunset</h6>
-		<p>These times are the fundamentals for all Halachic Zemanim, which is provided to us via the <b>NOAA algorithm</b>. The Amudeh Hora'ah calendar does not use elevation.</p>
-		<p>For sunrise, we offer "Visible Sunrise" scraping from the ChaiTables.com website.</p>
-
-		<h6>Seasonal Hours + Alot/Tzet</h6>
-		<p>We use seasonal hours for both times within the day <b>and</b> times before sunrise/after sunset. In the later's case, the Amudeh Hora'ah calendar uses degrees to represent seasonal minutes on an equinox day, thereby matching the astronomy on the equinox day while still using its seasonal minutes for other days of the week.</p>
-		<p>Since we hold a mil is 18 minutes, 3/4<sup>th</sup>'s of a mil is 13 ½ minutes (used for Geonim's nightfall) and 4 mil is 72 minutes (used for dawn and R"T's nightfall). For special occasions (such as ending a fast), we would switch to the Rambam's mil equivalence of 24 minutes, making 3/4<sup>th</sup> of it as 18 minutes. From there, we would round it up to the nearest 10, making it 20 seasonal minutes after sunset.</p>
-		<p>All of our times are calculated seasonally according to the GR"A (from sunrise -> sunset), with the exception of Keriath Shema & times associated with Hametz. For those two, we calculate our seasonal minutes from dawn until nightfall, giving us an earlier "stringent" time. In addition, we use two other safeguards for other times:</p>
-		<ol>
-			<li>For Mincha Ketanah, we use 30 fixed minutes as an minimum for the winter months.</li>
-			<li>Shabbat needs some conformity to astronomical sightings, so we use pure degrees in the Amudeh Hora'ah calendar (7.14) and 40 minutes for the Ohr Hachaim calendar.</li>
-		</ol>
-
-		<h6>Hatzot</h6>
-		<p>Everyday is counted <i>independently</i> (as opposed to a mean value), being the halfway point between sunrise->sunset (not sunrise->tzet)</p>
-
-		<h6>Plag Hamincha</h6>
-		<p>In addition to the GR"A's Plag Hamincha (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berurah), we offer the time for Plag Hamincha according to R' Yitzhak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).</p>
-
-		<h6>Candle Lighting</h6>
-		<p>Although the timeframe before sunset is varied according to minhag, Halacha dictates it cannot be over 30 fixed minutes unless one would accept Shabbat at the moment they light (even for Sepharadim who typically aren't concerned from these words of the Beha"g that one accepts Shabbat as they light). Our calendar default uses 20 minutes, based on trying to count backwards from sunset 3/4<sup>th</sup>'s of the Rambam's mil (which is 24 minutes), rounded up to the closest number.</p>
-
-		<h6>Rabbenu Tam</h6>
-		<p>Athough Maran zt'l held by R"T's seasonal minutes consistently (with both leniencies and stringencies), both R' David Yosef & R' Yitzhak Yosef held otherwise for the stringency, saying one need only to cap it off by 72 fixed minutes. The "Amudeh Hora'ah" calendar reflects this by using (adjusted-)seasonal minutes only when it doesn't go above 72 fixed minutes.</p>
-
-		<h6>Tekufot</h6>
-		<p>This is a concept no other calendar lists, and explaining it here would require documenting the entire practice (which is too long for our purposes). Please reference the back of the PDF for an explanation.</p>
-
-		<h6>Birkat Halevana</h6>
-		<p>Between Sepharadim and Ashkenazim, we start later (because we start by day 7 rather than day 3) and end later. Whereas starting later is just whatever time we start + 96 hours, we end later because we say Birkat Halevana throughout the night of the 15th while the Rama wants to match the molad.</p>
-
-		<h6>Molad</h6>
-		<p>Although Ashkenazic (+ some Sepharadic) communities announce the specific time that the molad takes place, we ommited this formula as per the normative Minhag Eretz Yisrael.</p>
-	</div>
+	<div style="columns: 3; margin-bottom: .5em;">{{ differences | markdownify }}</div>
 	<p style="text-align: center;">Although there are more shitot out there that our calendar does not follow (such as 90/96 minutes for dawn, using the beginning of an hour rather than the end for Shema), listing every shita we don't hold like would be confusing when one can learn the sugya as we outline and see what we would hold (to then infer what we wouldn't).</p>
 </div>
 
@@ -178,11 +149,27 @@ layout: nothing
 		margin: 10mm;
 	}
 
-	@media print {
-	    .pagedjs_page {
-    	    page-break-after: auto !important;
-			break-after: auto !important;
-		}
+	.pagedjs_pagebox {
+		display: block;
+		height: calc(var(--pagedjs-pagebox-height) - 10mm);
+	}
+
+	.pagedjs_page.pagedjs_right_page {
+		height: calc(var(--pagedjs-height-right) - 10mm);
+	}
+
+	.pagedjs_page.pagedjs_left_page {
+		height: calc(var(--pagedjs-height-left) - 10mm);
+	}
+
+	.pagedjs_right_page .pagedjs_sheet {
+		display: block;
+		height: calc(var(--pagedjs-height-right) - 10mm);
+	}
+
+	.pagedjs_left_page .pagedjs_sheet {
+		display: block;
+		height: calc(var(--pagedjs-height-left) - 10mm);
 	}
 </style>
 
@@ -192,54 +179,7 @@ layout: nothing
 			<div class="explanationPreface">
 				<h4 style="text-align: center;">Calendar Explanation</h4>
 				<p style="text-align: center;">We aim here to go through each Zeman and give a synopsis definition of what the Zeman is about. Keep in mind that due to our focus of just giving a specific-ROY perspective, we will be going from the Rambam onwards; anyone wanting to look at sources from the Talmud (or even earlier) should look at our website, royzmanim.com</p>
-				<div style="columns: 4;">
-					<h6>Sunrise / Sunset</h6>
-					<p>Sunrise (“Netz”) is defined as the time when the uppermost edge of the solar sphere is first visible in the east (astronomically, this time is approximately six minutes prior to a full solar reveal)<span class="footnote">Rambam on Hilchot Kriat Shema (1:11), based on the כסף משנה’s גרסה, Rav Pa’alim Vol. II, Orach Hayim, Chapter 3</span>. Sunset (“Shkiya”) is defined with the complete setting of the sphere in the west.<span class="footnote">Halacha Berurah (intro to siman 261 halacha 21). See Yalkut Yosef (new edition, siman 89 page 460).</span></p>
-					<p>Calculations are using the NOAA mathematical method for the exact geolocation used when creating the calendar. Although most poskim rule to have one-time for the whole town, we rely on the דברי יוסף (61a) for computing ease.</p>
-					<p>Although the typical "sunrise" time can work for Tefilat Hanetz<span class="footnote">based on the verse (Tehilim 72:5) “יִֽירָא֥וּךָ עִם־שָׁ֣מֶשׁ”; “They will fear you with the sun”</span>, the definition of sunrise has historically<span class="footnote">תלמדי רבינו יונה על ברכות ד: בדפי הריף</span> been "when the sun starts shinning on the hilltops". As such, one should use this separate time<span class="footnote">Mishnah Berurah 588:2 based on Rashi & Ran on Megillah 20; Eshel Avraham Botchach, Orach Hayim 89; Yalkut Yosef, new edition, siman 89 page 51</span> called "Visible Sunrise" when possible.</p>
-					<h6>Seasonal Hour</h6>
-					<p>A seasonal hour is generally calculated by adding together the hours between sunrise and sunset and then dividing by twelve. The consequent result represents a singular halachic seasonal hour. It is important to mention that regarding specific halachot, like earlier Kriat Shema end time, and last time to eat hametz on Erev Pesach, the seasonal hour is calculated from daybreak until nightfall (three stars).</p>
-					<p>For time portions calculated outside of the sunrise->sunset range<span class="footnote">It is the Sephardic mesorah to calculate these times using seasonal minutes based on length of day and not fixed minutes (see Rambam Pe’er HaDor 44, Halichot Olam vol. 1 page 106 & pages 248-250). It is clear, as well, that the leading Sephardic authorities did not calculate the seasonal minutes in the winter and summer using the method of “solar degrees”, rather the length of the day itself (see authorities above; as well as, Minchat Cohen 2 4, Pri Chadash Kuntres DeBey Shimshey 8, Bet David 104).</span> for locations with a higher/lower latitude than Eretz Yisrael, there will be an astronomical discrepency for the equinox day (which is what we use to calculate all Zemanim). In the Amudeh Hora'ah calendar, we accomodate this<span class="footnote">Minchat Cohen (2 4), Pri Chadash (Kuntres DeBey Shimshey 8), Bet David (104), Gra (261), Halacha Berurah (intro to siman 261 halacha 13). The Yalkut Yosef (new edition, siman 261 page 755) concurs in regard to Motzeh Shabbat but distinguishes that regarding rabbinical matters (like awaiting nightfall for Mikvah, or end of fasts), one may be lenient after 20 fixed minutes (even in high latitude places like France). In this regard, the Amudeh Hora'ah calendar follows the ruling of Halacha Berurah (above) which is the position mentioned in all the early authorities (above) and accurately corresponds to the physical circumstance.</span> by applying Israel's degree to the set location on the equinox day and making those minutes seasonal to apply to the general day. This means we have a matching astronomical equinox between the present land and Eretz Yisrael, as well as have a calendar that matches R' Ovadiah's Ohr Hachaim calendar in Eretz Yisrael.</p>
-					<h6>Daybreak</h6>
-					<p>Daybreak begins 72 seasonal minutes before sunrise. All mitzvot associated with beginning of day, can be fulfilled from this point in time (even though preferably one should wait until Netz under most circumstances). All fasts that start in the morning begin from daybreak as well.</p>
-					<h6>MiSheyakir</h6>
-					<p>The time of MiSheyakir is when there is just enough light that one can begin recognizing an acquaintance from close proximity. Practically, one may say Shema from now, as well as bless on <span style="unicode-bidi: isolate;">טליתות ותפילין</span>.<span class="footnote">Shulchan Aruch (simanim 18, 30, 58).</span> Calculating it is preferabbly done from a seasonal hour prior to sunrise, yet one can already be lenient from 66 seasonal minutes prior to sunrise in a case of need.<span class="footnote">Halichot Olam (vol. 1 page 19).</span></p>
-					<h6>Kriat Shema End Time</h6>
-					<p>The last time to recite Kriat Shema in the morning is three seasonal hours after sunrise.<span class="footnote">Levush (siman 233 & siman 267), Gra (siman 459), Halichot Olam (vol. 1, page 107 & page 250).</span> However, it is proper to read the Kriat Shema at the earlier calculation of three seasonal hours after daybreak.<span class="footnote">Terumat Hadeshen (siman 1), Magen Avraham (siman	58 note 1). Halichot Olam (vol. 1 page 107 & page 250), Yalkut Yosef (siman 58 halacha 3).</span> The seasonal hours for this stringency are calculated from Daybreak to Nightfall of Rabenu Tam.</p>
-					<h6>Birkhoth Keriath Shema End Time</h6>
-					<p>One may recite the blessings of Kriat Shema only until the end of the fourth seasonal hour of the day.<span class="footnote">Shulchan Aruch (siman 58). Halichot Olam (vol. 1 page 107).</span> Also, initially one should already finish the Shacharit prayer before this time.<span class="footnote">Shulchan Aruch (siman 89).</span> This is also the last time to eat hametz on Erev Pesach.<span class="footnote">Hazon Ovadya (Pesach, vol. 1 page 59).</span> The only distinction though is that  generally this time is calculated using the seasonal hour that is based from sunrise to sunset but in regard to hametz the seasonal hour is calculated from Daybreak to Nightfall of Rabenu Tam.<span class="footnote">Hazon Ovadya (Pesach, vol. 1 page 59). Luach Ohr HaChaim based on the ruling of Maran Harav Ovadya Yosef Zt”l.</span></p>
-					<h6>Hatzot - Midday</h6>
-					<p>Midday (“Hatzot”) is precisely halfway between sunrise & sunset.<span class="footnote">Hazon Ovadya (Yamim Noraim, page 3). See Ohr LeTzion (vol. 2 ch. 4 halacha 8; & ch. 15 halacha 2) who requires an additional seven minutes past this time. However, the halacha and custom follows Hacham Ovadya (see Levush 267, Gra 459, MeAvney HaMakom vol. 1 page 81).</span> It is the last time one may still pray Shacharit.<span class="footnote">Shulchan Aruch (siman 89)</span> The time of Hatzot also represents the halachic midnight time, which is exactly twelve fixed hours after midday.<span class="footnote">Hazon Ovadya (Yamim Noraim, page 3).</span> The time of halachic midnight bears ramifications regarding Selichot, Tachanun by Kriat Shema al HaMittah, and the Seder of Pesach, and other various halachot.</p>
-					<h6>Mincha Times</h6>
-					<p>The earliest one can pray mincha (“Mincha Gedolah”) is a seasonal half hour after the halachic midday.<span class="footnote">Shulchan Aruch (siman 233). Halichot Olam (vol. 1 page 252).</span> In the event the seasonal half hour is less than thirty fixed minutes the more stringent calculation of the fixed thirty minutes is imposed.<span class="footnote">Halacha Berurah (siman 233 law 3).</span></p>
-					<p>However, it is preferable for one to wait until the 9.5<sup>th</sup> seasonal hour into the day<span class="footnote">Yalkut Yosef 233:1</span>, as this is the time for "Mincha Ketanah". We list both times, should one be in need of praying earlier.</p>
-					<h6>Plag HaMincha</h6>
-					<p>Plag Hamincha is, as the hebrew name implies (Plag=half), the halftime point from Mincha Ketanah until Shekiya. A select few mitzvot of the night can start being done from now, such as accepting Shabbat early<span class="footnote">Orach Chayim, 273:4</span> or praying Tefilath Arvith when one already prayed Mincha.</p>
-					<p>The definitional method to calculate this time would be to measure the time between Mincha Ketanah and sunset (which spans 2½ seasonal hours, thereby making Plag Hamincha last 1¼ seasonal hours) and apply the split time backwards from the time called "ערב". Determining when "ערב" is, though, is disputed between R' Avraham Yosef + R' Yitzhak Yosef<span class="footnote">Yalkut Yosef (new edition, siman 271, pages 139 & 144-147)</span> (who say it's from צאת הכוכבים) vs R' David Yosef<span class="footnote">Kaf Hachaim (233:7), Halichot Olam (vol. 1 page 106 & page 248) & Halacha Berurah (siman 263 halacha 37).</span> (who says it's from sunset). Although the position of the Halacha Berurah seems more compelling, the opinion of the Yalkut Yosef is indeed supported by many authorities as well. Therefore, one may choose to follow either opinion lemaaseh. The calendar has followed the general seasonal hours (from sunrise to sunset) for calculating Plag, even within the method of the Yalkut Yosef.<span class="footnote">Like the Agur (end of 327), although the Terumat Hadeshen (siman 1) disagrees. This is also the practice of Luach Ohr HaChaim based on the ruling of Maran Harav Ovadya Yosef Zt”l.</span></p>
-					<h6>Night (Three Stars)</h6>
-					<p>Night in halacha is defined by the emergence of three stars.<span class="footnote">Massechet Shabbat 35b</span> Many Torah laws are predicated on the beginning of the night<span class="footnote">For example: 1) End of Mincha time (Y.Y. 235 5). 2)	End time of Hefsek Taharah (Taharat HaBayit vol. 2 pages 265-274). 3) Shvut beMakom Mitzvah on Friday afternoon (H.B. 261 1). 4) Earliest Kriat Shema of night (S.A. 235 1) and of many other mitzvot.</span>. Regarding most mitzvot, night begins 13½ seasonal minutes after sunset<span class="footnote">Maharam Al-Ashkar (siman 96) and see Maran in	Shulchan Aruch (siman 459 law 2 & Yoreh Deah siman 69 law 6).</span>. Calculating this time in the Amudeh Hora'ah calendar is also subject to the adjusted seasonal minutes definition, as described in the "Seasonal Hour" section.<span class="footnote">Some may wonder how it is possible for three stars to be	visible in such a short time after sunset? Several authorities explain that the sign of stars is indeed not so easily discernable to the average person even with good vision and visibility (see Yabia Omer vol. 7 siman 41 letter 7 in the name of Gra”z, Pnei Yehoshua, Gr”a). The reason behind this is as follows: Interestingly, the nature of the eye is as such that it is unable to immediately detect miniscule points within a broad picture! So, in order to see a small faint star in contrast to the vastly large sky background the eye must actually be fixated upon the star for some time before it can even discern it. This means that one must actually know ahead of time where the star is going to first appear and have his eye already focused on that precise spot and only then will he be able to see it at its first point of visibility (see Sefer “Layla VeYom Shel Torah” page 175; HaZemanim B’Halacha vol. 2 page 488-493). Additionally, in cities it becomes impossible to see three stars immediately at their emergence because of the street and housing lights that drown out the emerging light of the stars.</span></p>
-					<p>For the Amudeh Hora'ah calendar, the stringent time for night uses an identical methodology of calculating night except it places night at twenty seasonal minutes after sunset<span class="footnote">See Rambam Pirush HaMishna (Pesachim chapter 3	mishna 2).</span> instead of thirteen and a half. This time is meant to be used for listing the time of the end of fasts<span class="footnote">Hazon Ovadya (Arba Tzomot page 12). The Ben Ish Chai (vol. 1 VaYakhel 4 & vol. 2 Vayetzeh 1) & Ohr LeTzion (vol. 1 yoreh deah siman 10) hold to wait 27 minutes for it to be certainly night.</span> and regarding assessment whether to perform a Brit Milah on Shabbat (“Bizmano”).<span class="footnote">See Shulchan Aruch (Yoreh Deah 266 law 8-9) and Yabia Omer (vol. 7 siman 41) for more details regarding the case.</span></p>
-					<h6>Motzeh Shabbat</h6>
-					<p>Maran HaRav Ovadya Yosef Zt”l ruled that regarding Motzeh Shabbat the listed time should be set as 30 fixed minutes after sunset.<span class="footnote">See Yehave Daat (vol. 7 siman 56) Yalkut Yosef (New Edition siman 293 page 715) and Ohr HaChaim calendar. According to Rav Ovadya Yosef this time is only a stringency because Shabbat really ends 20 seasonal minutes after sunset. However, since the Ben Ish Chai (vol. 1 VaYakhel 4 & vol. 2 Vayetzeh 1) & Ohr LeTzion (vol. 1 y.d. siman 10) hold to wait at the very least 27 minutes for it to be certainly night and there is a basis to such a position in halacha, as we explained elsewhere, regarding Motzeh Shabbat one should certainly be cautious to not do melacha until this time. See Zivchey Tzedek (vol. 2 y.d. siman 17 page 66 & vol. 3 siman 104 page 198).</span> Since this ruling was for Israel, those who live in various other parts of the world must adjust the time accordingly. In order to properly conform to the physical reality consistent to thirty minutes in Israel, the Amudeh Hora'ah calendar has chosen to calculate the thirty minutes outside of Israel as interpreted into degrees (7.14º), which, in terms of fixed minutes after sunset, ends up varying based on both the season and location (between 34-42 minutes in New York). The Ohr Hachaim calendar, however, uses a more consistent 40 minutes, as per the ruling of Rabbi Meir Gavriel Elbaz.</p>
-					<h6>Rabenu Tam</h6>
-					<p>Maran HaRav Ovadya Yosef Zt”l held very strongly that for Motzeh Shabbat and Yom Kippur one should be stringent and abstain from melacha and most Rabbinic decrees until	72 minutes after sunset.<span class="footnote">Yabia Omer (vol. 2 siman 21) and many other locations.</span> However, many other authorities held that this isn’t essential lehalacha since historically only extremely pious individuals waited this long to take out the Shabbat.<span class="footnote">See Ohr LeTzion (vol. 4 chapter 20 footnote 2) & opinions mentioned in the footnote for Motzaeh Shabbat.</span> Nevertheless, the time is listed in this calendar, to afford those that wish to be strict that information. Based on the halachic rulings of the Yalkut Yosef and Halacha Berurah the 72 minutes are calculated in <b>the lesser</b> of two formats: 72 fixed minutes or 72 seasonal minutes.<span class="footnote">Halacha Berurah (intro to siman 261 19), Yalkut Yosef (New Edition siman 293 page 724). Yode’eh Binah (chapter 7 law 6).</span></p>
-					<h6>Molad (New Moon)</h6>
-					<p>The Molad (birth) of the new moon occurs at a specific time every lunar month where the moon "reappears" after it's dissappearance. The Talmud in Tractate Rosh Hashanah describes extensively how the Sanhedrin would interview the witnesses who saw the new moon and testified that it had occurred (on that day or the night before); that is, they would announce that Rosh Ḥodesh was that day had the witnesses been proven to report truthfully. In the event that no witnesses came to testify, Rosh Ḥodesh would be announced for the following day.</p>
-					<p>With our absence of a Sanhedrin, Hillel the 2<sup>nd</sup> established a formula to calculate the molad's for the foreseeable future until we have a Sanhedrin again. This formula is what all jewish calendars use today to determine the dates of the months.</p>
-					<p>The Molad is usually (in terms of Halacha) calculated as hours and Ḥalakim (where each Ḥelek is an 18<sup>th</sup> of a minute, making up 1080 Helakim in an hour). These are calculated using Har Habayit's local time, which factors in its own timezone<span class="footnote">The Israeli Standard/Daylight Timezone is centered to encompass Israel as a whole. However, timezones themselves are a recent creation dating back only a little over one hundred years ago, and is not reflective of the time of Har Habait themselves. As such, the average of Hatzot times on Har Habait is not 12:00 exactly but rather 11:39.</span>, which then happens at that moment everywhere else in the world<span class="footnote">Rav Yosef Eliyahu Henkin z”l (Edut LeYisrael page 146b letter 15) and many many more. See Amude Horaah (vol. 4 Biur Horaah siman 428).</span> (factoring in that, say, a molad on Sunday at 1:06 AM IST in Israel would be on Saturday night at 6:06 PM EST in New York due to timezone adjustments).</p>
-					<p>The practice of Ashkenazic communities (as well as some Sepharadic ones) is to announce the result of this formula during Birkat HaḤodesh. However, we omit this information in our calendar due to it not being part of the normative Sepharadic custom<span class="footnote">Hazon Ovadya (Hannuka page 258)</span>. Communities looking to announce it (in line with their tradition) should be careful to not follow the misleading ways that, in addition to not doing the proper adaptions (see paragraph above), fail to add the hours to sunset and instead apply the time from the arbitrary "12:00 AM".</p>
-					<h6>Birkat HaLevana</h6>
-					<p>Although the earliest time to recite Birkat HaLevana is <i>three</i> complete days after the calculated molad<span class="footnote">See Mishna Berurah (siman 426 letter 20).</span>, it is preferable (if possible, and wouldn't lead you to lose out on the Beracha<span class="footnote">Hazon Ovadya (Hannuka page 363). See, Kaf HaChaim (426 62) & Ohr LeTzion (vol. 3 chapter 4 law 6) who disagree with this leniency.</span>) to wait <i>seven</i> days instead, as per our Sepharadic tradition.<span class="footnote">Shulchan Aruch (siman 426 law 4).</span></p>
-					<p>The latest time to recite Birkat HaLevana according to Maran HaRav Ovadya Yosef Zt”l is the end of the night of the fifteenth of the Jewish month.<span class="footnote">Hazon Ovadya (Hannuka page 349). See next footnote. It is important to note that here we would certainly go based on each locations respective time since this measure is not fixated on the molad rather on the date itself.</span> Initially, one should try to recite the bracha even before that at the calculated halfway point of the month as the Rama writes in Siman 426 (halacha 3).<span class="footnote">Ruling of Maran HaRav Ovadya Yosef Zt”l pertaining	to calendar Ohr HaChaim. Especially in light of the opinions that there is a question of beracha levatalah after this time (see Rav Pealim vol. 2 siman 38, Kaf HaChaim 426 50 & 53, Ohr LeTzion vol. 3 chapter 4 law 6).</span></p>
-					<h6>Tekufa</h6>
-					<p>Tekufot are the Halachic equivalents of the yearly solar seasons, which we have four of yearly; Nissan/Spring, Tamuz/Summer, Tishri/Fall & Tevet/Winter. There are two practical concepts that depend on when the beginning<span class="footnote">רש”י על שמות ל”ד:כ”ב - “שֶׁהִיא בַחֲזָרַת - בִּתְחִלַּת”</span> of each Tekufa falls out:</p>
-					<p class="fakeListItem">Outside ארץ ישראל, we switch the text of תפילת שמונה עשרי from ברכנו to ברך עלינו after 60 days into Tekufat Tishri<span class="footnote">ש”ע או”ח קי”ז:י”א</span>. Although this currently corresponds to December 4<sup>th</sup> (or December 5<sup>th</sup>), this will drift outside of those days as the years go.</p>
-					<p class="fakeListItem">There is a custom that developed not to drink plain water at the beginning of the Tekufah itself<span class="footnote">רמ”א על יורה דעה קט”ז:ה</span>. Beyond those who follow this for the simple reason of starting off the Tekufah with something important<span class="footnote">תשובות הגאונים (מוסאפיה) סי’ י”ד</span> (for the sake of having a "rare event" to capture people's attention), the concept is stressed in a stronger fashion among Kabbalistic circles, warning of the spiritual danger that befalls during this time <span class="footnote">פרי חדש על ש”ע או”ח סוף סימן תכ”ח מזהיר על חשש המוות</span>. As such, some took an additional “time-buffer” before and after the time. Although they range from 15 minutes<span class="footnote">חיד”א, שו”ת יוסף אומץ סימן מ”ב</span> to 3 hours <span class="footnote">מנהגי מהרי”ל בליקוטים של סימן נו</span>, the common customs have been to wait either an hour and a half prior and following<span class="footnote">Rabbi Mazuz on Djerban Minhagim; רמ”ך בברית כהונה - חלק אורח חיים מערכת ת’ אותיות כ”א-כ”ה</span>, or half an hour prior and following<span class="footnote">נהר מצרים, דף עז ע”ב; ר’ אלינו חזון בספר נוה שלום סימן קט”ז אות ה</span>. Maran zt”l concludes like the latter of the two, as recorded in Halichot Olam (vol. VII, pg. 183).</p>
-					<hr>
-					<p>To know which date a תקופה will fall out on, one must have a point of reference when a known תקופה was. The easiest known תקופה is the one recorded in משנה תורה, הלכות קידוש החדש (9:4), due to it being the first תקופה of the world. From there, you’ll need to add the length of a season, which is as simple as taking the length of a year divided by four.</p>
-					<p class="fakeListItem">We hold like שמואל (Bavli Eruvin, 56a) that a year is 365.25 days. Thereby, dividing that into four gives us the season’s length of 91 days, 7 hours and 30 minutes. This rounded value of 365.25 is used for the sake of being easier to keep track of (Hazon Ish - OC Siman 138, se’if katan 4).</p>
-					<p class="fakeListItem">A further debate is whether these Tekufot used a fixed clock time of 12:00 PM or used local Israel Hatzot. Although the Ohr Hachaim calendar uses the fixed clock time like Rav Tuchanski does in his calendar, the תנובות שדה (Rav Aharon Boron) takes issue with this due to the arbitrary nature of a 12:00 midpoint. As such, the עמודי הוראה calendar (as well with the unofficial לוח ילקוט יוסף) uses the local Israel Hatzot time of 11:39 AM, which is only a -21 minute difference. For the water warning above, it is possible to accomodate both by starting the time period with R Boron’s time and finishing by the time listed in the Ohr Hachaim calendar.</p>
-				</div>
+				<div style="columns: 4;">{{ fullExpl | markdownify }}</div>
 			</div>
 		</div>
 	</div>
