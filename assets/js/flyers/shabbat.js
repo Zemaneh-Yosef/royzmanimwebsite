@@ -25,7 +25,7 @@ ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 amudehHoraahCal.configSettings(true, settings.customTimes.tzeithIssurMelakha());
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 18 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 25 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
 if (jCal.getDate().dayOfWeek != 6)
@@ -178,4 +178,26 @@ for (const elem of elems) {
 			};
 		}
 	}
+}
+
+for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) {
+	const omerJCal = jCal.clone();
+	omerJCal.setDate(shabbatDate.subtract({ days: parseInt(sefiraElement.getAttribute('data-sefira-backday')) }).add({ days: 1 }));
+
+	let shitaOptions = document.getElementById('gridElement')
+		.getAttribute('data-functions-backday-' + parseInt(sefiraElement.getAttribute('data-sefira-backday')))
+		.split(" ");
+
+	let headerText = omerJCal.getDayOfOmer().toString();
+	if (!(shitaOptions.some(shita => shita.startsWith('getTzait'))))
+		headerText += ` after ${amudehHoraahCal
+			.chainDate(omerJCal.getDate().subtract({ days: 1 }))
+			.getTzait()
+			.toLocaleString('en', { hourCycle: "h12", hour: "numeric", minute: "2-digit"})}`;
+
+	const sefiraText = "הַיּוֹם " +  omerJCal.getOmerInfo().title.hb.mainCount + ` לָעֹמֶר` +
+	(omerJCal.getDayOfOmer() >= 7 ? (`, שֶׁהֵם ` + omerJCal.getOmerInfo().title.hb.subCount.toString()) : '');
+
+	sefiraElement.firstElementChild.appendChild(document.createTextNode(headerText));
+	sefiraElement.appendChild(document.createTextNode(sefiraText))
 }

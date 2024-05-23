@@ -1,6 +1,6 @@
 ---
-title: Shabbat Queens Times
-permalink: /shabbat-design/queens
+title: Shabbat Queens Times (+ Sefira)
+permalink: /shabbat-design/queens-sefira
 breakout: true
 website: true
 ---
@@ -50,7 +50,7 @@ website: true
         align-self: end;
         justify-self: end;
         transform: rotateY(180deg);
-        width: 50%;
+        width: 45%;
         z-index: 3;
         margin-bottom: 9rem;
     }
@@ -130,9 +130,7 @@ website: true
 
     .shabbatRow {
         margin-top: .3vw;
-        margin-bottom: .3vw;
         padding-top: .25vw;
-        padding-bottom: .25vw;
         font-size: 2.75vw;
         font-weight: 700;
     }
@@ -173,7 +171,7 @@ website: true
         -moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
     }
 
-    .shabBorder:not(:nth-last-child(2)) {
+    .shabBorder {
         border-right: .25vw solid black;
     }
 
@@ -296,6 +294,19 @@ website: true
         padding: .25rem 1rem;
         align-content: end;
     }
+
+    .sefira {
+        font-family: "Guttman Mantova", 'Neutro';
+        font-size: 2em;
+        line-height: 1.2;
+        padding-left: .5em;
+        padding-right: .5em;
+        padding-bottom: .5em;
+    }
+
+    .sefira [data-sefira-header] {
+        font-family: 'Neutro';
+    }
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -325,8 +336,14 @@ website: true
         <div class="shabbatRow timeshow shabBorder" style="grid-column: 1; grid-row: 2;">Early Time</div>
         <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 2;">Start Time</div>
         <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: 2;">End Time</div>
-        <div class="shabbatRow timeshow shabBorder" style="grid-column: 4; grid-row: 2;">Machmir Time</div>
-        <div class="shabbatRowBg tableShadow" style="grid-row: 2;"></div>
+        <div class="shabbatRow timeshow" style="grid-column: 4; grid-row: 2;">Machmir Time</div>
+        <div class="shabBorder timeshow sefira" data-sefira-backday="1" style="grid-column: 1 / span 2; grid-row: 3;">
+            <div data-sefira-header><b>Sefira at Night: </b></div>
+        </div>
+        <div class="timeshow sefira" data-sefira-backday="0" style="grid-column: 3 / span 2; grid-row: 3;">
+            <div data-sefira-header><b>Sefira at Night: </b></div>
+        </div>
+        <div class="shabbatRowBg tableShadow" style="grid-row: 2 / span 2;"></div>
     </div>
     <!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
     <span id="zemanehShab">Shabbat<br>Zemanim</span>
