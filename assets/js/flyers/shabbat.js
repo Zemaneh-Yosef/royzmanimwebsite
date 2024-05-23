@@ -201,3 +201,10 @@ for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) 
 	sefiraElement.firstElementChild.appendChild(document.createTextNode(headerText));
 	sefiraElement.appendChild(document.createTextNode(sefiraText))
 }
+
+for (const dateDisplay of document.querySelectorAll('[data-dateRender-backday]')) {
+	const dateJCal = jCal.clone();
+	dateJCal.setDate(shabbatDate.subtract({ days: parseInt(dateDisplay.getAttribute('data-dateRender-backday')) }));
+
+	dateDisplay.innerHTML = dateJCal.formatFancyDate()
+}
