@@ -1,0 +1,388 @@
+---
+title: Shabbat Monsey Times (+ Sefira)
+permalink: /shabbat-design/monsey-sefira
+breakout: true
+website: true
+---
+
+<style>
+    .maxWidthContainer {
+        width: clamp(16rem, 90vw, 90rem);
+        font-family: 'Neutro';
+        color: #30344F;
+    }
+
+    #sidebar, .navbar {
+        display: none !important;
+    }
+
+    #wrapperElement {
+        width: 100%;
+        aspect-ratio: 1/1.5;
+
+        position: relative;
+        display: grid;
+
+        background-image: url("/assets/images/shabbat-abstract/single-location-bg.png"), linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
+        background-size: cover;
+    }
+
+    #zyTrapezoid {
+        justify-self: center;
+        align-self: start;
+        width: 60%;
+        border-top: 175px solid #12141e;
+	    border-left: 125px solid transparent;
+	    border-right: 125px solid transparent;
+	    height: 0;
+    }
+
+    #wrapperElement > *:not(.lechaDodi):not(#shabbatCandles) {
+        grid-area: 1/1;
+    }
+
+    .footerBold {
+        font-weight: 700;
+    }
+
+    #maran {
+        grid-area: 1/1;
+        align-self: end;
+        justify-self: end;
+        transform: rotateY(180deg);
+        width: 42.5%;
+        z-index: 3;
+        margin-bottom: 9rem;
+    }
+
+    .lechaDodi {
+        position: absolute;
+        transform: rotateZ(7deg);
+        color: #F6E3A9;
+        font-size: 3.75vw;
+        text-align: center;
+        font-family: 'Guttman Mantova';
+        line-height: 1;
+    }
+
+    #lechaDodi {
+        top: 26vw;
+        right: 4vw;
+    }
+
+    #likratKalah {
+        top: 30vw;
+        right: 8.5vw;
+    }
+
+    #pnehShabbathNekabelah {
+        top: 35.5vw;
+        right: 2.5vw;
+    }
+
+    #zemanehShab {
+        align-self: start;
+        justify-self: start;
+        font-family: 'Barlow';
+        font-size: 13.25vw;
+        font-weight: 700;
+        font-style: italic;
+        top: 30vw;
+        color: transparent;
+        background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
+        -webkit-background-clip: text;
+        line-height: .85;
+        text-transform: uppercase;
+        margin-top: 12.5vw;
+        margin-left: 2.5vw;
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+    }
+
+    #gridElement {
+        top: 42.5vw;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        display: grid;
+        left: 2.5vw;
+        right: 2.5vw;
+        position: absolute;
+    }
+
+    #shabbatCandles {
+        position: absolute;
+        align-self: end;
+        width: 80%;
+        right:0;
+        bottom: 5vw;
+        z-index: 1;
+        opacity: 50%;
+    }
+
+    #bottomWave {
+        align-self: end;
+        width: 100%;
+        z-index: 2;
+    }
+
+    .timeshow {
+        text-align: center;
+        z-index: 5;
+    }
+
+    .shabbatRow {
+        margin-top: .3vw;
+        padding-top: .25vw;
+        font-size: 2.75vw;
+        font-weight: 700;
+    }
+
+    .timecalc {
+        background-color: #F1E79F;
+        font-weight: 700;
+        padding-left: 0.5vw;
+        padding-right: 1vw;
+        text-transform: uppercase;
+        border-right: .25vw solid black;
+    }
+
+    .shabbatRowBg {
+        background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
+        grid-column: 1 / span 4; 
+        margin-top: .3vw;
+        margin-bottom: .3vw;
+        z-index: 2;
+    }
+
+    .header {
+        padding: 0.5vw;
+        background: #D9BB65;
+        margin-left: .6vw;
+        margin-right: .6vw;
+        color: black;
+        text-transform: uppercase;
+        text-align: center;
+        line-height: 1.2;
+        font-weight: 600;
+        font-size: 1.75em;
+    }
+
+    .tableShadow {
+        box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+        -webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+        -moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+    }
+
+    .shabBorder {
+        border-right: .25vw solid black;
+    }
+
+    .twoLine {
+        line-height: .4;
+        padding-top: 1vw;
+    }
+
+    .sml {
+        font-size: 10px;
+    }
+
+    .inlineLogo {
+        display: inline-block;
+        font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
+        vertical-align: text-top;
+        font-size: 1.1em;
+    }
+
+    .inlineLogo.notchPosition {
+        font-size: 10.5em;
+        justify-self: center;
+        align-self: start;
+        z-index: 10;
+        background-image: linear-gradient(to bottom, #FFF2B3 0%, #D6B961 100%);
+        -webkit-background-clip: text;
+        color: transparent;
+        background-size: 100% 80%;
+        background-repeat: no-repeat;
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+        margin-top: -40px;
+        line-height: 1.5;
+    }
+
+    #gne {
+        height: 112px;
+        justify-self: start;
+        align-self: start;
+        margin-top: 2.5rem;
+        margin-left: 2.5rem;
+    }
+
+    #prettyLDSurround {
+        justify-self: end;
+        align-self: start;
+        margin-top: 12.5%;
+        width: 32.5%;
+    }
+
+    #bsD {
+        font-family: "Narkisim";
+        justify-self: end;
+        line-height: 1;
+        padding-right: 4.5rem;
+        color: #FFF2B3;
+        font-size: 6rem;
+        padding-top: 3rem;
+        align-self: start;
+    }
+
+    #location {
+        align-self: start;
+        justify-self: start;
+        font-family: 'Barlow', 'FrankRuehl';
+        font-size: 3.5vw;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+        margin-top: 34.625vw;
+        margin-left: 2.5vw;
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+        line-height: 1;
+    }
+
+    .shabbatTitleCore {
+        font-size: 1.45em;
+    }
+
+    #templateAd {
+        align-self: center;
+        justify-self: start;
+        border-radius: 50%;
+        margin-top: 60%;
+        margin-left: 15%;
+    }
+
+    #advertFooter {
+        justify-self: start;
+        padding-bottom: 11.25rem;
+        padding-left: 1rem;
+        font-size: 2.125em;
+        font-weight: 600;
+        line-height: 1.2;
+        z-index: 3;
+        align-self: end;
+    }
+
+    #sourcesFooter {
+        font-size: 1.625em;
+        line-height: 1.25;
+    }
+    #sourcesFooter ul {
+        line-height: 1.15;
+    }
+
+    #credits {
+        font-size: 2.125em;
+        text-align: right;
+        line-height: 1.25;
+        font-weight: 600;
+    }
+
+    #documentClosure {
+        height: 9rem;
+        align-self: end;
+        background: linear-gradient(to right, rgba(4,4,6,1) 0%, #24293D 100%);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        padding: .25rem 1rem;
+        align-content: end;
+    }
+
+    .sefira {
+        font-family: "Guttman Mantova", 'Neutro';
+        font-size: 2em;
+        line-height: 1.2;
+        padding-left: .5em;
+        padding-right: .5em;
+        padding-bottom: .5em;
+    }
+
+    .sefira [data-sefira-header] {
+        font-family: 'Neutro';
+    }
+
+    #gridElement [data-dateRender-backday] {
+        color: white;
+        text-align: center;
+        font-size: 3.5em;
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.7));
+        font-weight: 700;
+        text-shadow: 0px 0px 16px rgba(0, 0, 0, 0.8);
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Frank+Ruhl+Libre:wght@300..900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+    <div id="zyTrapezoid"></div>
+    <span class="inlineLogo notchPosition">זמני יוסף</span>
+    <img id="gne" src="/assets/images/shabbat-abstract/pomona-logo.png" />
+    <span id="bsD">בס"ד</span>
+    <div id="gridElement"
+        data-functions-backday-1="getPlagHaminhaHalachaBrurah getCandleLighting"
+        data-functions-backday-0="getTzaitShabbath getTzaitRT"
+    >
+        <div style="grid-row: 1; grid-column: 1 / span 2;" data-dateRender-backday="1"></div>
+        <div style="grid-row: 1; grid-column: 3 / span 4;" data-dateRender-backday="0"></div>
+        <div class="header tableShadow">Earliest Time</div>
+        <div class="header tableShadow">Shabbat Starts<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
+        <div class="header tableShadow">Shabbat Ends</div>
+        <div class="header tableShadow">Rabbenu Tam</div>
+        <div class="shabbatRow tableShadow timecalc"
+            data-lat="41.198124" data-lng="-74.055571"
+            data-timezone="America/New_York"
+            data-format="h12"
+            style="display: none;">
+        </div>
+        <div class="shabbatRow timeshow shabBorder" style="grid-column: 1; grid-row: 3;">Early Time</div>
+        <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 3;">Start Time</div>
+        <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: 3;">End Time</div>
+        <div class="shabbatRow timeshow" style="grid-column: 4; grid-row: 3;">Machmir Time</div>
+        <div class="shabBorder timeshow sefira" data-sefira-backday="1" style="grid-column: 1 / span 2; grid-row: 4;">
+            <div data-sefira-header><b>Sefira at Night: </b></div>
+        </div>
+        <div class="timeshow sefira" data-sefira-backday="0" style="grid-column: 3 / span 2; grid-row: 4;">
+            <div data-sefira-header><b>Sefira at Night: </b></div>
+        </div>
+        <div class="shabbatRowBg tableShadow" style="grid-row: 3 / span 2;"></div>
+    </div>
+    <!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
+    <span id="zemanehShab">Shabbat<br>Zemanim</span>
+    <div id="location">Monsey, NY • <span class="shabbatTitleCore">פרשת </span></div>
+    <!-- <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png"> -->
+    <span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
+    <span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
+    <span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
+    <div id="advertFooter">
+        Halachic Shabbat Times according to<br>Rabbi Ovadiah Yosef zt"l.<br>
+        Use our apps & website for other locations,<br>available on iOS & Android • royzmanim.com
+    </div>
+    <div id="documentClosure">
+        <div id="sourcesFooter">
+            <b>Sources:</b>
+            <ul>
+                <li><b>Halacha Berurah</b> - Introduction to 261:21</li>
+                <li><b>Yechave Da'at</b> 7:56</li>
+                <li><b>Yabia' Omer</b> 2:21</li>
+            </ul>
+        </div>
+        <div id="credits">
+            Graphic Design by<br>
+            AK-Graphics<br>
+            (917) 549-5138
+        </div>
+    </div>
+    <img src="/assets/images/MARAN.png" id="maran">
+</div>
+
+<script type="module" src="/assets/js/flyers/shabbat.js"></script>
