@@ -429,13 +429,9 @@ baseTable.remove();
 document.documentElement.setAttribute('forceLight', '')
 document.documentElement.removeAttribute('data-bs-theme');
 
-const finalExplanation = document.querySelector('[data-printFind]');
-
 let paged = new Previewer();
-let flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
+let flow = await paged.preview(document.getElementsByTagName("main")[0], ["/assets/css/print-year/footnotes.css", "/assets/css/print-year/pagedjs.css"], document.body);
 console.log("Rendered", flow.total, "pages.");
-
-finalExplanation.style.display = "none";
 
 Array.from(document.getElementsByClassName('pagedjs_footnote_inner_content'))
     .forEach(elem => {
@@ -443,7 +439,7 @@ Array.from(document.getElementsByClassName('pagedjs_footnote_inner_content'))
             elem.style.setProperty('columns', '4')
     });
 
-const elems = [
+/* const elems = [
     'pagedjs_margin-top-left-corner-holder',
     'pagedjs_margin-top',
     'pagedjs_margin-top-right-corner-holder',
@@ -460,6 +456,6 @@ const elems = [
 ['top', 'right', 'left', 'bottom']
     .forEach(dir => elems.forEach(elem => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
 
-Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEach(elem => elem.style.gridRow = 'unset')
+Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEach(elem => elem.style.gridRow = 'unset') */
 
 window.print();

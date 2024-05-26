@@ -14,94 +14,11 @@ layout: nothing
 	<p>However, you are free to look at descriptions</p>
 </noscript>
 
+<link href="/assets/css/print-year/layout.css" rel="stylesheet" />
 <link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
-
-<style>
-	.tableGrid {
-		width: 100%;
-		display: grid;
-		text-align: center;
-		font-size: .65em;
-		line-height: 1.25;
-	}
-
-	.tableCell {
-		align-content: center;
-	}
-
-	.tableHeader {
-		font-weight: bold;
-		padding-right: .125em;
-		padding-left: .125em;
-		align-content: center;
-	}
-
-	[data-zyHeader] {
-		text-align: center;
-		line-height: 1;
-		page-break-before: always;
-	}
-
-	[data-zyHeader]>*:not(h3) {
-		font-family: 'Guttman Mantova-Decor', 'Javar';
-		margin-bottom: 0;
-	}
-
-	.special {
-		display: flex;
-	}
-
-	.explanationPreface {
-		line-height: 1.325;
-	}
-
-	.explanationPreface p,
-	.explanationPreface ol,
-	.explanationPreface ul,
-	.pagedjs_pages p,
-	.pagedjs_pages ol,
-	.pagedjs_pages ul {
-		margin-bottom: .5rem;
-		font-size: .8em;
-		text-align: justify;
-	  text-justify: inter-word;
-	}
-
-	.explanationPreface h6,
-	.pagedjs_pages h6 {
-		margin-bottom: .25rem;
-	}
-
-	.pagedjs_footnote_inner_content {
-		font-size: .65em;
-	}
-
-	body {
-		font-family: "Spectral", serif;
-	}
-
-	.explanationPreface .fakeListItem,
-	.pagedjs_pages .fakeListItem {
-		margin-left: 10px; /* Set the desired margin */
-		position: relative;
-		margin-bottom: .25rem;
-	}
-
-	.explanationPreface .fakeListItem::before,
-	.pagedjs_pages .fakeListItem::before {
-		/* Create a pseudo-element to act as the bullet point */
-		content: "\2022"; /* Unicode bullet point (•) */
-		position: absolute;
-		left: -10px; /* Position the bullet point to the left of the text */
-	}
-
-	.omerText {
-		font-size: .75em;
-	}
-</style>
 
 <div class="explanationPreface">
 	<h4 style="text-align: center;">Differences Explanation</h4>
@@ -117,7 +34,7 @@ layout: nothing
 	<h3><span class="lang lang-hb">זמנים של</span><span class="lang lang-et">Location:</span><span class="lang lang-en">Location:</span> </h3>
 </div>
 
-<main>
+<div>
 	<div class="tableGrid" data-zyTemplate>
 		<div class="tableHeader" data-zyData="special" style="grid-row: 1 / span 2;"></div>
 		<div class="tableHeader" data-zyData="date" style="grid-row: 1 / span 2;"></div>
@@ -144,38 +61,7 @@ layout: nothing
 		{% endif %}
 		{% endfor %}
 	</div>
-</main>
-
-<style>
-	@page {
-		size: letter landscape;
-		bleed: 0;
-		margin: 10mm;
-	}
-
-	.pagedjs_pagebox {
-		display: block;
-		height: calc(var(--pagedjs-pagebox-height) - 10mm);
-	}
-
-	.pagedjs_page.pagedjs_right_page {
-		height: calc(var(--pagedjs-height-right) - 10mm);
-	}
-
-	.pagedjs_page.pagedjs_left_page {
-		height: calc(var(--pagedjs-height-left) - 10mm);
-	}
-
-	.pagedjs_right_page .pagedjs_sheet {
-		display: block;
-		height: calc(var(--pagedjs-height-right) - 10mm);
-	}
-
-	.pagedjs_left_page .pagedjs_sheet {
-		display: block;
-		height: calc(var(--pagedjs-height-left) - 10mm);
-	}
-</style>
+</div>
 
 <div style="page-break-before: always;">
 	<div>

@@ -1,0 +1,81 @@
+.tableGrid {
+    width: 100%;
+    display: grid;
+    text-align: center;
+    font-size: .65em;
+    line-height: 1.25;
+}
+
+.tableCell {
+    align-content: center;
+}
+
+.tableHeader {
+    font-weight: bold;
+    padding-right: .125em;
+    padding-left: .125em;
+    align-content: center;
+}
+
+[data-zyHeader] {
+    text-align: center;
+    line-height: 1;
+    page-break-before: always;
+}
+
+[data-zyHeader]>*:not(h3) {
+    font-family: 'Guttman Mantova-Decor', 'Javar';
+    margin-bottom: 0;
+}
+
+.special {
+    display: flex;
+}
+
+.explanationPreface {
+    line-height: 1.325;
+}
+
+.explanationPreface p,
+.explanationPreface ol,
+.explanationPreface ul,
+.pagedjs_pages p,
+.pagedjs_pages ol,
+.pagedjs_pages ul {
+    margin-bottom: .5rem;
+    font-size: .8em;
+    text-align: justify;
+  text-justify: inter-word;
+}
+
+.explanationPreface h6,
+.pagedjs_pages h6 {
+    margin-bottom: .25rem;
+}
+
+.pagedjs_footnote_inner_content {
+    font-size: .65em;
+}
+
+body {
+    font-family: "Spectral", serif;
+}
+
+.explanationPreface .fakeListItem,
+.pagedjs_pages .fakeListItem {
+    margin-left: 10px; /* Set the desired margin */
+    position: relative;
+    margin-bottom: .25rem;
+}
+
+.explanationPreface .fakeListItem::before,
+.pagedjs_pages .fakeListItem::before {
+    /* Create a pseudo-element to act as the bullet point */
+    content: "\2022"; /* Unicode bullet point (•) */
+    position: absolute;
+    left: -10px; /* Position the bullet point to the left of the text */
+}
+
+.omerText {
+    font-size: .75em;
+}

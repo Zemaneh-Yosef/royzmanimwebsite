@@ -1,10 +1,4 @@
 @page {
-    size: letter landscape;
-    bleed: 0;
-    margin: 10mm;
-}
-
-@page {
     counter-reset: footnote 0;
 }
 
