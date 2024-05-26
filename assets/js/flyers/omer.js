@@ -24,6 +24,12 @@ amudehHoraahCal.setDate(jCal.getDate())
 if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.location.href.includes("forceShabbat")) {
 	document.getElementById("gridElement").remove();
 	document.getElementById("earliestTimeAlert").remove();
+
+	const footer = document.getElementById("footer");
+	footer.innerHTML =
+		`Flyer provided by <span class="inlineLogo">זמני יוסף</span>, the app for Rabbi Ovadiah Yosef's Zemanim<br>`
+		+ `Install now for iOS & Android - royzmanim.com`
+	footer.style.fontSize = "1.8em";
 } else {
 	if (jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) {
 		document.getElementById("earliestTimeAlert").innerHTML = "Proper time of night"
