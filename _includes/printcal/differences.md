@@ -18,7 +18,7 @@ The Talmudic way of referring to the length of time behind these times is a "mil
 
 When reporting the times for the calendar, the given time differs from the sunrise/sunset times used to compute seasonal hours in the following regards:
 - These times will always be shown without elevation (regardless of whether elevation is used for calculating the other times (like in the Ohr Hachaim calendar) or not (like in the Amudeh Hora'ah calendar)).
-- The sunrise time will use the "Visible Sunrise" scraped from the ChaiTables.com website if the user had scraped it prior to generating this PDF.
+- If the user has scraped "Visual Sunrise" times from the ChaiTables.com website, they will be included in this PDF, as indicated by the inclusion of seconds.
 
 These times are provided from the **NOAA algorithm**.
 

@@ -278,9 +278,9 @@
 - id: tzeit
   shitot:
     - names:
-        hb: 13.5
-        en: 13.5
-        et: 13.5
+        hb: שיטת מרן
+        en: Regular
+        et: Regular
       timeGetter: getTzait
       id: regular
     - names:

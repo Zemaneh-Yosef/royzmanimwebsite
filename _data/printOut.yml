@@ -58,7 +58,6 @@
     hb: זמן מנחה
     et: Zman Minḥa
     en: Minḥa Times
-  descriptionInclude: zmanDescription/mincha.md
 - shitot:
     - names:
         hb: ה"ב
@@ -83,9 +82,9 @@
     en: Sunset
 - shitot:
     - names:
-        hb: 13.5
-        en: 13.5
-        et: 13.5
+        hb: שיטת מרן
+        en: Regular
+        et: Regular
       timeGetter: getTzait
       id: regular
     - names:

@@ -2,7 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
-import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
+import { HebrewNumberFormatter, getOrdinal } from "../WebsiteCalendar.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { settings } from "../settings/handler.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
@@ -52,6 +52,10 @@ const header = document.querySelector('[data-zyHeader] h3');
 header.appendChild(document.createTextNode(geoLocation.getLocationName()))
 
 function handleShita (/** @type {string} */ shita) {
+    const omerSpan = document.createElement("span");
+    omerSpan.classList.add("omerText");
+    omerSpan.innerHTML = getOrdinal(jCal.tomorrow().getDayOfOmer(), true) + " of omer";
+
     const div = document.createElement('div');
     div.classList.add('tableCell')
     switch (shita) {
@@ -255,28 +259,60 @@ function handleShita (/** @type {string} */ shita) {
                 else if (jCal.getDayOfWeek() === 7)
                     div.appendChild(document.createTextNode(zmanCalc.getTzaitShabbath().toLocaleString(...dtF)));
                 else
-                    div.appendChild(document.createTextNode(zmanCalc.getTzaitLechumra().toLocaleString(...dtF)));
+                    return false;
             }
             break;
         case 'getTzaitShabbath':
             if (!jCal.hasCandleLighting() && jCal.isAssurBemelacha()) {
                 div.appendChild(document.createTextNode(zmanCalc.getTzaitShabbath().toLocaleString(...dtF)));
+                if (jCal.tomorrow().getDayOfOmer() !== -1) {
+                    div.appendChild(document.createElement("br"));
+                    div.appendChild(omerSpan);
+                }
             }
             break;
         case 'getTzait':
             if (!jCal.isAssurBemelacha()) {
                 div.appendChild(document.createTextNode(zmanCalc.getTzait().toLocaleString(...dtF)))
+                if (jCal.tomorrow().getDayOfOmer() !== -1) {
+                    div.appendChild(document.createElement("br"));
+                    div.appendChild(omerSpan);
+                }
             }
             break;
-        default:
-            div.appendChild(document.createTextNode(zmanCalc[shita]().toLocaleString(...dtF)));
-    }
+        case 'getTzaitLechumra':
+            let appear = false;
+            if (zmanCalc instanceof OhrHachaimZmanim) {
+                if (jCal.isTaanis() && !jCal.isYomKippur()) {
+                    appear = true;
+                    div.appendChild(document.createTextNode(zmanCalc.getTzait().add({ minutes: 20 }).toLocaleString(...dtF)))
+                    div.style.fontWeight = "bold";
+                }
+            } else {
+                appear = true;
+                div.appendChild(document.createTextNode(zmanCalc.getTzaitLechumra().toLocaleString(...dtF)))
+                if (jCal.isTaanis() && !jCal.isYomKippur()) {
+                    div.style.fontWeight = "bold";
+                }
+            }
 
-    if (jCal.isTaanis()
-     && !jCal.isYomKippur()
-     && jCal.getYomTovIndex() !== WebsiteLimudCalendar.TISHA_BEAV
-     && ['getAlotHashachar', 'getTzaitLechumra'].includes(shita)) {
-        div.style.fontWeight = "bold";
+            if (appear && jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7) {
+                div.style.gridColumnEnd = "span 2";
+                if (jCal.tomorrow().getDayOfOmer() !== -1) {
+                    div.appendChild(document.createElement("br"));
+                    div.appendChild(omerSpan);
+                }
+            }
+
+            break;
+        case 'getAlotHashachar':
+            div.appendChild(document.createTextNode(zmanCalc.getAlotHashachar().toLocaleString(...dtF)));
+            if (jCal.isTaanis() && jCal.getJewishMonth() !== WebsiteLimudCalendar.AV && !jCal.isYomKippur())
+                div.style.fontWeight = "bold";
+            break;
+        default:
+            // @ts-ignore
+            div.appendChild(document.createTextNode(zmanCalc[shita]().toLocaleString(...dtF)));
     }
 
     return div;
@@ -309,6 +345,9 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
         for (const shita of listAllShitot) {
             const cell = handleShita(shita);
 
+            if (!cell)
+                continue;
+
             if (index !== halfDaysInMonth)
                 cell.style.borderBottom = '1px solid #21252922';
 
@@ -337,7 +376,10 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
         zmanCalc.setDate(plainDateForLoop.withCalendar("iso8601"))
 
         for (const shita of listAllShitot) {
-            const cell = handleShita(shita)
+            const cell = handleShita(shita);
+
+            if (!cell)
+                continue;
 
             if (index !== lastDayOfMonth)
                 cell.style.borderBottom = '1px solid #21252922';
