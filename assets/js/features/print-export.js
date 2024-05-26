@@ -310,6 +310,39 @@ function handleShita (/** @type {string} */ shita) {
             if (jCal.isTaanis() && jCal.getJewishMonth() !== WebsiteLimudCalendar.AV && !jCal.isYomKippur())
                 div.style.fontWeight = "bold";
             break;
+        case 'getNetz':
+            let sunString = zmanCalc.getNetz().toLocaleString(...dtF);
+
+            /**
+             * @param {string} str
+             */
+            function isValidJSON(str) {
+                try {
+                    JSON.parse(str);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+            if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
+                const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
+                if (ctNetz.lat == zmanCalc.coreZC.getGeoLocation().getLatitude()
+                 && ctNetz.lng == zmanCalc.coreZC.getGeoLocation().getLongitude()) {
+                    /** @type {KosherZmanim.Temporal.ZonedDateTime[]} */
+                    const timeSheet = ctNetz.times
+                        .map((/** @type {number} */ value) => KosherZmanim.Temporal.Instant
+                            .fromEpochSeconds(value)
+                            .toZonedDateTimeISO(zmanCalc.coreZC.getGeoLocation().getTimeZone())
+                        )
+
+                    let visibleSunrise = timeSheet.find(zDT => Math.abs(zmanCalc.getNetz().until(zDT).total('minutes')) <= 6)
+                    if (visibleSunrise)
+                        sunString = visibleSunrise.toLocaleString(dtF[0], {...dtF[1], second: '2-digit'})
+                }
+            }
+
+            div.appendChild(document.createTextNode(sunString));
+            break;
         default:
             // @ts-ignore
             div.appendChild(document.createTextNode(zmanCalc[shita]().toLocaleString(...dtF)));
