@@ -65,9 +65,10 @@ layout: nothing
 	.pagedjs_pages ol,
 	.pagedjs_pages ul {
 		margin-bottom: .5rem;
-		font-size: .8em;
+		font-size: .855em;
 		text-align: justify;
-	  text-justify: inter-word;
+		text-justify: inter-word;
+		word-break: keep-all;
 	}
 
 	.explanationPreface h6,
@@ -175,6 +176,10 @@ layout: nothing
 		display: block;
 		height: calc(var(--pagedjs-height-left) - 10mm);
 	}
+
+	[data-column-split], .pagedjs_footnote_inner_content {
+		columns: 4;
+	}
 </style>
 
 <div style="page-break-before: always;">
@@ -182,8 +187,8 @@ layout: nothing
 		<div data-printFind>
 			<div class="explanationPreface">
 				<h4 style="text-align: center;">Calendar Explanation</h4>
-				<p style="text-align: center;">We aim here to go through each Zeman and give a synopsis definition of what the Zeman is about. Keep in mind that due to our focus of just giving a specific-ROY perspective, we will be going from the Rambam onwards; anyone wanting to look at sources from the Talmud (or even earlier) should look at our website, royzmanim.com</p>
-				<div style="columns: 4;">{{ fullExpl | markdownify }}</div>
+				<p style="text-align: center;">In this section of the calendar, we aim to explain every Halachic time in brief for both calculation and concept. One looking to read more on each time should read the descriptions for each on our website, royzmanim.com, where we give Talmudic based sources in addition to all the later Poskim we already bring in this document.</p>
+				<div data-column-split>{{ fullExpl | markdownify }}</div>
 			</div>
 		</div>
 	</div>

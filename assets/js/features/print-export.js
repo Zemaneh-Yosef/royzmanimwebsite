@@ -437,12 +437,6 @@ console.log("Rendered", flow.total, "pages.");
 
 finalExplanation.style.display = "none";
 
-Array.from(document.getElementsByClassName('pagedjs_footnote_inner_content'))
-    .forEach(elem => {
-        if (elem instanceof HTMLElement)
-            elem.style.setProperty('columns', '4')
-    });
-
 const elems = [
     'pagedjs_margin-top-left-corner-holder',
     'pagedjs_margin-top',
@@ -461,5 +455,6 @@ const elems = [
     .forEach(dir => elems.forEach(elem => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
 
 Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEach(elem => elem.style.gridRow = 'unset')
+Array.from(document.querySelectorAll(`.pagedjs_pages p`)).forEach(paragraph => paragraph.style.fontSize = ".8em")
 
 window.print();
