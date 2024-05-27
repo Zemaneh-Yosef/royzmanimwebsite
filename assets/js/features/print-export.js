@@ -49,7 +49,20 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
     .join(" ");
 
 const header = document.querySelector('[data-zyHeader] h3');
-header.appendChild(document.createTextNode(geoLocation.getLocationName()))
+header.appendChild(document.createTextNode(geoLocation.getLocationName()));
+
+/** @type {false|KosherZmanim.Temporal.ZonedDateTime[]} */
+let availableVS = false;
+if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
+    const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
+    if (ctNetz.lat == zmanCalc.coreZC.getGeoLocation().getLatitude()
+     && ctNetz.lng == zmanCalc.coreZC.getGeoLocation().getLongitude())
+        availableVS = ctNetz.times
+            .map((/** @type {number} */ value) => KosherZmanim.Temporal.Instant
+                .fromEpochSeconds(value)
+                .toZonedDateTimeISO(zmanCalc.coreZC.getGeoLocation().getTimeZone())
+            )
+}
 
 function handleShita (/** @type {string} */ shita) {
     const omerSpan = document.createElement("span");
@@ -313,32 +326,10 @@ function handleShita (/** @type {string} */ shita) {
         case 'getNetz':
             let sunString = zmanCalc.getNetz().toLocaleString(...dtF);
 
-            /**
-             * @param {string} str
-             */
-            function isValidJSON(str) {
-                try {
-                    JSON.parse(str);
-                    return true;
-                } catch (e) {
-                    return false;
-                }
-            }
-            if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-                const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-                if (ctNetz.lat == zmanCalc.coreZC.getGeoLocation().getLatitude()
-                 && ctNetz.lng == zmanCalc.coreZC.getGeoLocation().getLongitude()) {
-                    /** @type {KosherZmanim.Temporal.ZonedDateTime[]} */
-                    const timeSheet = ctNetz.times
-                        .map((/** @type {number} */ value) => KosherZmanim.Temporal.Instant
-                            .fromEpochSeconds(value)
-                            .toZonedDateTimeISO(zmanCalc.coreZC.getGeoLocation().getTimeZone())
-                        )
-
-                    let visibleSunrise = timeSheet.find(zDT => Math.abs(zmanCalc.getNetz().until(zDT).total('minutes')) <= 6)
-                    if (visibleSunrise)
-                        sunString = visibleSunrise.toLocaleString(dtF[0], {...dtF[1], second: '2-digit'})
-                }
+            if (availableVS) {
+                let visibleSunrise = availableVS.find(zDT => Math.abs(zmanCalc.getNetz().until(zDT).total('minutes')) <= 6)
+                if (visibleSunrise)
+                    sunString = visibleSunrise.toLocaleString(dtF[0], {...dtF[1], second: '2-digit'})
             }
 
             div.appendChild(document.createTextNode(sunString));
@@ -458,3 +449,15 @@ Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEac
 Array.from(document.querySelectorAll(`.pagedjs_pages p`)).forEach(paragraph => paragraph.style.fontSize = ".8em")
 
 window.print();
+
+/**
+ * @param {string} str
+ */
+function isValidJSON(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
