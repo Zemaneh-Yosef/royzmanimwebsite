@@ -26,6 +26,7 @@ const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 
 const jCal = new WebsiteLimudCalendar();
 jCal.setDate(jCal.getDate().with({ day: 1, month: 1 }))
+jCal.setInIsrael((geoLocation.getLocationName() || "").toLowerCase().includes('israel'));
 const zmanCalc = (
     !jCal.getInIsrael() && settings.calendarToggle.hourCalculators() == "degrees"
         ? new AmudehHoraahZmanim(geoLocation)
@@ -48,7 +49,7 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
     .map(elem => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
     .join(" ");
 
-const header = document.querySelector('[data-zyHeader] h3');
+const header = document.querySelector('[data-zyHeader] .locationSubtitle');
 header.appendChild(document.createTextNode(geoLocation.getLocationName()));
 
 /** @type {false|KosherZmanim.Temporal.ZonedDateTime[]} */
@@ -64,6 +65,131 @@ if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isV
             )
 }
 
+// Cloned WebsiteCalendar.getYomTov() for two reasons
+// 1. I wanted shorter titles since the PDF is already aiming to be small
+// 2. We will soon delete the function as part of our gradual move to HTML
+const yomTovObj = {
+    // Holidays
+    [KosherZmanim.JewishCalendar.PESACH]: {
+        hb: "פסח",
+        "en-et": "Pesach",
+        en: "Passover",
+    },
+    [KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH]: {
+        en: "Intermediary",
+        "en-et": "Ḥol HaMoedh",
+        hb: "חול המועד"
+    },
+    [KosherZmanim.JewishCalendar.SHAVUOS]: {
+        en: "Shavuoth",
+        hb: "שבועות",
+        "en-et": "Shavuoth"
+    },
+    [KosherZmanim.JewishCalendar.ROSH_HASHANA]: {
+        hb: "ראש השנה",
+        en: "Rosh Hashana",
+        "en-et": "Rosh Hashana"
+    },
+    [KosherZmanim.JewishCalendar.SUCCOS]: {
+        hb: "סוכות",
+        en: "Sukkoth",
+        "en-et": "Sukkoth"
+    },
+    [KosherZmanim.JewishCalendar.CHOL_HAMOED_SUCCOS]: {
+        hb: "חול המועד",
+        "en-et": "Ḥol HaMoedh",
+        en: "Intermediary"
+    },
+    [KosherZmanim.JewishCalendar.HOSHANA_RABBA]: {
+        hb: "הושנה רבה",
+        "en-et": "Hoshanah Rabba",
+        en: "Hoshana Rabba"
+    },
+
+    // This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
+    // I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
+    [KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: {
+        hb: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
+        en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : ""),
+        "en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : "")
+    },
+    [KosherZmanim.JewishCalendar.SIMCHAS_TORAH]: {
+        hb: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
+        en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah",
+        "en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
+    },
+
+    // Semi-Holidays & Fasts
+    [KosherZmanim.JewishCalendar.PESACH_SHENI]: {
+        hb: "פסח שני",
+        en: "Pesach Sheni",
+        "en-et": "Pesach Sheni"
+    },
+    [KosherZmanim.JewishCalendar.LAG_BAOMER]: {
+        hb: "לג בעומר",
+        en: "Lag Baomer",
+        "en-et": "Lag Baomer"
+    },
+    [KosherZmanim.JewishCalendar.TU_BEAV]: {
+        "he": 'ט"ו באב',
+        en: "Tu Be'av",
+        "en-et": "Tu Be'av"
+    },
+    [KosherZmanim.JewishCalendar.TU_BESHVAT]: {
+        "he": 'ט"ו בשבת',
+        en: "Tu Bishvath",
+        "en-et": "Tu Bishvath"
+    },
+    [KosherZmanim.JewishCalendar.PURIM_KATAN]: {
+        hb: "פורים קתן",
+        en: "Purim Katan",
+        "en-et": "Purim Katan"
+    },
+    [KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN]: {
+        hb: "שושן פורים קתן",
+        en: "Shushan Purim Katan",
+        "en-et": "Shushan Purim Katan"
+    },
+    [KosherZmanim.JewishCalendar.PURIM]: {
+        hb: "פורים",
+        en: "Purim",
+        "en-et": "Purim"
+    },
+    [KosherZmanim.JewishCalendar.SHUSHAN_PURIM]: {
+        hb: "שושן פורים",
+        en: "Shushan Purim",
+        "en-et": "Shushan Purim"
+    },
+
+    /*
+    Rabbi Leeor Dahan doesn't include these. I'm not getting involved
+    // Modern-Day Celebrations
+    [KosherZmanim.JewishCalendar.YOM_HASHOAH]: {
+        hb: "יום השועה",
+        "en-et": "Yom Hashoa",
+        en: "Holocaust Memorial Day"
+    },
+    [KosherZmanim.JewishCalendar.YOM_HAZIKARON]: {
+        hb: "יום הזכרון",
+        "en-et": "Yom Hazikaron",
+        en: "Day of Rememberance"
+    },
+    [KosherZmanim.JewishCalendar.YOM_HAATZMAUT]: {
+        hb: "יום האצמעות",
+        "en-et": "Yom Haatzmauth",
+        en: "Yom Haatzmauth"
+    }, // Tachanun is said
+    [KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM]: {
+        hb: "יום ירושלים",
+        "en-et": "Yom Yerushalayim",
+        en: "Jerusalem Day"
+    },
+    */
+}
+
+const flexWorkAround = document.createElement("span");
+flexWorkAround.classList.add("flexElemWorkaround")
+
 function handleShita (/** @type {string} */ shita) {
     const omerSpan = document.createElement("span");
     omerSpan.classList.add("omerText");
@@ -73,195 +199,124 @@ function handleShita (/** @type {string} */ shita) {
     div.classList.add('tableCell')
     switch (shita) {
         case 'special':
-            if (jCal.getDayOfWeek() === 7)
-                div.appendChild(document.createTextNode(WebsiteLimudCalendar.hebrewParshaMap[jCal.getParshah()]))
+            if (jCal.getDayOfWeek() === 7) {
+                const shabElem = flexWorkAround.cloneNode(true);
+                shabElem.appendChild(document.createTextNode(WebsiteLimudCalendar.hebrewParshaMap[jCal.getParshah()]));
+                div.appendChild(shabElem)
+            }
             if (jCal.isRoshChodesh()) {
-                if (jCal.getDayOfWeek() === 7)
-                    div.appendChild(document.createElement("br"));
-
-                div.appendChild(document.createTextNode({
+                const rHelem = flexWorkAround.cloneNode(true);
+                rHelem.appendChild(document.createTextNode({
                     'hb': "ראש חדש",
                     "en-et": "Rosh Ḥodesh",
                     'en': "New Month"
                 }[settings.language()]));
+
+                div.appendChild(rHelem);
                 div.style.fontWeight = "bold";
             }
 
-            // Cloned WebsiteCalendar.getYomTov() for two reasons
-            // 1. I wanted shorter titles since the PDF is already aiming to be small
-            // 2. We will soon delete the function as part of our gradual move to HTML
-            const yomTovObj = {
-                // Holidays
-                [KosherZmanim.JewishCalendar.PESACH]: {
-                    hb: "פסח",
-                    "en-et": "Pesach",
-                    en: "Passover",
-                },
-                [KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH]: {
-                    en: "Intermediary",
-                    "en-et": "Ḥol HaMoedh",
-                    hb: "חול המועד"
-                },
-                [KosherZmanim.JewishCalendar.SHAVUOS]: {
-                    en: "Shavuoth",
-                    hb: "שבועות",
-                    "en-et": "Shavuoth"
-                },
-                [KosherZmanim.JewishCalendar.ROSH_HASHANA]: {
-                    hb: "ראש השנה",
-                    en: "Rosh Hashana",
-                    "en-et": "Rosh Hashana"
-                },
-                [KosherZmanim.JewishCalendar.SUCCOS]: {
-                    hb: "סוכות",
-                    en: "Sukkoth",
-                    "en-et": "Sukkoth"
-                },
-                [KosherZmanim.JewishCalendar.CHOL_HAMOED_SUCCOS]: {
-                    hb: "חול המועד",
-                    "en-et": "Ḥol HaMoedh",
-                    en: "Intermediary"
-                },
-                [KosherZmanim.JewishCalendar.HOSHANA_RABBA]: {
-                    hb: "הושנה רבה",
-                    "en-et": "Hoshanah Rabba",
-                    en: "Hoshana Rabba"
-                },
-    
-                // This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
-                // I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
-                [KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: {
-                    hb: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
-                    en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : ""),
-                    "en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : "")
-                },
-                [KosherZmanim.JewishCalendar.SIMCHAS_TORAH]: {
-                    hb: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
-                    en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah",
-                    "en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
-                },
-    
-                // Semi-Holidays & Fasts
-                [KosherZmanim.JewishCalendar.PESACH_SHENI]: {
-                    hb: "פסח שני",
-                    en: "Pesach Sheni",
-                    "en-et": "Pesach Sheni"
-                },
-                [KosherZmanim.JewishCalendar.LAG_BAOMER]: {
-                    hb: "לג בעומר",
-                    en: "Lag Baomer",
-                    "en-et": "Lag Baomer"
-                },
-                [KosherZmanim.JewishCalendar.TU_BEAV]: {
-                    "he": 'ט"ו באב',
-                    en: "Tu Be'av",
-                    "en-et": "Tu Be'av"
-                },
-                [KosherZmanim.JewishCalendar.TU_BESHVAT]: {
-                    "he": 'ט"ו בשבת',
-                    en: "Tu Bishvath",
-                    "en-et": "Tu Bishvath"
-                },
-                [KosherZmanim.JewishCalendar.PURIM_KATAN]: {
-                    hb: "פורים קתן",
-                    en: "Purim Katan",
-                    "en-et": "Purim Katan"
-                },
-                [KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN]: {
-                    hb: "שושן פורים קתן",
-                    en: "Shushan Purim Katan",
-                    "en-et": "Shushan Purim Katan"
-                },
-                [KosherZmanim.JewishCalendar.PURIM]: {
-                    hb: "פורים",
-                    en: "Purim",
-                    "en-et": "Purim"
-                },
-                [KosherZmanim.JewishCalendar.SHUSHAN_PURIM]: {
-                    hb: "שושן פורים",
-                    en: "Shushan Purim",
-                    "en-et": "Shushan Purim"
-                },
+            if (jCal.tomorrow().getDayOfChanukah() !== -1) {
+                const hanTitleElem = flexWorkAround.cloneNode(true);
+                hanTitleElem.appendChild(document.createTextNode({
+                    "hb": (jCal.getDayOfChanukah() == -1 ? "ערב " : "") + "חנוכה",
+                    "en": "Ḥanukah" + (jCal.getDayOfChanukah() == -1 ? " Eve" : ""),
+                    "en-et": (jCal.getDayOfChanukah() == -1 ? "Erev " : "") + "Ḥanukah"
+                }[settings.language()]));
+                div.appendChild(hanTitleElem);
 
-                /*
-                Rabbi Leeor Dahan doesn't include these. I'm not getting involved
-                // Modern-Day Celebrations
-                [KosherZmanim.JewishCalendar.YOM_HASHOAH]: {
-                    hb: "יום השועה",
-                    "en-et": "Yom Hashoa",
-                    en: "Holocaust Memorial Day"
-                },
-                [KosherZmanim.JewishCalendar.YOM_HAZIKARON]: {
-                    hb: "יום הזכרון",
-                    "en-et": "Yom Hazikaron",
-                    en: "Day of Rememberance"
-                },
-                [KosherZmanim.JewishCalendar.YOM_HAATZMAUT]: {
-                    hb: "יום האצמעות",
-                    "en-et": "Yom Haatzmauth",
-                    en: "Yom Haatzmauth"
-                }, // Tachanun is said
-                [KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM]: {
-                    hb: "יום ירושלים",
-                    "en-et": "Yom Yerushalayim",
-                    en: "Jerusalem Day"
-                },
-                */
+                const hanNightElem = flexWorkAround.cloneNode(true);
+                // @ts-ignore
+                hanNightElem.classList.add("omerText");
+                // @ts-ignore
+                hanNightElem.innerHTML = "(" + {
+                    "hb": "ליל " + n2wordsOrdinal[jCal.tomorrow().getDayOfChanukah()],
+                    "en": getOrdinal(jCal.tomorrow().getDayOfChanukah(), true) + " night",
+                    "en-et": getOrdinal(jCal.tomorrow().getDayOfChanukah(), true) + " night"
+                }[settings.language()] + ")";
+                div.appendChild(hanNightElem);
+
+                div.style.fontWeight = "bold";
             }
 
-            if (jCal.getYomTovIndex() in yomTovObj)
-                div.appendChild(document.createTextNode(yomTovObj[jCal.getYomTovIndex()][settings.language()]))
+            if (jCal.getYomTovIndex() in yomTovObj) {
+                const yomTovElem = flexWorkAround.cloneNode(true);
+                yomTovElem.appendChild(document.createTextNode(yomTovObj[jCal.getYomTovIndex()][settings.language()]))
+                div.appendChild(yomTovElem);
+
+                div.style.fontWeight = "bold";
+            }
 
             if (jCal.isTaanis()) {
+                const taanitElem = flexWorkAround.cloneNode(true);
+
                 switch (jCal.getYomTovIndex()) {
                     case WebsiteLimudCalendar.FAST_OF_ESTHER:
-                        div.appendChild(document.createTextNode({
+                        taanitElem.appendChild(document.createTextNode({
                             'hb': "תענית אסתר",
                             "en-et": "Fast of Ester",
                             'en': "Fast of Ester"
                         }[settings.language()]));
                         break;
                     case WebsiteLimudCalendar.FAST_OF_GEDALYAH:
-                        div.appendChild(document.createTextNode({
+                        taanitElem.appendChild(document.createTextNode({
                             'hb': "צום גדליה",
                             "en-et": "Fast of Gedalia",
                             'en': "Fast of Gedalia"
                         }[settings.language()]));
                         break;
                     case WebsiteLimudCalendar.YOM_KIPPUR:
-                        div.appendChild(document.createTextNode({
+                        taanitElem.appendChild(document.createTextNode({
                             "hb": "יום כיפור",
                             "en": "Yom Kippur",
                             "en-et": "Yom Kippur"
                         }[settings.language()]));
                     default:
-                        div.appendChild(document.createTextNode({
+                        taanitElem.appendChild(document.createTextNode({
                             'hb': "צום",
                             "en-et": "Fast",
                             'en': "Fast"
                         }[settings.language()]));
                 }
+
+                div.appendChild(taanitElem);
+                div.style.fontWeight = "bold";
             }
 
             break;
         case 'date':
-            let dateFormat;
+            let primaryDate = flexWorkAround.cloneNode(true);
+            let secondaryDate = flexWorkAround.cloneNode(true);
             switch (settings.language()) {
                 case 'en':
-                    dateFormat = jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " + jCal.getDate().toLocaleString('en', { day: 'numeric' }) + "<br>"
-                    + hNum.formatHebrewNumber(jCal.getJewishDayOfMonth()) + " " + jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'});
+                    primaryDate.appendChild(document.createTextNode(
+                        jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " +
+                        jCal.getDate().toLocaleString('en', { day: 'numeric' })
+                    ));
+                    secondaryDate.appendChild(document.createTextNode(
+                        hNum.formatHebrewNumber(jCal.getJewishDayOfMonth()) + " " +
+                        jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})
+                    ));
                     break;
                 case 'en-et':
-                    dateFormat = jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " + this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', day: "numeric"}) + "<br>"
-                    + jCal.getDate().toLocaleString('en', { month: "short", day: "numeric" })
+                    primaryDate.appendChild(document.createTextNode(
+                        jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " +
+                        this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', day: "numeric"})
+                    ));
+                    secondaryDate.appendChild(document.createTextNode(jCal.getDate().toLocaleString('en', { month: "short", day: "numeric" })));
                     break;
                 case 'hb':
-                    dateFormat = (jCal.getDayOfWeek() == 7 ? "שבת" : n2wordsOrdinal[jCal.getDayOfWeek()]) + " - " + hNum.formatHebrewNumber(jCal.getJewishDayOfMonth()) + "<br>"
-                    + jCal.getDate().toLocaleString('en', { month: "short", day: "numeric" })
+                    primaryDate.appendChild(document.createTextNode(
+                        (jCal.getDayOfWeek() == 7 ? "שבת" : n2wordsOrdinal[jCal.getDayOfWeek()]) + " - " +
+                        hNum.formatHebrewNumber(jCal.getJewishDayOfMonth())
+                    ));
+                    secondaryDate.appendChild(document.createTextNode(jCal.getDate().toLocaleString('en', { month: "short", day: "numeric" })));
             }
-            div.innerHTML = dateFormat;
+            div.appendChild(primaryDate);
+            div.appendChild(secondaryDate);
+            div.classList.add("dateElem");
 
-            if (jCal.isRoshChodesh())
+            if (jCal.isRoshChodesh() || jCal.getYomTovIndex() in yomTovObj)
                 div.style.fontWeight = "bold";
 
             break;
@@ -277,33 +332,53 @@ function handleShita (/** @type {string} */ shita) {
             break;
         case 'getTzaitShabbath':
             if (!jCal.hasCandleLighting() && jCal.isAssurBemelacha()) {
-                div.appendChild(document.createTextNode(zmanCalc.getTzaitShabbath().toLocaleString(...dtF)));
+                let shabbatTzetElem = flexWorkAround.cloneNode(true);
+                shabbatTzetElem.appendChild(document.createTextNode(zmanCalc.getTzaitShabbath().toLocaleString(...dtF)));
+                div.appendChild(shabbatTzetElem);
+
                 if (jCal.tomorrow().getDayOfOmer() !== -1) {
-                    div.appendChild(document.createElement("br"));
                     div.appendChild(omerSpan);
                 }
             }
             break;
         case 'getTzait':
             if (!jCal.isAssurBemelacha()) {
-                div.appendChild(document.createTextNode(zmanCalc.getTzait().toLocaleString(...dtF)))
+                let tzetElem = flexWorkAround.cloneNode(true);
+                tzetElem.appendChild(document.createTextNode(zmanCalc.getTzait().toLocaleString(...dtF)))
+                div.appendChild(tzetElem);
+
                 if (jCal.tomorrow().getDayOfOmer() !== -1) {
-                    div.appendChild(document.createElement("br"));
                     div.appendChild(omerSpan);
+                }
+
+                if (jCal.tomorrow().getDayOfChanukah() !== -1) {
+                    const hanukahSpan = flexWorkAround.cloneNode(true);
+                    // @ts-ignore
+                    hanukahSpan.classList.add("omerText");
+                    hanukahSpan.appendChild(document.createTextNode(
+                        "Light before " + zmanCalc.getTzait().add({ minutes: 30 }).toLocaleString(...dtF)
+                    ));
+
+                    div.appendChild(hanukahSpan);
                 }
             }
             break;
         case 'getTzaitLechumra':
             let appear = false;
+            const tzetElem = flexWorkAround.cloneNode(true);
             if (zmanCalc instanceof OhrHachaimZmanim) {
                 if (jCal.isTaanis() && !jCal.isYomKippur()) {
                     appear = true;
-                    div.appendChild(document.createTextNode(zmanCalc.getTzait().add({ minutes: 20 }).toLocaleString(...dtF)))
+                    tzetElem.appendChild(document.createTextNode(zmanCalc.getTzait().add({ minutes: 20 }).toLocaleString(...dtF)))
+
+                    div.appendChild(tzetElem);
                     div.style.fontWeight = "bold";
                 }
             } else {
                 appear = true;
-                div.appendChild(document.createTextNode(zmanCalc.getTzaitLechumra().toLocaleString(...dtF)))
+                tzetElem.appendChild(document.createTextNode(zmanCalc.getTzaitLechumra().toLocaleString(...dtF)))
+
+                div.appendChild(tzetElem);
                 if (jCal.isTaanis() && !jCal.isYomKippur()) {
                     div.style.fontWeight = "bold";
                 }
@@ -312,7 +387,6 @@ function handleShita (/** @type {string} */ shita) {
             if (appear && jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7) {
                 div.style.gridColumnEnd = "span 2";
                 if (jCal.tomorrow().getDayOfOmer() !== -1) {
-                    div.appendChild(document.createElement("br"));
                     div.appendChild(omerSpan);
                 }
             }
@@ -360,7 +434,7 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
                 )
         ));
 
-    const halfDaysInMonth = Math.floor(plainDateForLoop.daysInMonth / 2);
+    const halfDaysInMonth = plainDateForLoop.daysInMonth; //Math.floor(plainDateForLoop.daysInMonth / 2);
     for (let index = 1; index <= halfDaysInMonth; index++) {
         plainDateForLoop = plainDateForLoop.with({ day: index })
         jCal.setDate(plainDateForLoop.withCalendar("iso8601"))
@@ -380,10 +454,10 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
     }
     baseTable.parentElement.appendChild(tableFirstHalf)
 
-    baseTable.parentElement.appendChild(header.parentElement.cloneNode(true))
+    //baseTable.parentElement.appendChild(header.parentElement.cloneNode(true))
     /** @type {Element} */
     // @ts-ignore
-    const tableSecondHalf = baseTable.cloneNode(true);
+    /* const tableSecondHalf = baseTable.cloneNode(true);
     tableSecondHalf.querySelector('[data-zyData="date"]')
         .appendChild(document.createTextNode(
             plainDateForLoop
@@ -411,7 +485,7 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
             tableSecondHalf.appendChild(cell)
         }
     }
-    baseTable.parentElement.appendChild(tableSecondHalf);
+    baseTable.parentElement.appendChild(tableSecondHalf); */
 }
 
 header.parentElement.remove();
@@ -446,7 +520,8 @@ const elems = [
     .forEach(dir => elems.forEach(elem => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
 
 Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEach(elem => elem.style.gridRow = 'unset')
-Array.from(document.querySelectorAll(`.pagedjs_pages p`)).forEach(paragraph => paragraph.style.fontSize = ".8em")
+Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area > .pagedjs_page_content > div'))
+    .forEach(elem => elem.style.height = 'unset')
 
 window.print();
 

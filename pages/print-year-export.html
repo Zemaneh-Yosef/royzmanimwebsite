@@ -25,18 +25,24 @@ layout: nothing
 		display: grid;
 		text-align: center;
 		font-size: .65em;
-		line-height: 1.25;
+		line-height: 1.1;
 	}
 
 	.tableCell {
-		align-content: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		height: 100%;
+		line-height: .8;
+
+		padding-top: .185em;
+		padding-bottom: .125em;
 	}
 
 	.tableHeader {
 		font-weight: bold;
 		padding-right: .125em;
 		padding-left: .125em;
-		align-content: center;
 	}
 
 	[data-zyHeader] {
@@ -45,7 +51,7 @@ layout: nothing
 		page-break-before: always;
 	}
 
-	[data-zyHeader]>*:not(h3) {
+	[data-zyHeader]>*:not(.locationSubtitle) {
 		font-family: 'Guttman Mantova-Decor', 'Javar';
 		margin-bottom: 0;
 	}
@@ -65,10 +71,16 @@ layout: nothing
 	.pagedjs_pages ol,
 	.pagedjs_pages ul {
 		margin-bottom: .5rem;
-		font-size: .855em;
+		font-size: .8em;
 		text-align: justify;
 		text-justify: inter-word;
 		word-break: keep-all;
+	}
+
+	#differences p,
+	#differences ol,
+	#differences ul {
+		font-size: .865rem;
 	}
 
 	.explanationPreface h6,
@@ -100,11 +112,11 @@ layout: nothing
 	}
 
 	.omerText {
-		font-size: .75em;
+		font-size: .675em;
 	}
 </style>
 
-<div class="explanationPreface">
+<div class="explanationPreface" id="differences">
 	<h4 style="text-align: center;">Differences Explanation</h4>
 	<p style="text-align: center;">This piece will only go through conclusions that we hold differently from other mainstream calendars; descriptions on individual Zemanim (as well as sources) can instead be found in the back of this calendar.</p>
 
@@ -115,7 +127,7 @@ layout: nothing
 <div data-zyHeader>
 	<h1>זמני יוסף</h1>
 	<h6 style="font-size: .5em;">Rabbi Ovadiah Yosef Calendar</h6>
-	<h3><span class="lang lang-hb">זמנים של</span><span class="lang lang-et">Location:</span><span class="lang lang-en">Location:</span> </h3>
+	<h4 class="locationSubtitle"><span class="lang lang-hb">זמנים של</span><span class="lang lang-et">Location:</span><span class="lang lang-en">Location:</span> </h4>
 </div>
 
 <main>
