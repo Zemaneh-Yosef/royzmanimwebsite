@@ -26,6 +26,7 @@ layout: nothing
 		text-align: center;
 		font-size: .65em;
 		line-height: 1.1;
+		page-break-before: always;
 	}
 
 	.tableCell {
@@ -48,7 +49,6 @@ layout: nothing
 	[data-zyHeader] {
 		text-align: center;
 		line-height: 1;
-		page-break-before: always;
 	}
 
 	[data-zyHeader]>*:not(.locationSubtitle) {
@@ -114,6 +114,42 @@ layout: nothing
 	.omerText {
 		font-size: .675em;
 	}
+
+	[data-zyBranding] {
+		font-family: 'Guttman Mantova-Decor', 'Javar';
+		display: grid;
+		text-align: center;
+	}
+
+	[data-zyBranding] > * {
+		grid-area: 1/1;
+	}
+
+	[data-zyBranding] .rotatedText {
+		width: 125px;
+	}
+
+	.zyCalFooter {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		margin-top: .75rem;
+	}
+
+	.zyCalFooter .sides {
+		flex: 1 1;
+		line-height: 1;
+	}
+
+	[data-zyLocationText] {
+		margin-bottom: 0;
+	}
+
+	.hebrewTitle {
+		line-height: .8;
+		font-size: 1.5rem;
+		padding-top: 1rem;
+	}
 </style>
 
 <div class="explanationPreface" id="differences">
@@ -124,10 +160,15 @@ layout: nothing
 	<p style="text-align: center;">Although there are more shitot out there that our calendar does not follow (such as 90/96 minutes for dawn, using the beginning of an hour rather than the end for Shema), listing every shita we don't hold like would be confusing when one can learn the sugya as we outline and see what we would hold (to then infer what we wouldn't).</p>
 </div>
 
-<div data-zyHeader>
-	<h1>זמני יוסף</h1>
-	<h6 style="font-size: .5em;">Rabbi Ovadiah Yosef Calendar</h6>
-	<h4 class="locationSubtitle"><span class="lang lang-hb">זמנים של</span><span class="lang lang-et">Location:</span><span class="lang lang-en">Location:</span> </h4>
+<h5 data-zyLocationText>
+	<span class="lang lang-hb">זמנים של</span>
+	<span class="lang lang-et">Location:</span>
+	<span class="lang lang-en">Location:</span>
+</h5>
+<div data-zyBranding>
+	<h1 class="hebrewTitle">זמני<br>יוסף</h1>
+	<img src="/assets/images/sam.svg" class="rotatedText">
+	<i class="fa fa-clock-o" aria-hidden="true"></i>
 </div>
 
 <main>

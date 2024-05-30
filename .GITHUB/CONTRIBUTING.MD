@@ -28,7 +28,7 @@ The first strategy is easy, and should be reasonable. Unfortunately, the second 
   - Ideally, any verse they quote should also be quoted here.
   - If the idea is Kabbalistic, there isn't a guarantee for its inclusion in the Talmud. Each case should be analyzed independently, but a majority of the time, it is bouncing off attempted P'sak (such as Arizal holding R"T matching what Maran held in 261:2 or Tekufot being based on RH"G).
     - A quoted עץ חיים should use the אהבת שלום Girsa.
-2. Use HaRambam to explain the Gemarot, and interpret any possible argument on P'sak by other Amudeh Hora'ah's as deviations (even if they are what we hold by). Quotations from HaRambam should be done using the *Q'afich* girsa.
+2. Use HaRambam to explain the Gemarot, and interpret any possible argument on P'sak by other Amudeh Hora'ah's as deviations (even if they are what we hold by). Quotations from HaRambam should be done using the *Q'afiḥ* girsa.
 3. As Maran Ovadia outlined in the Halikhot Olam introduction (vol. I), only after these Amudeh Hora'ah's would he then rely on other Rishonim, such as the Ramban (not prevalent except for Tzet & Plag), Rashba, Ran, Mordechi & Sefer Mitzvot Gedholoth.
 3. Obviously quote the Shulḥan Arukh/Bet Yosef and anyone from the ROY lineage. Other Acharonim should be limited to the Ben Ish Ḥai, Kaf Haḥaim & Mishnah Berurah (people are Ashkinormative + commentaries like the עמודי הוראה help).
 

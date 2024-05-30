@@ -49,9 +49,6 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
     .map(elem => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
     .join(" ");
 
-const header = document.querySelector('[data-zyHeader] .locationSubtitle');
-header.appendChild(document.createTextNode(geoLocation.getLocationName()));
-
 /** @type {false|KosherZmanim.Temporal.ZonedDateTime[]} */
 let availableVS = false;
 if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
@@ -416,12 +413,29 @@ function handleShita (/** @type {string} */ shita) {
     return div;
 }
 
+const locationElem = document.querySelector("[data-zyLocationText]");
+locationElem.appendChild(document.createTextNode(geoLocation.getLocationName()));
+
+const footer = document.createElement("div");
+footer.classList.add("zyCalFooter");
+
+const locationSection = document.createElement("div");
+locationSection.classList.add("sides")
+locationSection.appendChild(locationElem);
+locationSection.innerHTML += `(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()})`;
+footer.appendChild(locationSection)
+
+footer.appendChild(document.querySelector('[data-zyBranding]').cloneNode(true));
+
+const rightSide = document.createElement("div");
+rightSide.classList.add("sides")
+footer.appendChild(rightSide);
+
 let plainDateForLoop = jCal.getDate().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').with({ month: 1, day: 1 })
-for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
+for (let mIndex = 1; mIndex <= plainDateForLoop.monthsInYear; mIndex++) {
     plainDateForLoop = plainDateForLoop.with({ month: mIndex });
     jCal.setDate(plainDateForLoop.withCalendar("iso8601"));
 
-    baseTable.parentElement.appendChild(header.parentElement.cloneNode(true))
     /** @type {Element} */
     // @ts-ignore
     const tableFirstHalf = baseTable.cloneNode(true);
@@ -453,6 +467,7 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
         }
     }
     baseTable.parentElement.appendChild(tableFirstHalf)
+    baseTable.parentElement.appendChild(footer.cloneNode(true));
 
     //baseTable.parentElement.appendChild(header.parentElement.cloneNode(true))
     /** @type {Element} */
@@ -488,7 +503,8 @@ for (let mIndex = 1; mIndex < plainDateForLoop.monthsInYear + 1; mIndex++) {
     baseTable.parentElement.appendChild(tableSecondHalf); */
 }
 
-header.parentElement.remove();
+locationElem.remove();
+document.querySelector('[data-zyBranding]').remove();
 baseTable.remove();
 
 document.documentElement.setAttribute('forceLight', '')
