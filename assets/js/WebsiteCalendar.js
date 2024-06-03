@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import n2words from "../libraries/n2words.esm.js";
+import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js";
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
 
 export default
@@ -338,7 +338,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"english": (this.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
 			},
 
-			// Semi-Holidays & Fasts
+			// Semi-Holidays
 			[KosherZmanim.JewishCalendar.PESACH_SHENI]: {
 				"hebrew": "פסח שני",
 				"english": "Pesach Sheni"
@@ -442,22 +442,52 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const days = this.getDayOfOmer() % 7;
 
 		// Hebrew Attributes
-		const hbName = n2words(this.getDayOfOmer());
+		const hbName = n2heWords(this.getDayOfOmer());
 
-		const dayWords = ["יוֹם", "יָמִים"]
-		const verb = dayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)];
-
-		const hbTitle = [hbName, verb];
+		const hbDayWords = ["יוֹם", "יָמִים"]
+		const hbTitle = [hbName, hbDayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)]];
 		if (this.getDayOfOmer() == 1)
 			hbTitle.reverse()
 
-		const weeksCount = [n2words(weeks), (weeks >= 2 ? "שָׁבוּעוֹת" : "שָׁבוּעַ")]
-		if (weeks == 1)
-			weeksCount.reverse()
+		const hbWeeksCount = [n2heWords(weeks)]
+		if (weeks == 1) {
+			hbWeeksCount.push("שָׁבוּעַ")
+			hbWeeksCount.reverse()
+		} else {
+			hbWeeksCount.push("שָׁבוּעוֹת")
+		}
 
-		const dayCount = [n2words(days), dayWords[days == 1 ? 0 : 1]]
-		if (days == 1)
-			dayCount.reverse()
+		const hbDayCount = [n2heWords(days)]
+		if (days == 1) {
+			hbDayCount.push(hbDayWords[0])
+			hbDayCount.reverse()
+		} else {
+			hbDayCount.push(hbDayWords[1])
+		}
+
+		// Hebrew Attributes
+		const ruName = n2ruWords(this.getDayOfOmer());
+
+		const ruDayWords = ["ём", "ямим"]
+		const ruTitle = [ruName, ruDayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)]];
+		if (this.getDayOfOmer() == 1)
+			ruTitle.reverse()
+
+		const ruWeeksCount = [n2ruWords(weeks)]
+		if (weeks == 1) {
+			ruWeeksCount.push("шавуа")
+			ruWeeksCount.reverse()
+		} else {
+			ruWeeksCount.push("шавуóт")
+		}
+
+		const ruDayCount = [n2ruWords(days)]
+		if (days == 1) {
+			ruDayCount.push(ruDayWords[0])
+			ruDayCount.reverse()
+		} else {
+			ruDayCount.push(ruDayWords[1])
+		}
 
 		/**
 		 * @param {{ days: any; weeks: any; toString?: (() => string) | (() => string) | (() => string); }} data
@@ -492,9 +522,49 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				hb: {
 					mainCount: hbTitle.join(" "),
 					subCount: {
-						days: dayCount.join(" "),
-						weeks: weeksCount.join(" "),
-						toString: function () { return fullSubCount(this, " " + ([2,3].includes(days) ? 'וּ' : 'וְ')); }
+						days: hbDayCount.join(" "),
+						weeks: hbWeeksCount.join(" "),
+						toString: function () {
+							let connectParam = " ";
+							switch (days) {
+								case 2:
+								case 3:
+									connectParam += "וּ";
+									break;
+								case 5:
+									connectParam += "וַ";
+									break;
+								default:
+									connectParam += 'וְ';
+									break;
+							}
+
+							return fullSubCount(this, connectParam);
+						}
+					}
+				},
+				ru: {
+					mainCount: ruTitle.join(" "),
+					subCount: {
+						days: ruDayCount.join(" "),
+						weeks: ruWeeksCount.join(" "),
+						toString: function () {
+							let connectParam = " ";
+							switch (days) {
+								case 2:
+								case 3:
+									connectParam += "у";
+									break;
+								case 5:
+									connectParam += "ва";
+									break;
+								default:
+									connectParam += 'ве';
+									break;
+							}
+
+							return fullSubCount(this, connectParam);
+						}
 					}
 				}
 			}
@@ -757,7 +827,7 @@ export function getOrdinal (n, htmlSup=false) {
  * @param {string | string[]} localeName
  * @param {"short" | "long" | "narrow"} [weekday] 
  */
-function daysForLocale(localeName, weekday = 'long') {
+export function daysForLocale(localeName, weekday = 'long') {
 	const {format} = new Intl.DateTimeFormat(localeName, { weekday });
 	const array = [...Array(7).keys()]
 	  .map((day) => format(new Date(Date.UTC(2021, 8, day))));
@@ -769,7 +839,7 @@ function daysForLocale(localeName, weekday = 'long') {
  * @param {string | string[]} localeName
  * @param {"short" | "long" | "narrow" | "numeric" | "2-digit"} [weekday] 
  */
-function monthForLocale(localeName, weekday = 'long') {
+export function monthForLocale(localeName, weekday = 'long') {
 	const {format} = new Intl.DateTimeFormat(localeName, { month: weekday });
 	return [...Array(13).keys()]
 	  .map((day) => format(new Date(Date.UTC(2021, day, 1))));

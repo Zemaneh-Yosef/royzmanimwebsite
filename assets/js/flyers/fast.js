@@ -3,7 +3,7 @@
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import n2words from "../../libraries/n2words.esm.js";
+import { he as n2heWords } from "../../libraries/n2words.esm.js";
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
 import { HebrewNumberFormatter, getOrdinal } from "../WebsiteCalendar.js";
@@ -26,7 +26,7 @@ const shovavim = window.location.href.includes('shovavim');
 if (shovavim) {
 	const internationalCheck = window.location.href.endsWith('/international') || window.location.href.endsWith('/international/')
 	const weekNumber = jCal.shabbat().getParshah() - KosherZmanim.Parsha.VAYECHI
-	const textWeekNumber = internationalCheck ? n2words(weekNumber) : weekNumber
+	const textWeekNumber = internationalCheck ? n2heWords(weekNumber) : weekNumber
 	document.getElementsByClassName('shabbatTitleCore')[0].innerHTML += textWeekNumber + ` (${jCal.getHebrewParasha()})`
 
 	const lastFastDay = jCal.getDate().add({ days: 5 })
@@ -78,7 +78,7 @@ if (shovavim) {
 		 * Thereby, the Hebrew version will have no date list - the English option will have a shorter title that the width of the Hebrew title will accomodate
 		 * If not, we add in the Hebrew date to our locales. The year will always go in the title, though, due to how rare this is.
 		 */
-		fastName = ("צום " + n2words(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().he)
+		fastName = ("צום " + n2heWords(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().he)
 		hebrewLocale.addToCalendars = jCal.getJewishDayOfMonth() !== fastMonths[jCal.getJewishMonth()];
 		hebrewLocale.titleYear = jCal.getJewishDayOfMonth() !== fastMonths[jCal.getJewishMonth()];
 	}

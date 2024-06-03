@@ -89,7 +89,7 @@ export default class TekufahCalculator {
 	calculateTekufotShemuel(fixedClock) {
 		let tekTimes = this.calculateTekufot(719513280/1969920, 2051833);
 		if (!fixedClock)
-			tekTimes = tekTimes.map(time => time.subtract({ minutes: 21 }))
+			tekTimes = tekTimes.map(time => time.subtract({ minutes: 20, seconds: 56, milliseconds: 496 }))
 
 		return tekTimes;
 	}

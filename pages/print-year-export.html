@@ -61,7 +61,7 @@ layout: nothing
 	}
 
 	.explanationPreface {
-		line-height: 1.325;
+		line-height: 1.275;
 	}
 
 	.explanationPreface p,
@@ -85,7 +85,7 @@ layout: nothing
 
 	.explanationPreface h6,
 	.pagedjs_pages h6 {
-		margin-bottom: .25rem;
+		margin-bottom: .125rem;
 	}
 
 	.pagedjs_footnote_inner_content {
@@ -150,6 +150,16 @@ layout: nothing
 		font-size: 1.5rem;
 		padding-top: 1rem;
 	}
+
+	[data-zyData="date"] {
+		font-size: 1.5em;
+		grid-row: 1 / span 2;
+		grid-column-end: span 2;
+	}
+
+	[data-zyData="special"] {
+		display: none;
+	}
 </style>
 
 <div class="explanationPreface" id="differences">
@@ -173,8 +183,8 @@ layout: nothing
 
 <main>
 	<div class="tableGrid" data-zyTemplate>
-		<div class="tableHeader" data-zyData="special" style="grid-row: 1 / span 2;"></div>
-		<div class="tableHeader" data-zyData="date" style="grid-row: 1 / span 2;"></div>
+		<div class="tableHeader" data-zyData="special"></div>
+		<div class="tableHeader" data-zyData="date"></div>
 		{% for item in site.data.printOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">

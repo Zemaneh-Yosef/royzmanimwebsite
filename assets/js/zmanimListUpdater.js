@@ -706,7 +706,7 @@ class zmanimListUpdater {
 		)
 
 		const tekufaDate = this.zmanFuncs.nextTekufa(settings.calendarToggle.tekufaMidpoint() !== "hatzoth");
-		if (this.jCal.getDate().toZonedDateTime(this.zmanFuncs.coreZC.getGeoLocation().getTimeZone()).until(tekufaDate).total('days') < 1) {
+		if (this.jCal.getDate().toZonedDateTime(this.geoLocation.getTimeZone()).until(tekufaDate).total('days') < 1) {
 			/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 			const tekufaTF = [this.dtF[0], { ...this.dtF[1] }]
 			delete tekufaTF[1].second
@@ -720,13 +720,15 @@ class zmanimListUpdater {
 					return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
 				})[0]
 
+			/** @type {{en: string; he: string}} */
+			// @ts-ignore
 			const nextTekufotNames = ['en', 'he']
-					.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
-					.reduce(function (obj, [key, val]) {
-						//@ts-ignore
-						obj[key] = val
-						return obj
-					}, {})
+				.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
+				.reduce(function (obj, [key, val]) {
+					//@ts-ignore
+					obj[key] = val
+					return obj
+				}, {})
 
 			for (let tekufa of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
 				if (!(tekufa instanceof HTMLElement))
@@ -735,20 +737,17 @@ class zmanimListUpdater {
 				tekufa.style.removeProperty("display");
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaTime"]'))
-					.forEach(element => element.innerHTML = tekufaDate.toLocaleString(...tekufaTF));
+					.forEach(element => element.innerHTML = tekufaDate.round("minute").toLocaleString(...tekufaTF));
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaFastTime"]'))
 					.forEach(element => element.innerHTML =
 						[
-							tekufaDate.subtract({ minutes: 30 }).toLocaleString(...tekufaTF),
-							tekufaDate.add({ minutes: 30 }).toLocaleString(...tekufaTF),
+							tekufaDate.round("minute").subtract({ minutes: 30 }).toLocaleString(...tekufaTF),
+							tekufaDate.round("minute").add({ minutes: 30 }).toLocaleString(...tekufaTF),
 						].join('-')
 					);
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
-					//@ts-ignore
 					.forEach(element => element.innerHTML = nextTekufotNames.en);
-
-				//@ts-ignore
 				tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
 			}
 		} else {
@@ -780,6 +779,9 @@ class zmanimListUpdater {
 					let allRowsHidden = true;
 					let firstAlreadyGone = false;
 					for (const shita of timeDisplay.querySelectorAll('[data-subZmanId]')) {
+						if (!(shita instanceof HTMLElement))
+							return;
+
 						const completeName = timeSlot.getAttribute('data-zmanid') + '-' + shita.getAttribute('data-subZmanId');
 
 						if (zmanInfo[completeName].display == -1) {
@@ -916,6 +918,8 @@ class zmanimListUpdater {
 				leilouNishmatList.firstElementChild.remove()
 			}
 
+			/** @type {'en'|'he'} */
+			// @ts-ignore
 			const hLang = leilouNishmatList.getAttribute('data-zfIndex')
 			if (!leilouNishmat[hLang].length) {
 				const li = document.createElement('li');

@@ -7,7 +7,7 @@ website: true
 
 <style>
     .maxWidthContainer {
-        width: clamp(16rem, 90vw, 90rem);
+        width: 90rem;
         font-family: 'Neutro';
         color: #30344F;
     }
@@ -23,7 +23,7 @@ website: true
         position: relative;
         display: grid;
 
-        background-image: url("/assets/images/shabbat-abstract/single-location-bg.png"), linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
+        background-image: linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
         background-size: cover;
     }
 
@@ -37,7 +37,7 @@ website: true
 	    height: 0;
     }
 
-    #wrapperElement > *:not(.lechaDodi):not(#shabbatCandles) {
+    #wrapperElement > *:not(.lechaDodi) {
         grid-area: 1/1;
     }
 
@@ -50,7 +50,7 @@ website: true
         align-self: end;
         justify-self: end;
         transform: rotateY(180deg);
-        width: 50%;
+        width: 47.5%;
         z-index: 3;
         margin-bottom: 9rem;
     }
@@ -59,24 +59,24 @@ website: true
         position: absolute;
         transform: rotateZ(7deg);
         color: #F6E3A9;
-        font-size: 3.75vw;
+        font-size: 3vw;
         text-align: center;
         font-family: 'Guttman Mantova';
         line-height: 1;
     }
 
     #lechaDodi {
-        top: 26vw;
+        top: 24.5vw;
         right: 4vw;
     }
 
     #likratKalah {
-        top: 30vw;
-        right: 8.5vw;
+        top: 27.375vw;
+        right: 6.75vw;
     }
 
     #pnehShabbathNekabelah {
-        top: 35.5vw;
+        top: 31.5vw;
         right: 2.5vw;
     }
 
@@ -84,10 +84,9 @@ website: true
         align-self: start;
         justify-self: start;
         font-family: 'Barlow';
-        font-size: 13.25vw;
+        font-size: 14.25vw;
         font-weight: 700;
         font-style: italic;
-        top: 30vw;
         color: transparent;
         background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
         -webkit-background-clip: text;
@@ -99,7 +98,7 @@ website: true
     }
 
     #gridElement {
-        top: 42.5vw;
+        top: 45vw;
         grid-template-columns: 1fr 1fr 1fr 1fr;
         display: grid;
         left: 2.5vw;
@@ -108,11 +107,10 @@ website: true
     }
 
     #shabbatCandles {
-        position: absolute;
         align-self: end;
         width: 80%;
         right:0;
-        bottom: 5vw;
+        margin-bottom: 20rem;
         z-index: 1;
         opacity: 50%;
     }
@@ -121,6 +119,7 @@ website: true
         align-self: end;
         width: 100%;
         z-index: 2;
+        margin-bottom: 9rem;
     }
 
     .timeshow {
@@ -209,10 +208,12 @@ website: true
     }
 
     #gne {
-        height: 112px;
+        border-radius: 50%;
+        height: 170px;
+        aspect-ratio: 1/1;
         justify-self: start;
         align-self: start;
-        margin-top: 2.5rem;
+        margin-top: 1rem;
         margin-left: 2.5rem;
     }
 
@@ -220,7 +221,7 @@ website: true
         justify-self: end;
         align-self: start;
         margin-top: 12.5%;
-        width: 32.5%;
+        width: 27.5%;
     }
 
     #bsD {
@@ -242,7 +243,7 @@ website: true
         font-weight: 700;
         color: white;
         text-transform: uppercase;
-        margin-top: 34.625vw;
+        margin-top: 36.5vw;
         margin-left: 2.5vw;
         filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
         line-height: 1;
@@ -306,8 +307,10 @@ website: true
 <div id="wrapperElement">
     <div id="zyTrapezoid"></div>
     <span class="inlineLogo notchPosition">זמני יוסף</span>
-    <img id="gne" src="/assets/images/shabbat-abstract/pomona-logo.png" />
+    <img id="gne" src="/assets/images/shabbat-abstract/la-minyan.jpg" />
     <span id="bsD">בס"ד</span>
+    <img src="/assets/images/shabbat-abstract/shabbat-candles.png" id="shabbatCandles" />
+    <img src="/assets/images/shabbat-abstract/single-location-wave.png" id="bottomWave" />
     <div id="gridElement"
         data-functions-backday-1="getPlagHaminhaHalachaBrurah getCandleLighting"
         data-functions-backday-0="getTzaitShabbath getTzaitRT"
@@ -332,7 +335,7 @@ website: true
     <!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
     <span id="zemanehShab">Shabbat<br>Zemanim</span>
     <div id="location">Los Angeles, CA • <span class="shabbatTitleCore">פרשת </span></div>
-    <!-- <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png"> -->
+    <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
     <span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
     <span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
     <span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>

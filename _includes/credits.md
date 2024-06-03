@@ -25,3 +25,9 @@ The Rabbis who gave their Haskamot have also contributed to the app. Their credi
 - **[flexcal](https://github.com/dwachss/flexcal):** A jQuery(-UI) plugin to have a Hebrew-Date picker. To be replaced with a custom implementation built around KosherZmanim
 - **[Material Design Web](https://m3.material.io/develop/web):** Replace MDBootstrap's list selector, due to MDBootstrap's being paid.
 - **[pdf.js](https://mozilla.github.io/pdf.js/):** Embedded PDF viewer, because native ones either force the person to download the PDF on page-load or have issues scrolling
+
+##### Flyer work
+
+- **Adriel Kohananoo** - Flyer Designs
+- **Joshua Nektalov**, **Haim Shaul Niyazov** - Russian transliteration (Shabbat Flyer for Sefira)
+- **Aharon N. Varady** and **Andrew Meit** - [Menorah Lamnatzeach](https://opensiddur.org/?p=3393) (under the Creative Commons Attribution-ShareAlike (CC BY-SA) 4.0 International copyleft license)

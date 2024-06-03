@@ -1,12 +1,12 @@
 ---
 - timeGetter: getAlotHashachar
   names:
-    hb: עלות השחר
-    et: Aloth Hashachar
+    hb: עלות
+    et: Aloth
     en: Dawn
 - timeGetter: getMisheyakir
   names:
-    hb: טלית ותפילין
+    hb: מישיקיר
     et: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
@@ -44,14 +44,14 @@
 - shitot:
     - names:
         hb: גדולה
-        en: Gedolah
-        et: Earliest
+        en: Early
+        et: Early
       timeGetter: getMinhaGedolah
       id: gedolah
     - names:
         hb: קטנה
-        en: Ketanah
-        et: Preferable
+        en: Pref.
+        et: Pref.
       timeGetter: getMinchaKetana
       id: ketanah
   names:
@@ -83,18 +83,16 @@
 - shitot:
     - names:
         hb: שיטת מרן
-        en: Regular
-        et: Regular
+        en: Reg.
+        et: Reg.
       timeGetter: getTzait
       id: regular
     - names:
         hb: לחומרה
-        en: Humra
-        et: Stringent
+        et: Humra
+        en: Strict
       timeGetter: getTzaitLechumra
       id: humra
-      attributes:
-        luachInclusive: degrees
   names:
     hb: צאת הכוכבים
     et: Tzait Hakokhavim

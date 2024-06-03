@@ -303,7 +303,7 @@ chaiTable: true
 			<ul class="list-group list-group-flush">
 				<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
 				<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
-					{% for fast in site.data.fasts %}
+					{% for fast in site.data.events.fasts %}
 					<h5 data-zfFind="{{ fast.yomTovIndex }}">
 						<span class="lang lang-hb">{{ fast.text.hb }}</span>
 						<span class="lang lang-et">{{ fast.text.et }}</span>

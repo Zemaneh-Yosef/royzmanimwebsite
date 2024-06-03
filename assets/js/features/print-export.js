@@ -2,7 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
-import { HebrewNumberFormatter, getOrdinal } from "../WebsiteCalendar.js";
+import { HebrewNumberFormatter, daysForLocale, getOrdinal, monthForLocale } from "../WebsiteCalendar.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { settings } from "../settings/handler.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
@@ -43,10 +43,12 @@ const dtF = [settings.language() == 'hb' ? 'he' : 'en', {
 }];
 
 const listAllShitot = Array.from(document.querySelectorAll('[data-zyData]')).map(elem => elem.getAttribute('data-zyData'))
+/** @type {HTMLElement} */
+// @ts-ignore
 const baseTable = document.getElementsByClassName('tableGrid')[0];
 baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName('tableHeader'))
     .filter(elem => !elem.hasAttribute('data-zyHeaderContainer'))
-    .map(elem => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
+    .map((/** @type {HTMLElement} */elem) => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
     .join(" ");
 
 /** @type {false|KosherZmanim.Temporal.ZonedDateTime[]} */
@@ -311,7 +313,6 @@ function handleShita (/** @type {string} */ shita) {
             }
             div.appendChild(primaryDate);
             div.appendChild(secondaryDate);
-            div.classList.add("dateElem");
 
             if (jCal.isRoshChodesh() || jCal.getYomTovIndex() in yomTovObj)
                 div.style.fontWeight = "bold";
@@ -428,7 +429,7 @@ footer.appendChild(locationSection)
 footer.appendChild(document.querySelector('[data-zyBranding]').cloneNode(true));
 
 const rightSide = document.createElement("div");
-rightSide.classList.add("sides")
+rightSide.classList.add("sides", "d-flex", "justify-content-around")
 footer.appendChild(rightSide);
 
 let plainDateForLoop = jCal.getDate().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').with({ month: 1, day: 1 })
@@ -448,6 +449,7 @@ for (let mIndex = 1; mIndex <= plainDateForLoop.monthsInYear; mIndex++) {
                 )
         ));
 
+    const initTekuf = zmanCalc.nextTekufa(zmanCalc instanceof OhrHachaimZmanim)
     const halfDaysInMonth = plainDateForLoop.daysInMonth; //Math.floor(plainDateForLoop.daysInMonth / 2);
     for (let index = 1; index <= halfDaysInMonth; index++) {
         plainDateForLoop = plainDateForLoop.with({ day: index })
@@ -466,8 +468,63 @@ for (let mIndex = 1; mIndex <= plainDateForLoop.monthsInYear; mIndex++) {
             tableFirstHalf.appendChild(cell)
         }
     }
-    baseTable.parentElement.appendChild(tableFirstHalf)
-    baseTable.parentElement.appendChild(footer.cloneNode(true));
+    baseTable.parentElement.appendChild(tableFirstHalf);
+
+    jCal.getDate().withCalendar("hebrew");
+
+    /** @type {HTMLDivElement} */
+    // @ts-ignore
+    const thisMonthFooter = footer.cloneNode(true);
+    if (!initTekuf.equals(zmanCalc.nextTekufa(zmanCalc instanceof OhrHachaimZmanim).withTimeZone(geoLocation.getTimeZone()))) {
+        const nextTekufaJDate = [1, 4, 7, 10]
+            .map(month => new KosherZmanim.JewishDate(jCal.getJewishYear(), month, 15))
+            .sort((jDateA, jDateB) => {
+                const durationA = initTekuf.until(jDateA.getDate().toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone()))
+                const durationB = initTekuf.until(jDateB.getDate().toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone()))
+
+                return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
+            })[0]
+
+        /** @type {{en: string; he: string}} */
+        // @ts-ignore
+        const tekufaMonth = ['en', 'he']
+            .map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
+            .reduce(function (obj, [key, val]) {
+                //@ts-ignore
+                obj[key] = val
+                return obj
+            }, {})
+
+        const tekufaContainer = document.createElement("div");
+        const tekufaTitle = document.createElement("h5");
+        tekufaTitle.appendChild(document.createTextNode({
+            hb: "תקופת " + tekufaMonth.he,
+            en: tekufaMonth.en + " Season",
+            "en-et": "Tekufath " + tekufaMonth.en
+        }[settings.language()]));
+
+        let tekufaDate;
+        switch (settings.language()) {
+            default:
+                tekufaDate = `${daysForLocale('en')[initTekuf.dayOfWeek]}, ${monthForLocale('en')[initTekuf.month]} ${getOrdinal(initTekuf.day, true)}`;
+        }
+        const tekufaTimingDiv = document.createElement("p");
+        tekufaTimingDiv.innerHTML = tekufaDate;
+        tekufaTimingDiv.appendChild(document.createElement("br"));
+        tekufaTimingDiv.appendChild(document.createTextNode({
+            "hb": "אל תשתה מים בין ",
+            "en": "Do not drink water between ",
+            "en-et": "Do not drink water between "
+        }[settings.language()] + [
+            initTekuf.round("minute").subtract({ minutes: 30 }).toLocaleString(...dtF),
+            initTekuf.round("minute").add({ minutes: 30 }).toLocaleString(...dtF),
+        ].join('-')));
+
+        tekufaContainer.appendChild(tekufaTitle);
+        tekufaContainer.appendChild(tekufaTimingDiv);
+        thisMonthFooter.lastElementChild.appendChild(tekufaContainer);
+    }
+    baseTable.parentElement.appendChild(thisMonthFooter);
 
     //baseTable.parentElement.appendChild(header.parentElement.cloneNode(true))
     /** @type {Element} */
@@ -510,6 +567,7 @@ baseTable.remove();
 document.documentElement.setAttribute('forceLight', '')
 document.documentElement.removeAttribute('data-bs-theme');
 
+/** @type {HTMLElement} */
 const finalExplanation = document.querySelector('[data-printFind]');
 
 let paged = new Previewer();
@@ -533,11 +591,11 @@ const elems = [
     .flat();
 
 ['top', 'right', 'left', 'bottom']
-    .forEach(dir => elems.forEach(elem => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
+    .forEach(dir => elems.forEach((/** @type {HTMLElement} */elem) => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
 
-Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEach(elem => elem.style.gridRow = 'unset')
+Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEach((/** @type {HTMLElement} */elem) => elem.style.gridRow = 'unset')
 Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area > .pagedjs_page_content > div'))
-    .forEach(elem => elem.style.height = 'unset')
+    .forEach((/** @type {HTMLElement} */elem) => elem.style.height = 'unset')
 
 window.print();
 

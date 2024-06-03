@@ -6,7 +6,7 @@ import { ics } from "../../libraries/ics/ics.esm.js"
 import { Temporal, GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
-import n2words from "../../libraries/n2words.esm.js";
+import { he as n2heWords } from "../../libraries/n2words.esm.js";
 
 /**
  * @param {Temporal.PlainDate|Temporal.ZonedDateTime} date
@@ -88,7 +88,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 				start: calc.getTzait().epochMilliseconds,
 				end: monViewNight(monthView, calc),
 				title: {
-					"he": "ספירת העומר - ליל " + (count in n2wordsOrdinal ? n2wordsOrdinal[count] : n2words(count)),
+					"he": "ספירת העומר - ליל " + (count in n2wordsOrdinal ? n2wordsOrdinal[count] : n2heWords(count)),
 					"en": "Sefirath Haomer - Night " + count,
 					"en-et": "Sefirath Haomer - Night " + count
 				}[funcSettings.language],
@@ -192,6 +192,29 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 		jCal.setDate(jCal.getDate().add({ days: 1 }));
 		calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
 	}
+
+	calc.tekufaCalc.calculateTekufotShemuel(calc instanceof OhrHachaimZmanim)
+		.forEach((tekufa, index) => {
+			const time = tekufa.toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone())
+			const tekufaMonth = [
+				WebsiteLimudCalendar.TISHREI,
+				WebsiteLimudCalendar.TEVES,
+				WebsiteLimudCalendar.NISSAN,
+				WebsiteLimudCalendar.TAMMUZ
+			]
+				.map(month => (new WebsiteLimudCalendar(this.jCal.getJewishYear(), month, 15)).formatJewishMonth())
+				[index]
+
+			events.push({
+				start: time.subtract({ minutes: 30 }).epochMilliseconds,
+				end: time.add({ minutes: 30 }).epochMilliseconds,
+				title: {
+					he: "תקופת " + tekufaMonth.he,
+					en: tekufaMonth.en + " Season",
+					"en-et": "Tekufath " + tekufaMonth.en
+				}[funcSettings.language]
+			})
+		})
 
 	const labeledEvents = events.map(obj => ({
 		...obj,

@@ -7,7 +7,7 @@ website: true
 
 <style>
     .maxWidthContainer {
-        width: clamp(16rem, 90vw, 90rem);
+        width: 90rem;
         font-family: 'Neutro';
         color: #30344F;
     }
@@ -18,12 +18,12 @@ website: true
 
     #wrapperElement {
         width: 100%;
-        aspect-ratio: 1/1.5;
+        aspect-ratio: 8.5/11;
 
         position: relative;
         display: grid;
 
-        background-image: url("/assets/images/shabbat-abstract/single-location-bg.png"), linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
+        background-image: linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
         background-size: cover;
     }
 
@@ -37,7 +37,7 @@ website: true
 	    height: 0;
     }
 
-    #wrapperElement > *:not(.lechaDodi):not(#shabbatCandles) {
+    #wrapperElement > *:not(.lechaDodi) {
         grid-area: 1/1;
     }
 
@@ -50,7 +50,7 @@ website: true
         align-self: end;
         justify-self: end;
         transform: rotateY(180deg);
-        width: 50%;
+        width: 37.5%;
         z-index: 3;
         margin-bottom: 9rem;
     }
@@ -59,24 +59,24 @@ website: true
         position: absolute;
         transform: rotateZ(7deg);
         color: #F6E3A9;
-        font-size: 3.75vw;
+        font-size: 3vw;
         text-align: center;
         font-family: 'Guttman Mantova';
         line-height: 1;
     }
 
     #lechaDodi {
-        top: 26vw;
+        top: 24.5vw;
         right: 4vw;
     }
 
     #likratKalah {
-        top: 30vw;
-        right: 8.5vw;
+        top: 27.375vw;
+        right: 6.75vw;
     }
 
     #pnehShabbathNekabelah {
-        top: 35.5vw;
+        top: 31.5vw;
         right: 2.5vw;
     }
 
@@ -84,16 +84,15 @@ website: true
         align-self: start;
         justify-self: start;
         font-family: 'Barlow';
-        font-size: 13.25vw;
+        font-size: 14.25vw;
         font-weight: 700;
         font-style: italic;
-        top: 30vw;
         color: transparent;
         background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
         -webkit-background-clip: text;
         line-height: .85;
         text-transform: uppercase;
-        margin-top: 12.5vw;
+        margin-top: 11.25vw;
         margin-left: 2.5vw;
         filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
     }
@@ -108,11 +107,10 @@ website: true
     }
 
     #shabbatCandles {
-        position: absolute;
         align-self: end;
         width: 80%;
         right:0;
-        bottom: 5vw;
+        margin-bottom: 20rem;
         z-index: 1;
         opacity: 50%;
     }
@@ -121,6 +119,7 @@ website: true
         align-self: end;
         width: 100%;
         z-index: 2;
+        margin-bottom: 9rem;
     }
 
     .timeshow {
@@ -173,7 +172,7 @@ website: true
         -moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
     }
 
-    .shabBorder:not(:nth-last-child(2)) {
+    .shabBorder {
         border-right: .25vw solid black;
     }
 
@@ -220,7 +219,7 @@ website: true
         justify-self: end;
         align-self: start;
         margin-top: 12.5%;
-        width: 32.5%;
+        width: 27.5%;
     }
 
     #bsD {
@@ -238,7 +237,7 @@ website: true
         align-self: start;
         justify-self: start;
         font-family: 'Barlow', 'FrankRuehl';
-        font-size: 3vw;
+        font-size: 3.5vw;
         font-weight: 700;
         color: white;
         text-transform: uppercase;
@@ -253,18 +252,29 @@ website: true
     }
 
     #templateAd {
-        align-self: center;
+        align-self: end;
         justify-self: start;
-        border-radius: 50%;
-        margin-top: 60%;
-        margin-left: 15%;
+        margin-bottom: 17.5%;
+        margin-left: 3.75%;
+        z-index: 10;
+    }
+    #templateAd > * {
+        display: inline-block;
+        border-radius: .5rem;
+        background: black;
+        width: 17.5%;
+        padding: .5rem;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        font-size: 1.125rem;
     }
 
     #advertFooter {
         justify-self: start;
-        padding-bottom: 11.25rem;
+        padding-bottom: 10rem;
         padding-left: 1rem;
-        font-size: 2.125em;
+        font-size: 1.75em;
         font-weight: 600;
         line-height: 1.2;
         z-index: 3;
@@ -308,6 +318,8 @@ website: true
     <span class="inlineLogo notchPosition">זמני יוסף</span>
     <img id="gne" src="/assets/images/shabbat-abstract/bethGavriel.png" />
     <span id="bsD">בס"ד</span>
+    <img src="/assets/images/shabbat-abstract/shabbat-candles.png" id="shabbatCandles" />
+    <img src="/assets/images/shabbat-abstract/single-location-wave.png" id="bottomWave" />
     <div id="gridElement"
         data-functions-backday-1="getPlagHaminhaHalachaBrurah getCandleLighting"
         data-functions-backday-0="getTzaitShabbath getTzaitRT"
@@ -325,19 +337,39 @@ website: true
         <div class="shabbatRow timeshow shabBorder" style="grid-column: 1; grid-row: 2;">Early Time</div>
         <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 2;">Start Time</div>
         <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: 2;">End Time</div>
-        <div class="shabbatRow timeshow shabBorder" style="grid-column: 4; grid-row: 2;">Machmir Time</div>
+        <div class="shabbatRow timeshow" style="grid-column: 4; grid-row: 2;">Machmir Time</div>
         <div class="shabbatRowBg tableShadow" style="grid-row: 2;"></div>
+    </div>
+    <div id="templateAd">
+        <a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987">
+            <div style="border-radius: .5rem; background: white;">
+                <img src="/assets/images/app-store.svg" style="width: 100%" loading="lazy">
+            </div>
+            App Store
+        </a>
+        <a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar">
+            <div style="border-radius: .5rem; background: white;">
+                <img src="/assets/images/play-store.svg" style="width: 100%" loading="lazy">
+            </div>
+            Play Store
+        </a>
+        <a href="https://royzmanim.com">
+            <div style="border-radius: .5rem; background: white;">
+                <img src="/assets/images/globe.svg" style="width: 100%; padding: 1rem;" loading="lazy">
+            </div>
+            https://royzmanim.com/
+        </a>
     </div>
     <!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
     <span id="zemanehShab">Shabbat<br>Zemanim</span>
     <div id="location">Queens, NY • <span class="shabbatTitleCore">פרשת </span></div>
-    <!-- <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png"> -->
+    <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
     <span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
     <span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
     <span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
     <div id="advertFooter">
-        Halachic Shabbat Times according to<br>Rabbi Ovadiah Yosef zt"l.<br>
-        Use our apps & website for other locations,<br>available on iOS & Android • royzmanim.com
+        Halachic Shabbat Times according to Rav Ovadiah Yosef zt"l.<br>
+        Use our apps & website to get any Halachic time for any location
     </div>
     <div id="documentClosure">
         <div id="sourcesFooter">
