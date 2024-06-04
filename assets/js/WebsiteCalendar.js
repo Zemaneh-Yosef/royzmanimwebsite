@@ -12,7 +12,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			english: this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"}),
 			hebrew: [
 				hNum.formatHebrewNumber(this.getJewishDayOfMonth()),
-				this.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'}) + ',',
+				monthForLocale('he-u-ca-hebrew', 'long', 'hebrew', this.getDate().year)[this.getDate().month] + ',',
 				hNum.formatHebrewNumber(this.getJewishYear()),
 			].join(' ')
 		}
@@ -442,10 +442,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const days = this.getDayOfOmer() % 7;
 
 		// Hebrew Attributes
-		const hbName = n2heWords(this.getDayOfOmer());
-
 		const hbDayWords = ["יוֹם", "יָמִים"]
-		const hbTitle = [hbName, hbDayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)]];
+		const hbTitle = [n2heWords(this.getDayOfOmer()), hbDayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)]];
 		if (this.getDayOfOmer() == 1)
 			hbTitle.reverse()
 
@@ -466,10 +464,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 
 		// Hebrew Attributes
-		const ruName = n2ruWords(this.getDayOfOmer());
-
 		const ruDayWords = ["ём", "ямим"]
-		const ruTitle = [ruName, ruDayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)]];
+		const ruTitle = [n2ruWords(this.getDayOfOmer()), ruDayWords[(this.getDayOfOmer() >= 2 && this.getDayOfOmer() <= 10 ? 1 : 0)]];
 		if (this.getDayOfOmer() == 1)
 			ruTitle.reverse()
 
@@ -827,22 +823,26 @@ export function getOrdinal (n, htmlSup=false) {
  * @param {string | string[]} localeName
  * @param {"short" | "long" | "narrow"} [weekday] 
  */
-export function daysForLocale(localeName, weekday = 'long') {
-	const {format} = new Intl.DateTimeFormat(localeName, { weekday });
-	const array = [...Array(7).keys()]
-	  .map((day) => format(new Date(Date.UTC(2021, 8, day))));
-	array.unshift(undefined);
-	return array;
+export function daysForLocale(localeName, weekday = 'long', calendar = 'iso8601') {
+	const baseDate = KosherZmanim.Temporal.PlainDate.from({ year: 2024, month: 1, day: 1 }).withCalendar(calendar);
+	const dayLocale = [...Array(baseDate.daysInWeek).keys()]
+		.map((day) => baseDate.with({ day: day + 1 }).toLocaleString(localeName, { weekday }));
+
+	dayLocale.unshift(undefined);
+	return dayLocale;
 }
 
 /**
  * @param {string | string[]} localeName
- * @param {"short" | "long" | "narrow" | "numeric" | "2-digit"} [weekday] 
+ * @param {"short" | "long" | "narrow" | "numeric" | "2-digit"} [month] 
  */
-export function monthForLocale(localeName, weekday = 'long') {
-	const {format} = new Intl.DateTimeFormat(localeName, { month: weekday });
-	return [...Array(13).keys()]
-	  .map((day) => format(new Date(Date.UTC(2021, day, 1))));
+export function monthForLocale(localeName, month = 'long', calendar = 'iso8601', year=2024) {
+	const baseDate = KosherZmanim.Temporal.PlainDate.from({ year: 2024, month: 1, day: 1 }).withCalendar(calendar).with({ year });
+	const monthLocale = [...Array(baseDate.monthsInYear).keys()]
+		.map((monthNum) => baseDate.with({ month: monthNum + 1 }).toLocaleString(localeName, { month }));
+
+	monthLocale.unshift(undefined);
+	return monthLocale;
 }
 
 export class HebrewNumberFormatter {

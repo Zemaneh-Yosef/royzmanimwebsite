@@ -206,7 +206,7 @@ for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) 
 		separator.style.setProperty('--bs-border-width', '2px');
 		separator.style.opacity = 'unset';
 		sefiraElement.appendChild(separator);
-		const ruSefiraText = "нисан " +  omerJCal.getOmerInfo().title.ru.mainCount + ` лаóмер` +
+		const ruSefiraText = "hаём " +  omerJCal.getOmerInfo().title.ru.mainCount + ` лаóмер` +
 		(omerJCal.getDayOfOmer() >= 7 ? (`, шеһэм ` + omerJCal.getOmerInfo().title.ru.subCount.toString()) : '');
 
 		sefiraElement.appendChild(document.createTextNode(ruSefiraText.toLocaleUpperCase()))

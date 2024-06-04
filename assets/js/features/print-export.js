@@ -8,10 +8,15 @@ import { settings } from "../settings/handler.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { Previewer } from "../../libraries/paged.js"
 
-if (new URLSearchParams(window.location.search).has('lessContrast')) {
+const printParam = new URLSearchParams(window.location.search);
+if (printParam.has('lessContrast')) {
     document.documentElement.style.setProperty('--bs-body-bg', 'snow');
     document.documentElement.style.setProperty('--bs-body-color', '#1A0033');
 }
+const calcMonthStart = (printParam.has('currentMonth') ?
+    KosherZmanim.Temporal.Now.plainDateISO().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').month
+    : 1
+);
 
 const hNum = new HebrewNumberFormatter();
 
@@ -25,7 +30,7 @@ const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 
 const jCal = new WebsiteLimudCalendar();
-jCal.setDate(jCal.getDate().with({ day: 1, month: 1 }))
+jCal.setDate(jCal.getDate().with({ day: 1, month: calcMonthStart }))
 jCal.setInIsrael((geoLocation.getLocationName() || "").toLowerCase().includes('israel'));
 const zmanCalc = (
     !jCal.getInIsrael() && settings.calendarToggle.hourCalculators() == "degrees"
@@ -432,8 +437,8 @@ const rightSide = document.createElement("div");
 rightSide.classList.add("sides", "d-flex", "justify-content-around")
 footer.appendChild(rightSide);
 
-let plainDateForLoop = jCal.getDate().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').with({ month: 1, day: 1 })
-for (let mIndex = 1; mIndex <= plainDateForLoop.monthsInYear; mIndex++) {
+let plainDateForLoop = jCal.getDate().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').with({ month: calcMonthStart, day: 1 })
+for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYear; mIndex++) {
     plainDateForLoop = plainDateForLoop.with({ month: mIndex });
     jCal.setDate(plainDateForLoop.withCalendar("iso8601"));
 
