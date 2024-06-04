@@ -428,13 +428,19 @@ footer.classList.add("zyCalFooter");
 const locationSection = document.createElement("div");
 locationSection.classList.add("sides")
 locationSection.appendChild(locationElem);
-locationSection.innerHTML += `(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()})`;
+locationSection.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
+    zmanCalc instanceof OhrHachaimZmanim ? ", ↑" + geoLocation.getElevation : ""
+})`));
+locationSection.appendChild(document.createElement("br"))
+locationSection.appendChild(document.createTextNode("Current Calendar: " + (zmanCalc instanceof OhrHachaimZmanim ? "Ohr Hachaim" : "Amudeh Hora'ah")))
+locationSection.appendChild(document.createElement("br"))
+locationSection.appendChild(document.createTextNode("Current Timezone: " + geoLocation.getTimeZone()))
 footer.appendChild(locationSection)
 
 footer.appendChild(document.querySelector('[data-zyBranding]').cloneNode(true));
 
 const rightSide = document.createElement("div");
-rightSide.classList.add("sides", "d-flex", "justify-content-around")
+rightSide.classList.add("sides", "rightside")
 footer.appendChild(rightSide);
 
 let plainDateForLoop = jCal.getDate().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').with({ month: calcMonthStart, day: 1 })
@@ -454,12 +460,16 @@ for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYea
                 )
         ));
 
-    const initTekuf = zmanCalc.nextTekufa(zmanCalc instanceof OhrHachaimZmanim)
+    const initTekuf = zmanCalc.nextTekufa(zmanCalc instanceof OhrHachaimZmanim);
     const halfDaysInMonth = plainDateForLoop.daysInMonth; //Math.floor(plainDateForLoop.daysInMonth / 2);
+    let hamesDate = null;
     for (let index = 1; index <= halfDaysInMonth; index++) {
         plainDateForLoop = plainDateForLoop.with({ day: index })
         jCal.setDate(plainDateForLoop.withCalendar("iso8601"))
         zmanCalc.setDate(plainDateForLoop.withCalendar("iso8601"))
+
+        if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH)
+            hamesDate = jCal.getDate();
 
         for (const shita of listAllShitot) {
             const cell = handleShita(shita);
@@ -528,6 +538,33 @@ for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYea
         tekufaContainer.appendChild(tekufaTitle);
         tekufaContainer.appendChild(tekufaTimingDiv);
         thisMonthFooter.lastElementChild.appendChild(tekufaContainer);
+    }
+    if (hamesDate) {
+        const hamesName = `${daysForLocale('en')[hamesDate.dayOfWeek]}, ${monthForLocale('en')[hamesDate.month]} ${getOrdinal(hamesDate.day, true)}`;
+        const hametzContainer = document.createElement("div");
+        const hametzTitle = document.createElement("h5");
+        hametzTitle.innerHTML = {
+            hb: "ערב פסח",
+            en: "Pesaḥ Eve - " + hamesName,
+            "en-et": "Erev Pesaḥ - " + hamesName
+        }[settings.language()];
+
+        const hametzTiming = document.createElement("p");
+        hametzTiming.appendChild(document.createTextNode({
+            "hb": "סןף זמן אחילת חמץ: ",
+            "en": "Stop eating Hametz by ",
+            "en-et": "Stop eating Hametz by "
+        }[settings.language()] + zmanCalc.chainDate(hamesDate).getSofZmanAchilathHametz().toLocaleString(...dtF)));
+        hametzTiming.appendChild(document.createElement("br"));
+        hametzTiming.appendChild(document.createTextNode({
+            "hb": "זמן ביעור חמץ עד ",
+            "en": "Burn Hametz by ",
+            "en-et": "Burn Hametz by "
+        }[settings.language()] + zmanCalc.chainDate(hamesDate).getSofZmanBiurHametz().toLocaleString(...dtF)));
+
+        hametzContainer.appendChild(hametzTitle);
+        hametzContainer.appendChild(hametzTiming);
+        thisMonthFooter.lastElementChild.appendChild(hametzContainer);
     }
     baseTable.parentElement.appendChild(thisMonthFooter);
 
