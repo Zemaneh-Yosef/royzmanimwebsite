@@ -763,6 +763,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const clonedCal = new WebsiteCalendar(this.getDate())
 		clonedCal.setInIsrael(this.getInIsrael())
 		clonedCal.setUseModernHolidays(this.isUseModernHolidays())
+		clonedCal.setIsMukafChoma(this.getIsMukafChoma())
 
 		return clonedCal;
 	}

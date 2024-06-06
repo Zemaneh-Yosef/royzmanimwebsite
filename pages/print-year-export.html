@@ -17,7 +17,7 @@ layout: nothing
 <link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Noto+Serif+Hebrew:wght@100..900&display=swap" rel="stylesheet">
 
 <style>
 	.tableGrid {
@@ -172,6 +172,10 @@ layout: nothing
 		font-size: .85rem;
 		margin-bottom: 0;
 	}
+
+	.specialDay {
+		font-size: .85em;
+	}
 </style>
 
 <div class="explanationPreface" id="differences">
@@ -264,6 +268,30 @@ layout: nothing
 				<h4 style="text-align: center;">Calendar Explanation</h4>
 				<p style="text-align: center;">In this section of the calendar, we aim to explain every Halachic time in brief for both calculation and concept. One looking to read more on each time should read the descriptions for each on our website, royzmanim.com, where we give Talmudic based sources in addition to all the later Poskim we already bring in this document.</p>
 				<div data-column-split>{{ fullExpl | markdownify }}</div>
+				<div class="advert" style="margin-top: .5rem; text-align: center;">
+					See more from...<br>
+					<img src="/assets/images/logo-colorless.svg" style="margin-bottom: .5rem; width: 30%;">
+					<div style="color: white;">
+                        <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/app-store.svg" style="width: 100%">
+                            </div>
+                            App Store
+                        </div>
+                        <div style="margin-left: .35rem; margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/play-store.svg" style="width: 100%">
+                            </div>
+                            Play Store
+                        </div>
+						<div style="margin-left: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/globe.svg" style="width: 100%; padding: .5rem;">
+                            </div>
+                            royzmanim.com
+                        </div>
+                    </div>
+				</div>
 			</div>
 		</div>
 	</div>
