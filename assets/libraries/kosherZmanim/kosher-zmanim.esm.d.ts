@@ -8734,11 +8734,11 @@ export declare class HiloulahYomiCalculator {
 	static getHiloulah(jewishCalendar: JewishDate): {
 		en: {
 			name: string;
-			src: string;
+			source: string;
 		}[];
 		he: {
 			name: string;
-			src: string;
+			source: string;
 		}[];
 	};
 }
