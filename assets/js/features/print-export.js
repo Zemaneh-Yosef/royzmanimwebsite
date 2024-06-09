@@ -485,7 +485,7 @@ rightSide.classList.add("sides", "rightside")
 footer.appendChild(rightSide);
 
 let plainDateForLoop = jCal.getDate().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').with({ month: calcMonthStart, day: 1 })
-for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYear; mIndex++) {
+for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYear / 6; mIndex++) {
 	plainDateForLoop = plainDateForLoop.with({ month: mIndex });
 	jCal.setDate(plainDateForLoop.withCalendar("iso8601"));
 
@@ -633,7 +633,7 @@ for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYea
 	const bLTitl = document.createElement("h5");
 	bLTitl.innerHTML = {
 		hb: "ברכת הלבנה - חדש " + jCalBMoon.formatJewishMonth().he,
-		en: "Moon-Blessing - Month of " + jCalBMoon.formatJewishMonth().en,
+		en: "Moon-Blessing - Month of" + jCalBMoon.formatJewishMonth().en,
 		"en-et": "Birkat Halevana - Month of " + jCalBMoon.formatJewishMonth().en
 	}[settings.language()];
 
@@ -723,18 +723,9 @@ const elems = [
 ['top', 'right', 'left', 'bottom']
 	.forEach(dir => elems.forEach((/** @type {HTMLElement} */elem) => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
 
-Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area'))
-	.forEach((/** @type {HTMLElement} */pageArea) => {
-		pageArea.style.gridRow = 'unset';
-		[...pageArea.children]
-			.filter(child => child.classList.contains('pagedjs_page_content'))
-			.forEach((/** @type {HTMLElement} */pageContent) => {
-				pageContent.style.columnWidth = 'unset';
-				[...pageContent.children]
-					.filter(child => child.nodeName == "DIV")
-					.forEach((/** @type {HTMLElement} */pageContentChild) => pageContentChild.style.height = 'unset')
-			})
-	})
+Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area')).forEach((/** @type {HTMLElement} */elem) => elem.style.gridRow = 'unset')
+Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area > .pagedjs_page_content > div'))
+	.forEach((/** @type {HTMLElement} */elem) => elem.style.height = 'unset')
 
 window.print();
 

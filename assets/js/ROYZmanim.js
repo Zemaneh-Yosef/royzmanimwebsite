@@ -22,7 +22,11 @@ class ZmanimMathBase {
 		this.coreZC.getAstronomicalCalculator().setRefraction(34.478885263888294 / 60)
 		this.tekufaCalc = new TekufahCalculator(this.coreZC.getDate().withCalendar("hebrew").year);
 
-		this.setDate(KosherZmanim.Temporal.Now.plainDateISO())
+		/* getElevationAdjustedSunrise & getElevationAdjustedSunset are protected. Manually make the Object */
+		this.zmanim = {
+			sunrise: () => this.coreZC.isUseElevation() ? this.coreZC.getSunrise() : this.coreZC.getSeaLevelSunrise(),
+			sunset: () => this.coreZC.isUseElevation() ? this.coreZC.getSunset() : this.coreZC.getSeaLevelSunset()
+		}
 	}
 
 	/**
@@ -31,21 +35,6 @@ class ZmanimMathBase {
 	setDate(plainDate) {
 		this.coreZC.setDate(plainDate);
 		this.tekufaCalc.setYear(this.coreZC.getDate().withCalendar("hebrew").year)
-
-		if (this.coreZC.isUseElevation())
-			this.astronomicalZman = { sunrise: this.coreZC.getSunrise(), sunset: this.coreZC.getSunset() }
-		else
-			this.astronomicalZman = { sunrise: this.coreZC.getSeaLevelSunrise(), sunset: this.coreZC.getSeaLevelSunset() }
-
-		this.seasonalDay = this.astronomicalZman.sunrise.until(this.astronomicalZman.sunset)
-	}
-
-	/**
-	 * @param {boolean} useElevation 
-	 */
-	setUseElevation(useElevation) {
-		this.coreZC.setUseElevation(useElevation);
-		this.setDate(this.coreZC.getDate())
 	}
 
 	/** @returns {this} */
@@ -85,10 +74,11 @@ class ZmanimMathBase {
 	 * @param {"gra"} dayCalc
 	 */
 	fixedToSeasonal(input, dayCalc="gra") {
-		const inputPortionOfDay = input.total("nanoseconds") / KosherZmanim.Temporal.Duration.from({ hours: 12 }).total('nanoseconds'); // Length of 12
+		const lengthOfDay = this.zmanim.sunrise().until(this.zmanim.sunset());
+		const inputPortionOfDay = input.total("nanoseconds") / 43200000000000; // Length of 12
 
 		return KosherZmanim.Temporal.Duration.from({
-			nanoseconds: Math.trunc(this.seasonalDay.total("nanoseconds") * inputPortionOfDay)
+			nanoseconds: Math.trunc(lengthOfDay.total("nanoseconds") * inputPortionOfDay)
 		});
 	}
 
@@ -117,12 +107,12 @@ class GRAZmanim extends ZmanimMathBase {
 	}
 
 	getSofZmanShmaGRA() {
-		return this.astronomicalZman.sunrise
+		return this.zmanim.sunrise()
 			.add(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ hours: 3 })));
     }
 
 	getSofZmanBrachothShma() {
-		return this.astronomicalZman.sunrise
+		return this.zmanim.sunrise()
 			.add(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ hours: 4 })));
     }
 
@@ -144,28 +134,28 @@ class GRAZmanim extends ZmanimMathBase {
 	 *         returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.
 	 */
 	getMinchaKetana() {
-		return this.astronomicalZman.sunrise
+		return this.zmanim.sunrise()
 			.add(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ hours: 9, minutes: 30 })));
 	}
 
 	getPlagHaminhaHalachaBrurah() {
-		return this.plagHaminchaCore(this.astronomicalZman.sunset);
+		return this.plagHaminchaCore(this.zmanim.sunset());
 	}
 
 	getEarliestMinchaBirkatKohanim() {
-		return this.astronomicalZman.sunset.subtract({ minutes: 30 })
+		return this.zmanim.sunset().subtract({ minutes: 30 })
 	}
 
 	getCandleLighting() {
-		return this.coreZC.getSeaLevelSunset().subtract({ minutes: this.coreZC.getCandleLightingOffset() })
+		return this.zmanim.sunset().subtract({ minutes: this.coreZC.getCandleLightingOffset() })
 	}
 
 	getShkiya() {
-		return this.coreZC.getSeaLevelSunset();
+		return this.zmanim.sunset();
 	}
 
 	getTzaitTaanitLChumra() {
-		return this.astronomicalZman.sunset.add({ minutes: 30 });
+		return this.zmanim.sunset().add({ minutes: 30 });
 	}
 }
 
@@ -187,7 +177,7 @@ class AlotTzeitZmanim extends GRAZmanim {
 		let lengthOfDay;
 		switch (dayCalc) {
 			case 'gra':
-				lengthOfDay = this.seasonalDay;
+				lengthOfDay = this.zmanim.sunrise().until(this.zmanim.sunset());
 				break;
 			case 'mga':
 				lengthOfDay = this.getAlotHashachar().until(this.getTzait72Zmanit());
@@ -205,8 +195,8 @@ class AlotTzeitZmanim extends GRAZmanim {
 	 * @param {number} percentageForMisheyakir
 	 */
 	getMisheyakir(percentageForMisheyakir) {
-		const alotDuration = this.getAlotHashachar().until(this.astronomicalZman.sunrise)
-		return this.astronomicalZman.sunrise
+		const alotDuration = this.getAlotHashachar().until(this.zmanim.sunrise())
+		return this.zmanim.sunrise()
 			.subtract({ nanoseconds: Math.trunc(alotDuration.total("nanoseconds") * percentageForMisheyakir) })
 	}
 
@@ -271,7 +261,7 @@ class AlotTzeitZmanim extends GRAZmanim {
 	getTzaitRT() {
 		const rtTimes = [
 			this.getTzait72Zmanit(),
-			this.astronomicalZman.sunset.add({ minutes: 72 })
+			this.zmanim.sunset().add({ minutes: 72 })
 		];
 
 		if (this.rtKulah) 
@@ -332,7 +322,7 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
 	 */
 	constructor(geoLocation, elevation) {
 		super(geoLocation)
-		this.setUseElevation(elevation);
+		this.coreZC.setUseElevation(elevation);
 	}
 
 	/**
@@ -352,7 +342,7 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
      * @see KosherZmanim.ComplexZmanimCalendar.getShaahZmanisGra()
      */
 	getAlotHashachar(zemaniyot={minutes:72, degree: 16.04}) {
-		return this.astronomicalZman.sunrise
+		return this.zmanim.sunrise()
 			.subtract(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ minutes: zemaniyot.minutes })));
 	}
 
@@ -361,30 +351,30 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
 	}
 
 	getTzait() {
-		return this.astronomicalZman.sunset
+		return this.zmanim.sunset()
 			.add(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ minutes: 13, seconds: 30 })))
 	}
 
 	getTzaitBenIshHai() {
-		return this.astronomicalZman.sunset
+		return this.zmanim.sunset()
 			.add(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ minutes: 27 })))
 	}
 
 	getTzaitLechumra() {
-		return this.astronomicalZman.sunset
+		return this.zmanim.sunset()
 			.add(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ minutes: 20 })))
 	}
 
 	getTzaitTaanit() {
-		return this.astronomicalZman.sunset.add({ minutes: 20 });
+		return this.zmanim.sunset().add({ minutes: 20 });
 	}
 
 	getTzaitShabbath(shabbatTimeObj = this.shabbatObj) {
-		return this.astronomicalZman.sunset.add({ minutes: shabbatTimeObj.minutes });
+		return this.zmanim.sunset().add({ minutes: shabbatTimeObj.minutes });
 	}
 
 	getTzait72Zmanit() {
-		return this.astronomicalZman.sunset
+		return this.zmanim.sunset()
 			.add(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ minutes: 72 })))
 	}
 }
@@ -395,7 +385,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	 */
 	constructor(geoLocation) {
 		super(geoLocation)
-		this.setUseElevation(false);
+		this.coreZC.setUseElevation(false);
 	}
 
 
@@ -416,7 +406,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getAlotHashachar(zemaniyot={minutes: 72, degree: 16.04}) {
-		return this.astronomicalZman.sunrise
+		return this.zmanim.sunrise()
 			.subtract(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(zemaniyot.degree, false)))
 	}
 
@@ -425,12 +415,12 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getTzait() {
-		return this.astronomicalZman.sunset
+		return this.zmanim.sunset()
 			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(3.77, true)))
 	}
 
 	getTzaitLechumra() {
-		return this.astronomicalZman.sunset
+		return this.zmanim.sunset()
 			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(5.135, true)));
 	}
 
@@ -452,7 +442,7 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	}
 
 	getTzait72Zmanit() {
-		return this.astronomicalZman.sunset
+		return this.zmanim.sunset()
 			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(16.01, true)))
 	}
 }

@@ -938,8 +938,8 @@ class zmanimListUpdater {
 				name.appendChild(document.createTextNode(neshama.name));
 
 				li.appendChild(name)
-				if (neshama.src)
-					li.appendChild(document.createTextNode(` (${neshama.src})`));
+				if (neshama.source)
+					li.appendChild(document.createTextNode(` (${neshama.source})`));
 
 				leilouNishmatList.appendChild(li);
 			}
