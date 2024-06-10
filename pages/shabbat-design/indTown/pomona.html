@@ -1,6 +1,6 @@
 ---
-title: Shabbat Monsey Times (+ Sefira)
-permalink: /shabbat-design/monsey-sefira
+title: Shabbat Monsey (Pomona) Times
+permalink: /shabbat-design/pomona
 breakout: true
 website: true
 ---
@@ -50,7 +50,7 @@ website: true
         align-self: end;
         justify-self: end;
         transform: rotateY(180deg);
-        width: 30%;
+        width: 37.5%;
         z-index: 3;
         margin-bottom: 9rem;
     }
@@ -129,7 +129,9 @@ website: true
 
     .shabbatRow {
         margin-top: .3vw;
+        margin-bottom: .3vw;
         padding-top: .25vw;
+        padding-bottom: .25vw;
         font-size: 2.75vw;
         font-weight: 700;
     }
@@ -235,7 +237,7 @@ website: true
         align-self: start;
         justify-self: start;
         font-family: 'Barlow', 'FrankRuehl';
-        font-size: 3.5vw;
+        font-size: 3.25vw;
         font-weight: 700;
         color: white;
         text-transform: uppercase;
@@ -272,7 +274,7 @@ website: true
         justify-self: start;
         padding-bottom: 10rem;
         padding-left: 1rem;
-        font-size: 2em;
+        font-size: 1.75em;
         font-weight: 600;
         line-height: 1.2;
         z-index: 3;
@@ -304,28 +306,6 @@ website: true
         padding: .25rem 1rem;
         align-content: end;
     }
-
-    .sefira {
-        font-family: "Guttman Mantova", 'Neutro';
-        font-size: 2em;
-        line-height: 1.2;
-        padding-left: .5em;
-        padding-right: .5em;
-        padding-bottom: .5em;
-    }
-
-    .sefira [data-sefira-header] {
-        font-family: 'Neutro';
-    }
-
-    #gridElement [data-dateRender-backday] {
-        color: white;
-        text-align: center;
-        font-size: 3.5em;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.7));
-        font-weight: 700;
-        text-shadow: 0px 0px 16px rgba(0, 0, 0, 0.8);
-    }
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -344,8 +324,6 @@ website: true
         data-functions-backday-1="getPlagHaminhaHalachaBrurah getCandleLighting"
         data-functions-backday-0="getTzaitShabbath getTzaitRT"
     >
-        <div style="grid-row: 1; grid-column: 1 / span 2;" data-dateRender-backday="1"></div>
-        <div style="grid-row: 1; grid-column: 3 / span 4;" data-dateRender-backday="0"></div>
         <div class="header tableShadow">Earliest Time</div>
         <div class="header tableShadow">Shabbat Starts<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
         <div class="header tableShadow">Shabbat Ends</div>
@@ -356,17 +334,11 @@ website: true
             data-format="h12"
             style="display: none;">
         </div>
-        <div class="shabbatRow timeshow shabBorder" style="grid-column: 1; grid-row: 3;">Early Time</div>
-        <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 3;">Start Time</div>
-        <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: 3;">End Time</div>
-        <div class="shabbatRow timeshow" style="grid-column: 4; grid-row: 3;">Machmir Time</div>
-        <div class="shabBorder timeshow sefira" data-sefira-backday="1" style="grid-column: 1 / span 2; grid-row: 4;">
-            <div data-sefira-header><b>Sefira at Night: </b></div>
-        </div>
-        <div class="timeshow sefira" data-sefira-backday="0" style="grid-column: 3 / span 2; grid-row: 4;">
-            <div data-sefira-header><b>Sefira at Night: </b></div>
-        </div>
-        <div class="shabbatRowBg tableShadow" style="grid-row: 3 / span 2;"></div>
+        <div class="shabbatRow timeshow shabBorder" style="grid-column: 1; grid-row: 2;">Early Time</div>
+        <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 2;">Start Time</div>
+        <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: 2;">End Time</div>
+        <div class="shabbatRow timeshow" style="grid-column: 4; grid-row: 2;">Machmir Time</div>
+        <div class="shabbatRowBg tableShadow" style="grid-row: 2;"></div>
     </div>
     <div id="templateAd">
         <a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987">
@@ -390,7 +362,7 @@ website: true
     </div>
     <!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
     <span id="zemanehShab">Shabbat<br>Zemanim</span>
-    <div id="location">Monsey, NY • <span class="shabbatTitleCore">פרשת </span></div>
+    <div id="location">Pomona, Monsey, NY • <span class="shabbatTitleCore">פרשת </span></div>
     <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
     <span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
     <span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>

@@ -162,7 +162,7 @@ class ChaiTables {
 			times: []
 		}
 
-		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 1; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
+		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 2; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
 			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413);
 
 			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
