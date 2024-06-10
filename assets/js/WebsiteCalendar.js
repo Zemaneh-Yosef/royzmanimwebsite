@@ -182,17 +182,17 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						}
 					}
 
-					if (visibleSunrise) {
-						calculatedZmanim[zmanId].title.hb = 'הנץ';
-						calculatedZmanim[zmanId].title['en-et'] = 'HaNetz';
-						calculatedZmanim[zmanId].title.en = 'Sunrise';
+					calculatedZmanim[zmanId].title.hb = 'הנץ';
+					calculatedZmanim[zmanId].title['en-et'] = 'HaNetz';
+					calculatedZmanim[zmanId].title.en = 'Sunrise';
 
+					if (!visibleSunrise) {
+						calculatedZmanim[zmanId].title.hb += ' (משור)';
+						calculatedZmanim[zmanId].title['en-et'] += ' (Mishor)';
+						calculatedZmanim[zmanId].title.en += ' (Sea Level)';
+					} else
 						calculatedZmanim[zmanId].luxonObj = visibleSunrise
-					} else {
-						calculatedZmanim[zmanId].title.hb = 'הנץ (משור)';
-						calculatedZmanim[zmanId].title['en-et'] = 'HaNetz (Mishor)';
-						calculatedZmanim[zmanId].title.en = 'Sunrise (Sea Level)';
-					}
+
 					break;
 				case 'candleLighting':
 					if (!this.hasCandleLighting()) {
@@ -211,20 +211,27 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					break;
 				case 'tzeitShabbat':
 					if (this.isAssurBemelacha() && !this.hasCandleLighting()) {
-						let customMinuteDisplay = `(${funcSettings.tzeithIssurMelakha.minutes}m${(zmanCalc instanceof AmudehHoraahZmanim && `/${funcSettings.tzeithIssurMelakha.degree}°`) || ""})`
 						if (this.isYomTovAssurBemelacha() && this.getDayOfWeek() == 7) {
-							calculatedZmanim[zmanId].title.hb = `צאת השבת וחג ${customMinuteDisplay}`;
-							calculatedZmanim[zmanId].title['en-et'] = `Tzait Shabbat & Yom Tov ${customMinuteDisplay}`;
-							calculatedZmanim[zmanId].title.en = `Shabbat & Yom Tov Ends ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.hb = `צאת שבת וחג`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzet Shabbath & Yom Tov`;
+							calculatedZmanim[zmanId].title.en = `Shabbat & Yom Tov Ends`;
 						} else if (this.getDayOfWeek() == 7) {
-							calculatedZmanim[zmanId].title.hb = `צאת השבת ${customMinuteDisplay}`;
-							calculatedZmanim[zmanId].title['en-et'] = `Tzait Shabbat ${customMinuteDisplay}`;
-							calculatedZmanim[zmanId].title.en = `Shabbat Ends ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.hb = `צאת שבת`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzet Shabbath`;
+							calculatedZmanim[zmanId].title.en = `Shabbat Ends`;
 						} else {
-							calculatedZmanim[zmanId].title.hb = `צאת חג ${customMinuteDisplay}`;
-							calculatedZmanim[zmanId].title['en-et'] = `Tzait Yom Tov ${customMinuteDisplay}`;
-							calculatedZmanim[zmanId].title.en = `Yom Tov Ends ${customMinuteDisplay}`;
+							calculatedZmanim[zmanId].title.hb = `צאת חג`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzet Yom Tov`;
+							calculatedZmanim[zmanId].title.en = `Yom Tov Ends`;
 						}
+
+						['hb', 'en-et', 'en']
+							.forEach((/** @type {'hb'|'en-et'|'en'} */lang) =>
+								calculatedZmanim[zmanId].title[lang] += ` (${
+									funcSettings.tzeithIssurMelakha.minutes}m${
+									zmanCalc instanceof AmudehHoraahZmanim ? `/${funcSettings.tzeithIssurMelakha.degree}°` : ""
+								})`
+						)
 					} else {
 						calculatedZmanim[zmanId].display = 0;
 						calculatedZmanim[zmanId].code.push("Not a day with Tzet")
@@ -239,16 +246,16 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				case 'tzeit-humra':
 					if (this.isTaanis() && !this.isYomKippur()) {
 						calculatedZmanim[zmanId].title.hb = "צאת תענית (צאת הכוכבים)";
-						calculatedZmanim[zmanId].title['en-et'] = "Tzeit Ta'anith (Tzeit Hakochavim)";
+						calculatedZmanim[zmanId].title['en-et'] = "Tzeth Ta'anith (Tzeit Hakochavim)";
 						calculatedZmanim[zmanId].title.en = "Fast Ends (Nightfall)";
 					} else {
 						calculatedZmanim[zmanId].merge_title.hb = "צאת הכוכבים";
-						calculatedZmanim[zmanId].merge_title['en-et'] = "Tzait Hakokhavim";
+						calculatedZmanim[zmanId].merge_title['en-et'] = "Tzeth Hakokhavim";
 						calculatedZmanim[zmanId].merge_title.en = "Nightfall";
 
-						calculatedZmanim[zmanId].title.hb = "צאת הכוכבים לחומרא";
-						calculatedZmanim[zmanId].title['en-et'] = "Tzait Hakokhavim LeKhumra";
-						calculatedZmanim[zmanId].title.en = "Nightfall (Stringent)";
+						calculatedZmanim[zmanId].title.hb = calculatedZmanim[zmanId].merge_title.hb + " לחומרא";
+						calculatedZmanim[zmanId].title['en-et'] = calculatedZmanim[zmanId].merge_title['en-et'] + " LeKhumra";
+						calculatedZmanim[zmanId].title.en = calculatedZmanim[zmanId].merge_title.en + " (Stringent)";
 					}
 					break;
 				case 'tzeitTaanitLChumra':

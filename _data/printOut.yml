@@ -95,7 +95,7 @@
       id: humra
   names:
     hb: צאת הכוכבים
-    et: Tzait Hakokhavim
+    et: Tzet Hakokhavim
     en: Nightfall
 - timeGetter: candleLighting
   names:
@@ -105,7 +105,7 @@
 - timeGetter: getTzaitShabbath
   names:
     hb: צאת שבת
-    et: Tzait Shabbat
+    et: Tzet Shabbat
     en: Shabbat End
 - timeGetter: getTzaitRT
   names:

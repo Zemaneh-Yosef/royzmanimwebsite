@@ -230,7 +230,7 @@
     <p>
     When there is candle lighting on a day that is Yom tov/Shabbat
     before another day that is Yom tov, the candles are lit after
-    Tzeit/Nightfall. However, if the next day is Shabbat, the candles
+    Tzet/Nightfall. However, if the next day is Shabbat, the candles
     are lit at their usual time.
     </p>
     <p>
@@ -269,7 +269,7 @@
     <p>
     It should be noted that many poskim, like the Mishna Berura, say
     that a person should ideally say mincha BEFORE sunset and not before
-    Tzeit/Nightfall.
+    Tzet/Nightfall.
     </p>
     <p>
     Most mitzvot that are to be done during the day should ideally be
@@ -293,11 +293,11 @@
         luachInclusive: degrees
   names:
     hb: צאת הכוכבים
-    et: Tzait Hakokhavim
+    et: Tzet Hakokhavim
     en: Nightfall
   description: |-
     <p>
-    Tzeit/Nightfall is the time when the next halachic day starts after
+    Tzet/Nightfall is the time when the next halachic day starts after
     Bein Hashmashot/twilight finishes.
     </p>
     <p>
@@ -319,7 +319,7 @@
     In Luach Amudei Horaah mode, this time is calculated by finding out
     the amount of minutes between sunset and 3.86 degrees below the
     horizon on an equal day, then we add that amount of zmaniyot minutes
-    to sunset to get the time of Tzeit/Nightfall. We use 3.86 degrees
+    to sunset to get the time of Tzet/Nightfall. We use 3.86 degrees
     below the horizon because that is the time when it is 13.5 minutes
     after sunset in Israel.
     </p>
@@ -331,7 +331,7 @@
   timeGetter: getTzaitTaanit
   names:
     hb: צאת תענית
-    et: Tzait Taanit
+    et: Tzet Ta'anith
     en: Fast Ends
   description: |-
     <p>This is the time that the fast/taanit ends.</p>
@@ -347,7 +347,7 @@
     20 minutes after sunset.
     </p>
     <p>
-    In the Ohr HaChaim calendar, they write that the fast ends at Tzait
+    In the Ohr HaChaim calendar, they write that the fast ends at Tzet
     Hacochavim. I asked Rabbi Benizri if this meant that the fast ends
     at 13.5 zmaniyot minutes after sunset and he said, "Not necessarily,
     a person can end the fast at 20 minutes after sunset if he wants to
@@ -364,10 +364,10 @@
     yomTovInclusive:
     luachInclusive:
     condition: isTaanit
-  timeGetter: getTzaitTaanitLChumra
+  timeGetter: getTzetTaanitLChumra
   names:
     hb: צאת תענית לחומרא
-    et: Tzait Taanit L'Chumra
+    et: Tzet Taanit L'Chumra
     en: Fast Ends (Stringent)
   description: |-
     <p>
@@ -386,7 +386,7 @@
   timeGetter: getTzaitShabbath
   names:
     hb: צאת שבת
-    et: Tzait Shabbat
+    et: Tzet Shabbat
     en: Shabbat Ends
   description: |-
     <p>This is the time that Shabbat/Chag ends.</p>
@@ -419,9 +419,9 @@
     et: Rabbeinu Tam
     en: Rabbeinu Tam
   description: |-
-    <p>This time is Tzeit/Nightfall according to Rabbeinu Tam.</p>
+    <p>This time is Tzet/Nightfall according to Rabbeinu Tam.</p>
     <p>
-    Tzeit/Nightfall is the time when the next halachic day starts after
+    Tzet/Nightfall is the time when the next halachic day starts after
     Bein Hashmashot/twilight finishes.
     </p>
     <p>
@@ -430,7 +430,7 @@
     are made up of 2 parts. The first part is 58 and a half minutes
     until the second sunset (see Pesachim 94a and Tosafot there). After
     the second sunset, there are an additional 13.5 minutes until
-    Tzeit/Nightfall.
+    Tzet/Nightfall.
     </p>
     <p>
     The GR\"A calculates a zmaniyot/seasonal hour by taking the time
