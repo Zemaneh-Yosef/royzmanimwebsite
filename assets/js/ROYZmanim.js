@@ -41,6 +41,14 @@ class ZmanimMathBase {
 	}
 
 	/**
+	 * @param {KosherZmanim.GeoLocation} geoLocation
+	 */
+	setGeoLocation(geoLocation) {
+		this.coreZC.setGeoLocation(geoLocation);
+		this.setDate(this.coreZC.getDate())
+	}
+
+	/**
 	 * @param {boolean} useElevation 
 	 */
 	setUseElevation(useElevation) {

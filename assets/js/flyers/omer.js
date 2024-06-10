@@ -19,7 +19,7 @@ amudehHoraahCal.configSettings(
 		true,
 	settings.customTimes.tzeithIssurMelakha()
 );
-amudehHoraahCal.setDate(jCal.getDate())
+amudehHoraahCal.setDate(jCal.getDate());
 
 if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.location.href.includes("forceShabbat")) {
 	document.getElementById("gridElement").remove();
@@ -51,7 +51,7 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 			elem.getAttribute('data-timezone')
 		]
 		// @ts-ignore
-		currentCalc.coreZC.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
+		currentCalc.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams));
 
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 		const dtF = ['en', {

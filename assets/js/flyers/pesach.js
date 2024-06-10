@@ -67,7 +67,7 @@ for (const locationTitleElem of elems) {
 		locationTitleElem.getAttribute('data-timezone')
 	]
 	// @ts-ignore
-	currentCalc.coreZC.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
+	currentCalc.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
 	currentCalc.coreZC.setCandleLightingOffset(20);
 	currentCalc.setDate(dayB4ErevPesach);
 

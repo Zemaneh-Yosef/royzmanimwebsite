@@ -134,7 +134,7 @@ for (const elem of elems) {
 		elem.getAttribute('data-timezone')
 	]
 	// @ts-ignore
-	currentCalc.coreZC.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
+	currentCalc.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
 	currentCalc.coreZC.setCandleLightingOffset(20);
 
 	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
