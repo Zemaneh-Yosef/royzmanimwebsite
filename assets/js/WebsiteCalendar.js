@@ -84,18 +84,14 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	tomorrow() {
-		const nextJewishCalendar = new WebsiteCalendar(this.getDate());
+		const nextJewishCalendar = this.clone();
 		nextJewishCalendar.setDate(nextJewishCalendar.getDate().add({ days: 1 }))
-		if (this.isUseModernHolidays())
-			nextJewishCalendar.setUseModernHolidays(true);
 
 		return nextJewishCalendar
 	}
 
 	shabbat() {
-		const nextJewishCalendar = new WebsiteCalendar(this.getDate());
-		if (this.isUseModernHolidays())
-			nextJewishCalendar.setUseModernHolidays(true);
+		const nextJewishCalendar = this.clone();
 
 		for (let index = 0; index < 7; index++) {
 			if (nextJewishCalendar.getDate().dayOfWeek == 6)
