@@ -500,6 +500,10 @@ class zmanimListUpdater {
 				.map(elem => [Array.from(elem.classList)[1].replace('lang-', ''), elem]));
 
 			for (const [lang, elem] of Object.entries(eachLang)) {
+				const finalDayAdjust = (this.jCal.tomorrow().getDayOfOmer() == -1 ? "add" : "remove")
+				elem.lastElementChild.classList[finalDayAdjust]("d-none");
+				elem.lastElementChild.previousElementSibling.classList[finalDayAdjust]("mb-0")
+
 				for (const completeCount of elem.querySelectorAll('[data-zfReplace="completeCount"]')) {
 					const jCalOmer = (completeCount.getAttribute('data-omerDay') == 'tomorrow' ? this.jCal.tomorrow() : this.jCal)
 					// @ts-ignore
