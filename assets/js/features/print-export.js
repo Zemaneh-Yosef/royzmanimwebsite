@@ -189,10 +189,18 @@ flexWorkAround.classList.add("flexElemWorkaround")
 
 /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 const defaulTF = [settings.language() == 'hb' ? 'he' : 'en', {
-	hourCycle: 'h24',
+	hourCycle: settings.timeFormat(),
 	hour: 'numeric',
 	minute: '2-digit'
 }];
+
+const amPMStrs = [
+	new KosherZmanim.Temporal.Instant(0n),
+	new KosherZmanim.Temporal.Instant(0n).add({ hours: 12 })
+].map(inst => inst.toLocaleString(defaulTF[0], { hour12: true, hour: 'numeric'}).split(' ').at(-1))
+
+const havdalahIcon = await (await fetch('/assets/images/havdalah.svg')).text();
+const candleIcon = '<i class="fa fa-fire" aria-hidden="true"></i>';
 
 function handleShita (/** @type {string} */ shita) {
 	const omerSpan = document.createElement("span");
@@ -204,8 +212,11 @@ function handleShita (/** @type {string} */ shita) {
 
 	/**
 	 * @param {KosherZmanim.Temporal.ZonedDateTime} zDT
+	 * @param {{dtF: typeof defaulTF; icon?: string}} config
 	 */
-	function renderZmanInDiv (zDT, dtF=defaulTF) {
+	function renderZmanInDiv (zDT, config={dtF:defaulTF, icon: undefined}) {
+		/** @type {HTMLSpanElement} */
+		// @ts-ignore
 		const timeElem = flexWorkAround.cloneNode(true);
 		if (zDT.dayOfYear !== jCal.getDate().dayOfYear) {
 			const dayElem = document.createElement("span");
@@ -220,7 +231,14 @@ function handleShita (/** @type {string} */ shita) {
 			timeElem.appendChild(dayElem)
 		}
 
-		timeElem.appendChild(document.createTextNode(zDT.toLocaleString(...dtF)));
+		if (config.icon)
+			timeElem.innerHTML += config.icon + " ";
+
+		let timeStr = zDT.toLocaleString(...config.dtF)
+		for (const amPMStr of amPMStrs)
+			timeStr = timeStr.replace(amPMStr, '');
+
+		timeElem.appendChild(document.createTextNode(timeStr.trim()));
 		div.appendChild(timeElem)
 	}
 
@@ -371,21 +389,21 @@ function handleShita (/** @type {string} */ shita) {
 		case 'candleLighting':
 			if (jCal.hasCandleLighting()) {
 				if (jCal.getDayOfWeek() === 6 || !jCal.isAssurBemelacha())
-					renderZmanInDiv(zmanCalc.getCandleLighting());
+					renderZmanInDiv(zmanCalc.getCandleLighting(), {dtF: defaulTF, icon: candleIcon});
 				else if (jCal.getDayOfWeek() === 7)
-					renderZmanInDiv(zmanCalc.getTzaitShabbath());
+					renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: candleIcon});
 				else
 					return false;
 			}
-			break;
-		case 'getTzaitShabbath':
+
 			if (!jCal.hasCandleLighting() && jCal.isAssurBemelacha()) {
-				renderZmanInDiv(zmanCalc.getTzaitShabbath());
+				renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: havdalahIcon});
 
 				if (jCal.tomorrow().getDayOfOmer() !== -1) {
 					div.appendChild(omerSpan);
 				}
 			}
+
 			break;
 		case 'getTzait':
 			if (!jCal.isAssurBemelacha()) {
@@ -409,22 +427,23 @@ function handleShita (/** @type {string} */ shita) {
 			break;
 		case 'getTzaitLechumra':
 			let appear = false;
+			const potForCandle = jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7;
 			if (zmanCalc instanceof OhrHachaimZmanim) {
 				if (jCal.isTaanis() && !jCal.isYomKippur()) {
 					appear = true;
-					renderZmanInDiv(zmanCalc.getTzait().add({ minutes: 20 }))
+					renderZmanInDiv(zmanCalc.getTzait().add({ minutes: 20 }), potForCandle ? undefined : {dtF: defaulTF, icon: candleIcon})
 					div.style.fontWeight = "bold";
 				}
 			} else {
 				appear = true;
-				renderZmanInDiv(zmanCalc.getTzaitLechumra())
+				renderZmanInDiv(zmanCalc.getTzaitLechumra(), potForCandle ? undefined : {dtF: defaulTF, icon: candleIcon})
 
 				if (jCal.isTaanis() && !jCal.isYomKippur()) {
 					div.style.fontWeight = "bold";
 				}
 			}
 
-			if (appear && jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7) {
+			if (appear && potForCandle) {
 				div.style.gridColumnEnd = "span 2";
 				if (jCal.tomorrow().getDayOfOmer() !== -1) {
 					div.appendChild(omerSpan);
@@ -443,7 +462,7 @@ function handleShita (/** @type {string} */ shita) {
 				seeSun = availableVS.find(zDT => Math.abs(zmanCalc.getNetz().until(zDT).total('minutes')) <= 6)
 
 			if (seeSun)
-				renderZmanInDiv(seeSun, [defaulTF[0], {...defaulTF[1], second: '2-digit'}])
+				renderZmanInDiv(seeSun, {dtF: [defaulTF[0], {...defaulTF[1], second: '2-digit'}]})
 			else
 				renderZmanInDiv(zmanCalc.getNetz())
 
@@ -473,29 +492,30 @@ function handleShita (/** @type {string} */ shita) {
 	return div;
 }
 
-const locationElem = document.querySelector("[data-zyLocationText]");
-locationElem.appendChild(document.createTextNode(geoLocation.getLocationName()));
+const footer = document.getElementsByClassName("zyCalFooter")[0];
+footer.querySelector("[data-zyLocationText]")
+	.appendChild(document.createTextNode(geoLocation.getLocationName()));
+footer.querySelector("[data-geoCoordinates]")
+	.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
+		zmanCalc instanceof OhrHachaimZmanim ? ", ↑" + geoLocation.getElevation : ""
+	})`));
+footer.querySelector("[data-calendar]")
+	.appendChild(document.createTextNode(
+		(zmanCalc instanceof OhrHachaimZmanim ? {
+			"en": "Ohr Hachaim",
+			"en-et": "Ohr Hachaim",
+			"hb": "אור החיים"
+		}[settings.language()] : {
+			"en": "Amudeh Hora'ah",
+			"en-et": "Amudeh Hora'ah",
+			"hb": "עמודי הוראה"
+		}[settings.language()])))
+footer.querySelector("[data-timeZone]")
+	.appendChild(document.createTextNode(geoLocation.getTimeZone()))
 
-const footer = document.createElement("div");
-footer.classList.add("zyCalFooter");
-
-const locationSection = document.createElement("div");
-locationSection.classList.add("sides")
-locationSection.appendChild(locationElem);
-locationSection.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
-	zmanCalc instanceof OhrHachaimZmanim ? ", ↑" + geoLocation.getElevation : ""
-})`));
-locationSection.appendChild(document.createElement("br"))
-locationSection.appendChild(document.createTextNode("Current Calendar: " + (zmanCalc instanceof OhrHachaimZmanim ? "Ohr Hachaim" : "Amudeh Hora'ah")))
-locationSection.appendChild(document.createElement("br"))
-locationSection.appendChild(document.createTextNode("Current Timezone: " + geoLocation.getTimeZone()))
-footer.appendChild(locationSection)
-
-footer.appendChild(document.querySelector('[data-zyBranding]').cloneNode(true));
-
-const rightSide = document.createElement("div");
-rightSide.classList.add("sides", "rightside")
-footer.appendChild(rightSide);
+const today = KosherZmanim.Temporal.Now.plainDateISO()
+footer.getElementsByClassName("genDate")[0]
+	.appendChild(document.createTextNode([today.year, today.month, today.day].join("/")))
 
 let plainDateForLoop = jCal.getDate().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').with({ month: calcMonthStart, day: 1 })
 for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYear; mIndex++) {
@@ -703,8 +723,7 @@ for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYea
 	baseTable.parentElement.appendChild(tableSecondHalf); */
 }
 
-locationElem.remove();
-document.querySelector('[data-zyBranding]').remove();
+footer.remove();
 baseTable.remove();
 
 document.documentElement.setAttribute('forceLight', '')

@@ -119,6 +119,7 @@ layout: nothing
 		font-family: 'Guttman Mantova-Decor', 'Javar';
 		display: grid;
 		text-align: center;
+		justify-items: center;
 	}
 
 	[data-zyBranding] > * {
@@ -149,6 +150,7 @@ layout: nothing
 		line-height: .8;
 		font-size: 1.5rem;
 		padding-top: 1rem;
+		margin-bottom: 0;
 	}
 
 	[data-zyData="date"] {
@@ -161,14 +163,14 @@ layout: nothing
 		display: none;
 	}
 
-	.rightside {
+	.zyCalFooter > .sides:last-child {
 		display: flex;
 		justify-content: space-around;
 		font-size: .6rem;
 		text-align: center;
 	}
 
-	.rightside h5 {
+	.zyCalFooter > .sides:last-child h5 {
 		font-size: .85rem;
 		margin-bottom: 0;
 	}
@@ -176,10 +178,30 @@ layout: nothing
 	.specialDay {
 		font-size: .85em;
 	}
+
+	[data-zyBranding] .genDate {
+		font-family: 'Spectral';
+		grid-row: 2;
+	}
+
+	[data-zyBranding] .fa {
+		opacity: 0.3;
+		padding-top: 7.25px;
+		font-size: 3.5em;
+	}
+
+	.flexElemWorkaround svg {
+		height: 1em;
+		width: 1em;
+		vertical-align: bottom;
+	}
+
+	.flexElemWorkaround svg path {
+		fill: black;
+	}
 </style>
 
 <div class="explanationPreface" id="differences">
-	<h2 style="text-align: center; font-family: 'Guttman Mantova-Decor', 'Spectral'; margin-bottom: 0;">זמני יוסף - Zmanim for Great Neck, NY (2024)</h2>
 	<h4 style="text-align: center;">Differences Explanation</h4>
 	<p style="text-align: center;">This piece will only go through conclusions that we hold differently from other mainstream calendars; descriptions on individual Zemanim (as well as sources) can instead be found in the back of this calendar.</p>
 
@@ -187,15 +209,32 @@ layout: nothing
 	<p style="text-align: center;">Although there are more shitot out there that our calendar does not follow (such as 90/96 minutes for dawn, using the beginning of an hour rather than the end for Shema), listing every shita we don't hold like would be confusing when one can learn the sugya as we outline and see what we would hold (to then infer what we wouldn't).</p>
 </div>
 
-<h5 data-zyLocationText>
-	<span class="lang lang-hb">זמנים של</span>
-	<span class="lang lang-et">Location:</span>
-	<span class="lang lang-en">Location:</span>
-</h5>
-<div data-zyBranding>
-	<h1 class="hebrewTitle">זמני<br>יוסף</h1>
-	<img src="/assets/images/sam.svg" class="rotatedText">
-	<i class="fa fa-clock-o" aria-hidden="true"></i>
+<div class="zyCalFooter">
+	<div class="sides">
+		<h5 data-zyLocationText>
+			<span class="lang lang-hb">זמנים של</span>
+			<span class="lang lang-et">Location:</span>
+			<span class="lang lang-en">Location:</span>
+		</h5>
+		<div data-geoCoordinates></div>
+		<div data-calendar>
+			<span class="lang lang-hb">לוח </span>
+			<span class="lang lang-et">Current Calendar:</span>
+			<span class="lang lang-en">Current Calendar:</span>
+		</div>
+		<div data-timeZone>
+			Current Timezone:
+		</div>
+	</div>
+	<div data-zyBranding>
+		<h1 class="hebrewTitle">זמני<br>יוסף</h1>
+		<img src="/assets/images/sam.svg" class="rotatedText">
+		<i class="fa fa-clock-o" aria-hidden="true"></i>
+		<div class="genDate">Gen.: </div>
+	</div>
+	<div class="sides">
+
+	</div>
 </div>
 
 <main>

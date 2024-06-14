@@ -39,7 +39,7 @@
 - timeGetter: getHatzoth
   names:
     hb: חצות
-    et: Hatsoth
+    et: Ḥatsoth
     en: Midday
 - shitot:
     - names:
@@ -89,7 +89,7 @@
       id: regular
     - names:
         hb: לחומרה
-        et: Humra
+        et: Ḥumra
         en: Strict
       timeGetter: getTzaitLechumra
       id: humra
@@ -99,14 +99,9 @@
     en: Nightfall
 - timeGetter: candleLighting
   names:
-    hb: הדלקת נרות
-    et: Candle Lighting
-    en: Candle Lighting
-- timeGetter: getTzaitShabbath
-  names:
-    hb: צאת שבת
-    et: Tzet Shabbat
-    en: Shabbat End
+    hb: נרות וצאת מלכה
+    et: Candles & Tzet Melakha
+    en: Candles & Tzet Melakha
 - timeGetter: getTzaitRT
   names:
     hb: ר״ת
