@@ -499,8 +499,6 @@ async function messageHandler (x) {
 		jCal.setDate(plainDate.withCalendar("iso8601"))
 		zmanCalc.setDate(plainDate.withCalendar("iso8601"))
 
-		console.log(plainDate.toLocaleString())
-
 		if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH)
 			hamesDate = jCal.getDate();
 

@@ -3,7 +3,6 @@
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { settings } from "../settings/handler.js";
 import { Previewer } from "../../libraries/paged.js"
-const webWorker = new Worker('/assets/js/features/print-web-worker.js', { type: 'module' });
 
 const printParam = new URLSearchParams(window.location.search);
 if (printParam.has('lessContrast')) {
@@ -97,75 +96,75 @@ for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYea
 }
 
 for (const monthData of arrayOfFuncParams) {
+	const webWorker = new Worker('/assets/js/features/print-web-worker.js', { type: 'module' });
 	webWorker.postMessage(monthData)
-}
-
-webWorker.addEventListener("message", async (msg) => {
-	actualReceive += 1;
-	// @ts-ignore
-	receiveData[msg.data.month] = msg.data.data
-	if (actualReceive == expectedReceive) {
-		const sortedObject = Object.keys(receiveData)
-			.sort()
-			.reduce((acc, key) => {
-				// @ts-ignore
-				acc[key] = receiveData[key];
-				return acc;
-			}, {});
-
-		for (const htmlData of Object.values(sortedObject)) {
-			baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.monthHTML);
-			baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.footerHTML);
+	webWorker.addEventListener("message", async (msg) => {
+		actualReceive += 1;
+		// @ts-ignore
+		receiveData[msg.data.month] = msg.data.data
+		if (actualReceive == expectedReceive) {
+			const sortedObject = Object.keys(receiveData)
+				.sort()
+				.reduce((acc, key) => {
+					// @ts-ignore
+					acc[key] = receiveData[key];
+					return acc;
+				}, {});
+	
+			for (const htmlData of Object.values(sortedObject)) {
+				baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.monthHTML);
+				baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.footerHTML);
+			}
+	
+			footer.remove();
+			baseTable.remove();
+	
+			document.documentElement.setAttribute('forceLight', '')
+			document.documentElement.removeAttribute('data-bs-theme');
+	
+			/** @type {HTMLElement} */
+			const finalExplanation = document.querySelector('[data-printFind]');
+	
+			let paged = new Previewer();
+			let flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
+			console.log("Rendered", flow.total, "pages.");
+	
+			finalExplanation.style.display = "none";
+	
+			const elems = [
+				'pagedjs_margin-top-left-corner-holder',
+				'pagedjs_margin-top',
+				'pagedjs_margin-top-right-corner-holder',
+				'pagedjs_margin-right',
+				'pagedjs_margin-left',
+				'pagedjs_margin-bottom-left-corner-holder',
+				'pagedjs_margin-bottom',
+				'pagedjs_margin-bottom-right-corner-holder',
+				'pagedjs_pagebox'
+			]
+				.map(className => Array.from(document.getElementsByClassName(className)))
+				.flat();
+	
+			['top', 'right', 'left', 'bottom']
+				.forEach(dir => elems.forEach((/** @type {HTMLElement} */elem) => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
+	
+			Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area'))
+				.forEach((/** @type {HTMLElement} */pageArea) => {
+					pageArea.style.gridRow = 'unset';
+					[...pageArea.children]
+						.filter(child => child.classList.contains('pagedjs_page_content'))
+						.forEach((/** @type {HTMLElement} */pageContent) => {
+							pageContent.style.columnWidth = 'unset';
+							[...pageContent.children]
+								.filter(child => child.nodeName == "DIV")
+								.forEach((/** @type {HTMLElement} */pageContentChild) => pageContentChild.style.height = 'unset')
+						})
+				})
+	
+			window.print();
 		}
-
-		footer.remove();
-		baseTable.remove();
-
-		document.documentElement.setAttribute('forceLight', '')
-		document.documentElement.removeAttribute('data-bs-theme');
-
-		/** @type {HTMLElement} */
-		const finalExplanation = document.querySelector('[data-printFind]');
-
-		let paged = new Previewer();
-		let flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
-		console.log("Rendered", flow.total, "pages.");
-
-		finalExplanation.style.display = "none";
-
-		const elems = [
-			'pagedjs_margin-top-left-corner-holder',
-			'pagedjs_margin-top',
-			'pagedjs_margin-top-right-corner-holder',
-			'pagedjs_margin-right',
-			'pagedjs_margin-left',
-			'pagedjs_margin-bottom-left-corner-holder',
-			'pagedjs_margin-bottom',
-			'pagedjs_margin-bottom-right-corner-holder',
-			'pagedjs_pagebox'
-		]
-			.map(className => Array.from(document.getElementsByClassName(className)))
-			.flat();
-
-		['top', 'right', 'left', 'bottom']
-			.forEach(dir => elems.forEach((/** @type {HTMLElement} */elem) => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
-
-		Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area'))
-			.forEach((/** @type {HTMLElement} */pageArea) => {
-				pageArea.style.gridRow = 'unset';
-				[...pageArea.children]
-					.filter(child => child.classList.contains('pagedjs_page_content'))
-					.forEach((/** @type {HTMLElement} */pageContent) => {
-						pageContent.style.columnWidth = 'unset';
-						[...pageContent.children]
-							.filter(child => child.nodeName == "DIV")
-							.forEach((/** @type {HTMLElement} */pageContentChild) => pageContentChild.style.height = 'unset')
-					})
-			})
-
-		window.print();
-	}
-})
+	})
+}
 
 /**
  * @param {string} str
