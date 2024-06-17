@@ -8730,17 +8730,20 @@ export declare class ChafetzChayimYomiCalculator {
 		section?: undefined;
 	} | undefined;
 }
+export type hiloulahObj = {
+	name: string;
+	src: string;
+}[];
 export declare class HiloulahYomiCalculator {
-	static getHiloulah(jewishCalendar: JewishDate): {
-		en: {
-			name: string;
-			src: string;
-		}[];
-		he: {
-			name: string;
-			src: string;
-		}[];
-	};
+	initFlag: boolean;
+	hiloulot_en: Record<string, hiloulahObj>;
+	hiloulot_he: Record<string, hiloulahObj>;
+	constructor();
+	init(): Promise<void>;
+	getHiloulah(jewishCalendar: JewishDate): Promise<{
+		en: hiloulahObj;
+		he: hiloulahObj;
+	}>;
 }
 /**
  * The HebrewDateFormatter class formats a {@link JewishDate}.

@@ -12,6 +12,7 @@ import { ics } from "../libraries/ics/ics.esm.js"
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
+const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
 
 class zmanimListUpdater {
 	/**
@@ -977,38 +978,40 @@ class zmanimListUpdater {
 				this.shaahZmanits(shaahZmanitCont);
 		}
 
-		const leilouNishmat = KosherZmanim.HiloulahYomiCalculator.getHiloulah(this.jCal)
-		for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {
-			while (leilouNishmatList.firstElementChild) {
-				leilouNishmatList.firstElementChild.remove()
-			}
-
-			/** @type {'en'|'he'} */
-			// @ts-ignore
-			const hLang = leilouNishmatList.getAttribute('data-zfIndex')
-			if (!leilouNishmat[hLang].length) {
-				const li = document.createElement('li');
-				li.classList.add('list-group-item');
-				li.appendChild(document.createTextNode(leilouNishmatList.getAttribute('data-fillText')));
-				leilouNishmatList.appendChild(li);
-
-				continue;
-			}
-
-			for (const neshama of leilouNishmat[hLang]) {
-				const li = document.createElement('li');
-				li.classList.add('list-group-item');
-
-				const name = document.createElement("b");
-				name.appendChild(document.createTextNode(neshama.name));
-
-				li.appendChild(name)
-				if (neshama.src)
-					li.appendChild(document.createTextNode(` (${neshama.src})`));
-
-				leilouNishmatList.appendChild(li);
-			}
-		}
+		hiloulahIndex.getHiloulah(this.jCal)
+			.then(leilouNishmat => {
+				for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {
+					while (leilouNishmatList.firstElementChild) {
+						leilouNishmatList.firstElementChild.remove()
+					}
+		
+					/** @type {'en'|'he'} */
+					// @ts-ignore
+					const hLang = leilouNishmatList.getAttribute('data-zfIndex')
+					if (!leilouNishmat[hLang].length) {
+						const li = document.createElement('li');
+						li.classList.add('list-group-item');
+						li.appendChild(document.createTextNode(leilouNishmatList.getAttribute('data-fillText')));
+						leilouNishmatList.appendChild(li);
+		
+						continue;
+					}
+		
+					for (const neshama of leilouNishmat[hLang]) {
+						const li = document.createElement('li');
+						li.classList.add('list-group-item');
+		
+						const name = document.createElement("b");
+						name.appendChild(document.createTextNode(neshama.name));
+		
+						li.appendChild(name)
+						if (neshama.src)
+							li.appendChild(document.createTextNode(` (${neshama.src})`));
+		
+						leilouNishmatList.appendChild(li);
+					}
+				}
+			})
 	}
 
 	/**
