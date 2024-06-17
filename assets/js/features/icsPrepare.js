@@ -2,7 +2,6 @@
 
 import { getOrdinal } from "../WebsiteCalendar.js";
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from "../ROYZmanim.js";
-import { ics } from "../../libraries/ics/ics.esm.js"
 import { Temporal, GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
@@ -33,10 +32,8 @@ const monViewNight = (monthView, calc) =>
  * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]>; fasts: Record<string, { "en-et": string; en: string; he: string; }> }} funcSettings
  */
 export default function icsExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList, monthView=true, funcSettings) {
-	const baseDate = new Temporal.PlainDate(...plainDateParams).with({ day: 1, month: 1 })
+	const baseDate = new Temporal.PlainDate(...plainDateParams).with({ day: 1 })
 	const geoLocation = new GeoLocation(...geoLocationData);
-
-	console.log(funcSettings)
 
 	const jCal = new WebsiteLimudCalendar(baseDate);
 	jCal.setInIsrael(isIsrael)
@@ -55,13 +52,15 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 		dtF[1].second = '2-digit'
 	}
 
-	/** @type {ics.EventAttributes[]} */
+	/** @type {import('ics').EventAttributes[]} */
 	const events = [];
-	for (let index = 0; index < jCal.getDate().daysInYear; index++) {
+	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
 		const dailyZmanim = Object.values(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings))
 			.filter(entry => entry.display == 1)
 			.map(entry => `${entry.title[funcSettings.language == "he" ? "hb" : funcSettings.language]}: ${entry.luxonObj.toLocaleString(...dtF)}`)
 			.join('\n')
+
+		console.log(jCal.getDate().toString())
 
 		events.push({
 			start: exportDate(jCal.getDate()),
@@ -193,44 +192,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 		calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
 	}
 
-	calc.tekufaCalc.calculateTekufotShemuel(calc instanceof OhrHachaimZmanim)
-		.forEach((tekufa, index) => {
-			const time = tekufa.toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone())
-			const tekufaMonth = [
-				WebsiteLimudCalendar.TISHREI,
-				WebsiteLimudCalendar.TEVES,
-				WebsiteLimudCalendar.NISSAN,
-				WebsiteLimudCalendar.TAMMUZ
-			]
-				.map(month => (new WebsiteLimudCalendar(this.jCal.getJewishYear(), month, 15)).formatJewishMonth())
-				[index]
-
-			events.push({
-				start: time.subtract({ minutes: 30 }).epochMilliseconds,
-				end: time.add({ minutes: 30 }).epochMilliseconds,
-				title: {
-					he: "תקופת " + tekufaMonth.he,
-					en: tekufaMonth.en + " Season",
-					"en-et": "Tekufath " + tekufaMonth.en
-				}[funcSettings.language]
-			})
-		})
-
-	const labeledEvents = events.map(obj => ({
-		...obj,
-		calName:
-			(calc instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
-			+ ` Calendar (${baseDate.year}) - ` + calc.coreZC.getGeoLocation().getLocationName(),
-		startInputType: "utc",
-		endInputType: "utc"
-	}));
-
-	// @ts-ignore
-	const icsRespond = ics.createEvents(labeledEvents)
-	if (icsRespond.error)
-		throw icsRespond.error;
-
-	return icsRespond.value;
+	return events;
 }
 
 if (Worker)

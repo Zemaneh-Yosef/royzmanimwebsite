@@ -7,7 +7,8 @@ import { settings } from "./settings/handler.js";
 import { ChaiTables } from "./features/chaiTables.js";
 import * as leaflet from "../libraries/leaflet/leaflet.js"
 
-import icsExport from "./features/icsHandler.js";
+import icsExport from "./features/icsPrepare.js";
+import { ics } from "../libraries/ics/ics.esm.js"
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
@@ -245,81 +246,7 @@ class zmanimListUpdater {
 		if (!this.buttonsInit) {
 			const downloadBtn = document.getElementById("downloadModalBtn");
 			downloadBtn.style.removeProperty("display")
-			downloadBtn.addEventListener('click', () => {
-				if (this.midDownload)
-					return;
-
-				this.midDownload = true;
-
-				const geoLocationParams = [
-					this.geoLocation.getLocationName(),
-					this.geoLocation.getLatitude(),
-					this.geoLocation.getLongitude(),
-					this.geoLocation.getElevation(),
-					this.geoLocation.getTimeZone()
-				];
-	
-				const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
-
-				const icsParams = [
-					this.zmanFuncs instanceof AmudehHoraahZmanim,
-					[isoYear, isoMonth, isoDay, isoCalendar],
-					// @ts-ignore
-					geoLocationParams,
-					this.zmanFuncs.coreZC.isUseElevation(),
-					this.jCal.getInIsrael(),
-					this.zmanimList,
-					true,
-					{
-						language: settings.language() == "hb" ? "he" : settings.language(),
-						timeFormat: settings.timeFormat(), seconds: settings.seconds(),
-						zmanInfoSettings: this.zmanInfoSettings,
-						calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
-						fasts: Object.fromEntries([...document.querySelector('[data-zfFind="FastDays"]').getElementsByTagName("h5")]
-							.map(ogHeading => {
-								/** @type {HTMLHeadingElement} */
-								// @ts-ignore
-								const heading = ogHeading.cloneNode(true);
-								const [ he, et, en ] = [...heading.children]
-									.map(langElem => {
-										while (langElem.querySelector('[data-zfFind="erevTzom"]'))
-											langElem.querySelector('[data-zfFind="erevTzom"]').remove()
-
-										return langElem.innerHTML.replace(/<.*?>/gm, '');
-									})
-
-								return [heading.getAttribute("data-zfFind"), { he, "en-et": et, en }]
-							}))
-					}
-				]
-
-				/** @param {ReturnType<typeof icsExport>} icsData */
-				const postDataReceive = (icsData) => {
-					const element = document.createElement('a');
-					element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsData));
-					element.setAttribute('download', (this.zmanFuncs instanceof AmudehHoraahZmanim ? 'Amudeh Horaah' : 'Ohr Hachaim') + ` (${isoYear}) - ` + this.geoLocation.getLocationName() + ".ics");
-
-					element.style.display = 'none';
-					document.body.appendChild(element);
-
-					element.click();
-
-					document.body.removeChild(element);
-					this.midDownload = false;
-				}
-
-				if (window.Worker) {
-					const myWorker = new Worker("/assets/js/features/icsHandler.js", { type: "module" });
-					myWorker.postMessage(icsParams)
-					myWorker.addEventListener("message", (message) => {
-						console.log("received message from other thread");
-						postDataReceive(message.data);
-					})
-				} else {
-					const icsData = icsExport.apply(icsExport, icsParams)
-					postDataReceive(icsData)
-				}
-			})
+			downloadBtn.addEventListener('click', () => {console.log('thing');this.handleICS()})
 
 			for (const dateChanger of Array.from(dateContainer.getElementsByTagName('button')).filter(btn => btn.hasAttribute('data-dateAlter'))) {
 				const days = parseInt(dateChanger.getAttribute("data-dateAlter"))
@@ -336,6 +263,140 @@ class zmanimListUpdater {
 			}
 
 			this.buttonsInit = true;
+		}
+	}
+
+	handleICS() {
+		if (this.midDownload)
+			return;
+
+		this.midDownload = true;
+
+		const geoLocationParams = [
+			this.geoLocation.getLocationName(),
+			this.geoLocation.getLatitude(),
+			this.geoLocation.getLongitude(),
+			this.geoLocation.getElevation(),
+			this.geoLocation.getTimeZone()
+		];
+
+		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
+
+		const icsParams = [
+			this.zmanFuncs instanceof AmudehHoraahZmanim,
+			undefined,
+			// @ts-ignore
+			geoLocationParams,
+			this.zmanFuncs.coreZC.isUseElevation(),
+			this.jCal.getInIsrael(),
+			this.zmanimList,
+			true,
+			{
+				language: settings.language() == "hb" ? "he" : settings.language(),
+				timeFormat: settings.timeFormat(), seconds: settings.seconds(),
+				zmanInfoSettings: this.zmanInfoSettings,
+				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
+				fasts: Object.fromEntries([...document.querySelector('[data-zfFind="FastDays"]').getElementsByTagName("h5")]
+					.map(ogHeading => {
+						/** @type {HTMLHeadingElement} */
+						// @ts-ignore
+						const heading = ogHeading.cloneNode(true);
+						const [ he, et, en ] = [...heading.children]
+							.map(langElem => {
+								while (langElem.querySelector('[data-zfFind="erevTzom"]'))
+									langElem.querySelector('[data-zfFind="erevTzom"]').remove()
+
+								return langElem.innerHTML.replace(/<.*?>/gm, '');
+							})
+
+						return [heading.getAttribute("data-zfFind"), { he, "en-et": et, en }]
+					}))
+			}
+		]
+
+		/** @type {ics.EventAttributes[]} */
+		let receiveData = [];
+		let giveData = [];
+
+		const postDataReceive = () => {
+			console.log('now post received')
+			receiveData = receiveData.flat()
+			this.zmanFuncs.tekufaCalc.calculateTekufotShemuel(this.zmanFuncs instanceof OhrHachaimZmanim)
+				.forEach((tekufa, index) => {
+					const time = tekufa.toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone())
+					const tekufaMonth = [
+						WebsiteLimudCalendar.TISHREI,
+						WebsiteLimudCalendar.TEVES,
+						WebsiteLimudCalendar.NISSAN,
+						WebsiteLimudCalendar.TAMMUZ,
+						WebsiteLimudCalendar.TISHREI,
+						WebsiteLimudCalendar.TEVES,
+					]
+						.map(month => (new WebsiteLimudCalendar(this.jCal.getJewishYear(), month, 15)).formatJewishMonth())
+						[index]
+
+					receiveData.push({
+						start: time.subtract({ minutes: 30 }).epochMilliseconds,
+						end: time.add({ minutes: 30 }).epochMilliseconds,
+						title: {
+							hb: "תקופת " + tekufaMonth.he,
+							en: tekufaMonth.en + " Season",
+							"en-et": "Tekufath " + tekufaMonth.en
+						}[settings.language()]
+					})
+				})
+
+			const calName = (this.zmanFuncs instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
+				+ ` Calendar (${isoYear}) - ` + this.geoLocation.getLocationName();
+			const labeledEvents = receiveData.map(obj => ({
+				...obj,
+				calName,
+				/** @type {"utc"} */
+				startInputType: "utc",
+				/** @type {"utc"} */
+				endInputType: "utc"
+			}));
+
+			const icsRespond = ics.createEvents(labeledEvents)
+			if (icsRespond.error)
+				throw icsRespond.error;
+
+			const element = document.createElement('a');
+			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsRespond.value));
+			element.setAttribute('download', calName + ".ics");
+
+			element.style.display = 'none';
+			document.body.appendChild(element);
+
+			element.click();
+
+			document.body.removeChild(element);
+			this.midDownload = false;
+		}
+
+		for (let i = 1; i <= this.jCal.getDate().monthsInYear; i++) {
+			const monthICSData = [...icsParams]
+			monthICSData[1] = [isoYear, i, isoDay, isoCalendar]
+			giveData.push(monthICSData)
+		}
+
+		for (const monthICSData of giveData) {
+			if (window.Worker) {
+				console.log('activate thread')
+				const myWorker = new Worker("/assets/js/features/icsPrepare.js", { type: "module" });
+				myWorker.postMessage(monthICSData)
+				myWorker.addEventListener("message", (message) => {
+					console.log("received message from other thread");
+					receiveData.push(message.data)
+					if (receiveData.length == giveData.length)
+						postDataReceive();
+				})
+			} else {
+				const icsData = icsExport.apply(icsExport, monthICSData);
+				receiveData.push(icsData);
+				if (receiveData.length == giveData.length)
+					postDataReceive();
+			}
 		}
 	}
 
