@@ -97,10 +97,10 @@ class ChaiTables {
 
 	/**
 	 * @param {Document} domParsed
-	 * @param {KosherZmanim.JewishDate} JewishCalendar
+	 * @param {KosherZmanim.JewishDate} jDate
 	 */
-	extractTimes (domParsed, JewishCalendar) {
-		const loopCal = JewishCalendar.clone();
+	extractTimes (domParsed, jDate) {
+		const loopCal = jDate.clone();
 		const times = [];
 
 		const zmanTable = Array.from(domParsed.getElementsByTagName('table'))
@@ -145,7 +145,9 @@ class ChaiTables {
 
 				const [hour, minute, second] = zmanTime.split(":").map(time => parseInt(time))
 				const time = loopCal.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour, minute, second })
-				times.push(time.epochSeconds)
+
+				if (time.epochSeconds > jDate.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour: 0, minute: 0, second: 0 }).epochSeconds)
+					times.push(time.epochSeconds)
 			}
 		}
 
@@ -163,6 +165,10 @@ class ChaiTables {
 		}
 
 		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 2; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
+			if (calendar.getJewishYear() !== yearloop.getJewishYear()) {
+				yearloop.setJewishMonth(KosherZmanim.JewishCalendar.TISHREI);
+				yearloop.setJewishDayOfMonth(1);
+			}
 			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413);
 
 			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
@@ -184,7 +190,10 @@ class ChaiTables {
 
 		const selectors = Array.from(document.getElementsByTagName("md-outlined-select")).map((/** @type {HTMLSelectElement} */elem) => elem);
 
-		const MASubFormEvent = () => submitBtn.removeAttribute('disabled');
+		const MASubFormEvent = () => {
+			submitBtn.removeAttribute('disabled');
+			window.requestAnimationFrame(() => submitBtn.focus());
+		}
 
 		const primaryIndex = selectors.find(select => select.id == 'MAIndex');
 		const hideAllForms = () => {
@@ -205,10 +214,13 @@ class ChaiTables {
 			const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
 			highlightedSelector.style.removeProperty('display');
 			highlightedSelector.addEventListener('change', MASubFormEvent)
-			highlightedSelector.focus();
+			//window.requestAnimationFrame(() => highlightedSelector.focus())
+			highlightedSelector.shadowRoot.getElementById("field").click()
 		})
 
 		submitBtn.addEventListener('click', async () => {
+			submitBtn.setAttribute('disabled', '')
+			submitBtn.classList.add("sbmitl")
 			const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
 			this.setOtherData(selectors[0].value, selectors[selectors.indexOf(selectedMASel)].selectedIndex);
 			const ctData = await this.formatInterfacer();
@@ -221,6 +233,13 @@ class ChaiTables {
 
 			localStorage.setItem("ctNetz", JSON.stringify(ctData));
 			this.modal.hide();
+
+			if ("zmanimListUpdater2" in window) {
+				// @ts-ignore
+				window.zmanimListUpdater2.resetCalendar();
+			}
+
+			submitBtn.classList.remove("sbmitl");
 		});
 	}
 }

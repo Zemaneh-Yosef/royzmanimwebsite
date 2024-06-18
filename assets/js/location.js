@@ -272,18 +272,20 @@ function getLocation() {
 /**
  * @param {GeolocationPosition} position 
  */
-async function setLatLong (position) {
-	geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
+async function setLatLong (position, manual=false) {
 	let location;
 	try {
 		const params = new URLSearchParams({
 			'lat': position.coords.latitude.toFixed(5),
 			'lng': position.coords.longitude.toFixed(5),
-			'username': 'Elyahu41'
+			'username': 'Elyahu41',
+			'style': 'FULL'
 		});
 		const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
 		location = data.geonames[0]; // TODO: If there are other False positives
+
+		if (manual)
+			geoLocation.timeZone = location.timezone.timeZoneId
 	} catch (e) {
 		// Only thing this is good for is the location name - if there is a problem, then just have the thing say "Your Location"
 		// Only dependency of the location name is to determine whether one is in Israel or not
@@ -298,6 +300,9 @@ async function setLatLong (position) {
 			country: ""
 		}
 	}
+
+	if (!geoLocation.timeZone)
+		geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 	await setLocation(location.name, location.adminName1, location.country, position.coords.latitude, position.coords.longitude);
 }
