@@ -1,3 +1,7 @@
+###### Calendar "Modes"
+
+To represent two physical calendars, we added a "calendar mode" toggle on our website. This is reflected when exporting the PDF, and one can see which mode they are on by looking at the bottom left. The differences are explained in the "Seasonal Hours + Alot/Tzet" section
+
 ###### Seasonal Hours + Alot/Tzet
 
 We use the length of the day from sunrise until sunset to determine all Halachic times, whether within the day or *times before sunrise/after sunset*. This means that, just like degree calculations (and unlike some calendars that used fixed minutes), these times are longer in the summer; that's because the days are longer in the summer. However, unlike both degrees calculation (for times outside sunrise->sunset) and fixed minutes, these times are *shorter* in the winter months, despite astronomy dictating that these times should be longer for times outside the day's length. There are a few exceptions, though, when we use other methods of calculation (dawn->nightfall seasonal, degrees, fixed) instead of seasonal sunrise->sunset times:
