@@ -43,8 +43,6 @@ if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isV
 }
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];
-footer.querySelector("[data-zyLocationText]")
-	.appendChild(document.createTextNode(geoLocation.getLocationName()));
 footer.querySelector("[data-geoCoordinates]")
 	.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
 		useOhrHachaim ? ", ↑" + geoLocation.getElevation : ""
@@ -71,6 +69,9 @@ let plainDateForLoop = KosherZmanim.Temporal.Now.plainDateISO()
 	.with({ month: calcMonthStart, day: 1 })
 	.withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew')
 	.with({ month: calcMonthStart, day: 1 })
+
+for (const locName of document.querySelectorAll("[data-zyLocationText]"))
+	locName.appendChild(document.createTextNode(geoLocation.getLocationName() + ` (${plainDateForLoop.year})`))
 
 let expectedReceive = 0;
 let actualReceive = 0;

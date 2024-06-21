@@ -324,6 +324,7 @@ async function messageHandler (x) {
 								"en": "Yom Kippur",
 								"en-et": "Yom Kippur"
 							}[x.data.lang]));
+							break;
 						default:
 							taanitElem.appendChild(document.createTextNode({
 								'hb': "צום",
@@ -468,6 +469,25 @@ async function messageHandler (x) {
 					}[x.data.lang]));
 	
 					div.appendChild(hanukahSpan);
+				}
+				break;
+			case 'getHatzoth':
+				renderZmanInDiv(zmanCalc.getHatzoth());
+				if (jCal.isYomKippur()) {
+					const musafSpan = flexWorkAround.cloneNode(true);
+					// @ts-ignore
+					musafSpan.classList.add("omerText");
+					musafSpan.appendChild(document.createTextNode(
+						{
+							'hb': "(תסיים מוסף לפני ",
+							"en-et": "(Finish Musaf before ",
+							'en': "(Finish Musaf before "
+						}[x.data.lang]
+						+ zmanCalc.getNetz().add(zmanCalc.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ hours: 7 }))).toLocaleString(...defaulTF)
+						+ ")"
+					));
+	
+					div.appendChild(musafSpan);
 				}
 				break;
 			default:

@@ -78,6 +78,10 @@ layout: nothing
 		word-break: keep-all;
 	}
 
+	#differences {
+		page-break-before: always;
+	}
+
 	#differences p,
 	#differences ol,
 	#differences ul {
@@ -200,7 +204,41 @@ layout: nothing
 	.flexElemWorkaround svg path {
 		fill: black;
 	}
+
+	#cover {
+		height: calc(8.5in - 10mm);
+		width: calc(11in - 10mm);
+		display: grid;
+		align-items: center;
+		justify-items: center;
+	}
+
+	#cover img {
+		width: 100%;
+	}
+
+	#cover > * {
+		grid-area: 1/1;
+	}
+
+	#cover [data-zyLocationText] {
+		padding-top: 1.5em;
+    	font-size: 2em;
+	}
+
+	#cover [data-zyLocationText] span {
+		font-weight: 700;
+	}
 </style>
+
+<div id="cover">
+	<img src="/assets/images/cover.png" />
+	<div data-zyLocationText>
+		<span class="lang lang-hb">זמנים של</span>
+		<span class="lang lang-et">For:</span>
+		<span class="lang lang-en">For:</span>
+	</div>
+</div>
 
 <div class="explanationPreface" id="differences">
 	<h4 style="text-align: center;">Differences Explanation</h4>
@@ -214,8 +252,8 @@ layout: nothing
 	<div class="sides">
 		<h5 data-zyLocationText>
 			<span class="lang lang-hb">זמנים של</span>
-			<span class="lang lang-et">Location:</span>
-			<span class="lang lang-en">Location:</span>
+			<span class="lang lang-et">For:</span>
+			<span class="lang lang-en">For:</span>
 		</h5>
 		<div data-geoCoordinates></div>
 		<div data-calendar>
