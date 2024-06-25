@@ -4,6 +4,7 @@ import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
 import { settings } from "../settings/handler.js"
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js"
+import rYisraelizmanim from "./shabbat-rYisraeli.js";
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
 if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
@@ -24,6 +25,7 @@ const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 amudehHoraahCal.configSettings(true, settings.customTimes.tzeithIssurMelakha());
+const rYisraeliCal = new rYisraelizmanim(fallbackGL);
 
 const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 22 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
@@ -55,7 +57,8 @@ const elems = document.getElementsByClassName('timecalc');
 /** @type {Record<string, {elem: Element; geo: KosherZmanim.GeoLocation}>} */
 const doubleLocations = {}
 for (const elem of elems) {
-	const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
+	const currentCalc = (elem.getAttribute('data-calc') == 'rYisraeli' ? rYisraeliCal :
+		(elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal));
 	const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
 
 	const geoLocationsParams = [
@@ -84,7 +87,9 @@ for (const elem of elems) {
 		const plag = currentCalc.getPlagHaminhaHalachaBrurah();
 
 		for (const timeFunc of document.getElementById('gridElement').getAttribute(shitotDay).split(" ")) {
-			editElem = editElem.nextElementSibling
+			do {
+				editElem = editElem.nextElementSibling
+			} while (!editElem.classList.contains('timeshow'))
 
 			/** @type {KosherZmanim.Temporal.ZonedDateTime} */
 			// @ts-ignore

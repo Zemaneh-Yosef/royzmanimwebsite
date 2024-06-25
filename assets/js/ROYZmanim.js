@@ -165,11 +165,11 @@ class GRAZmanim extends ZmanimMathBase {
 	}
 
 	getCandleLighting() {
-		return this.coreZC.getSeaLevelSunset().subtract({ minutes: this.coreZC.getCandleLightingOffset() })
+		return this.astronomicalZman.sunset.subtract({ minutes: this.coreZC.getCandleLightingOffset() })
 	}
 
 	getShkiya() {
-		return this.coreZC.getSeaLevelSunset();
+		return this.astronomicalZman.sunset;
 	}
 
 	getTzaitTaanitLChumra() {

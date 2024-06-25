@@ -12,7 +12,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			english: this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"}),
 			hebrew: [
 				hNum.formatHebrewNumber(this.getJewishDayOfMonth()),
-				monthForLocale('he-u-ca-hebrew', 'long', 'hebrew', this.getDate().year)[this.getDate().month] + ',',
+				monthForLocale('he-u-ca-hebrew', 'long', 'hebrew', this.getDate().year)[this.getDate().withCalendar('hebrew').month] + ',',
 				hNum.formatHebrewNumber(this.getJewishYear()),
 			].join(' ')
 		}

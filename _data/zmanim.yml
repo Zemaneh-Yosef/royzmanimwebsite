@@ -178,13 +178,13 @@
   shitot:
     - names:
         hb: גדולה
-        en: Gedolah
+        en: Gedola
         et: Earliest
       timeGetter: getMinhaGedolah
       id: gedolah
     - names:
         hb: קטנה
-        en: Ketanah
+        en: Ketana
         et: Preferable
       timeGetter: getMinchaKetana
       id: ketanah
