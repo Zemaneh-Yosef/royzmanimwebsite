@@ -841,11 +841,10 @@ export function daysForLocale(localeName, weekday = 'long', calendar = 'iso8601'
  * @param {"short" | "long" | "narrow" | "numeric" | "2-digit"} [month] 
  */
 export function monthForLocale(localeName, month = 'long', calendar = 'iso8601', year=2024) {
-	const baseDate = KosherZmanim.Temporal.PlainDate.from({ year: 2024, month: 1, day: 1 }).withCalendar(calendar).with({ year });
+	const baseDate = KosherZmanim.Temporal.PlainDate.from({ year, month: 1, day: 1 }).withCalendar(calendar);
 	const monthLocale = [...Array(baseDate.monthsInYear).keys()]
 		.map((monthNum) => baseDate.with({ month: monthNum + 1 }).toLocaleString(localeName, { month }));
 
-	monthLocale.unshift(undefined);
 	return monthLocale;
 }
 

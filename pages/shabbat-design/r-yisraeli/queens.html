@@ -38,7 +38,7 @@ website: true
 		grid-area: 1/1;
 		align-self: end;
 		justify-self: start;
-		width: 45%;
+		width: 42.5%;
 		z-index: 3;
 	}
 
@@ -80,12 +80,13 @@ website: true
 		right: 2.5vw;
 		position: absolute;
 		width: fit-content;
+		font-size: 1.25em;
 	}
 
 	#shabbatCandles {
 		align-self: end;
 		justify-self: end;
-		width: 62.5%;
+		width: 67.5%;
 		z-index: 1;
 		opacity: 70%;
 	}
@@ -105,9 +106,12 @@ website: true
 	.shabbatRow {
 		padding-top: .25vw;
 		padding-bottom: .25vw;
-		font-size: 3.25vw;
+		font-size: 6rem;
 		font-weight: 700;
 		line-height: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.shabbatRowBg {
@@ -126,6 +130,34 @@ website: true
 		line-height: 1.2;
 		font-weight: 600;
 		font-size: 1.75em;
+		display: flex;
+	}
+
+	.header > div:last-child {
+		flex: 1 1;
+	}
+
+	.header hr {
+		margin: .25rem 0;
+	}
+
+	.header svg {
+		height: 2.5em;
+		width: 100px;
+	}
+	.header svg path {
+		fill: black;
+	}
+
+	.header i {
+		font-size: 2.5em;
+		width: 100px;
+	}
+
+	.header > img:first-child {
+		height: 2.5em;
+		aspect-ratio: 1 / 1;
+		width: 100px;
 	}
 
 	.tableShadow {
@@ -299,7 +331,10 @@ website: true
 		data-functions-backday-1="getPlagHaminhaHalachaBrurah getCandleLighting"
 		data-functions-backday-0="getTzaitShabbath getTzaitRT"
 	>
-		<div class="header tableShadow" style="grid-area: earlyHead;">Earliest Time</div>
+		<div class="header tableShadow" style="grid-area: earlyHead;">
+			<i class="fa fa-sun-o" aria-hidden="true"></i>
+			<div>Earliest Shabbat<hr><span style="font-weight: 400;">РАННЕЕ ПРИНЯТИЕ</span></div>
+		</div>
 		<div class="shabbatRow tableShadow timecalc"
 			data-lat="40.724217" data-lng="-73.815353"
 			data-timezone="America/New_York"
@@ -307,12 +342,21 @@ website: true
 			data-calc="rYisraeli"
 			style="display: none;">
 		</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-area: earlyTime;">Early Time</div>
-		<div class="header tableShadow" style="grid-area: candleHead;">Shabbat Starts<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-area: earlyTime;">Tosefeth...</div>
+		<div class="header tableShadow" style="grid-area: candleHead;">
+			<i class="fa fa-fire" aria-hidden="true"></i>
+			<div>Candle Lighting<hr><span style="font-weight: 400;">ЗАЖИГАНИЯ СВЕЧЕЙ</span></div>
+		</div>
 		<div class="shabbatRow timeshow shabBorder" style="grid-area: candleTime;">Start Time</div>
-		<div class="header tableShadow" style="grid-area: endHead;">Shabbat Ends</div>
+		<div class="header tableShadow" style="grid-area: endHead;">
+			{% include havdalah.svg %}
+			<div>Havdala<hr><span style="font-weight: 400;">АВДАЛА</span></div>
+		</div>
 		<div class="shabbatRow timeshow shabBorder" style="grid-area: endTime;">End Time</div>
-		<div class="header tableShadow" style="grid-area: rtHead;">Rabbenu Tam</div>
+		<div class="header tableShadow" style="grid-area: rtHead;">
+			<img src="/assets/images/shabbat-abstract/mono-kstars-stars.svg">
+			<div>Rabbenu Tam<hr><span style="font-weight: 400;">РАБЕНУ ТАМ</span></div>
+		</div>
 		<div class="shabbatRow timeshow" style="grid-area: rtTime;">Machmir Time</div>
 		<div class="shabbatRowBg tableShadow" style="grid-row: 1 / span 4; grid-column: 2;"></div>
 	</div>
