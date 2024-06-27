@@ -122,49 +122,54 @@ for (const monthData of arrayOfFuncParams) {
 	
 			document.documentElement.setAttribute('forceLight', '')
 			document.documentElement.removeAttribute('data-bs-theme');
-	
-			/** @type {HTMLElement} */
-			const finalExplanation = document.querySelector('[data-printFind]');
-	
-			let paged = new Previewer();
-			let flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
-			console.log("Rendered", flow.total, "pages.");
-	
-			finalExplanation.style.display = "none";
-	
-			const elems = [
-				'pagedjs_margin-top-left-corner-holder',
-				'pagedjs_margin-top',
-				'pagedjs_margin-top-right-corner-holder',
-				'pagedjs_margin-right',
-				'pagedjs_margin-left',
-				'pagedjs_margin-bottom-left-corner-holder',
-				'pagedjs_margin-bottom',
-				'pagedjs_margin-bottom-right-corner-holder',
-				'pagedjs_pagebox'
-			]
-				.map(className => Array.from(document.getElementsByClassName(className)))
-				.flat();
-	
-			['top', 'right', 'left', 'bottom']
-				.forEach(dir => elems.forEach((/** @type {HTMLElement} */elem) => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
-	
-			Array.from(document.querySelectorAll('.pagedjs_pagebox > .pagedjs_area'))
-				.forEach((/** @type {HTMLElement} */pageArea) => {
-					pageArea.style.gridRow = 'unset';
-					[...pageArea.children]
-						.filter(child => child.classList.contains('pagedjs_page_content'))
-						.forEach((/** @type {HTMLElement} */pageContent) => {
-							pageContent.style.columnWidth = 'unset';
-							[...pageContent.children]
-								.filter(child => child.nodeName == "DIV")
-								.forEach((/** @type {HTMLElement} */pageContentChild) => pageContentChild.style.height = 'unset')
-						})
-				})
-	
-			window.print();
+
+			await preparePrint();
 		}
 	})
+}
+
+async function preparePrint() {
+	/** @type {HTMLElement} */
+	const finalExplanation = document.querySelector('[data-printFind]');
+	
+	let paged = new Previewer();
+	let flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
+	console.log("Rendered", flow.total, "pages.");
+
+	finalExplanation.style.display = "none";
+
+	const elems = [
+		'pagedjs_margin-top-left-corner-holder',
+		'pagedjs_margin-top',
+		'pagedjs_margin-top-right-corner-holder',
+		'pagedjs_margin-right',
+		'pagedjs_margin-left',
+		'pagedjs_margin-bottom-left-corner-holder',
+		'pagedjs_margin-bottom',
+		'pagedjs_margin-bottom-right-corner-holder',
+		'pagedjs_pagebox'
+	]
+		.map(className => Array.from(document.getElementsByClassName(className)))
+		.flat();
+
+	['top', 'right', 'left', 'bottom']
+		.forEach(dir => elems.forEach((/** @type {HTMLElement} */elem) => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
+
+	Array.from(document.getElementsByClassName('pagedjs_page_content'))
+		.forEach((/** @type {HTMLElement} */pageContent) => {
+			pageContent.style.columnWidth = 'unset';
+			[...pageContent.children]
+				.filter(child => child.nodeName == "DIV")
+				.forEach((/** @type {HTMLDivElement} */pageContentChild) => pageContentChild.style.height = 'unset')
+		})
+
+	/* Array.from(document.getElementsByClassName('pagedjs_page'))
+		.forEach((/** @type {HTMLDivElement} * / page) => {
+			page.style.setProperty('--pagedjs-pagebox-width', '100%');
+			page.style.setProperty('--pagedjs-width-' + (page.classList.contains('pagedjs_right_page') ? 'right' : 'left'), '100%')
+		}) */
+
+	window.print();
 }
 
 /**
