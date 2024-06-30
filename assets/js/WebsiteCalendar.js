@@ -845,6 +845,7 @@ export function monthForLocale(localeName, month = 'long', calendar = 'iso8601',
 	const monthLocale = [...Array(baseDate.monthsInYear).keys()]
 		.map((monthNum) => baseDate.with({ month: monthNum + 1 }).toLocaleString(localeName, { month }));
 
+	monthLocale.unshift(undefined);
 	return monthLocale;
 }
 
