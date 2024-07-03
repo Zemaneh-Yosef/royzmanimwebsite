@@ -185,7 +185,7 @@ class zmanimListUpdater {
 			this.locationMap = null
 		});
 
-		this.zmanFuncs.coreZC.setCandleLightingOffset(settings.candleLighting());
+		this.zmanFuncs.coreZC.setCandleLightingOffset(settings.customTimes.candleLighting());
 
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 		this.dtF = [settings.language() == 'hb' ? 'he' : 'en', {
@@ -1098,8 +1098,8 @@ class zmanimListUpdater {
 		const zmanim = [];
 		const currentSelectedDate = this.zmanFuncs.coreZC.getDate();
 
-		for (const time of [0, 1]) {
-			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO().add({ days: time }), true);
+		for (const days of [0, 1]) {
+			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO().add({ days }), true);
 			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false,this.zmanFuncs,this.zmanimList,this.zmanInfoSettings)).filter(obj => obj.display == 1).map(time => time.luxonObj));
 		}
 

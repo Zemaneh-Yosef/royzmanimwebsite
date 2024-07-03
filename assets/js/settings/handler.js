@@ -51,9 +51,6 @@ const settings = Object.freeze({
 
 		return 'hb';
 	},
-	candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
-	tzeith: () => parseInt(settingsURLOverride("tzeith")) || 40,
-
 	location: {
 		name: () => settingsURLOverride("locationName"),
 		lat: () => parseFloat(settingsURLOverride("lat")),
