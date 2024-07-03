@@ -1,6 +1,6 @@
 //@ts-check
 
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { settings } from "../settings/handler.js";
 import { Previewer } from "../../libraries/paged.js"
 
@@ -10,7 +10,7 @@ if (printParam.has('lessContrast')) {
 	document.documentElement.style.setProperty('--bs-body-color', '#1A0033');
 }
 const calcMonthStart = (printParam.has('currentMonth') ?
-	KosherZmanim.Temporal.Now.plainDateISO().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').month
+	Temporal.Now.plainDateISO().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').month
 	: 1
 );
 
@@ -21,7 +21,7 @@ if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 /** @type {[string, number, number, number, string]} */
 // @ts-ignore
 const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
-const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
+const geoLocation = new GeoLocation(...glArgs);
 const useOhrHachaim = (geoLocation.getLocationName() || "").toLowerCase().includes('israel') || settings.calendarToggle.hourCalculators() == "seasonal"
 
 const listAllShitot = Array.from(document.querySelectorAll('[data-zyData]')).map(elem => elem.getAttribute('data-zyData'))
@@ -33,7 +33,7 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
 	.map((/** @type {HTMLElement} */elem) => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
 	.join(" ");
 
-/** @type {KosherZmanim.Temporal.ZonedDateTime[]} */
+/** @type {Temporal.ZonedDateTime[]} */
 let availableVS = [];
 if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
 	const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
@@ -61,11 +61,11 @@ footer.querySelector("[data-calendar]")
 footer.querySelector("[data-timeZone]")
 	.appendChild(document.createTextNode(geoLocation.getTimeZone()))
 
-const today = KosherZmanim.Temporal.Now.plainDateISO()
+const today = Temporal.Now.plainDateISO()
 footer.getElementsByClassName("genDate")[0]
 	.appendChild(document.createTextNode([today.year, today.month, today.day].map(num=>num.toString().padStart(2, '0')).join("/")))
 
-let plainDateForLoop = KosherZmanim.Temporal.Now.plainDateISO()
+let plainDateForLoop = Temporal.Now.plainDateISO()
 	.with({ month: calcMonthStart, day: 1 })
 	.withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew')
 	.with({ month: calcMonthStart, day: 1 })

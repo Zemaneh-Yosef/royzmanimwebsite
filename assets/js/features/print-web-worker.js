@@ -598,21 +598,21 @@ async function messageHandler (x) {
 		const hametzTitle = document.createElement("h5");
 		hametzTitle.innerHTML = {
 			hb: "ערב פסח",
-			en: "Pesaḥ Eve - " + hamesName,
-			"en-et": "Erev Pesaḥ - " + hamesName
+			en: "Pesaḥ Eve for Ḥametz - " + hamesName,
+			"en-et": "Erev Pesaḥ for Ḥametz - " + hamesName
 		}[x.data.lang];
 
 		const hametzTiming = document.createElement("p");
 		hametzTiming.appendChild(document.createTextNode({
 			"hb": "סןף זמן אחילת חמץ: ",
-			"en": "Stop eating Hametz by ",
-			"en-et": "Stop eating Hametz by "
+			"en": "Stop eating by ",
+			"en-et": "Stop eating by "
 		}[x.data.lang] + zmanCalc.chainDate(hamesDate).getSofZmanAchilathHametz().toLocaleString(...defaulTF)));
 		hametzTiming.appendChild(document.createElement("br"));
 		hametzTiming.appendChild(document.createTextNode({
 			"hb": "זמן ביעור חמץ עד ",
-			"en": "Burn Ḥametz by ",
-			"en-et": "Burn Ḥametz by "
+			"en": "Dispose by ",
+			"en-et": "Dispose by "
 		}[x.data.lang] + zmanCalc.chainDate(hamesDate).getSofZmanBiurHametz().toLocaleString(...defaulTF)));
 
 		hametzContainer.appendChild(hametzTitle);
@@ -647,13 +647,13 @@ async function messageHandler (x) {
 		"hb": "תחילת: ",
 		"en": "Beginning: ",
 		"en-et": "Beginning: "
-	}[x.data.lang] + jCalBMoon.getTchilasZmanKidushLevana7Days().toLocaleString(...dtFBLevana)));
+	}[x.data.lang] + jCalBMoon.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
 	bLTimes.appendChild(document.createElement("br"));
 	bLTimes.appendChild(document.createTextNode({
 		"hb": 'סוף (רמ"א): ',
 		"en": 'End (Rama): ',
 		"en-et": "End (Rama): "
-	}[x.data.lang] + jCalBMoon.getSofZmanKidushLevanaBetweenMoldos().toLocaleString(...dtFBLevana)));
+	}[x.data.lang] + jCalBMoon.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
 
 	bLContain.appendChild(bLTitl);
 	bLContain.appendChild(bLTimes);
