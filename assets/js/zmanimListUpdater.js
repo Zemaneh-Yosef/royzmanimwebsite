@@ -1,6 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import {Temporal} from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { OhrHachaimZmanim, AmudehHoraahZmanim, methodNames } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
@@ -22,9 +23,7 @@ class zmanimListUpdater {
 		this.jCal = new WebsiteLimudCalendar();
 		this.jCal.setUseModernHolidays(true);
 
-		/**
-		 * @type {null|KosherZmanim.Temporal.ZonedDateTime}
-		 */
+		/** @type {null|Temporal.ZonedDateTime} */
 		this.nextUpcomingZman = null;
 
 		this.buttonsInit = false;
@@ -33,6 +32,7 @@ class zmanimListUpdater {
 		/** @type {null|NodeJS.Timeout} */ // It's not node but whatever
 		this.countdownToNextDay = null;
 
+		/** @type {Parameters<typeof this.jCal.getZmanimInfo>[2]} */
 		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
 			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), {
 				function: timeSlot.getAttribute('data-timeGetter'),
@@ -50,7 +50,7 @@ class zmanimListUpdater {
 					arrayEntry[0] !== null
 					// @ts-ignore
 				&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
-			))
+			));
 
 		this.resetCalendar(geoLocation);
 
@@ -61,6 +61,7 @@ class zmanimListUpdater {
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	resetCalendar(geoLocation = this.geoLocation) {
+		this.timeoutToChangeDate = null;
 		this.zmanInfoSettings = {
 			hourCalculator: settings.calendarToggle.hourCalculators(),
 			tzeithIssurMelakha: settings.customTimes.tzeithIssurMelakha(),
@@ -214,7 +215,7 @@ class zmanimListUpdater {
 	}
 
 	/**
-	 * @param {KosherZmanim.Temporal.PlainDate} date
+	 * @param {Temporal.PlainDate} date
 	 * @param {boolean} internal 
 	 */
 	changeDate(date, internal=false) {
@@ -223,6 +224,18 @@ class zmanimListUpdater {
 
 		if (!internal) {
 			this.updateZmanimList();
+			if (date.equals(Temporal.Now.plainDateISO())) {
+				const tomorrow = Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
+					.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+				this.timeoutToChangeDate = setTimeout(
+					() => this.changeDate(tomorrow.toPlainDate()),
+					Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
+						.until(tomorrow)
+						.total('milliseconds')
+				);
+			} else {
+				this.timeoutToChangeDate = null
+			}
 		}
 	}
 
@@ -247,7 +260,7 @@ class zmanimListUpdater {
 		if (!this.buttonsInit) {
 			const downloadBtn = document.getElementById("downloadModalBtn");
 			downloadBtn.style.removeProperty("display")
-			downloadBtn.addEventListener('click', () => {console.log('thing');this.handleICS()})
+			downloadBtn.addEventListener('click', () => {this.handleICS()})
 
 			for (const dateChanger of Array.from(dateContainer.getElementsByTagName('button')).filter(btn => btn.hasAttribute('data-dateAlter'))) {
 				const days = parseInt(dateChanger.getAttribute("data-dateAlter"))
@@ -273,26 +286,23 @@ class zmanimListUpdater {
 
 		this.midDownload = true;
 
-		const geoLocationParams = [
-			this.geoLocation.getLocationName(),
-			this.geoLocation.getLatitude(),
-			this.geoLocation.getLongitude(),
-			this.geoLocation.getElevation(),
-			this.geoLocation.getTimeZone()
-		];
+		/** @type {[string, number, number, number, string]} */
+		// @ts-ignore
+		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 
 		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
 
+		/** @type {Parameters<typeof icsExport>} */
 		const icsParams = [
 			this.zmanFuncs instanceof AmudehHoraahZmanim,
 			undefined,
-			// @ts-ignore
-			geoLocationParams,
+			glArgs,
 			this.zmanFuncs.coreZC.isUseElevation(),
 			this.jCal.getInIsrael(),
 			this.zmanimList,
 			true,
 			{
+				// @ts-ignore
 				language: settings.language() == "hb" ? "he" : settings.language(),
 				timeFormat: settings.timeFormat(), seconds: settings.seconds(),
 				zmanInfoSettings: this.zmanInfoSettings,
@@ -455,9 +465,7 @@ class zmanimListUpdater {
 		}
 	}
 
-	/**
-	 * @param {HTMLElement} [fastContainer]
-	 */
+	/** @param {HTMLElement} [fastContainer] */
 	renderFastIndex(fastContainer) {
 		const todayFast = this.jCal.isTaanis() || this.jCal.isTaanisBechoros();
 		if (!todayFast && !this.jCal.tomorrow().isTaanis() && !this.jCal.tomorrow().isTaanisBechoros()) {
@@ -538,9 +546,7 @@ class zmanimListUpdater {
 		}
 	}
 
-	/**
-	 * @param {HTMLElement} [mourningDiv]
-	 */
+	/** @param {HTMLElement} [mourningDiv] */
 	writeMourningPeriod(mourningDiv) {
 		if (!this.jCal.isMourningPeriod()) {
 			mourningDiv.style.display = "none";
@@ -656,7 +662,7 @@ class zmanimListUpdater {
 			this.lastData.specialDay = specialDayText;
 			for (const specialDay of document.querySelectorAll('[data-zfReplace="SpecialDay"]')) {
 				if (!(specialDay instanceof HTMLElement))
-					return;
+					continue;
 	
 				if (!specialDayText) {
 					specialDay.style.display = "none";
@@ -1043,9 +1049,7 @@ class zmanimListUpdater {
 		dafContainer.querySelector('[data-zfReplace="ccYomi"]').innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A"
 	}
 
-	/**
-	 * @param {HTMLElement} [tefilahRuleContainer]
-	 */
+	/** @param {HTMLElement} [tefilahRuleContainer] */
 	renderSeasonalRules(tefilahRuleContainer) {
 		/** @type {import('./WebsiteCalendar.js').default} */
 		let calForRules = this.jCal;
@@ -1054,8 +1058,8 @@ class zmanimListUpdater {
 			calForRules = this.jCal.tomorrow();
 		}
 		const seasonalRules = [
-			this.jCal.tefilahRules().amidah.mechayehHametim,
-			this.jCal.tefilahRules().amidah.mevarechHashanim
+			calForRules.tefilahRules().amidah.mechayehHametim,
+			calForRules.tefilahRules().amidah.mevarechHashanim
 		];
 
 		tefilahRuleContainer.querySelector('[data-zfReplace="SeasonalPrayers"]').innerHTML = seasonalRules.filter(Boolean).join(" / ");

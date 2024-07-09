@@ -42,21 +42,6 @@ body {
 	box-shadow: 0 4px 12px 0 rgba(0,0,0,0.07),0 2px 4px rgba(0,0,0,0.05);
 }
 
-.wideView {
-	grid-template-columns: 1fr;
-	display: grid;
-	text-align: center;
-}
-
-.wideView > * {
-	grid-row: 1;
-	padding: 10px;
-}
-
-.wideView > *:not(:last-child) {
-	border-right:1px solid black;
-}
-
 @media (min-width: 992px) {
 	#wideGrid {
 		display: grid;

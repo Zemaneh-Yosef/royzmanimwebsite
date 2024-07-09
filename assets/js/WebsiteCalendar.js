@@ -156,7 +156,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 			if (zmanInfo.function) {
 				// @ts-ignore
-				calculatedZmanim[zmanId].luxonObj = zmanCalc[zmanInfo.function]()
+				calculatedZmanim[zmanId].luxonObj = zmanCalc.chainDate(this.getDate())[zmanInfo.function]()
 			}
 
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
@@ -197,23 +197,23 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						continue;
 					} else {
 						if (this.getDayOfWeek() === 6 || !this.isAssurBemelacha())
-							calculatedZmanim[zmanId].luxonObj = zmanCalc.getCandleLighting();
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.chainDate(this.getDate()).getCandleLighting();
 						else if (this.getDayOfWeek() === 7)
-							calculatedZmanim[zmanId].luxonObj = zmanCalc.getTzaitShabbath();
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.chainDate(this.getDate()).getTzaitShabbath();
 						else
-							calculatedZmanim[zmanId].luxonObj = zmanCalc.getTzaitLechumra();
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.chainDate(this.getDate()).getTzaitLechumra();
 					}
 
 					break;
 				case 'tzeitShabbat':
 					if (this.isAssurBemelacha() && !this.hasCandleLighting()) {
-						if (this.isYomTovAssurBemelacha() && this.getDayOfWeek() == 7) {
+						if (this.isYomTovAssurBemelacha() && this.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
 							calculatedZmanim[zmanId].title.hb = `צאת שבת וחג`;
-							calculatedZmanim[zmanId].title['en-et'] = `Tzet Shabbath & Yom Tov`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzet Shabbat & Yom Tov`;
 							calculatedZmanim[zmanId].title.en = `Shabbat & Yom Tov Ends`;
-						} else if (this.getDayOfWeek() == 7) {
+						} else if (this.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
 							calculatedZmanim[zmanId].title.hb = `צאת שבת`;
-							calculatedZmanim[zmanId].title['en-et'] = `Tzet Shabbath`;
+							calculatedZmanim[zmanId].title['en-et'] = `Tzet Shabbat`;
 							calculatedZmanim[zmanId].title.en = `Shabbat Ends`;
 						} else {
 							calculatedZmanim[zmanId].title.hb = `צאת חג`;
@@ -262,13 +262,13 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					break;
 				case 'rt':
 					if (calculatedZmanim[zmanId].luxonObj) {
-						if (calculatedZmanim[zmanId].luxonObj.epochMilliseconds == zmanCalc.getTzait72Zmanit().epochMilliseconds) {
+						if (calculatedZmanim[zmanId].luxonObj.epochMilliseconds == zmanCalc.chainDate(this.getDate()).getTzait72Zmanit().epochMilliseconds) {
 							calculatedZmanim[zmanId].title.hb = 'ר"ת (זמנית)';
-							calculatedZmanim[zmanId].title['en-et'] = "Rabbeinu Tam (Zmanit)";
+							calculatedZmanim[zmanId].title['en-et'] = "Rabbenu Tam (Zemanit)";
 							calculatedZmanim[zmanId].title.en = "Rabbeinu Tam (Seasonal)";
 						} else {
 							calculatedZmanim[zmanId].title.hb = 'ר"ת (קבוע)';
-							calculatedZmanim[zmanId].title['en-et'] = "Rabbeinu Tam (Kavuah)";
+							calculatedZmanim[zmanId].title['en-et'] = "Rabbenu Tam (Kavuah)";
 							calculatedZmanim[zmanId].title.en = "Rabbeinu Tam (Fixed)";
 						}
 					}
@@ -281,6 +281,31 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						if (!(this.isTaanis() && !this.isYomKippur())) {
 							calculatedZmanim[zmanId].display = 0;
 							calculatedZmanim[zmanId].code.push("Not a fast day")
+						}
+						break;
+					case 'LATE_NIGHT':
+						const selichot = this.getDayOfWeek() !== KosherZmanim.Calendar.FRIDAY
+							&& (this.getJewishMonth() == KosherZmanim.JewishDate.ELUL
+							|| (this.getJewishMonth() == KosherZmanim.JewishDate.TISHREI && this.getJewishDayOfMonth() > 10));
+						let pesah = this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN && this.getJewishDayOfMonth() == 14;
+						if (!this.getInIsrael())
+							pesah = pesah || this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN && this.getJewishDayOfMonth() == 14;
+
+						if (!selichot && !pesah) {
+							calculatedZmanim[zmanId].display = 0;
+							calculatedZmanim[zmanId].code.push("No one is staying up this late")
+						}
+						break;
+					case 'ALL_NIGHT':
+						if (!this.isShavuos() && !this.isHoshanaRabba()) {
+							calculatedZmanim[zmanId].display = 0;
+							calculatedZmanim[zmanId].code.push("No one is up this early")
+						}
+						break;
+					case 'TZET_MELAKHA':
+						if (this.hasCandleLighting() || !this.isAssurBemelacha()) {
+							calculatedZmanim[zmanId].display = 0;
+							calculatedZmanim[zmanId].code.push("Not a day with Tzet-Melakha")
 						}
 				}
 			}
@@ -578,7 +603,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			end: new KosherZmanim.JewishDate(this.getJewishYear(), KosherZmanim.JewishDate.NISSAN, 15).getDate()
 		}
 
-		const normalAmidah = !(this.getDayOfWeek() == 7 || [
+		const normalAmidah = !(this.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY || [
 			KosherZmanim.JewishCalendar.SHAVUOS,
 			KosherZmanim.JewishCalendar.PESACH,
 			KosherZmanim.JewishCalendar.SUCCOS,
@@ -709,7 +734,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		
 		const currentDate = this.getDate();
 		this.setJewishDayOfMonth(9);//set to the 9th of Av
-		if (this.getDayOfWeek() == 1 || this.getDayOfWeek() == 7) {
+		if ([KosherZmanim.Calendar.SATURDAY, KosherZmanim.Calendar.SUNDAY].includes(this.getDayOfWeek())) {
 			return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
 		}
 		this.setDate(currentDate);//reset the date

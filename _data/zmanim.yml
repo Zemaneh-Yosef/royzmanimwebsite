@@ -119,9 +119,9 @@
       attributes:
         yomTovInclusive: EREV_PESACH
   names:
-    hb: סוף זמן אכילת חמץ
-    et: Sof Zman Achilat Chametz
-    en: Latest Time to Eat Chametz
+    hb: זמני חמץ
+    et: Ḥametz Times
+    en: Ḥametz Times
   descriptionInclude: zmanDescription/hametz.md
 - id: latestBrachotShmaGRA
   timeGetter: getSofZmanBrachothShma
@@ -325,7 +325,6 @@
     </p>
 - id: tzeitTaanit
   attributes:
-    yomTovInclusive:
     luachInclusive: seasonal
     condition: isTaanit
   timeGetter: getTzaitTaanit
@@ -379,10 +378,6 @@
     (elevation included for the Ohr Hachaim calendar).
     </p>
 - id: tzeitShabbat
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition:
   timeGetter: getTzaitShabbath
   names:
     hb: צאת שבת
