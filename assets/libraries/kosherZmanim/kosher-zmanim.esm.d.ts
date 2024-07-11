@@ -682,6 +682,12 @@ declare abstract class AstronomicalCalculator {
 	clone(): AstronomicalCalculator;
 	equals(object: object): boolean;
 }
+declare enum SolarEvent {
+	SUNRISE = 0,
+	SUNSET = 1,
+	NOON = 2,
+	MIDNIGHT = 3
+}
 /**
  * A Java calendar that calculates astronomical times such as {@link #getSunrise() sunrise} and {@link #getSunset()
  * sunset} times. This class contains a {@link #getCalendar() Calendar} and can therefore use the standard Calendar
@@ -1034,6 +1040,7 @@ export declare class AstronomicalCalendar {
 	 *         not set, null will be returned. See detailed explanation on top of the page.
 	 */
 	getSunTransit(startOfDay?: Temporal.ZonedDateTime, endOfDay?: Temporal.ZonedDateTime): Temporal.ZonedDateTime | null;
+	getSunLowerTransit(): Temporal.ZonedDateTime;
 	/**
 	 * A method that returns a <code>Date</code> from the time passed in as a parameter.
 	 *
@@ -1043,7 +1050,7 @@ export declare class AstronomicalCalendar {
 	 * @param isSunrise true if the time is sunrise, and false if it is sunset
 	 * @return The Date.
 	 */
-	protected getDateFromTime(time: number, isSunrise: boolean): Temporal.ZonedDateTime | null;
+	protected getDateFromTime(time: number, solarEvent: SolarEvent): Temporal.ZonedDateTime | null;
 	/**
 	 * Returns the dip below the horizon before sunrise that matches the offset minutes on passed in as a parameter. For
 	 * example passing in 72 minutes for a calendar set to the equinox in Jerusalem returns a value close to 16.1&deg;
@@ -2726,7 +2733,7 @@ export declare class NOAACalculator extends AstronomicalCalculator {
 	 */
 	private static readonly JULIAN_DAYS_PER_CENTURY;
 	/**
-	 * @see AstronomicalCalculator#getCalculatorName()
+	 * @see com.kosherjava.zmanim.util.AstronomicalCalculator#getCalculatorName()
 	 */
 	getCalculatorName(): string;
 	/**
@@ -2855,23 +2862,11 @@ export declare class NOAACalculator extends AstronomicalCalculator {
 	 *            the declination angle of sun in degrees
 	 * @param zenith
 	 *            the zenith
+	 * @param solarEvent
+	   *             If the hour angle is for sunrise or sunset
 	 * @return hour angle of sunrise in radians
 	 */
-	private static getSunHourAngleAtSunrise;
-	/**
-	 * Returns the <a href="https://en.wikipedia.org/wiki/Hour_angle">hour angle</a> of the sun at sunset for the
-	 * latitude. TODO: use - {@link #getSunHourAngleAtSunrise(double, double, double)} implementation to avoid
-	 * duplication of code.
-	 *
-	 * @param lat
-	 *            the latitude of observer in degrees
-	 * @param solarDec
-	 *            the declination angle of sun in degrees
-	 * @param zenith
-	 *            the zenith
-	 * @return the hour angle of sunset in radians
-	 */
-	private static getSunHourAngleAtSunset;
+	private static getSunHourAngle;
 	/**
 	 * Return the <a href="https://en.wikipedia.org/wiki/Celestial_coordinate_system">Solar Elevation</a> for the
 	 * horizontal coordinate system at the given location at the given time. Can be negative if the sun is below the
@@ -2898,21 +2893,6 @@ export declare class NOAACalculator extends AstronomicalCalculator {
 	 *            longitude of location for calculation
 	 * @return FIXME
 	 */
-	/**
-	 * Return the <a href="https://en.wikipedia.org/wiki/Universal_Coordinated_Time">Universal Coordinated Time</a> (UTC)
-	 * of sunrise for the given day at the given location on earth
-	 *
-	 * @param julianDay
-	 *            the Julian day
-	 * @param latitude
-	 *            the latitude of observer in degrees
-	 * @param longitude
-	 *            the longitude of observer in degrees
-	 * @param zenith
-	 *            the zenith
-	 * @return the time in minutes from zero UTC
-	 */
-	private static getSunriseUTC;
 	getUTCNoon(calendar: Temporal.PlainDate, geoLocation: GeoLocation): number;
 	/**
 	 * Return the <a href="https://en.wikipedia.org/wiki/Universal_Coordinated_Time">Universal Coordinated Time</a> (UTC)
@@ -2940,7 +2920,7 @@ export declare class NOAACalculator extends AstronomicalCalculator {
 	 *            the zenith
 	 * @return the time in minutes from zero Universal Coordinated Time (UTC)
 	 */
-	private static getSunsetUTC;
+	private static getSunRiseSetUTC;
 }
 /**
  * Implementation of sunrise and sunset methods to calculate astronomical times. This calculator uses the Java algorithm
@@ -3385,6 +3365,36 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	   */
 	getChatzos(): Temporal.ZonedDateTime | null;
 	/**
+	 * Returns <em>chatzos</em> calculated as halfway between sunrise and sunset. Many are of the opinion opinion that
+	 * <em>chatzos</em> is calculated as the the midpoint between {@link #getSeaLevelSunrise sea level sunrise} and
+	 * {@link #getSeaLevelSunset sea level sunset}, despite it not being the most accurate way to calculate it. A day
+	 * starting at <em>alos</em> and ending at <em>tzais</em> using the same time or degree offset will also return
+	 * the same time. In reality due to lengthening or shortening of day, this is not necessarily the exact midpoint of
+	 * the day, but it is very close. This method allows you to use the NOAACalculator and still calculate <em>chatzos
+	 * </em> as six <em>shaaos zmaniyos</em> after sunrise. There are currently two {@link
+	  * com.kosherjava.zmanim.util.AstronomicalCalculator calculators} available in the API, the {@link
+	  * com.kosherjava.zmanim.util.NOAACalculator} and the {@link com.kosherjava.zmanim.util.SunTimesCalculator}.
+	  * The SunTimesCalculator calculates <em>chatzos</em> as halfway between sunrise and sunset (and of six <em>shaaos
+	  * zmaniyos</em>), while the NOAACalculator calculates it as astronomical <em>chatzos</em> that is slightly more
+	  * accurate. This method allows you to use the NOAACalculator and still calculate <em>chatzos</em> as six <em>shaaos
+	  * zmaniyos</em> after sunrise. See <a href="https://kosherjava.com/2020/07/02/definition-of-chatzos/">The Definition
+	  * of <em>Chatzos</em></a> for a detailed explanation of the ways to calculate <em>Chatzos</em>.
+	  *
+	  * @see com.kosherjava.zmanim.util.NOAACalculator#getUTCNoon(Calendar, GeoLocation)
+	  * @see com.kosherjava.zmanim.util.SunTimesCalculator#getUTCNoon(Calendar, GeoLocation)
+	  * @see com.kosherjava.zmanim.util.AstronomicalCalculator#getUTCNoon(Calendar, GeoLocation)
+	  * @see AstronomicalCalendar#getSunTransit(Date, Date)
+	  * @see #getChatzos()
+	  * @see #getSunTransit()
+	  * @see #isUseAstronomicalChatzos()
+	  *
+	  * @return the <code>Date</code> of the latest <em>chatzos</em>. If the calculation can't be computed such
+	  *         as in the Arctic Circle where there is at least one day a year where the sun does not rise, and one where
+	  *         it does not set, a <code>null</code> will be returned. See detailed explanation on top of the
+	  *         {@link AstronomicalCalendar} documentation.
+	  */
+	getChatzosAsHalfDay(): Temporal.ZonedDateTime;
+	/**
 	   * A generic method for calculating the latest <em>zman krias shema</em> (time to recite shema in the morning)
 	   * that is 3 * <em>shaos zmaniyos</em> (temporal hours) after the start of the day, calculated using the start and
 	   * end of the day passed to this method.
@@ -3556,7 +3566,7 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	 *         at least one day a year where the sun does not rise, and one where it does not set, a null will be
 	 *         returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.
 	 */
-	getMinchaGedola(startOfDay?: Temporal.ZonedDateTime | null, endOfDay?: Temporal.ZonedDateTime | null): Temporal.ZonedDateTime | null;
+	getMinchaGedola(startOfDay?: Temporal.ZonedDateTime, endOfDay?: Temporal.ZonedDateTime | undefined): Temporal.ZonedDateTime;
 	/**
 	   * A generic method for calculating <em>samuch lemincha ketana</em>, / near <em>mincha ketana</em> time that is half
 	   * an hour before {@link #getMinchaKetana(Date, Date)}  or 9 * <em>shaos zmaniyos</em> (temporal hours) after the
@@ -3755,6 +3765,35 @@ export declare class ZmanimCalendar extends AstronomicalCalendar {
 	  *         AstronomicalCalendar} documentation.
 	 */
 	getShaahZmanisBasedZman(startOfDay: Temporal.ZonedDateTime | null, endOfDay: Temporal.ZonedDateTime | null, hours: number): Temporal.ZonedDateTime | null;
+	/**
+	   * A utility method to calculate <em>zmanim</em> based on <a href="https://en.wikipedia.org/wiki/Moshe_Feinstein">Rav Moshe
+	   * Feinstein</a> and others as calculated in <a href="https://en.wikipedia.org/wiki/Mesivtha_Tifereth_Jerusalem">MTJ</a>, <a href=
+	   * "https://en.wikipedia.org/wiki/Mesivtha_Tifereth_Jerusalem">Yeshiva of Staten Island</a>, and Camp Yeshiva
+	   * of Staten Island and other calendars. The day is split in two, from <em>alos</em> / sunrise to <em>chatzos</em>, and the
+	   * second half of the day, from <em>chatzos</em> to sunset / <em>tzais</em>. Morning based times are calculated. based on the first
+	   * 6 hours of the day, and afternoon times based on the second half of the day. As an example, passing 0.5, a start of
+	   * <em>chatzos</em> and an end of day as sunset will return the time of <em>mincha gedola</em> GRA as half an hour <em>zmanis</em>
+	   * based on the second half of the day.
+	   *
+	   * @param startOfHalfDay
+	   *            The start of the half day. This would be <em>alos</em> or sunrise for morning based times such as <em>sof zman krias
+	   *            shema</em> and <em>chatzos</em> for afternoon based times such as <em>mincha gedola</em>.
+	   * @param endOfHalfDay
+	   *            The end of the half day. This would be <em>chatzos</em> for morning based times  such as <em>sof zman krias shema</em>
+	   *            and sunset or <em>tzais</em> for afternoon based times such as <em>mincha gedola</em>.
+	   * @param hours
+	   *            The number of <em>sha'os zmaniyos</em> (hours) to offset the beginning of the first or second half of the day. For example,
+	   *            3 for <em>sof zman Shma</em>, 0.5 for <em>mincha gedola</em> (half an hour after <em>chatzos</em>) and 4.75 for <em>plag
+	   *            hamincha</em>.
+	   *
+	   * @return the <code>Date</code> of <em>zman</em> based on calculation of the first or second half of the day. If the
+	   *         calculation can't be computed such as in the Arctic Circle where there is at least one day a year where the
+	   *         sun does not rise, and one where it does not set, a <code>null</code> will be returned. See detailed explanation
+	   *         on top of the {@link AstronomicalCalendar} documentation.
+	   *
+	   * @see ComplexZmanimCalendar#getFixedLocalChatzos()
+	   */
+	getHalfDayBasedZman(startOfHalfDay: Temporal.ZonedDateTime, endOfHalfDay: Temporal.ZonedDateTime, hours: number): Temporal.ZonedDateTime | null;
 	/**
 	   * A utility method that returns the percentage of a <em>shaah zmanis</em> after sunset (or before sunrise) for a given degree
 	   * offset. For the <a href="https://kosherjava.com/2022/01/12/equinox-vs-equilux-zmanim-calculations/">equilux</a> where there
@@ -6444,7 +6483,7 @@ export declare class ComplexZmanimCalendar extends ZmanimCalendar {
 	 * @return the Date representing the local <em>chatzos</em>
 	 * @see GeoLocation#getLocalMeanTimeOffset()
 	 */
-	getFixedLocalChatzos(): Temporal.ZonedDateTime | undefined;
+	getFixedLocalChatzos(): Temporal.ZonedDateTime | null;
 	/**
 	 * A method that returns the latest <em>zman krias shema</em> (time to recite Shema in the morning) calculated as 3
 	 * clock hours before {@link #getFixedLocalChatzos()}. Note that there are opinions brought down in Yisrael Vehazmanim
@@ -7842,6 +7881,15 @@ export declare class JewishCalendar extends JewishDate {
 	 */
 	getSpecialShabbos(): Parsha;
 	/**
+	   * Returns the upcoming {@link Parsha <em>Parsha</em>} regardless of if it is the weekday or <em>Shabbos</em> (where next
+	   * Shabbos's <em>Parsha</em> will be returned. This is unlike {@link #getParshah()} that returns {@link Parsha#NONE} if
+	   * the date is not <em>Shabbos</em>. If the upcoming Shabbos is a <em>Yom Tov</em> and has no <em>Parsha</em>, the
+	   * following week's <em>Parsha</em> will be returned.
+	   *
+	   * @return the upcoming <em>parsha</em>.
+	   */
+	getUpcomingParshah(): Parsha;
+	/**
 	 * Returns an index of the Jewish holiday or fast day for the current day, or a -1 if there is no holiday for this
 	 * day. There are constants in this class representing each Yom Tov. Formatting of the Yomim tovim is done in the
 	 * ZmanimFormatter#
@@ -8022,6 +8070,25 @@ export declare class JewishCalendar extends JewishDate {
 	 * @see #isRoshChodesh()
 	 */
 	isErevRoshChodesh(): boolean;
+	/**
+	   * Returns true if the current day is <em>Yom Kippur Katan</em>. Returns false for <em>Erev Rosh Hashana</em>,
+	   * <em>Erev Rosh Chodesh Cheshvan</em>, <em>Teves</em> and <em>Iyyar</em>. If <em>Erev Rosh Chodesh</em> occurs
+	   * on a Friday or <em>Shabbos</em>, <em>Yom Kippur Katan</em> is moved back to Thursday.
+	   *
+	   * @return true if the current day is <em>Erev Rosh Chodesh</em>. Returns false for <em>Erev Rosh Hashana</em>.
+	   * @see #isRoshChodesh()
+	   */
+	isYomKippurKatan(): boolean;
+	/**
+	   * The Monday, Thursday and Monday after the first <em>Shabbos</em> after {@link #isRoshChodesh() <em>Rosh Chodesh</em>}
+	   * {@link JewishDate#CHESHVAN <em>Cheshvan</em>} and {@link JewishDate#IYAR <em>Iyar</em>} are <a href=
+	   * "https://outorah.org/p/41334/"> <em>BeHaB</em></a> days. If the last Monday of Iyar's BeHaB coincides with {@link
+	* #PESACH_SHENI <em>Pesach Sheni</em>}, the method currently considers it both <em>Pesach Sheni</em> and <em>BeHaB</em>.
+	* As seen in an Ohr Sameach  article on the subject <a href="https://ohr.edu/this_week/insights_into_halacha/9340">The
+	* unknown Days: BeHaB Vs. Pesach Sheini?</a> there are some customs that delay the day to various points in the future.
+	* @return true if the day is <em>BeHaB</em>.
+	*/
+	isBeHaB(): boolean;
 	/**
 	 * Return true if the day is a Taanis (fast day). Return true for 17 of Tammuz, Tisha B'Av, Yom Kippur, Fast of
 	 * Gedalyah, 10 of Teves and the Fast of Esther
@@ -8328,7 +8395,13 @@ export declare class TefilaRules {
 	   */
 	private tachanunRecitedMinchaAllYear;
 	/**
-	   * Returns if <em>tachanun</em> is recited during <em>shacharis</em> on the day in question. See the many
+	   * The default value is <code>false</code>.
+	   * @see #isMizmorLesodaRecited(JewishCalendar)
+	   * @see #setMizmorLesodaRecitedErevYomKippurAndPesach(boolean)
+	   */
+	private mizmorLesodaRecitedErevYomKippurAndPesach;
+	/**
+	 * Returns if <em>tachanun</em> is recited during <em>shacharis</em> on the day in question. There are the many
 	   * <em>minhag</em> based settings that are available in this class.
 	   *
 	   * @param jewishCalendar the Jewish calendar day.
@@ -8485,6 +8558,15 @@ export declare class TefilaRules {
 	   * @see JewishCalendar#isRoshChodesh()
 	   */
 	isYaalehVeyavoRecited(jewishCalendar: JewishCalendar): boolean;
+	/**
+	* Returns if Is <em>Mizmor Lesoda</em> is recited on the day in question.
+	* @param jewishCalendar  the Jewish calendar day.
+	* @return if <em>Mizmor Lesoda</em> is recited.
+	*
+	* @see #isMizmorLesodaRecitedErevYomKippurAndPesach()
+	*
+	*/
+	isMizmorLesodaRecited(jewishCalendar: JewishCalendar): boolean;
 	/**
 	   * Is <em>tachanun</em> recited during the week of Purim, from the 11th through the 17th of {@link
 	   * JewishDate#ADAR <em>Adar</em>} (on a non-leap year, or {@link JewishDate#ADAR_II <em>Adar II</em>} on a leap year). Some
@@ -8712,6 +8794,25 @@ export declare class TefilaRules {
 	   * @see #isTachanunRecitedMinchaAllYear()
 	   */
 	setTachanunRecitedMinchaAllYear(tachanunRecitedMinchaAllYear: boolean): void;
+	/**
+	   * Sets if <em>Mizmor Lesoda</em> should be recited on <em>Erev Yom Kippur</em>, <em>Erev Pesach</em> and <em>Chol
+	   * Hamoed Pesach</em>. Ashkenazi congregations do not recite it on these days, while Sephardi congregations do. The
+	   * default value is <code>false</code>.
+	   * @param mizmorLesodaRecitedErevYomKippurAndPesach Sets if <em>Mizmor Lesoda</em> should be recited on <em>Erev Yom
+	   *          Kippur</em>, <em>Erev Pesach</em> and <em>Chol Hamoed Pesach</em>. If set to true (the default value is
+	   *          <code>false</code>).
+	   * @see #isTachanunRecitedMinchaAllYear()
+	   */
+	setMizmorLesodaRecitedErevYomKippurAndPesach(mizmorLesodaRecitedErevYomKippurAndPesach: boolean): void;
+	/**
+	 * Is <em>Mizmor Lesoda</em> set to be recited on <em>Erev Yom Kippur</em>, <em>Erev Pesach</em> and <em>Chol
+	 * Hamoed Pesach</em>. Ashkenazi congregations do not recite it on these days, while Sephardi congregations do.
+	 * The default value is <code>false</code>.
+	 * @return if <em>Mizmor Lesoda</em> is set to be recited on <em>Erev Yom Kippur</em>, <em>Erev Pesach</em> and
+	 *          <em>Chol Hamoed Pesach</em>. If set to true (the default value is <code>false</code>).
+	 * @see #isMizmorLesodaRecited(JewishCalendar)
+	 */
+	isMizmorLesodaRecitedErevYomKippurAndPesach(): boolean;
 }
 export declare class ChafetzChayimYomiCalculator {
 	static getChafetzChayimYomi(jewishCalendar: JewishDate): {
@@ -9272,7 +9373,7 @@ export declare class HebrewDateFormatter {
 	 *         chars. The default uses Ashkenazi pronunciation in typical American English spelling, for example
 	 *         Bereshis or Nitzavim Vayeilech or an empty string if there are none.
 	 */
-	formatParsha(jewishCalendar: JewishCalendar): string;
+	formatParsha(jewishCalendarOrParsha: JewishCalendar | Parsha): string;
 	/**
 	 * Returns a String with the name of the current special parsha of Shekalim, Zachor, Parah or Hachodesh or an
 	 * empty String for a non-special parsha. If the formatter is set to format in Hebrew, it returns a string of

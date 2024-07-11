@@ -29,5 +29,5 @@ The Rabbis who gave their Haskamot have also contributed to the app. Their credi
 ##### Flyer work
 
 - **Adriel Kohananoo** - Flyer Designs
-- **Yehoshua Neqtalov**, **Haim Shaul Niyazov** - Russian transliteration (Shabbat Flyer for Sefira)
+- **Joshua Nektalov**, **Haim Shaul Niyazov** - Russian transliteration (Shabbat Flyer for Sefira)
 - **Aharon N. Varady** and **Andrew Meit** - [Menorah Lamnatzeach](https://opensiddur.org/?p=3393) (under the Creative Commons Attribution-ShareAlike (CC BY-SA) 4.0 International copyleft license)
