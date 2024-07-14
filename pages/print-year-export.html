@@ -149,13 +149,6 @@ layout: nothing
 		margin-bottom: 0;
 	}
 
-	.hebrewTitle {
-		line-height: .8;
-		font-size: 1.5rem;
-		padding-top: 1rem;
-		margin-bottom: 0;
-	}
-
 	[data-zyData="date"] {
 		font-size: 1.5em;
 		grid-row: 1 / span 2;
@@ -187,10 +180,9 @@ layout: nothing
 		grid-row: 2;
 	}
 
-	[data-zyBranding] .fa {
-		opacity: 0.3;
-		padding-top: 7.25px;
-		font-size: 3.5em;
+	[data-zyBranding] .pageLogo {
+		width: 42px;
+		padding-top: 1rem;
 	}
 
 	.flexElemWorkaround svg {
@@ -211,7 +203,18 @@ layout: nothing
 		justify-items: center;
 	}
 
-	#cover img {
+	#title {
+		align-self: start;
+		justify-self: center;
+		text-align: center;
+		z-index: 3;
+	}
+
+	#logo {
+		width: 45%;
+	}
+
+	#bgCover {
 		width: 100%;
 	}
 
@@ -220,8 +223,17 @@ layout: nothing
 	}
 
 	#cover [data-zyLocationText] {
-		padding-top: 1.5em;
+		padding-bottom: 3.5em;
     	font-size: 2em;
+	}
+
+	#credits {
+		font-weight: 500;
+		z-index: 3;
+		align-self: end;
+		text-align: center;
+		justify-self: center;
+		line-height: 1.2;
 	}
 
 	#cover [data-zyLocationText] span {
@@ -234,11 +246,25 @@ layout: nothing
 </style>
 
 <div id="cover">
-	<img src="/assets/images/cover.png" />
+	<div id="title">
+		<img src="/assets/images/print/ZY-b&w-banner.png" id="logo" />
+		<p style="font-weight: 500; font-size: 1.25em; padding-top: .5em;">
+			Halachic times according to Sepharadic tradition<br>
+			Inspired from the <b>Ohr Hachaim</b> calendar by <b>Maran Ovadia Yosef zt"l</b>
+		</p>
+	</div>
+	<img src="/assets/images/print/cover.png" id="bgCover" />
 	<div data-zyLocationText>
 		<span class="lang lang-hb">זמנים של</span>
 		<span class="lang lang-et">For:</span>
 		<span class="lang lang-en">For:</span>
+	</div>
+	<div id="credits">
+		<p>
+			Summaries and formatting by Maor Na'im & Elyahu Jacobi<br>
+			Formulas and approbations by R' Leeor Dahan & R' Meir Gavriel Elbaz
+		</p>
+		<b>ROYZMANIM.COM</b>
 	</div>
 </div>
 
@@ -268,9 +294,8 @@ layout: nothing
 		</div>
 	</div>
 	<div data-zyBranding>
-		<h1 class="hebrewTitle">זמני<br>יוסף</h1>
+		<img src="/assets/images/print/zy-b&w-icon.png" class="pageLogo" />
 		<img src="/assets/images/sam.svg" class="rotatedText">
-		<i class="fa fa-clock-o" aria-hidden="true"></i>
 		<div class="genDate">Gen.: </div>
 	</div>
 	<div class="sides">
@@ -340,6 +365,10 @@ layout: nothing
 	.columnSplit, .pagedjs_footnote_inner_content {
 		columns: var(--description-columns, 4);
 	}
+
+	.pagedjs_page:last-child {
+		page-break-after: avoid !important;
+	}
 </style>
 
 <div style="page-break-before: always;">
@@ -354,7 +383,7 @@ layout: nothing
 				<div class="columnSplit" style="--description-columns: 3;">{{ miscExpl | markdownify }}</div>
 				<div class="advert" style="margin-top: .5rem; text-align: center;">
 					See more from...<br>
-					<img src="/assets/images/logo-colorless.svg" style="margin-bottom: .5rem; width: 30%;">
+					<img src="/assets/images/print/ZY-b&w-banner.png" style="margin-bottom: .5rem; width: 30%;">
 					<div style="color: white;">
                         <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
                             <div style="border-radius: .35rem; background: white;">
