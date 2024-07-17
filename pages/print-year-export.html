@@ -149,6 +149,13 @@ layout: nothing
 		margin-bottom: 0;
 	}
 
+	.hebrewTitle {
+		line-height: .8;
+		font-size: 1.5rem;
+		padding-top: 1rem;
+		margin-bottom: 0;
+	}
+
 	[data-zyData="date"] {
 		font-size: 1.5em;
 		grid-row: 1 / span 2;
@@ -178,6 +185,12 @@ layout: nothing
 	[data-zyBranding] .genDate {
 		font-family: 'Spectral';
 		grid-row: 2;
+	}
+
+	[data-zyBranding] .fa {
+		opacity: 0.3;
+		padding-top: 7.25px;
+		font-size: 3.5em;
 	}
 
 	[data-zyBranding] .pageLogo {
@@ -294,8 +307,9 @@ layout: nothing
 		</div>
 	</div>
 	<div data-zyBranding>
-		<img src="/assets/images/print/zy-b&w-icon.png" class="pageLogo" />
+		<h1 class="hebrewTitle">זמני<br>יוסף</h1>
 		<img src="/assets/images/print/sam.svg" class="rotatedText">
+		<i class="fa fa-clock-o" aria-hidden="true"></i>
 		<div class="genDate">Gen.: </div>
 	</div>
 	<div class="sides"></div>
