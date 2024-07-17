@@ -106,9 +106,9 @@ layout: nothing
 
 	#dataGrid {
 		width: calc(100% - 2vw);
-    	height: calc(100vh - 2.75vw - 16vh);
+    	height: calc(100vh - 2.75vw - 12vh);
     	margin-left: 1vw;
-    	margin-top: 16vh;
+    	margin-top: 12vh;
     	z-index: 5;
     	display: grid;
     	grid-template-columns: 1.2fr 1fr 1.2fr;
@@ -118,12 +118,13 @@ layout: nothing
 	}
 
 	#gne {
-		height: 13vh;
+		height: 12vh;
 		justify-self: start;
 		align-self: start;
-		margin-top: 1.5rem;
-		margin-left: 2.5rem;
+		margin-top: 1rem;
+		margin-left: 1.5rem;
 		z-index: 3;
+		border-radius: 25%;
     }
 
 	.wideView {
@@ -195,7 +196,7 @@ layout: nothing
 	}
 
 	#dataGrid > *:not(:nth-child(2)):not(#megaline) {
-		font-size: 1.15em;
+		font-size: 1.2em;
 	}
 
 	#dataGrid > *:not(:nth-child(2)) .card .list-group-item {
@@ -240,11 +241,27 @@ layout: nothing
 		width: 100%;
 	}
 
-	#tefila {
+	/* #tefila {
 		justify-self: center;
 		align-self: start;
 		margin-top: 12vh;
 		z-index: 5;
+	} */
+
+	#noSmartphoneWithIcon {
+		background-color: yellow;
+		color: black;
+		border: 4px solid red;
+		padding: 1rem;
+		border-radius: 5rem;
+		text-align: center;
+		line-height: 1;
+		font-weight: 700;
+		margin-top: 1rem;
+	}
+
+	#noSmartphoneWithIcon p {
+		margin-bottom: 0;
 	}
 </style>
 
@@ -275,10 +292,10 @@ layout: nothing
 			</div>
 		</div>
 	</div>
-	<h2 id="tefila">Please keep smartphones away throughout Tefila. Connect to Hashem!</h2>
+	<!-- <h2 id="tefila">Please keep smartphones away throughout Tefila. Connect to Hashem!</h2> -->
 	<div id="dataGrid">
 		<div style="line-height: 1.3;">
-			<h2>Weekday Schedule</h2>
+			<h2>Weekday Tefilot</h2>
 			<div class="card">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item d-flex justify-content-between align-items-center">
@@ -299,7 +316,7 @@ layout: nothing
 					</li>
 				</ul>
 			</div>
-			<h2>Shabbat Schedule</h2>
+			<h2>Shabbat Tefilot</h2>
 			<div class="card">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item d-flex justify-content-between">
@@ -323,6 +340,10 @@ layout: nothing
 						<span>9:15 PM</span>
 					</li>
 				</ul>
+			</div>
+			<div id="noSmartphoneWithIcon">
+				<img src="/assets/images/shul-wall/no-phone.webp" style="float: left; height: 2em" />
+				<p>Please keep cellphones away throughout Tefila.<br>Connect to Hashem!</p>
 			</div>
 		</div>
 		<div>
