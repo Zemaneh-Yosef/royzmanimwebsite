@@ -208,6 +208,33 @@ layout: nothing
 	#megaline > span:not(:last-child)::after {
 		content: " - "
 	}
+
+	#jug {
+		width: 30%;
+		aspect-ratio: 1/1.5;
+		border: 5px solid white;
+		border-top: none;
+		border-radius: 7.5px;
+		display: flex;
+		flex-direction: row;
+		align-items: end;
+		margin-top: 2.5rem;
+		float: left;
+		position: relative;
+	}
+
+	#jug i {
+		position: absolute;
+		top: -2rem;
+		left: 40%;
+		font-size: 2.5rem;
+	}
+
+	#jugPercent {
+		height: 25%;
+		background-color: red;
+		width: 100%;
+	}
 </style>
 
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
@@ -397,6 +424,12 @@ layout: nothing
 					</li>
 				</ul>
 			</div>
+			<div id="jug"><i class="fa fa-fire" aria-hidden="true"></i><div id="jugPercent"></div></div>
+			<h3 class="text-center">שמן למאור<br>Kollel Monthly Budget</h3>
+			<p>
+				<b>Money raised thus far:</b> $<span data-raised-money></span><br>
+				<b>Money needed:</b> $<span data-fundraising-money></span><br>
+			</p>
 		</div>
 		<div style="line-height: 1.3;">
 			<h2>Official Sedarim</h2>
@@ -408,7 +441,7 @@ layout: nothing
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div><b>Morning</b> (Avrechim)</div>
-						<span>Sun-Fri, 7:50 AM</span>
+						<span>Sun-Fri, 7:45 AM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-content-center">
 						<div><b>Night</b> (+ Food)</div>
@@ -426,44 +459,44 @@ layout: nothing
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
 							<b>Kinyan Hamasechet - Morning</b><br>
-							<span>R' Yona Nisanov</span>
+							<span>R' Yonah Nisanov</span>
 						</div>
-						<span>Mon-Fri<br>6:15 AM</span>
+						<span style="text-align: right;">Mon-Fri<br>6:15 AM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
 							<b>Kinyan Hamasechet - Night</b><br>
-							<span>R' Yona Nisanov</span>
+							<span>R' Yonah Nisanov</span>
 						</div>
-						<span>Mon-Thu<br>9:00 PM</span>
+						<span style="text-align: right;">Mon-Thu<br>9:00 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
 							<b>Tefila</b><br>
-							<span>R' Yona Nisanov</span>
+							<span>R' Yonah Nisanov</span>
 						</div>
-						<span>Mon-Thu<br>8:30 PM</span>
+						<span style="text-align: right;">Mon-Thu<br>8:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
 							<b>Hilchot Shabbat</b><br>
 							<span>R' Emanuel Aminov</span>
 						</div>
-						<span>Sun-Thu<br>8:30 PM</span>
+						<span style="text-align: right;">Sun-Thu<br>8:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
-							<b>Various Topics</b><br>
+							<b>Morning Halachot & Shaar Habitachon</b><br>
 							<span>R' Aharon Sulimanov</span>
 						</div>
-						<span>Mon & Wed<br>8:30 PM</span>
+						<span style="text-align: right;">Mon & Wed<br>8:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
 							<b>Musar & Parasha</b><br>
 							<span>R' Elisha Rhodes</span>
 						</div>
-						<span>Sun & Thu<br>8:30 PM</span>
+						<span style="text-align: right;">Sun & Thu<br>8:30 PM</span>
 					</li>
 				</ul>
 			</div>
@@ -515,5 +548,12 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
-<script type="module" src="/assets/js/shul-wall/limud.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module">
+	const moneyFundraiser = await (await fetch('https://zemaneh-yosef.github.io/extras/yonah-budget.txt')).text();
+	const [moneyRaised, moneyNeeded] = moneyFundraiser.split('\n');
+
+	document.getElementById('jugPercent').style.height = ((moneyRaised / moneyNeeded) * 100) + "%";
+	document.querySelector('[data-raised-money]').innerHTML = moneyRaised;
+	document.querySelector('[data-fundraising-money]').innerHTML = moneyNeeded;
+</script>
