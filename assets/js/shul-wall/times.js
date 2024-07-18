@@ -97,8 +97,12 @@ for (const timeData of sortedTimes) {
 <div class="timeDisplayWide">${
 	(timeData.luxonObj.day == Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()).add({days: 1}).day ? "Tom., " : "") +
 	timeData.luxonObj.toLocaleString(...dtF)}</div>`;
-	document.querySelector('[data-zfFind="calendarFormatter"]').appendChild(artElem)
+	calList.appendChild(artElem)
 }
+
+if (calList.children.length > 10)
+	// @ts-ignore
+	calList.style.fontSize = "1em"
 
 const swap = () => {
 	calList.classList.toggle('showRu')
