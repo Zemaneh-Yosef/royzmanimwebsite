@@ -27,14 +27,15 @@ switch (window.location.href.split('/').at(-1)) {
 			}
 		});
 	case 'ohel-michael':
+	case 'ohel-michael-adj':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',
 			language: () => 'en',
 			location: {
 				name: () => "Ohel Michael",
-				lat: () => 40.72248172843898,
-				long: () => -73.81711648268919,
+				lat: () => 40.721502,
+				long: () => -73.811808,
 				elevation: () => 0,
 				timezone: () => "America/New_York"
 			},
