@@ -101,8 +101,7 @@ for (const timeData of sortedTimes) {
 }
 
 if (calList.children.length > 10)
-	// @ts-ignore
-	calList.style.fontSize = "1em"
+	calList.classList.add("needsResize")
 
 const swap = () => {
 	calList.classList.toggle('showRu')

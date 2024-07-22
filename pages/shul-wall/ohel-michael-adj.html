@@ -134,6 +134,10 @@ layout: nothing
 		grid-column: 1 / span 3;
 	}
 
+	.wideView.needsResize {
+		font-size: .175em;
+	}
+
 	.wideView:not(.showRu) .langTV.lang-ru {
 		display: none;
 	}
@@ -145,6 +149,10 @@ layout: nothing
 	.wideView > * {
 		flex: 1 1;
 		padding: 8px;
+	}
+
+	.wideView.needsResize > * {
+		padding: 5px;
 	}
 
 	.wideView > *:first-child {
@@ -191,6 +199,9 @@ layout: nothing
 
 	#dataGrid h2 {
 		text-align: center;
+		font-size: 1.5em;
+		margin-bottom: .25em;
+		margin-top: .25em;
 	}
 
 	#dataGrid > *:not(:nth-child(2)) .card {
@@ -268,10 +279,6 @@ layout: nothing
 
 	:root {
 		--bs-body-font-size: 16px;
-	}
-
-	h2 {
-		font-size: 1.5em !important;
 	}
 </style>
 
@@ -468,7 +475,7 @@ layout: nothing
 				</ul>
 			</div>
 			<div id="jug"><i class="fa fa-fire" aria-hidden="true"></i><div id="jugPercent"></div></div>
-			<h2 class="text-center">שמן למאור<br>Kollel Monthly Budget</h2>
+			<h2 class="text-center">שמן למאור<br>Total Budget</h2>
 			<p>
 				<b>Money raised thus far:</b> $<span data-raised-money></span><br>
 				<b>Money needed:</b> $<span data-fundraising-money></span><br>
@@ -491,7 +498,7 @@ layout: nothing
 						<span>Sun-Thu, 8:25 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div><b>Shabbat</b></div>
+						<div><b>Shabbat</b> (+ Kiddush & Learning)</div>
 						<span>5:00 PM</span>
 					</li>
 				</ul>
@@ -539,7 +546,7 @@ layout: nothing
 							<b>Musar & Parasha</b><br>
 							<span>R' Elisha Rhodes</span>
 						</div>
-						<span style="text-align: right;">Sun & Thu<br>8:30 PM</span>
+						<span style="text-align: right;">Sun & Tue<br>8:30 PM</span>
 					</li>
 				</ul>
 			</div>

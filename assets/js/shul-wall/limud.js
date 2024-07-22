@@ -3,7 +3,9 @@
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
-const jCal = new KosherZmanim.JewishCalendar();
+
+const todayDate = KosherZmanim.Temporal.Now.plainDateISO().add({ days: 1});
+const jCal = new KosherZmanim.JewishCalendar(todayDate);
 
 const hNum = new HebrewNumberFormatter();
 
