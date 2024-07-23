@@ -19,7 +19,7 @@ if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 	document.head.appendChild(n)
 }
 
-const jCal = new WebsiteLimudCalendar(5784, WebsiteLimudCalendar.ADAR_II, 11);
+const jCal = new WebsiteLimudCalendar(5784, WebsiteLimudCalendar.TAMMUZ, 17);
 let calendars = [];
 
 const shovavim = window.location.href.includes('shovavim');
@@ -79,6 +79,7 @@ if (shovavim) {
 		 * If not, we add in the Hebrew date to our locales. The year will always go in the title, though, due to how rare this is.
 		 */
 		fastName = ("צום " + n2heWords(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().he)
+			.replace(/[\u0591-\u05C7]/gu, '')
 		hebrewLocale.addToCalendars = jCal.getJewishDayOfMonth() !== fastMonths[jCal.getJewishMonth()];
 		hebrewLocale.titleYear = jCal.getJewishDayOfMonth() !== fastMonths[jCal.getJewishMonth()];
 	}
@@ -149,7 +150,9 @@ for (const elem of elems) {
 
 	const plag = currentCalc.getPlagHaminhaHalachaBrurah();
 	for (const shita of methods) {
-		editElem = editElem.nextElementSibling
+		do {
+			editElem = editElem.nextElementSibling
+		} while (!editElem.classList.contains('timeshow'))
 
 		// @ts-ignore
 		const action = (KosherZmanim.Temporal.ZonedDateTime.compare(currentCalc[shita](), plag) == 1 ? 'add' : 'subtract')

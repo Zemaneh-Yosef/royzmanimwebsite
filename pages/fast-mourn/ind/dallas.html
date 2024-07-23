@@ -1,0 +1,255 @@
+---
+title: Fast Dallas Times
+permalink: /fast-design/dallas
+breakout: true
+website: true
+---
+
+<style>
+    .maxWidthContainer {
+        width: clamp(16rem, 90vw, 90rem);
+        font-family: 'Neutro';
+        color: #30344F;
+    }
+
+    #sidebar, .navbar {
+        display: none !important;
+    }
+
+    #wrapperElement {
+        width: 100%;
+        aspect-ratio: 1.73/1;
+
+        position: relative;
+        display: grid;
+
+        background-image: linear-gradient(45deg, rgba(97, 80, 64, .8) 0%, rgba(185, 181, 157, .8) 100%), url("/assets/images/10-tevet.png");
+        background-size: cover;
+    }
+
+    #wrapperElement > *:not(.absRotateText):not(#shabbatCandles) {
+        grid-area: 1/1;
+    }
+
+    #imgFooter {
+        justify-self: end;
+        align-self: end;
+        text-transform: uppercase;
+        text-align: right;
+        font-weight: 600;
+        font-size: 1.625em;
+        line-height: 1.2;
+        padding-bottom: .75rem;
+        padding-right: 1rem;
+        z-index: 3;
+    }
+
+    .footerBold {
+        font-weight: 700;
+    }
+
+    .absRotateText {
+        position: absolute;
+        transform: rotateZ(3.5deg);
+        text-align: center;
+        font-family: 'Guttman Mantova';
+        line-height: 1;
+    }
+
+    #wrapperElement #subtitle {
+        top: 9vw;
+        right: 3.25vw;
+        font-size: 3.5em;
+        font-family: 'Neutro', 'FrankRuehl', serif;
+        font-weight: 500;
+        width: 930px;
+        color: #343434;
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+    }
+
+    #maran {
+        grid-area: 1/1;
+        align-self: end;
+        width: 22.5%;
+        z-index: 3;
+    }
+
+    #zemanehShab {
+        font-family: 'Frank Ruhl Libre';
+        right: 2.9vw;
+        font-size: 7vw;
+        font-weight: 900;
+        top: 2.75vw;
+        color: #343434;
+
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+    }
+
+    #gridElement {
+        position: absolute;
+        grid-template-columns: 1fr 1fr;
+        left: 19vw;
+        top: 22vw;
+        display: grid;
+    }
+
+    #shabbatCandles {
+        position: absolute;
+        align-self: end;
+        width: 80%;
+        right:0;
+        bottom: 5vw;
+        z-index: 1;
+        opacity: 50%;
+    }
+
+    #bottomWave {
+        align-self: end;
+        width: 100%;
+        z-index: 2;
+        transform: scaleY(.7);
+        margin-bottom: -1.65rem;
+    }
+
+	.timeshow {
+		text-align: center;
+		z-index: 5;
+	}
+
+	.shabbatRow {
+		padding-top: .25vw;
+		padding-bottom: .25vw;
+		font-size: 3.5rem;
+		font-weight: 700;
+		line-height: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.shabbatRowBg {
+		background: linear-gradient(90deg, #c0a26b 0%, #d2b988 100%);
+		z-index: 2;
+        grid-row: 1 / span 2;
+        grid-column: 2; 
+	}
+
+	.header {
+		padding: 0.5vw;
+		background: #D9BB65;
+		margin-top: .6vw;
+		margin-bottom: .6vw;
+		color: black;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1;
+		font-weight: 600;
+		font-size: 1.475em;
+	}
+
+	.tableShadow {
+		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+	}
+
+	.shabBorder {
+		border-bottom: .25vw solid black;
+	}
+
+    .twoLine {
+        line-height: .4;
+        padding-top: 1vw;
+    }
+
+    .sml {
+        font-size: 14px;
+    }
+
+    #internalLogo {
+        vertical-align: text-top;
+        height: 1.1em;
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+    }
+
+    #fastHalachas {
+        position: absolute;
+        right: 1vw;
+        top: 15vw;
+        width: 550px;
+        background-color: rgba(0, 0, 0, .75);
+        padding: 1rem;
+        border-radius: 2rem;
+        color: white;
+    }
+
+    #fastHalachas > p {
+        font-size: 1.05em;
+    }
+
+    #fastHalachas > p:last-child {
+        margin-bottom: 0;
+    }
+
+    #money {
+        color: #e2dfc6;
+        width: 225px;
+        position: absolute;
+        left: 6vw;
+        top: 1vw;
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+    }
+
+    #betterToGiveTzedakah {
+        color: #e2dfc6;
+        width: 400px;
+        position: absolute;
+        left: 1vw;
+        top: 15vw;
+        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+        text-align: center;
+        font-size: 2.5em;
+        font-family: 'Guttman Mantova';
+        unicode-bidi: plaintext;
+        line-height: 1;
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+    <img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
+    <div id="gridElement"
+        data-functions="getAlotHashachar getTzaitLechumra"
+        data-extra-locales="en"
+    >
+        <div class="shabbatRow tableShadow timecalc d-none"
+        data-lat="32.99741715565875" data-lng="-96.78097876171452" data-timezone="America/Chicago" data-format="h12" data-humra="1">
+        </div>
+        <div class="header tableShadow">Fast Starts<br><span style="font-weight: 400;">(Halachic Dawn)</span></div>
+        <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 1;">Start Time</div>
+        <div class="header tableShadow">Fast Ends<br><span style="font-weight: 400;">(Halachic Nightfall)</span></div>
+        <div class="shabbatRow timeshow" style="grid-column: 2; grid-row: 2;">End Time</div>
+        <div class="shabbatRowBg tableShadow"></div>
+    </div>
+    <div id="fastHalachas">
+        <h1 style="text-align: center;">Calculation Explanation</h1>
+        <p><b>Halachic Dawn</b> (which is when fasts start; S"A Orach Chaim 562) is measured as 72 seasonal minutes before sunrise (Halikhot Olam Vol. I pg. 106). Locations further north or south of Israel will need to factor standard deviation, turning the time pre-seasonal factoring to 80 minutes in NY (Halacha Berurah, intro. to Chapter 261, Halacha 13)</p>
+        <p><b>Halachic Nightfall</b> is calculated (for our purposes) as 20 seasonal minutes after sunset. Although one can rely on the letter of the law that uses 13.5 minutes instead (Yabia Omer YD 7:41), the recommended (albeit not strictly necessary) practice is to be stringent and hold by 20 minutes to accommodate the Rambam's opinion on nightfall (Ḥazon Ovadia, Arba Ta'aniyot, pg. 12). One need not wait any longer than this time for any fast (with the exception of Yom Kippur), even in the USA.</p>
+    </div>
+    <div id="betterToGiveTzedakah">אגרא דתעניתא צדקתא<br>(ברכות ו:)</div>
+    <img src="/assets/images/shabbat-abstract/money-svgrepo-com.svg" id="money" />
+    <span id="zemanehShab" class="shabbatTitleCore absRotateText"></span>
+    <span id="subtitle" class="absRotateText"></span>
+    <div id="imgFooter">
+        Halachic Fast Times according to Rabbi Ovadia Yosef ZT"L for Dallas, TX<br>
+        Brought to you by <img src="/assets/images/shabbat-abstract/zy-logo.png" id="internalLogo">,
+        available on <span style="text-transform: lowercase;">i</span>OS & Android • royzmanim.com
+    </div>
+    <img src="/assets/images/MARAN.png" id="maran">
+</div>
+
+<script type="module" src="/assets/js/flyers/fast.js"></script>
