@@ -602,12 +602,14 @@ layout: nothing
 <script type="module">
 	document.body.setAttribute('data-bs-theme', 'dark');
 
-	const moneyFundraiser = await (await fetch('https://zemaneh-yosef.github.io/extras/yonah-budget.txt')).text();
+	const moneyFundraiser = await (await fetch('https://zemaneh-yosef.github.io/extras/yonah-budget.txt', {cache: "no-store"})).text();
 	const [moneyRaised, moneyNeeded] = moneyFundraiser.split('\n');
 
 	document.getElementById('jugPercent').style.height = ((moneyRaised / moneyNeeded) * 100) + "%";
 	document.querySelector('[data-raised-money]').innerHTML = moneyRaised;
 	document.querySelector('[data-fundraising-money]').innerHTML = moneyNeeded;
 
-	setTimeout(() => { document.getElementById("content").scrollIntoView({behavior: "smooth"}); window.scrollTo(0, document.body.scrollHeight); }, 15000)
+	if (document.getElementById("content").requestFullscreen) {
+		document.getElementById("content").requestFullscreen();
+	}
 </script>
