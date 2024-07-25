@@ -264,13 +264,21 @@ layout: nothing
 	#noSmartphoneWithIcon {
 		background-color: yellow;
 		color: black;
-		border: 4px solid red;
-		padding: 1rem;
+		border: 2px solid red;
+		padding: .5em;
 		border-radius: 5rem;
 		text-align: center;
 		line-height: 1;
 		font-weight: 700;
-		margin-top: 1rem;
+		margin-top: .25rem;
+		position: relative;
+	}
+
+	#noPhoneIcon {
+		position: absolute;
+		left: .25rem;
+		height: 1.5em;
+		top: .175rem;
 	}
 
 	#noSmartphoneWithIcon p {
@@ -359,8 +367,8 @@ layout: nothing
 				</ul>
 			</div>
 			<div id="noSmartphoneWithIcon">
-				<img src="/assets/images/shul-wall/no-phone.webp" style="float: left; height: 2em" />
-				<p>Please keep cellphones away throughout Tefila.<br>Connect to Hashem!</p>
+				<img src="/assets/images/shul-wall/no-phone.webp" id="noPhoneIcon" />
+				<p>Please keep cellphones away throughout Tefila.</p>
 			</div>
 		</div>
 		<div>
@@ -508,45 +516,35 @@ layout: nothing
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
-							<b>Kinyan Hamasechet - Morning</b><br>
-							<span>R' Yonah Nisanov</span>
+							<b>Kinyan Hamasechta - Megila</b><br>
+							<span>w/ R' Yonah Nisanov</span>
 						</div>
-						<span style="text-align: right;">Mon-Fri<br>6:15 AM</span>
+						<span style="text-align: right;">Mon-Fri, 6:15 AM<br>Mon-Thu, 9:00 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
-							<b>Kinyan Hamasechet - Night</b><br>
-							<span>R' Yonah Nisanov</span>
+							<b>Tefila</b> w/ R' Yonah Nisanov
 						</div>
-						<span style="text-align: right;">Mon-Thu<br>9:00 PM</span>
+						<span style="text-align: right;">Mon-Thu, 8:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
-							<b>Tefila</b><br>
-							<span>R' Yonah Nisanov</span>
+							<b>Hilchot Shabbat</b> w/ R' Emanuel Aminov
 						</div>
-						<span style="text-align: right;">Mon-Thu<br>8:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<div>
-							<b>Hilchot Shabbat</b><br>
-							<span>R' Emanuel Aminov</span>
-						</div>
-						<span style="text-align: right;">Sun-Thu<br>8:30 PM</span>
+						<span style="text-align: right;">Sun-Thu, 8:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
 							<b>Morning Halachot & Shaar Habitachon</b><br>
-							<span>R' Aharon Sulimanov</span>
+							w/ R' Aharon Sulimanov
 						</div>
-						<span style="text-align: right;">Mon & Wed<br>8:30 PM</span>
+						<span style="text-align: right;">Mon & Wed, 8:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<div>
-							<b>Musar & Parasha</b><br>
-							<span>R' Elisha Rhodes</span>
+							<b>Musar & Parasha</b> w/ R' Elisha Rhodes
 						</div>
-						<span style="text-align: right;">Sun & Tue<br>8:30 PM</span>
+						<span style="text-align: right;">Sun & Tue, 8:30 PM</span>
 					</li>
 				</ul>
 			</div>

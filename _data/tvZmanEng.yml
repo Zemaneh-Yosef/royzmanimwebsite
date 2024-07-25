@@ -60,11 +60,6 @@
   names:
     hb: פלג המנחה
     ru: Plag Hamincha
-- id: candleLighting
-  timeGetter:
-  names:
-    hb: הדלקת נרות
-    ru: Candle Lighting
 - id: sunset
   timeGetter: getShkiya
   names:
@@ -82,20 +77,6 @@
   names:
     hb: צאת תענית
     ru: Fast Ends
-- id: tzeitShabbat
-  timeGetter: getTzaitShabbath
-  attributes:
-    condition: TZET_MELAKHA
-  names:
-    hb: צאת שבת
-    ru: Tzet Shabbat
-- id: rtNoRename
-  timeGetter: getTzaitRT
-  attributes:
-    condition: TZET_MELAKHA
-  names:
-    hb: ר״ת
-    ru: Rabbenu Tam
 - id: chatzotLayla
   attributes:
     condition: LATE_NIGHT
