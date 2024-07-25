@@ -338,14 +338,14 @@ layout: nothing
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item d-flex justify-content-between">
 						<div><b>Early Erev Shabbat Tefilot</b> + Learning</div>
-						<span>6:20 PM</span>
+						<span>6:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between">
 						<div><b>Regular Erev Shabbat Tefilot</b> + Learning</div>
 						<span>7:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between">
-						<b>Shacharit</b>
+						<div><b>Shacharit</b> (+ Kiddush & Learning)</div>
 						<span>8:30 AM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between">
@@ -364,7 +364,7 @@ layout: nothing
 			</div>
 		</div>
 		<div>
-			<div class="card mb-2 mt-2 mt-lg-0">
+			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .75rem;">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
 					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
@@ -425,7 +425,7 @@ layout: nothing
 							<hr class="my-1" data-zfFind="omerRules">
 						</div>
 						<div data-zfFind="ThreeWeeksHeader">
-							<h5>
+							<h5 style="font-size: .9rem; margin-bottom: .1em;">
 								<span class="lang lang-hb">
 									<span data-zfFind="threeWeeks">שלושה שבועות</span>
 									<span data-zfFind="nineDays">תשעה ימים</span>
@@ -443,7 +443,7 @@ layout: nothing
 								</span>
 							</h5>
 						</div>
-						<ul>
+						<ul style="padding-left: 1.5rem;">
 							{% for minhag in site.data.mourningMinhag %}
 							<li data-zfFind="{{ minhag.topic }}">
 								<span class="lang lang-hb">{{ minhag.text.hb }}</span>
@@ -608,4 +608,6 @@ layout: nothing
 	document.getElementById('jugPercent').style.height = ((moneyRaised / moneyNeeded) * 100) + "%";
 	document.querySelector('[data-raised-money]').innerHTML = moneyRaised;
 	document.querySelector('[data-fundraising-money]').innerHTML = moneyNeeded;
+
+	setTimeout(() => { document.getElementById("content").scrollIntoView({behavior: "smooth"}); window.scrollTo(0, document.body.scrollHeight); }, 15000)
 </script>
