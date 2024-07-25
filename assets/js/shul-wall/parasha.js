@@ -28,6 +28,7 @@ const zmanCalc =
         new OhrHachaimZmanim(geoL, true) :
         new AmudehHoraahZmanim(geoL));
 zmanCalc.configSettings(preSettings.calendarToggle.rtKulah(), preSettings.customTimes.tzeithIssurMelakha());
+zmanCalc.coreZC.setCandleLightingOffset(preSettings.customTimes.candleLighting())
 zmanCalc.setDate(dateForSet);
 
 /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */

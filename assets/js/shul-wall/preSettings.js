@@ -47,7 +47,7 @@ switch (window.location.href.split('/').at(-1)) {
 				tekufaCalc: () => 'shemuel'
 			},
 			customTimes: {
-				candleLighting: () => 20,
+				candleLighting: () => 18,
 				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.14 })
 			}
 		});

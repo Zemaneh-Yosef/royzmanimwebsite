@@ -23,11 +23,13 @@ const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
+ohrHachaimCal.coreZC.setCandleLightingOffset(20);
 const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
 amudehHoraahCal.configSettings(true, settings.customTimes.tzeithIssurMelakha());
+amudehHoraahCal.coreZC.setCandleLightingOffset(20);
 const rYisraeliCal = new rYisraelizmanim(fallbackGL);
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 20 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 27 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
 if (jCal.getDate().dayOfWeek != 6)
@@ -70,7 +72,6 @@ for (const elem of elems) {
 	]
 	// @ts-ignore
 	currentCalc.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
-	currentCalc.coreZC.setCandleLightingOffset(20);
 
 	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 	const dtF = ['en', {
