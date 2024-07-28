@@ -1,0 +1,503 @@
+---
+title: Shabbat Darche Emet Times
+permalink: /shabbat-design/darche
+breakout: true
+website: true
+---
+
+<style>
+	.maxWidthContainer {
+		width: 90rem;
+		font-family: 'Spectral';
+		color: #30344F;
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 8.5/11;
+
+		position: relative;
+		display: grid;
+
+		background-image: url("/assets/images/shabbat-abstract/darche-pattern.png"), linear-gradient(45deg, rgba(4,4,6,1) 0%, #3794CD 100%);
+	}
+
+	#zyTrapezoid {
+		justify-self: center;
+		align-self: start;
+		width: 60%;
+		border-top: 175px solid #12141e;
+		border-left: 125px solid transparent;
+		border-right: 125px solid transparent;
+		height: 0;
+	}
+
+	#wrapperElement > *:not(.lechaDodi) {
+		grid-area: 1/1;
+	}
+
+	.footerBold {
+		font-weight: 700;
+	}
+
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		justify-self: end;
+		transform: rotateY(180deg);
+		width: 37.5%;
+		z-index: 3;
+		margin-bottom: 9rem;
+	}
+
+	.lechaDodi {
+		position: absolute;
+		transform: rotateZ(12deg);
+		color: #F6E3A9;
+		font-size: 3vw;
+		text-align: center;
+		font-family: 'Guttman Mantova';
+		line-height: 1;
+	}
+
+	#lechaDodi {
+		top: 16vw;
+		right: 4vw;
+	}
+
+	#likratKalah {
+		top: 18.5vw;
+		right: 6.75vw;
+	}
+
+	#pnehShabbathNekabelah {
+		top: 22.5vw;
+		right: 1.75vw;
+	}
+
+	#zemanehShab {
+		align-self: start;
+		justify-self: start;
+		font-family: 'Patua One';
+		font-size: 14vw;
+		color: transparent;
+		background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
+		-webkit-background-clip: text;
+		line-height: .8;
+		text-align: center;
+		text-transform: uppercase;
+		margin-top: 1.25rem;
+		margin-left: 1.25rem;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+	}
+
+	#gridElement {
+		top: 45vw;
+		grid-template-areas: 
+            "earlyHead earlyTime"
+            "candleHead candleTime"
+			"shemaMGAHead shemaMGATime"
+			"shemaGRAHead shemaGRATime"
+			"shekiyaHead shekiyaTime"
+            "endHead endTime"
+			"rtHead rtTime";
+		grid-template-columns: 1fr .7fr;
+		display: grid;
+		right: 1.25vw;
+		position: absolute;
+		width: fit-content;
+		font-size: 1.25em;
+		z-index: 5;
+	}
+
+	#shabbatCandles {
+		align-self: end;
+		justify-self: start;
+		width: calc(60%);
+		right:0;
+		z-index: 1;
+		opacity: 50%;
+		transform: scaleX(-1);
+		margin-bottom: 1.25rem;
+	}
+
+	#bottomWave {
+		align-self: end;
+		width: 100%;
+		z-index: 2;
+		margin-bottom: -2.2rem;
+    	transform: scaleY(.6);
+	}
+
+	.timeshow {
+		text-align: center;
+		z-index: 5;
+	}
+
+	.shabbatRow {
+		padding-top: .25vw;
+		padding-bottom: .25vw;
+		font-size: 3.5rem;
+		font-weight: 700;
+		line-height: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.shabbatRowBg {
+		background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
+		z-index: 2;
+	}
+
+	.header {
+		padding: 0.5vw;
+		background: #D9BB65;
+		margin-top: .6vw;
+		margin-bottom: .6vw;
+		color: black;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1;
+		font-weight: 600;
+		font-size: 1.475em;
+		display: flex;
+	}
+
+	.header > div:last-child {
+		flex: 1 1;
+	}
+
+	.header hr {
+		margin: .25rem 0;
+	}
+
+	.header svg {
+		height: 1em;
+		width: 1.5em;
+	}
+	.header svg path {
+		fill: black;
+	}
+
+	.header i {
+		font-size: 1em;
+		width: 1.5em;
+	}
+
+	.header > img:first-child {
+		height: 1em;
+		aspect-ratio: 1 / 1;
+		width: 1.5em;
+	}
+
+	.tableShadow {
+		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+	}
+
+	.shabBorder {
+		border-bottom: .25vw solid black;
+	}
+
+	.twoLine {
+		line-height: .4;
+		padding-top: 1vw;
+	}
+
+	.sml {
+		font-size: 10px;
+	}
+
+	#prettyLDSurround {
+		justify-self: end;
+		align-self: start;
+		margin-top: 2.5rem;
+		width: 27.5%;
+	}
+
+	#bsD {
+		font-family: "Narkisim";
+		justify-self: end;
+		line-height: 1;
+		padding-right: 8.5rem;
+		color: #FFF2B3;
+		font-size: 3rem;
+		padding-top: 2.5rem;
+		align-self: start;
+	}
+
+	#location, #date {
+		align-self: start;
+		justify-self: start;
+		font-family: 'Spectral';
+		font-size: 4vw;
+		font-weight: 700;
+		color: white;
+		margin-top: 24vw;
+		margin-left: 1.25vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+		text-align: center;
+		width: 1064px;
+	}
+
+	#location {
+		margin-top: 24vw;
+	}
+
+	#date {
+		margin-top: 36vw;
+	}
+
+	#templateAd {
+		align-self: end;
+		justify-self: start;
+		margin-bottom: 17.5%;
+		margin-left: 3.75%;
+		z-index: 10;
+	}
+	#templateAd > * {
+		display: inline-block;
+		border-radius: .5rem;
+		background: black;
+		width: 17.5%;
+		padding: .5rem;
+		color: white;
+		text-align: center;
+		text-decoration: none;
+		font-size: 1.125rem;
+	}
+
+	#advertFooter {
+		justify-self: center;
+		padding-bottom: 1rem;
+		padding-left: 1rem;
+		font-size: 2em;
+		font-weight: 600;
+		line-height: .7;
+		text-align: center;
+		z-index: 3;
+		align-self: end;
+	}
+
+	#sourcesFooter {
+		font-size: 1.625em;
+		line-height: 1.25;
+	}
+	#sourcesFooter ul {
+		line-height: 1.15;
+	}
+
+	#credits {
+		font-size: 2.125em;
+		text-align: right;
+		line-height: 1.25;
+		font-weight: 600;
+	}
+
+	#documentClosure {
+		height: 9rem;
+		align-self: end;
+		background: linear-gradient(to right, rgba(4,4,6,1) 0%, #24293D 100%);
+		color: white;
+		display: flex;
+		justify-content: space-between;
+		padding: .25rem 1rem;
+		align-content: end;
+	}
+
+	.shabbatTitleCore {
+		justify-self: start;
+		align-self: start;
+		margin-left: 1.25rem;
+		margin-top: 29vw;
+		font-weight: 700;
+		font-family: 'Times New Roman';
+		color: white;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+		font-size: 6.5rem;
+		width: 1064px;
+		text-align: center;
+	}
+
+	#zemanim {
+		font-family: 'Gabriela';
+		margin-top: 42vw;
+		margin-right: 1.25vw;
+		justify-self: end;
+		align-self: start;
+		color: white;
+		width: 610px;
+		font-size: 2.75rem;
+		text-align: center;
+	}
+
+	#advertSide {
+		width: 610px;
+		text-align: center;
+		justify-self: end;
+		align-self: center;
+		margin-right: 1.25vw;
+		margin-top: 22.5vw;
+		color: white;
+		font-size: 2.25rem;
+		line-height: 1.15;
+		align-self: center;
+		z-index: 5;
+	}
+
+	#properScheduling {
+		width: 750px;
+		margin-top: 45.6vw;
+		justify-self: start;
+		align-self: start;
+		margin-left: 1.75vw;
+		color: white;
+	}
+
+	#properScheduling > div {
+		width: 100%;
+		padding: 0.5vw;
+		background: #D9BB65;
+		margin-bottom: .8vw;
+		line-height: 1;
+		font-size: 2.45em;
+		display: flex;
+		justify-content: space-between;
+
+		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+	}
+
+	#properScheduling > div:not(:first-child) {
+		margin-top: .8vw;
+	}
+
+	#properScheduling > div > span:first-child {
+		color: black;
+	}
+
+	#properScheduling > div > span:nth-child(2) {
+		font-weight: 600;
+		color: #30344F;
+		text-align: right;
+	}
+
+	#tefilotAtShul {
+		font-family: 'Gabriela';
+		margin-top: 42vw;
+		margin-left: 1.25vw;
+		justify-self: start;
+		align-self: start;
+		color: white;
+		width: 750px;
+		font-size: 2.75rem;
+		text-align: center;
+	}
+
+	#kiddushSponsor {
+		width: 650px;
+		text-align: center;
+		justify-self: end;
+		align-self: end;
+		margin-right: 1.25vw;
+		margin-bottom: 12vw;
+		font-size: 2em;
+		color: white;
+	}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Patua+One&family=Gabriela&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<!-- <div id="zyTrapezoid"></div>
+	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
+	<img id="gne" src="/assets/images/shabbat-abstract/pomona-logo.png" /> -->
+	<span id="bsD">בס"ד</span>
+	<img src="/assets/images/shabbat-abstract/shabbat-candles.png" id="shabbatCandles" />
+	<img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
+	<h1 id="zemanim">Zemanim - Halachic Times</h1>
+	<div id="gridElement"
+		data-functions-backday-1="getPlagHaminhaHalachaBrurah getCandleLighting"
+		data-functions-backday-0="getTzaitShabbath getTzaitRT"
+	>
+		<div class="header tableShadow" style="grid-area: earlyHead;">
+			<i class="fa fa-sun-o" aria-hidden="true"></i>
+			<div>Earliest Shabbat</div>
+		</div>
+		<div class="shabbatRow tableShadow timecalc"
+			data-lat="40.805504" data-lng="-73.734910"
+			data-timezone="America/New_York"
+			data-format="h12"
+			style="display: none;">
+		</div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-area: earlyTime;">Tosefeth...</div>
+		<div class="header tableShadow" style="grid-area: candleHead;">
+			<i class="fa fa-fire" aria-hidden="true"></i>
+			<div>Candle Lighting</div>
+		</div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-area: candleTime; border-bottom-width: .4vw;">Start Time</div>
+		<div class="header tableShadow" style="grid-area: endHead;">
+			{% include havdalah.svg %}
+			<div>Havdala</div>
+		</div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-area: endTime;">End Time</div>
+		<div class="header tableShadow" style="grid-area: rtHead;">
+			<img src="/assets/images/shabbat-abstract/mono-kstars-stars.svg">
+			<div>Rabbenu Tam</div>
+		</div>
+		<div class="shabbatRow timeshow" style="grid-area: rtTime;">Machmir Time</div>
+		<div class="shabbatRowBg tableShadow" style="grid-row: 1 / span 7; grid-column: 2;"></div>
+	</div>
+	<div id="properScheduling">
+		<div>
+			<span><b>Minḥa,<br>Kabbalat Shabbat & Arvit</b></span>
+			<span>7:00 PM</span>
+		</div>
+		<hr>
+		<div>
+			<span><b>Shaḥarit</b><br>+ Kiddush</span>
+			<span>Korbanot - 8:30 AM<br>Barukh Sheamar - 9:00 AM</span>
+		</div>
+		<div>
+			<span><b>Limud Torah</b><br>w/ Mr Edwin Sooferzadeh</span>
+			<span>6:30 PM</span>
+		</div>
+		<div>
+			<span><b>Minḥa, Seudat Shelishit<br>& Arvit</b></span>
+			<span>7:30 PM</span>
+		</div>
+	</div>
+	<p id="advertSide">
+		Provided via <img src="/assets/images/shabbat-abstract/zy-logo.png" style="height: 1em;" />,<br>
+		available for Android & iOS devices<br><br>ROYZMANIM.COM
+	</p>
+	<span id="zemanehShab">Shabbat<br>Schedule</span>
+	<span id="tefilotAtShul">Tefilot at our shul</span>
+	<span class="shabbatTitleCore">פרשת </span>
+	<div id="location">for Congregation Darche Emet</div>
+	<div data-dateRender-backday="0" id="date"></div>
+	<img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
+	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
+	<span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
+	<span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
+	<div id="advertFooter">Minyan of HaRav Menashe Kalati<br><span style="font-size: .5em;">Graphic Design by Maor Neim</span></div>
+	<div id="kiddushSponsor">
+		<b>Kiddush & Seudat Shelishit sponsor</b><br>
+		Mrs. Yasaman Yaghobian / Sedaghatfar<br><br>
+		Leiluy Nishmeta of her aunt<br>Maria Farokh bat Rebi Yitzhak
+	</div>
+</div>
+
+<script type="module" src="/assets/js/flyers/shabbat.js"></script>
