@@ -60,11 +60,6 @@
   names:
     hb: פלג המנחה
     ru: Плаг минха
-- id: candleLighting
-  timeGetter:
-  names:
-    hb: הדלקת נרות
-    ru: Зажигание свечей
 - id: sunset
   timeGetter: getShkiya
   names:
