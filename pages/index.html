@@ -15,34 +15,44 @@ permalink: /
 				<span class="lang lang-hb">{{ hebrewWelcomeText | markdownify }}</span>
 				<span class="lang lang-et">{{ englishWelcomeText | markdownify }}</span>
 				<span class="lang lang-en">{{ englishWelcomeText | markdownify }}</span>
+				<div id="manualHelp" class="container pb-3 d-none">
+					<div id="leafletMap" style="aspect-ratio: 16 / 9; margin-bottom: .5rem;"></div>
+					<div id="manualContainer">
+						<md-outlined-select id="tz" label="Timezone">
+							<md-select-option selected aria-label="blank"></md-select-option>
+						</md-outlined-select>
+						<div class="input-group input-group-lg form-outline" data-mdb-input-init>
+							<input type="text" id="cityInput" class="form-control" />
+							<label class="form-label" for="cityInput">Location Name</label>
+						</div>
+						<div class="input-group input-group-lg form-outline" data-mdb-input-init>
+							<input type="number" id="elevationInput" class="form-control" />
+							<label class="form-label" for="elevationInput">Elevation</label>
+						</div>
+					</div>
+				</div>
 				<p class="border" id="error" style="display: none">
 					<!--Hidden until shown-->
 				</p>
-				<div id="offlineText" style="display: none;">Seems like you're temporarily disconnected! The search bar needs an internet connection to function.</div>
+				<div id="offlineText" style="display: none;">Seems like you're disconnected from the internet! The search feature needs an internet connection to function.</div>
 				<div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough characters. Please try again with a minimum of three characters</div>
 				<div class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
 					<span class="input-group-text" id="inputGroup-sizing-lg">
-						<i class="fa fa-search" aria-hidden="true" onclick="updateList(event)"></i>
+						<i class="fa fa-search" aria-hidden="true" id="searchIcon"></i>
 						<div class="spinner-border" style="display: none;" role="status">
 							<span class="visually-hidden">Loading...</span>
 						</div>
 						<i class="fa fa-times-circle" style="display: none" aria-hidden="true"></i>
 					</span>
-					<input list="locationNames" autocomplete="postal-code" type="search" id="Main" onkeyup="updateList(event)" class="form-control form-control-lg" style="z-index: 2" />
+					<input list="locationNames" autocomplete="postal-code" type="search" id="Main" class="form-control form-control-lg" style="z-index: 2" />
 					<datalist id="locationNames"></datalist>
 					<label class="form-label" for="form1">Insert location name/ZIP code (English only)</label>
-					<button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block" onclick="getLocation()">
+					<button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block">
 						<i class="fa fa-map-marker"></i>
 					</button>
-					<button type="button" data-mdb-ripple-init class="btn btn-primary d-none d-lg-block" id="manualLocationButton" onclick="showManualLocationSettings()" style=" padding-right: .9rem; padding-left: .9rem;">
-						<i class="fa fa-caret-square-o-down"></i>
-					</button>
 				</div>
-				<button type="button" data-mdb-ripple-init class="btn btn-success d-lg-none" onclick="getLocation()" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7)">
+				<button type="button" data-mdb-ripple-init class="btn btn-success d-lg-none" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7)">
 					<i class="fa fa-map-marker"></i> Use my device location
-				</button>
-				<button type="button" data-mdb-ripple-init class="btn btn-primary mb-2 d-lg-none" onclick="showManualLocationSettings()" style="width: 100%; margin-left: -1px; border-radius: 0 0 .25rem .25rem; border-left: 1px solid hsla(0,0%,100%,.7); border: 1px solid hsla(0,0%,100%,.7); border-top: none;">
-					<i class="fa fa-caret-square-o-down"></i> Advanced Location Manager
 				</button>
 
 				<div class="form-check">
@@ -54,17 +64,6 @@ permalink: /
 					<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
 					<label class="form-check-label" for="flexRadioDefault1">Fixed Israel Minutes (לוח אור החיים)</label>
 				</div>
-
-				<p class="border" id="manualLocation" style="display: none">
-					<!--Hidden until shown-->
-					Enter your location manually here: <br />
-					<input type="text" id="cityInput" placeholder="City Name? (optional)"><br><br>
-					<input type="text" id="latInput" placeholder="Latitude?" /><br><br>
-					<input type="text" id="longInput" placeholder="Longitude?" /><br><br>
-					<input type="text" id="elevationInput" placeholder="Elevation in meters? (optional)"><br><br>
-					Timezone: <select id="timezoneInput"></select><br><br>
-					<button class="button-18" onclick="manualLocationSubmit()">Submit</button>
-				</p>
 			</div>
 		</div>
 	</div>
@@ -125,4 +124,6 @@ permalink: /
 {% include toasts/failToast.html toastId="inaccessibleToast" errorText="Location inaccessible. Please try again!" %}
 {% include toasts/failToast.html toastId="zipToast" errorText="Multiple ZIP codes coordinates detected. Please use Location Name instead." %}
 
-<script src="/assets/js/location.js" type="text/javascript"></script>
+<script src="/assets/js/location.js" type="module"></script>
+<link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
+<script src="/assets/libraries/materialComp/materialweb.js" type="module"></script>

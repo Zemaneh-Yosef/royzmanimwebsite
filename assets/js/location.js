@@ -1,3 +1,38 @@
+// @ts-check
+
+/** @typedef {{geonames?: {
+            "adminCode1": string,
+            "lng": string,
+            "geonameId": number,
+            "toponymName": string,
+            "countryId": string,
+            "fcl": string,
+            "population": number,
+            "countryCode": string,
+            "name": string,
+            "fclName": string,
+            "adminCodes1": Record<string, string>,
+            "countryName": string,
+            "fcodeName": string,
+            "adminName1": string,
+            "lat": string,
+            "fcode": string
+        }[], postalcodes?: {
+            "adminCode2": string,
+            "adminCode1": string,
+            "adminName2": string,
+            "lng": number,
+            "countryCode": string,
+            "postalcode": string,
+            "adminName1": string,
+            "placeName": string,
+            "lat": number
+        }[]}} geoNamesResponse */
+
+import * as leaflet from "../libraries/leaflet/leaflet.js"
+/** @type {ReturnType<leaflet["map"]>} */
+let leafletInit;
+
 const getJSON = async (/** @type {RequestInfo | URL} */ url) => await (await fetch(url)).json();
 const geoLocation = {
 	locationName: '',
@@ -7,167 +42,232 @@ const geoLocation = {
 	timeZone: ""
 }
 
-let maxRows = 5;
-let maxPossibleRows = 0;
+// Why 10? "West Hempstead" is not properly detected under counts with less
+let maxRows = 10;
 
-const errorBox = document.getElementById("error");
-
-function showManualLocationSettings() {
-	const manualLocation = document.getElementById("manualLocation");
-	if (!manualLocation.style.display) {
-		manualLocation.style.display = "none";
-		return;
-	}
-
-	manualLocation.style.removeProperty("display");
-
-	/**
-	 * @type {HTMLSelectElement}
-	 */
-	let select = document.getElementById("timezoneInput");
-	if (!select.options.length) {
-		for (const timeZone of Intl.supportedValuesOf("timeZone")) {
-			select.options.add(new Option(timeZone));
-		}
-		select.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+/** @type {{
+ * 	manual: {
+ * 		container: HTMLDivElement,
+ * 		locationNameInput: HTMLInputElement,
+ * 		timezoneSelect: HTMLSelectElement,
+ * 		map: HTMLDivElement,
+ *      elevationInput: HTMLInputElement
+ * },
+ *   icons: {
+ * 		search: HTMLElement,
+ * 		error: HTMLElement,
+ * 		loading: HTMLElement,
+ * 		container: HTMLElement
+ *   },
+ *   searchBar: HTMLInputElement,
+ *   error: {
+ *     box: HTMLDivElement,
+ *     offline: HTMLSpanElement,
+ *     notEnoughChar: HTMLSpanElement
+ *   }
+ * }} */
+const elements = {
+	manual: {
+		// @ts-ignore
+		container: document.getElementById("manualHelp"),
+		// @ts-ignore
+		locationNameInput: document.getElementById("cityInput"),
+		// @ts-ignore
+		timezoneSelect: document.getElementById("tz"),
+		// @ts-ignore
+		map: document.getElementById("leafletMap"),
+		// @ts-ignore
+		elevationInput: document.getElementById("elevationInput")
+	},
+	icons: {
+		search: document.querySelector('.input-group-text .fa-search'),
+		error: document.querySelector('.input-group-text .fa-times-circle'),
+		loading: document.querySelector('.input-group-text .spinner-border'),
+		// @ts-ignore
+		container: document.getElementsByClassName("input-group-text")[0]
+	},
+	// @ts-ignore
+	searchBar: document.getElementById("Main"),
+	error: {
+		// @ts-ignore
+		box: document.getElementById("error"),
+		offline: document.getElementById("offlineText"),
+		notEnoughChar: document.getElementById("notEnoughChar")
 	}
 }
 
-function manualLocationSubmit() {
-	geoLocation.locationName = document.getElementById("cityInput").value;
-	geoLocation.lat = document.getElementById("latInput").value;
-	geoLocation.long = document.getElementById("longInput").value;
-	geoLocation.elevation = document.getElementById("elevationInput").value;
-	geoLocation.timeZone = document.getElementById("timezoneInput").value;
-
-	if (geoLocation.lat == "" || geoLocation.long == "") {
-		alert("Please fill out latitude and longitude fields");
-		return;
-	}
-
-	openCalendarWithLocationInfo();
-}
-
-const iconography = {
-	search: document.querySelector('.input-group-text .fa-search'),
-	error: document.querySelector('.input-group-text .fa-times-circle'),
-	loading: document.querySelector('.input-group-text .spinner-border')
-}
-
-const geoNameTitleGenerator = (geoName) => [...new Set([geoName.name || geoName.placeName,
+/** @param {geoNamesResponse["postalcodes"][0] | geoNamesResponse["geonames"][0]} geoName */
+const geoNameTitleGenerator = (geoName) => [...new Set([('name' in geoName ? geoName.name : geoName.placeName),
 	geoName.adminName1 || geoName.adminCode1,
-	geoName.countryName || geoName.countryCode])].filter(Boolean).join(", ");
+	('countryName' in geoName ? geoName.countryName : geoName.countryCode)])].filter(Boolean).join(", ");
 
 let pool;
-const delay = ms => new Promise(res => setTimeout(res, ms));
+const delay = (/** @type {Number} */ms) => new Promise(res => setTimeout(res, ms));
 
 /** @param {KeyboardEvent|MouseEvent} event */
 async function updateList(event) {
-	document.getElementById("Main").classList.remove("is-warning")
-	document.getElementById("notEnoughChar").style.display = "none";
+	elements.searchBar.classList.remove("is-warning")
+	elements.error.notEnoughChar.style.display = "none";
 
-	iconography.error.style.display = "none";
-	iconography.search.style.removeProperty("display");
-	iconography.loading.style.display = "none"
-	document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '1rem';
-	document.getElementsByClassName("input-group-text")[0].style.paddingRight = '1rem';
+	elements.icons.error.style.display = "none";
+	elements.icons.search.style.removeProperty("display");
+	elements.icons.loading.style.display = "none";
 
-	const q = document.getElementById("Main").value;
+	elements.icons.container.style.paddingLeft = '1rem';
+	elements.icons.container.style.paddingRight = '1rem';
+
+	/** @type {string} */
+	const q = elements.searchBar.value;
 	if (q.length < 3) {
 		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
-			document.getElementById("Main").classList.add('is-warning')
-			document.getElementById("notEnoughChar").style.removeProperty("display")
+			elements.searchBar.classList.add('is-warning')
+			elements.error.notEnoughChar.style.removeProperty("display")
 		}
 		return;
 	}
 
-	if (!((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)) {
-		pool = q;
-		await delay(1000);
-		if (pool !== q) {
-			console.log('Skipping to next implementation');
-			return;
+	if (q.startsWith("(") && q.endsWith(")") && q.split('').filter(x => x == ',').length == 1 && q.split(',').length == 2
+	 && q.replace('(', '').replace(')', '').replaceAll(' ', '').split(',').every(val => !isNaN(val) && !isNaN(parseFloat(val)))) {
+		if (elements.manual.container.classList.contains('d-none')) {
+			elements.manual.container.classList.remove('d-none');
+			requestAnimationFrame(() => elements.manual.map.scrollIntoView());
 		}
-	} else {
-		document.getElementById("Main").disabled = true;
-		iconography.error.style.display = "none";
-		iconography.search.style.display = "none";
-		iconography.loading.style.removeProperty("display");
-		document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
-		document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.5rem';
-	}
 
-	try {
-		let locationName = true;
-		let params = new URLSearchParams({ q, maxRows, 'username': 'Elyahu41' });
-		let data = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString());
-		if (!data.geonames.length && q.includes(',')) {
-			params.delete('q');
-			params.set('q', q.split(',')[0]);
-			const newData = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString())
-			const match = newData.geonames.find(geoName => geoNameTitleGenerator(geoName) == q)
-			if (match)
-				data.geonames = [match]
+		const [lat, lng] = q.replace('(', '').replace(')', '').split(',').map(num=>parseFloat(num))
+		if (!leafletInit) {
+			leafletInit = leaflet.map(elements.manual.map, {
+				dragging: false,
+				minZoom: 16,
+				touchZoom: 'center',
+				scrollWheelZoom: 'center'
+			})
+			leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+			}).addTo(leafletInit);
 		}
-		if (!data.geonames.length) {
-			locationName = false;
 
-			params.delete('maxRows');
-			params.delete('q');
-			params.set('postalcode', q);
-			data = await getJSON("https://secure.geonames.org/postalCodeLookupJSON?" + params.toString())
-		}
+		leafletInit.setView([lat, lng], 13);
 
 		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
-			let geoName;
-			if (!locationName)
-				geoName = data.postalcodes[0];
-			else {
-				geoName = data.geonames.find(entry => entry.name == q);
-				if (!geoName)
-					geoName = data.geonames.find(entry => entry.name.includes(q))
-				if (!geoName && q.includes(',')) {
-					geoName = data.geonames.find(entry => entry.name == q.split(',')[0]);
-					if (!geoName)
-						geoName = data.geonames.find(entry => entry.name.includes(q.split(',')[0]))
-				}
-				if (!geoName)
-					geoName = data.geonames[0]
-			}
-			const multiZip = (!locationName || !data.geonames.find(geoName => geoNameTitleGenerator(geoName).includes(q) || geoNameTitleGenerator(geoName).includes(q.split(',')[0]))) && (data.postalcodes || data.geonames).length !== 1;
-			if (!geoName || multiZip) {
-				document.getElementById("Main").disabled = false;
-				iconography.error.style.removeProperty("display");
-				iconography.search.style.display = "none";
-				iconography.loading.style.display = "none"
-				document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '1rem';
-				document.getElementsByClassName("input-group-text")[0].style.paddingRight = '1rem';
+			if (elements.manual.timezoneSelect.value)
+				geoLocation.timeZone = elements.manual.timezoneSelect.value;
 
-				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
-				toastBootstrap.show()
+			if (elements.manual.locationNameInput.value)
+				geoLocation.locationName = elements.manual.locationNameInput.value
+
+			/** @type {Omit<GeolocationPosition, 'coords'> & { coords: Partial<GeolocationCoordinates>}} */
+			const params = { timestamp: new Date().getTime(), coords: { latitude: lat, longitude: lng } }
+			if (elements.manual.elevationInput.value)
+				params.coords.altitude = parseFloat(elements.manual.elevationInput.value);
+
+			await setLatLong(params, !elements.manual.timezoneSelect.value);
+			openCalendarWithLocationInfo();
+		}
+	} else {
+		elements.manual.container.classList.add('d-none');
+		if (!((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)) {
+			pool = q;
+			await delay(1000);
+			if (pool !== q) {
+				console.log('Skipping to next implementation');
 				return;
 			}
-
-			await setLocation(
-				geoName.name || geoName.placeName,
-				geoName.adminName1 || geoName.adminCode1,
-				geoName.countryName || geoName.countryCode,
-				geoName.lat, geoName.lng
-			);
-			openCalendarWithLocationInfo();
 		} else {
-			const list = document.getElementById("locationNames");
-			list.querySelectorAll('*').forEach(n => n.remove());
-			for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
-				const option = document.createElement("option");
-				option.setAttribute("value", geoNameTitleGenerator(geoName))
+			elements.searchBar.disabled = true;
+			elements.icons.error.style.display = "none";
+			elements.icons.search.style.display = "none";
+			elements.icons.loading.style.removeProperty("display");
 
-				list.append(option)
-			}
+			elements.icons.container.style.paddingLeft = '.5rem';
+			elements.icons.container.style.paddingRight = '.5rem';
 		}
-	} catch (e) {
-		console.error(e);
-		// Do not crash the program - it just means that they cannot look for a location by name, so just don't offer that feature
+	
+		try {
+			let locationName = true;
+			let params = new URLSearchParams({ q, maxRows: maxRows.toString(), 'username': 'Elyahu41' });
+			/** @type {geoNamesResponse} */
+			let data = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString());
+			if (!data.geonames.length && q.includes(',')) {
+				params.delete('q');
+				params.set('q', q.split(',')[0]);
+				/** @type {geoNamesResponse} */
+				const newData = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString())
+				const match = newData.geonames.find(geoName => geoNameTitleGenerator(geoName) == q)
+				if (match)
+					data.geonames = [match]
+			}
+			if (!data.geonames.length) {
+				locationName = false;
+	
+				params.delete('maxRows');
+				params.delete('q');
+				params.set('postalcode', q);
+				data = await getJSON("https://secure.geonames.org/postalCodeLookupJSON?" + params.toString())
+			}
+	
+			if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
+				let geoName;
+				if (!locationName)
+					geoName = data.postalcodes[0];
+				else {
+					geoName = data.geonames.find(entry => entry.name == q);
+					if (!geoName)
+						geoName = data.geonames.find(entry => entry.name.includes(q))
+					if (!geoName && q.includes(',')) {
+						geoName = data.geonames.find(entry => entry.name == q.split(',')[0]);
+						if (!geoName)
+							geoName = data.geonames.find(entry => entry.name.includes(q.split(',')[0]))
+					}
+					if (!geoName)
+						geoName = data.geonames[0]
+				}
+
+				const multiZip = (locationName
+					? !data.geonames.find(geoName => geoNameTitleGenerator(geoName).includes(q) || geoNameTitleGenerator(geoName).includes(q.split(',')[0])) && data.geonames.length !== 1
+					: data.postalcodes.length >= 2);
+				if (!geoName || multiZip) {
+					elements.searchBar.disabled = false;
+					elements.icons.error.style.removeProperty("display");
+					elements.icons.search.style.display = "none";
+					elements.icons.loading.style.display = "none"
+
+					elements.icons.container.style.paddingLeft = '1rem';
+					elements.icons.container.style.paddingRight = '1rem';
+	
+					const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
+					toastBootstrap.show()
+					return;
+				}
+
+				const geoCoordinates = {
+					lat: parseFloat((typeof geoName.lat == "string" ? parseFloat(geoName.lat) : geoName.lat).toFixed(5)),
+					lng: parseFloat((typeof geoName.lng == "string" ? parseFloat(geoName.lng) : geoName.lng).toFixed(5))
+				}
+
+				if (!geoLocation.elevation)
+					geoLocation.elevation = await getAverageElevation(geoCoordinates.lat, geoCoordinates.lng);
+
+				await setLocation(
+					('name' in geoName ? geoName.name : geoName.placeName),
+					geoName.adminName1 || geoName.adminCode1,
+					('countryName' in geoName ? geoName.countryName : geoName.countryCode),
+					geoCoordinates.lat, geoCoordinates.lng
+				);
+				openCalendarWithLocationInfo();
+			} else {
+				const list = document.getElementById("locationNames");
+				list.querySelectorAll('*').forEach(n => n.remove());
+				for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
+					const option = document.createElement("option");
+					option.setAttribute("value", geoNameTitleGenerator(geoName))
+	
+					list.append(option)
+				}
+			}
+		} catch (e) {
+			console.error(e);
+			// Do not crash the program - it just means that they cannot look for a location by name, so just don't offer that feature
+		}
 	}
 }
 
@@ -184,14 +284,11 @@ async function setLocation(name, admin, country, latitude, longitude) {
 
 	geoLocation.locationName = [...new Set([name, admin, country])].filter(Boolean).join(", ");
 
-	geoLocation.lat = parseFloat(parseFloat(latitude).toFixed(5));
-	geoLocation.long = parseFloat(parseFloat(longitude).toFixed(5));
-
 	if (!geoLocation.timeZone) {
 		try {
 			const params = new URLSearchParams({
-				'lat': latitude,
-				'lng': longitude,
+				'lat': latitude.toString(),
+				'lng': longitude.toString(),
 				'username': 'Elyahu41'
 			});
 			const data = await getJSON("https://secure.geonames.org/timezoneJSON?" + params);
@@ -204,12 +301,14 @@ async function setLocation(name, admin, country, latitude, longitude) {
 			if (attemptedTimezone)
 				alert("Timezone API error - The app will use your local timezone on your computer instead of the destination timezone. Please retry later for the intended timezone.")
 			else {
-				document.getElementById("Main").disabled = false;
-				iconography.error.style.removeProperty("display");
-				iconography.search.style.display = "none";
-				iconography.loading.style.display = "none"
-				document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '1rem';
-				document.getElementsByClassName("input-group-text")[0].style.paddingRight = '1rem';
+				elements.searchBar.disabled = false;
+
+				elements.icons.error.style.removeProperty("display");
+				elements.icons.search.style.display = "none";
+				elements.icons.loading.style.display = "none";
+
+				elements.icons.container.style.paddingLeft = '1rem';
+				elements.icons.container.style.paddingRight = '1rem';
 
 				console.error(e);
 				// This didn't come from getting the user's own location, because they already have the timezone
@@ -217,19 +316,21 @@ async function setLocation(name, admin, country, latitude, longitude) {
 				// Crash the whole app in this case; it's not a matter of not being able to do things yourself
 
 				const error = {
+					/** @type {1} */
 					PERMISSION_DENIED: 1,
+					/** @type {2} */
 					POSITION_UNAVAILABLE: 2,
+					/** @type {3} */
 					TIMEOUT: 3,
 					UNKNOWN_ERROR: 4,
-					code: 4
+					code: 4,
+					message: "An unknown error occured. Please report this on our GitHub repository"
 				}
 				showError(error);
 				return;
 			}
 		}
 	}
-
-	geoLocation.elevation = await getAverageElevation(latitude, longitude);
 }
 
 /**
@@ -243,68 +344,87 @@ function getCoordinates(options) {
 
 function getLocation() {
 	if (!navigator.geolocation) {
-		errorBox.innerHTML = "Geolocation is not supported by this browser.";
-		errorBox.style.display = "block";
+		elements.error.box.innerHTML = "Geolocation is not supported by this browser.";
+		elements.error.box.style.removeProperty("display");
 	}
 
-	document.getElementById("Main").disabled = true;
-	iconography.error.style.display = "none";
-	iconography.search.style.display = "none";
-	iconography.loading.style.removeProperty("display");
-	document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '.5rem';
-	document.getElementsByClassName("input-group-text")[0].style.paddingRight = '.5rem';
+	elements.searchBar.disabled = true;
+
+	elements.icons.error.style.display = "none";
+	elements.icons.search.style.display = "none";
+	elements.icons.loading.style.removeProperty("display");
+
+	elements.icons.container.style.paddingLeft = '.5rem';
+	elements.icons.container.style.paddingRight = '.5rem';
 
 	getCoordinates({maximumAge:60000, timeout:9000, enableHighAccuracy:true})
 		.then(pos => setLatLong(pos))
 		.then(() => openCalendarWithLocationInfo())
 		.catch((e) => {
-			document.getElementById("Main").disabled = false;
-			iconography.error.style.removeProperty("display");
-			iconography.search.style.display = "none";
-			iconography.loading.style.display = "none";
-			document.getElementsByClassName("input-group-text")[0].style.paddingLeft = '1rem';
-			document.getElementsByClassName("input-group-text")[0].style.paddingRight = '1rem';
+			elements.searchBar.disabled = false;
+
+			elements.icons.error.style.removeProperty("display");
+			elements.icons.search.style.display = "none";
+			elements.icons.loading.style.display = "none";
+
+			elements.icons.container.style.paddingLeft = '1rem';
+			elements.icons.container.style.paddingRight = '1rem';
 
 			showError(e)
 		})
 }
 
 /**
- * @param {GeolocationPosition} position 
+ * @param {Omit<GeolocationPosition, 'coords'> & { coords: Partial<GeolocationCoordinates>}} position 
  */
 async function setLatLong (position, manual=false) {
 	let location;
-	try {
-		const params = new URLSearchParams({
-			'lat': position.coords.latitude.toFixed(5),
-			'lng': position.coords.longitude.toFixed(5),
-			'username': 'Elyahu41',
-			'style': 'FULL'
-		});
-		const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
-		location = data.geonames[0]; // TODO: If there are other False positives
+	if (!geoLocation.locationName || !geoLocation.timeZone) {
+		try {
+			const params = new URLSearchParams({
+				'lat': position.coords.latitude.toFixed(5),
+				'lng': position.coords.longitude.toFixed(5),
+				'username': 'Elyahu41',
+				'style': 'FULL'
+			});
+			const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
+			location = data.geonames[0]; // TODO: If there are other False positives
 
-		if (manual)
-			geoLocation.timeZone = location.timezone.timeZoneId
-	} catch (e) {
-		// Only thing this is good for is the location name - if there is a problem, then just have the thing say "Your Location"
-		// Only dependency of the location name is to determine whether one is in Israel or not
-		console.error(e);
-		// set up date formatting parameters
-		const ops = {year: 'numeric'};
-		ops.month = ops.day = '2-digit';
+			if (manual)
+				geoLocation.timeZone = location.timezone.timeZoneId
+		} catch (e) {
+			// Only thing this is good for is the location name - if there is a problem, then just have the thing say "Your Location"
+			// Only dependency of the location name is to determine whether one is in Israel or not
+			console.error(e);
 
-		location = {
-			name: "Your Location as of " + new Intl.DateTimeFormat([], ops).format(new Date()),
-			adminName1: "",
-			country: ""
+			location = {
+				name: "Your Location as of " + new Intl.DateTimeFormat([], {
+					year: 'numeric',
+					month: '2-digit',
+					day: '2-digit'
+				}).format(new Date(position.timestamp)),
+				adminName1: "",
+				country: ""
+			}
 		}
 	}
 
 	if (!geoLocation.timeZone)
 		geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-	await setLocation(location.name, location.adminName1, location.country, position.coords.latitude, position.coords.longitude);
+	if (!geoLocation.locationName)
+		await setLocation(location.name, location.adminName1, location.country,
+			parseFloat(position.coords.latitude.toFixed(5)), parseFloat(position.coords.longitude.toFixed(5))
+		);
+
+	geoLocation.lat = position.coords.latitude
+	geoLocation.long = position.coords.longitude
+
+	if ('altitude' in position.coords && position.coords.altitude !== null) {
+		geoLocation.elevation = position.coords.altitude
+	} else {
+		geoLocation.elevation = await getAverageElevation(position.coords.latitude, position.coords.longitude);
+	}
 }
 
 /**
@@ -316,53 +436,65 @@ function showError(error) {
 		+ '<img src="/assets/images/chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />',
 		[error.POSITION_UNAVAILABLE]: "Location information is unavailable.",
 		[error.TIMEOUT]: "The request to get user location timed out.",
+		// @ts-ignore
 		[error.UNKNOWN_ERROR]: "An unknown error occured. Please report this on our GitHub repository"
 	};
 
-	errorBox.style.display = "block";
-	errorBox.innerHTML = errorObjectBuilder[error.code];
+	elements.error.box.style.display = "block";
+	elements.error.box.innerHTML = errorObjectBuilder[error.code];
 }
 
+/**
+ * @param {number} lat
+ * @param {number} long  
+ */
 async function getAverageElevation (lat, long) {
-	const elevations = [];
-
 	//we make 3 JSON requests to get the elevation data from the 3 different sources on geonames.org and we average the results
 	//whichever is the last one to return will be the one to sum up and divide by the number of elevations to get the average
 
 	const params = new URLSearchParams({
-		lat,
-		'lng': long,
+		'lat': lat.toString(),
+		'lng': long.toString(),
 		'username': 'Elyahu41'
 	});
 
-	try {
-		const data = await getJSON("https://secure.geonames.org/srtm3JSON?" + params.toString());
-		if (data.srtm3 > 0)
-			elevations.push(data.srtm3);
-	} catch (e) {
-		console.error("Error with strm3JSON elevation request");
-		console.error(e);
+	/** @type {() => Promise<number>} */
+	const srtm3 = async () => {
+		try {
+			const data = await getJSON("https://secure.geonames.org/srtm3JSON?" + params.toString());
+			return data.srtm3;
+		} catch (e) {
+			console.error("Error with strm3JSON elevation request");
+			console.error(e);
+		}
 	}
 
-	try {
-		const data2 = await getJSON("https://secure.geonames.org/astergdemJSON?" + params.toString());
-		if (data2.astergdem > 0)
-			elevations.push(data2.astergdem);
-	} catch(e) {
-		console.error("Error with astergdemJSON elevation request");
-		console.error(e);
+	/** @type {() => Promise<number>} */
+	const astergdem = async () => {
+		try {
+			const data2 = await getJSON("https://secure.geonames.org/astergdemJSON?" + params.toString());
+			return data2.astergdem;
+		} catch(e) {
+			console.error("Error with astergdemJSON elevation request");
+			console.error(e);
+		}
 	}
 
-	try {
-		const data3 = await getJSON("https://secure.geonames.org/gtopo30JSON?" + params.toString());
-		if (data3.gtopo30 > 0)
-			elevations.push(data3.gtopo30);
-	} catch(e) {
-		console.error("Error with gtopo30JSON elevation request");
-		console.error(e);
+	/** @type {() => Promise<number>} */
+	const gtopo30 = async () => {
+		try {
+			const data3 = await getJSON("https://secure.geonames.org/gtopo30JSON?" + params.toString());
+			return data3.gtopo30;
+		} catch(e) {
+			console.error("Error with gtopo30JSON elevation request");
+			console.error(e);
+		}
 	}
 
-	return (elevations.length ? elevations.reduce( ( p, c ) => p + c, 0 ) / elevations.length : 0).toFixed(2);
+	const elevations = (await Promise.all([astergdem(), srtm3(), gtopo30()])).filter(Boolean).filter(num => num > 0)
+	const equation = parseFloat((elevations.length ? elevations.reduce( ( p, c ) => p + c, 0 ) / elevations.length : 0).toFixed(2));
+
+	return Math.max(equation, 0);
 }
 
 function openCalendarWithLocationInfo() {
@@ -378,13 +510,14 @@ function openCalendarWithLocationInfo() {
 		localStorage.setItem("tekufa", "arbitrary");
 	}
 
-	const params = new URLSearchParams(geoLocation);
+	const typedGL = Object.entries(geoLocation).map(([key, value]) => [key, (typeof value == 'number' ? value.toString() : value)])
+	const params = new URLSearchParams(Object.fromEntries(typedGL));
 	window.location.href = "calendar?" + params.toString();
 }
 
 const networkStatus = {
-	online: () => { document.getElementById("Main").disabled = false; document.getElementById("offlineText").style.display = "none" },
-	offline: () => { document.getElementById("Main").disabled = true; document.getElementById("offlineText").style.removeProperty("display") }
+	online: () => { elements.searchBar.disabled = false; elements.error.offline.style.display = "none" },
+	offline: () => { elements.searchBar.disabled = true; elements.error.offline.style.removeProperty("display") }
 }
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -397,3 +530,29 @@ document.addEventListener("DOMContentLoaded", function(){
 
 window.addEventListener('online', () => networkStatus.online());
 window.addEventListener('offline', () => networkStatus.offline());
+
+document.querySelectorAll('button > i.fa-map-marker')
+	.forEach((/** @type {HTMLElement} */ i) => i.parentElement.addEventListener('click', () => getLocation()));
+
+document.getElementById('searchIcon').addEventListener('click', (e) => updateList(e));
+document.getElementById('Main').addEventListener('keyup', (ev) => updateList(ev));
+
+/** @param {string} tz */
+function appendOptionToTZSel(tz) {
+	const nameContainer = document.createElement('div');
+	nameContainer.setAttribute('slot', 'headline');
+	nameContainer.appendChild(document.createTextNode(tz));
+
+	const selectOption = document.createElement('md-select-option');
+	selectOption.setAttribute('value', tz);
+	selectOption.appendChild(nameContainer);
+
+	elements.manual.timezoneSelect.appendChild(selectOption);
+}
+
+appendOptionToTZSel(Intl.DateTimeFormat().resolvedOptions().timeZone)
+Intl.supportedValuesOf("timeZone")
+	.filter(tz => tz !== Intl.DateTimeFormat().resolvedOptions().timeZone)
+	.forEach(tz => appendOptionToTZSel(tz))
+
+window.elements = elements;

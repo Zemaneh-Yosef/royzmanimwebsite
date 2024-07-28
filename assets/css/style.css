@@ -78,6 +78,11 @@ body {
 		line-height: 1;
 		justify-content: center;
 	}
+
+	#manualContainer {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+	}
 }
 
 .upNextText {
