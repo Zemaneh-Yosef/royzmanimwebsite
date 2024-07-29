@@ -157,8 +157,10 @@ async function updateList(event) {
 
 			/** @type {Omit<GeolocationPosition, 'coords'> & { coords: Partial<GeolocationCoordinates>}} */
 			const params = { timestamp: new Date().getTime(), coords: { latitude: lat, longitude: lng } }
-			if (elements.manual.elevationInput.value)
+			if (elements.manual.elevationInput.value) {
 				params.coords.altitude = parseFloat(elements.manual.elevationInput.value);
+				params.coords.altitudeAccuracy = true
+			}
 
 			await setLatLong(params, !elements.manual.timezoneSelect.value);
 			openCalendarWithLocationInfo();
@@ -420,7 +422,7 @@ async function setLatLong (position, manual=false) {
 	geoLocation.lat = position.coords.latitude
 	geoLocation.long = position.coords.longitude
 
-	if ('altitude' in position.coords && position.coords.altitude !== null) {
+	if ('altitude' in position.coords && position.coords.altitude !== null && 'altitudeAccuracy' in position.coords && position.coords.altitudeAccuracy) {
 		geoLocation.elevation = position.coords.altitude
 	} else {
 		geoLocation.elevation = await getAverageElevation(position.coords.latitude, position.coords.longitude);
