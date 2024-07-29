@@ -408,25 +408,7 @@ layout: nothing
 					</li>
 					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
 						<div data-zfFind="SefirathHaomer">
-							<div class="lang lang-en">
-								<h5 class="mb-0"><span data-zfReplace="completeCount"></span> day of the Omer</h5>
-								<p><span data-zfReplace="indCount"></span></p>
-								<p class="mb-0">
-									<b>Tonight:</b>
-									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> day of the Omer<span> -
-									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
-								</p>
-							</div>
-							<div class="lang lang-et">
-								<h5 class="mb-0">Today is <span data-zfReplace="completeCount"></span> of the Omer</h5>
-								<p>which <span data-zfReplace="indCount"></span></p>
-								<p class="mb-0">
-									<b>Tonight:</b>
-									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> of the Omer<span>, which
-									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
-								</p>
-							</div>
-							<div class="lang lang-hb">
+							<div class="lang lang-hb" style="display: block !important;">
 								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
 								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
@@ -439,51 +421,23 @@ layout: nothing
 						</div>
 						<div data-zfFind="ThreeWeeksHeader">
 							<h5 style="font-size: .9rem; margin-bottom: .1em;">
-								<span class="lang lang-hb">
-									<span data-zfFind="threeWeeks">שלושה שבועות</span>
-									<span data-zfFind="nineDays">תשעה ימים</span>
-									<span data-zfFind="weekOf">שבוע שחל בו</span>
-								</span>
-								<span class="lang lang-et">
-									<span data-zfFind="threeWeeks">Three Weeks</span>
-									<span data-zfFind="nineDays">Nine Days</span>
-									<span data-zfFind="weekOf">The week of Tisha Beav</span>
-								</span>
-								<span class="lang lang-en">
-									<span data-zfFind="threeWeeks">Three Weeks</span>
-									<span data-zfFind="nineDays">Nine Days</span>
-									<span data-zfFind="weekOf">The week of Tisha Beav</span>
-								</span>
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
 							</h5>
 						</div>
 						<ul style="padding-left: 1.5rem;">
 							{% for minhag in site.data.mourningMinhag %}
-							<li data-zfFind="{{ minhag.topic }}">
-								<span class="lang lang-hb">{{ minhag.text.hb }}</span>
-								<span class="lang lang-et">{{ minhag.text.en }}</span>
-								<span class="lang lang-en">{{ minhag.text.en }}</span>
-							</li>
+							<li data-zfFind="{{ minhag.topic }}">{{ minhag.text.en }}</li>
 							{% endfor %}
 						</ul>
 					</li>
 					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
-						<span class="lang lang-hb">ברכת החמה!</span>
-						<span class="lang lang-et">Birchath Hachama!</span>
-						<span class="lang lang-en">Blessing of the sun!</span>
+						ברכת החמה!
 					</li>
 					<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
-						<span class="lang lang-hb">
-							<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
-							<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
-						</span>
-						<span class="lang lang-et">
-							<b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
-							<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
-						</span>
-						<span class="lang lang-en">
-							<b>The <span data-zfReplace="tekufaName-en"></span> season</b> is at <span data-zfReplace="tekufaTime"></span><br>
-							<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
-						</span>
+						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
 					</li>
 				</ul>
 			</div>
@@ -556,21 +510,9 @@ layout: nothing
 		</div>
 		<div id="megaline">
 			<span data-zfFind="BirchatHalevana">
-				<span class="lang lang-hb">
-					ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
-					<span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
-					<span data-zfFind="ends-tonight"> - נגמר בלילה</span>
-				</span>
-				<span class="lang lang-et">
-					Birchath Halevana (until the night of <span data-zfReplace="date-en-end"></span>)
-					<span data-zfFind="starts-tonight"> - Starts tonight</span>
-					<span data-zfFind="ends-tonight"> - Ends tonight</span>
-				</span>
-				<span class="lang lang-en">
-					Blessing of the moon (until the night of <span data-zfReplace="date-en-end"></span>)
-					<span data-zfFind="starts-tonight"> - Starts tonight</span>
-					<span data-zfFind="ends-tonight"> - Ends tonight</span>
-				</span>
+				Birkat Halvana (until the night of <span data-zfReplace="date-en-end"></span>)
+				<span data-zfFind="starts-tonight"> - Starts tonight</span>
+				<span data-zfFind="ends-tonight"> - Ends tonight</span>
 			</span>
 			<span data-zfReplace="Tachanun"></span>
 			<span data-zfReplace="Hallel" style="display: none;"></span>
