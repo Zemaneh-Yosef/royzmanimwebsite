@@ -29,7 +29,7 @@ amudehHoraahCal.configSettings(true, settings.customTimes.tzeithIssurMelakha());
 amudehHoraahCal.coreZC.setCandleLightingOffset(20);
 const rYisraeliCal = new rYisraelizmanim(fallbackGL);
 
-const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ day: 27 });
+const shabbatDate = KosherZmanim.Temporal.Now.plainDateISO().with({ month: 8, day: 3 });
 const jCal = new WebsiteLimudCalendar(shabbatDate)
 
 if (jCal.getDate().dayOfWeek != 6)
