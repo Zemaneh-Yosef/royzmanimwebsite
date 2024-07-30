@@ -1,0 +1,16 @@
+---
+title: Reload Test
+permalink: /shul-wall/rload-test
+layout: nothing
+---
+
+<div id="curTime"></div>
+<script type="module">
+	// @ts-check
+	import { Temporal } from '/assets/libraries/kosherZmanim/kosher-zmanim.esm.js';
+
+	const curTime = Temporal.Now.zonedDateTimeISO()
+	document.getElementById("curTime").innerHTML = curTime.toLocaleString();
+
+	setTimeout(() => { window.location.reload() }, curTime.until(curTime.add({seconds: 20})).total('milliseconds'))
+</script>
