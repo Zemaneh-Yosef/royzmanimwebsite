@@ -138,7 +138,7 @@ async function preparePrint() {
 
 	finalExplanation.style.display = "none";
 
-	const elems = [
+	[
 		'pagedjs_margin-top-left-corner-holder',
 		'pagedjs_margin-top',
 		'pagedjs_margin-top-right-corner-holder',
@@ -147,13 +147,16 @@ async function preparePrint() {
 		'pagedjs_margin-bottom-left-corner-holder',
 		'pagedjs_margin-bottom',
 		'pagedjs_margin-bottom-right-corner-holder',
-		'pagedjs_pagebox'
+		'pagedjs_bleed'
 	]
 		.map(className => Array.from(document.getElementsByClassName(className)))
-		.flat();
+		.flat()
+		.forEach(elem => elem.remove());
 
-	['top', 'right', 'left', 'bottom']
-		.forEach(dir => elems.forEach((/** @type {HTMLElement} */elem) => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
+	for (const pageBox of document.getElementsByClassName('pagedjs_pagebox'))
+		['top', 'right', 'left', 'bottom']
+			// @ts-ignore
+			.forEach(dir => pageBox.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
 
 	Array.from(document.getElementsByClassName('pagedjs_page_content'))
 		.forEach((/** @type {HTMLElement} */pageContent) => {
