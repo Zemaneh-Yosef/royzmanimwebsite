@@ -21,7 +21,7 @@
  
 span.footnote { 
     float: footnote; 
-    footnote-policy: block;
+    footnote-policy: line;
 }
  
 .footnote::footnote-call {
