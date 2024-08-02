@@ -28,6 +28,7 @@ const hNum = new HebrewNumberFormatter();
 	lang: "hb"|"en-et"|"en";
 	allShitot: string[];
 	month: number;
+	candleTime: number;
   }>} x
  */
 async function messageHandler (x) {
@@ -67,6 +68,7 @@ async function messageHandler (x) {
 			: new AmudehHoraahZmanim(geoLocation)
 		);
 	zmanCalc.configSettings(x.data.rtKulah, x.data.tzetMelakha)
+	zmanCalc.coreZC.setCandleLightingOffset(x.data.candleTime)
 	zmanCalc.setDate(jCal.getDate())
 
 	const yomTovObj = {

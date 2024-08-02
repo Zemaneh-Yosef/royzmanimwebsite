@@ -92,7 +92,8 @@ for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYea
 		timeFormat: settings.timeFormat(),
 		lang: settings.language(),
 		allShitot: listAllShitot,
-		month: mIndex
+		month: mIndex,
+		candleTime: settings.customTimes.candleLighting()
 	})
 }
 
