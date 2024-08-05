@@ -753,7 +753,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	isMourningPeriod() {
 		const validSefira = this.getDayOfOmer() !== -1;
 		const validTamuz = (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17);
-		const validAv = (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 8);
+		const validAv = (this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() <= 10);
 
 		return validAv || validTamuz || validSefira
 	}
@@ -765,8 +765,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const validAv = this.getJewishMonth() == KosherZmanim.JewishDate.AV
 					 && this.getJewishDayOfMonth() >= 2
 					 && this.getJewishDayOfMonth() <= 8;
+		const fullAv = this.getJewishMonth() == KosherZmanim.JewishDate.AV
+					 && this.getJewishDayOfMonth() <= 8;
+		const tenAv = this.getJewishMonth() == KosherZmanim.JewishDate.AV && this.getJewishDayOfMonth() == 10;
 
-		const threeWeeks = validAv || (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17);
+		const threeWeeks = fullAv || (this.getJewishMonth() == KosherZmanim.JewishDate.TAMMUZ && this.getJewishDayOfMonth() >= 17);
 		const validOmer = (this.getDayOfOmer() <= 34 && this.getDayOfOmer() !== -1)
 
 		const allDaysOfMourning = validOmer || threeWeeks;
@@ -775,15 +778,15 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return {
 			music: noHolHamoed,
 			haircuts: validOmer || this.isShvuaShechalBo(),
-			wedding: validOmer || validAv,
+			wedding: validOmer || fullAv,
 			purchaseClothing: validAv,
 			swimming: this.isShvuaShechalBo(),
 			construction: this.isShvuaShechalBo(),
-			meat: validAv && this.getDayOfWeek() !== 7,
+			meat: (validAv && this.getDayOfWeek() !== 7) || tenAv,
 			showering: this.isShvuaShechalBo(),
 			laundry: this.isShvuaShechalBo(),
 			wearingClothing: validAv,
-			shechiyanu: threeWeeks && (this.getDayOfWeek() !== 7 || (this.getDayOfWeek() == 7 && !validAv))
+			shechiyanu: (threeWeeks && (this.getDayOfWeek() !== 7 || (this.getDayOfWeek() == 7 && !validAv))) || tenAv
 		}
 	}
 
