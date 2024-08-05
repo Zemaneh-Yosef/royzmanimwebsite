@@ -30,7 +30,7 @@ const listAllShitot = Array.from(document.querySelectorAll('[data-zyData]')).map
 const baseTable = document.getElementsByClassName('tableGrid')[0];
 baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName('tableHeader'))
 	.filter(elem => !elem.hasAttribute('data-zyHeaderContainer'))
-	.map((/** @type {HTMLElement} */elem) => (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
+	.map((/** @type {HTMLElement} */elem) => (elem.hasAttribute('data-wide-column') ? '1.25fr' : elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
 	.join(" ");
 
 /** @type {Temporal.ZonedDateTime[]} */
@@ -139,7 +139,7 @@ async function preparePrint() {
 
 	finalExplanation.style.display = "none";
 
-	const elems = [
+	[
 		'pagedjs_margin-top-left-corner-holder',
 		'pagedjs_margin-top',
 		'pagedjs_margin-top-right-corner-holder',
@@ -148,20 +148,30 @@ async function preparePrint() {
 		'pagedjs_margin-bottom-left-corner-holder',
 		'pagedjs_margin-bottom',
 		'pagedjs_margin-bottom-right-corner-holder',
-		'pagedjs_pagebox'
+		'pagedjs_bleed'
 	]
 		.map(className => Array.from(document.getElementsByClassName(className)))
-		.flat();
+		.flat()
+		.forEach(elem => elem.remove());
 
-	['top', 'right', 'left', 'bottom']
-		.forEach(dir => elems.forEach((/** @type {HTMLElement} */elem) => elem.style.setProperty(`--pagedjs-margin-${dir}`, '0')));
+	for (const pageBox of document.getElementsByClassName('pagedjs_pagebox'))
+		['top', 'right', 'left', 'bottom']
+			// @ts-ignore
+			.forEach(dir => pageBox.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
 
 	Array.from(document.getElementsByClassName('pagedjs_page_content'))
 		.forEach((/** @type {HTMLElement} */pageContent) => {
 			pageContent.style.columnWidth = 'unset';
+			pageContent.style.height = 'unset';
+			pageContent.style.flex = '1 1';
+
 			[...pageContent.children]
 				.filter(child => child.nodeName == "DIV")
 				.forEach((/** @type {HTMLDivElement} */pageContentChild) => pageContentChild.style.height = 'unset')
+
+			if (pageContent.nextElementSibling && pageContent.nextElementSibling.classList.contains('pagedjs_footnote_area'))
+				// @ts-ignore
+				pageContent.nextElementSibling.style.height = 'unset'
 		})
 
 	/* Array.from(document.getElementsByClassName('pagedjs_page'))

@@ -10,6 +10,7 @@ layout: nothing
 	import { Temporal } from '/assets/libraries/kosherZmanim/kosher-zmanim.esm.js';
 
 	const curTime = Temporal.Now.zonedDateTimeISO()
+	// @ts-ignore
 	document.getElementById("curTime").innerHTML = curTime.toLocaleString();
 
 	setTimeout(() => { window.location.reload() }, curTime.until(curTime.add({seconds: 20})).total('milliseconds'))

@@ -1,0 +1,26 @@
+---
+- timeGetter: getAlotHashachar
+  names:
+    hb: עלות
+    et: Aloth
+    en: Dawn
+- shitot:
+    - names:
+        hb: עיקר הדין
+        en: Letter of the Law
+        et: Letter of the law
+      timeGetter: misheyakir-66/72
+    - names:
+        hb: לחתחילה
+        en: Recommended
+        et: Recommended
+      timeGetter: misheyakir-60/72
+  names:
+    hb: מישיקיר
+    et: Misheyakir
+    en: Misheyakir
+- timeGetter: getNetz
+  names:
+    hb: הנץ
+    et: HaNetz
+    en: Sunrise
