@@ -227,11 +227,21 @@ async function messageHandler (x) {
 			timeElem.appendChild(document.createTextNode(timeStr.trim()));
 			div.appendChild(timeElem)
 		}
-	
+
+		div.setAttribute('data-time-for-shita', shita)
+
+		if (shita.startsWith('misheyakir-')) {
+			const [portion, complete] = shita
+				.replace('misheyakir-', '')
+				.split('/')
+				.map(str => parseInt(str))
+
+			renderZmanInDiv(zmanCalc.getMisheyakir(portion / complete))
+			return div;
+		}
+
 		switch (shita) {
 			case 'special':
-				div.classList.add("specialDay");
-
 				if (jCal.getDayOfWeek() === 7) {
 					const shabElem = flexWorkAround.cloneNode(true);
 					shabElem.appendChild(document.createTextNode(WebsiteLimudCalendar.hebrewParshaMap[jCal.getParshah()]));
@@ -244,6 +254,8 @@ async function messageHandler (x) {
 						"en-et": "Rosh Ḥodesh",
 						'en': "New Month"
 					}[x.data.lang]));
+					if (jCal.isChanukah())
+						rHelem.style.fontSize = ".8em";
 	
 					div.appendChild(rHelem);
 					div.style.fontWeight = "bold";
@@ -339,6 +351,8 @@ async function messageHandler (x) {
 	
 				break;
 			case 'date':
+			case 'datePri':
+			case 'dateSec':
 				let primaryDate = flexWorkAround.cloneNode(true);
 				let secondaryDate = flexWorkAround.cloneNode(true);
 				switch (x.data.lang) {
@@ -366,8 +380,11 @@ async function messageHandler (x) {
 						));
 						secondaryDate.appendChild(document.createTextNode(jCal.getDate().toLocaleString('en', { month: "short", day: "numeric" })));
 				}
-				div.appendChild(primaryDate);
-				div.appendChild(secondaryDate);
+				if (shita !== 'dateSec')
+					div.appendChild(primaryDate);
+
+				if (shita !== 'datePri')
+					div.appendChild(secondaryDate);
 	
 				if (jCal.isRoshChodesh() || jCal.getYomTovIndex() in yomTovObj || jCal.isBirkasHachamah())
 					div.style.fontWeight = "bold";
@@ -499,8 +516,10 @@ async function messageHandler (x) {
 	}
 
 	const monthTable = document.getElementsByClassName('tableGrid')[0]
-	monthTable.querySelector('[data-zyData="date"]')
-		.appendChild(document.createTextNode(
+	const dateSel = monthTable.querySelector('[data-zyData="date"]') || monthTable.querySelector('[data-zyData="datePri"]')
+
+	if (dateSel)
+		dateSel.appendChild(document.createTextNode(
 			jCal.getDate()
 				.toLocaleString(
 					x.data.lang == "en" ? 'en' : x.data.lang.replace('hb', 'he') + '-u-ca-hebrew',
