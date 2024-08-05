@@ -1,12 +1,10 @@
 ---
 title: Rabbi Ovadia Yosef Zmanim Calendar
-permalink: /print-year
+permalink: /print-netz-year
 layout: nothing
 ---
 
-{% capture fullExpl %}{% include printcal/explanation.md %}{% endcapture %}
-{% capture miscExpl %}{% include printcal/misc.md %}{% endcapture %}
-{% capture differences %}{% include printcal/differences.md %}{% endcapture %}
+{% capture netzExpl %}{% include printcal/netz.md %}{% endcapture %}
 
 <noscript>
 	<h1>This site requires JavaScript to function</h1>
@@ -23,20 +21,23 @@ layout: nothing
 		width: 100%;
 		display: grid;
 		text-align: center;
-		font-size: .65em;
-		line-height: 1.1;
+		font-size: .8em;
 		page-break-before: always;
 	}
 
 	.tableCell {
 		display: flex;
-		flex-direction: column;
 		justify-content: center;
+		align-items: center;
 		height: 100%;
-		line-height: .8;
+	}
 
-		padding-top: .185em;
-		padding-bottom: .125em;
+	.tableCell:not([data-time-for-shita="date"]) {
+		flex-direction: column;
+	}
+
+	.tableCell[data-time-for-shita="date"] > span:first-child::after {
+		content: " - "
 	}
 
 	.tableHeader {
@@ -70,7 +71,7 @@ layout: nothing
 	.pagedjs_pages ol,
 	.pagedjs_pages ul {
 		margin-bottom: .5rem;
-		font-size: .785em;
+		font-size: .775em;
 		text-align: justify;
 		text-justify: inter-word;
 		word-break: keep-all;
@@ -92,7 +93,7 @@ layout: nothing
 	}
 
 	.pagedjs_footnote_inner_content {
-		font-size: .65rem;
+		font-size: .65em;
 	}
 
 	body {
@@ -100,10 +101,8 @@ layout: nothing
 	}
 
 	.explanationPreface .fakeListItem,
-	.pagedjs_pages .fakeListItem,
-	.explanationPreface .fakeListItemNoBullet,
-	.pagedjs_pages .fakeListItemNoBullet {
-		margin-left: 8px; /* Set the desired margin */
+	.pagedjs_pages .fakeListItem {
+		margin-left: 10px; /* Set the desired margin */
 		position: relative;
 		margin-bottom: .25rem;
 	}
@@ -113,7 +112,7 @@ layout: nothing
 		/* Create a pseudo-element to act as the bullet point */
 		content: "\2022"; /* Unicode bullet point (•) */
 		position: absolute;
-		left: -8px; /* Position the bullet point to the left of the text */
+		left: -10px; /* Position the bullet point to the left of the text */
 	}
 
 	.omerText {
@@ -122,14 +121,8 @@ layout: nothing
 
 	[data-zyBranding] {
 		font-family: 'Guttman Mantova-Decor', 'Javar';
-		display: grid;
 		text-align: center;
-		justify-items: center;
-		line-height: 1;
-	}
-
-	[data-zyBranding] > * {
-		grid-area: 1/1;
+		position: relative;
 	}
 
 	[data-zyBranding] .rotatedText {
@@ -155,24 +148,30 @@ layout: nothing
 	.hebrewTitle {
 		line-height: .8;
 		font-size: 1.5rem;
-		padding-top: 1rem;
 		margin-bottom: 0;
 	}
 
 	[data-zyData="date"] {
-		font-size: 1.5em;
-		grid-row: 1 / span 2;
 		grid-column-end: span 2;
+		grid-row: 1 / span 2;
+		font-size: 1.75em;
 	}
 
-	[data-zyData="special"] {
+	[data-zyData="special"], [data-zyData="dateSec"] {
 		display: none;
+	}
+
+	.zyCalFooter > .sides {
+		font-size: .6rem;
+	}
+
+	.zyCalFooter > .sides:first-child h5 {
+		font-size: 1rem;
 	}
 
 	.zyCalFooter > .sides:last-child {
 		display: flex;
 		justify-content: space-around;
-		font-size: .6rem;
 		text-align: center;
 	}
 
@@ -187,18 +186,18 @@ layout: nothing
 
 	[data-zyBranding] .genDate {
 		font-family: 'Spectral';
-		grid-row: 2;
 	}
 
 	[data-zyBranding] .fa {
 		opacity: 0.3;
-		padding-top: 7.25px;
+		top: -9.25px;
 		font-size: 3.5em;
-	}
-
-	[data-zyBranding] .pageLogo {
-		width: 42px;
-		padding-top: 1rem;
+		position: absolute;
+		margin-left: auto;
+		margin-right: auto;
+		left: 0;
+		right: 0;
+		text-align: center;
 	}
 
 	.flexElemWorkaround svg {
@@ -265,8 +264,8 @@ layout: nothing
 	<div id="title">
 		<img src="/assets/images/print/ZY-b&w-banner.png" id="logo" />
 		<p style="font-weight: 500; font-size: 1.25em; padding-top: .5em;">
-			Halachic times according to Sepharadic tradition<br>
-			Inspired from the <b>Ohr Hachaim</b> calendar by <b>Maran Ovadia Yosef zt"l</b>
+			A print-out calendar including the early תפילות times <b>for Netz Minyanim</b><br>
+			Inspired by the Sepharadic tradition layed out in the <b>Ohr Hachaim</b> calendar
 		</p>
 	</div>
 	<img src="/assets/images/print/cover.png" id="bgCover" />
@@ -277,19 +276,13 @@ layout: nothing
 	</div>
 	<div id="credits">
 		<p>
-			Summaries and formatting by Maor Na'im & Elyahu Jacobi<br>
-			Formulas and approbations by R' Leeor Dahan & R' Meir Gavriel Elbaz
+			Summaries and formatting by Maor Na'im<br>
+			Representing the opinions of R' Ovadia Yosef zt"l & co.<br>
+			Approbations & Adjustments by R' Leeor Betzalel Dahan & R' Meir Gavriel Elbaz<br>
+			Programmed on top of <b>KosherJava</b> by R' Eliyahu Hershfeld & <b>ChaiTables</b> by R' Chaim Keller
 		</p>
 		<b>ROYZMANIM.COM</b>
 	</div>
-</div>
-
-<div class="explanationPreface" id="differences">
-	<h4 style="text-align: center;">Differences Explanation</h4>
-	<p style="text-align: center;">This piece will only go through conclusions that we hold differently from other mainstream calendars; descriptions on individual Zemanim (as well as sources) can instead be found in the back of this calendar.</p>
-
-	<div style="columns: 3; margin-bottom: .5em;">{{ differences | markdownify }}</div>
-	<p style="text-align: center;">Although there are more shitot out there that our calendar does not follow (such as 90/96 minutes for dawn, using the beginning of an hour rather than the end for Shema), listing every shita we don't hold like would be confusing when one can learn the sugya as we outline and see what we would hold (to then infer what we wouldn't).</p>
 </div>
 
 <div class="zyCalFooter">
@@ -310,8 +303,7 @@ layout: nothing
 		</div>
 	</div>
 	<div data-zyBranding>
-		<h1 class="hebrewTitle">זמני<br>יוסף</h1>
-		<img src="/assets/images/print/sam.svg" class="rotatedText">
+		<h1 class="hebrewTitle">עליית<br>המאורות</h1>
 		<i class="fa fa-clock-o" aria-hidden="true"></i>
 		<div class="genDate">Gen.: </div>
 	</div>
@@ -321,8 +313,8 @@ layout: nothing
 <main>
 	<div class="tableGrid" data-zyTemplate>
 		<div class="tableHeader" data-zyData="special"></div>
-		<div class="tableHeader" data-zyData="date"></div>
-		{% for item in site.data.printOut %}
+		<div class="tableHeader" data-zyData="date" data-wide-column></div>
+		{% for item in site.data.netzPrintOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
 			<span class="lang lang-hb">{{ item.names.hb }}</span>
@@ -356,25 +348,25 @@ layout: nothing
 
 	.pagedjs_pagebox {
 		display: block;
-		height: calc(var(--pagedjs-pagebox-height) - 5mm);
+		height: calc(var(--pagedjs-pagebox-height) - 10mm);
 	}
 
 	.pagedjs_page.pagedjs_right_page {
-		height: calc(var(--pagedjs-height-right) - 5mm);
+		height: calc(var(--pagedjs-height-right) - 10mm);
 	}
 
 	.pagedjs_page.pagedjs_left_page {
-		height: calc(var(--pagedjs-height-left) - 5mm);
+		height: calc(var(--pagedjs-height-left) - 10mm);
 	}
 
 	.pagedjs_right_page .pagedjs_sheet {
 		display: block;
-		height: calc(var(--pagedjs-height-right) - 5mm);
+		height: calc(var(--pagedjs-height-right) - 10mm);
 	}
 
 	.pagedjs_left_page .pagedjs_sheet {
 		display: block;
-		height: calc(var(--pagedjs-height-left) - 5mm);
+		height: calc(var(--pagedjs-height-left) - 10mm);
 	}
 
 	.columnSplit, .pagedjs_footnote_inner_content {
@@ -384,40 +376,32 @@ layout: nothing
 	.pagedjs_page:last-child {
 		page-break-after: avoid !important;
 	}
-
-	.pagedjs_pagebox > .pagedjs_area {
-		display: flex;
-		flex-direction: column;
-	}
 </style>
 
 <div style="page-break-before: always;">
 	<div>
 		<div data-printFind>
 			<div class="explanationPreface">
-				<h4 style="text-align: center;">Calendar Explanation</h4>
-				<p style="text-align: center;">In this section of the calendar, we aim to explain every Halachic time in brief for both calculation and concept. One looking to read more on each time should read the descriptions for each on our website, royzmanim.com, where we give Talmudic based sources in addition to all the later Poskim we already bring in this document.</p>
-				<h5 style="text-align: center; margin-bottom: .125rem;">Zemaneh Hayom Explanations</h5>
-				<div class="columnSplit">{{ fullExpl | markdownify }}</div>
-				<h5 style="text-align: center; margin-top: .5rem; margin-bottom: .125rem;">Misc. Zemanim Explanations</h5>
-				<div class="columnSplit" style="--description-columns: 3;">{{ miscExpl | markdownify }}</div>
+				<h4 style="text-align: center;">קונתרס כי יעיר השמש</h4>
+				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
+				<div class="columnSplit">{{ netzExpl | markdownify }}</div>
 				<div class="advert" style="margin-top: .5rem; text-align: center;">
 					See more from...<br>
 					<img src="/assets/images/print/ZY-b&w-banner.png" style="margin-bottom: .5rem; width: 30%;">
 					<div style="color: white;">
-                        <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+                        <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
                             <div style="border-radius: .35rem; background: white;">
                                 <img src="/assets/images/app-store.svg" style="width: 100%">
                             </div>
                             App Store
                         </div>
-                        <div style="margin-left: .35rem; margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+                        <div style="margin-left: .35rem; margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
                             <div style="border-radius: .35rem; background: white;">
                                 <img src="/assets/images/play-store.svg" style="width: 100%">
                             </div>
                             Play Store
                         </div>
-						<div style="margin-left: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+						<div style="margin-left: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
                             <div style="border-radius: .35rem; background: white;">
                                 <img src="/assets/images/globe.svg" style="width: 100%; padding: .5rem;">
                             </div>

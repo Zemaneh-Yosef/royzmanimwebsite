@@ -364,7 +364,7 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
 			.subtract(this.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ minutes: zemaniyot.minutes })));
 	}
 
-	getMisheyakir(percentageForMisheyakir=(11/12)) {
+	getMisheyakir(percentageForMisheyakir=(5/6)) {
 		return super.getMisheyakir(percentageForMisheyakir)
 	}
 
