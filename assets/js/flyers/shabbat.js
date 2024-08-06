@@ -49,10 +49,15 @@ let shitotOptions = document.getElementById("gridElement")
 	.getAttributeNames()
 	.filter(attr => attr.startsWith('data-functions-backday'))
 
-if (document.getElementById("dateElement")) {
-	const earliestDay = shabbatDate.subtract({ days: parseInt(shitotOptions[0].replace('data-functions-backday-', '')) });
-	const earliestJCal = new WebsiteLimudCalendar(earliestDay)
-	document.getElementById("dateElement").innerHTML = earliestJCal.formatFancyDate() + " - " + jCal.formatFancyDate() + ", " + earliestDay.year;
+for (const dateDisplay of document.querySelectorAll('[data-dateRender-backday]')) {
+	const dateJCal = jCal.clone();
+	dateJCal.setDate(shabbatDate.subtract({ days: parseInt(dateDisplay.getAttribute('data-dateRender-backday')) }));
+
+	dateDisplay.innerHTML = dateJCal.formatFancyDate()
+}
+
+for (const yearDisplay of document.querySelectorAll('[data-yearRender]')) {
+	yearDisplay.innerHTML = jCal.getDate().year.toString()
 }
 
 const elems = document.getElementsByClassName('timecalc');
@@ -217,11 +222,4 @@ for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) 
 
 		sefiraElement.appendChild(document.createTextNode(ruSefiraText.toLocaleUpperCase()))
 	}
-}
-
-for (const dateDisplay of document.querySelectorAll('[data-dateRender-backday]')) {
-	const dateJCal = jCal.clone();
-	dateJCal.setDate(shabbatDate.subtract({ days: parseInt(dateDisplay.getAttribute('data-dateRender-backday')) }));
-
-	dateDisplay.innerHTML = dateJCal.formatFancyDate()
 }
