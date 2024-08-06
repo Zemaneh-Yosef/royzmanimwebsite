@@ -1,6 +1,7 @@
 // @ts-check
 
-import * as KosherZmanim from '../../libraries/kosherZmanim/kosher-zmanim.esm.js'
+import * as KosherZmanim from '../../libraries/kosherZmanim/kosher-zmanim.esm.js';
+import { Temporal } from '../../libraries/kosherZmanim/kosher-zmanim.esm.js';
 import WebsiteLimudCalendar from '../WebsiteLimudCalendar.js';
 import { parseHTML } from '../../libraries/linkedom/linkedom.js'
 import { HebrewNumberFormatter, daysForLocale, getOrdinal, monthForLocale } from '../WebsiteCalendar.js';
@@ -33,7 +34,7 @@ const hNum = new HebrewNumberFormatter();
  */
 async function messageHandler (x) {
 	const geoLocation = new KosherZmanim.GeoLocation(...x.data.geoCoordinates);
-	const vNetz = x.data.netz.map((/** @type {number} */ value) => KosherZmanim.Temporal.Instant
+	const vNetz = x.data.netz.map((/** @type {number} */ value) => Temporal.Instant
 		.fromEpochSeconds(value)
 		.toZonedDateTimeISO(geoLocation.getTimeZone())
 	);
@@ -50,14 +51,14 @@ async function messageHandler (x) {
 	}];
 
 	const amPMStrs = [
-		new KosherZmanim.Temporal.Instant(0n),
-		new KosherZmanim.Temporal.Instant(0n).add({ hours: 12 })
+		new Temporal.Instant(0n),
+		new Temporal.Instant(0n).add({ hours: 12 })
 	].map(inst => inst.toLocaleString(defaulTF[0], { hour12: true, hour: 'numeric'}).split(' ').at(-1))
 
 	const havdalahIcon = await (await fetch('/assets/images/havdalah.svg')).text();
 	const candleIcon = '<i class="fa fa-fire" aria-hidden="true"></i>';
 
-	let plainDate = KosherZmanim.Temporal.PlainDate.from(x.data.date)
+	let plainDate = Temporal.PlainDate.from(x.data.date)
 	const jCal = new WebsiteLimudCalendar();
 	jCal.setDate(plainDate)
 	jCal.setInIsrael(x.data.israel);
@@ -199,10 +200,10 @@ async function messageHandler (x) {
 		div.classList.add('tableCell')
 	
 		/**
-		 * @param {KosherZmanim.Temporal.ZonedDateTime} zDT
-		 * @param {{dtF: typeof defaulTF; icon?: string}} config
+		 * @param {Temporal.ZonedDateTime} zDT
+		 * @param {{dtF: typeof defaulTF; icon?: string, hideAMPM: boolean, appendText?: string}} config
 		 */
-		function renderZmanInDiv (zDT, config={dtF:defaulTF, icon: undefined}) {
+		function renderZmanInDiv (zDT, config={dtF:defaulTF, icon: undefined, hideAMPM: true}) {
 			/** @type {HTMLSpanElement} */
 			// @ts-ignore
 			const timeElem = flexWorkAround.cloneNode(true);
@@ -221,11 +222,16 @@ async function messageHandler (x) {
 	
 			if (config.icon)
 				timeElem.innerHTML += config.icon + " ";
-	
+
 			let timeStr = zDT.toLocaleString(...config.dtF)
-			for (const amPMStr of amPMStrs)
-				timeStr = timeStr.replace(amPMStr, '');
-	
+			if (config.hideAMPM) {
+				for (const amPMStr of amPMStrs)
+					timeStr = timeStr.replace(amPMStr, '');
+			}
+
+			if (config.appendText)
+				timeStr += " " + config.appendText;
+
 			timeElem.appendChild(document.createTextNode(timeStr.trim()));
 			div.appendChild(timeElem)
 		}
@@ -243,6 +249,56 @@ async function messageHandler (x) {
 		}
 
 		switch (shita) {
+			case 'getMolad':
+				if (jCal.getDate().dayOfYear == jCal.tomorrow().tomorrow().getMoladAsDate().withTimeZone(geoLocation.getTimeZone()).dayOfYear)
+					renderZmanInDiv(
+						jCal.tomorrow().tomorrow().getMoladAsDate().withTimeZone(geoLocation.getTimeZone()),
+						{
+							dtF: [defaulTF[0], {...defaulTF[1], timeZoneName: "short" }],
+							icon: "🌑",
+							hideAMPM: false
+						}
+					);
+
+				if (jCal.getDate().dayOfYear == jCal.getTchilasZmanKidushLevana3Days().withTimeZone(geoLocation.getTimeZone()).dayOfYear) {
+					let time = jCal.getTchilasZmanKidushLevana3Days().withTimeZone(geoLocation.getTimeZone());
+					const bLzmanCalc = zmanCalc.chainDate(time.toPlainDate());
+
+					if (rangeTimes(bLzmanCalc.getAlotHashachar(), time, bLzmanCalc.getTzait()))
+						time = bLzmanCalc.getTzait();
+
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌘", hideAMPM: false, appendText: "(עיקר הדין)" })
+				}
+
+				if (jCal.getDate().dayOfYear == jCal.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()).dayOfYear) {
+					let time = jCal.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone());
+					const bLzmanCalc = zmanCalc.chainDate(time.toPlainDate());
+
+					if (rangeTimes(bLzmanCalc.getAlotHashachar(), time, bLzmanCalc.getTzait()))
+						time = bLzmanCalc.getTzait();
+
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌗", hideAMPM: false, appendText: "(לחתחילה)" })
+				}
+
+				let sameTime = false;
+				if (jCal.getDate().dayOfYear == jCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()).dayOfYear) {
+					let time = jCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone());
+					const bLzmanCalc = zmanCalc.chainDate(time.toPlainDate());
+
+					if (rangeTimes(bLzmanCalc.getAlotHashachar(), time, bLzmanCalc.getTzait()))
+						time = bLzmanCalc.getAlotHashachar();
+
+					if (time.withCalendar("hebrew").day == 15 && time.equals(bLzmanCalc.getAlotHashachar()))
+						sameTime = true;
+
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌕", hideAMPM: false, appendText: (sameTime ? undefined : "(לחתחילה)") })
+				}
+
+				if (jCal.getJewishDayOfMonth() == 15 && !sameTime) {
+					let time = zmanCalc.getAlotHashachar();
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌕", hideAMPM: false, appendText: "(זמן מרן)" })
+				}
+				break;
 			case 'special':
 				if (jCal.getDayOfWeek() === 7) {
 					const shabElem = flexWorkAround.cloneNode(true);
@@ -257,6 +313,7 @@ async function messageHandler (x) {
 						'en': "New Month"
 					}[x.data.lang]));
 					if (jCal.isChanukah())
+						// @ts-ignore
 						rHelem.style.fontSize = ".8em";
 	
 					div.appendChild(rHelem);
@@ -395,15 +452,15 @@ async function messageHandler (x) {
 			case 'candleLighting':
 				if (jCal.hasCandleLighting()) {
 					if (jCal.getDayOfWeek() === 6 || !jCal.isAssurBemelacha())
-						renderZmanInDiv(zmanCalc.getCandleLighting(), {dtF: defaulTF, icon: candleIcon});
+						renderZmanInDiv(zmanCalc.getCandleLighting(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
 					else if (jCal.getDayOfWeek() === 7)
-						renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: candleIcon});
+						renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
 					else
 						return false;
 				}
 	
 				if (!jCal.hasCandleLighting() && jCal.isAssurBemelacha()) {
-					renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: havdalahIcon});
+					renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: havdalahIcon, hideAMPM: true});
 	
 					if (jCal.tomorrow().getDayOfOmer() !== -1) {
 						div.appendChild(omerSpan);
@@ -437,12 +494,12 @@ async function messageHandler (x) {
 				if (zmanCalc instanceof OhrHachaimZmanim) {
 					if (jCal.isTaanis() && !jCal.isYomKippur()) {
 						appear = true;
-						renderZmanInDiv(zmanCalc.getTzait().add({ minutes: 20 }), potForCandle ? {dtF: defaulTF, icon: candleIcon} : undefined)
+						renderZmanInDiv(zmanCalc.getTzait().add({ minutes: 20 }), potForCandle ? {dtF: defaulTF, icon: candleIcon, hideAMPM: true} : undefined)
 						div.style.fontWeight = "bold";
 					}
 				} else {
 					appear = true;
-					renderZmanInDiv(zmanCalc.getTzaitLechumra(), potForCandle ? {dtF: defaulTF, icon: candleIcon} : undefined)
+					renderZmanInDiv(zmanCalc.getTzaitLechumra(), potForCandle ? {dtF: defaulTF, icon: candleIcon, hideAMPM: true} : undefined)
 	
 					if (jCal.isTaanis() && !jCal.isYomKippur()) {
 						div.style.fontWeight = "bold";
@@ -468,7 +525,7 @@ async function messageHandler (x) {
 					seeSun = vNetz.find(zDT => Math.abs(zmanCalc.getNetz().until(zDT).total('minutes')) <= 6)
 	
 				if (seeSun)
-					renderZmanInDiv(seeSun, {dtF: [defaulTF[0], {...defaulTF[1], second: '2-digit'}]})
+					renderZmanInDiv(seeSun, {dtF: [defaulTF[0], {...defaulTF[1], second: '2-digit'}], hideAMPM: true})
 				else
 					renderZmanInDiv(zmanCalc.getNetz())
 	
@@ -502,7 +559,7 @@ async function messageHandler (x) {
 							"en-et": "(Finish Musaf before ",
 							'en': "(Finish Musaf before "
 						}[x.data.lang]
-						+ zmanCalc.getNetz().add(zmanCalc.fixedToSeasonal(KosherZmanim.Temporal.Duration.from({ hours: 7 }))).toLocaleString(...defaulTF)
+						+ zmanCalc.getNetz().add(zmanCalc.fixedToSeasonal(Temporal.Duration.from({ hours: 7 }))).toLocaleString(...defaulTF)
 						+ ")"
 					));
 	
@@ -550,13 +607,9 @@ async function messageHandler (x) {
 
 		for (const shita of x.data.allShitot) {
 			const cell = handleShita(shita);
+			if (!cell) continue;
 
-			if (!cell)
-				continue;
-
-			if (index !== halfDaysInMonth)
-				cell.style.borderBottom = '1px solid #21252922';
-
+			cell.classList.add(index == halfDaysInMonth ? 'lastRow' : 'borderRow');
 			monthTable.appendChild(cell)
 		}
 	}
@@ -564,56 +617,63 @@ async function messageHandler (x) {
 	/** @type {HTMLDivElement} */
 	// @ts-ignore
 	const thisMonthFooter = document.getElementsByClassName("zyCalFooter")[0];
-	if (!initTekuf.equals(zmanCalc.nextTekufa(zmanCalc instanceof OhrHachaimZmanim).withTimeZone(geoLocation.getTimeZone()))) {
-		const nextTekufaJDate = [1, 4, 7, 10]
-			.map(month => new KosherZmanim.JewishDate(jCal.getJewishYear(), month, 15))
-			.sort((jDateA, jDateB) => {
-				const durationA = initTekuf.until(jDateA.getDate().toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone()))
-				const durationB = initTekuf.until(jDateB.getDate().toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone()))
+	if (!initTekuf.equals(zmanCalc.nextTekufa(zmanCalc instanceof OhrHachaimZmanim).withTimeZone(geoLocation.getTimeZone()))
+	 && thisMonthFooter.lastElementChild.hasAttribute('data-zyfooter-tekufa')) {
+		const tekufaZmanCalc = zmanCalc.chainDate(initTekuf.toPlainDate())
+		if (!thisMonthFooter.lastElementChild.getAttribute('data-zyfooter-tekufa').length
+		 || (thisMonthFooter.lastElementChild.getAttribute('data-zyfooter-tekufa') == 'beforeHatzot'
+			 && Temporal.ZonedDateTime.compare(initTekuf, tekufaZmanCalc.getHatzoth()) == -1)) {
+			const nextTekufaJDate = [1, 4, 7, 10]
+				.map(month => new KosherZmanim.JewishDate(jCal.getJewishYear(), month, 15))
+				.sort((jDateA, jDateB) => {
+					const durationA = initTekuf.until(jDateA.getDate().toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone()))
+					const durationB = initTekuf.until(jDateB.getDate().toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone()))
 
-				return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
-			})[0]
+					return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
+				})[0]
 
-		/** @type {{en: string; he: string}} */
-		// @ts-ignore
-		const tekufaMonth = ['en', 'he']
-			.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
-			.reduce(function (obj, [key, val]) {
-				//@ts-ignore
-				obj[key] = val
-				return obj
-			}, {})
+			/** @type {{en: string; he: string}} */
+			// @ts-ignore
+			const tekufaMonth = ['en', 'he']
+				.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
+				.reduce(function (obj, [key, val]) {
+					//@ts-ignore
+					obj[key] = val
+					return obj
+				}, {})
 
-		const tekufaContainer = document.createElement("div");
-		const tekufaTitle = document.createElement("h5");
-		tekufaTitle.appendChild(document.createTextNode({
-			hb: "תקופת " + tekufaMonth.he,
-			en: tekufaMonth.en + " Season",
-			"en-et": "Tekufath " + tekufaMonth.en
-		}[x.data.lang]));
+			const tekufaContainer = document.createElement("div");
+			const tekufaTitle = document.createElement("h5");
+			tekufaTitle.appendChild(document.createTextNode({
+				hb: "תקופת " + tekufaMonth.he,
+				en: tekufaMonth.en + " Season",
+				"en-et": "Tekufath " + tekufaMonth.en
+			}[x.data.lang]));
 
-		let tekufaDate;
-		switch (x.data.lang) {
-			default:
-				tekufaDate = `${daysForLocale('en')[initTekuf.dayOfWeek]}, ${monthForLocale('en')[initTekuf.month]} ${getOrdinal(initTekuf.day, true)}`;
+			let tekufaDate;
+			switch (x.data.lang) {
+				default:
+					tekufaDate = `${daysForLocale('en')[initTekuf.dayOfWeek]}, ${monthForLocale('en')[initTekuf.month]} ${getOrdinal(initTekuf.day, true)}`;
+			}
+			const tekufaTimingDiv = document.createElement("p");
+			tekufaTimingDiv.innerHTML = tekufaDate;
+			tekufaTimingDiv.appendChild(document.createElement("br"));
+			tekufaTimingDiv.appendChild(document.createTextNode({
+				"hb": "אל תשתה מים בין ",
+				"en": "Do not drink water between ",
+				"en-et": "Do not drink water between "
+			}[x.data.lang] + [
+				initTekuf.round("minute").subtract({ minutes: 30 }).toLocaleString(...defaulTF),
+				initTekuf.round("minute").add({ minutes: 30 }).toLocaleString(...defaulTF),
+			].join('-')));
+
+			tekufaContainer.appendChild(tekufaTitle);
+			tekufaContainer.appendChild(tekufaTimingDiv);
+			thisMonthFooter.lastElementChild.appendChild(tekufaContainer);
 		}
-		const tekufaTimingDiv = document.createElement("p");
-		tekufaTimingDiv.innerHTML = tekufaDate;
-		tekufaTimingDiv.appendChild(document.createElement("br"));
-		tekufaTimingDiv.appendChild(document.createTextNode({
-			"hb": "אל תשתה מים בין ",
-			"en": "Do not drink water between ",
-			"en-et": "Do not drink water between "
-		}[x.data.lang] + [
-			initTekuf.round("minute").subtract({ minutes: 30 }).toLocaleString(...defaulTF),
-			initTekuf.round("minute").add({ minutes: 30 }).toLocaleString(...defaulTF),
-		].join('-')));
-
-		tekufaContainer.appendChild(tekufaTitle);
-		tekufaContainer.appendChild(tekufaTimingDiv);
-		thisMonthFooter.lastElementChild.appendChild(tekufaContainer);
 	}
-	if (hamesDate) {
+
+	if (hamesDate && thisMonthFooter.lastElementChild.hasAttribute('data-zyfooter-hametz')) {
 		const hamesName = `${daysForLocale('en')[hamesDate.dayOfWeek]}, ${monthForLocale('en')[hamesDate.month]} ${getOrdinal(hamesDate.day, true)}`;
 		const hametzContainer = document.createElement("div");
 		const hametzTitle = document.createElement("h5");
@@ -641,45 +701,60 @@ async function messageHandler (x) {
 		thisMonthFooter.lastElementChild.appendChild(hametzContainer);
 	}
 
-	/** @type {[locales?: string | string[], options?: Intl.DateTimeFormatOptions]} */
-	const dtFBLevana = [x.data.lang == 'hb' ? 'he' : 'en', {
-		weekday: 'short',
-		month: 'short',
-		day: 'numeric',
-		hourCycle: x.data.timeFormat,
-		hour: 'numeric',
-		minute: '2-digit'
-	}]
+	if (thisMonthFooter.lastElementChild.hasAttribute('data-zyfooter-levana')) {
+		/** @type {[locales?: string | string[], options?: Intl.DateTimeFormatOptions]} */
+		const dtFBLevana = [x.data.lang == 'hb' ? 'he' : 'en', {
+			weekday: 'short',
+			month: 'short',
+			day: 'numeric',
+			hourCycle: x.data.timeFormat,
+			hour: 'numeric',
+			minute: '2-digit'
+		}]
 
-	const jMonthForBLevana = [...jewishMonthsInSecMonth.entries()].sort((a, b) => b[1] - a[1])[0][0]
-	const jCalBMoon = jCal.clone();
-	jCalBMoon.setJewishMonth(jMonthForBLevana);
-	
-	const bLContain = document.createElement("div");
-	const bLTitl = document.createElement("h5");
-	bLTitl.innerHTML = {
-		hb: "ברכת הלבנה - חדש " + jCalBMoon.formatJewishMonth().he,
-		en: "Moon-Blessing - Month of " + jCalBMoon.formatJewishMonth().en,
-		"en-et": "Birkat Halevana - Month of " + jCalBMoon.formatJewishMonth().en
-	}[x.data.lang];
+		const jMonthForBLevana = [...jewishMonthsInSecMonth.entries()].sort((a, b) => b[1] - a[1])[0][0]
+		const jCalBMoon = jCal.clone();
+		jCalBMoon.setJewishMonth(jMonthForBLevana);
+		
+		const bLContain = document.createElement("div");
+		const bLTitl = document.createElement("h5");
+		bLTitl.innerHTML = {
+			hb: "ברכת הלבנה - חדש " + jCalBMoon.formatJewishMonth().he,
+			en: "Moon-Blessing - Month of " + jCalBMoon.formatJewishMonth().en,
+			"en-et": "Birkat Halevana - Month of " + jCalBMoon.formatJewishMonth().en
+		}[x.data.lang];
 
-	const bLTimes = document.createElement("p");
-	bLTimes.appendChild(document.createTextNode({
-		"hb": "תחילת: ",
-		"en": "Beginning: ",
-		"en-et": "Beginning: "
-	}[x.data.lang] + jCalBMoon.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
-	bLTimes.appendChild(document.createElement("br"));
-	bLTimes.appendChild(document.createTextNode({
-		"hb": 'סוף (רמ"א): ',
-		"en": 'End (Rama): ',
-		"en-et": "End (Rama): "
-	}[x.data.lang] + jCalBMoon.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
+		const bLTimes = document.createElement("p");
+		bLTimes.appendChild(document.createTextNode({
+			"hb": "תחילת: ",
+			"en": "Beginning: ",
+			"en-et": "Beginning: "
+		}[x.data.lang] + jCalBMoon.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
+		bLTimes.appendChild(document.createElement("br"));
+		bLTimes.appendChild(document.createTextNode({
+			"hb": 'סוף (רמ"א): ',
+			"en": 'End (Rama): ',
+			"en-et": "End (Rama): "
+		}[x.data.lang] + jCalBMoon.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
 
-	bLContain.appendChild(bLTitl);
-	bLContain.appendChild(bLTimes);
-	thisMonthFooter.lastElementChild.appendChild(bLContain);
+		bLContain.appendChild(bLTitl);
+		bLContain.appendChild(bLTimes);
+		thisMonthFooter.lastElementChild.appendChild(bLContain);
+	}
 
 	postMessage({ month: x.data.month, data: { monthHTML: monthTable.outerHTML, footerHTML: thisMonthFooter.outerHTML } })
 }
 addEventListener('message', messageHandler)
+
+/**
+ * @param {Temporal.ZonedDateTime} start
+ * @param {Temporal.ZonedDateTime} middle
+ * @param {Temporal.ZonedDateTime} end
+ */
+function rangeTimes(start, middle, end, inclusive=true) {
+	const acceptedValues = [1];
+	if (inclusive)
+	  acceptedValues.push(0);
+  
+	return acceptedValues.includes(Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(Temporal.ZonedDateTime.compare(end, middle))
+};

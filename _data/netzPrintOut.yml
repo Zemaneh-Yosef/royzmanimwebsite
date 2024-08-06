@@ -24,3 +24,8 @@
     hb: הנץ
     et: HaNetz
     en: Sunrise
+- timeGetter: getMolad
+  names:
+    hb: זמני הלבנה
+    et: Levana Times
+    en: Levana Times

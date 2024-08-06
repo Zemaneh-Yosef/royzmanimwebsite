@@ -23,6 +23,7 @@ layout: nothing
 		text-align: center;
 		font-size: .8em;
 		page-break-before: always;
+		line-height: 1.6;
 	}
 
 	.tableCell {
@@ -37,13 +38,16 @@ layout: nothing
 	}
 
 	.tableCell[data-time-for-shita="date"] > span:first-child::after {
-		content: " - "
+		content: "-";
+		padding-right: .25rem;
+		padding-left: .25rem;
 	}
 
 	.tableHeader {
 		font-weight: bold;
 		padding-right: .125em;
 		padding-left: .125em;
+		line-height: 1;
 	}
 
 	[data-zyHeader] {
@@ -255,6 +259,18 @@ layout: nothing
 		font-weight: 700;
 	}
 
+	.columnSplit, .pagedjs_footnote_inner_content {
+		columns: var(--description-columns, 3);
+	}
+
+	.borderRow {
+		border-bottom: 1px solid #21252922;
+	}
+
+	[data-time-for-shita="special"] {
+		line-height: 1;
+	}
+
 	/*.pagedjs_pagebox > .pagedjs_area > .pagedjs_page_content {
 		column-width: calc(100% - var(--pagedjs-footnotes-height)) !important;
 	}*/
@@ -307,7 +323,7 @@ layout: nothing
 		<i class="fa fa-clock-o" aria-hidden="true"></i>
 		<div class="genDate">Gen.: </div>
 	</div>
-	<div class="sides"></div>
+	<div class="sides" data-zyfooter-tekufa="beforeHatzot"></div>
 </div>
 
 <main>
@@ -348,33 +364,34 @@ layout: nothing
 
 	.pagedjs_pagebox {
 		display: block;
-		height: calc(var(--pagedjs-pagebox-height) - 10mm);
+		height: calc(var(--pagedjs-pagebox-height) - 5mm);
 	}
 
 	.pagedjs_page.pagedjs_right_page {
-		height: calc(var(--pagedjs-height-right) - 10mm);
+		height: calc(var(--pagedjs-height-right) - 5mm);
 	}
 
 	.pagedjs_page.pagedjs_left_page {
-		height: calc(var(--pagedjs-height-left) - 10mm);
+		height: calc(var(--pagedjs-height-left) - 5mm);
 	}
 
 	.pagedjs_right_page .pagedjs_sheet {
 		display: block;
-		height: calc(var(--pagedjs-height-right) - 10mm);
+		height: calc(var(--pagedjs-height-right) - 5mm);
 	}
 
 	.pagedjs_left_page .pagedjs_sheet {
 		display: block;
-		height: calc(var(--pagedjs-height-left) - 10mm);
-	}
-
-	.columnSplit, .pagedjs_footnote_inner_content {
-		columns: var(--description-columns, 4);
+		height: calc(var(--pagedjs-height-left) - 5mm);
 	}
 
 	.pagedjs_page:last-child {
 		page-break-after: avoid !important;
+	}
+
+	.pagedjs_pagebox > .pagedjs_area {
+		display: flex;
+		flex-direction: column;
 	}
 </style>
 
@@ -382,7 +399,7 @@ layout: nothing
 	<div>
 		<div data-printFind>
 			<div class="explanationPreface">
-				<h4 style="text-align: center;">קונתרס כי יעיר השמש</h4>
+				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor';">קונתרס כי יעיר השמש</h4>
 				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
 				<div class="columnSplit">{{ netzExpl | markdownify }}</div>
 				<div class="advert" style="margin-top: .5rem; text-align: center;">

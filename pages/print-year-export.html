@@ -125,7 +125,8 @@ layout: nothing
 		display: grid;
 		text-align: center;
 		justify-items: center;
-		line-height: 1;
+		line-height: .8;
+		position: relative;
 	}
 
 	[data-zyBranding] > * {
@@ -135,6 +136,24 @@ layout: nothing
 	[data-zyBranding] .rotatedText {
 		width: 125px;
 	}
+
+	[data-zyBranding] .genDate {
+		font-family: 'Spectral';
+		grid-row: 2;
+		margin-top: .1rem;
+	}
+
+	[data-zyBranding] .fa {
+		opacity: 0.15;
+		padding-top: 7.25px;
+		font-size: 3.5em;
+		position: absolute;
+	}
+
+	/*[data-zyBranding] .pageLogo {
+		width: 42px;
+		padding-top: 1rem;
+	} */
 
 	.zyCalFooter {
 		display: flex;
@@ -183,22 +202,6 @@ layout: nothing
 
 	.specialDay {
 		font-size: .85em;
-	}
-
-	[data-zyBranding] .genDate {
-		font-family: 'Spectral';
-		grid-row: 2;
-	}
-
-	[data-zyBranding] .fa {
-		opacity: 0.3;
-		padding-top: 7.25px;
-		font-size: 3.5em;
-	}
-
-	[data-zyBranding] .pageLogo {
-		width: 42px;
-		padding-top: 1rem;
 	}
 
 	.flexElemWorkaround svg {
@@ -254,6 +257,14 @@ layout: nothing
 
 	#cover [data-zyLocationText] span {
 		font-weight: 700;
+	}
+
+	.columnSplit, .pagedjs_footnote_inner_content {
+		columns: var(--description-columns, 4);
+	}
+
+	.borderRow {
+		border-bottom: 1px solid #21252922;
 	}
 
 	/*.pagedjs_pagebox > .pagedjs_area > .pagedjs_page_content {
@@ -315,7 +326,7 @@ layout: nothing
 		<i class="fa fa-clock-o" aria-hidden="true"></i>
 		<div class="genDate">Gen.: </div>
 	</div>
-	<div class="sides"></div>
+	<div class="sides" data-zyfooter-tekufa data-zyfooter-hametz data-zyfooter-levana></div>
 </div>
 
 <main>
@@ -375,10 +386,6 @@ layout: nothing
 	.pagedjs_left_page .pagedjs_sheet {
 		display: block;
 		height: calc(var(--pagedjs-height-left) - 5mm);
-	}
-
-	.columnSplit, .pagedjs_footnote_inner_content {
-		columns: var(--description-columns, 4);
 	}
 
 	.pagedjs_page:last-child {
