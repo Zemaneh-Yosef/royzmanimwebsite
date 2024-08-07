@@ -1,6 +1,6 @@
 ---
-title: Fast OhelSimcha Times
-permalink: /fast-design/os
+title: Fast Dallas Times
+permalink: /nine-av/dallas
 breakout: true
 website: true
 ---
@@ -35,13 +35,14 @@ website: true
         justify-self: end;
         align-self: end;
         text-transform: uppercase;
-        text-align: right;
         font-weight: 600;
         font-size: 1.625em;
         line-height: 1.2;
         padding-bottom: .75rem;
         padding-right: 1rem;
         z-index: 3;
+        width: 75%;
+        text-align: center;
     }
 
     .footerBold {
@@ -59,12 +60,12 @@ website: true
     #wrapperElement #subtitle {
         top: 9vw;
         right: 3.25vw;
-        font-size: 3.5em;
+        font-size: 2.5em;
         font-family: 'Neutro', 'FrankRuehl', serif;
         font-weight: 500;
-        width: 930px;
+        width: 960px;
         color: #343434;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+        filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, .5));
     }
 
     #maran {
@@ -183,10 +184,6 @@ website: true
         color: white;
     }
 
-    #fastHalachas > p {
-        font-size: 1.05em;
-    }
-
     #fastHalachas > p:last-child {
         margin-bottom: 0;
     }
@@ -223,35 +220,30 @@ website: true
 <div id="wrapperElement">
     <img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
     <div id="gridElement"
-        data-functions-backday-0="getAlotHashachar getTzaitLechumra"
+        data-functions-backday-1="getShkiya"
+        data-functions-backday-0="getTzaitLechumra"
         data-extra-locales="en"
         data-flyerType="fast"
     >
         <div class="shabbatRow tableShadow timecalc d-none"
-            data-lat="40.72665284056127" data-lng="-73.82249684505616"
-            data-timezone="America/New_York"
-            data-format="h12">
+        data-lat="32.99741715565875" data-lng="-96.78097876171452" data-timezone="America/Chicago" data-format="h12" data-humra="1">
         </div>
-        <div class="header tableShadow">Fast Starts<br><span style="font-weight: 400;">(Halachic Dawn)</span></div>
+        <div class="header tableShadow">Fast Starts<br><span style="font-weight: 400;">(Sunset, prev. day)</span></div>
         <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 1;">Start Time</div>
         <div class="header tableShadow">Fast Ends<br><span style="font-weight: 400;">(Halachic Nightfall)</span></div>
         <div class="shabbatRow timeshow" style="grid-column: 2; grid-row: 2;">End Time</div>
         <div class="shabbatRowBg tableShadow"></div>
     </div>
     <div id="fastHalachas">
-        <h1 style="text-align: center;">Calculation Explanation</h1>
-        <p><b>Halachic Dawn</b> (which is when fasts start; S"A Orach Chaim 562) is measured as 72 seasonal minutes before sunrise (Halikhot Olam Vol. I pg. 106). Locations further north or south of Israel will need to factor standard deviation, turning the time pre-seasonal factoring to 80 minutes in NY (Halacha Berurah, intro. to Chapter 261, Halacha 13)</p>
-        <p><b>Halachic Nightfall</b> is calculated (for our purposes) as 20 seasonal minutes after sunset. Although one can rely on the letter of the law that uses 13.5 minutes instead (Yabia Omer YD 7:41), the recommended (albeit not strictly necessary) practice is to be stringent and hold by 20 minutes to accommodate the Rambam's opinion on nightfall (Ḥazon Ovadia, Arba Ta'aniyot, pg. 12). One need not wait any longer than this time for any fast (with the exception of Yom Kippur), even in the USA.</p>
+        <h1 style="text-align: center; font-size: 2rem;">Calculation Explanation</h1>
+        <p>Our fast starts at <b>Sunset</b> of the previous day, which is defined with the complete setting of the sphere in the west (Halacha Berurah, intro. to Chapter 261 Halacha 21). One should refrain from eating a minute or two prior as precautionary steps (Ḥazon Ovadia, Arba Ta'aniyot, pg. 275-278; unlike Yom Kippur, this is not a commandment)</p>
+        <p>Fasts end at <b>Halachic Nightfall</b>, which we measure as 20 seasonal minutes after sunset (Ḥazon Ovadia, Arba Ta'aniyot, pg. 12), adjusted for latitudinal deviation (Halacha Berurah, intro. to Chapter 261, Halacha 13). Since this time is already a stringency (the letter of the law dictates one only needs to wait 13.5 [adjusted-]seasonal minutes, Yabia Omer Y"D 7:41), one need not layer any more stringency, for any of the fasts (with the exception of Yom Kippur), even in the USA.</p>
     </div>
     <div id="betterToGiveTzedakah">אגרא דתעניתא צדקתא<br>(ברכות ו:)</div>
     <img src="/assets/images/shabbat-abstract/money-svgrepo-com.svg" id="money" />
     <span id="zemanehShab" class="shabbatTitleCore absRotateText"></span>
-    <span id="subtitle" class="absRotateText"></span>
-    <div id="imgFooter">
-        Halachic Fast Times according to Rabbi Ovadia Yosef ZT"L for Ohel Simcha<br>
-        Brought to you by <img src="/assets/images/shabbat-abstract/zy-logo.png" id="internalLogo">,
-        available on <span style="text-transform: lowercase;">i</span>OS & Android • royzmanim.com
-    </div>
+    <span id="subtitle" class="absRotateText"><span data-dateRender-backday="1"></span> - <span data-dateRender-backday="0"></span>, <span data-yearRender></span></span>
+    <div id="imgFooter">Halachic Fast Times according to <b>Rav Ovadia Yosef ZT"L</b> for Dallas, TX</div>
     <img src="/assets/images/MARAN.png" id="maran">
 </div>
 
