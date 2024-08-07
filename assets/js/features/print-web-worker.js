@@ -428,7 +428,7 @@ async function messageHandler (x) {
 					case 'en-et':
 						primaryDate.appendChild(document.createTextNode(
 							jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " +
-							this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', day: "numeric"})
+							jCal.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', day: "numeric"})
 						));
 						secondaryDate.appendChild(document.createTextNode(jCal.getDate().toLocaleString('en', { month: "short", day: "numeric" })));
 						break;
