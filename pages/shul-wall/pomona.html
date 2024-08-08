@@ -25,7 +25,7 @@ layout: nothing
     }
 
 	#background {
-		--margin: 1.25vw;
+		--margin: .75vw;
 		margin: var(--margin);
 		height: calc(100vh - var(--margin) - var(--margin) - var(--margin) - var(--margin));
 		width: calc(100vw - var(--margin) - var(--margin));
@@ -36,16 +36,16 @@ layout: nothing
 	}
 
 	#shulBar {
-		width:45%;
+		width: 55%;
 		background-color: #2e334a;
 		justify-self: center;
-        align-self: start;
+		align-self: start;
 		font-family: 'Neutro';
 		border-bottom-left-radius: 5rem;
 		border-bottom-right-radius: 5rem;
 		text-align: center;
 		z-index: 2;
-		font-size: 1.15em;
+		font-size: .8em;
 	}
 
 	.blink {
@@ -67,9 +67,9 @@ layout: nothing
 		color: #30344F;
 		z-index: 3;
 		line-height: 1;
-		margin-top: 2rem;
+		margin-top: 1.25rem;
 		align-items: center;
-		font-size: .8em;
+		font-size: .7em;
 	}
 
 	#topBar > * {
@@ -103,13 +103,13 @@ layout: nothing
 
 	#bsD {
         font-family: "Narkisim";
-        justify-self: end;
-        line-height: 1;
-        padding-right: 3rem;
-        color: #FFF2B3;
-        font-size: 4rem;
-        padding-top: 2.5rem;
-        align-self: start;
+		justify-self: end;
+		line-height: 1;
+		padding-right: 1.75rem;
+		color: #FFF2B3;
+		font-size: 4rem;
+		padding-top: 1rem;
+		align-self: start;
 		z-index: 3;
     }
 
@@ -123,15 +123,21 @@ layout: nothing
 		grid-template-columns: 1fr 1.25fr 1.25fr 1fr;
 		grid-template-rows: 1fr auto;
 		align-items: center;
-		gap: 16px;
+		gap: 12px;
+		font-size: .8rem;
+	}
+
+	#dataGrid .h1,
+	#dataGrid h1 {
+		font-size: 1.25rem;
 	}
 
 	#gne {
 		height: 13dvh;
 		justify-self: start;
 		align-self: start;
-		margin-top: 1.5rem;
-		margin-left: 2.5rem;
+		margin-top: .75rem;
+		margin-left: 1.5rem;
 		z-index: 3;
     }
 
@@ -140,6 +146,7 @@ layout: nothing
 		text-align: center;
 		align-self: end;
 		grid-column: 1 / span 4;
+		font-size: .85em;
 	}
 
 	.wideView:not(.showRu) .langTV.lang-ru {
@@ -178,6 +185,7 @@ layout: nothing
 		margin-bottom: .75vw;
 		text-align: center;
 		line-height: 1.2;
+		font-size: .6em;
 	}
 
 	.hiloulotCard .list-group-item {
@@ -195,23 +203,21 @@ layout: nothing
 <link rel="stylesheet" href="/assets/css/dark.css" media="screen and (prefers-color-scheme: dark)">
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
+<link href="/assets/css/marquee.css" rel="stylesheet" />
 <div id="content">
 	<div id="bsD">בס"ד</div>
-	<img id="gne" src="/assets/images/shul-wall/shaarehTefilah.svg" />
+	<img id="gne" src="/assets/images/shabbat-abstract/pomona-logo.png" />
 	<img id="background" src="/assets/images/shul-wall/7ef32ef2-d1f0-47a5-8a6e-a6dcc138270a.jpeg" />
 	<img id="zyTrapezoid" src="/assets/images/shul-wall/rounded-trapezoid.svg" />
-	<div id="shulBar">R' Abrahamov's shul | This is WIP but...I guess "For the success of <b>Elyahu Jacobi</b>"?</div>
+	<div id="shulBar">Kehilat Sepharadim of Pomona | For the success of <b>Ribbi Mori Shimunov</b>!</div>
 	<div id="poweredBy">
-		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l<br>
-		Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.
+		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l
 	</div>
 	<div id="topBar">
 		<div>
 			<span data-en-date></span>
 			<hr style="margin: .25rem 0">
 			<span data-hb-date></span>
-			<hr style="margin: .25rem 0">
-			<span data-ru-date></span>
 		</div>
 		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
 		<div id="quickTimes">
@@ -303,15 +309,26 @@ layout: nothing
 								</span>
 							</h5>
 						</div>
-						<ul>
-							{% for minhag in site.data.mourningMinhag %}
-							<li data-zfFind="{{ minhag.topic }}">
-								<span class="lang lang-hb">{{ minhag.text.hb }}</span>
-								<span class="lang lang-et">{{ minhag.text.en }}</span>
-								<span class="lang lang-en">{{ minhag.text.en }}</span>
-							</li>
-							{% endfor %}
-						</ul>
+						<div class="marquee" style="height: 50px;">
+							<ul class="marquee__content">
+								{% for minhag in site.data.mourningMinhag %}
+								<li data-zfFind="{{ minhag.topic }}">
+									<span class="lang lang-hb">{{ minhag.text.hb }}</span>
+									<span class="lang lang-et">{{ minhag.text.en }}</span>
+									<span class="lang lang-en">{{ minhag.text.en }}</span>
+								</li>
+								{% endfor %}
+							</ul>
+							<ul class="marquee__content">
+								{% for minhag in site.data.mourningMinhag %}
+								<li aria-hidden="true" data-zfFind="{{ minhag.topic }}">
+									<span class="lang lang-hb">{{ minhag.text.hb }}</span>
+									<span class="lang lang-et">{{ minhag.text.en }}</span>
+									<span class="lang lang-en">{{ minhag.text.en }}</span>
+								</li>
+								{% endfor %}
+							</ul>
+						</div>
 					</li>
 					<li class="list-group-item" data-zfReplace="Tachanun"></li>
 					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
@@ -376,6 +393,8 @@ layout: nothing
 					</li>
 				</ul>
 			</div>
+		</div>
+		<div>
 			<h1>Shabbat Schedule</h1>
 			<div class="card">
 				<ul class="list-group list-group-flush">
@@ -406,69 +425,39 @@ layout: nothing
 				</ul>
 			</div>
 		</div>
-		<div>
-			<h1>Weekday Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Tehilim, for Men & Women</b><br>
-							<span>R' Wyszkowski</span>
-						</div>
-						<span>Sun.<br>8:30 - 9:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Mussar, Gemara & Halacha</b><br>
-							<span>R' Ben-Mordechai</span>
-						</div>
-						<span>Mon-Wed<br>9:00 - 9:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Tefila</b><br>
-							<span>R' Hilman</span>
-						</div>
-						<span>Thu.<br>9:00 - 9:30 PM</span>
-					</li>
-				</ul>
-			</div>
-			<h1>Shabbat Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Morning</b>
-						</div>
-						<span>7:00 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Afternoon</b>
-						</div>
-						<span>6:00</span>
-					</li>
-				</ul>
-			</div>
-		</div>
 		<div id="limudSection">
 			<div class="card mb-2 lang lang-hb hiloulotCard">
 				<div class="card-header"><h5 class="mb-0">הילולות של...</h5></div>
-				<ul class="list-group list-group-flush" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
-					<li class="list-group-item">אין היום</li>
-				</ul>
+				<div class="marquee" style="height: 50px;">
+					<ul class="list-group list-group-flush marquee__content" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
+						<li class="list-group-item">אין היום</li>
+					</ul>
+					<ul class="list-group list-group-flush marquee__content" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
+						<li class="list-group-item">אין היום</li>
+					</ul>
+				</div>
 			</div>
 			<div class="card mb-2 lang lang-et hiloulotCard">
 				<div class="card-header"><h5 class="mb-0">Hiloulot of...</h5></div>
-				<ul class="list-group list-group-flush" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-					<li class="list-group-item">There aren't any today</li>
-				</ul>
+				<div class="marquee" style="height: 50px;">
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+				</div>
 			</div>
 			<div class="card mb-2 lang lang-en hiloulotCard">
 				<div class="card-header"><h5 class="mb-0">Hiloulot of...</h5></div>
-				<ul class="list-group list-group-flush" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-					<li class="list-group-item">There aren't any today</li>
-				</ul>
+				<div class="marquee" style="height: 50px;">
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+				</div>
 			</div>
 			<div class="card mb-2">
 				<div class="card-header">
@@ -478,18 +467,28 @@ layout: nothing
 						<span class="lang lang-en">Today's Learning</span>
 					</h5>
 				</div>
-				<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
-					{% for learning in site.data.tvLearn %}
-					<div class="list-group-item d-flex justify-content-between">
-						<dt>{{ learning.text }}</dt>
-						<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
-					</div>
-					{% endfor %}
-				</dl>
+				<div class="marquee" style="height: 50px;">
+					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
+						{% for learning in site.data.tvLearn %}
+						<div class="list-group-item d-flex justify-content-between">
+							<dt>{{ learning.text }}</dt>
+							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
+						</div>
+						{% endfor %}
+					</dl>
+					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
+						{% for learning in site.data.tvLearn %}
+						<div class="list-group-item d-flex justify-content-between">
+							<dt>{{ learning.text }}</dt>
+							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
+						</div>
+						{% endfor %}
+					</dl>
+				</div>
 			</div>
 		</div>
 		<section class="wideView" data-zfFind="calendarFormatter">
-			{% for item in site.data.tvZmanRus %}
+			{% for item in site.data.tvZmanEng %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}

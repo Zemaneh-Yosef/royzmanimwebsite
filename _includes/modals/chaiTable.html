@@ -2,12 +2,12 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h3 class="modal-title">ChaiTables Downloader</h3>
+				<h3 class="modal-title">Visual Sunrise times</h3>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<p>ChaiTables is what the אור החיים calendar uses to get visible sunrise times (as explained in the description for sunrise). Use this modal to scrape the website's listed times of the Jewish years <span class="hb-start-year"></span>-<span class="hb-end-year"></span>.so that you could </p>
-				<p>To use ChaiTables' Netz data, please insert your country as well as the metropolitan area (MA for short) you reside in:</p>
+				<p>Abiding by the times for sunrise recommended by our poskim involves using a specific calendar called לוח בכורי יוסף. The algorithm behind it is on a website called ChaiTables, made by the same author.</p>
+				<p>To get this data, please proceed through our minimal-setup derivative of the main ChaiTables setup, involving selecting your country & metropolitan area (MA for short) you reside in:</p>
 				<md-outlined-select id="MAIndex" required label="Country Selector">
 					<md-select-option selected aria-label="blank"></md-select-option>
 					{% for location in site.data.chaiTable %}

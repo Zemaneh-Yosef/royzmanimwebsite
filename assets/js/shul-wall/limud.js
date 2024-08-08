@@ -9,27 +9,28 @@ const jCal = new KosherZmanim.JewishCalendar(todayDate);
 
 const hNum = new HebrewNumberFormatter();
 
-const daf = document.querySelector('[data-zfReplace="dafBavli"]');
-const dafYerushalmi = document.querySelector('[data-zfReplace="DafYerushalmi"]');
-
-if (jCal.getJewishYear() < 5684) {
-	daf.innerHTML = "N/A. Daf Yomi (Bavli) was only created on Rosh Hashanah 5684 and continues onto this day"
-} else {
-	const dafObject = jCal.getDafYomiBavli();
-	daf.innerHTML =
-		dafObject.getMasechta() + " " +
-		hNum.formatHebrewNumber(dafObject.getDaf());
+for (const daf of document.querySelectorAll('[data-zfReplace="dafBavli"]')) {
+	if (jCal.getJewishYear() < 5684) {
+		daf.innerHTML = "N/A. Daf Yomi (Bavli) was only created on Rosh Hashanah 5684 and continues onto this day"
+	} else {
+		const dafObject = jCal.getDafYomiBavli();
+		daf.innerHTML =
+			dafObject.getMasechta() + " " +
+			hNum.formatHebrewNumber(dafObject.getDaf());
+	}
 }
-
-const dafYerushalmiObject = jCal.getDafYomiYerushalmi();
-if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
-	dafYerushalmi.innerHTML = "N/A";
-} else {
-	dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
+for (const dafYerushalmi of document.querySelectorAll('[data-zfReplace="DafYerushalmi"]')) {
+	const dafYerushalmiObject = jCal.getDafYomiYerushalmi();
+	if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
+		dafYerushalmi.innerHTML = "N/A";
+	} else {
+		dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
+	}
 }
 
 const chafetzChayimYomi = jCal.getChafetzChayimYomi();
-document.querySelector('[data-zfReplace="ccYomi"]').innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A";
+for (const ccYomi of document.querySelectorAll('[data-zfReplace="ccYomi"]'))
+	ccYomi.innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A";
 
 const leilouNishmat = await hiloulahIndex.getHiloulah(jCal)
 for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {

@@ -51,6 +51,32 @@ switch (window.location.href.split('/').at(-1)) {
 				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.14 })
 			}
 		});
+		break;
+	case 'pomona':
+		preSetSettings = Object.freeze({
+			seconds: () => false,
+			timeFormat: () => 'h12',
+			language: () => 'en',
+			location: {
+				name: () => "Ohel Michael",
+				lat: () => 41.198124,
+				long: () => -74.055571,
+				elevation: () => 0,
+				timezone: () => "America/New_York"
+			},
+			calendarToggle: {
+				hourCalculators: () => 'degrees',
+				rtKulah: () => true,
+				tzeitTaanitHumra: () => false,
+				tekufaMidpoint: () => 'hatzoth',
+				tekufaCalc: () => 'shemuel'
+			},
+			customTimes: {
+				candleLighting: () => 20,
+				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.14 })
+			}
+		});
+		break;
 }
 
 export default preSetSettings || settings;

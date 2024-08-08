@@ -191,13 +191,13 @@ function writeMourningPeriod(mourningDiv) {
     }
 
     for (const [key, value] of Object.entries(jCal.mourningHalachot())) {
-        /** @type {HTMLElement} */
-        const halachaIndex = mourningDiv.querySelector(`[data-zfFind="${key}"]`);
-
-        if (value)
-            halachaIndex.style.removeProperty("display")
-        else
-            halachaIndex.style.display = "none"
+        mourningDiv.querySelectorAll(`[data-zfFind="${key}"]`)
+            .forEach((/** @type {HTMLElement} */ halachaIndex) => {
+                if (value)
+                    halachaIndex.style.removeProperty("display")
+                else
+                    halachaIndex.style.display = "none"
+            })
     }
 }
 
