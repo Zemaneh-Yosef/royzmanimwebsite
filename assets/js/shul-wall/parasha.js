@@ -71,7 +71,7 @@ let tzetText;
 if (tzetElem.hasAttribute('data-ikar-text')) {
     tzetText = (rabbinic
         ? tzetTimes.ikar
-        : tzetTimes.rt + ` (${tzetElem.hasAttribute('data-ikar-text')}: ${tzetTimes.rt})`)
+        : tzetTimes.rt + ` (${tzetElem.getAttribute('data-ikar-text')}: ${tzetTimes.ikar})`)
 } else {
     tzetText = tzetTimes.ikar;
     if (!rabbinic && tzetElem.hasAttribute('data-rt-text'))
