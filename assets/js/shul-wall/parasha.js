@@ -61,8 +61,20 @@ tzet.back();
 const rabbinic = tzet.getDayOfWeek() !== 6 && tzet.isErevYomTovSheni()
 tzet.forward(5, 1);
 
+const tzetTimes = {
+    ikar: zmanCalc.chainDate(tzet.getDate()).getTzaitShabbath().toLocaleString(...dtF),
+    rt: zmanCalc.chainDate(tzet.getDate()).getTzaitRT().toLocaleString(...dtF)
+}
+
 const tzetElem = document.querySelector('[data-tzetShab]');
-let tzetText = zmanCalc.chainDate(tzet.getDate()).getTzaitShabbath().toLocaleString(...dtF);
-if (!rabbinic)
-    tzetText += " (" + tzetElem.getAttribute('data-rt-text') + ": " + zmanCalc.chainDate(tzet.getDate()).getTzaitRT().toLocaleString(...dtF) + ")";
+let tzetText;
+if (tzetElem.hasAttribute('data-ikar-text')) {
+    tzetText = (rabbinic
+        ? tzetTimes.ikar
+        : tzetTimes.rt + ` (${tzetElem.hasAttribute('data-ikar-text')}: ${tzetTimes.rt})`)
+} else {
+    tzetText = tzetTimes.ikar;
+    if (!rabbinic && tzetElem.hasAttribute('data-rt-text'))
+        tzetText += ` (${tzetElem.getAttribute('data-rt-text')}: ${tzetTimes.rt})`
+}
 tzetElem.appendChild(document.createTextNode(tzetText))
