@@ -241,20 +241,19 @@ async function updateList(event) {
 					return;
 				}
 
-				const geoCoordinates = {
-					lat: parseFloat((typeof geoName.lat == "string" ? parseFloat(geoName.lat) : geoName.lat).toFixed(5)),
-					lng: parseFloat((typeof geoName.lng == "string" ? parseFloat(geoName.lng) : geoName.lng).toFixed(5))
-				}
+				geoLocation.lat = parseFloat((typeof geoName.lat == "string" ? parseFloat(geoName.lat) : geoName.lat).toFixed(5)),
+				geoLocation.long = parseFloat((typeof geoName.lng == "string" ? parseFloat(geoName.lng) : geoName.lng).toFixed(5))
 
 				if (!geoLocation.elevation)
-					geoLocation.elevation = await getAverageElevation(geoCoordinates.lat, geoCoordinates.lng);
+					geoLocation.elevation = await getAverageElevation(geoLocation.lat, geoLocation.long);
 
 				await setLocation(
 					('name' in geoName ? geoName.name : geoName.placeName),
 					geoName.adminName1 || geoName.adminCode1,
 					('countryName' in geoName ? geoName.countryName : geoName.countryCode),
-					geoCoordinates.lat, geoCoordinates.lng
+					geoLocation.lat, geoLocation.long
 				);
+
 				openCalendarWithLocationInfo();
 			} else {
 				const list = document.getElementById("locationNames");
