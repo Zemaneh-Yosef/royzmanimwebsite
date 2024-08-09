@@ -27,6 +27,12 @@ for (const dafYerushalmi of document.querySelectorAll('[data-zfReplace="DafYerus
 		dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
 	}
 }
+for (const tehilimShvui of document.querySelectorAll('[data-zfReplace="TehilimShvui"]')) {
+	tehilimShvui.innerHTML = KosherZmanim.TehilimYomi.byWeek(jCal).map(num => num.toString()).join(' - ');
+}
+for (const TehilimHodshi of document.querySelectorAll('[data-zfReplace="TehilimHodshi"]')) {
+	TehilimHodshi.innerHTML = KosherZmanim.TehilimYomi.byDayOfMonth(jCal).map(met => met.toString()).join(' - ');
+}
 
 const chafetzChayimYomi = jCal.getChafetzChayimYomi();
 for (const ccYomi of document.querySelectorAll('[data-zfReplace="ccYomi"]'))

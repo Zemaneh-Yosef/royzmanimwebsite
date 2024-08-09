@@ -14,3 +14,13 @@
     en: Daily Chafetz Chayim
     et: Chafetz Chayim Yomi
     hb: חפץ חיים יומי
+- limud: TehilimHodshi
+  text:
+    en: Daily Psalms (Monthly)
+    et: Tehilim Yomi (Monthly)
+    hb: תהילים יומי (חדשי)
+- limud: TehilimShvui
+  text:
+    en: Daily Psalms (Weekly)
+    et: Tehilim Yomi (Weekly)
+    hb: תהילים יומי (שבועי)

@@ -2279,7 +2279,7 @@ export declare class JewishDate {
 	 *
 	 * @return the day of the week as a number between 1-7.
 	 */
-	getDayOfWeek(): number;
+	getDayOfWeek(): 1 | 2 | 3 | 4 | 5 | 6 | 7;
 	/**
 	 * Sets the Gregorian month.
 	 *
@@ -8845,6 +8845,19 @@ export declare class HiloulahYomiCalculator {
 		en: hiloulahObj;
 		he: hiloulahObj;
 	}>;
+}
+export declare class TehilimYomi {
+	static byDayOfMonth(jDate: JewishDate): [
+		number,
+		number
+	] | [
+		string,
+		string
+	];
+	static byWeek(jDate: JewishDate): [
+		number,
+		number
+	];
 }
 /**
  * The HebrewDateFormatter class formats a {@link JewishDate}.

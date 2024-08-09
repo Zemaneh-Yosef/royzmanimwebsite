@@ -1046,7 +1046,14 @@ class zmanimListUpdater {
 		}
 
 		const chafetzChayimYomi = this.jCal.getChafetzChayimYomi();
-		dafContainer.querySelector('[data-zfReplace="ccYomi"]').innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A"
+		dafContainer.querySelector('[data-zfReplace="ccYomi"]').innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A";
+
+		for (const tehilimShvui of dafContainer.querySelectorAll('[data-zfReplace="TehilimShvui"]')) {
+			tehilimShvui.innerHTML = KosherZmanim.TehilimYomi.byWeek(this.jCal).map(num => num.toString()).join(' - ');
+		}
+		for (const TehilimHodshi of dafContainer.querySelectorAll('[data-zfReplace="TehilimHodshi"]')) {
+			TehilimHodshi.innerHTML = KosherZmanim.TehilimYomi.byDayOfMonth(this.jCal).map(met => met.toString()).join(' - ');
+		}
 	}
 
 	/** @param {HTMLElement} [tefilahRuleContainer] */
