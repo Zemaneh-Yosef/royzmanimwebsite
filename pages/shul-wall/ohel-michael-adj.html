@@ -334,11 +334,11 @@ layout: nothing
 					</li>
 					<li class="list-group-item d-flex justify-content-between">
 						<b>Mincha & Arvit</b>
-						<span>7:50 PM</span>
+						<span>7:40 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between">
 						<b>2<sup>nd</sup> Arvit</b>
-						<span>9:40 PM</span>
+						<span>9:30 PM</span>
 					</li>
 				</ul>
 			</div>
@@ -425,7 +425,7 @@ layout: nothing
 								<span data-zfFind="weekOf">The week of Tisha Beav</span>
 							</h5>
 						</div>
-						<ul style="padding-left: 1.5rem;">
+						<ul style="padding-left: 1.5rem;" class="d-none">
 							{% for minhag in site.data.mourningMinhag %}
 							<li data-zfFind="{{ minhag.topic }}">{{ minhag.text.en }}</li>
 							{% endfor %}
@@ -456,7 +456,7 @@ layout: nothing
 						<span>Mon-Fri, 6:15 AM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<div><b>Morning</b> (Avrechim)</div>
+						<div><b>Morning</b> (with Avrechim)</div>
 						<span>Sun-Fri, 7:45 AM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-content-center">
@@ -464,7 +464,7 @@ layout: nothing
 						<span>Sun-Thu, 8:25 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div><b>Shabbat</b> (+ Kiddush & Learning)</div>
+						<div><b>Shabbat</b></div>
 						<span>5:00 PM</span>
 					</li>
 				</ul>
