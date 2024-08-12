@@ -381,28 +381,12 @@ layout: nothing
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
 					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
 						{% for fast in site.data.events.fasts %}
-						<h5 data-zfFind="{{ fast.yomTovIndex }}">
-							<span class="lang lang-hb">{{ fast.text.hb }}</span>
-							<span class="lang lang-et">{{ fast.text.et }}</span>
-							<span class="lang lang-en">{{ fast.text.en }}</span>
-						</h5>
+						<h5 data-zfFind="{{ fast.yomTovIndex }}">{{ fast.text.en }}</h5>
 						{% endfor %}
-						<span data-zfFind="oneDayTimes">
-							<b class="lang lang-en">Fast Times: </b>
-							<b class="lang lang-et">Fast Times: </b>
-							<b class="lang lang-hb">שעות הצום: </b>
-						</span>
+						<span data-zfFind="oneDayTimes"><b>Fast Times: </b></span>
 						<ul data-zfFind="twoDayTimes">
-							<li>
-								<b class="lang lang-en">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-et">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-hb">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
-							</li>
-							<li>
-								<b class="lang lang-en">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-et">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-hb">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
-							</li>
+							<li><b>Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
+							<li><b>Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
 						</ul>
 					</li>
 					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
