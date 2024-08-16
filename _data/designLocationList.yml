@@ -40,12 +40,6 @@ east:
     timezone: America/New_York
     humra: 2
     timeFormat: h12
-  - name: Atlanta, GA
-    # Location: Chabad of Toco Hills
-    lat: 33.814254855365846
-    lng: -84.32203439424957
-    timezone: America/New_York
-    timeFormat: h12
   - name: Baltimore, MD
     #flag: https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg
     # Location: Ner Yisrael
@@ -80,21 +74,7 @@ east:
     doubleLocation: True
     humra: 0
     timeFormat: h12
-  - name: Tampa, FL
-    #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
-    # Location: 
-    lat: 27.987052274209734
-    lng: -82.57645831769476
-    timezone: America/New_York
-    humra: 0
-    timeFormat: h12
 central:
-  - name: Austin, TX
-    # Location: Tiferet Israel
-    lat: 30.35673543347277
-    lng: -97.75627669260676
-    timezone: America/Chicago
-    timeFormat: h12
   - name: Chicago, IL
     #flag: https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_Illinois.svg
     # Location: Mikor
@@ -117,18 +97,6 @@ central:
     lng: -95.4515488015217
     timezone: America/Chicago
     humra: 1
-    timeFormat: h12
-  - name: Minneapolis, MN
-    # Location: Bais Yisroel
-    lat: 44.94920049871677
-    lng: -93.33365938070462
-    timezone: America/Chicago
-    timeFormat: h12
-  - name: Nashville, TN
-    # Location: Chabad
-    lat: 36.06225223630986
-    lng: -86.92306606904569
-    timezone: America/Chicago
     timeFormat: h12
   - name: Phoenix, AZ
     #flag: https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arizona.svg

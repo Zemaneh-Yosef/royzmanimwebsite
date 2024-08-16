@@ -1,11 +1,21 @@
 ---
-title: Shabbat LA Times
-permalink: /shabbat-design/la
+title: Shabbat Great Neck Times
+permalink: /shabbat-design/gn
 breakout: true
 website: true
 ---
 
 <style>
+	#gne {
+		border-radius: 50%;
+		height: 170px;
+		aspect-ratio: 1/1;
+		justify-self: start;
+		align-self: start;
+		margin-top: 1rem;
+		margin-left: 2.5rem;
+	}
+
 	.maxWidthContainer {
 		width: 90rem;
 		font-family: 'Neutro';
@@ -30,8 +40,8 @@ website: true
 	#zyTrapezoid {
 		justify-self: center;
 		align-self: start;
-		width: 60%;
-		border-top: 175px solid #12141e;
+		width: 62.5%;
+		border-top: 170px solid #12141e;
 		border-left: 125px solid transparent;
 		border-right: 125px solid transparent;
 		height: 0;
@@ -50,7 +60,7 @@ website: true
 		align-self: end;
 		justify-self: end;
 		transform: rotateY(180deg);
-		width: 47.5%;
+		width: 42.5%;
 		z-index: 3;
 		margin-bottom: 9rem;
 	}
@@ -92,13 +102,13 @@ website: true
 		-webkit-background-clip: text;
 		line-height: .85;
 		text-transform: uppercase;
-		margin-top: 12.5vw;
+		margin-top: 18vw;
 		margin-left: 2.5vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 	}
 
 	#gridElement {
-		top: 45vw;
+		top: 50vw;
 		grid-template-columns: 1fr 1fr 1fr 1fr;
 		display: grid;
 		left: 2.5vw;
@@ -108,9 +118,9 @@ website: true
 
 	#shabbatCandles {
 		align-self: end;
-		width: 80%;
+		width: 95%;
 		right:0;
-		margin-bottom: 20rem;
+		margin-bottom: 22rem;
 		z-index: 1;
 		opacity: 50%;
 	}
@@ -130,9 +140,9 @@ website: true
 	.shabbatRow {
 		margin-top: .3vw;
 		margin-bottom: .3vw;
-		padding-top: .25vw;
-		padding-bottom: .25vw;
-		font-size: 2.75vw;
+		padding-top: .5vw;
+		padding-bottom: .5vw;
+		font-size: 3vw;
 		font-weight: 700;
 	}
 
@@ -163,7 +173,13 @@ website: true
 		text-align: center;
 		line-height: 1.2;
 		font-weight: 600;
-		font-size: 1.75em;
+		font-size: 1.95em;
+	}
+
+	.header .fa {
+		float: left;
+		height: 2em;
+		width: 2em;
 	}
 
 	.tableShadow {
@@ -192,16 +208,6 @@ website: true
 		margin-top: 1rem;
 	}
 
-	#gne {
-		border-radius: 50%;
-		height: 170px;
-		aspect-ratio: 1/1;
-		justify-self: start;
-		align-self: start;
-		margin-top: 1rem;
-		margin-left: 2.5rem;
-	}
-
 	#prettyLDSurround {
 		justify-self: end;
 		align-self: start;
@@ -220,37 +226,45 @@ website: true
 		align-self: start;
 	}
 
-	#location {
+	#location, .shabbatTitleCore {
 		align-self: start;
 		justify-self: start;
 		font-family: 'Barlow', 'FrankRuehl';
-		font-size: 3vw;
 		font-weight: 700;
 		color: white;
 		text-transform: uppercase;
-		margin-top: 36.5vw;
+		width: 959px;
+		text-align: center;
 		margin-left: 2.5vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		line-height: 1;
 	}
 
+	#location {
+		margin-top: 12vw;
+		font-size: 6vw;
+	}
+
 	.shabbatTitleCore {
-		font-size: 1.45em;
+		margin-top: 42vw;
+		font-size: 5vw;
 	}
 
 	#templateAd {
 		align-self: center;
 		justify-self: start;
 		border-radius: 50%;
-		margin-top: 60%;
-		margin-left: 15%;
+		margin-top: 75%;
+		margin-left: 5%;
+		width: 25%;
+		z-index: 10;
 	}
 
 	#advertFooter {
 		justify-self: start;
-		padding-bottom: 11.25rem;
+		margin-bottom: 10rem;
 		padding-left: 1rem;
-		font-size: 2.125em;
+		font-size: 1.7rem;
 		font-weight: 600;
 		line-height: 1.2;
 		z-index: 3;
@@ -258,11 +272,11 @@ website: true
 	}
 
 	#sourcesFooter {
-		font-size: 1.625em;
-		line-height: 1.25;
+		font-size: 1.5em;
 	}
 	#sourcesFooter ul {
-		line-height: 1.15;
+		line-height: 1.25;
+		margin-bottom: 0;
 	}
 
 	#credits {
@@ -270,6 +284,8 @@ website: true
 		text-align: right;
 		line-height: 1.25;
 		font-weight: 600;
+		text-transform: uppercase;
+		font-style: italic;
 	}
 
 	#documentClosure {
@@ -279,7 +295,7 @@ website: true
 		color: white;
 		display: flex;
 		justify-content: space-between;
-		padding: .25rem 1rem;
+		padding: .5rem 1rem;
 		align-content: end;
 	}
 </style>
@@ -292,7 +308,7 @@ website: true
 <div id="wrapperElement">
 	<div id="zyTrapezoid"></div>
 	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
-	<img id="gne" src="/assets/images/shabbat-abstract/la-minyan.jpg" />
+	<img id="gne" src="/assets/images/shabbat-abstract/gn-events.png" />
 	<span id="bsD">בס"ד</span>
 	<img src="/assets/images/shabbat-abstract/shabbat-candles.png" id="shabbatCandles" />
 	<img src="/assets/images/shabbat-abstract/single-location-wave.png" id="bottomWave" />
@@ -302,13 +318,12 @@ website: true
 		data-flyerType="shabbat"
 	>
 		<div class="header tableShadow">Earliest Time</div>
-		<div class="header tableShadow">Shabbat Starts<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
-		<div class="header tableShadow">Shabbat Ends</div>
+		<div class="header tableShadow">Shabbat Begins<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
+		<div class="header tableShadow">Shabbat Ends<br><span style="font-weight: 400;">(Havdalah)</span></div>
 		<div class="header tableShadow">Rabbenu Tam</div>
 		<div class="shabbatRow tableShadow timecalc"
-			data-lat="34.1688520530159" data-lng="-118.40607216944592"
-			data-timezone="America/Los_Angeles"
-			data-humra="1"
+			data-lat="40.805504" data-lng="-73.734910"
+			data-timezone="America/New_York"
 			data-format="h12"
 			style="display: none;">
 		</div>
@@ -318,16 +333,21 @@ website: true
 		<div class="shabbatRow timeshow shabBorder" style="grid-column: 4; grid-row: 2;">Machmir Time</div>
 		<div class="shabbatRowBg tableShadow" style="grid-row: 2;"></div>
 	</div>
-	<!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
+	<img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd">
 	<span id="zemanehShab">Shabbat<br>Zemanim</span>
-	<div id="location">Los Angeles, CA • <span class="shabbatTitleCore">פרשת </span></div>
+	<div id="location">Great Neck, NY</div>
+	<span class="shabbatTitleCore">פרשת </span>
 	<img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
 	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
 	<span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
 	<span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
 	<div id="advertFooter">
-		Halachic Shabbat Times according to<br>Rabbi Ovadiah Yosef zt"l.<br>
-		Use our apps & website for other locations,<br>available on iOS & Android • royzmanim.com
+		<span style="font-weight: 700; font-size: 1.25em; text-transform: uppercase;">
+			Halachic Shabbat Times according to<br><span style="font-weight: 800;">Rav Ovadia Yosef zt"l</span>
+		</span><br>
+		Looking for more times? Want to switch locations?<br>
+		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps,
+		or visit our website • royzmanim.com
 	</div>
 	<div id="documentClosure">
 		<div id="sourcesFooter">
