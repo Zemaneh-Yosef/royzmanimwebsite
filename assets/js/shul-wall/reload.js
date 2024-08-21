@@ -1,7 +1,7 @@
 // @ts-check
 
 export async function reload() {
-    window.location.reload();
+    //window.location.reload();
 
     await waitFor(6000);
     sleep();
