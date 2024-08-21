@@ -450,6 +450,7 @@ async function messageHandler (x) {
 	
 				break;
 			case 'candleLighting':
+			case 'candleLightingRT':
 				if (jCal.hasCandleLighting()) {
 					if (jCal.getDayOfWeek() === 6 || !jCal.isAssurBemelacha())
 						renderZmanInDiv(zmanCalc.getCandleLighting(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
@@ -464,6 +465,23 @@ async function messageHandler (x) {
 	
 					if (jCal.tomorrow().getDayOfOmer() !== -1) {
 						div.appendChild(omerSpan);
+					}
+
+					if (shita == 'candleLightingRT') {
+						let rtElem = flexWorkAround.cloneNode(true);
+						// @ts-ignore
+						rtElem.classList.add("omerText");
+						// @ts-ignore
+						rtElem.style.marginTop = '.1rem';
+						rtElem.appendChild(document.createTextNode(
+							{
+								'hb': 'ר"ת: ',
+								"en-et": 'R"T: ',
+								'en': 'R"T: '
+							}[x.data.lang] + zmanCalc.getTzaitRT().toLocaleString(...defaulTF)
+						));
+
+						div.appendChild(rtElem)
 					}
 				}
 	
@@ -481,7 +499,11 @@ async function messageHandler (x) {
 						// @ts-ignore
 						hanukahSpan.classList.add("omerText");
 						hanukahSpan.appendChild(document.createTextNode(
-							"Light before " + zmanCalc.getTzait().add({ minutes: 30 }).toLocaleString(...defaulTF)
+							{
+								'hb': "תדליק לפני ",
+								"en-et": "Light before ",
+								'en': "Light before "
+							}[x.data.lang] + zmanCalc.getTzait().add({ minutes: 30 }).toLocaleString(...defaulTF)
 						));
 	
 						div.appendChild(hanukahSpan);

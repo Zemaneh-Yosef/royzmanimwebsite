@@ -479,7 +479,7 @@ layout: nothing
 					</h5>
 				</div>
 				<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
-					{% for learning in site.data.tvLearn %}
+					{% for learning in site.data.tv.tvLearn %}
 					<div class="list-group-item d-flex justify-content-between">
 						<dt>{{ learning.text }}</dt>
 						<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
@@ -489,7 +489,7 @@ layout: nothing
 			</div>
 		</div>
 		<section class="wideView" data-zfFind="calendarFormatter">
-			{% for item in site.data.tvZmanRus %}
+			{% for item in site.data.tv.tvZmanRus %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}

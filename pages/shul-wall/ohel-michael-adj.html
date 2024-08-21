@@ -505,7 +505,7 @@ layout: nothing
 			</span>
 		</div>
 		<section class="wideView" data-zfFind="calendarFormatter">
-			{% for item in site.data.tvZmanEng %}
+			{% for item in site.data.tv.tvZmanEng %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
@@ -536,8 +536,4 @@ layout: nothing
 	document.getElementById('jugPercent').style.height = ((moneyRaised / moneyNeeded) * 100) + "%";
 	document.querySelector('[data-raised-money]').innerHTML = moneyRaised;
 	document.querySelector('[data-fundraising-money]').innerHTML = moneyNeeded;
-
-	if (document.getElementById("content").requestFullscreen) {
-		document.getElementById("content").requestFullscreen();
-	}
 </script>

@@ -469,7 +469,7 @@ layout: nothing
 				</div>
 				<div class="marquee" style="height: 50px;">
 					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
-						{% for learning in site.data.tvLearn %}
+						{% for learning in site.data.tv.tvLearn %}
 						<div class="list-group-item d-flex justify-content-between">
 							<dt>{{ learning.text }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
@@ -477,7 +477,7 @@ layout: nothing
 						{% endfor %}
 					</dl>
 					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
-						{% for learning in site.data.tvLearn %}
+						{% for learning in site.data.tv.tvLearn %}
 						<div class="list-group-item d-flex justify-content-between">
 							<dt>{{ learning.text }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
@@ -488,7 +488,7 @@ layout: nothing
 			</div>
 		</div>
 		<section class="wideView" data-zfFind="calendarFormatter">
-			{% for item in site.data.tvZmanEng %}
+			{% for item in site.data.tv.tvZmanEng %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}

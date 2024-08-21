@@ -4,6 +4,11 @@ import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmani
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { AmudehHoraahZmanim, OhrHachaimZmanim, methodNames } from "../ROYZmanim.js";
 import preSettings from "./preSettings.js";
+import { reload } from "./reload.js";
+
+if (!('timers' in window))
+	// @ts-ignore
+	window.timers = {}
 
 /** @type {[string, number, number, number, string]} */
 // @ts-ignore
@@ -105,12 +110,15 @@ if (calList.children.length > 10)
 
 const swap = () => {
 	calList.classList.toggle('showRu')
-	setTimeout(() => requestAnimationFrame(() => swap()), 5000)
+	// @ts-ignore
+	window.timers.swapTime =
+		setTimeout(() => requestAnimationFrame(() => swap()), 5000)
 }
 
 requestAnimationFrame(() => swap())
 
-setTimeout(
-	() => window.location.reload(),
+// @ts-ignore
+window.timers.zmanReload = setTimeout(
+	async () => await reload(),
 	Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())
 		.until(sortedTimes[0].luxonObj).total('milliseconds') + 1000)

@@ -8,6 +8,10 @@ const hourElem = document.querySelector('[data-sw-hour]')
 const minuteElem = document.querySelector('[data-sw-minute]')
 const portElem = document.querySelector('[data-sw-portion]')
 
+if (!('timers' in window))
+	// @ts-ignore
+	window.timers = {}
+
 function updateTime() {
 	hourElem.childNodes.forEach(node => node.remove())
 	minuteElem.childNodes.forEach(node => node.remove());
@@ -23,7 +27,9 @@ function updateTime() {
 		portElem.appendChild(document.createTextNode(curTime.hour >= 13 ? "PM" : "AM"))
 	}
 
-	setTimeout(() => updateTime(), curTime.until(curTime.add({ minutes: 1 }).with({ second: 0, millisecond: 0 })).total('milliseconds'))
+	// @ts-ignore
+	window.timers.clockUpdate =
+		setTimeout(() => updateTime(), curTime.until(curTime.add({ minutes: 1 }).with({ second: 0, millisecond: 0 })).total('milliseconds'))
 }
 updateTime();
 

@@ -132,12 +132,26 @@ for (const monthData of arrayOfFuncParams) {
 async function preparePrint() {
 	/** @type {HTMLElement} */
 	const finalExplanation = document.querySelector('[data-printFind]');
-	
+
+	Array.from(document.getElementById('explanationCont').children)
+		.filter(langElem => !langElem.classList.contains(`lang-${settings.language().replace('en-et', 'et')}`))
+		.forEach(otherLang => otherLang.remove())
+
+	while (document.getElementById('explanationCont').firstElementChild.childElementCount > 0) {
+		document.getElementById('explanationCont').appendChild(document.getElementById('explanationCont').firstElementChild.firstElementChild)
+	}
+
+	document.getElementById('explanationCont').firstElementChild.remove()
+
+	await sleep();
+
 	let paged = new Previewer();
 	let flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
 	console.log("Rendered", flow.total, "pages.");
 
 	finalExplanation.style.display = "none";
+
+	await sleep();
 
 	[
 		'pagedjs_margin-top-left-corner-holder',
@@ -180,6 +194,7 @@ async function preparePrint() {
 			page.style.setProperty('--pagedjs-width-' + (page.classList.contains('pagedjs_right_page') ? 'right' : 'left'), '100%')
 		}) */
 
+	await sleep();
 	window.print();
 }
 
@@ -193,4 +208,8 @@ function isValidJSON(str) {
 	} catch (e) {
 		return false;
 	}
+}
+
+async function sleep() {
+    return new Promise(requestAnimationFrame);
 }

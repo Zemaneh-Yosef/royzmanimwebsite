@@ -1,4 +1,9 @@
+// @ts-check
 import { settings } from "../settings/handler.js";
+
+if (!('timers' in window))
+	// @ts-ignore
+	window.timers = {}
 
 let preSetSettings;
 switch (window.location.href.split('/').at(-1)) {

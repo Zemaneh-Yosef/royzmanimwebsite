@@ -330,7 +330,7 @@ layout: nothing
 	<div class="tableGrid" data-zyTemplate>
 		<div class="tableHeader" data-zyData="special"></div>
 		<div class="tableHeader" data-zyData="date" data-wide-column></div>
-		{% for item in site.data.netzPrintOut %}
+		{% for item in site.data.print.netzPrintOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
 			<span class="lang lang-hb">{{ item.names.hb }}</span>
@@ -401,7 +401,11 @@ layout: nothing
 			<div class="explanationPreface">
 				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor';">קונתרס כי יעיר השמש</h4>
 				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
-				<div class="columnSplit">{{ netzExpl | markdownify }}</div>
+				<div class="columnSplit" id="explanationCont">
+					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>
+					<span class="lang lang-et">{{ netzExpl | markdownify }}</span>
+					<span class="lang lang-hb">{{ netzExpl | markdownify }}</span>
+				</div>
 				<div class="advert" style="margin-top: .5rem; text-align: center;">
 					See more from...<br>
 					<img src="/assets/images/print/ZY-b&w-banner.png" style="margin-bottom: .5rem; width: 30%;">
