@@ -33,7 +33,7 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
 	.map((/** @type {HTMLElement} */elem) => (elem.hasAttribute('data-wide-column') ? '1.25fr' : elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
 	.join(" ");
 
-/** @type {Temporal.ZonedDateTime[]} */
+/** @type {number[]} */
 let availableVS = [];
 if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
 	const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
@@ -76,8 +76,9 @@ for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 let expectedReceive = 0;
 let actualReceive = 0;
 let receiveData = {}
+/** @type {import('./print-web-worker.js').singlePageParams[]} */
 const arrayOfFuncParams = [];
-for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYear; mIndex++) {
+for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYear; (printParam.has('shabbatOnly') ? mIndex += 2 : mIndex++)) {
 	expectedReceive += 1;
 	arrayOfFuncParams.push({
 		israel: (geoLocation.getLocationName() || "").toLowerCase().includes('israel'),
@@ -93,7 +94,8 @@ for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYea
 		lang: settings.language(),
 		allShitot: listAllShitot,
 		month: mIndex,
-		candleTime: settings.customTimes.candleLighting()
+		candleTime: settings.customTimes.candleLighting(),
+		shabbatOnly: printParam.has('shabbatOnly')
 	})
 }
 
@@ -112,15 +114,15 @@ for (const monthData of arrayOfFuncParams) {
 					acc[key] = receiveData[key];
 					return acc;
 				}, {});
-	
+
 			for (const htmlData of Object.values(sortedObject)) {
 				baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.monthHTML);
 				baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.footerHTML);
 			}
-	
+
 			footer.remove();
 			baseTable.remove();
-	
+
 			document.documentElement.setAttribute('forceLight', '')
 			document.documentElement.removeAttribute('data-bs-theme');
 

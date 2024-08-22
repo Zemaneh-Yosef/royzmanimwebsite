@@ -10,9 +10,7 @@ import n2wordsOrdinal from '../misc/n2wordsOrdinal.js';
 
 const hNum = new HebrewNumberFormatter();
 
-// "date" of param will have to be in the iso8601 calendar
-/**
-  * @param {MessageEvent<{
+/** @typedef {{
 	israel: boolean;
 	geoCoordinates: [string, number, number, number, string];
 	netz: number[]
@@ -30,7 +28,12 @@ const hNum = new HebrewNumberFormatter();
 	allShitot: string[];
 	month: number;
 	candleTime: number;
-  }>} x
+	shabbatOnly: boolean;
+  }} singlePageParams */
+
+// "date" of param will have to be in the iso8601 calendar
+/**
+  * @param {MessageEvent<singlePageParams>} x
  */
 async function messageHandler (x) {
 	const geoLocation = new KosherZmanim.GeoLocation(...x.data.geoCoordinates);
@@ -416,10 +419,12 @@ async function messageHandler (x) {
 				let secondaryDate = flexWorkAround.cloneNode(true);
 				switch (x.data.lang) {
 					case 'en':
-						primaryDate.appendChild(document.createTextNode(
+						// @ts-ignore
+						primaryDate.innerHTML =
+							x.data.shabbatOnly ? jCal.formatFancyDate('short', false) : (
 							jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " +
-							jCal.getDate().toLocaleString('en', { day: 'numeric' })
-						));
+							jCal.getDate().toLocaleString('en', { day: 'numeric' }))
+						;
 						secondaryDate.appendChild(document.createTextNode(
 							hNum.formatHebrewNumber(jCal.getJewishDayOfMonth()) + " " +
 							jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})
@@ -494,7 +499,7 @@ async function messageHandler (x) {
 						div.appendChild(omerSpan);
 					}
 	
-					if (jCal.tomorrow().getDayOfChanukah() !== -1) {
+					if (jCal.tomorrow().getDayOfChanukah() !== -1 && jCal.getDayOfWeek() !== 6) {
 						const hanukahSpan = flexWorkAround.cloneNode(true);
 						// @ts-ignore
 						hanukahSpan.classList.add("omerText");
@@ -610,22 +615,31 @@ async function messageHandler (x) {
 
 	plainDate = plainDate.withCalendar(x.data.lang == 'en' ? 'iso8601' : 'hebrew').with({ day: 1 })
 	const initTekuf = zmanCalc.nextTekufa(zmanCalc instanceof OhrHachaimZmanim);
-	const halfDaysInMonth = plainDate.daysInMonth;
+	let halfDaysInMonth = plainDate.daysInMonth;
+	if (x.data.shabbatOnly) {
+		if (plainDate.add({ months: 1 }).year == plainDate.year)
+			halfDaysInMonth += plainDate.add({ months: 1 }).daysInMonth;
+	}
 	let hamesDate = null;
 	/** @type {Map<number, number>} */
 	const jewishMonthsInSecMonth = new Map();
+	const dayMinusOne = plainDate.subtract({ days: 1 })
 	for (let index = 1; index <= halfDaysInMonth; index++) {
-		plainDate = plainDate.with({ day: index })
+		plainDate = dayMinusOne.add({ days: index })
 		jCal.setDate(plainDate.withCalendar("iso8601"))
 		zmanCalc.setDate(plainDate.withCalendar("iso8601"))
 
 		if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH)
 			hamesDate = jCal.getDate();
 
-		const counterIncrease = (jewishMonthsInSecMonth.has(jCal.getJewishMonth())
-			? jewishMonthsInSecMonth.get(jCal.getJewishMonth()) + 1
-			: 1);
-		jewishMonthsInSecMonth.set(jCal.getJewishMonth(), counterIncrease);
+		if (!x.data.shabbatOnly || jCal.getJewishDayOfMonth() <= 18) {
+			const counterIncrease = (jewishMonthsInSecMonth.has(jCal.getJewishMonth())
+				? jewishMonthsInSecMonth.get(jCal.getJewishMonth()) + 1
+				: 1);
+			jewishMonthsInSecMonth.set(jCal.getJewishMonth(), counterIncrease);
+		}
+
+		if (x.data.shabbatOnly && !jCal.isAssurBemelacha() && !jCal.tomorrow().isAssurBemelacha()) continue;
 
 		for (const shita of x.data.allShitot) {
 			const cell = handleShita(shita);
@@ -734,34 +748,39 @@ async function messageHandler (x) {
 			minute: '2-digit'
 		}]
 
-		const jMonthForBLevana = [...jewishMonthsInSecMonth.entries()].sort((a, b) => b[1] - a[1])[0][0]
-		const jCalBMoon = jCal.clone();
-		jCalBMoon.setJewishMonth(jMonthForBLevana);
-		
-		const bLContain = document.createElement("div");
-		const bLTitl = document.createElement("h5");
-		bLTitl.innerHTML = {
-			hb: "ברכת הלבנה - חדש " + jCalBMoon.formatJewishMonth().he,
-			en: "Moon-Blessing - Month of " + jCalBMoon.formatJewishMonth().en,
-			"en-et": "Birkat Halevana - Month of " + jCalBMoon.formatJewishMonth().en
-		}[x.data.lang];
+		const jMonthsForBLevana = x.data.shabbatOnly
+			? jewishMonthsInSecMonth.keys()
+			: [[...jewishMonthsInSecMonth.entries()].sort((a, b) => b[1] - a[1])[0][0]]
+		for (const jMonthForBLevana of jMonthsForBLevana) {
+			const jCalBMoon = jCal.clone();
+			jCalBMoon.setJewishMonth(jMonthForBLevana);
+			jCalBMoon.setJewishDayOfMonth(15);
 
-		const bLTimes = document.createElement("p");
-		bLTimes.appendChild(document.createTextNode({
-			"hb": "תחילת: ",
-			"en": "Beginning: ",
-			"en-et": "Beginning: "
-		}[x.data.lang] + jCalBMoon.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
-		bLTimes.appendChild(document.createElement("br"));
-		bLTimes.appendChild(document.createTextNode({
-			"hb": 'סוף (רמ"א): ',
-			"en": 'End (Rama): ',
-			"en-et": "End (Rama): "
-		}[x.data.lang] + jCalBMoon.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
+			const bLContain = document.createElement("div");
+			const bLTitl = document.createElement("h5");
+			bLTitl.innerHTML = {
+				hb: "ברכת הלבנה - חדש " + jCalBMoon.formatJewishMonth().he,
+				en: "Moon-Blessing - Month of " + jCalBMoon.formatJewishMonth().en,
+				"en-et": "Birkat Halevana - Month of " + jCalBMoon.formatJewishMonth().en
+			}[x.data.lang];
 
-		bLContain.appendChild(bLTitl);
-		bLContain.appendChild(bLTimes);
-		thisMonthFooter.lastElementChild.appendChild(bLContain);
+			const bLTimes = document.createElement("p");
+			bLTimes.appendChild(document.createTextNode({
+				"hb": "תחילת: ",
+				"en": "Beginning: ",
+				"en-et": "Beginning: "
+			}[x.data.lang] + jCalBMoon.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
+			bLTimes.appendChild(document.createElement("br"));
+			bLTimes.appendChild(document.createTextNode({
+				"hb": 'סוף (רמ"א): ',
+				"en": 'End (Rama): ',
+				"en-et": "End (Rama): "
+			}[x.data.lang] + jCalBMoon.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
+
+			bLContain.appendChild(bLTitl);
+			bLContain.appendChild(bLTimes);
+			thisMonthFooter.lastElementChild.appendChild(bLContain);
+		}
 	}
 
 	postMessage({ month: x.data.month, data: { monthHTML: monthTable.outerHTML, footerHTML: thisMonthFooter.outerHTML } })

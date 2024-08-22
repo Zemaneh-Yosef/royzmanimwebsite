@@ -38,8 +38,9 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			}, {})
 	}
 
-	formatFancyDate() {
-		return `${daysForLocale('en')[this.getDate().dayOfWeek]}, ${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day, true)}`
+	/** @param {"long" | "short" | "narrow"} [length='long']  */
+	formatFancyDate(length='long', ordinal=true) {
+		return `${daysForLocale('en', length)[this.getDate().dayOfWeek]}, ${monthForLocale('en', length)[this.getDate().month]} ${ordinal ? getOrdinal(this.getDate().day, true) : this.getDate().day}`.trim()
 	}
 
 	/**

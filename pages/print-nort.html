@@ -26,7 +26,6 @@ layout: nothing
 		width: 100%;
 		display: grid;
 		text-align: center;
-		font-size: .665em;
 		line-height: 1.1;
 		page-break-before: always;
 	}
@@ -449,3 +448,8 @@ layout: nothing
 </div>
 
 <script src="/assets/js/features/print-export.js" type="module"></script>
+<script>
+	const style = document.createElement('style');
+	style.innerHTML = `.tableGrid { font-size: .${new URL(window.location.href).searchParams.has('shabbatOnly') ? "64" : "665"}em; }`;
+	document.head.appendChild(style);
+</script>

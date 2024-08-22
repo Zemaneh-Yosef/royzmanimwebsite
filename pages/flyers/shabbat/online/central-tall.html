@@ -35,6 +35,8 @@ website: true
 
 		background-image: linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
 		background-size: cover;
+
+		overflow: hidden;
 	}
 
 	#zyTrapezoid {
@@ -62,7 +64,6 @@ website: true
 		transform: rotateY(180deg);
 		width: 35%;
 		z-index: 3;
-		margin-bottom: 9rem;
 	}
 
 	.lechaDodi {
@@ -118,9 +119,9 @@ website: true
 
 	#shabbatCandles {
 		align-self: end;
-		width: 85%;
+		width: 77.5%;
 		right:0;
-		margin-bottom: 17.5rem;
+		margin-bottom: 10rem;
 		z-index: 1;
 		opacity: 50%;
 	}
@@ -129,8 +130,8 @@ website: true
 		align-self: end;
 		width: 100%;
 		z-index: 2;
-		margin-bottom: 9rem;
-		transform: rotateY(180deg);
+		margin-bottom: -1.5rem;
+		transform: scaleY(.95);
 	}
 
 	.timeshow {
@@ -263,7 +264,7 @@ website: true
 
 	#advertFooter {
 		justify-self: start;
-		margin-bottom: 9.25rem;
+		margin-bottom: 1rem;
 		padding-left: 1rem;
 		font-size: 1.7rem;
 		font-weight: 600;
@@ -288,17 +289,6 @@ website: true
 		text-transform: uppercase;
 		font-style: italic;
 	}
-
-	#documentClosure {
-		height: 9rem;
-		align-self: end;
-		background: linear-gradient(to right, rgba(4,4,6,1) 0%, #24293D 100%);
-		color: white;
-		display: flex;
-		justify-content: space-between;
-		padding: .5rem 1rem;
-		align-content: end;
-	}
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -312,7 +302,7 @@ website: true
 	<!-- <img id="gne" src="/assets/images/shabbat-abstract/la-minyan.jpg" /> -->
 	<span id="bsD">בס"ד</span>
 	<img src="/assets/images/shabbat-abstract/shabbat-candles.png" id="shabbatCandles" />
-	<img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
+	<img src="/assets/images/shabbat-abstract/single-location-wave.png" id="bottomWave" />
 	<div id="gridElement"
         data-functions-backday-1="getCandleLighting"
         data-functions-backday-0="getTzaitShabbath getTzaitRT"
@@ -360,21 +350,7 @@ website: true
 		Looking for more times? Want to switch locations?<br>
 		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps,
 		or visit our website • royzmanim.com
-	</div>
-	<div id="documentClosure">
-		<div id="sourcesFooter">
-			<b>Sources:</b>
-			<ul>
-				<li><b>Halacha Berurah</b> - Introduction to 261:21</li>
-				<li><b>Yechave Da'at</b> 7:56</li>
-				<li><b>Yabia' Omer</b> 2:21</li>
-			</ul>
-		</div>
-		<div id="credits">
-			Graphic Design by<br>
-			AK-Graphics<br>
-			(917) 549-5138
-		</div>
+		<div style="padding-top: 1rem;">(source: <b>Yabia' Omer</b> 2:21 • Graphic Design: AK-Graphics [(917) 549-5138])</div>
 	</div>
 	<img src="/assets/images/MARAN.png" id="maran">
 </div>
