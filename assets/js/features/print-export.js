@@ -30,7 +30,19 @@ const listAllShitot = Array.from(document.querySelectorAll('[data-zyData]')).map
 const baseTable = document.getElementsByClassName('tableGrid')[0];
 baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName('tableHeader'))
 	.filter(elem => !elem.hasAttribute('data-zyHeaderContainer'))
-	.map((/** @type {HTMLElement} */elem) => (elem.hasAttribute('data-wide-column') ? '1.25fr' : elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr'))
+	.map((/** @type {HTMLElement} */elem) => {
+		if (elem.hasAttribute('data-wide-column'))
+			return '1.25fr';
+
+		if (printParam.has('shabbatOnly')) {
+			if (['date', 'candleLightingRT'].includes(elem.getAttribute('data-zyData')))
+				return '1fr';
+
+			return (elem.style.gridRow == '1 / span 2' ? '.8fr' : '.6fr');
+		} else {
+			return (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr');
+		}
+	})
 	.join(" ");
 
 /** @type {number[]} */

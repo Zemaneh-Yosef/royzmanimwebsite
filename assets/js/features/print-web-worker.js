@@ -604,7 +604,7 @@ async function messageHandler (x) {
 	const monthTable = document.getElementsByClassName('tableGrid')[0]
 	const dateSel = monthTable.querySelector('[data-zyData="date"]') || monthTable.querySelector('[data-zyData="datePri"]')
 
-	if (dateSel)
+	if (dateSel && !x.data.shabbatOnly)
 		dateSel.appendChild(document.createTextNode(
 			jCal.getDate()
 				.toLocaleString(
@@ -621,7 +621,7 @@ async function messageHandler (x) {
 			halfDaysInMonth += plainDate.add({ months: 1 }).daysInMonth;
 	}
 	let hamesDate = null;
-	/** @type {Map<number, number>} */
+	/** @type {Map<string, number>} */
 	const jewishMonthsInSecMonth = new Map();
 	const dayMinusOne = plainDate.subtract({ days: 1 })
 	for (let index = 1; index <= halfDaysInMonth; index++) {
@@ -633,13 +633,14 @@ async function messageHandler (x) {
 			hamesDate = jCal.getDate();
 
 		if (!x.data.shabbatOnly || jCal.getJewishDayOfMonth() <= 18) {
-			const counterIncrease = (jewishMonthsInSecMonth.has(jCal.getJewishMonth())
-				? jewishMonthsInSecMonth.get(jCal.getJewishMonth()) + 1
+			const bLevIndex = jCal.getJewishMonth() + '-' + jCal.getJewishYear();
+			const counterIncrease = (jewishMonthsInSecMonth.has(bLevIndex)
+				? jewishMonthsInSecMonth.get(bLevIndex) + 1
 				: 1);
-			jewishMonthsInSecMonth.set(jCal.getJewishMonth(), counterIncrease);
+			jewishMonthsInSecMonth.set(bLevIndex, counterIncrease);
 		}
 
-		if (x.data.shabbatOnly && !jCal.isAssurBemelacha() && !jCal.tomorrow().isAssurBemelacha()) continue;
+		if (x.data.shabbatOnly && !jCal.isAssurBemelacha() && !jCal.tomorrow().isAssurBemelacha() && !jCal.isTaanis() && !jCal.isPurim()) continue;
 
 		for (const shita of x.data.allShitot) {
 			const cell = handleShita(shita);
@@ -753,8 +754,7 @@ async function messageHandler (x) {
 			: [[...jewishMonthsInSecMonth.entries()].sort((a, b) => b[1] - a[1])[0][0]]
 		for (const jMonthForBLevana of jMonthsForBLevana) {
 			const jCalBMoon = jCal.clone();
-			jCalBMoon.setJewishMonth(jMonthForBLevana);
-			jCalBMoon.setJewishDayOfMonth(15);
+			jCalBMoon.setJewishDate(parseInt(jMonthForBLevana.split('-')[1]), parseInt(jMonthForBLevana.split('-')[0]), 15);
 
 			const bLContain = document.createElement("div");
 			const bLTitl = document.createElement("h5");
