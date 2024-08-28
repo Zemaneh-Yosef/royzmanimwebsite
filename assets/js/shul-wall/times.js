@@ -99,23 +99,14 @@ for (const timeData of sortedTimes) {
 	const artElem = document.createElement('article');
 	artElem.innerHTML = `
 <div class="langTV lang-hb">${timeData.title.hb}</div><div class="langTV lang-ru">${timeData.title.en}</div>
-<div class="timeDisplayWide">${
-	(timeData.luxonObj.day == Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()).add({days: 1}).day ? "Tom., " : "") +
-	timeData.luxonObj.toLocaleString(...dtF)}</div>`;
+<div class="timeDisplayWide ${timeData.luxonObj.day == dateForSet.add({days: 1}).day ? "nextDay" : ""}">
+	${timeData.luxonObj.toLocaleString(...dtF)}
+</div>`;
 	calList.appendChild(artElem)
 }
 
 if (calList.children.length > 10)
 	calList.classList.add("needsResize")
-
-const swap = () => {
-	calList.classList.toggle('showRu')
-	// @ts-ignore
-	window.timers.swapTime =
-		setTimeout(() => requestAnimationFrame(() => swap()), 5000)
-}
-
-requestAnimationFrame(() => swap())
 
 // @ts-ignore
 window.timers.zmanReload = setTimeout(

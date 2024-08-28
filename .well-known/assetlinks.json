@@ -1,0 +1,14 @@
+[
+    {
+      "relation": [
+        "delegate_permission/common.handle_all_urls"
+      ],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.EJ.ROvadiahYosefCalendar",
+        "sha256_cert_fingerprints": [
+          "73:8E:23:14:80:5A:39:BA:7B:C3:61:81:5F:E7:DC:2A:70:9E:FC:38:EF:2F:42:78:25:57:83:93:23:FE:0E:64"
+        ]
+      }
+    }
+  ]

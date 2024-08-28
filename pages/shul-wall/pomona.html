@@ -149,11 +149,11 @@ layout: nothing
 		font-size: .85em;
 	}
 
-	.wideView:not(.showRu) .langTV.lang-ru {
+	#content[data-current-page="1"] .langTV.lang-ru {
 		display: none;
 	}
 
-	.wideView.showRu .langTV.lang-hb {
+	#content[data-current-page="2"] .langTV.lang-hb {
 		display: none;
 	}
 
@@ -197,6 +197,10 @@ layout: nothing
 	.hiloulotCard .card-header {
 		--bs-card-cap-padding-x: .75rem;
 	}
+
+	.timeDisplayWide.nextDay::before {
+        content: "Tom., ";
+    }
 </style>
 
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
@@ -204,7 +208,7 @@ layout: nothing
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <link href="/assets/css/marquee.css" rel="stylesheet" />
-<div id="content">
+<div id="content" data-current-page="1" data-page-count="2">
 	<div id="bsD">בס"ד</div>
 	<img id="gne" src="/assets/images/shabbat-abstract/pomona-logo.png" />
 	<img id="background" src="/assets/images/shul-wall/7ef32ef2-d1f0-47a5-8a6e-a6dcc138270a.jpeg" />
@@ -467,19 +471,21 @@ layout: nothing
 						<span class="lang lang-en">Today's Learning</span>
 					</h5>
 				</div>
-				<div class="marquee" style="height: 50px;">
+				<div class="marquee" style="height: 125px;">
 					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
-						{% for learning in site.data.tv.tvLearn %}
+						{% for learning in site.data.tv.tvLearn.multiLang %}
 						<div class="list-group-item d-flex justify-content-between">
-							<dt>{{ learning.text }}</dt>
+							<dt class="langTV lang-hb">{{ learning.text.hb }}</dt>
+							<dt class="langTV lang-ru">{{ learning.text.en }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 						</div>
 						{% endfor %}
 					</dl>
 					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
-						{% for learning in site.data.tv.tvLearn %}
+						{% for learning in site.data.tv.tvLearn.multiLang %}
 						<div class="list-group-item d-flex justify-content-between">
-							<dt>{{ learning.text }}</dt>
+							<dt class="langTV lang-hb">{{ learning.text.hb }}</dt>
+							<dt class="langTV lang-ru">{{ learning.text.en }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 						</div>
 						{% endfor %}
@@ -511,3 +517,4 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
 <script type="module" src="/assets/js/shul-wall/limud.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
