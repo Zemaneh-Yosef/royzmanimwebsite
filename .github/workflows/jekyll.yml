@@ -48,6 +48,7 @@ jobs:
         env:
           JEKYLL_ENV: production
       - run: |
+          mkdir ./_site/.well-known/
           cp ./.well-known/assetlinks.json ./_site/.well-known/assetlinks.json
       - name: Upload artifact
         # Automatically uploads an artifact from the './_site' directory by default
