@@ -1,11 +1,11 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
-import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
+import { HebrewNumberFormatter, default as webCal } from "../WebsiteCalendar.js";
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
 
-const todayDate = KosherZmanim.Temporal.Now.plainDateISO().add({ days: 1});
-const jCal = new KosherZmanim.JewishCalendar(todayDate);
+const todayDate = KosherZmanim.Temporal.Now.plainDateISO();
+const jCal = new webCal(todayDate);
 
 const hNum = new HebrewNumberFormatter();
 
@@ -27,12 +27,15 @@ for (const dafYerushalmi of document.querySelectorAll('[data-zfReplace="DafYerus
 		dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
 	}
 }
-for (const tehilimShvui of document.querySelectorAll('[data-zfReplace="TehilimShvui"]')) {
-	tehilimShvui.innerHTML = KosherZmanim.TehilimYomi.byWeek(jCal).map(num => num.toString()).join(' - ');
-}
-for (const TehilimHodshi of document.querySelectorAll('[data-zfReplace="TehilimHodshi"]')) {
-	TehilimHodshi.innerHTML = KosherZmanim.TehilimYomi.byDayOfMonth(jCal).map(met => met.toString()).join(' - ');
-}
+
+document.querySelector('[data-zfReplace="TehilimShvui"]').innerHTML
+	= KosherZmanim.TehilimYomi.byWeek(jCal).map(num => num.toString()).join(' - ');
+document.querySelector('[data-zfReplace="TehilimHodshi"]').innerHTML
+	= KosherZmanim.TehilimYomi.byDayOfMonth(jCal).map(met => met.toString()).join(' - ');
+
+const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(jCal.shabbat())
+document.querySelector('[data-zfReplace="Haftara"]').innerHTML
+	= `<b>${haftara.text}</b> (${haftara.source})`;
 
 const chafetzChayimYomi = jCal.getChafetzChayimYomi();
 for (const ccYomi of document.querySelectorAll('[data-zfReplace="ccYomi"]'))

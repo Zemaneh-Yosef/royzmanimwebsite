@@ -24,7 +24,7 @@ function updateTime() {
 
 	if (portElem) {
 		portElem.childNodes.forEach(node => node.remove());
-		portElem.appendChild(document.createTextNode(curTime.hour >= 13 ? "PM" : "AM"))
+		portElem.appendChild(document.createTextNode(curTime.hour >= 12 ? "PM" : "AM"))
 	}
 
 	// @ts-ignore

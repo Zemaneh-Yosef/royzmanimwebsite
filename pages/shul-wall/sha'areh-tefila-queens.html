@@ -53,7 +53,7 @@ layout: nothing
 	}
 
 	#clock {
-		font-size: 4em;
+		font-size: 4.75em;
 		font-family: "dharma_gothic_e";
 	}
 
@@ -67,7 +67,7 @@ layout: nothing
 		color: black;
 		z-index: 3;
 		line-height: 1;
-		margin-top: 1rem;
+		height: 12vh;
 		align-items: center;
 		font-size: 1.15em;
         font-weight: 500;
@@ -465,10 +465,10 @@ layout: nothing
                 <span class="langTV lang-ru">лимуд ёми</span>
             </h1>
             <dl data-zfFind="DafYomi">
-                {% for learning in site.data.tv.tvLearn.multiLang %}
+                {% for learning in site.data.learning %}
                 <div style="text-align: center;">
-                    <dt class="langTV lang-hb">{{ learning.text.hb }}</dt>
-                    <dt class="langTV lang-ru">{{ learning.text.ru }}</dt>
+                    <dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
+                    <dt class="langTV lang-ru">{{ learning.text.ru.short }}</dt>
                     <dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
                 </div>
                 {% endfor %}

@@ -1048,12 +1048,14 @@ class zmanimListUpdater {
 		const chafetzChayimYomi = this.jCal.getChafetzChayimYomi();
 		dafContainer.querySelector('[data-zfReplace="ccYomi"]').innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A";
 
-		for (const tehilimShvui of dafContainer.querySelectorAll('[data-zfReplace="TehilimShvui"]')) {
-			tehilimShvui.innerHTML = KosherZmanim.TehilimYomi.byWeek(this.jCal).map(num => num.toString()).join(' - ');
-		}
-		for (const TehilimHodshi of dafContainer.querySelectorAll('[data-zfReplace="TehilimHodshi"]')) {
-			TehilimHodshi.innerHTML = KosherZmanim.TehilimYomi.byDayOfMonth(this.jCal).map(met => met.toString()).join(' - ');
-		}
+		dafContainer.querySelector('[data-zfReplace="TehilimShvui"]').innerHTML
+			= KosherZmanim.TehilimYomi.byWeek(this.jCal).map(num => num.toString()).join(' - ');
+		dafContainer.querySelector('[data-zfReplace="TehilimHodshi"]').innerHTML
+			= KosherZmanim.TehilimYomi.byDayOfMonth(this.jCal).map(met => met.toString()).join(' - ');
+
+		const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(this.jCal.shabbat())
+		dafContainer.querySelector('[data-zfReplace="Haftara"]').innerHTML
+			= `<b>${haftara.text}</b> (${haftara.source})`;
 	}
 
 	/** @param {HTMLElement} [tefilahRuleContainer] */

@@ -473,19 +473,19 @@ layout: nothing
 				</div>
 				<div class="marquee" style="height: 125px;">
 					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
-						{% for learning in site.data.tv.tvLearn.multiLang %}
+						{% for learning in site.data.learning %}
 						<div class="list-group-item d-flex justify-content-between">
-							<dt class="langTV lang-hb">{{ learning.text.hb }}</dt>
-							<dt class="langTV lang-ru">{{ learning.text.en }}</dt>
+							<dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
+							<dt class="langTV lang-ru">{{ learning.text.et.short }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 						</div>
 						{% endfor %}
 					</dl>
 					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
-						{% for learning in site.data.tv.tvLearn.multiLang %}
+						{% for learning in site.data.learning %}
 						<div class="list-group-item d-flex justify-content-between">
-							<dt class="langTV lang-hb">{{ learning.text.hb }}</dt>
-							<dt class="langTV lang-ru">{{ learning.text.en }}</dt>
+							<dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
+							<dt class="langTV lang-ru">{{ learning.text.et.short }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 						</div>
 						{% endfor %}

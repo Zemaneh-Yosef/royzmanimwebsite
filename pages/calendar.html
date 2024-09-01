@@ -239,7 +239,7 @@ chaiTable: true
 							<dt class="lang lang-et">
 								MG"A (Maghen Avraham)<br>
 								<small class="fw-normal">
-									From Alot Hashahar until Tzeit Hakokhavim
+									From Alot Hashahar until Tzet Hakokhavim
 									<span data-zfFind="luachAmudehHoraah">(Amudeh Horaah Calendar)</span>
 									<span data-zfFind="luachOhrHachaim">(Ohr Hachaim Calendar)</span>
 								</small>
@@ -287,9 +287,9 @@ chaiTable: true
 					<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
 						{% for learning in site.data.learning %}
 						<div class="list-group-item d-flex justify-content-between">
-							<dt class="lang lang-hb">{{ learning.text.hb }}</dt>
-							<dt class="lang lang-et">{{ learning.text.et }}</dt>
-							<dt class="lang lang-en">{{ learning.text.en }}</dt>
+							<dt class="lang lang-hb">{{ learning.text.hb.full }}</dt>
+							<dt class="lang lang-et">{{ learning.text.et.full }}</dt>
+							<dt class="lang lang-en">{{ learning.text.en.full }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 						</div>
 						{% endfor %}

@@ -1,26 +1,85 @@
 ---
 - limud: dafBavli
   text:
-    en: Babylon Talmud
-    et: Talmud Bavli
-    hb: תלנוד בבלי
+    ru:
+      short: Бавли
+      full: Талмуд Бавли
+    hb:
+      short: בבלי
+      full: תלמוד בבלי
+    en:
+      short: Babylonian
+      full: Babylonian Talmud
+    et:
+      short: Bavli
+      full: Talmud Bavli
 - limud: DafYerushalmi
   text:
-    en: Jerusalemite Tractate (Vilna)
-    et: Talmud Yerushalmi (Vilna)
-    hb: תלמוד ירושלמי (וילנה)
+    ru:
+      short: Ерушалми-В
+      full: Талмуд Ерушалми (Вильна)
+    hb:
+      short: ירושלמי (ו)
+      full: תלמוד ירושלמי (וילנה)
+    en:
+      short: Jerusalemite-V
+      full: Jerusalemite Talmud (Vilna)
+    et:
+      short: Yerushalmi-V
+      full: Talmud Yerushalmi (Vilna)
 - limud: ccYomi
   text:
-    en: Daily Chafetz Chayim
-    et: Chafetz Chayim Yomi
-    hb: חפץ חיים יומי
+    ru:
+      short: Хафец Хаим
+      full: Хафец Хаим Ёми
+    hb:
+      short: חפץ חיים
+      full: חפץ חיים יומי
+    en:
+      short: Ḥafes Ḥayim
+      full: Daily Ḥafes Ḥayim
+    et:
+      short: Ḥafes Ḥayim
+      full: Ḥafes Ḥayim Yomi
 - limud: TehilimHodshi
   text:
-    en: Daily Psalms (Monthly)
-    et: Tehilim Yomi (Monthly)
-    hb: תהילים יומי (חדשי)
+    ru:
+      short: Теилим (месячный)
+      full: Теилим (месячный)
+    hb:
+      short: תהילים (חדשי)
+      full: תהילים יומי (חדשי)
+    en:
+      short: Psalms (Monthly)
+      full: Daily Psalms (Monthly)
+    et:
+      short: Tehilim (Monthly)
+      full: Tehilim Yomi (Monthly)
 - limud: TehilimShvui
   text:
-    en: Daily Psalms (Weekly)
-    et: Tehilim Yomi (Weekly)
-    hb: תהילים יומי (שבועי)
+    ru:
+      short: Теилим (недельной)
+      full: Теилим (недельной)
+    hb:
+      short: תהילים (שבועי)
+      full: תהילים יומי (שבועי)
+    en:
+      short: Psalms (Weekly)
+      full: Daily Psalms (Weekly)
+    et:
+      short: Tehilim (Weekly)
+      full: Tehilim Yomi (Weekly)
+- limud: Haftara
+  text:
+    ru:
+      short: Haftara
+      full: Haftara
+    hb:
+      short: הפטרה
+      full: הפטרה
+    en:
+      short: Haftara
+      full: Haftara
+    et:
+      short: Haftara
+      full: Haftara

@@ -8836,10 +8836,11 @@ export type hiloulahObj = {
 	src: string;
 }[];
 export declare class HiloulahYomiCalculator {
+	folderWithHiloulotJSON: string;
 	initFlag: boolean;
 	hiloulot_en: Record<string, hiloulahObj>;
 	hiloulot_he: Record<string, hiloulahObj>;
-	constructor();
+	constructor(dir?: string);
 	init(): Promise<void>;
 	getHiloulah(jewishCalendar: JewishDate): Promise<{
 		en: hiloulahObj;
@@ -8858,6 +8859,20 @@ export declare class TehilimYomi {
 		number,
 		number
 	];
+}
+declare class WeeklyHaftarahReading {
+	/**
+	 * This method returns a string that contains the weekly Haftorah. The {@link JewishCalendar}
+	 * object passed into this method should be set to Saturday because the {@link JewishCalendar#getParshah()}
+	 * method returns {@link com.kosherjava.zmanim.hebrewcalendar.JewishCalendar.Parsha#NONE} during
+	 * the week.
+	 * @param jCal the JewishCalendar object set to Saturday
+	 * @return The haftorah for this week as a string
+	 */
+	static getThisWeeksHaftarah(jCal: JewishCalendar): {
+		text: string;
+		source: string;
+	};
 }
 /**
  * The HebrewDateFormatter class formats a {@link JewishDate}.
@@ -9435,6 +9450,7 @@ export declare const temporalExtended: {
 
 export {
 	Temporal,
+	WeeklyHaftarahReading as Haftara,
 };
 
 export {};
