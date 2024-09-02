@@ -1063,7 +1063,7 @@ class zmanimListUpdater {
 		/** @type {import('./WebsiteCalendar.js').default} */
 		let calForRules = this.jCal;
 		if (this.jCal.getDate().equals(KosherZmanim.Temporal.Now.plainDateISO())
-		 && this.zmanFuncs.getTzait().epochMilliseconds <= KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).epochMilliseconds) {
+		 && Temporal.ZonedDateTime.compare(this.zmanFuncs.getTzait(), KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())) < 1) {
 			calForRules = this.jCal.tomorrow();
 		}
 		const seasonalRules = [
@@ -1130,7 +1130,7 @@ class zmanimListUpdater {
 	 * @param {KosherZmanim.Temporal.ZonedDateTime} zman
 	 */
 	isNextUpcomingZman(zman) {
-		return !(this.nextUpcomingZman == null || !(zman.epochMilliseconds == this.nextUpcomingZman.epochMilliseconds))
+		return !(this.nextUpcomingZman == null || !(zman.equals(this.nextUpcomingZman)))
 	};
 }
 

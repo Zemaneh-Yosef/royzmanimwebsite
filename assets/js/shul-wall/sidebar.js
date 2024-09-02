@@ -289,8 +289,8 @@ document.querySelectorAll('[data-zfFind="BirchatHalevana"]').forEach(
 function renderSeasonalRules(tefilahRuleContainer) {
     /** @type {import('../WebsiteCalendar.js').default} */
     let calForRules = jCal;
-    if (jCal.getDate().equals(KosherZmanim.Temporal.Now.plainDateISO())
-        && zmanCalc.getTzait().epochMilliseconds <= KosherZmanim.Temporal.Now.zonedDateTimeISO(geoL.getTimeZone()).epochMilliseconds) {
+    if (jCal.getDate().equals(Temporal.Now.plainDateISO())
+        && Temporal.ZonedDateTime.compare(zmanCalc.getTzait(), Temporal.Now.zonedDateTimeISO(geoL.getTimeZone())) < 1) {
         calForRules = jCal.tomorrow();
     }
     const seasonalRules = [

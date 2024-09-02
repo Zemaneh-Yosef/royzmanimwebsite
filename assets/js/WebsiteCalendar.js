@@ -263,7 +263,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					break;
 				case 'rt':
 					if (calculatedZmanim[zmanId].luxonObj) {
-						if (calculatedZmanim[zmanId].luxonObj.epochMilliseconds == zmanCalc.chainDate(this.getDate()).getTzait72Zmanit().epochMilliseconds) {
+						if (KosherZmanim.Temporal.ZonedDateTime.compare(calculatedZmanim[zmanId].luxonObj, zmanCalc.chainDate(this.getDate()).getTzait72Zmanit()) == 0) {
 							calculatedZmanim[zmanId].title.hb = 'ר"ת (זמנית)';
 							calculatedZmanim[zmanId].title['en-et'] = "Rabbenu Tam (Zemanit)";
 							calculatedZmanim[zmanId].title.en = "Rabbeinu Tam (Seasonal)";
