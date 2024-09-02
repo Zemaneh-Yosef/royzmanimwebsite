@@ -112,11 +112,12 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 */
 	getZmanimInfo(independent, zmanCalc, zmanList, funcSettings) {
 		/** @typedef {{ hb: string, en: string, "en-et": string }} langType */
-		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType}>} */
+		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string}>} */
 		const calculatedZmanim = {}
 
 		for (const [zmanId, zmanInfo] of Object.entries(zmanList)) {
 			calculatedZmanim[zmanId] = {
+				function: zmanInfo.function,
 				display: 1,
 				code: [],
 				luxonObj: null,

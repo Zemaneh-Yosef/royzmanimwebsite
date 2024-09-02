@@ -108,8 +108,23 @@ for (const timeData of sortedTimes) {
 if (calList.children.length > 10)
 	calList.classList.add("needsResize")
 
-// @ts-ignore
-window.timers.zmanReload = setTimeout(
-	async () => await reload(),
-	Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())
-		.until(sortedTimes[0].luxonObj).total('milliseconds') + 1000)
+let timeForReload = sortedTimes[0].luxonObj;
+if (jCal.tomorrow().isChanukah() && ![6, 7].includes(jCal.getDayOfWeek())) {
+	switch (sortedTimes[0].function) {
+		case 'getTzait':
+			timeForReload = timeForReload.add({ minutes: 30 });
+			break;
+		case 'getTzaitLechumra':
+			// Rather than figure out some way to keep the previous Tzet time while Tzet Lekhumra is reloading,
+			// just reload it after our extended Tzet time
+			timeForReload = null;
+			break;
+	}
+}
+
+if (timeForReload)
+	// @ts-ignore
+	window.timers.zmanReload = setTimeout(
+		async () => await reload(),
+		Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())
+			.until(timeForReload).total('milliseconds') + 1000)
