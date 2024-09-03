@@ -227,6 +227,11 @@ layout: nothing
         border-bottom: 4px dashed black;
     }
 
+	#megalineCont > span {
+		content: " - ";
+		unicode-bidi: isolate;
+	}
+
 	#megalineCont > span:not(:last-child)::after {
 		content: " - "
 	}
@@ -253,6 +258,7 @@ layout: nothing
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <link href="/assets/css/marquee.css" rel="stylesheet" />
+<link href="/assets/css/timer.css" rel="stylesheet" />
 <div id="content" data-current-page="1" data-page-count="2">
 	<div id="bsD">בס"ד</div>
 	<img id="gne" src="/assets/images/shul-wall/shaarehTefilah.svg" />
@@ -298,10 +304,11 @@ layout: nothing
             </div>
 		</div>
 		<div>
-            <h1 style="text-align: center;">
+            <h1 style="text-align: center; margin-bottom: 0;">
                 <span class="langTV lang-hb">זמני היום</span>
                 <span class="langTV lang-ru">Prayer Times</span>
             </h1>
+			{% include clockCountdown.html %}
             <section class="wideView" data-zfFind="calendarFormatter">
                 {% for item in site.data.tv.tvZmanRus %}
                     <article
@@ -317,7 +324,7 @@ layout: nothing
                     </article>
                 {% endfor %}
             </section>
-			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .75rem;">
+			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .8rem;">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
 					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
@@ -517,3 +524,4 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/limud.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
+<script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>

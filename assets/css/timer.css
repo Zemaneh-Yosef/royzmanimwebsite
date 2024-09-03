@@ -1,0 +1,35 @@
+  /*=================
+  * TIMER
+  *=================*/
+  .timer {
+    display: block;
+    line-height: .8;
+    text-align: center;
+  }
+  .timer--clock {
+    position: relative;
+    overflow: hidden;
+  }
+  .timer--clock .clock-display-grp {
+    display: inline-block;
+  }
+  .timer--clock .clock-display-grp .number-grp {
+    display: inline-block;
+    font-size: 100px;
+    height: 1.75ch;
+    overflow: hidden;
+  }
+  .timer--clock .clock-display-grp .number-grp .number-grp-wrp {
+    position: relative;
+  }
+  .timer--clock .clock-display-grp .number-grp .number-grp-wrp .num {
+    position: relative;
+    height: 1.75ch;
+    font-weight: bold;
+  }
+  .timer--clock .clock-separator {
+    display: inline-block;
+    font-size: 100px;
+    font-weight: bold;
+    transform: translateY(-15px);
+  }
