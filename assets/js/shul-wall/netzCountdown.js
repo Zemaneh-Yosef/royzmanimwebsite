@@ -66,12 +66,14 @@ class CountDown {
 		const timeNumbers = (minutes + seconds).split('');
 		this.updateTimerDisplay(timeNumbers);
 
-		setTimeout(
-			() => requestAnimationFrame(() => this.updateTimer(zDT)),
-			Temporal.Now.zonedDateTimeISO(this.tzOrigin)
-				.until(Temporal.Now.zonedDateTimeISO(this.tzOrigin).add({ seconds: 1 }).with({ nanosecond: 0, microsecond: 0, millisecond: 0}))
-				.total('milliseconds')
-		);
+		// @ts-ignore
+		window.timers.countDownTillNextSec =
+			setTimeout(
+				() => requestAnimationFrame(() => this.updateTimer(zDT)),
+				Temporal.Now.zonedDateTimeISO(this.tzOrigin)
+					.until(Temporal.Now.zonedDateTimeISO(this.tzOrigin).add({ seconds: 1 }).with({ nanosecond: 0, microsecond: 0, millisecond: 0}))
+					.total('milliseconds')
+			);
 	}
 
 	/** * @param {[string, string, string, string]} arr */

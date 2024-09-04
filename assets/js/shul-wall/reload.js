@@ -9,8 +9,10 @@ export async function reload() {
     const pageFetch = await fetch(window.location.href);
     const pageText = await pageFetch.text();
 
-    if ('timers' in window)
+    if ('timers' in window) {
+        Object.values(window.timers).forEach(clearTimeout);
         window.timers = {};
+    }
 
     var newDoc = new DOMParser().parseFromString(pageText, "text/html");
     const newScrs = [];

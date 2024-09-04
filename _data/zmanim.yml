@@ -411,8 +411,8 @@
   timeGetter: getTzaitRT
   names:
     hb: ר״ת
-    et: Rabbeinu Tam
-    en: Rabbeinu Tam
+    et: Rabbenu Tam
+    en: Rabbenu Tam
   description: |-
     <p>This time is Tzet/Nightfall according to Rabbeinu Tam.</p>
     <p>

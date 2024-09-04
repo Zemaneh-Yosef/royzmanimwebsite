@@ -1,6 +1,15 @@
 // @ts-check
 
+if (!('timers' in window))
+	// @ts-ignore
+	window.timers = {}
+
 const swap = () => {
+	// @ts-ignore
+	if ('timers' in window && 'swapTime' in window.timers)
+		// @ts-ignore
+		clearTimeout(window.timers.swapTime)
+
 	const container = document.getElementById("content");
 
     const pageCount = parseInt(container.getAttribute("data-page-count"));

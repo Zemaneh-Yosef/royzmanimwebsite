@@ -5,6 +5,7 @@ layout: nothing
 ---
 
 {% capture netzExpl %}{% include printcal/netz.md %}{% endcapture %}
+{% capture netzHbExpl %}{% include printcal/netz-hb.rtl.md %}{% endcapture %}
 
 <noscript>
 	<h1>This site requires JavaScript to function</h1>
@@ -106,7 +107,7 @@ layout: nothing
 
 	.explanationPreface .fakeListItem,
 	.pagedjs_pages .fakeListItem {
-		margin-left: 10px; /* Set the desired margin */
+		margin-inline-start: 10px; /* Set the desired margin */
 		position: relative;
 		margin-bottom: .25rem;
 	}
@@ -116,7 +117,14 @@ layout: nothing
 		/* Create a pseudo-element to act as the bullet point */
 		content: "\2022"; /* Unicode bullet point (•) */
 		position: absolute;
+	}
+
+	:dir(ltr) .explanationPreface .fakeListItem::before {
 		left: -10px; /* Position the bullet point to the left of the text */
+	}
+
+	:dir(rtl) .explanationPreface .fakeListItem::before {
+		right: -10px; /* Position the bullet point to the left of the text */
 	}
 
 	.omerText {
@@ -404,7 +412,7 @@ layout: nothing
 				<div class="columnSplit" id="explanationCont">
 					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-et">{{ netzExpl | markdownify }}</span>
-					<span class="lang lang-hb">{{ netzExpl | markdownify }}</span>
+					<span class="lang lang-hb">{{ netzHbExpl | markdownify }}</span>
 				</div>
 				<div class="advert" style="margin-top: .5rem; text-align: center;">
 					See more from...<br>

@@ -105,7 +105,7 @@ layout: nothing
 	.pagedjs_pages .fakeListItem,
 	.explanationPreface .fakeListItemNoBullet,
 	.pagedjs_pages .fakeListItemNoBullet {
-		margin-left: 8px; /* Set the desired margin */
+		margin-inline-start: 8px; /* Set the desired margin */
 		position: relative;
 		margin-bottom: .25rem;
 	}
@@ -115,7 +115,16 @@ layout: nothing
 		/* Create a pseudo-element to act as the bullet point */
 		content: "\2022"; /* Unicode bullet point (•) */
 		position: absolute;
+	}
+
+	:dir(ltr) .explanationPreface .fakeListItem::before,
+	:dir(ltr) .pagedjs_pages .fakeListItem::before {
 		left: -8px; /* Position the bullet point to the left of the text */
+	}
+
+	:dir(rtl) .explanationPreface .fakeListItem::before,
+	:dir(rtl) .pagedjs_pages .fakeListItem::before {
+		right: -8px; /* Position the bullet point to the left of the text */
 	}
 
 	.omerText {

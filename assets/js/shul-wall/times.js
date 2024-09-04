@@ -99,7 +99,7 @@ for (const timeData of sortedTimes) {
 	const artElem = document.createElement('article');
 	artElem.innerHTML = `
 <div class="langTV lang-hb">${timeData.title.hb}</div><div class="langTV lang-ru">${timeData.title.en}</div>
-<div class="timeDisplayWide ${timeData.luxonObj.day == dateForSet.add({days: 1}).day ? "nextDay" : ""}">
+<div class="timeDisplayWide ${Temporal.PlainDate.compare(timeData.luxonObj, dateForSet) == 1 ? "nextDay" : ""}">
 	${timeData.luxonObj.toLocaleString(...dtF)}
 </div>`;
 	calList.appendChild(artElem)
