@@ -154,8 +154,12 @@ async function preparePrint() {
 	while (document.getElementById('explanationCont').firstElementChild.childElementCount > 0) {
 		document.getElementById('explanationCont').appendChild(document.getElementById('explanationCont').firstElementChild.firstElementChild)
 	}
-
 	document.getElementById('explanationCont').firstElementChild.remove()
+
+	if (settings.language() == 'hb') {
+		document.body.removeAttribute('dir');
+		document.getElementsByTagName('main')[0].setAttribute('dir', 'rtl');
+	}
 
 	await sleep();
 
@@ -202,13 +206,13 @@ async function preparePrint() {
 				pageContent.nextElementSibling.style.height = 'unset'
 		})
 
-	/* Array.from(document.getElementsByClassName('pagedjs_page'))
-		.forEach((/** @type {HTMLDivElement} * / page) => {
-			page.style.setProperty('--pagedjs-pagebox-width', '100%');
-			page.style.setProperty('--pagedjs-width-' + (page.classList.contains('pagedjs_right_page') ? 'right' : 'left'), '100%')
-		}) */
-
 	await sleep();
+
+	if (settings.language() == 'hb') {
+		Array.from(document.getElementsByClassName('pagedjs_area')).forEach(pageArea => pageArea.setAttribute('dir', 'rtl'));
+		await sleep();
+	}
+
 	window.print();
 }
 
