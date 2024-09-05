@@ -2,6 +2,7 @@
 
 import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { settings } from "../settings/handler.js";
+import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import { Previewer } from "../../libraries/paged.js"
 
 const printParam = new URLSearchParams(window.location.search);
@@ -9,10 +10,12 @@ if (printParam.has('lessContrast')) {
 	document.documentElement.style.setProperty('--bs-body-bg', 'snow');
 	document.documentElement.style.setProperty('--bs-body-color', '#1A0033');
 }
-const calcMonthStart = (printParam.has('currentMonth') ?
-	Temporal.Now.plainDateISO().withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew').month
-	: 1
-);
+
+const cal = settings.language() == 'en' ? 'iso8601' : 'hebrew';
+const dateForCal = {
+	month: (printParam.has('currentMonth') && !printParam.has('year') ? Temporal.Now.plainDateISO().withCalendar(cal).month : 1),
+	year: (printParam.has('year') ? parseInt(printParam.get('year')) : Temporal.Now.plainDateISO().withCalendar(cal).year),
+}
 
 if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 	window.location.href = "/"
@@ -78,28 +81,32 @@ footer.getElementsByClassName("genDate")[0]
 	.appendChild(document.createTextNode([today.year, today.month, today.day].map(num=>num.toString().padStart(2, '0')).join("/")))
 
 let plainDateForLoop = Temporal.Now.plainDateISO()
-	.with({ month: calcMonthStart, day: 1 })
-	.withCalendar(settings.language() == 'en' ? 'iso8601' : 'hebrew')
-	.with({ month: calcMonthStart, day: 1 })
+	.withCalendar(cal)
+	.with({ month: dateForCal.month, day: 1, year: dateForCal.year })
+const monthsForCal = plainDateForLoop.monthsInYear + (printParam.has('continueToNext') ? plainDateForLoop.add({ years: 1 }).monthsInYear : 0);
+const yearsForDisplay = [...new Set([plainDateForLoop.year, plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal - 1 }).year])]
+	.map(year => settings.language() == "hb" ? new HebrewNumberFormatter().formatHebrewNumber(year) : year)
+	.join(" - ")
 
 for (const locName of document.querySelectorAll("[data-zyLocationText]"))
-	locName.appendChild(document.createTextNode(geoLocation.getLocationName() + ` (${plainDateForLoop.year})`))
+	locName.appendChild(document.createTextNode(geoLocation.getLocationName() + ` (${yearsForDisplay})`))
 
 let expectedReceive = 0;
 let actualReceive = 0;
 let receiveData = {}
 /** @type {import('./print-web-worker.js').singlePageParams[]} */
 const arrayOfFuncParams = [];
-for (let mIndex = plainDateForLoop.month; mIndex <= plainDateForLoop.monthsInYear; (printParam.has('shabbatOnly') ? mIndex += 2 : mIndex++)) {
+for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.has('shabbatOnly') ? mIndex += 2 : mIndex++)) {
 	expectedReceive += 1;
 	arrayOfFuncParams.push({
 		israel: (geoLocation.getLocationName() || "").toLowerCase().includes('israel'),
 		geoCoordinates: glArgs,
 		netz: availableVS,
 		htmlElems: baseTable.outerHTML + footer.outerHTML,
-		calendar: settings.language() == 'en' ? 'iso8601' : 'hebrew',
+		calendar: cal,
 		hourCalculator: settings.calendarToggle.hourCalculators(),
-		date: plainDateForLoop.with({ month: mIndex }).toString(),
+		date: plainDateForLoop.with({ month: 1 }).add({ months: mIndex - 1 }).toString(),
+		oneYear: plainDateForLoop.year == plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal - 1 }).year,
 		rtKulah: settings.calendarToggle.rtKulah(),
 		tzetMelakha: settings.customTimes.tzeithIssurMelakha(),
 		timeFormat: settings.timeFormat(),

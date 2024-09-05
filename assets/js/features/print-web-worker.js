@@ -29,6 +29,7 @@ const hNum = new HebrewNumberFormatter();
 	month: number;
 	candleTime: number;
 	shabbatOnly: boolean;
+	oneYear: boolean;
   }} singlePageParams */
 
 // "date" of param will have to be in the iso8601 calendar
@@ -604,7 +605,7 @@ async function messageHandler (x) {
 	const monthTable = document.getElementsByClassName('tableGrid')[0]
 	const dateSel = monthTable.querySelector('[data-zyData="date"]') || monthTable.querySelector('[data-zyData="datePri"]')
 
-	if (dateSel && !x.data.shabbatOnly)
+	if (dateSel && !x.data.shabbatOnly) {
 		dateSel.appendChild(document.createTextNode(
 			jCal.getDate()
 				.toLocaleString(
@@ -612,8 +613,16 @@ async function messageHandler (x) {
 					{ month: "long" }
 				)
 		));
+		if (!x.data.oneYear) {
+			dateSel.appendChild(document.createTextNode(` (${
+				x.data.lang == 'hb'
+					? hNum.formatHebrewNumber(jCal.getJewishYear())
+					: plainDate.withCalendar(x.data.calendar).year
+			})`));
+		}
+	}
 
-	plainDate = plainDate.withCalendar(x.data.lang == 'en' ? 'iso8601' : 'hebrew').with({ day: 1 })
+	plainDate = plainDate.withCalendar(x.data.calendar).with({ day: 1 })
 	const initTekuf = zmanCalc.nextTekufa(zmanCalc instanceof OhrHachaimZmanim);
 	let halfDaysInMonth = plainDate.daysInMonth;
 	if (x.data.shabbatOnly) {
