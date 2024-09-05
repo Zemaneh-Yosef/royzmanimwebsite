@@ -9,7 +9,7 @@ layout: nothing
 		width: 100vw;
 		height: 100vh;
 		display: grid;
-		background-image: url(/assets/images/shul-wall/wp10073984-white-stone-wallpapers.jpg);
+		background-image: url(/assets/images/shul-wall/west-wall.jpg);
         background-size: contain;
 	}
 
@@ -194,10 +194,13 @@ layout: nothing
 	#poweredBy {
 		justify-self: center;
 		align-self: end;
-		margin-bottom: .75vw;
+		margin-bottom: calc(.75vw - 5px);
 		text-align: center;
 		line-height: 1.2;
         color: black;
+		backdrop-filter: blur(6px);
+		padding: 5px;
+		border-radius: 3rem;
 	}
 
 	.hiloulotCard .list-group-item {
@@ -216,7 +219,7 @@ layout: nothing
 		font-size: 1.6em;
         margin-left: -1vw;
         margin-right: -1vw;
-        background-color: white;
+        background-color: #f3ebd7;
         color: black;
         padding-top: 1rem;
         padding-bottom: 1rem;
