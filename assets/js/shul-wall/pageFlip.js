@@ -6,9 +6,11 @@ if (!('timers' in window))
 
 const swap = () => {
 	// @ts-ignore
-	if ('timers' in window && 'swapTime' in window.timers)
+	if ('timers' in window && 'swapTime' in window.timers) {
 		// @ts-ignore
 		clearTimeout(window.timers.swapTime)
+		delete window.timers.swapTime
+	}
 
 	const container = document.getElementById("content");
 
