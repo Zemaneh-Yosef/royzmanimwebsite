@@ -107,7 +107,7 @@ class ChaiTables {
 			.find(table=>[14,15].includes(table.rows[0].cells.length));
 
 		if (!zmanTable)
-			return;
+			throw Error("No zman table found: " + domParsed.getElementById('fetchURLInject').innerHTML);
 
 		for (let rowIndexString of Object.keys(zmanTable.rows)) {
 			let rowIndex = parseInt(rowIndexString);
@@ -174,6 +174,11 @@ class ChaiTables {
 			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
 			const ctResponse = await ctFetch.text()
 			const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
+
+			const inputInject = document.createElement('script')
+			inputInject.id = 'fetchURLInject'
+			inputInject.innerHTML = `// CTScrapeOriginalURL: ${ctLink.toString()};`
+			ctDoc.head.appendChild(inputInject)
 
 			if (!ctDoc.getElementsByTagName('table').length) {
 				continue;
