@@ -261,6 +261,10 @@ document.querySelectorAll('[data-zfFind="BirchatHalevana"]').forEach(
         if (bhHeb)
             bhHeb.innerHTML = birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'})
 
+        const bhRus = birchatHalevana.querySelector('[data-zfReplace="date-ru-end"]')
+        if (bhRus)
+            bhRus.innerHTML = birLev.data.end.toLocaleString("ru", {day: 'numeric', month: 'short'})
+
         if (birLev.data.start.dayOfYear == jCal.getDate().dayOfYear) {
             birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
                 //@ts-ignore
