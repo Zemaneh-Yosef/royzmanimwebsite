@@ -136,6 +136,7 @@ layout: nothing
         box-shadow: 0 0 7px 5px black;
         padding-top: 1.55rem;
 		font-size: .625rem;
+		color: white;
     }
 
 	#dataGrid > *:not(#megaline) h1 {
@@ -265,6 +266,18 @@ layout: nothing
 
     dl[data-zfFind="DafYomi"] > *:not(:last-child) {
         border-bottom: 1px solid rgba(255,255,255,.5);
+    }
+
+	.list-group-item,
+	.list-group {
+		--bs-list-group-bg: #212529;
+		--bs-list-group-color: white;
+		--bs-list-group-border-color: var(--bs-border-color);
+	}
+
+	:root {
+        --bs-body-bg: #1A1D2A !important;
+		--bs-heading-color: white !important;
     }
 </style>
 
@@ -556,6 +569,3 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
-<script>
-	document.body.setAttribute('data-bs-theme', 'dark');
-</script>
