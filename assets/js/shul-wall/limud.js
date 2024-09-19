@@ -34,8 +34,9 @@ document.querySelector('[data-zfReplace="TehilimHodshi"]').innerHTML
 	= KosherZmanim.TehilimYomi.byDayOfMonth(jCal).map(met => met.toString()).join(' - ');
 
 const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(jCal.shabbat())
-document.querySelector('[data-zfReplace="Haftara"]').innerHTML
-	= `<b>${haftara.text}</b> (${haftara.source})`;
+for (const haftaraElem of document.querySelectorAll('[data-zfReplace="Haftara"]'))
+	haftaraElem.innerHTML
+		= `<b>${haftara.text}</b> (${haftara.source})`;
 
 const chafetzChayimYomi = jCal.getChafetzChayimYomi();
 for (const ccYomi of document.querySelectorAll('[data-zfReplace="ccYomi"]'))

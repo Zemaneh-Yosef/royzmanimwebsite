@@ -61,7 +61,7 @@ layout: nothing
 		text-align: center;
 		display: flex;
 		justify-content: space-evenly;
-		width: 60%;
+		width: 65%;
 		justify-self: center;
 		align-self: start;
 		color: black;
@@ -69,8 +69,8 @@ layout: nothing
 		line-height: 1;
 		height: 12vh;
 		align-items: center;
-		font-size: 1.15em;
-        font-weight: 500;
+		font-size: .8em;
+		font-weight: 500;
 	}
 
 	#topBar > * {
@@ -104,13 +104,13 @@ layout: nothing
 
 	#bsD {
         font-family: "Narkisim";
-        justify-self: end;
-        line-height: 1;
-        padding-right: 3rem;
-        color: black;
-        font-size: 4rem;
-        padding-top: 1.5rem;
-        align-self: start;
+		justify-self: end;
+		line-height: 1;
+		padding-right: 1rem;
+		color: black;
+		font-size: 4rem;
+		padding-top: .25rem;
+		align-self: start;
 		z-index: 3;
     }
 
@@ -132,17 +132,28 @@ layout: nothing
         background: rgba(0,0,0,.75);
         border-top-left-radius: 50% 15%;
         border-top-right-radius: 50% 15%;
-        padding: 1rem;
+        padding: .5rem;
         box-shadow: 0 0 7px 5px black;
-        padding-top: 2.5rem;
+        padding-top: 1.55rem;
+		font-size: .625rem;
     }
+
+	#dataGrid > *:not(#megaline) h1 {
+        font-size: 1.5rem;
+    }
+
+	#dataGrid > *:not(#limudSection) .list-group-item {
+		--bs-list-group-item-padding-y: .25rem;
+		--bs-list-group-border-color: #49505799;
+		--bs-list-group-item-padding-x: .5rem;
+	}
 
 	#gne {
 		height: 13vh;
 		justify-self: start;
 		align-self: start;
 		margin-top: .5rem;
-		margin-left: 2.5rem;
+		margin-left: 1.5rem;
 		z-index: 3;
     }
 
@@ -201,12 +212,13 @@ layout: nothing
 		backdrop-filter: blur(6px);
 		padding: 5px;
 		border-radius: 3rem;
+		font-size: .5rem;
 	}
 
 	.hiloulotCard .list-group-item {
-		--bs-list-group-item-padding-y: .25rem;
+		--bs-list-group-item-padding-y: .125rem;
 		--bs-list-group-border-color: #49505799;
-		--bs-list-group-item-padding-x: 1.25rem;
+		--bs-list-group-item-padding-x: .75rem;
 	}
 
 	.hiloulotCard .card-header {
@@ -216,13 +228,13 @@ layout: nothing
     #megaline {
 		grid-column: 1 / span 4;
 		text-align: center;
-		font-size: 1.6em;
-        margin-left: -1vw;
-        margin-right: -1vw;
-        background-color: #f3ebd7;
-        color: black;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
+		font-size: 1.2em;
+		margin-left: -1vw;
+		margin-right: -1vw;
+		background-color: #f3ebd7;
+		color: black;
+		padding-top: .5rem;
+		padding-bottom: .5rem;
 	}
 
     #megalineCont {
@@ -491,7 +503,7 @@ layout: nothing
                 <span class="langTV lang-ru">лимуд ёми</span>
             </h1>
             <dl data-zfFind="DafYomi">
-                {% for learning in site.data.learning %}
+                {% for learning in site.data.tv.learningShaareTefila %}
                 <div style="text-align: center;">
                     <dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
                     <dt class="langTV lang-ru">{{ learning.text.ru.short }}</dt>

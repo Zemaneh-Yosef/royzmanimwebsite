@@ -31,7 +31,32 @@ switch (window.location.href.split('/').at(-1)) {
 				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.14 })
 			}
 		});
-	case 'ohel-michael':
+		break;
+	case 'mercaz-bne-aliya':
+		preSetSettings = Object.freeze({
+			seconds: () => false,
+			timeFormat: () => 'h12',
+			language: () => 'en',
+			location: {
+				name: () => "מרכז בני עליה",
+				lat: () => 40.724398257899246,
+				long: () => -73.82106240353995,
+				elevation: () => 0,
+				timezone: () => "America/New_York"
+			},
+			calendarToggle: {
+				hourCalculators: () => 'degrees',
+				rtKulah: () => true,
+				tzeitTaanitHumra: () => false,
+				tekufaMidpoint: () => 'hatzoth',
+				tekufaCalc: () => 'shemuel'
+			},
+			customTimes: {
+				candleLighting: () => 20,
+				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.14 })
+			}
+		});
+		break;
 	case 'ohel-michael-adj':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
