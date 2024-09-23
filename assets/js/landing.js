@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', event => {
+
     var observer = new IntersectionObserver(onIntersection, {
         root: null,   // default is the viewport
         threshold: [0.1, 0.32, 0.52, 0.8, 1] // percentage of target's visible area. Triggers "onIntersection"
@@ -67,5 +67,3 @@ window.addEventListener('DOMContentLoaded', event => {
             }
         });
     });
-
-});
