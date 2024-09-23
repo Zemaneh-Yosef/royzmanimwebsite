@@ -35,7 +35,7 @@ const rYisraeliCal = new rYisraelizmanim(fallbackGL);
 
 /** @type {string[]} */
 let calendars = [];
-const jCal = new WebsiteLimudCalendar(5784, KosherZmanim.JewishDate.ELUL, 11)
+const jCal = new WebsiteLimudCalendar(5784, KosherZmanim.JewishDate.ELUL, 18)
 const shabbatDate = jCal.getDate();
 
 switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {

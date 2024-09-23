@@ -21,7 +21,7 @@
   --bs-body-bg: #1A1D2A;
 }
 
-.navbar, #sidebar {
+.navbar:not(.navbar-landing-expand), #sidebar {
   background-color: #373E5C;
 }
 

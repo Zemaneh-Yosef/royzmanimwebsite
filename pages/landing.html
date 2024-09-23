@@ -1,0 +1,284 @@
+---
+title: Rabbi Ovadia Yosef Zemanim Calendar
+permalink: /landing
+layout: landing
+---
+
+<nav class="navbar navbar-expand-lg fixed-top pt-3 pb-4 pb-lg-3" id="mainNav">
+    <div class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		  </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav me-auto py-4 py-lg-0">
+                <li class="nav-item"><a class="nav-link" href="#services">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="#portfolio">Download</a></li>
+                <li class="nav-item"><a class="nav-link" href="#about">Testimony</a></li>
+            </ul>
+        </div>
+        <ul class="navbar-nav ms-auto py-4 py-lg-0 d-none d-lg-flex">
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                <span class="lang lang-hb">תְצוּרָה</span>
+                <span class="lang lang-et">Settings</span>
+                <span class="lang lang-en">Settings</span>
+            </a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/elyahu41/royzmanimwebsite">Source Code</a></li>
+        </ul>
+    </div>
+</nav>
+<img src="/assets/images/logo.png" alt="..." id="logo" class="stepF" />
+<img src="/assets/images/ivana-cajina-316246-unsplash.jpg" id="heroImage" />
+<header id="heroBanner" style="min-height: 60vh; align-content: center;">
+    <div class="container text-center">
+        <div id="fakeLogo"></div>
+        <div>
+            <h2 id="subtitle">Worldwide Halachic Times according to our Sepharadic Tradition.</h2>
+            <a class="btn btn-primary btn-xl" data-bs-toggle="modal" data-bs-target="#locationModal">Get Started!</a>
+        </div>
+    </div>
+</header>
+
+<div class="modal" style="position: static; display: block; height: auto;">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-center">Set your location! | בחר את המיקום שלך!</h5>
+			</div>
+			<div class="modal-body">
+				{% capture hebrewWelcomeText %}{% include homepage/hebrew.md %}{% endcapture %}
+				{% capture englishWelcomeText %}{% include homepage/english.md %}{% endcapture %}
+				<span class="lang lang-hb">{{ hebrewWelcomeText | markdownify }}</span>
+				<span class="lang lang-et">{{ englishWelcomeText | markdownify }}</span>
+				<span class="lang lang-en">{{ englishWelcomeText | markdownify }}</span>
+				<div id="manualHelp" class="container pb-3 d-none">
+					<div id="leafletMap" style="aspect-ratio: 16 / 9; margin-bottom: .5rem;"></div>
+					<div id="manualContainer">
+						<md-outlined-select id="tz" label="Timezone">
+							<md-select-option selected aria-label="blank"></md-select-option>
+						</md-outlined-select>
+						<div class="input-group input-group-lg form-outline" data-mdb-input-init>
+							<input type="text" id="cityInput" class="form-control" />
+							<label class="form-label" for="cityInput">Location Name</label>
+						</div>
+						<div class="input-group input-group-lg form-outline" data-mdb-input-init>
+							<input type="number" id="elevationInput" class="form-control" />
+							<label class="form-label" for="elevationInput">Elevation</label>
+						</div>
+					</div>
+				</div>
+				<p class="border" id="error" style="display: none">
+					<!--Hidden until shown-->
+				</p>
+				<div id="offlineText" style="display: none;">Seems like you're disconnected from the internet! The search feature needs an internet connection to function.</div>
+				<div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough characters. Please try again with a minimum of three characters</div>
+				<div class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
+					<span class="input-group-text" id="inputGroup-sizing-lg">
+						<i class="fa fa-search" aria-hidden="true" id="searchIcon"></i>
+						<div class="spinner-border" style="display: none;" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+						<i class="fa fa-times-circle" style="display: none" aria-hidden="true"></i>
+					</span>
+					<input list="locationNames" autocomplete="postal-code" type="search" id="Main" class="form-control form-control-lg" style="z-index: 2" />
+					<datalist id="locationNames"></datalist>
+					<label class="form-label" for="form1">Insert location name/ZIP code (English only)</label>
+					<button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;">
+						<i class="fa fa-map-marker"></i>
+					</button>
+				</div>
+				<button type="button" data-mdb-ripple-init class="btn btn-success mb-2 d-lg-none" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-bottom: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7); border-bottom-left-radius: .25rem; border-bottom-right-radius: .25rem;">
+					<i class="fa fa-map-marker"></i> Use my device location
+				</button>
+
+				<div class="form-check">
+					<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked/>
+					<label class="form-check-label" for="flexRadioDefault2">Adjusted Minutes based on Location (לוח עמודי הוראה) - Disabled in Israel</label>
+				</div>
+
+				<div class="form-check">
+					<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
+					<label class="form-check-label" for="flexRadioDefault1">Fixed Israel Minutes (לוח אור החיים)</label>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% capture tekufaEng %}{% include zmanDescription/tekufa/english.md %}{% endcapture %}
+{% capture tekufaHeb %}{% include zmanDescription/tekufa/hebrew.md %}{% endcapture %}
+
+<div class="modal fade modal-xl" id="tekufaModal" tabindex="-1" aria-labelledby="tekufaModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tekufaModalLabel">Tekufa</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<span class="lang lang-hb">
+					{{ tekufaHeb | markdownify }}
+					<hr>
+					אתה יכול להשתמש ב-<b>זמני יוסף</b> כדי ללמוד עוד על התקופות ומידע אחר של זמנים!
+					יציאה ממודל זה כדי להשתמש בגרסת האתר, או להוריד את האפליקציה שלנו ל-iOS ו-Android בחנויות המתאימות.
+				</span>
+				<span class="lang lang-et">
+					{{ tekufaEng | markdownify }}
+					<hr>
+					You can use <b>Zemaneh Yosef</b> to learn more about the Tekufot & other Zemanim information!
+					Exit this modal to use the website version, or download our iOS and Android app on their respective stores.
+				</span>
+				<span class="lang lang-en">
+					{{ tekufaEng | markdownify }}
+					<hr>
+					You can use <b>Zemaneh Yosef</b> to learn more about the Tekufot & other Zemanim information!
+					Exit this modal to use the website version, or download our iOS and Android app on their respective stores.
+				</span>
+				<div style="text-align: center;">
+					<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/app-store.png" style="width: 25%;" loading="lazy"></a>
+					<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 25%;" loading="lazy"></a><br>
+					<div class="d-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
+							<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="display: block; border-radius: .5rem; background: black; width: 25%; padding: .5rem;">
+									<div style="border-radius: .5rem; background: white;">
+											<img src="/assets/images/app-store.svg" style="width: 100%" loading="lazy">
+									</div>
+									App Store
+							</a>
+							<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="display: block; border-radius: .5rem; background: black; width: 25%; padding: .5rem;">
+									<div style="border-radius: .5rem; background: white;">
+											<img src="/assets/images/play-store.svg" style="width: 100%" loading="lazy">
+									</div>
+									Play Store
+							</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Services-->
+<section class="page-section" id="services">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="text-center">About us</h1>
+                <p>We are the platform to use whenever and wherever you'd need Halachic Times (Zemanim) according to Hakham Ovadia Yosef zt'l, based on what he held and practiced. This is the digital equivalent to the <strong>Ohr Hachaim</strong> calendar, which is what Maran zt"l himself made with HaRav Shlomo Benizri and HaRav Asher Darshan.</p>
+                <p>For areas outside of the USA, we provide an (optional) derivitive of the Ohr Hachaim calendar called the <strong>Amudeh Hora'ah</strong> calendar, authored by HaRav Leeor Dahan. These shitot differ in times outside of the day's range (such as Dawn & Nightfall) to be complient with R' David Yosef's opinions, accommodating latitudinal deviations from Eretz Yisrael while still using seasonal minutes.</p>
+                <p>These times are accessible; not just through our website, but also our apps, print-out calendars, downloadable iCal calendars (for digital calendar apps) and TV walls for shuls. For other formats that developers would like to be creative with, all of our math/algorithms are fully <a href="https://github.com/Zemaneh-Yosef">open source</a>, with implementations in JavaScript, Java & Swift. Furthermore, anyone looking to calculate it themselves (or just learn how we did it) could learn through the <i>sugya</i> using our descriptions as indexes for the various sources we used.</p>
+            </div>
+			<div class="col-lg-4">
+				<div id="carouselExampleIndicators" class="carousel slide">
+					<div class="carousel-indicators">
+					  <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+					  <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+					</div>
+					<div class="carousel-inner">
+					  <div class="carousel-item active">
+						<img src="/assets/images/landing/1c5b886e-29ca-4b4f-9956-0ae7631ae06e.jpeg" class="d-block w-100">
+					  </div>
+					  <div class="carousel-item">
+						<img src="/assets/images/landing/6a9af53c-9349-4945-b4bd-3c283059fa99.jpeg" class="d-block w-100" alt="...">
+					  </div>
+					</div>
+					<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+					  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+					  <span class="visually-hidden">Previous</span>
+					</button>
+					<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+					  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+					  <span class="visually-hidden">Next</span>
+					</button>
+				  </div>
+			</div>
+        </div>
+    </div>
+</section>
+<!-- Portfolio Grid-->
+<section class="py-3" id="portfolio">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="text-center">Download the mobile apps</h1>
+                <p>Need Zemanim on the go? Our apps are made for just that!</p>
+                <ul>
+                    <li>Siddur text tailored to the day</li>
+                    <li>Customizable Notifications, to stay on top of Shema & co.</li>
+                    <li>Visible Sunrise, with countdown</li>
+                    <li>Home-Screen Widgets</li>
+                </ul>
+                <div style="text-align: center;">
+                    <a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/app-store.png" style="width: 30%;" loading="lazy"></a>
+                    <a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 30%;" loading="lazy"></a><br>
+                    <div class="d-none d-lg-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
+                        <a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
+                            <div style="border-radius: .5rem; background: white;">
+                                <img src="/assets/images/app-store.svg" style="width: 100%" loading="lazy">
+                            </div>
+                            App Store
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
+                            <div style="border-radius: .5rem; background: white;">
+                                <img src="/assets/images/play-store.svg" style="width: 100%" loading="lazy">
+                            </div>
+                            Play Store
+                        </a>
+                    </div>
+                </div>
+            </div>
+			<div class="col-lg-4" id="phoneImgCont">
+				<img src="/assets/images/landing/phonescreen.png" alt="...">
+			</div>
+        </div>
+    </div>
+</section>
+<!-- About-->
+<section class="page-section" id="about">
+    <div class="container">
+        <h2 class="text-center section-heading">Testimonials</h2>
+		<div class="row row-cols-1 row-cols-md-3 g-4">
+			<div class="col">
+				<div class="card h-100">
+					<div class="card-body">
+						<h5 class="card-title">Kehilat Avodat Hashem (R' Leeor Dahan) - Queens</h5>
+						<p class="card-text">והנני מביע	הסכמתי השלימה ללוח הנזכר דכל מי שישתמש בו יהא בטוח בלבו שעושה כשורה וכהלכה וכל מן דין סמוכו לנאלהלכה ולמעשה.</p>
+					</div>
+					<div class="card-footer">
+						<small class="text-body-secondary"><a href="/assets/haskamah-he.pdf">Full Haskama</a></small>
+					</div>
+				</div>
+			</div>
+			<div class="col">
+				<div class="card h-100">
+					<div class="card-body">
+						<h5 class="card-title">Congregation Ohel Simcha (R' Meir Gavriel Elbaz) - Queens</h5>
+						<p class="card-text">...this app will certainly be an invaluable tool for Sepharadic Jews everywhere to perform Hashem's Mitzvot with alacrity and according to the rich traditions of their Poskim.</p>
+					</div>
+					<div class="card-footer">
+						<small class="text-body-secondary"><a href="/assets/haskamah-en.pdf">Full Haskama</a></small>
+					</div>
+				</div>
+			</div>
+			<div class="col">
+				<div class="card h-100">
+					<div class="card-body">
+						<h5 class="card-title">Edmond J. Safra Synagogue (R' Eli Mansour) - Brooklyn</h5>
+						<p class="card-text">...it's called זמני יוסף, it's a very good app for those who want to follow חכם עובדיה...we use it in our Netz minyan.</p>
+					</div>
+					<div class="card-footer">
+						<small class="text-body-secondary"><a href="https://itorah.com/l/v28958s137">Full lecture</a> (minute 26:42)</small>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+</section>
+
+<p class="py-2 text-center">Made by Elyahu Jacobi, Maor Na'im <a href="" data-bs-toggle="modal" data-bs-target="#creditModal">& co.</a></p>
+
+{% include toasts/failToast.html toastId="inaccessibleToast" errorText="Location inaccessible. Please try again!" %}
+{% include toasts/failToast.html toastId="zipToast" errorText="Multiple ZIP codes coordinates detected. Please use Location Name instead." %}
+
+<script src="/assets/js/location.js" type="module"></script>
+<link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
+<script src="/assets/libraries/materialComp/materialweb.js" type="module"></script>
+<script src="/assets/js/landing.js" type="module"></script>

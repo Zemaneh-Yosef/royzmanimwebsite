@@ -38,8 +38,16 @@ body {
 }
 
 .navbar {
-	background-color: white;
 	box-shadow: 0 4px 12px 0 rgba(0,0,0,0.07),0 2px 4px rgba(0,0,0,0.05);
+
+	-webkit-transition: background-color 200ms ease-in-out;
+    -ms-transition: background-color 200ms ease-in-out;
+    transition: background-color 200ms ease-in-out;
+	background-color: transparent;
+}
+
+.navbar:not(.navbar-landing-expand) {
+	background-color: #f8f9fa;
 }
 
 @media (min-width: 992px) {
@@ -102,7 +110,7 @@ body {
 	--bs-btn-bg: #3b71ca;
 }
 
-#logo {
+#logoNavbar {
 	height: 3rem;
 }
 
