@@ -47,23 +47,6 @@ function onIntersection(entries, opts){
 // Use the observer to observe an element
 observer.observe( document.getElementById('fakeLogo') )
 
-window.addEventListener('DOMContentLoaded', event => {
-    //  Activate Bootstrap scrollspy on the main nav element
-    const mainNav = document.body.querySelector('#mainNav');
-    if (mainNav) {
-        new bootstrap.ScrollSpy(document.body, {
-            target: '#mainNav',
-            rootMargin: '0px 0px -40%',
-            smoothScroll: true
-        });
-    };
-
-    for (const modal of document.getElementsByClassName('modal')) {
-        modal.addEventListener('hide.bs.modal', () => logo.style.removeProperty('display'));
-        modal.addEventListener('show.bs.modal', () => logo.style.display = 'none');
-    }
-})
-
 // Collapse responsive navbar when toggler is visible
 const navbarToggler = document.body.querySelector('.navbar-toggler');
 const responsiveNavItems = [].slice.call(
@@ -79,3 +62,26 @@ responsiveNavItems.map(function (responsiveNavItem) {
 
 navBarCollapse.addEventListener('show.bs.collapse', () => { logo.style.width = '30vw'; logo.style.top = '.5em'; })
 navBarCollapse.addEventListener('hide.bs.collapse', () => { ['width', 'top'].forEach(prop => logo.style.removeProperty(prop)); })
+
+if (document.readyState !== 'loading') {
+    postInit();
+} else {
+    window.addEventListener('DOMContentLoaded', event => postInit());
+}
+
+function postInit() {
+    // Activate Bootstrap scrollspy on the main nav element
+    const mainNav = document.body.querySelector('#mainNav');
+    if (mainNav) {
+        new bootstrap.ScrollSpy(document.body, {
+            target: '#mainNav',
+            rootMargin: '0px 0px -40%',
+            smoothScroll: true
+        });
+    };
+
+    for (const modal of document.getElementsByClassName('modal')) {
+        modal.addEventListener('hide.bs.modal', () => logo.style.removeProperty('display'));
+        modal.addEventListener('show.bs.modal', () => logo.style.display = 'none');
+    }
+}
