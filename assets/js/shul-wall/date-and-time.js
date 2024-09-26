@@ -3,6 +3,7 @@
 import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
+import { reload } from "./reload.js";
 
 const hourElem = document.querySelector('[data-sw-hour]')
 const minuteElem = document.querySelector('[data-sw-minute]')
@@ -13,13 +14,18 @@ if (!('timers' in window))
 	window.timers = {}
 
 function updateTime() {
+	const curTime = Temporal.Now.zonedDateTimeISO();
+	const textHour = (curTime.hour - ((curTime.hour >= 13 && portElem) ? 12 : 0)).toString().padStart(2, '0')
+
+	if (Math.abs(parseInt(hourElem.innerHTML) - curTime.hour) > 1 && !(hourElem.innerHTML == "12" && curTime.hour == 1)) {
+		reload();
+		return;
+	}
+
 	hourElem.childNodes.forEach(node => node.remove())
 	minuteElem.childNodes.forEach(node => node.remove());
 
-	const curTime = Temporal.Now.zonedDateTimeISO();
-	const hour = (curTime.hour - ((curTime.hour >= 13 && portElem) ? 12 : 0)).toString().padStart(2, '0')
-
-	hourElem.appendChild(document.createTextNode(hour));
+	hourElem.appendChild(document.createTextNode(textHour));
 	minuteElem.appendChild(document.createTextNode(curTime.minute.toString().padStart(2, '0')));
 
 	if (portElem) {

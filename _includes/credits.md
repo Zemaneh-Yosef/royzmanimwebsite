@@ -1,9 +1,9 @@
 ### זמני יוסף Project
 
 - **Elyahu Jacobi:** Lead Programmer, App Designer & Halachic Ohr Hachaim calendar implementation
-- **Maor N:** Contracted worker that maintains the website and made the initial עמודי הוראה implementation
+- **Maor Na'im:** Website maintainer, initial עמודי הוראה implementation, made print-out calendar & TVs
 
-The Rabbis who gave their Haskamot have also contributed to the app. Their credits are listed right next to their Haskamot on the Haskamot modal.
+The Rabbis who gave their Haskamot have also contributed to the app. Their credits are listed right next to their Haskamot on either the Haskamot modal or on the bottom of the landing.
 
 ### External API Credits
 

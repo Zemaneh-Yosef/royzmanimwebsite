@@ -8,6 +8,7 @@ if (!('timers' in window))
 let preSetSettings;
 switch (window.location.href.split('/').at(-1)) {
 	case 'shaare-tefila-queens':
+	case 'shaare-tefila-queens-big':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',
