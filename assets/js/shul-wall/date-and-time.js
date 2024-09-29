@@ -17,7 +17,7 @@ function updateTime() {
 	const curTime = Temporal.Now.zonedDateTimeISO();
 	const textHour = (curTime.hour - ((curTime.hour >= 13 && portElem) ? 12 : 0)).toString().padStart(2, '0')
 
-	if (Math.abs(parseInt(hourElem.innerHTML) - curTime.hour) > 1 && !(hourElem.innerHTML == "12" && curTime.hour == 1)) {
+	if (Math.abs(parseInt(hourElem.innerHTML) - parseInt(textHour)) > 1 && !(hourElem.innerHTML == "12" && curTime.hour == 1)) {
 		reload();
 		return;
 	}
