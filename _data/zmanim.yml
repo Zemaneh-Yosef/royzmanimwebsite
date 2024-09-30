@@ -3,16 +3,14 @@
   timeGetter: getAlotHashachar
   names:
     hb: עלות השחר
-    et: Aloth Hashachar
+    et: Aloth Hashaḥar
     en: Dawn
   descriptionIncludeArray:
     short:
       - zmanDescription/alot/body.md
-      - zmanDescription/alot/footer.md
     long:
       - zmanDescription/alot/body.md
       - zmanDescription/alot/extra.md
-      - zmanDescription/alot/footer.md
   extraZmanim:
     - titles:
         hb: עלות השחר (5 מיל/שמינית מהיום)
@@ -105,7 +103,7 @@
     - names:
         hb: אכילת
         en: Eating
-        et: Achilath
+        et: Akhilath
       timeGetter: getSofZmanAchilathHametz
       id: eating
       attributes:
@@ -127,8 +125,8 @@
   timeGetter: getSofZmanBrachothShma
   names:
     hb: סוף זמן ברכות שמע
-    et: Sof Zman Berachot Shema
-    en: Latest Berachot Shema
+    et: Sof Zman Berakhoth Shema
+    en: Latest Berakhoth Shema
   description: |-
     <p>
     This is the latest time a person can say the Brachot Shema according

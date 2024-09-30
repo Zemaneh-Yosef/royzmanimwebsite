@@ -9,7 +9,7 @@
 - id: earliestTefilin
   timeGetter: getMisheyakir
   names:
-    hb: משיקיר
+    hb: משיכיר
     ru: талит и тфилин
 - id: sunriseNoVisual
   timeGetter: getNetz

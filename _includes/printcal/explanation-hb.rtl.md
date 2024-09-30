@@ -32,7 +32,7 @@ Dawn is the time that rays of sun are visible in the lit up Eastern part of the 
 
 MiSheyakir is the time one can recognize an acquaintance from close proximity, as well as distinguish between white & <span style="unicode-bidi: isolate;">תכלת</span>.<span class="footnote"><span style="unicode-bidi: plaintext;">שתי הזמנים האלו אותו דבר: ראה בית יוסף סימן נ"ח ד"ה 'ומ"ש ומצוה'</span></span> Practically, this is the time for <span style="unicode-bidi: isolate;">טליתות, תפילין וקריאת שמע</span>.<span class="footnote">שלחן ערוך או"ח סימנים י"ח, ל' & נ"ח</span>
 
-For our calendar, we maintain the recommended position to measure this time as one (adjusted-)seasonal hour before sunrise.<span class="footnote">הליכות עולם א' דף י"ט. The letter-of-the-law opinion of 66 minutes brought there can be used on our calendar by cutting the time between עלות השחר and משיקיר in half.</span>
+For our calendar, we maintain the recommended position to measure this time as one (adjusted-)seasonal hour before sunrise.<span class="footnote">הליכות עולם א' דף י"ט. The letter-of-the-law opinion of 66 minutes brought there can be used on our calendar by cutting the time between עלות השחר and משיכיר in half.</span>
 
 ###### Keriath Shema End Time
 

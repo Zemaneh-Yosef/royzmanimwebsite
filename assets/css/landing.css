@@ -60,6 +60,10 @@ img#logo {
         top: 1.5em;
     }
 
+    #logo.stepF {
+        height: 2.75em;
+    }
+
     #fakeLogo {
         width: 85vw;
     }
@@ -81,7 +85,7 @@ img#logo {
 
 #phoneImgCont img {
     grid-area: 1/1/1/1;
-    max-height: 45vh;
+    max-height: 65vh;
     width: 100%;
     object-fit: cover;
     object-position: top;
@@ -93,6 +97,6 @@ img#logo {
     grid-area: 1/1/1/1;
     content: '';
     width: 100%;
-    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.75) 100%);
+    background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.75) 100%);
     z-index: 2;
 }
