@@ -397,123 +397,14 @@ layout: nothing
 		<div>
 			<h1 style="text-align: center;">Weekday Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">1<sup>st</sup> Seliḥot</span>
-	                        <span class="langTV lang-ru">1-й Селихот</span>
-						</b>
-						<span>5:00 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">1<sup>st</sup> Shaḥarit</span>
-	                        <span class="langTV lang-ru">1-й Шахарит</span>
-						</b>
-						<span>5:45 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">2<sup>nd</sup> Seliḥot</span>
-	                        <span class="langTV lang-ru">2-й Селихот</span>
-						</b>
-						<span>5:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">2<sup>nd</sup> Shaḥarit</span>
-	                        <span class="langTV lang-ru">2-й Шахарит</span>
-						</b>
-						<span>6:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">Minḥa & Arvit</span>
-							<span class="langTV lang-ru">Минха и Арвит</span>
-						</b>
-						<span>6:40 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>2<sup>nd</sup> Arvit (not on Sunday)</b>
-						<span>10:00 PM</span>
-					</li>
-				</ul>
-			</div>
-			<h1 style="text-align: center;">Shabbat Schedule</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Minḥa + Kabbalat Shabbat</b>
-						<span>6:00 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Main Shaḥarit</b>
-						<span>7:45 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Youth Shaḥarit</b>
-						<span>8:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Early Minḥa</b>
-						<span>1:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">Minḥa + Seudat Shelishit</span>
-							<span class="langTV lang-ru">Минха + Сеудат Шелишит</span>
-						</b>
-						<span>5:45 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Arvit</b>
-						<span>7:20 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="weekday">
 				</ul>
 			</div>
 		</div>
 		<div>
-			<h1 style="text-align: center;">Weekday Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Tehilim, for Men & Women</b><br>
-							<span>R' Wyszkowski</span>
-						</div>
-						<span>Sun.<br>8:30 - 9:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Mussar, Gemara & Halacha</b><br>
-							<span>R' Ben-Mordechai</span>
-						</div>
-						<span>Mon-Wed<br>9:00 - 10:00 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Tefila</b><br>
-							<span>R' Hilman</span>
-						</div>
-						<span>Thu.<br>9:00 - 9:30 PM</span>
-					</li>
-				</ul>
-			</div>
 			<h1 style="text-align: center;">Shabbat Shiurim</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Morning</b>
-						</div>
-						<span>7:00 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Afternoon</b>
-						</div>
-						<span>4:45 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="shabbat">
 				</ul>
 			</div>
 		</div>
@@ -576,3 +467,7 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
+<script type="module">
+	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
+	await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
+</script>

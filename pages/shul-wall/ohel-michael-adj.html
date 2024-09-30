@@ -334,48 +334,12 @@ layout: nothing
 		<div style="line-height: 1.3;">
 			<h2>Weekday Tefilot</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<div><b>1<sup>st</sup> Shacharit</b> (Hodu)</div>
-						<span>6:55 AM (Mon/Thu)<br>7:00 AM (Tue/Wed/Fri)</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div><b>2<sup>nd</sup> Shacharit</b> (Hodu)</div>
-						<span>8:15 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div><b>Selihot</b></div>
-						<span>7:45 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Mincha & Arvit</b>
-						<span>6:20 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>2<sup>nd</sup> Arvit</b>
-						<span>9:30 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="weekday">
 				</ul>
 			</div>
 			<h2>Shabbat Tefilot</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between">
-						<div><b>Regular Erev Shabbat Tefilot</b> + Learning</div>
-						<span>6:28 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<div><b>Shacharit</b> (+ Kiddush & Learning)</div>
-						<span>8:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Mincha</b>
-						<span>5:55 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Arvit</b>
-						<span>7:30 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="shabbat">
 				</ul>
 			</div>
 			<div id="noSmartphoneWithIcon">
@@ -384,9 +348,7 @@ layout: nothing
 			</div>
 		</div>
 		<div>
-			<div style="color: pink; font-size: .725em; text-align: center;">
-				Kiddush sponsor: <b>Itzḥak Batyrov</b> in honor of his and his son's Siyum Masechet!
-			</div>
+			<div style="color: pink; font-size: .725em; text-align: center;" id="sponsor"></div>
 			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .75rem;">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
@@ -445,60 +407,12 @@ layout: nothing
 		<div style="line-height: 1.3;">
 			<h2>Official Sedarim</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<b>Early Morning</b>
-						<span>Mon-Fri, 6:15 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<div><b>Morning</b> (with Avrechim)</div>
-						<span>Sun-Fri, 7:45 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div><b>Night</b> (+ Food)</div>
-						<span>Sun-Thu, 8:25 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div><b>Shabbat</b></div>
-						<span>5:00 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="sedarim">
 				</ul>
 			</div>
 			<h2>Weekday Shiurim</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<div>
-							<b>Kinyan Hamasechta - Megila</b><br>
-							<span>w/ R' Yonah Nisanov</span>
-						</div>
-						<span style="text-align: right;">Mon-Fri, 6:15 AM<br>Mon-Thu, 9:00 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<div>
-							<b>Tefila</b> w/ R' Yonah Nisanov
-						</div>
-						<span style="text-align: right;">Mon-Thu, 8:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<div>
-							<b>Hilchot Shabbat</b> w/ R' Emanuel Aminov
-						</div>
-						<span style="text-align: right;">Sun-Thu, 8:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<div>
-							<b>Morning Halachot & Shaar Habitachon</b><br>
-							w/ R' Aharon Sulimanov
-						</div>
-						<span style="text-align: right;">Mon & Wed,<br>8:30 PM</span>
-					</li>
-					<!-- <li class="list-group-item d-flex justify-content-between align-items-center">
-						<div>
-							<b>Musar & Parasha</b> w/ R' Elisha Rhodes
-						</div>
-						<span style="text-align: right;">Sun & Tue, 8:30 PM</span>
-					</li> -->
+				<ul class="list-group list-group-flush" id="shiurim">
 				</ul>
 			</div>
 		</div>
@@ -540,6 +454,7 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
+	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
 	document.body.setAttribute('data-bs-theme', 'dark');
 
 	const moneyFundraiser = await (await fetch('https://zemaneh-yosef.github.io/extras/yonah-budget.txt', {cache: "no-store"})).text();
@@ -548,4 +463,6 @@ layout: nothing
 	document.getElementById('jugPercent').style.height = ((moneyRaised / moneyNeeded) * 100) + "%";
 	document.querySelector('[data-raised-money]').innerHTML = moneyRaised;
 	document.querySelector('[data-fundraising-money]').innerHTML = moneyNeeded;
+
+	await schedule('https://zemaneh-yosef.github.io/extras/yonah-schedule.ini');
 </script>
