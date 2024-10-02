@@ -172,10 +172,6 @@ class GRAZmanim extends ZmanimMathBase {
 	getShkiya() {
 		return this.astronomicalZman.sunset;
 	}
-
-	getTzaitTaanitLChumra() {
-		return this.astronomicalZman.sunset.add({ minutes: 30 });
-	}
 }
 
 class AlotTzeitZmanim extends GRAZmanim {
@@ -325,12 +321,6 @@ class AlotTzeitZmanim extends GRAZmanim {
      */
 	getTzaitLechumra() { throw new Error("Not in Amudeh Hora'ah Mode") }
 
-	/**
-     * Abstract method reserved for the Ohr Hachaim subclass.
-     * @returns {Temporal.ZonedDateTime} The return value.
-     */
-	getTzaitTaanit() { throw new Error("Not in Ohr Hachaim Mode") }
-
 	// </needsImplementaton>
 }
 
@@ -374,18 +364,8 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
 			.add(this.fixedToSeasonal(Temporal.Duration.from({ minutes: 13, seconds: 30 })))
 	}
 
-	getTzaitBenIshHai() {
-		return this.astronomicalZman.sunset
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ minutes: 27 })))
-	}
-
 	getTzaitLechumra() {
-		return this.astronomicalZman.sunset
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ minutes: 20 })))
-	}
-
-	getTzaitTaanit() {
-		return this.astronomicalZman.sunset.add({ minutes: 20 });
+		return this.astronomicalZman.sunset.add({ minutes: 20 })
 	}
 
 	getTzaitShabbath(shabbatTimeObj = this.shabbatObj) {
@@ -441,10 +421,6 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	getTzaitLechumra() {
 		return this.astronomicalZman.sunset
 			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(5.135, true)));
-	}
-
-	getTzaitTaanitLChumra() {
-		return [this.getTzaitLechumra(), super.getTzaitTaanitLChumra()].sort(rZTDsort)[0];
 	}
 
 	/**

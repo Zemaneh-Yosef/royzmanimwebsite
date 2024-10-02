@@ -232,28 +232,37 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						)
 					} else {
 						calculatedZmanim[zmanId].display = 0;
-						calculatedZmanim[zmanId].code.push("Not a day with Tzet")
+						calculatedZmanim[zmanId].code.push("Not a day with Tzet Melakha")
 					}
 					break;
 				case 'tzeit-regular':
-					if ((this.isAssurBemelacha() && !this.hasCandleLighting()) || (this.isTaanis() && zmanCalc instanceof AmudehHoraahZmanim)) {
+					if (this.isAssurBemelacha() && !this.hasCandleLighting()) {
 						calculatedZmanim[zmanId].display = 0;
 						calculatedZmanim[zmanId].code.push("Isur Melacha Tzet")
 					}
 					break;
 				case 'tzeit-humra':
 					if (this.isTaanis() && !this.isYomKippur()) {
-						calculatedZmanim[zmanId].title.hb = "צאת תענית (צאת הכוכבים)";
-						calculatedZmanim[zmanId].title['en-et'] = "Tzeth Ta'anith (Tzeit Hakochavim)";
-						calculatedZmanim[zmanId].title.en = "Fast Ends (Nightfall)";
+						calculatedZmanim[zmanId].merge_title.hb = "צאת תענית (צאת הכוכבים)";
+						calculatedZmanim[zmanId].merge_title['en-et'] = "Tzeth Ta'anith (Tzeit Hakochavim)";
+						calculatedZmanim[zmanId].merge_title.en = "Fast Ends (Nightfall)";
+
+						calculatedZmanim[zmanId].title.hb = calculatedZmanim[zmanId].merge_title.hb
+						calculatedZmanim[zmanId].title['en-et'] = calculatedZmanim[zmanId].merge_title['en-et']
+						calculatedZmanim[zmanId].title.en = calculatedZmanim[zmanId].merge_title.en
 					} else {
 						calculatedZmanim[zmanId].merge_title.hb = "צאת הכוכבים";
 						calculatedZmanim[zmanId].merge_title['en-et'] = "Tzeth Hakokhavim";
 						calculatedZmanim[zmanId].merge_title.en = "Nightfall";
 
-						calculatedZmanim[zmanId].title.hb = calculatedZmanim[zmanId].merge_title.hb + " לחומרא";
-						calculatedZmanim[zmanId].title['en-et'] = calculatedZmanim[zmanId].merge_title['en-et'] + " LeKhumra";
-						calculatedZmanim[zmanId].title.en = calculatedZmanim[zmanId].merge_title.en + " (Stringent)";
+						calculatedZmanim[zmanId].title.hb = calculatedZmanim[zmanId].merge_title.hb + " - חומרא";
+						calculatedZmanim[zmanId].title['en-et'] = calculatedZmanim[zmanId].merge_title['en-et'] + " - Ḥumra";
+						calculatedZmanim[zmanId].title.en = calculatedZmanim[zmanId].merge_title.en + " - Stringent";
+
+						if (zmanCalc instanceof OhrHachaimZmanim) {
+							calculatedZmanim[zmanId].display = 0;
+							calculatedZmanim[zmanId].code.push("Not a day with stringent-needed Tzet")
+						}
 					}
 					break;
 				case 'tzeitTaanitLChumra':

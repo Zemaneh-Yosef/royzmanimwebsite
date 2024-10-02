@@ -140,11 +140,14 @@ class zmanimListUpdater {
 		this.zmanFuncs.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha())
 
 		document.querySelectorAll('[data-zfFind="LocationYerushalayimLine"]')
-			.forEach(jerusalemLine =>
+			.forEach(jerusalemLine => {
+				if (jerusalemLine.lastChild.nodeType == Node.TEXT_NODE)
+					jerusalemLine.lastChild.remove();
+
 				jerusalemLine.appendChild(
 					document.createTextNode(this.zmanFuncs.coreZC.getGeoLocation().getRhumbLineBearing(harHabait).toFixed(2) + "°")
 				)
-			)
+			})
 
 		locationModal.querySelector('[data-zfReplace="locationLat"]').innerHTML = geoLocation.getLatitude().toString()
 		locationModal.querySelector('[data-zfReplace="locationLng"]').innerHTML = geoLocation.getLongitude().toString()

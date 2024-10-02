@@ -38,8 +38,65 @@ const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
     minute: '2-digit'
 }];
 
+const yomTovObj = {
+    // Holidays
+    [WebsiteLimudCalendar.PESACH]: {
+        hb: "פסח",
+        "en-et": "Pesaḥ",
+        en: "Passover",
+    },
+    [WebsiteLimudCalendar.CHOL_HAMOED_PESACH]: {
+        en: "Shabbat Intermediary",
+        "en-et": "Shabbath Ḥol HaMoedh",
+        hb: "שבת חול המועד"
+    },
+    [WebsiteLimudCalendar.SHAVUOS]: {
+        en: "Shavuoth",
+        hb: "שבועות",
+        "en-et": "Shavuoth"
+    },
+    [WebsiteLimudCalendar.ROSH_HASHANA]: {
+        hb: "ראש השנה",
+        en: "Rosh Hashana",
+        "en-et": "Rosh Hashana"
+    },
+    [WebsiteLimudCalendar.SUCCOS]: {
+        hb: "סוכות",
+        en: "Sukkoth",
+        "en-et": "Sukkoth"
+    },
+    [WebsiteLimudCalendar.CHOL_HAMOED_SUCCOS]: {
+        hb: "שבת חול המועד",
+        "en-et": "Shabbath Ḥol HaMoedh",
+        en: "Shabbath Intermediary"
+    },
+
+    // This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
+    // I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
+    [WebsiteLimudCalendar.SHEMINI_ATZERES]: {
+        hb: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
+        en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : ""),
+        "en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : "")
+    },
+    [WebsiteLimudCalendar.SIMCHAS_TORAH]: {
+        hb: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
+        en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah",
+        "en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
+    },
+
+    // YK is the only Fast considered a YT
+    [WebsiteLimudCalendar.YOM_KIPPUR]: {
+        "hb": "יום כיפור",
+        "en": "Yom Kippur",
+        "en-et": "Yom Kippur"
+    }
+}
+
 const titleElem = document.querySelector('[data-parasha]')
-titleElem.innerHTML = (dateHighlight.isYomTov() ? "YT" : jCal.getHebrewParasha().join(" / "))
+if (dateHighlight.isYomTov() && dateHighlight.getYomTovIndex() in yomTovObj) {
+    titleElem.innerHTML = yomTovObj[dateHighlight.getYomTovIndex()][preSettings.language()]
+} else
+    titleElem.innerHTML = jCal.getHebrewParasha().join(" / ") + (dateHighlight.isChanukah() ? " (חנוכה)" : "");
 
 const lightCand = document.querySelector('[data-lightingCandles]');
 if (dateHighlight.hasCandleLighting()) {

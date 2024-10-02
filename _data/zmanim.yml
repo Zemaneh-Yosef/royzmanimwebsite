@@ -147,7 +147,7 @@
   timeGetter: getHatzoth
   names:
     hb: חצות
-    et: Ḥatsoth
+    et: Ḥatsoth Hayom
     en: Midday
   description: |-
     <p>
@@ -282,13 +282,11 @@
       timeGetter: getTzait
       id: regular
     - names:
-        hb: לחומרה
-        en: Humra
-        et: Stringent
+        hb: חומרה
+        et: Ḥumra
+        en: Stringent
       timeGetter: getTzaitLechumra
       id: humra
-      attributes:
-        luachInclusive: degrees
   names:
     hb: צאת הכוכבים
     et: Tzet Hakokhavim
@@ -320,60 +318,6 @@
     to sunset to get the time of Tzet/Nightfall. We use 3.86 degrees
     below the horizon because that is the time when it is 13.5 minutes
     after sunset in Israel.
-    </p>
-- id: tzeitTaanit
-  attributes:
-    luachInclusive: seasonal
-    condition: isTaanit
-  timeGetter: getTzaitTaanit
-  names:
-    hb: צאת תענית
-    et: Tzet Ta'anith
-    en: Fast Ends
-  description: |-
-    <p>This is the time that the fast/taanit ends.</p>
-    <p>
-    This time is calculated as 20 regular minutes after sunset
-    (elevation included).
-    </p>
-    <p>
-    It is brought down in Halacha Berurah that Rabbi Ovadiah Yosef Z\"TL
-    was once traveling in New York and he said to his son, Rabbi David
-    Yosef Shlita, that the fast ends 13.5 zmaniyot minutes after sunset.
-    However, in his sefer Chazon Ovadiah, he writes that the fast ends
-    20 minutes after sunset.
-    </p>
-    <p>
-    In the Ohr HaChaim calendar, they write that the fast ends at Tzet
-    Hacochavim. I asked Rabbi Benizri if this meant that the fast ends
-    at 13.5 zmaniyot minutes after sunset and he said, "Not necessarily,
-    a person can end the fast at 20 minutes after sunset if he wants to
-    be stringent." I then asked him if those 20 minutes are zmaniyot
-    minutes or regular minutes and he said, "Regular minutes."
-    </p>
-    <p>
-    If a person wants to end the fast at 13.5 zmaniyot minutes after
-    sunset, he has the right to do so. However, if a person wants to be
-    stringent, he can end the fast at 20 minutes after sunset.
-    </p>
-- id: tzeitTaanitLChumra
-  attributes:
-    yomTovInclusive:
-    luachInclusive:
-    condition: isTaanit
-  timeGetter: getTzetTaanitLChumra
-  names:
-    hb: צאת תענית לחומרא
-    et: Tzet Taanit L'Chumra
-    en: Fast Ends (Stringent)
-  description: |-
-    <p>
-    This is a more stringent time that the fast/taanit ends. This time
-    is according to the opinion of Chacham Ben Zion Abba Shaul.
-    </p>
-    <p>
-    This time is calculated as 30 regular minutes after sunset
-    (elevation included for the Ohr Hachaim calendar).
     </p>
 - id: tzeitShabbat
   timeGetter: getTzaitShabbath

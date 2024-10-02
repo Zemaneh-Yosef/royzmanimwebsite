@@ -183,7 +183,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 						(jCal.getJewishMonth() == WebsiteLimudCalendar.AV
 							? calc.getShkiya()
 							: calc.tomorrow().getAlotHashachar()).epochMilliseconds,
-					end: calc.tomorrow()[amudehHoraahZman ? 'getTzaitLechumra' : 'getTzaitTaanit']().epochMilliseconds,
+					end: calc.tomorrow().getTzaitLechumra().epochMilliseconds,
 					title: funcSettings.fasts[jCal.tomorrow().getYomTovIndex().toString()][funcSettings.language]
 				})
 		}

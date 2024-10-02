@@ -13,22 +13,21 @@ function mjd2date(mjd){
 	if (mjd<-100840) // assume Julian calendar
 		a = z;
 	else {           // assume Gregorian calendar
-		let aa  = Math.floor((z+532784.25)/36524.25);
-		a = z+1+aa-Math.floor(aa/4);
+		let centuryAdj = Math.floor((z+532784.25)/36524.25);
+		a = z+1+centuryAdj-Math.floor(centuryAdj/4);
 	}
 
-	let b  = a+1102;
-	let c  = Math.floor((b-122.1)/365.25);
-	let d  = Math.floor(365.25*c);
-	let e  = Math.floor((b-d)/30.6001);
-	let dy = b-d-Math.floor(30.6001*e); // day
-	let mn = e-(e<13.5?2:14);           // month
-	var yr = c+(mn>1.5?1856:1857);      // year
+	let b = a+1102;
+	let c = Math.floor((b-122.1)/365.25);
+	let d = Math.floor(365.25*c);
+	let e = Math.floor((b-d)/30.6001);
+	const day = b-d-Math.floor(30.6001*e); // day
+	const mn = e-(e<13.5?2:14);            // month
+	const year = c+(mn>1.5?1856:1857);     // year
 
-	return Temporal.PlainDate.from({
-		day: dy,
+	return Temporal.PlainDate.from({ day,
 		month: mn + 1,
-		year: yr
+		year
 	});
 }
 
@@ -87,7 +86,7 @@ export default class TekufahCalculator {
 	 * @param {boolean} fixedClock
 	 */
 	calculateTekufotShemuel(fixedClock) {
-		let tekTimes = this.calculateTekufot(719513280/1969920, 2051833);
+		let tekTimes = this.calculateTekufot(365.25, 2051833);
 		if (!fixedClock)
 			tekTimes = tekTimes.map(time => time.subtract({ minutes: 20, seconds: 56, milliseconds: 496 }))
 
@@ -95,6 +94,6 @@ export default class TekufahCalculator {
 	}
 
 	calculateTekufotRAda() {
-		return this.calculateTekufot(719507020/1969920, 2051826);
+		return this.calculateTekufot(235/19 * (29 + 13753/25920), 2051826);
 	}
 }
