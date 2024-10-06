@@ -681,11 +681,12 @@ class zmanimListUpdater {
 				this.writeMourningPeriod(mourningDiv);
 		}
 
+		const tefilaRules = this.jCal.tefilahRules();
 		document.querySelectorAll('[data-zfReplace="Ulchaparat"]').forEach(
 			(/**@type {HTMLElement} */ulchaparat) => {
 				if (this.jCal.isRoshChodesh()) {
 					ulchaparat.style.removeProperty("display");
-					ulchaparat.innerHTML = (this.jCal.tefilahRules().amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
+					ulchaparat.innerHTML = (tefilaRules.amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
 				} else {
 					ulchaparat.style.display = "none";
 				}
@@ -743,7 +744,7 @@ class zmanimListUpdater {
 			}
 		)
 
-		document.querySelectorAll('[data-zfReplace="Tachanun"]').forEach(
+		document.querySelectorAll('[data-zfFind="Tachanun"]').forEach(
 			(/**@type {HTMLElement} */tachanun) => {
 				if (this.jCal.isYomTovAssurBemelacha()) {
 					tachanun.style.display = "none";
@@ -751,24 +752,25 @@ class zmanimListUpdater {
 				}
 
 				tachanun.style.removeProperty("display");
-				if (this.jCal.getDayOfWeek() == 7) {
-					tachanun.innerHTML = this.jCal.tefilahRules().tachanun == 0 ? "צדקתך" : "יהי שם"
-				} else {
-					switch (this.jCal.tefilahRules().tachanun) {
-						case 2:
-							tachanun.innerHTML = "No Taḥanun";
-							break;
-						case 1:
-							tachanun.innerHTML = "Only Taḥanun at Shacharit";
-							break;
-						case 0:
-							tachanun.innerHTML = "Calendar-Taḥanun Day";
+				let tachanunId = tefilaRules.tachanun;
+				if (this.jCal.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
+					tachanunId = Math.min(tachanunId + 3, 4)
+				}
+				
+				for (const tachanunDiv of tachanun.children) {
+					if (!(tachanunDiv instanceof HTMLElement))
+						continue;
+
+					if (tachanunDiv.getAttribute("data-zfFind") == tachanunId.toString()) {
+						tachanunDiv.style.removeProperty("display");
+					} else {
+						tachanunDiv.style.display = "none";
 					}
 				}
 			}
 		)
 
-		const hallelText = this.jCal.tefilahRules().hallel;
+		const hallelText = tefilaRules.hallel;
 		document.querySelectorAll('[data-zfReplace="Hallel"]').forEach(
 			(/**@type {HTMLElement} */hallel) => {
 				if (!hallelText) {
