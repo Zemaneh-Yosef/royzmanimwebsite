@@ -154,14 +154,16 @@ async function preparePrint() {
 	/** @type {HTMLElement} */
 	const finalExplanation = document.querySelector('[data-printFind]');
 
-	Array.from(document.getElementById('explanationCont').children)
-		.filter(langElem => !langElem.classList.contains(`lang-${settings.language().replace('en-et', 'et')}`))
-		.forEach(otherLang => otherLang.remove())
+	for (const toExtract of document.querySelectorAll('[data-lang-extract]')) {
+		Array.from(toExtract.children)
+			.filter(langElem => !langElem.classList.contains(`lang-${settings.language().replace('en-et', 'et')}`))
+			.forEach(otherLang => otherLang.remove())
 
-	while (document.getElementById('explanationCont').firstElementChild.childElementCount > 0) {
-		document.getElementById('explanationCont').appendChild(document.getElementById('explanationCont').firstElementChild.firstElementChild)
+		while (toExtract.firstElementChild.childElementCount > 0) {
+			toExtract.appendChild(toExtract.firstElementChild.firstElementChild)
+		}
+		toExtract.firstElementChild.remove()
 	}
-	document.getElementById('explanationCont').firstElementChild.remove()
 
 	if (settings.language() == 'hb') {
 		document.body.removeAttribute('dir');

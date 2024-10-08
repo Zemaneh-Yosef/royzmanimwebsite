@@ -7,6 +7,9 @@ layout: nothing
 {% capture netzExpl %}{% include printcal/netz/intro.md %}{% endcapture %}
 {% capture netzHbExpl %}{% include printcal/netz/intro-hb.rtl.md %}{% endcapture %}
 
+{% capture timesExpl %}{% include printcal/netz/times.md %}{% endcapture %}
+{% capture timesHbExpl %}{% include printcal/netz/times.md %}{% endcapture %}
+
 <noscript>
 	<h1>This site requires JavaScript to function</h1>
 	<p>However, you are free to look at descriptions</p>
@@ -414,10 +417,20 @@ layout: nothing
 			<div class="explanationPreface">
 				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor';">קונטרס כי יעיר השמש</h4>
 				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
-				<div class="columnSplit" id="explanationCont">
+				<div class="columnSplit" data-lang-extract>
 					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-et">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-hb">{{ netzHbExpl | markdownify }}</span>
+				</div>
+				<h5 style="text-align: center;">
+					<span class="lang lang-en">Sun-Times</span>
+					<span class="lang lang-et">Zemaneh Hashemesh</span>
+					<span class="lang lang-hb">זמני השמש</span>
+				</h5>
+				<div class="columnSplit" data-lang-extract>
+					<span class="lang lang-en">{{ timesExpl | markdownify }}</span>
+					<span class="lang lang-et">{{ timesExpl | markdownify }}</span>
+					<span class="lang lang-hb">{{ timesHbExpl | markdownify }}</span>
 				</div>
 				<div class="advert" style="margin-top: .5rem; text-align: center;">
 					See more from...<br>
