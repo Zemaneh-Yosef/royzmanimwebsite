@@ -70,6 +70,8 @@ layout: nothing
 
 	.explanationPreface {
 		line-height: 1.25;
+		font-size: .775em;
+		word-break: keep-all;
 	}
 
 	.explanationPreface p,
@@ -79,10 +81,8 @@ layout: nothing
 	.pagedjs_pages ol,
 	.pagedjs_pages ul {
 		margin-bottom: .5rem;
-		font-size: .775em;
 		text-align: justify;
 		text-justify: inter-word;
-		word-break: keep-all;
 	}
 
 	#differences {
@@ -417,7 +417,7 @@ layout: nothing
 			<div class="explanationPreface">
 				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor';">קונטרס כי יעיר השמש</h4>
 				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
-				<div class="columnSplit" data-lang-extract>
+				<div class="columnSplit" style="font-size: .85rem;" data-lang-extract>
 					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-et">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-hb">{{ netzHbExpl | markdownify }}</span>

@@ -167,6 +167,9 @@ async function updateList(event) {
 		}
 	} else {
 		elements.manual.container.classList.add('d-none');
+
+		if (!navigator.onLine) return;
+
 		if (!((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)) {
 			pool = q;
 			await delay(1000);
@@ -517,8 +520,8 @@ function openCalendarWithLocationInfo() {
 }
 
 const networkStatus = {
-	online: () => { elements.searchBar.disabled = false; elements.error.offline.style.display = "none" },
-	offline: () => { elements.searchBar.disabled = true; elements.error.offline.style.removeProperty("display") }
+	online: () => { elements.error.offline.style.display = "none" },
+	offline: () => { elements.error.offline.style.removeProperty("display") }
 }
 
 document.addEventListener("DOMContentLoaded", function(){
