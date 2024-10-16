@@ -3,12 +3,13 @@ img#heroImage {
     top: 0;
     width: 100%;
     max-width: 100vw;
-    height: 100vh;
+    min-height: 27.5vh;
     object-fit: cover;
     object-position: bottom;
     -webkit-mask-image:-webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));
     mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 75%, rgba(0,0,0,0));
     z-index: -1;
+    aspect-ratio: 1622 / 882;
 }
 
 img#logo {
@@ -65,7 +66,7 @@ img#logo {
 
     #logo.stepTw, #logo.stepTh {
         width: 42.5vw;
-        top: 1.5em;
+        top: .5em;
     }
 
     #logo.stepF {
