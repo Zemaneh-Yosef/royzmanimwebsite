@@ -27,7 +27,7 @@ img#logo {
 }
 
 #logo.stepO {
-    width: 45vw;
+    width: 42.5vw;
     top: 1.5em;
 }
 
@@ -50,13 +50,21 @@ img#logo {
     width: 65vw; aspect-ratio: 2000/461; margin-bottom: 5rem;
 }
 
+.maxWidthHeader {
+	margin-left: auto;
+	margin-right: auto;
+	width: clamp(16rem, 90vw, 92.5rem);
+	max-width: unset;
+	padding: unset;
+}
+
 @media (max-width: 991.98px) {
     #logo:not(.stepO):not(.stepTw):not(.stepTh):not(.stepF) {
         width: 85vw;
     }
 
     #logo.stepTw, #logo.stepTh {
-        width: 45vw;
+        width: 42.5vw;
         top: 1.5em;
     }
 
