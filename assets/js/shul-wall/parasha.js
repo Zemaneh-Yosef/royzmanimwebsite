@@ -100,9 +100,23 @@ if (dateHighlight.isYomTov() && dateHighlight.getYomTovIndex() in yomTovObj) {
 
 const lightCand = document.querySelector('[data-lightingCandles]');
 if (dateHighlight.hasCandleLighting()) {
-    const lightCand2 = lightCand.cloneNode(true);
+    /** @type {Element} */
     // @ts-ignore
-    lightCand2.innerHTML += "(2<sup>nd</sup> night): " + zmanCalc.getTzaitLechumra().toLocaleString(...dtF);
+    const lightCand2 = lightCand.cloneNode(true);
+    lightCand2.innerHTML += "(2<sup>nd</sup> night): " + zmanCalc.chainDate(dateHighlight.getDate()).getTzaitLechumra().toLocaleString(...dtF);
+    lightCand.insertAdjacentElement('afterend', lightCand2);
+
+    if (dateHighlight.tomorrow().hasCandleLighting()) {
+        // There is no 3 day YT without Shabbat, so we could automatically call the getCandleLighting function for this
+
+        /** @type {Element} */
+        // @ts-ignore
+        const lightCand3 = lightCand.cloneNode(true);
+        lightCand3.innerHTML += "(3<sup>rd</sup> night): " + zmanCalc.chainDate(dateHighlight.tomorrow().getDate()).getCandleLighting().toLocaleString(...dtF);
+
+        lightCand2.insertAdjacentElement('afterend', lightCand3);
+    }
+
     lightCand.innerHTML += "(1<sup>st</sup> night): ";
 }
 lightCand.innerHTML += zmanCalc.chainDate(dateHighlight.getDate().subtract({ days: 1 })).getCandleLighting().toLocaleString(...dtF);

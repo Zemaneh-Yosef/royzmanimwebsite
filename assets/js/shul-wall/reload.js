@@ -14,11 +14,9 @@ export async function reload() {
 		window.timers = {};
 	}
 
-	var newDoc = new DOMParser().parseFromString(pageText, "text/html");
+	const newDoc = new DOMParser().parseFromString(pageText, "text/html");
 	const newScrs = [];
-	for (const script of newDoc.querySelectorAll('script')) {
-		console.log(script);
-
+	for (const script of newDoc.getElementsByTagName('script')) {
 		const newScript = document.createElement('script');
 		if (script.type)
 			newScript.type = script.type;
@@ -39,17 +37,10 @@ export async function reload() {
 		script.remove();
 	}
 
-	document.replaceChild(
-		document.importNode(newDoc.documentElement, true),
-		document.documentElement
-	);    
+	for (const oldScr of document.getElementsByTagName('script'))
+		oldScr.remove();
 
-	/* for (const child of document.documentElement.childNodes)
-		child.remove();
-
-	await waitFor(2000);
-
-	document.documentElement.insertAdjacentHTML('afterbegin', pageText); */
+	document.replaceChild(newDoc.documentElement, document.documentElement);
 
 	await waitFor(200);
 	for (const newScr of newScrs)
