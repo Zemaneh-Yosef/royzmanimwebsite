@@ -74,6 +74,10 @@ layout: nothing
 		word-break: keep-all;
 	}
 
+	.pagedjs_pages ol {
+		padding-left: 1rem;
+	}
+
 	.explanationPreface p,
 	.explanationPreface ol,
 	.explanationPreface ul,
@@ -122,12 +126,49 @@ layout: nothing
 		position: absolute;
 	}
 
-	:dir(ltr) .explanationPreface .fakeListItem::before {
+	:dir(ltr) .explanationPreface .fakeListItem::before,
+	:dir(ltr) .explanationPreface .customBulletList::before {
 		left: -10px; /* Position the bullet point to the left of the text */
 	}
 
-	:dir(rtl) .explanationPreface .fakeListItem::before {
+	:dir(rtl) .explanationPreface .fakeListItem::before,
+	:dir(rtl) .explanationPreface .customBulletList::before {
 		right: -10px; /* Position the bullet point to the left of the text */
+	}
+
+	.pagedjs_pages .customBulletList {
+		margin-inline-start: 12.5px; /* Set the desired margin */
+		position: relative;
+		margin-bottom: .05rem;
+		direction: rtl;
+	}
+
+	.pagedjs_pages .customBulletList::before {
+		right: -12.5px; /* Position the bullet point to the left of the text */
+		position: absolute;
+		font-weight: 700;
+		font-size: 1.5em;
+		line-height: 1;
+	}
+
+	.customBulletList#bulletA::before {
+		content: "א";
+	}
+
+	.customBulletList#bulletB::before {
+		content: "ב";
+	}
+
+	.customBulletList#bulletR::before {
+		content: "ר";
+	}
+
+	.customBulletList#bulletH::before {
+		content: "ה";
+	}
+
+	.customBulletList#bulletM::before {
+		content: "מ";
 	}
 
 	.omerText {
