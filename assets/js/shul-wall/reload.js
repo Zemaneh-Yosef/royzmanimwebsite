@@ -16,25 +16,29 @@ export async function reload() {
 
 	const newDoc = new DOMParser().parseFromString(pageText, "text/html");
 	const newScrs = [];
-	for (const script of newDoc.getElementsByTagName('script')) {
-		const newScript = document.createElement('script');
-		if (script.type)
-			newScript.type = script.type;
 
-		if (script.src) {
-			const scrUrl = new URL(script.src);
+	const oldScripts = newDoc.getElementsByTagName('script');
+	while (oldScripts.length > 0) {
+		const baseScript = oldScripts.item(0);
+
+		const newScript = document.createElement('script');
+		if (baseScript.type)
+			newScript.type = baseScript.type;
+
+		if (baseScript.src) {
+			const scrUrl = new URL(baseScript.src);
 			scrUrl.searchParams.delete('v')
 			scrUrl.searchParams.append('v', getRandomIntInclusive(1, 99999).toString());
 
 			newScript.src = scrUrl.href;
 		}
 
-		if (script.innerHTML) {
-			newScript.innerHTML = '// ' + new Date().toString() + '\n' + script.innerHTML
+		if (baseScript.innerHTML) {
+			newScript.innerHTML = '// ' + new Date().toString() + '\n' + baseScript.innerHTML
 		}
 		newScrs.push(newScript);
 
-		script.remove();
+		baseScript.remove();
 	}
 
 	for (const oldScr of document.getElementsByTagName('script'))
