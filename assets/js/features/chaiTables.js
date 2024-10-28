@@ -170,6 +170,7 @@ class ChaiTables {
 				yearloop.setJewishDayOfMonth(1);
 			}
 			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413);
+			console.log(ctLink.toString())
 
 			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
 			const ctResponse = await ctFetch.text()

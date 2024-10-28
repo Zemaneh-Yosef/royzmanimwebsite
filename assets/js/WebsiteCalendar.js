@@ -297,7 +297,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					case 'LATE_NIGHT':
 						const selichot = this.getDayOfWeek() !== KosherZmanim.Calendar.FRIDAY
 							&& (this.getJewishMonth() == KosherZmanim.JewishDate.ELUL
-							|| (this.getJewishMonth() == KosherZmanim.JewishDate.TISHREI && this.getJewishDayOfMonth() > 10));
+							|| (this.getJewishMonth() == KosherZmanim.JewishDate.TISHREI && this.getJewishDayOfMonth() < 10));
 						let pesah = this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN && this.getJewishDayOfMonth() == 14;
 						if (!this.getInIsrael())
 							pesah = pesah || this.getJewishMonth() == KosherZmanim.JewishDate.NISSAN && this.getJewishDayOfMonth() == 14;

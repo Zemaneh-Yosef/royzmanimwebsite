@@ -97,6 +97,13 @@ class CountDown {
 	}
 }
 
+// Four environments exist that need countdown
+// 1. Poalim - From 90 minute Alot -> Regular Alot, Alot->Misheyakir
+// 2. Netz Minyanim - Netz
+// 3. Factory Minyanim - Sof Zman Tefila
+// 4. Hatzot Layla Selihot - S&P repellent
+
+
 const counter = new CountDown(timerEl);
 if ([hebDate.monthsInYear, 1].includes(hebDate.month)) {
 	if (zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight().dayOfYear
