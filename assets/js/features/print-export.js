@@ -222,7 +222,7 @@ async function preparePrint() {
 		await sleep();
 	}
 
-	window.print();
+	//window.print();
 }
 
 /**
