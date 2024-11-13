@@ -18,11 +18,11 @@ When it comes to times that are outside sunrise and sunset, although there is no
 
 ###### Dawn
 
-Dawn is the time that rays of sun are visible in the lit up Eastern part of the sky<span class="footnote">ראש על ברכות ד':א', רמב"ם פירוש המשניות יומא ג':א', שלחן ערוך או"ח פ"ט:אי</span>. Practically, it is the time that we transition from night into day, where the day’s restrictions (like not eating before praying) are imposed and positive commandments are now performable<span class="footnote">ראה שלחן ערוך (או"ח) בהרבה סעיפים (נח, פט, תקפח, תרנב, תרפז). ראה עוד ביו"ד סימן רסב</span> (in an unideal fashion, for those who have a pressing need or had already done so erroniously; one should preferably wait until sunrise instead)
+Dawn begins the halachic day, signified by the visibility of the sun's rays in the illuminated eastern sky.<span class="footnote">רא"ש, ברכות ד:א; רמב"ם פירוש המשניות ד:א; ש"ע א"ח פט:א</span> Practically, the new day's obligations start from this time,<span class="footnote">ראה שלחן ערוך (או"ח) בהרבה סעיפים (נח, פט, תקפח, תרנב, תרפז). ראה עוד ביו"ד סימן רסב</span> even though active-commands should be delayed until sunrise when one is not in an pressing circumstance (although one who erroniously did it before sunrise is exempt post-facto). We calculate it as 72 minutes prior to sunrise
 
 ###### MiSheyakir
 
-MiSheyakir is the time one can recognize an acquaintance from close proximity, as well as distinguish between white & <span style="unicode-bidi: isolate;">תכלת</span>.<span class="footnote"><span style="unicode-bidi: plaintext;">שתי הזמנים האלו אותו דבר: ראה בית יוסף סימן נ"ח ד"ה 'ומ"ש ומצוה'</span></span> Practically, this is the time for <span style="unicode-bidi: isolate;">טליתות, תפילין וקריאת שמע</span>.<span class="footnote">שלחן ערוך או"ח סימנים י"ח, ל' & נ"ח</span>
+MiSheyakir is the time one can recognize an acquaintance from close proximity, as well as distinguish between white & <span style="unicode-bidi: isolate;">תכלת</span>.<span class="footnote"><span style="unicode-bidi: plaintext;">שתי הזמנים האלו אותו דבר: ראה בית יוסף סימן נ"ח ד"ה 'ומ"ש ומצוה'</span></span> Practically, this is the time for <span style="unicode-bidi: isolate;">טליתות, תפילין וקריאת שמע</span>.<span class="footnote">שו"ע או"ח סימנים י"ח, ל' & נ"ח</span>
 
 For our calendar, we maintain the recommended position to measure this time as one (adjusted-)seasonal hour before sunrise.<span class="footnote">הליכות עולם א' דף י"ט. The letter-of-the-law opinion of 66 minutes brought there can be used on our calendar by cutting the time between עלות השחר and משיכיר in half.</span>
 
@@ -34,25 +34,25 @@ There is a dispute amongst Aḥaronic authorities whether the codification of th
 
 ###### Keriath Shema Blessing End Time
 
-By the time one third of the day has passed (which will be by the end of the fourth seasonal hour), one must have already recited the blessings of <span style="unicode-bidi: isolate;">קריאת שמע</span><span class="footnote">רא"ש ברכות י: בשם רה"ג, סידור רס"ג זף יג, שלחן ערוך או"ח סימן נ"ח, פתח דביר ב' דף יח בשם רב חיים וייטל</span> and should have finished praying <span style="unicode-bidi: isolate;">תפילת שחרית</span>.<span class="footnote">שלחן ערוך או"ח סימן פ"ט</span>
+By the time one third of the day has passed (which will be by the end of the fourth seasonal hour), one must have already recited the blessings of <span style="unicode-bidi: isolate;">קריאת שמע</span><span class="footnote">רא"ש ברכות י: בשם רה"ג, סידור רס"ג זף יג, שו"ע או"ח סימן נ"ח, פתח דביר ב' דף יח בשם רב חיים וייטל</span> and should have finished praying <span style="unicode-bidi: isolate;">תפילת שחרית</span>.<span class="footnote">שו"ע או"ח סימן פ"ט</span>
 
 ###### Ḥatzoth - Midday & Midnight
 
 Ḥatzoth is the precise midpoint in the day/night (depending on whether it's חצות היום or <span style="unicode-bidi: isolate;">חצות הלילה</span><span class="footnote"><span style="unicode-bidi: plaintext;">חזון עובדיה, ימים נוראים דף ג'</span></span>), which is calculated by dividing the time between sunrise to sunset (or sunset to sunrise) in half. There are practical implications for both:
 
 {:.fakeListItem}
-By חצות היום, one must have already completed <span style="unicode-bidi: isolate;">תפילת שחרית</span>.<span class="footnote">שלחן ערוך או"ח סימן פ"ט</span> One can tell this time by when one's shadow is directly undearneath them.<span class="footnote">ברטנורא על משנה פסחים ה׳:א׳ וגם הקש ממה שכתב רש"י על בין הערבים (פסחים נח. ד״ה בין הערבים)</span>
+By חצות היום, one must have already completed <span style="unicode-bidi: isolate;">תפילת שחרית</span>.<span class="footnote">שו"ע או"ח סימן פ"ט</span> One can tell this time by when one's shadow is directly undearneath them.<span class="footnote">ברטנורא על משנה פסחים ה׳:א׳ וגם הקש ממה שכתב רש"י על בין הערבים (פסחים נח. ד״ה בין הערבים)</span>
 
 {:.fakeListItem}
 There are various rules night-based rules (such as Seliḥoth, Taḥanun by Keriath Shema al HaMittah, Pesaḥ's Seder Night amongst others) that depend on when חצות הלילה is.
 
 ###### Minḥa Times
 
-The earliest one can pray תפילת המנחה is a half hour after the halachic midday, which is called <span style="unicode-bidi: isolate;">זמן מנחה גדולה</span>.<span class="footnote">שלחן ערוך או"ח סימן רל"ג. הליכות עולם א' דף רנב</span> This half hour is measured as the **stringent** of two formats: half-hour seasonal and half-hour fixed.<span class="footnote"><span style="unicode-bidi: plaintext;">הלכה ברורה סימן רל"ג הלכה ג'</span></span>
+The earliest one can pray תפילת המנחה is a half hour after the halachic midday, which is called <span style="unicode-bidi: isolate;">זמן מנחה גדולה</span>.<span class="footnote">שו"ע או"ח סימן רל"ג. הליכות עולם א' דף רנב</span> This half hour is measured as the **stringent** of two formats: half-hour seasonal and half-hour fixed.<span class="footnote"><span style="unicode-bidi: plaintext;">הלכה ברורה סימן רל"ג הלכה ג'</span></span>
 
 However, it is preferable for one to wait until the 9.5<sup>th</sup> seasonal hour into the day<span class="footnote"><span style="unicode-bidi: plaintext;">ילקוט יוסף רל"ג:א'</span></span>, as this is the time for "מנחה קטנה". We list both times, should one be in need of praying earlier.
 
 ###### Plag Haminḥa
-The time from מנחה קטנה until the end of the day is divided into two halves, each lasting 1¼ seasonal hours.<span class="footnote">ברכות בבלי כז. שמנחה קטנה היא שתי שעות ומחצה</span> By the second half (which we call פלג המנחה), one can start performing a select few commandments of the night, such as accepting Shabbat early<span class="footnote"><span style="unicode-bidi: plaintext;">רמא בשלחן ערוך (או"ח) רס"א:ב' שמביא שיטת הבית יוסף</span></span>, lighting Ḥanukah candles early<span class="footnote">חזון עובדיה חנוכה עמוד פ"ט</span> or praying תפילת ערבית when one (preferably) already prayed Minḥa.
+The time from מנחה קטנה until the end of the day is divided into two halves, each lasting 1¼ seasonal hours.<span class="footnote">ברכות בבלי כז. שמנחה קטנה היא שתי שעות ומחצה</span> By the second half (which we call פלג המנחה), one can start performing a select few commandments of the night, such as accepting Shabbat early<span class="footnote"><span style="unicode-bidi: plaintext;">רמא בשו"ע (או"ח) רס"א:ב' שמביא שיטת הבית יוסף</span></span>, lighting Ḥanukah candles early<span class="footnote">חזון עובדיה חנוכה עמוד פ"ט</span> or praying תפילת ערבית when one (preferably) already prayed Minḥa.
 
 By definition, one would measure the days length and mark this by the 11¾<sup>th</sup> hour. Consistent with R' Ovadia's method of calculating halachic times<span class="footnote">הליכות עולם א' דפים ק"ו ורמ"ח</span>, R' David Yosef<span class="footnote">אוצרות יוסף בסוף הלכה ברורה חלק י"ד תשובה ז</span> holds to measure this time backwards from sunset.<span class="footnote">כמו שכתב בכף החיים רל"ג:ז', מנחת כהן מאמר ב' סוף פרק ט', רמב"ם הלכות תפילה ג:ד</span> However, R' Avraham Yosef + R' Yitzḥak Yosef<span class="footnote">ילקוט יוסף, מהדורה חדשה, סימן רע"א דפים קלט & קמד-קמז</span> quote their father<span class="footnote">Yabia Omer vol. 2 siman 21 num. 15</span> that marks this time to work backwards from the _Geonic Nightfall_.<span class="footnote">While still having the length of the minutes based on sunrise until sunset, see Agur end of 327</span> Although one can choose to follow the earlier time of the Halacha Berurah<span class="footnote">There is no concern of blessings in vain since calculating Plag from sunset has been the custom (Halacha Berurah, ibid & Minḥat Cohen ibid)</span>, there is not too much of a difference between the two to recommend one or the other. As such, one should learn the material before arriving at their own conclusion.

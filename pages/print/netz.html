@@ -1,0 +1,505 @@
+---
+title: Netz Print-Out Calendar
+permalink: /print/netz
+layout: nothing
+---
+
+{% capture netzExpl %}{% include printcal/netz/intro.md %}{% endcapture %}
+{% capture netzHbExpl %}{% include printcal/netz/intro-hb.rtl.md %}{% endcapture %}
+
+{% capture timesExpl %}{% include printcal/netz/times.md %}{% endcapture %}
+{% capture timesHbExpl %}{% include printcal/netz/times.md %}{% endcapture %}
+
+<noscript>
+	<h1>This site requires JavaScript to function</h1>
+	<p>However, you are free to look at descriptions</p>
+</noscript>
+
+<link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Noto+Serif+Hebrew:wght@100..900&display=swap" rel="stylesheet">
+
+<style>
+	.tableGrid {
+		width: 100%;
+		display: grid;
+		text-align: center;
+		font-size: .8em;
+		page-break-before: always;
+		line-height: 1.6;
+	}
+
+	.tableCell {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+	}
+
+	.tableCell:not([data-time-for-shita="date"]) {
+		flex-direction: column;
+	}
+
+	.tableCell[data-time-for-shita="date"] > span:first-child::after {
+		content: "-";
+		padding-right: .25rem;
+		padding-left: .25rem;
+	}
+
+	.tableHeader {
+		font-weight: bold;
+		padding-right: .125em;
+		padding-left: .125em;
+		line-height: 1;
+	}
+
+	[data-zyHeader] {
+		text-align: center;
+		line-height: 1;
+	}
+
+	[data-zyHeader]>*:not(.locationSubtitle) {
+		font-family: 'Guttman Mantova-Decor', 'Javar';
+		margin-bottom: 0;
+	}
+
+	.special {
+		display: flex;
+	}
+
+	.explanationPreface {
+		line-height: 1.25;
+		font-size: .775em;
+		word-break: keep-all;
+	}
+
+	.pagedjs_pages ol {
+		padding-left: 1rem;
+	}
+
+	.explanationPreface p,
+	.explanationPreface ol,
+	.explanationPreface ul,
+	.pagedjs_pages p,
+	.pagedjs_pages ol,
+	.pagedjs_pages ul {
+		margin-bottom: .5rem;
+		text-align: justify;
+		text-justify: inter-word;
+	}
+
+	#differences {
+		page-break-before: always;
+	}
+
+	#differences p,
+	#differences ol,
+	#differences ul {
+		font-size: .865rem;
+	}
+
+	.explanationPreface h6,
+	.pagedjs_pages h6 {
+		margin-bottom: .125rem;
+	}
+
+	.pagedjs_footnote_inner_content {
+		font-size: .65em;
+	}
+
+	body {
+		font-family: "Spectral", serif;
+	}
+
+	.explanationPreface .fakeListItem,
+	.pagedjs_pages .fakeListItem {
+		margin-inline-start: 10px; /* Set the desired margin */
+		position: relative;
+		margin-bottom: .25rem;
+	}
+
+	.explanationPreface .fakeListItem::before,
+	.pagedjs_pages .fakeListItem::before {
+		/* Create a pseudo-element to act as the bullet point */
+		content: "\2022"; /* Unicode bullet point (•) */
+		position: absolute;
+	}
+
+	:dir(ltr) .explanationPreface .fakeListItem::before,
+	:dir(ltr) .explanationPreface .customBulletList::before {
+		left: -10px; /* Position the bullet point to the left of the text */
+	}
+
+	:dir(rtl) .explanationPreface .fakeListItem::before,
+	:dir(rtl) .explanationPreface .customBulletList::before {
+		right: -10px; /* Position the bullet point to the left of the text */
+	}
+
+	.pagedjs_pages .customBulletList {
+		margin-inline-start: 12.5px; /* Set the desired margin */
+		position: relative;
+		margin-bottom: .05rem;
+		direction: rtl;
+	}
+
+	.pagedjs_pages .customBulletList::before {
+		right: -12.5px; /* Position the bullet point to the left of the text */
+		position: absolute;
+		font-weight: 700;
+		font-size: 1.5em;
+		line-height: 1;
+	}
+
+	.customBulletList#bulletA::before {
+		content: "א";
+	}
+
+	.customBulletList#bulletB::before {
+		content: "ב";
+	}
+
+	.customBulletList#bulletR::before {
+		content: "ר";
+	}
+
+	.customBulletList#bulletH::before {
+		content: "ה";
+	}
+
+	.customBulletList#bulletM::before {
+		content: "מ";
+	}
+
+	.omerText {
+		font-size: .675em;
+	}
+
+	[data-zyBranding] {
+		font-family: 'Guttman Mantova-Decor', 'Javar';
+		text-align: center;
+		position: relative;
+	}
+
+	[data-zyBranding] .rotatedText {
+		width: 125px;
+	}
+
+	.zyCalFooter {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		margin-top: .75rem;
+	}
+
+	.zyCalFooter .sides {
+		flex: 1 1;
+		line-height: 1;
+	}
+
+	[data-zyLocationText] {
+		margin-bottom: 0;
+	}
+
+	.hebrewTitle {
+		line-height: .8;
+		font-size: 1.5rem;
+		margin-bottom: 0;
+	}
+
+	[data-zyData="date"] {
+		grid-column-end: span 2;
+		grid-row: 1 / span 2;
+		font-size: 1.75em;
+	}
+
+	[data-zyData="special"], [data-zyData="dateSec"] {
+		display: none;
+	}
+
+	.zyCalFooter > .sides {
+		font-size: .6rem;
+	}
+
+	.zyCalFooter > .sides:first-child h5 {
+		font-size: 1rem;
+	}
+
+	.zyCalFooter > .sides:last-child {
+		display: flex;
+		justify-content: space-around;
+		text-align: center;
+	}
+
+	.zyCalFooter > .sides:last-child h5 {
+		font-size: .85rem;
+		margin-bottom: 0;
+	}
+
+	.specialDay {
+		font-size: .85em;
+	}
+
+	[data-zyBranding] .genDate {
+		font-family: 'Spectral';
+	}
+
+	[data-zyBranding] .fa {
+		opacity: 0.3;
+		top: -9.25px;
+		font-size: 3.5em;
+		position: absolute;
+		margin-left: auto;
+		margin-right: auto;
+		left: 0;
+		right: 0;
+		text-align: center;
+	}
+
+	.flexElemWorkaround svg {
+		height: 1em;
+		width: 1em;
+		vertical-align: bottom;
+	}
+
+	.flexElemWorkaround svg path {
+		fill: black;
+	}
+
+	#cover {
+		height: calc(8.5in - 5mm);
+		width: calc(11in - 5mm);
+		display: grid;
+		align-items: center;
+		justify-items: center;
+	}
+
+	#title {
+		align-self: start;
+		justify-self: center;
+		text-align: center;
+		z-index: 3;
+	}
+
+	#logo {
+		width: 45%;
+	}
+
+	#bgCover {
+		width: 100%;
+	}
+
+	#cover > * {
+		grid-area: 1/1;
+	}
+
+	#cover [data-zyLocationText] {
+		padding-bottom: 3.5em;
+    	font-size: 2em;
+		unicode-bidi: plaintext;
+	}
+
+	#credits {
+		font-weight: 500;
+		z-index: 3;
+		align-self: end;
+		text-align: center;
+		justify-self: center;
+		line-height: 1.2;
+	}
+
+	#cover [data-zyLocationText] span {
+		font-weight: 700;
+	}
+
+	.columnSplit, .pagedjs_footnote_inner_content {
+		columns: var(--description-columns, 3);
+	}
+
+	.borderRow {
+		border-bottom: 1px solid #21252922;
+	}
+
+	[data-time-for-shita="special"] {
+		line-height: 1;
+	}
+
+	/*.pagedjs_pagebox > .pagedjs_area > .pagedjs_page_content {
+		column-width: calc(100% - var(--pagedjs-footnotes-height)) !important;
+	}*/
+</style>
+
+<div id="cover">
+	<div id="title">
+		<h1 style="font-family: 'Guttman Mantova-Decor'; margin-bottom: 0; line-height: 1; font-size: 5rem;">אוצר המאורות</h1>
+		<p style="font-weight: 500; font-size: 1.5em; padding-top: .5em; font-family: 'Guttman Mantova'; line-height: 1.2;">
+			לוח מיוחד למניינים שמתפללים בהנץ החמה<br>
+			בהשראת המסורת הספרדית המיוצגת בלוח אור החיים
+		</p>
+	</div>
+	<img src="/assets/images/print/netz_cover.png" id="bgCover" />
+	<div data-zyLocationText>
+		<span class="lang lang-hb">זמנים של</span>
+		<span class="lang lang-et">For:</span>
+		<span class="lang lang-en">For:</span>
+	</div>
+	<div id="credits">
+		<p>
+			Summaries and formatting by Maor Na'im<br>
+			Halachic opinions from R' Ovadia Yosef zt"l, Rishon Letzion R' David Yosef & co.<br>
+			Approbations & Adjustments by R' Leeor Betzalel Dahan & R' Meir Gavriel Elbaz<br>
+			Programmed on top of <b>KosherJava</b> by R' Eliyahu Hershfeld & <b>ChaiTables</b> by R' Chaim Keller
+		</p>
+		<b>ROYZMANIM.COM</b>
+	</div>
+</div>
+
+<div class="zyCalFooter">
+	<div class="sides">
+		<h5 data-zyLocationText>
+			<span class="lang lang-hb">זמנים של</span>
+			<span class="lang lang-et">For:</span>
+			<span class="lang lang-en">For:</span>
+		</h5>
+		<div data-geoCoordinates></div>
+		<div data-calendar>
+			<span class="lang lang-hb">לוח </span>
+			<span class="lang lang-et">Current Calendar:</span>
+			<span class="lang lang-en">Current Calendar:</span>
+		</div>
+		<div data-timeZone>
+			Current Timezone:
+		</div>
+	</div>
+	<div data-zyBranding>
+		<h1 class="hebrewTitle">אוצר<br>המאורות</h1>
+		<i class="fa fa-clock-o" aria-hidden="true"></i>
+		<div class="genDate">Gen.: </div>
+	</div>
+	<div class="sides" data-zyfooter-tekufa="beforeHatzot"></div>
+</div>
+
+<main>
+	<div class="tableGrid" data-zyTemplate>
+		<div class="tableHeader" data-zyData="special"></div>
+		<div class="tableHeader" data-zyData="date" data-wide-column></div>
+		{% for item in site.data.print.netzPrintOut %}
+		{% if item.shitot %}
+		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
+			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-en">{{ item.names.en }}</span>
+		</div>
+		{% for shita in item.shitot %}
+		<div class="tableHeader" data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
+			<span class="lang lang-hb">{{ shita.names.hb }}</span>
+			<span class="lang lang-et">{{ shita.names.et }}</span>
+			<span class="lang lang-en">{{ shita.names.en }}</span>
+		</div>
+		{% endfor %}
+		{% else %}
+		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}">
+			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-en">{{ item.names.en }}</span>
+		</div>
+		{% endif %}
+		{% endfor %}
+	</div>
+</main>
+
+<style>
+	@page {
+		size: letter landscape;
+		bleed: 0;
+		margin: 10mm;
+	}
+
+	.pagedjs_pagebox {
+		display: block;
+		height: calc(var(--pagedjs-pagebox-height) - 5mm);
+	}
+
+	.pagedjs_page.pagedjs_right_page {
+		height: calc(var(--pagedjs-height-right) - 5mm);
+	}
+
+	.pagedjs_page.pagedjs_left_page {
+		height: calc(var(--pagedjs-height-left) - 5mm);
+	}
+
+	.pagedjs_right_page .pagedjs_sheet {
+		display: block;
+		height: calc(var(--pagedjs-height-right) - 5mm);
+	}
+
+	.pagedjs_left_page .pagedjs_sheet {
+		display: block;
+		height: calc(var(--pagedjs-height-left) - 5mm);
+	}
+
+	.pagedjs_page:last-child {
+		page-break-after: avoid !important;
+	}
+
+	.pagedjs_pagebox > .pagedjs_area {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.pagedjs_area [data-footnote-call] {
+		display: inline-block;
+	}
+</style>
+
+<div style="page-break-before: always;">
+	<div>
+		<div data-printFind>
+			<div class="explanationPreface">
+				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor';">קונטרס כי יעיר השמש</h4>
+				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
+				<div class="columnSplit" style="font-size: .8rem;" data-lang-extract>
+					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>
+					<span class="lang lang-et">{{ netzExpl | markdownify }}</span>
+					<span class="lang lang-hb">{{ netzHbExpl | markdownify }}</span>
+				</div>
+				<h5 style="text-align: center;">
+					<span class="lang lang-en">Sun-Times</span>
+					<span class="lang lang-et">Zemaneh Hashemesh</span>
+					<span class="lang lang-hb">זמני השמש</span>
+				</h5>
+				<div class="columnSplit" style="font-size: .79rem;" data-lang-extract>
+					<span class="lang lang-en">{{ timesExpl | markdownify }}</span>
+					<span class="lang lang-et">{{ timesExpl | markdownify }}</span>
+					<span class="lang lang-hb">{{ timesHbExpl | markdownify }}</span>
+				</div>
+				<div class="advert" style="margin-top: .5rem; text-align: center;">
+					See more from...<br>
+					<img src="/assets/images/print/ZY-b&w-banner.png" style="margin-bottom: .5rem; width: 30%;">
+					<div style="color: white;">
+                        <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/app-store.svg" style="width: 100%">
+                            </div>
+                            App Store
+                        </div>
+                        <div style="margin-left: .35rem; margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/play-store.svg" style="width: 100%">
+                            </div>
+                            Play Store
+                        </div>
+						<div style="margin-left: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 12.5%; padding: .35rem; text-align: center;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/globe.svg" style="width: 100%; padding: .5rem;">
+                            </div>
+                            royzmanim.com
+                        </div>
+                    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/assets/js/features/print-export.js" type="module"></script>

@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Breul Grotesk';
+    src: local('Breul Grotesk A Heavy'), local('Breul-Grotesk-A-Heavy'),
+        url('BreulGroteskA-Heavy.woff2') format('woff2'),
+        url('BreulGroteskA-Heavy.woff') format('woff'),
+        url('BreulGroteskA-Heavy.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+  }

@@ -1,0 +1,465 @@
+---
+title: No-RT Calendar
+permalink: /print/nort
+layout: nothing
+---
+
+{% capture dayExpl %}{% include printcal/explanation-day.md %}{% endcapture %}
+{% capture nightNORTExpl %}{% include printcal/explanation-night-nort.md %}{% endcapture %}
+{% capture miscExpl %}{% include printcal/misc.md %}{% endcapture %}
+{% capture differences %}{% include printcal/differences.md %}{% endcapture %}
+
+{% capture fullHebExpl %}{% include printcal/explanation-hb.rtl.md %}{% endcapture %}
+
+<noscript>
+	<h1>This site requires JavaScript to function</h1>
+	<p>However, you are free to look at descriptions</p>
+</noscript>
+
+<link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Noto+Serif+Hebrew:wght@100..900&display=swap" rel="stylesheet">
+
+<style>
+	.tableGrid {
+		width: 100%;
+		display: grid;
+		text-align: center;
+		line-height: 1.1;
+		page-break-before: always;
+	}
+
+	.tableCell {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		height: 100%;
+		line-height: .8;
+
+		padding-top: .185em;
+		padding-bottom: .125em;
+	}
+
+	.tableHeader {
+		font-weight: bold;
+		padding-right: .125em;
+		padding-left: .125em;
+	}
+
+	[data-zyHeader] {
+		text-align: center;
+		line-height: 1;
+	}
+
+	[data-zyHeader]>*:not(.locationSubtitle) {
+		font-family: 'Guttman Mantova-Decor', 'Javar';
+		margin-bottom: 0;
+	}
+
+	.special {
+		display: flex;
+	}
+
+	.explanationPreface {
+		line-height: 1.25;
+		font-size: .7975em;
+		word-break: keep-all;
+	}
+
+	.explanationPreface p,
+	.explanationPreface ol,
+	.explanationPreface ul,
+	.pagedjs_pages p,
+	.pagedjs_pages ol,
+	.pagedjs_pages ul {
+		margin-bottom: .5rem;
+		text-align: justify;
+		text-justify: inter-word;
+	}
+
+	#differences {
+		page-break-before: always;
+	}
+
+	#differences p,
+	#differences ol,
+	#differences ul {
+		font-size: .865rem;
+	}
+
+	.explanationPreface h6,
+	.pagedjs_pages h6 {
+		margin-bottom: .125rem;
+	}
+
+	.pagedjs_footnote_inner_content {
+		font-size: .65rem;
+	}
+
+	body {
+		font-family: "Spectral", serif;
+	}
+
+	.explanationPreface .fakeListItem,
+	.pagedjs_pages .fakeListItem,
+	.explanationPreface .fakeListItemNoBullet,
+	.pagedjs_pages .fakeListItemNoBullet {
+		margin-inline-start: 8px; /* Set the desired margin */
+		position: relative;
+		margin-bottom: .25rem;
+	}
+
+	.explanationPreface .fakeListItem::before,
+	.pagedjs_pages .fakeListItem::before {
+		/* Create a pseudo-element to act as the bullet point */
+		content: "\2022"; /* Unicode bullet point (•) */
+		position: absolute;
+	}
+
+	:dir(ltr) .explanationPreface .fakeListItem::before,
+	:dir(ltr) .pagedjs_pages .fakeListItem::before {
+		left: -8px; /* Position the bullet point to the left of the text */
+	}
+
+	:dir(rtl) .explanationPreface .fakeListItem::before,
+	:dir(rtl) .pagedjs_pages .fakeListItem::before {
+		right: -8px; /* Position the bullet point to the left of the text */
+	}
+
+	.omerText {
+		font-size: .675em;
+	}
+
+	[data-zyBranding] {
+		font-family: 'Guttman Mantova-Decor', 'Javar';
+		display: grid;
+		text-align: center;
+		justify-items: center;
+		line-height: .8;
+		position: relative;
+	}
+
+	[data-zyBranding] > * {
+		grid-area: 1/1;
+	}
+
+	[data-zyBranding] .rotatedText {
+		width: 125px;
+	}
+
+	[data-zyBranding] .genDate {
+		font-family: 'Spectral';
+		grid-row: 2;
+		margin-top: .1rem;
+	}
+
+	[data-zyBranding] .fa {
+		opacity: 0.15;
+		padding-top: 7.25px;
+		font-size: 3.5em;
+		position: absolute;
+	}
+
+	/*[data-zyBranding] .pageLogo {
+		width: 42px;
+		padding-top: 1rem;
+	} */
+
+	.zyCalFooter {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		margin-top: .75rem;
+	}
+
+	.zyCalFooter .sides {
+		flex: 1 1;
+		line-height: 1;
+	}
+
+	[data-zyLocationText] {
+		margin-bottom: 0;
+	}
+
+	.hebrewTitle {
+		line-height: .8;
+		font-size: 1.5rem;
+		padding-top: 1rem;
+		margin-bottom: 0;
+	}
+
+	[data-zyData="date"] {
+		font-size: 1.5em;
+		grid-row: 1 / span 2;
+		grid-column-end: span 2;
+	}
+
+	[data-zyData="special"] {
+		display: none;
+	}
+
+	.zyCalFooter > .sides:last-child {
+		display: flex;
+		justify-content: space-around;
+		font-size: .6rem;
+		text-align: center;
+	}
+
+	.zyCalFooter > .sides:last-child h5 {
+		font-size: .85rem;
+		margin-bottom: 0;
+	}
+
+	.specialDay {
+		font-size: .85em;
+	}
+
+	.flexElemWorkaround svg {
+		height: 1em;
+		width: 1em;
+		vertical-align: bottom;
+	}
+
+	.flexElemWorkaround svg path {
+		fill: black;
+	}
+
+	#cover {
+		height: calc(8.5in - 5mm);
+		width: calc(11in - 5mm);
+		display: grid;
+		align-items: center;
+		justify-items: center;
+	}
+
+	#title {
+		align-self: start;
+		justify-self: center;
+		text-align: center;
+		z-index: 3;
+	}
+
+	#logo {
+		width: 45%;
+	}
+
+	#bgCover {
+		width: 100%;
+	}
+
+	#cover > * {
+		grid-area: 1/1;
+	}
+
+	#cover [data-zyLocationText] {
+		padding-bottom: 3.5em;
+    	font-size: 2em;
+		unicode-bidi: plaintext;
+	}
+
+	#credits {
+		font-weight: 500;
+		z-index: 3;
+		align-self: end;
+		text-align: center;
+		justify-self: center;
+		line-height: 1.2;
+	}
+
+	#cover [data-zyLocationText] span {
+		font-weight: 700;
+	}
+
+	.columnSplit, .pagedjs_footnote_inner_content {
+		columns: var(--description-columns, 4);
+	}
+
+	.borderRow {
+		border-bottom: 1px solid #21252922;
+	}
+
+	/*.pagedjs_pagebox > .pagedjs_area > .pagedjs_page_content {
+		column-width: calc(100% - var(--pagedjs-footnotes-height)) !important;
+	}*/
+</style>
+
+<div id="cover">
+	<div id="title">
+		<img src="/assets/images/print/ZY-b&w-banner.png" id="logo" />
+		<p style="font-weight: 500; font-size: 1.25em; padding-top: .5em;">
+			Halachic times according to Sepharadic tradition<br>
+			Inspired from the <b>Ohr Hachaim</b> calendar by <b>Maran Ovadia Yosef zt"l</b>
+		</p>
+	</div>
+	<img src="/assets/images/print/cover.png" id="bgCover" />
+	<div data-zyLocationText>
+		<span class="lang lang-hb">זמנים של</span>
+		<span class="lang lang-et">For:</span>
+		<span class="lang lang-en">For:</span>
+	</div>
+	<div id="credits">
+		<p>
+			Summaries and formatting by Maor Na'im & Elyahu Jacobi<br>
+			Formulas and approbations by R' Leeor Dahan & R' Meir Gavriel Elbaz
+		</p>
+		<b>ROYZMANIM.COM</b>
+	</div>
+</div>
+
+<div class="explanationPreface" id="differences">
+	<h4 style="text-align: center;">Differences Explanation</h4>
+	<p style="text-align: center;">This piece will only go through conclusions that we hold differently from other mainstream calendars; descriptions on individual Zemanim (as well as sources) can instead be found in the back of this calendar.</p>
+
+	<div style="columns: 3; margin-bottom: .5em;">{{ differences | markdownify }}</div>
+	<p style="text-align: center;">Although there are more shitot out there that our calendar does not follow (such as 90/96 minutes for dawn, using the beginning of an hour rather than the end for Shema), listing every shita we don't hold like would be confusing when one can learn the sugya as we outline and see what we would hold (to then infer what we wouldn't).</p>
+</div>
+
+<div class="zyCalFooter">
+	<div class="sides">
+		<h5 data-zyLocationText>
+			<span class="lang lang-hb">זמנים של</span>
+			<span class="lang lang-et">For:</span>
+			<span class="lang lang-en">For:</span>
+		</h5>
+		<div data-geoCoordinates></div>
+		<div data-calendar>
+			<span class="lang lang-hb">לוח </span>
+			<span class="lang lang-et">Current Calendar:</span>
+			<span class="lang lang-en">Current Calendar:</span>
+		</div>
+		<div data-timeZone>
+			Current Timezone:
+		</div>
+	</div>
+	<div data-zyBranding>
+		<h1 class="hebrewTitle">זמני<br>יוסף</h1>
+		<img src="/assets/images/print/sam.svg" class="rotatedText">
+		<i class="fa fa-clock-o" aria-hidden="true"></i>
+		<div class="genDate">Gen.: </div>
+	</div>
+	<div class="sides" data-zyfooter-tekufa data-zyfooter-hametz data-zyfooter-levana></div>
+</div>
+
+<main>
+	<div class="tableGrid" data-zyTemplate>
+		<div class="tableHeader" data-zyData="special"></div>
+		<div class="tableHeader" data-zyData="date"></div>
+		{% for item in site.data.print.printOutNoRT %}
+		{% if item.shitot %}
+		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
+			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-en">{{ item.names.en }}</span>
+		</div>
+		{% for shita in item.shitot %}
+		<div class="tableHeader" data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
+			<span class="lang lang-hb">{{ shita.names.hb }}</span>
+			<span class="lang lang-et">{{ shita.names.et }}</span>
+			<span class="lang lang-en">{{ shita.names.en }}</span>
+		</div>
+		{% endfor %}
+		{% else %}
+		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}">
+			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-en">{{ item.names.en }}</span>
+		</div>
+		{% endif %}
+		{% endfor %}
+	</div>
+</main>
+
+<style>
+	@page {
+		size: letter landscape;
+		bleed: 0;
+		margin: 10mm;
+	}
+
+	.pagedjs_pagebox {
+		display: block;
+		height: calc(var(--pagedjs-pagebox-height) - 5mm);
+	}
+
+	.pagedjs_page.pagedjs_right_page {
+		height: calc(var(--pagedjs-height-right) - 5mm);
+	}
+
+	.pagedjs_page.pagedjs_left_page {
+		height: calc(var(--pagedjs-height-left) - 5mm);
+	}
+
+	.pagedjs_right_page .pagedjs_sheet {
+		display: block;
+		height: calc(var(--pagedjs-height-right) - 5mm);
+	}
+
+	.pagedjs_left_page .pagedjs_sheet {
+		display: block;
+		height: calc(var(--pagedjs-height-left) - 5mm);
+	}
+
+	.pagedjs_page:last-child {
+		page-break-after: avoid !important;
+	}
+
+	.pagedjs_pagebox > .pagedjs_area {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.pagedjs_area [data-footnote-call] {
+		display: inline-block;
+	}
+</style>
+
+<div style="page-break-before: always;">
+	<div>
+		<div data-printFind>
+			<div class="explanationPreface">
+				<h4 style="text-align: center;">Calendar Explanation</h4>
+				<p style="text-align: center;">In this section of the calendar, we aim to explain every Halachic time in brief for both calculation and concept. One looking to read more on each time should read the descriptions for each on our website, royzmanim.com, where we give Talmudic based sources in addition to all the later Poskim we already bring in this document.</p>
+				<h5 style="text-align: center; margin-bottom: .125rem;">Zemaneh Hayom Explanations</h5>
+				<div class="columnSplit" data-lang-extract>
+					<span class="lang lang-en">{{ dayExpl | markdownify }}{{ nightNORTExpl | markdownify }}</span>
+					<span class="lang lang-et">{{ dayExpl | markdownify }}{{ nightNORTExpl | markdownify }}</span>
+					<span class="lang lang-hb">{{ fullHebExpl | markdownify }}</span>
+				</div>
+				<h5 style="text-align: center; margin-top: .5rem; margin-bottom: .125rem;">Misc. Zemanim Explanations</h5>
+				<div class="columnSplit" style="--description-columns: 3;">{{ miscExpl | markdownify }}</div>
+				<div class="advert" style="margin-top: .5rem; text-align: center;">
+					See more from...<br>
+					<img src="/assets/images/print/ZY-b&w-banner.png" style="margin-bottom: .5rem; width: 30%;">
+					<div style="color: white;">
+                        <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/app-store.svg" style="width: 100%">
+                            </div>
+                            App Store
+                        </div>
+                        <div style="margin-left: .35rem; margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/play-store.svg" style="width: 100%">
+                            </div>
+                            Play Store
+                        </div>
+						<div style="margin-left: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+                            <div style="border-radius: .35rem; background: white;">
+                                <img src="/assets/images/globe.svg" style="width: 100%; padding: .5rem;">
+                            </div>
+                            royzmanim.com
+                        </div>
+                    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	const style = document.createElement('style');
+	style.innerHTML = `.tableGrid { font-size: .${new URL(window.location.href).searchParams.has('shabbatOnly') ? "775" : "665"}em; }`;
+	document.head.appendChild(style);
+</script>
+<script src="/assets/js/features/print-export.js" type="module"></script>

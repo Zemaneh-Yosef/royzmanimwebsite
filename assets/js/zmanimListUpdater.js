@@ -76,11 +76,25 @@ class zmanimListUpdater {
 			pageTitle: geoLocation.getLocationName() || "No location name provided"
 		};
 
+		document.title = {
+			"hb": "זמנים ל" + locationTitles.modal + " - זמני יוסף",
+			"en": "Halachic Times for " + locationTitles.modal + " - Zemaneh Yosef/זמני יוסף",
+			"en-et": "Zemanim for " + locationTitles.modal + " - Zemaneh Yosef/זמני יוסף"
+		}[settings.language()]
+
 		const shareIcon = document.createElement('i');
 		shareIcon.classList.add("fa", "fa-share-alt");
 		const shareData = {
-			title: "Zemanim for " + locationTitles.modal,
-			text: "Find all the Zemanim on Zemaneh Yosef",
+			title: {
+				"hb": "זמנים ל",
+				"en": "Halachic Times for ",
+				"en-et": "Zemanim for "
+			}[settings.language()] + locationTitles.modal,
+			text: {
+				"hb": "כל הזמנים לפי שיטת מרן עובדיה יוסף זצ'ל, רק על זמני יוסף",
+				"en": "Get all the Halachic times according to Rav Ovadia Yosef ZT'L, only on Zemaneh Yosef",
+				"en-et": "Get all the Zemanim according to Rav Ovadia Yosef ZT'L, only on Zemaneh Yosef"
+			}[settings.language()],
 			url: window.location.href
 		};
 		const shareFunction = async () => {

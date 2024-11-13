@@ -35,20 +35,27 @@ const rYisraeliCal = new rYisraelizmanim(fallbackGL);
 
 /** @type {string[]} */
 let calendars = [];
-const jCal = new WebsiteLimudCalendar(5785, KosherZmanim.JewishDate.CHESHVAN, 1)
-const shabbatDate = jCal.getDate();
+const jCal = new WebsiteLimudCalendar()
+let shabbatDate = jCal.getDate();
 
 switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
-	case 'shabbat': {
-		if (jCal.getDate().dayOfWeek != 6)
-			throw new Error("Non-Saturday")
-		
+	case 'shabbat':
+	case 'yomTov': {
+		const jCalShabbat = jCal.shabbat();
+		jCalShabbat.back();
+
+		if ((jCalShabbat.isAssurBemelacha() || jCalShabbat.tomorrow().tomorrow().isAssurBemelacha())
+			&& document.getElementById('gridElement').getAttribute('data-flyerType') == 'shabbat')
+			throw new Error("Surrounding-Shabbat Asur Bemelacha")
+
+		shabbatDate = jCalShabbat.getDate();
+		jCal.setDate(shabbatDate);
+
 		if (document.getElementsByClassName('shabbatTitleCore').length) {
 			let parashaText = document.getElementsByClassName('shabbatTitleCore')[0].innerHTML + jCal.getHebrewParasha().join(" / ");
-			if (jCal.getHebrewParasha().join(" / ") == "No Parasha this week"
-			&& [5,6].includes(jCal.getDate().dayOfWeek)
-			&& [KosherZmanim.JewishCalendar.NISSAN, KosherZmanim.JewishCalendar.TISHREI].includes(jCal.getJewishMonth()))
-			   parashaText = "חול המועד " + (jCal.getDate().withCalendar("hebrew").month == 1 ? "סוכות" : "פסח");
+			if (jCal.isCholHamoed())
+				parashaText = "חול המועד " + (jCal.getDate().withCalendar("hebrew").month == 1 ? "סוכות" : "פסח");
+
 			for (const title of document.getElementsByClassName('shabbatTitleCore'))
 				title.innerHTML = parashaText + " " + jCal.formatJewishYear().hebrew
 		}

@@ -33,6 +33,31 @@ switch (window.location.href.split('/').at(-1)) {
 			}
 		});
 		break;
+	case 'ish-matzliach-bk':
+		preSetSettings = Object.freeze({
+			seconds: () => false,
+			timeFormat: () => 'h12',
+			language: () => 'en',
+			location: {
+				name: () => "איש מצליח",
+				lat: () => 40.62058957431101,
+				long: () => -73.95592847316078,
+				elevation: () => 0,
+				timezone: () => "America/New_York"
+			},
+			calendarToggle: {
+				hourCalculators: () => 'degrees',
+				rtKulah: () => true,
+				tzeitTaanitHumra: () => false,
+				tekufaMidpoint: () => 'hatzoth',
+				tekufaCalc: () => 'shemuel'
+			},
+			customTimes: {
+				candleLighting: () => 20,
+				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.14 })
+			}
+		});
+		break;
 	case 'mercaz-bne-aliya':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
