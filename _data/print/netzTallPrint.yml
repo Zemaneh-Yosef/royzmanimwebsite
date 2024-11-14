@@ -1,0 +1,21 @@
+---
+- timeGetter: getTallAlotHashacharWKorbanot
+  names:
+    hb: עלות
+    et: Aloth
+    en: Dawn
+- timeGetter: getTallMisheyakir
+  names:
+    hb: מישיקיר
+    et: Misheyakir
+    en: Misheyakir
+- timeGetter: getNetz
+  names:
+    hb: הנץ
+    et: HaNetz
+    en: Sunrise
+- timeGetter: getMolad
+  names:
+    hb: זמני הלבנה
+    et: Levana Times
+    en: Levana Times

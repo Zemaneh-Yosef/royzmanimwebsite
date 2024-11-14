@@ -127,23 +127,33 @@ layout: nothing
 	}
 
 	:dir(ltr) .explanationPreface .fakeListItem::before,
-	:dir(ltr) .explanationPreface .customBulletList::before {
+	:dir(ltr) .explanationPreface .customBulletList::before,
+	:dir(ltr) .explanationPreface .customBulletListFinale::before {
 		left: -10px; /* Position the bullet point to the left of the text */
 	}
 
 	:dir(rtl) .explanationPreface .fakeListItem::before,
-	:dir(rtl) .explanationPreface .customBulletList::before {
+	:dir(rtl) .explanationPreface .customBulletList::before,
+	:dir(rtl) .explanationPreface .customBulletListFinale::before {
 		right: -10px; /* Position the bullet point to the left of the text */
 	}
 
-	.pagedjs_pages .customBulletList {
+	.pagedjs_pages .customBulletList,
+	.pagedjs_pages .customBulletListFinale {
 		margin-inline-start: 12.5px; /* Set the desired margin */
 		position: relative;
-		margin-bottom: .05rem;
 		direction: rtl;
 	}
 
-	.pagedjs_pages .customBulletList::before {
+	.pagedjs_pages .customBulletList {
+		margin-bottom: .05rem;
+	}
+	.pagedjs_pages .customBulletListFinale {
+		margin-bottom: .5rem;
+	}
+
+	.pagedjs_pages .customBulletList::before,
+	.pagedjs_pages .customBulletListFinale::before {
 		right: -12.5px; /* Position the bullet point to the left of the text */
 		position: absolute;
 		font-weight: 700;
@@ -167,7 +177,7 @@ layout: nothing
 		content: "ה";
 	}
 
-	.customBulletList#bulletM::before {
+	.customBulletListFinale#bulletM::before {
 		content: "מ";
 	}
 
@@ -267,7 +277,7 @@ layout: nothing
 	}
 
 	#cover {
-		height: calc(8.5in - 5mm);
+		height: calc(8.5in - 8mm);
 		width: calc(11in - 5mm);
 		display: grid;
 		align-items: center;
@@ -286,7 +296,7 @@ layout: nothing
 	}
 
 	#bgCover {
-		width: 100%;
+		height: inherit;
 	}
 
 	#cover > * {
@@ -456,9 +466,9 @@ layout: nothing
 	<div>
 		<div data-printFind>
 			<div class="explanationPreface">
-				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor';">קונטרס כי יעיר השמש</h4>
+				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor'; line-height: 1; margin-bottom: 0;">קונטרס כי יעיר השמש</h4>
 				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
-				<div class="columnSplit" style="font-size: .8rem;" data-lang-extract>
+				<div class="columnSplit" style="font-size: .885rem;" data-lang-extract>
 					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-et">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-hb">{{ netzHbExpl | markdownify }}</span>

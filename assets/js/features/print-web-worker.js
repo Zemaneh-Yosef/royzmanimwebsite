@@ -474,20 +474,14 @@ async function messageHandler (x) {
 					}
 
 					if (shita == 'candleLightingRT') {
-						let rtElem = flexWorkAround.cloneNode(true);
+						renderZmanInDiv(zmanCalc.getTzaitRT(), {dtF: defaulTF, icon: {
+							'hb': 'ר"ת:',
+							"en-et": 'R"T:',
+							'en': 'R"T:'
+						}[x.data.lang], hideAMPM: true});
 						// @ts-ignore
-						rtElem.classList.add("omerText");
-						// @ts-ignore
-						rtElem.style.marginTop = '.1rem';
-						rtElem.appendChild(document.createTextNode(
-							{
-								'hb': 'ר"ת: ',
-								"en-et": 'R"T: ',
-								'en': 'R"T: '
-							}[x.data.lang] + zmanCalc.getTzaitRT().toLocaleString(...defaulTF)
-						));
-
-						div.appendChild(rtElem)
+						div.lastElementChild.style.marginTop = '.1rem';
+						div.lastElementChild.classList.add("omerText");
 					}
 				}
 	
@@ -501,18 +495,12 @@ async function messageHandler (x) {
 					}
 	
 					if (jCal.tomorrow().getDayOfChanukah() !== -1 && jCal.getDayOfWeek() !== 6) {
-						const hanukahSpan = flexWorkAround.cloneNode(true);
-						// @ts-ignore
-						hanukahSpan.classList.add("omerText");
-						hanukahSpan.appendChild(document.createTextNode(
-							{
-								'hb': "תדליק לפני ",
-								"en-et": "Light before ",
-								'en': "Light before "
-							}[x.data.lang] + zmanCalc.getTzait().add({ minutes: 30 }).toLocaleString(...defaulTF)
-						));
-	
-						div.appendChild(hanukahSpan);
+						renderZmanInDiv(zmanCalc.getTzait().add({ minutes: 30 }), {dtF: defaulTF, icon: {
+							'hb': "תדליק לפני",
+							"en-et": "Light before",
+							'en': "Light before"
+						}[x.data.lang], hideAMPM: true})
+						div.lastElementChild.classList.add("omerText");
 					}
 				}
 				break;
@@ -543,9 +531,29 @@ async function messageHandler (x) {
 	
 				break;
 			case 'getAlotHashachar':
+			case 'getTallAlotHashacharWKorbanot':
 				renderZmanInDiv(zmanCalc.getAlotHashachar());
 				if (jCal.isTaanis() && jCal.getJewishMonth() !== WebsiteLimudCalendar.AV && !jCal.isYomKippur())
-					div.style.fontWeight = "bold";
+					// @ts-ignore
+					div.firstElementChild.style.fontWeight = "bold";
+
+				if (shita == 'getTallAlotHashacharWKorbanot') {
+					renderZmanInDiv(zmanCalc.getAlotHashachar({minutes: 90, degree: 19.8}), {dtF: defaulTF, icon: `(${{
+						'hb': "קרבנות",
+						"en-et": "Korbanot",
+						'en': "Korbanot"
+					}[x.data.lang]}:`, appendText: ")", hideAMPM: true});
+					div.lastElementChild.classList.add("omerText");
+				}
+				break;
+			case 'getTallMisheyakir':
+				renderZmanInDiv(zmanCalc.getMisheyakir());
+				renderZmanInDiv(zmanCalc.getMisheyakir(11/12), {dtF: defaulTF, icon: `(${{
+					'hb': "מקדם",
+					"en-et": "Early",
+					'en': "Early"
+				}[x.data.lang]}:`, appendText: ")", hideAMPM: true});
+				div.lastElementChild.classList.add("omerText");
 				break;
 			case 'getNetz':
 				let seeSun;
@@ -578,20 +586,12 @@ async function messageHandler (x) {
 			case 'getHatzoth':
 				renderZmanInDiv(zmanCalc.getHatzoth());
 				if (jCal.isYomKippur()) {
-					const musafSpan = flexWorkAround.cloneNode(true);
-					// @ts-ignore
-					musafSpan.classList.add("omerText");
-					musafSpan.appendChild(document.createTextNode(
-						{
-							'hb': "(תסיים מוסף לפני ",
-							"en-et": "(Finish Musaf before ",
-							'en': "(Finish Musaf before "
-						}[x.data.lang]
-						+ zmanCalc.getNetz().add(zmanCalc.fixedToSeasonal(Temporal.Duration.from({ hours: 7 }))).toLocaleString(...defaulTF)
-						+ ")"
-					));
-	
-					div.appendChild(musafSpan);
+					renderZmanInDiv(zmanCalc.getNetz().add(zmanCalc.fixedToSeasonal(Temporal.Duration.from({ hours: 7 }))), {dtF: defaulTF, icon: '(' + {
+						'hb': "(תסיים מוסף לפני ",
+						"en-et": "(Finish Musaf before ",
+						'en': "(Finish Musaf before "
+					}[x.data.lang], appendText: ")", hideAMPM: true});
+					div.lastElementChild.classList.add("omerText");
 				}
 				break;
 			default:
