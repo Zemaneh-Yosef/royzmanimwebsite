@@ -42,7 +42,7 @@ const localization = {
 }
 
 /** @param {string} url */
-export default async function onlineSchedule(url) {
+export default async function onlineSchedule(url, callback = () => {}) {
     const iniText = await (await fetch(url)).text();
     const iniObj = parse(iniText);
 
@@ -62,4 +62,6 @@ export default async function onlineSchedule(url) {
                 `<li class="list-group-item d-flex justify-content-between align-items-center"><div>${localizedName}</div><div>${rowTime}</div></li>`;
         }
     }
+
+    callback();
 }

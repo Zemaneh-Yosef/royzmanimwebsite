@@ -28,10 +28,10 @@ for (const dafYerushalmi of document.querySelectorAll('[data-zfReplace="DafYerus
 	}
 }
 
-document.querySelector('[data-zfReplace="TehilimShvui"]').innerHTML
-	= KosherZmanim.TehilimYomi.byWeek(jCal).map(num => num.toString()).join(' - ');
-document.querySelector('[data-zfReplace="TehilimHodshi"]').innerHTML
-	= KosherZmanim.TehilimYomi.byDayOfMonth(jCal).map(met => met.toString()).join(' - ');
+for (const tehilimShvui of document.querySelectorAll('[data-zfReplace="TehilimShvui"]'))
+	tehilimShvui.innerHTML = KosherZmanim.TehilimYomi.byWeek(jCal).map(num => num.toString()).join(' - ');
+for (const tehilimHodshi of document.querySelectorAll('[data-zfReplace="TehilimHodshi"]'))
+	tehilimHodshi.innerHTML	= KosherZmanim.TehilimYomi.byDayOfMonth(jCal).map(met => met.toString()).join(' - ');
 
 const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(jCal.shabbat())
 for (const haftaraElem of document.querySelectorAll('[data-zfReplace="Haftara"]'))

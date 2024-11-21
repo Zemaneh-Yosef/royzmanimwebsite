@@ -13,7 +13,7 @@ chaiTable: true
 	<div id="generic">
 		<h3 class="text-center mb-0" data-zfReplace="LocationName"></h3>
 		<p class="text-center" data-zfFind="LocationYerushalayimLine">
-			<a data-bs-toggle="modal" data-bs-target="#locationModal"><i class="fa fa-info-circle"></i></a>
+			<a data-bs-toggle="modal" data-bs-target="#locationModal"><i class="bi bi-info-circle-fill"></i></a>
 			<span class="lang lang-hb">כיוון תפילה: </span>
 			<span class="lang lang-et">Tefilah Direction: </span>
 			<span class="lang lang-en">Prayer Direction: </span>
@@ -22,7 +22,7 @@ chaiTable: true
 			<ul class="list-group list-group-flush">
 				<li class="list-group-item" data-zfFind="Parasha">
 					<div class="d-none d-lg-flex justify-content-between handleSvg align-items-center">
-						<span><i class="fa fa-fire" aria-hidden="true"></i> <span data-zfReplace="CandleLighting"></span></span>
+						<span><i class="bi bi-fire"></i> <span data-zfReplace="CandleLighting"></span></span>
 						<span class="flex-fill text-center" data-zfReplace="Parasha"></span>
 						<span style="text-align: center; line-height: .8;">
 							{% include havdalah.svg %}
@@ -50,25 +50,25 @@ chaiTable: true
 				</li>
 				<li class="list-group-item" id="cardDateContainer" data-zfFind="dateContainer">
 					<button data-dateAlter="-1" style="grid-column: 1;">
-						<span class="lang lang-hb"><i class="fa fa-arrow-right"></i></span>
-						<span class="lang lang-et"><i class="fa fa-arrow-left"></i></span>
-						<span class="lang lang-en"><i class="fa fa-arrow-left"></i></span>
+						<span class="lang lang-hb"><i class="bi bi-arrow-right"></i></span>
+						<span class="lang lang-et"><i class="bi bi-arrow-left"></i></span>
+						<span class="lang lang-en"><i class="bi bi-arrow-left"></i></span>
 					</button>
 					<div id="dateBox">
 						<h6 data-zfReplace="Day" style="margin-bottom: .125rem;"></h6>
 						<h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
 						<div class="d-flex" style="flex-direction: row; align-items: center; gap: .5rem; justify-content: center;">
 							<h5 data-zfReplace="secondaryDate" class="d-inline-block m-0"></h5>
-							<input type="button" value="&#xf073;" class="fa btn btn-primary btn-floating d-none d-md-block">
+							<input type="button" value="&#xF1FD;" class="bi  btn btn-primary btn-floating d-none d-md-block">
 							<h5 data-zfReplace="otherDate" class="d-inline-block m-0"></h5>
 						</div>
 					</div>
 					<button data-dateAlter="1" style="grid-column: 3;">
-						<span class="lang lang-hb"><i class="fa fa-arrow-left"></i></span>
-						<span class="lang lang-et"><i class="fa fa-arrow-right"></i></span>
-						<span class="lang lang-en"><i class="fa fa-arrow-right"></i></span>
+						<span class="lang lang-hb"><i class="bi bi-arrow-left"></i></span>
+						<span class="lang lang-et"><i class="bi bi-arrow-right"></i></span>
+						<span class="lang lang-en"><i class="bi bi-arrow-right"></i></span>
 					</button>
-					<input type="button" value="&#xf073; Select a date" class="fa inputRow d-md-none btn btn-primary">
+					<input type="button" value="&#xF1FD; Select a date" class="bi inputRow d-md-none btn btn-primary">
 				</li>
 			</ul>
 		</div>
@@ -440,7 +440,7 @@ chaiTable: true
 				</li>
 				<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
 					<a data-bs-toggle="modal" data-bs-target="#tekufaModal">
-						<i class="fa fa-info-circle"></i>
+						<i class="bi bi-info-circle-fill"></i>
 					</a>
 					<span class="lang lang-hb">
 						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>

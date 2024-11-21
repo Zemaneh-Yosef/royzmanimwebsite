@@ -60,7 +60,7 @@ async function messageHandler (x) {
 	].map(inst => inst.toLocaleString(defaulTF[0], { hour12: true, hour: 'numeric'}).split(' ').at(-1))
 
 	const havdalahIcon = await (await fetch('/assets/images/havdalah.svg')).text();
-	const candleIcon = '<i class="fa fa-fire" aria-hidden="true"></i>';
+	const candleIcon = '<i class="bi bi-fire"></i>';
 
 	let plainDate = Temporal.PlainDate.from(x.data.date)
 	const jCal = new WebsiteLimudCalendar();
@@ -230,11 +230,11 @@ async function messageHandler (x) {
 			let timeStr = zDT.toLocaleString(...config.dtF)
 			if (config.hideAMPM) {
 				for (const amPMStr of amPMStrs)
-					timeStr = timeStr.replace(amPMStr, '');
+					timeStr = timeStr.replace(amPMStr, '').trim();
 			}
 
 			if (config.appendText)
-				timeStr += " " + config.appendText;
+				timeStr += config.appendText;
 
 			timeElem.appendChild(document.createTextNode(timeStr.trim()));
 			div.appendChild(timeElem)
@@ -271,7 +271,7 @@ async function messageHandler (x) {
 					if (rangeTimes(bLzmanCalc.getAlotHashachar(), time, bLzmanCalc.getTzait()))
 						time = bLzmanCalc.getTzait();
 
-					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌘", hideAMPM: false, appendText: "(עיקר הדין)" })
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌘", hideAMPM: false, appendText: " (עיקר הדין)" })
 				}
 
 				if (jCal.getDate().dayOfYear == jCal.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()).dayOfYear) {
@@ -281,7 +281,7 @@ async function messageHandler (x) {
 					if (rangeTimes(bLzmanCalc.getAlotHashachar(), time, bLzmanCalc.getTzait()))
 						time = bLzmanCalc.getTzait();
 
-					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌗", hideAMPM: false, appendText: "(לחתחילה)" })
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌗", hideAMPM: false, appendText: " (לחתחילה)" })
 				}
 
 				let sameTime = false;
@@ -295,12 +295,12 @@ async function messageHandler (x) {
 					if (time.withCalendar("hebrew").day == 15 && time.equals(bLzmanCalc.getAlotHashachar()))
 						sameTime = true;
 
-					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌕", hideAMPM: false, appendText: (sameTime ? undefined : "(לחתחילה)") })
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌕", hideAMPM: false, appendText: (sameTime ? undefined : " (לחתחילה)") })
 				}
 
 				if (jCal.getJewishDayOfMonth() == 15 && !sameTime) {
 					let time = zmanCalc.getAlotHashachar();
-					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌕", hideAMPM: false, appendText: "(זמן מרן)" })
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌕", hideAMPM: false, appendText: " (זמן מרן)" })
 				}
 				break;
 			case 'special':
@@ -770,7 +770,7 @@ async function messageHandler (x) {
 			bLTitl.innerHTML = {
 				hb: "ברכת הלבנה - חדש " + jCalBMoon.formatJewishMonth().he,
 				en: "Moon-Blessing - Month of " + jCalBMoon.formatJewishMonth().en,
-				"en-et": "Birkat Halevana - Month of " + jCalBMoon.formatJewishMonth().en
+				"en-et": "Birkath Halevana - Month of " + jCalBMoon.formatJewishMonth().en
 			}[x.data.lang];
 
 			const bLTimes = document.createElement("p");

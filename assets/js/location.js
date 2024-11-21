@@ -80,8 +80,8 @@ const elements = {
 		elevationInput: document.getElementById("elevationInput")
 	},
 	icons: {
-		search: document.querySelector('.input-group-text .fa-search'),
-		error: document.querySelector('.input-group-text .fa-times-circle'),
+		search: document.querySelector('.input-group-text .bi-search'),
+		error: document.querySelector('.input-group-text .bi-x-circle-fill'),
 		loading: document.querySelector('.input-group-text .spinner-border'),
 		// @ts-ignore
 		container: document.getElementsByClassName("input-group-text")[0]
@@ -535,7 +535,7 @@ document.addEventListener("DOMContentLoaded", function(){
 window.addEventListener('online', () => networkStatus.online());
 window.addEventListener('offline', () => networkStatus.offline());
 
-document.querySelectorAll('button > i.fa-map-marker')
+document.querySelectorAll('button > i.bi-pin-map')
 	.forEach((/** @type {HTMLElement} */ i) => i.parentElement.addEventListener('click', () => getLocation()));
 
 document.getElementById('searchIcon').addEventListener('click', (e) => updateList(e));

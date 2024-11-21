@@ -7,6 +7,7 @@ layout: nothing
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <link href="/assets/fonts/BreulGroteskA-Heavy/style.css" rel="stylesheet" />
+<link href="/assets/css/marquee.css" rel="stylesheet" />
 
 <style>
 	#content {
@@ -57,15 +58,15 @@ layout: nothing
 		color: #30344F;
 		z-index: 3;
 		line-height: 1;
-		padding-top: .5rem;
+		padding-top: .25rem;
         padding-left: 1.5rem;
-        padding-bottom: .5rem;
+        padding-bottom: .25rem;
 		align-items: center;
-		font-size: 1em;
+		font-size: 1.2em;
         background: white;
 
-        border-bottom-left-radius: 5rem;
-		border-bottom-right-radius: 5rem;
+        border-bottom-left-radius: 3.5rem;
+		border-bottom-right-radius: 3.5rem;
         border: 1px solid #d8a736;
         border-top: none;
 	}
@@ -105,7 +106,7 @@ layout: nothing
 		line-height: 1;
 		padding-right: 2rem;
 		color: #d8a736;
-		font-size: 4rem;
+		font-size: 4.5rem;
 		padding-top: 1.5rem;
 		align-self: start;
 		z-index: 3;
@@ -118,7 +119,7 @@ layout: nothing
 		margin-top: 13dvh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1.5fr 1fr 1.5fr;
 		grid-template-rows: 1fr auto;
 		align-items: center;
 		gap: 12px;
@@ -143,8 +144,8 @@ layout: nothing
 		display: flex;
 		text-align: center;
 		align-self: end;
-		grid-column: 1 / span 2;
-		font-size: 1.1em;
+		grid-column: 1 / span 3;
+		font-size: 1.3em;
 	}
 
 	#content[data-current-page="1"] .langTV.lang-ru {
@@ -200,13 +201,16 @@ layout: nothing
 	}
 
 	.timeDisplayWide.nextDay::before {
-        content: "Tom., ";
+		content: "(Tomorrow)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
     }
 
     #location {
         align-self: start;
         justify-self: center;
-        padding-top: 9.5dvh;
+        padding-top: 10dvh;
         text-align: center;
         line-height: 1;
         color: #d8a736;
@@ -215,7 +219,7 @@ layout: nothing
 </style>
 
 <div id="content" data-current-page="1" data-page-count="2">
-	<div id="bsD">בס"ד</div>
+	<div id="bsD">בס“ד</div>
 	<img id="gne" src="/assets/images/shul-wall/ish-matzliach/logo.png" />
 	<div id="background"></div>
     <div id="shulBar"></div>
@@ -236,34 +240,64 @@ layout: nothing
 		<div id="quickTimes">
 			<div style="text-align: left; width: fit-content">
 				<div style="text-align: center; font-weight: bold; font-size: 1.15em;" data-parasha></div>
-				<div data-lightingCandles><i class="fa fa-fire" aria-hidden="true"></i> </div>
+				<div data-lightingCandles><i class="bi bi-fire"></i> </div>
 				<div data-tzetShab data-rt-text='R"T'>{% include havdalah.svg %} </div>
 			</div>
 		</div>
 	</div>
 	<div id="dataGrid">
-		<div>
-			<h1 class="text-center">Weekday Schedule</h1>
+		<div style="font-size: 1.35rem;">
+			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="langTV lang-hb">תלנוד בבלי</dt>
+					<dt class="langTV lang-ru">Talmud Bavli</dt>
+					<dd class="m-0" data-zfReplace="dafBavli"></dd>
+				</div>
+			</dl>
+			<h1 class="text-center mb-0 pt-3" style="font-size: 1.75rem;">Weekday Schedule</h1>
 			<div class="card">
 				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between">
+					<li class="list-group-item d-flex justify-content-between align-items-center">
 						<b>Shaḥarit</b>
-						<span>5:45 AM</span>
+						<span style="text-align: right;">Sun, 8:30 AM<br>Mon-Thu, 6:30 AM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between">
-						<b>Minḥa & Arvit</b>
-						<span>7:15 PM</span>
+						<b>Weekly Events</b>
+						<span>Tue, 8:30 PM</span>
 					</li>
 					<li class="list-group-item d-flex justify-content-between">
-						<b>2<sup>nd</sup> Arvit (not on Sunday)</b>
-						<span>10:00 PM</span>
+						<b>Massechet Avoda Zara Shiur</b>
+						<span>Thu, 8:30 PM</span>
 					</li>
 				</ul>
 			</div>
+			<h1 class="text-center mb-0 pt-3" style="font-size: 1.75rem;">Hiloulot of...</h1>
+			<div class="card hiloulotCard">
+				<div class="marquee" style="height: 75px;">
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
+			<div class="carousel-inner">
+			</div>
+			<!-- <button class="carousel-control-prev" type="button" data-bs-target="#ishMatzliachSlide" data-bs-slide="prev">
+				<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+				<span class="visually-hidden">Previous</span>
+			</button>
+			<button class="carousel-control-next" type="button" data-bs-target="#ishMatzliachSlide" data-bs-slide="next">
+				<span class="carousel-control-next-icon" aria-hidden="true"></span>
+				<span class="visually-hidden">Next</span>
+			</button> -->
 		</div>
 		<div>
-			<h1 class="text-center">Shabbat Schedule</h1>
-			<div class="card">
+			<h1 class="text-center" style="font-size: 3rem;">Shabbat Schedule</h1>
+			<div class="card" style="font-size: 1.35rem;">
 				<ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between" id="shirHashirim">
 						<b>Shir Hashirim</b>
@@ -314,6 +348,10 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
+<script type="module" src="/assets/js/shul-wall/limud.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
-<script type="module" src="/assets/js/shul-wall/auto-schedule/ish-matzliach.js"></script>
+<script type="module">
+	import defaultFunc from "/assets/js/shul-wall/auto-schedule/ish-matzliach.js";
+	await defaultFunc();
+</script>

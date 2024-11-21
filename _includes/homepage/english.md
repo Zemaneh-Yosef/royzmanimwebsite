@@ -1,5 +1,5 @@
 Enter the location you are looking to get Zemanim for in the input field below, then hit the "Enter" key on your keyboard (or the search icon on the left of the input field). As you type your location, auto-complete suggestions will appear
-- Want to use your location? Hit the green <i class="fa fa-map-marker"></i> icon and grant our page permission to access your location. (This will not work if you use a VPN or a proxy to access our website)
+- Want to use your location? Hit the green <i class="bi bi-pin-map"></i> icon and grant our page permission to access your location. (This will not work if you use a VPN or a proxy to access our website)
 - Want to supply exact geo-coordinates? Enter them as <code>([lat], [lng])</code> in the search field below; you will then have the option to further specify things like location name and such. (Switch back to the main search bar and hit Enter or hit the search icon on the left side of the search input to submit your data)
 - ZIP codes will work in a **future upgrade**. <!-- Using a ZIP code instead of a location name will open a new menu, where you could narrow down your location from the ZIP code. This is needed to accomodate other countries that may use the same postal code, as well as ZIP codes that [cover too much ground](https://kosherjava.com/2018/09/05/zip-codes-and-zmanim-use-with-care/) -->
 

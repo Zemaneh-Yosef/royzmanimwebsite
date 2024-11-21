@@ -68,11 +68,11 @@ footer.querySelector("[data-calendar]")
 			"en": "Ohr Hachaim",
 			"en-et": "Ohr Hachaim",
 			"hb": "אור החיים"
-		}[settings.language()] : {
+		} : {
 			"en": "Amudeh Hora'ah",
 			"en-et": "Amudeh Hora'ah",
 			"hb": "עמודי הוראה"
-		}[settings.language()])))
+		})[settings.language()]))
 footer.querySelector("[data-timeZone]")
 	.appendChild(document.createTextNode(geoLocation.getTimeZone()))
 

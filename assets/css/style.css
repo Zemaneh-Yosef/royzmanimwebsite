@@ -149,6 +149,10 @@ body {
 	text-align: center;
 }
 
+#cardDateContainer {
+	font-family: var(--bs-body-font-family), bootstrap-icons;
+}
+
 @media screen {
 	#dateBox {
 		border-left: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
@@ -172,7 +176,6 @@ body {
 }
 
 #cardDateContainer .inputRow {
-	font-family: var(--bs-body-font-family), ForkAwesome;
 	border-radius: 0;
 }
 

@@ -41,6 +41,13 @@ function isPlainObject(obj) {
 	return true;
   }
 
+const buttonFuncs = {
+	'focus': function () { this.classList.add('ui-state-focus') },
+	'blur': function () { this.classList.remove('ui-state-focus') },
+	'mouseenter': function () { this.classList.add('ui-state-hover') },
+	'mouseleave': function () { this.classList.remove('ui-state-hover') }
+};
+
 (function($){
 	
 	function makeVisible (callback){
@@ -87,18 +94,28 @@ function isPlainObject(obj) {
 		'ui-clickable': function(){
 			/** @type {JQuery<HTMLElement>} */
 			// @ts-ignore
-			const elem = this;
-			return elem.addClass('ui-state-default')
-			.bind('focus.ui', function(){$(this).addClass('ui-state-focus')})
-			.bind('blur.ui', function() {$(this).removeClass('ui-state-focus')})
-			.bind('mouseenter.ui', function(){$(this).addClass('ui-state-hover')})
-			.bind('mouseleave.ui', function(){$(this).removeClass('ui-state-hover')});
+			const jQElems = this;
+			for (const htmlElem of jQElems.get()) {
+				htmlElem.classList.add('ui-state-default');
+				htmlElem.addEventListener('focus', buttonFuncs.focus);
+				htmlElem.addEventListener('blur', buttonFuncs.blur);
+				htmlElem.addEventListener('mouseenter', buttonFuncs.mouseenter);
+				htmlElem.addEventListener('mouseleave', buttonFuncs.mouseleave);
+			}
+			return jQElems
 		},
 		'ui-unclickable': function(){
 			/** @type {JQuery<HTMLElement>} */
 			// @ts-ignore
-			const elem = this;
-			return elem.removeClass('ui-state-default ui-state-focus ui-state-hover').unbind('.ui');
+			const jQElems = this;
+			for (const htmlElem of jQElems.get()) {
+				htmlElem.classList.remove('ui-state-default', 'ui-state-focus', 'ui-state-hover');
+				htmlElem.removeEventListener('focus', buttonFuncs.focus);
+				htmlElem.removeEventListener('blur', buttonFuncs.blur);
+				htmlElem.removeEventListener('mouseenter', buttonFuncs.mouseenter);
+				htmlElem.removeEventListener('mouseleave', buttonFuncs.mouseleave);
+			}
+			return jQElems;
 		},
 		trueHeight: makeVisible(function(){
 			/** @type {JQuery<HTMLElement>} */
@@ -251,9 +268,14 @@ function isPlainObject(obj) {
 			cal.find('a:not([href])')['ui-clickable']();
 			cal.find('a.go').removeClass('ui-state-default') // ui-datepicker has its own styling
 				.each(function(){ this.title = $(this).text().trim() }); // when we use image replacement for the prev/next buttons, leave the text as a tooltip title
-			// allow for using either the jQuery UI icons or the FontAwesome icon font
-			cal.find('a.ui-datepicker-prev').children().addClass('ui-icon ui-icon-circle-triangle-w fa fa-chevron-circle-left');
-			cal.find('a.ui-datepicker-next').children().addClass('ui-icon ui-icon-circle-triangle-e fa fa-chevron-circle-right');
+
+			// allow for using the Bootstrap icon font
+			const prevButton = cal.find('a.ui-datepicker-prev').get(0);
+			prevButton.firstElementChild.classList.add('bi', 'bi-arrow-left-circle-fill');
+
+			const nextButton = cal.find('a.ui-datepicker-next').get(0);
+			nextButton.firstElementChild.classList.add('bi', 'bi-arrow-right-circle-fill');
+
 			cal.find('a.commit').filter(this._excludefilter).
 			  removeClass('commit')['ui-unclickable']().addClass('ui-state-disabled');
 			if (this.options.changeMonth){
@@ -818,7 +840,7 @@ function isPlainObject(obj) {
 			name: 'Jewish',
 			calendar: $.bililite.flexcal.calendars.jewish,
 			monthNames: ['Nisan', 'Iyar', 'Sivan', 'Tammuz', 'Av', 'Elul',
-				'Tishrei', 'Cheshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar',
+				'Tishri', 'Ḥeshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar',
 				'Adar I', 'Adar II'],
 			dayNamesMin: ['Su','Mo','Tu','We','Th','Fr','ש']
 		},
@@ -843,8 +865,8 @@ function isPlainObject(obj) {
 			],
 			dayNamesMin: ['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','שבת'],
 			isRTL: true,
-			prevText: 'הקודם',
-			nextText: 'הבא',
+			prevText: '',
+			nextText: '',
 			todayText: 'היום',
 			closeText: 'סגור',
 			years: latin2hebrew.format,

@@ -54,7 +54,7 @@ switch (window.location.href.split('/').at(-1)) {
 			},
 			customTimes: {
 				candleLighting: () => 20,
-				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.14 })
+				tzeithIssurMelakha: () => ({ minutes: 30, degree: 8.5 })
 			}
 		});
 		break;
