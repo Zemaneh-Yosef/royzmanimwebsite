@@ -254,6 +254,33 @@ async function messageHandler (x) {
 
 		switch (shita) {
 			case 'getMolad':
+				if (jCal.isShabbosMevorchim()) {
+					const shabbatMevarchin = flexWorkAround.cloneNode(true);
+					shabbatMevarchin.appendChild(document.createTextNode({
+						'hb': "שבת מברכים " + jCal.getDate().withCalendar('hebrew').add({ months: 1 }).toLocaleString('he-u-ca-hebrew', { month: 'long' }),
+						"en-et": "Shabbath Mevorachim " + jCal.getDate().withCalendar('hebrew').add({ months: 1 }).toLocaleString('en-u-ca-hebrew', { month: 'long' }),
+						'en': "New month - " + jCal.getDate().withCalendar('hebrew').add({ months: 1 }).toLocaleString('en-u-ca-hebrew', { month: 'long' })
+					}[x.data.lang]));
+
+					div.appendChild(shabbatMevarchin);
+
+					const rhDays = [jCal.getDate().withCalendar('hebrew').add({ months: 1 }).with({ day: 1 }).dayOfWeek];
+					if (jCal.getDaysInJewishMonth() == 30) {
+						rhDays.push(rhDays[0]);
+						rhDays[0] = jCal.getDate().withCalendar('hebrew').with({ day: 30 }).dayOfWeek;
+					}
+					const rhHebrewDisplay = rhDays.map(day => "ביום " + n2wordsOrdinal[(day + 1) % 7]);
+
+					const daysDisplay = flexWorkAround.cloneNode(true);
+					// @ts-ignore
+					daysDisplay.classList.add("omerText");
+					daysDisplay.appendChild(document.createTextNode(rhHebrewDisplay.join(" ומחרתו ")));
+					if (x.data.lang !== 'hb')
+						daysDisplay.appendChild(document.createTextNode("/" + rhDays.map(num => daysForLocale('en')[num]).join(" & ")));
+
+					div.appendChild(daysDisplay);
+				}
+
 				if (jCal.getDate().dayOfYear == jCal.tomorrow().tomorrow().getMoladAsDate().withTimeZone(geoLocation.getTimeZone()).dayOfYear)
 					renderZmanInDiv(
 						jCal.tomorrow().tomorrow().getMoladAsDate().withTimeZone(geoLocation.getTimeZone()),
@@ -319,7 +346,7 @@ async function messageHandler (x) {
 					if (jCal.isChanukah())
 						// @ts-ignore
 						rHelem.style.fontSize = ".8em";
-	
+
 					div.appendChild(rHelem);
 					div.style.fontWeight = "bold";
 				}

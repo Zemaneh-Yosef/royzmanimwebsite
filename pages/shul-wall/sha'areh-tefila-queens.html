@@ -24,16 +24,14 @@ layout: nothing
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
     } */
 
-	/* #background {
-		--margin: 1.25vw;
-		margin: var(--margin);
-		height: calc(100vh - var(--margin) - var(--margin) - var(--margin) - var(--margin));
-		width: calc(100vw - var(--margin) - var(--margin));
-		border-radius: 1.25rem;
-		filter: brightness(0.4);
+	#background {
+		height: 27.5vh;
+		width: 100vw;
+		filter: blur(5px);
 		object-fit: cover;
-	    object-position: top;
-	} */
+		align-self: end;
+		mask-image: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,1) 15%);
+	}
 
 	/* #shulBar {
 		width:45%;
@@ -53,15 +51,17 @@ layout: nothing
 	}
 
 	#clock {
-		font-size: 4.75em;
+		font-size: 6.25em;
 		font-family: "dharma_gothic_e";
+		line-height: 1;
+		text-align: center;
 	}
 
 	#topBar {
 		text-align: center;
 		display: flex;
 		justify-content: space-evenly;
-		width: 65%;
+		width: 60%;
 		justify-self: center;
 		align-self: start;
 		color: black;
@@ -69,7 +69,7 @@ layout: nothing
 		line-height: 1;
 		height: 12vh;
 		align-items: center;
-		font-size: .8em;
+		font-size: 1.15em;
 		font-weight: 500;
 	}
 
@@ -83,18 +83,20 @@ layout: nothing
 		}
 	}
 
-	#topBar svg {
+	#quickTimes svg {
 		height: 1em;
 		width: 1em;
 		vertical-align: bottom;
 	}
 
-	#topBar svg path {
-		fill: black;
+	#quickTimes svg path {
+		fill: white;
 	}
 
 	#quickTimes {
-		display: grid; justify-content: center;
+		display: grid;
+		justify-content: center;
+		padding-bottom: 1rem;
 	}
 
 	#quickTimes i {
@@ -106,10 +108,10 @@ layout: nothing
         font-family: "Narkisim";
 		justify-self: end;
 		line-height: 1;
-		padding-right: 1rem;
+		padding-right: 3rem;
 		color: black;
 		font-size: 4rem;
-		padding-top: .25rem;
+		padding-top: 1.5rem;
 		align-self: start;
 		z-index: 3;
     }
@@ -117,17 +119,18 @@ layout: nothing
 	#dataGrid {
 		margin-left: 1vw;
         margin-right: 1vw;
-		margin-top: 12vh;
+		margin-top: 2vh;
         margin-bottom: 5vh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 1fr 1.25fr 1.25fr 1fr;
-		grid-template-rows: auto 1fr;
+		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-rows: 1fr auto;
 		align-items: center;
-		gap: 16px;
+		row-gap: 16px;
+		column-gap: 2vw;
 	}
 
-    #dataGrid > *:not(#megaline) {
+    #dataGrid > *:not(#megaline):not(.wideView) {
         height: 100%;
         background: rgba(0,0,0,.75);
         border-top-left-radius: 50% 15%;
@@ -135,7 +138,7 @@ layout: nothing
         padding: .5rem;
         box-shadow: 0 0 7px 5px black;
         padding-top: 1.55rem;
-		font-size: .625rem;
+		font-size: .8rem;
 		color: white;
     }
 
@@ -150,25 +153,39 @@ layout: nothing
 	}
 
 	#gne {
-		height: 13vh;
-		justify-self: start;
+		height: 22.5vh;
+		justify-self: center;
 		align-self: start;
 		margin-top: .5rem;
-		margin-left: 1.5rem;
 		z-index: 3;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		backdrop-filter: blur(10px);
+		border-radius: 1rem;
+		padding: .5rem;
+		border: 2.5px solid #00000088;
     }
 
 	.wideView {
 		display: flex;
-        flex-direction: column;
+		text-align: center;
+		align-self: end;
+		grid-column: 1 / span 3;
+		color: black;
+		font-size: .8rem;
 	}
 
     #content[data-current-page="2"] .timeDisplayWide.nextDay::before {
-        content: "завтра, ";
+        content: "(завтра)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
     }
 
     #content[data-current-page="1"] .timeDisplayWide.nextDay::before {
-        content: "Tom., ";
+        content: "(Tomorrow)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
     }
 
 	#content[data-current-page="1"] .langTV.lang-ru {
@@ -180,10 +197,8 @@ layout: nothing
 	}
 
 	.wideView > * {
-		width: 100%;
-        display: flex;
-        font-size: 1.2em;
-        justify-content: space-between;
+		flex: 1 1;
+		padding: 8px;
 	}
 
 	.wideView > *:first-child {
@@ -195,7 +210,7 @@ layout: nothing
 	}
 
 	.wideView > *:not(:last-child) {
-		border-bottom:1px solid rgba(255,255,255,.5);
+		border-right:1px solid black;
 	}
 
 	article > .langTV {
@@ -210,10 +225,11 @@ layout: nothing
 		text-align: center;
 		line-height: 1.2;
         color: black;
-		backdrop-filter: blur(6px);
 		padding: 5px;
 		border-radius: 3rem;
-		font-size: .5rem;
+		font-size: .65rem;
+		z-index: 4;
+		font-weight: 600;
 	}
 
 	.hiloulotCard .list-group-item {
@@ -227,12 +243,12 @@ layout: nothing
 	}
 
     #megaline {
-		grid-column: 1 / span 4;
+		grid-column: 1 / span 3;
 		text-align: center;
 		font-size: 1.2em;
 		margin-left: -1vw;
 		margin-right: -1vw;
-		background-color: #f3ebd7;
+		background-color: #f3ebd788;
 		color: black;
 		padding-top: .5rem;
 		padding-bottom: .5rem;
@@ -251,13 +267,13 @@ layout: nothing
 	#megalineCont > span:not(:last-child)::after {
 		content: " - "
 	}
-    
-    .blurOverlay {
+
+    /* .blurOverlay {
         height: 12vh;
         backdrop-filter: blur(10px);
         width: 100%;
-        align-self: start;
-    }
+        align-self: end;
+    } */
 
     dl[data-zfFind="DafYomi"] {
         font-size: 1.2em;
@@ -279,6 +295,30 @@ layout: nothing
         --bs-body-bg: #1A1D2A !important;
 		--bs-heading-color: white !important;
     }
+
+	#dateContainer {
+		line-height: 1.25;
+		text-align: center;
+	}
+
+	#dataGrid > #mainHub:nth-child(2) {
+		height: 75%;
+		margin-top: 25%;
+		border-radius: 35%;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-evenly;
+		padding-top: 1rem;
+	}
+
+	#mainHub .list-group-item, #mainHub .list-group {
+		--bs-list-group-bg: transparent;
+	}
+
+	#mainHub .card {
+		--bs-card-bg: transparent;
+		border: none;
+	}
 </style>
 
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
@@ -288,93 +328,82 @@ layout: nothing
 <link href="/assets/css/marquee.css" rel="stylesheet" />
 <link href="/assets/css/timer.css" rel="stylesheet" />
 <div id="content" data-current-page="1" data-page-count="2">
-	<div id="bsD">בס"ד</div>
+	<!-- <div id="bsD">בס"ד</div> -->
 	<img id="gne" src="/assets/images/shul-wall/shaarehTefilah.svg" />
-    <div class="blurOverlay"></div>
-	<!-- <img id="background" src="/assets/images/shul-wall/7ef32ef2-d1f0-47a5-8a6e-a6dcc138270a.jpeg" /> -->
+	<div class="blurOverlay"></div>
+	<img id="background" src="/assets/images/shul-wall/west-wall.jpg" />
 	<!-- <img id="zyTrapezoid" src="/assets/images/shul-wall/rounded-trapezoid.svg" /> -->
 	<!-- <div id="shulBar">R' Abrahamov's shul | This is WIP but...I guess "For the success of <b>Elyahu Jacobi</b>"?</div> -->
 	<div id="poweredBy">
         <span class="langTV lang-hb">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
         <span class="langTV lang-ru">Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.</span>
 	</div>
-	<div id="topBar">
+	<div id="dataGrid">
 		<div>
-			<span data-en-date></span>
-			<hr style="margin: .25rem 0">
-			<span data-hb-date></span>
-			<hr style="margin: .25rem 0">
-			<span data-ru-date></span>
-		</div>
-		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
-		<div id="quickTimes">
-			<div style="text-align: left; width: fit-content">
-				<div style="text-align: center; font-weight: bold; font-size: 1.15em;" data-parasha></div>
-				<div data-lightingCandles><i class="bi bi-fire"></i> </div>
-				<div data-tzetShab data-rt-text='R"T'>{% include havdalah.svg %} </div>
+			<h1 style="text-align: center;">Weekday</h1>
+			<div class="card">
+				<ul class="list-group list-group-flush" id="weekday">
+				</ul>
 			</div>
 		</div>
-	</div>
-	<div id="dataGrid">
-        <div id="megaline">
-            <div id="megalineCont">
-                <span data-zfFind="BirchatHalevana">
-					<span class="langTV lang-hb">Birkat Halvana (until the night of <span data-zfReplace="date-en-end"></span>)</span>
-					<span class="langTV lang-ru">Биркат халевана (до ночи <span data-zfReplace="date-ru-end"></span>)</span>
-                    <span data-zfFind="starts-tonight"> - 
-						<span class="langTV lang-hb">Starts tonight</span>
-                		<span class="langTV lang-ru">Начинается сегодня вечером</span>
-					</span>
-                    <span data-zfFind="ends-tonight"> - 
-						<span class="langTV lang-hb">Ends tonight</span>
-                		<span class="langTV lang-ru">Заканчивается сегодня вечером</span>
-					</span>
-                </span>
-                <span data-zfReplace="Tachanun"></span>
-                <span data-zfReplace="Hallel" style="display: none;"></span>
-                <span data-zfReplace="Ulchaparat" style="display: none;"></span>
-                <span data-zfFind="SeasonalPrayers">
-                    <span data-zfReplace="SeasonalPrayers"></span>
-                </span>
-            </div>
-		</div>
-		<div>
-            <h1 style="text-align: center; margin-bottom: 0;">
-                <span class="langTV lang-hb">זמני היום</span>
-                <span class="langTV lang-ru">Prayer Times</span>
-            </h1>
-			{% include clockCountdown.html %}
-            <section class="wideView" data-zfFind="calendarFormatter">
-                {% for item in site.data.tv.tvZmanRus %}
-                    <article
-                        data-zmanid="{{ item.id }}"
-                        {% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
-                        {% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-                        {% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-                        {% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-                    >
-                        <span class="langTV lang-hb">{{ item.names.hb }}</span>
-                        <span class="langTV lang-ru">{{ item.names.ru }}</span>
-                        <span class="timeDisplay"></span>
-                    </article>
-                {% endfor %}
-            </section>
-			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .8rem;">
+		<div id="mainHub">
+			<div id="dateContainer">
+				<div><span data-hb-date></span>
+				<hr style="margin: .25rem 0">
+				<span class="langTV lang-hb" data-en-date></span>
+				<span class="langTV lang-ru" data-ru-date></span></div>
+			</div>
+			<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
+			<div class="card text-center">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
 					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
 						{% for fast in site.data.events.fasts %}
-						<h5 data-zfFind="{{ fast.yomTovIndex }}">{{ fast.text.en }}</h5>
+						<h5 data-zfFind="{{ fast.yomTovIndex }}">
+							<span class="lang lang-hb">{{ fast.text.hb }}</span>
+							<span class="lang lang-et">{{ fast.text.et }}</span>
+							<span class="lang lang-en">{{ fast.text.en }}</span>
+						</h5>
 						{% endfor %}
-						<span data-zfFind="oneDayTimes"><b>Fast Times: </b></span>
+						<span data-zfFind="oneDayTimes">
+							<b class="lang lang-en">Fast Times: </b>
+							<b class="lang lang-et">Fast Times: </b>
+							<b class="lang lang-hb">שעות הצום: </b>
+						</span>
 						<ul data-zfFind="twoDayTimes">
-							<li><b>Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
-							<li><b>Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
+							<li>
+								<b class="lang lang-en">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+								<b class="lang lang-et">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+								<b class="lang lang-hb">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+							</li>
+							<li>
+								<b class="lang lang-en">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+								<b class="lang lang-et">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+								<b class="lang lang-hb">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+							</li>
 						</ul>
 					</li>
 					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
 						<div data-zfFind="SefirathHaomer">
-							<div class="lang lang-hb" style="display: block !important;">
+							<div class="lang lang-en">
+								<h5 class="mb-0"><span data-zfReplace="completeCount"></span> day of the Omer</h5>
+								<p><span data-zfReplace="indCount"></span></p>
+								<p class="mb-0">
+									<b>Tonight:</b>
+									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> day of the Omer<span> -
+									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+								</p>
+							</div>
+							<div class="lang lang-et">
+								<h5 class="mb-0">Today is <span data-zfReplace="completeCount"></span> of the Omer</h5>
+								<p>which <span data-zfReplace="indCount"></span></p>
+								<p class="mb-0">
+									<b>Tonight:</b>
+									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> of the Omer<span>, which
+									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+								</p>
+							</div>
+							<div class="lang lang-hb">
 								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
 								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
@@ -386,152 +415,119 @@ layout: nothing
 							<hr class="my-1" data-zfFind="omerRules">
 						</div>
 						<div data-zfFind="ThreeWeeksHeader">
-							<h5 style="font-size: .9rem; margin-bottom: .1em;">
-								<span data-zfFind="threeWeeks">Three Weeks</span>
-								<span data-zfFind="nineDays">Nine Days</span>
-								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							<h5>
+								<span class="lang lang-hb">
+									<span data-zfFind="threeWeeks">שלושה שבועות</span>
+									<span data-zfFind="nineDays">תשעה ימים</span>
+									<span data-zfFind="weekOf">שבוע שחל בו</span>
+								</span>
+								<span class="lang lang-et">
+									<span data-zfFind="threeWeeks">Three Weeks</span>
+									<span data-zfFind="nineDays">Nine Days</span>
+									<span data-zfFind="weekOf">The week of Tisha Beav</span>
+								</span>
+								<span class="lang lang-en">
+									<span data-zfFind="threeWeeks">Three Weeks</span>
+									<span data-zfFind="nineDays">Nine Days</span>
+									<span data-zfFind="weekOf">The week of Tisha Beav</span>
+								</span>
 							</h5>
 						</div>
-						<ul style="padding-left: 1.5rem;" class="d-none">
-							{% for minhag in site.data.mourningMinhag %}
-							<li data-zfFind="{{ minhag.topic }}">{{ minhag.text.en }}</li>
-							{% endfor %}
-						</ul>
+						<div class="marquee" style="height: 50px;">
+							<ul class="marquee__content">
+								{% for minhag in site.data.mourningMinhag %}
+								<li data-zfFind="{{ minhag.topic }}">
+									<span class="lang lang-hb">{{ minhag.text.hb }}</span>
+									<span class="lang lang-et">{{ minhag.text.en }}</span>
+									<span class="lang lang-en">{{ minhag.text.en }}</span>
+								</li>
+								{% endfor %}
+							</ul>
+							<ul class="marquee__content">
+								{% for minhag in site.data.mourningMinhag %}
+								<li aria-hidden="true" data-zfFind="{{ minhag.topic }}">
+									<span class="lang lang-hb">{{ minhag.text.hb }}</span>
+									<span class="lang lang-et">{{ minhag.text.en }}</span>
+									<span class="lang lang-en">{{ minhag.text.en }}</span>
+								</li>
+								{% endfor %}
+							</ul>
+						</div>
 					</li>
+					<li class="list-group-item" data-zfReplace="Tachanun"></li>
 					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
-						ברכת החמה!
+						<span class="lang lang-hb">ברכת החמה!</span>
+						<span class="lang lang-et">Birchath Hachama!</span>
+						<span class="lang lang-en">Blessing of the sun!</span>
+					</li>
+					<li class="list-group-item" data-zfFind="BirchatHalevana">
+						<span class="lang lang-hb">
+							ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
+							<span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
+							<span data-zfFind="ends-tonight"> - נגמר בלילה</span>
+						</span>
+						<span class="lang lang-et">
+							Birchath Halevana (until the night of <span data-zfReplace="date-en-end"></span>)
+							<span data-zfFind="starts-tonight"> - Starts tonight</span>
+							<span data-zfFind="ends-tonight"> - Ends tonight</span>
+						</span>
+						<span class="lang lang-en">
+							Blessing of the moon (until the night of <span data-zfReplace="date-en-end"></span>)
+							<span data-zfFind="starts-tonight"> - Starts tonight</span>
+							<span data-zfFind="ends-tonight"> - Ends tonight</span>
+						</span>
+					</li>
+					<li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
+					<li class="list-group-item" data-zfReplace="Ulchaparat" style="display: none;"></li>
+					<li class="list-group-item" data-zfFind="SeasonalPrayers">
+						<span data-zfReplace="SeasonalPrayers"></span>
 					</li>
 					<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
-						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
-						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+						<span class="lang lang-hb">
+							<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+							<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+						</span>
+						<span class="lang lang-et">
+							<b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
+							<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+						</span>
+						<span class="lang lang-en">
+							<b>The <span data-zfReplace="tekufaName-en"></span> season</b> is at <span data-zfReplace="tekufaTime"></span><br>
+							<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+						</span>
 					</li>
 				</ul>
 			</div>
 		</div>
 		<div>
-			<h1 style="text-align: center;">Weekday Schedule</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">1<sup>st</sup> Seliḥot</span>
-	                        <span class="langTV lang-ru">1-й Селихот</span>
-						</b>
-						<span>5:00 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">1<sup>st</sup> Shaḥarit</span>
-	                        <span class="langTV lang-ru">1-й Шахарит</span>
-						</b>
-						<span>5:45 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">2<sup>nd</sup> Seliḥot</span>
-	                        <span class="langTV lang-ru">2-й Селихот</span>
-						</b>
-						<span>5:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">2<sup>nd</sup> Shaḥarit</span>
-	                        <span class="langTV lang-ru">2-й Шахарит</span>
-						</b>
-						<span>6:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">Minḥa & Arvit</span>
-							<span class="langTV lang-ru">Минха и Арвит</span>
-						</b>
-						<span>7:15 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>2<sup>nd</sup> Arvit (not on Sunday)</b>
-						<span>10:00 PM</span>
-					</li>
-				</ul>
+			<h1 style="text-align: center;">Shabbat - <span data-parasha></span></h1>
+			<div id="quickTimes">
+				<div style="text-align: left; width: fit-content; line-height: 1;">
+					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
+					<div data-tzetShab data-rt-text='R"T'>{% include havdalah.svg %} </div>
+				</div>
 			</div>
-			<h1 style="text-align: center;">Shabbat Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Minḥa + Kabbalat Shabbat</b>
-						<span>6:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Main Shaḥarit</b>
-						<span>7:45 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Youth Shaḥarit</b>
-						<span>8:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Early Minḥa</b>
-						<span>1:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>
-							<span class="langTV lang-hb">Minḥa + Seudat Shelishit</span>
-							<span class="langTV lang-ru">Минха + Сеудат Шелишит</span>
-						</b>
-						<span>6:00 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Arvit</b>
-						<span>7:20 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="shabbat">
 				</ul>
 			</div>
 		</div>
-		<div>
-			<h1 style="text-align: center;">Weekday Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Tehilim, for Men & Women</b><br>
-							<span>R' Wyszkowski</span>
-						</div>
-						<span>Sun.<br>8:30 - 9:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Mussar, Gemara & Halacha</b><br>
-							<span>R' Ben-Mordechai</span>
-						</div>
-						<span>Mon-Wed<br>9:00 - 10:00 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Tefila</b><br>
-							<span>R' Hilman</span>
-						</div>
-						<span>Thu.<br>9:00 - 9:30 PM</span>
-					</li>
-				</ul>
-			</div>
-			<h1 style="text-align: center;">Shabbat Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Morning</b>
-						</div>
-						<span>7:00 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Afternoon</b>
-						</div>
-						<span>6:00 PM</span>
-					</li>
-				</ul>
-			</div>
-		</div>
-		<div id="limudSection">
+		<section class="wideView" data-zfFind="calendarFormatter">
+			{% for item in site.data.tv.tvZmanRus %}
+				<article
+					data-zmanid="{{ item.id }}"
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+				>
+					<span class="langTV lang-hb">{{ item.names.hb }}</span>
+					<span class="langTV lang-ru">{{ item.names.ru }}</span>
+					<span class="timeDisplay"></span>
+				</article>
+			{% endfor %}
+		</section>
+		<!-- <div id="limudSection">
             <h1 style="text-align: center;">
                 <span class="langTV lang-hb">לימוד יומי</span>
                 <span class="langTV lang-ru">лимуд ёми</span>
@@ -578,7 +574,7 @@ layout: nothing
 					</ul>
 				</div>
 			</div>
-		</div>
+		</div> -->
 	</div>
 </div>
 
@@ -586,7 +582,11 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
-<script type="module" src="/assets/js/shul-wall/limud.js"></script>
+<!-- <script type="module" src="/assets/js/shul-wall/limud.js"></script> -->
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
+<script type="module">
+	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
+	await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
+</script>
