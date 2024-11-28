@@ -308,7 +308,7 @@ async function messageHandler (x) {
 					if (rangeTimes(bLzmanCalc.getAlotHashachar(), time, bLzmanCalc.getTzait()))
 						time = bLzmanCalc.getTzait();
 
-					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌗", hideAMPM: false, appendText: " (לחתחילה)" })
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌗", hideAMPM: false, appendText: " (לכתחילה)" })
 				}
 
 				let sameTime = false;
@@ -322,7 +322,7 @@ async function messageHandler (x) {
 					if (time.withCalendar("hebrew").day == 15 && time.equals(bLzmanCalc.getAlotHashachar()))
 						sameTime = true;
 
-					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌕", hideAMPM: false, appendText: (sameTime ? undefined : " (לחתחילה)") })
+					renderZmanInDiv(time, { dtF: defaulTF, icon: "🌕", hideAMPM: false, appendText: (sameTime ? undefined : " (לכתחילה)") })
 				}
 
 				if (jCal.getJewishDayOfMonth() == 15 && !sameTime) {

@@ -58,12 +58,16 @@ class CountDown {
 			return this.countdownFinished();
 
 		const dur = Temporal.Now.zonedDateTimeISO(this.tzOrigin).until(zDT);
-		const minutes = Math.floor(dur.total('minutes')).toString().padStart(2, '0');
 		const seconds = dur.seconds.toString().padStart(2, '0');
+		let minutes = Math.floor(dur.total('minutes')).toString().padStart(2, '0');
+		minutes = {
+			'100': '0C',
+			'101': 'CI'
+		}[minutes] || minutes;
 
 		/** @type {[string, string, string, string]} */
 		// @ts-ignore
-		const timeNumbers = (minutes + seconds).split('');
+		const timeNumbers = (minutes + seconds).split('').slice(-4);
 		this.updateTimerDisplay(timeNumbers);
 
 		// @ts-ignore
@@ -105,19 +109,21 @@ class CountDown {
 
 
 const counter = new CountDown(timerEl);
-if ([hebDate.monthsInYear, 1].includes(hebDate.month)) {
+if (hebDate.month == hebDate.monthsInYear || (hebDate.month == 1 && hebDate.day >= 2 && hebDate.day < 10)) {
 	if (zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight().dayOfYear
 		== Temporal.Now.plainDateISO(preSettings.location.timezone()).dayOfYear
 		&& Temporal.ZonedDateTime.compare(
 			Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()),
 			zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight())
-		< 1) {
+		< 1
+		&& hebDate.dayOfWeek !== 6) {
 		requestAnimationFrame(() => counter.updateTimer(zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight()))
 	} else if (zmanCalc.getSolarMidnight().dayOfYear == Temporal.Now.plainDateISO(preSettings.location.timezone()).dayOfYear
 		&& Temporal.ZonedDateTime.compare(
 			Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()),
 			zmanCalc.getSolarMidnight())
-		< 1) {
+		< 1
+		&& hebDate.dayOfWeek !== 5) {
 		if (Temporal.ZonedDateTime.compare(
 			Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()),
 			zmanCalc.getSolarMidnight().subtract({ minutes: 15 })
@@ -131,3 +137,26 @@ if ([hebDate.monthsInYear, 1].includes(hebDate.month)) {
 		}
 	}
 }
+
+if (rangeDates(zmanCalc.getMisheyakir(), Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()), zmanCalc.getNetz())) {
+	const launchCountdown = () => requestAnimationFrame(() => counter.updateTimer(zmanCalc.getNetz()))
+	const untilCountdown = Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())
+		.until(zmanCalc.getNetz().subtract({ minutes: 101 }))
+		.total('milliseconds');
+
+	// @ts-ignore
+	window.timers.untilNetzCountdown = setTimeout(launchCountdown, Math.max(untilCountdown, 500));
+}
+
+/**
+ * @param {Temporal.ZonedDateTime} start
+ * @param {Temporal.ZonedDateTime} middle
+ * @param {Temporal.ZonedDateTime} end
+ */
+function rangeDates(start, middle, end, inclusive=true) {
+	const acceptedValues = [1];
+	if (inclusive)
+	  acceptedValues.push(0);
+  
+	return acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(end, middle))
+};

@@ -20,7 +20,7 @@ const swap = () => {
 
 	// @ts-ignore
 	window.timers.swapTime =
-		setTimeout(() => requestAnimationFrame(() => swap()), 5000)
+		setTimeout(() => requestAnimationFrame(() => swap()), parseInt(container.getAttribute("data-swap-time") || "5000") || 5000);
 }
 
 requestAnimationFrame(() => swap())

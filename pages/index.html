@@ -166,30 +166,7 @@ layout: landing
                 <p>For areas outside of the USA, we provide an (optional) derivitive of the Ohr Hachaim calendar called the <strong>Amudeh Hora'ah</strong> calendar, authored by HaRav Leeor Dahan. These shitot differ in times outside of the day's range (such as Dawn & Nightfall) to be complient with R' David Yosef's opinions, accommodating latitudinal deviations from Eretz Yisrael while still using seasonal minutes.</p>
                 <p>These times are accessible; not just through our website, but also our apps, print-out calendars, downloadable iCal calendars (for digital calendar apps) and TV walls for shuls. For other formats that developers would like to be creative with, all of our math/algorithms are fully <a href="https://github.com/Zemaneh-Yosef">open source</a>, with implementations in JavaScript, Java & Swift. Furthermore, anyone looking to calculate it themselves (or just learn how we did it) could learn through the <i>sugya</i> using our descriptions as indexes for the various sources we used.</p>
             </div>
-			<div class="g-col-12 g-col-lg-4" style="align-content: center;">
-				<div id="carouselExampleIndicators" class="carousel slide">
-					<div class="carousel-indicators">
-					  <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-					  <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-					</div>
-					<div class="carousel-inner">
-					  <div class="carousel-item active">
-						<img src="/assets/images/landing/1c5b886e-29ca-4b4f-9956-0ae7631ae06e.jpeg" class="d-block w-100">
-					  </div>
-					  <div class="carousel-item">
-						<img src="/assets/images/landing/6a9af53c-9349-4945-b4bd-3c283059fa99.jpeg" class="d-block w-100" alt="...">
-					  </div>
-					</div>
-					<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-					  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-					  <span class="visually-hidden">Previous</span>
-					</button>
-					<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-					  <span class="carousel-control-next-icon" aria-hidden="true"></span>
-					  <span class="visually-hidden">Next</span>
-					</button>
-				  </div>
-			</div>
+			<div class="g-col-12 g-col-lg-4" style="align-content: center;">{% include bootstrap/carousel.html carouselItems=site.data.tv.carousel %}</div>
         </div>
     </div>
 </section>
