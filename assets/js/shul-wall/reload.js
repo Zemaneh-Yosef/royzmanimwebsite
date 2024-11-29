@@ -1,6 +1,12 @@
 // @ts-check
 
 export async function reload() {
+	if (!navigator.onLine) {
+		window.addEventListener('online', reload)
+		return;
+	}
+
+	window.removeEventListener('online', reload);
 	window.location.reload();
 
 	await waitFor(6000);
