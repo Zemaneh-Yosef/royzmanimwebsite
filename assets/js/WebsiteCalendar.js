@@ -107,11 +107,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	/**
 	 * @param {boolean} independent
 	 * @param {AmudehHoraahZmanim|OhrHachaimZmanim} zmanCalc
-	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
+	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }}; }} zmanList
 	 * @param {{ hourCalculator: "degrees" | "seasonal"; tzeithIssurMelakha: { minutes: number; degree: number;}; tzeitTaanitHumra: boolean; }} funcSettings 
 	 */
 	getZmanimInfo(independent, zmanCalc, zmanList, funcSettings) {
-		/** @typedef {{ hb: string, en: string, "en-et": string }} langType */
+		/** @typedef {{ hb: string, en: string, "en-et": string; "ru"?: string; }} langType */
 		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string}>} */
 		const calculatedZmanim = {}
 
@@ -124,12 +124,14 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				title: {
 					hb: null,
 					en: null,
-					"en-et": null
+					"en-et": null,
+					ru: null
 				},
 				merge_title: {
 					hb: null,
 					en: null,
-					"en-et": null
+					"en-et": null,
+					ru: null
 				}
 			}
 
@@ -137,6 +139,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				calculatedZmanim[zmanId].title.hb = zmanInfo.title.hb
 				calculatedZmanim[zmanId].title.en = zmanInfo.title.en
 				calculatedZmanim[zmanId].title['en-et'] = zmanInfo.title['en-et']
+				calculatedZmanim[zmanId].title.ru = zmanInfo.title.ru
 			}
 
 			if (zmanInfo.yomTovInclusive) {
@@ -213,23 +216,35 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 							calculatedZmanim[zmanId].title.hb = `צאת שבת וחג`;
 							calculatedZmanim[zmanId].title['en-et'] = `Tzet Shabbat & Yom Tov`;
 							calculatedZmanim[zmanId].title.en = `Shabbat & Yom Tov Ends`;
+							calculatedZmanim[zmanId].title.ru = `Конец Шаббата и Праздника`;
 						} else if (this.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
 							calculatedZmanim[zmanId].title.hb = `צאת שבת`;
 							calculatedZmanim[zmanId].title['en-et'] = `Tzet Shabbat`;
 							calculatedZmanim[zmanId].title.en = `Shabbat Ends`;
+							calculatedZmanim[zmanId].title.ru = `Конец Шаббата`;
 						} else {
 							calculatedZmanim[zmanId].title.hb = `צאת חג`;
 							calculatedZmanim[zmanId].title['en-et'] = `Tzet Yom Tov`;
 							calculatedZmanim[zmanId].title.en = `Yom Tov Ends`;
+							calculatedZmanim[zmanId].title.ru = `Конец Праздника`;
 						}
 
-						['hb', 'en-et', 'en']
-							.forEach((/** @type {'hb'|'en-et'|'en'} */lang) =>
-								calculatedZmanim[zmanId].title[lang] += ` (${
-									funcSettings.tzeithIssurMelakha.minutes}m${
-									zmanCalc instanceof AmudehHoraahZmanim ? `/${funcSettings.tzeithIssurMelakha.degree}°` : ""
-								})`
-						)
+						if (!calculatedZmanim[zmanId].luxonObj.equals(zmanCalc.chainDate(this.getDate()).getSolarMidnight())) {
+							const internDegree = KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH + funcSettings.tzeithIssurMelakha.degree;
+							let attemptedTime = zmanCalc.chainDate(this.getDate()).coreZC.getSunsetOffsetByDegrees(internDegree);
+							const reducedTime =
+								!attemptedTime ? true
+								: KosherZmanim.Temporal.ZonedDateTime.compare(attemptedTime, zmanCalc.chainDate(this.getDate()).getSolarMidnight()) == 1;
+							const elements = [
+								!reducedTime ? funcSettings.tzeithIssurMelakha.minutes + "m" : null,
+								zmanCalc instanceof AmudehHoraahZmanim ? (reducedTime ? 5.32 : funcSettings.tzeithIssurMelakha.degree) + "°" : null
+							].filter(Boolean);
+							if (elements.length)
+								['hb', 'en-et', 'en']
+									.forEach((/** @type {'hb'|'en-et'|'en'} */lang) =>
+										calculatedZmanim[zmanId].title[lang] += ` (${elements.join('/')})`
+									)
+						}
 					} else {
 						calculatedZmanim[zmanId].display = 0;
 						calculatedZmanim[zmanId].code.push("Not a day with Tzet Melakha")

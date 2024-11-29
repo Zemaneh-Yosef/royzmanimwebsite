@@ -34,6 +34,7 @@ const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
 }];
 
 const calList = document.querySelector('[data-zfFind="calendarFormatter"]')
+const langList = calList.getAttribute('data-langPull').split(' ')
 const zmanimList = Object.fromEntries(Array.from(calList.children)
 	.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), {
 		function: timeSlot.getAttribute('data-timeGetter'),
@@ -42,8 +43,9 @@ const zmanimList = Object.fromEntries(Array.from(calList.children)
 		condition: timeSlot.getAttribute('data-condition'),
 		title: {
 			'hb': timeSlot.querySelector('span.langTV.lang-hb').innerHTML,
-			'en': timeSlot.querySelector('span.langTV.lang-ru').innerHTML,
-			'en-et': timeSlot.querySelector('span.langTV.lang-ru').innerHTML
+			'en': timeSlot.querySelector('span.langTV.lang-en').innerHTML,
+			'en-et': timeSlot.querySelector('span.langTV.lang-et').innerHTML,
+			ru: timeSlot.querySelector('span.langTV.lang-ru').innerHTML
 		}
 	}])
 	.filter(
@@ -97,11 +99,11 @@ for (const elem of Array.from(calList.children)) {
 const sortedTimes = Object.values(timesDataList).sort((a, b) => Temporal.ZonedDateTime.compare(a.luxonObj, b.luxonObj));
 for (const timeData of sortedTimes) {
 	const artElem = document.createElement('article');
-	artElem.innerHTML = `
-<div class="langTV lang-hb">${timeData.title.hb}</div><div class="langTV lang-ru">${timeData.title.en}</div>
-<div class="timeDisplayWide ${Temporal.PlainDate.compare(timeData.luxonObj, dateForSet) == 1 ? "nextDay" : ""}">
-	${timeData.luxonObj.toLocaleString(...dtF)}
-</div>`;
+	// @ts-ignore
+	artElem.innerHTML = langList.map(lang => `<div class="langTV lang-${lang}">${timeData.title[lang]}</div>`).join('')
+		+ `<div class="timeDisplayWide ${Temporal.PlainDate.compare(timeData.luxonObj, dateForSet) == 1 ? "nextDay" : ""}">
+			${timeData.luxonObj.toLocaleString(...dtF)}
+		</div>`;
 	calList.appendChild(artElem)
 }
 

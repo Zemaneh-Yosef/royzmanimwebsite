@@ -249,7 +249,7 @@ layout: nothing
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <link href="/assets/css/marquee.css" rel="stylesheet" />
 <link href="/assets/css/timer.css" rel="stylesheet" />
-<div id="content">
+<div id="content" data-current-page="1" data-page-count="2">
 	<div id="bsD">בס"ד</div>
 	<img id="gne" src="/assets/images/shul-wall/mercaz-bne-aliya.svg" />
     <div class="blurOverlay"></div>
@@ -450,7 +450,7 @@ layout: nothing
             <dl data-zfFind="DafYomi">
                 {% for learning in site.data.learning %}
                 <div style="text-align: center;">
-                    <dt>{{ learning.text.en.short }}</dt>
+                    <dt>{{ learning.text.et.short }}</dt>
                     <dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
                 </div>
                 {% endfor %}

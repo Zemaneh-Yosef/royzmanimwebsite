@@ -151,7 +151,7 @@ layout: nothing
 		font-size: .85em;
 	}
 
-	#content[data-current-page="1"] .langTV.lang-ru {
+	#content[data-current-page="1"] .langTV.lang-en-et {
 		display: none;
 	}
 
@@ -471,9 +471,8 @@ layout: nothing
 			<div class="card mb-2">
 				<div class="card-header">
 					<h5 class="mb-0">
-						<span class="lang lang-hb">לימוד יומי</span>
-						<span class="lang lang-et">Today's Limud</span>
-						<span class="lang lang-en">Today's Learning</span>
+						<span class="langTV lang-hb">לימוד יומי</span>
+						<span class="langTV lang-en-et">Today's Limud</span>
 					</h5>
 				</div>
 				<div class="marquee" style="height: 125px;">
@@ -481,7 +480,7 @@ layout: nothing
 						{% for learning in site.data.learning %}
 						<div class="list-group-item d-flex justify-content-between">
 							<dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
-							<dt class="langTV lang-ru">{{ learning.text.et.short }}</dt>
+							<dt class="langTV lang-en-et">{{ learning.text.et.short }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 						</div>
 						{% endfor %}
@@ -490,7 +489,7 @@ layout: nothing
 						{% for learning in site.data.learning %}
 						<div class="list-group-item d-flex justify-content-between">
 							<dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
-							<dt class="langTV lang-ru">{{ learning.text.et.short }}</dt>
+							<dt class="langTV lang-en-et">{{ learning.text.et.short }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 						</div>
 						{% endfor %}
@@ -498,8 +497,8 @@ layout: nothing
 				</div>
 			</div>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter">
-			{% for item in site.data.tv.tvZmanEng %}
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en-et">
+			{% for item in site.data.tv.simpleTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
@@ -508,6 +507,8 @@ layout: nothing
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
 					<span class="langTV lang-hb">{{ item.names.hb }}</span>
+					<span class="langTV lang-en">{{ item.names.en }}</span>
+					<span class="langTV lang-et">{{ item.names.et }}</span>
 					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>
 				</article>

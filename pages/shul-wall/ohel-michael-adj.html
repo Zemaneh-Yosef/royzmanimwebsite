@@ -138,7 +138,7 @@ layout: nothing
 		font-size: .175em;
 	}
 
-	#content[data-current-page="1"] .langTV.lang-ru {
+	#content[data-current-page="1"] .langTV.lang-en {
 		display: none;
 	}
 
@@ -429,8 +429,8 @@ layout: nothing
 				<span data-zfReplace="SeasonalPrayers"></span>
 			</span>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter">
-			{% for item in site.data.tv.tvZmanEng %}
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
+			{% for item in site.data.tv.simpleTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
@@ -439,6 +439,8 @@ layout: nothing
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
 					<span class="langTV lang-hb">{{ item.names.hb }}</span>
+					<span class="langTV lang-en">{{ item.names.en }}</span>
+					<span class="langTV lang-et">{{ item.names.et }}</span>
 					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>
 				</article>

@@ -148,7 +148,7 @@ layout: nothing
 		font-size: 1.3em;
 	}
 
-	#content[data-current-page="1"] .langTV.lang-ru {
+	#content[data-current-page="1"] .langTV.lang-en {
 		display: none;
 	}
 
@@ -250,7 +250,7 @@ layout: nothing
 			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
 				<div class="list-group-item d-flex justify-content-between">
 					<dt class="langTV lang-hb">תלנוד בבלי</dt>
-					<dt class="langTV lang-ru">Talmud Bavli</dt>
+					<dt class="langTV lang-en">Talmud Bavli</dt>
 					<dd class="m-0" data-zfReplace="dafBavli"></dd>
 				</div>
 			</dl>
@@ -286,14 +286,6 @@ layout: nothing
 		<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
 			<div class="carousel-inner">
 			</div>
-			<!-- <button class="carousel-control-prev" type="button" data-bs-target="#ishMatzliachSlide" data-bs-slide="prev">
-				<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-				<span class="visually-hidden">Previous</span>
-			</button>
-			<button class="carousel-control-next" type="button" data-bs-target="#ishMatzliachSlide" data-bs-slide="next">
-				<span class="carousel-control-next-icon" aria-hidden="true"></span>
-				<span class="visually-hidden">Next</span>
-			</button> -->
 		</div>
 		<div>
 			<h1 class="text-center" style="font-size: 3rem;">Shabbat Schedule</h1>
@@ -326,8 +318,8 @@ layout: nothing
 				</ul>
 			</div>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter">
-			{% for item in site.data.tv.tvZmanEng %}
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
+			{% for item in site.data.tv.simpleTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
@@ -336,6 +328,8 @@ layout: nothing
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
 					<span class="langTV lang-hb">{{ item.names.hb }}</span>
+					<span class="langTV lang-en">{{ item.names.en }}</span>
+					<span class="langTV lang-et">{{ item.names.et }}</span>
 					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>
 				</article>

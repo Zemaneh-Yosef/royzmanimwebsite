@@ -513,8 +513,8 @@ layout: nothing
 				</ul>
 			</div>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter">
-			{% for item in site.data.tv.tvZmanRus %}
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb ru">
+			{% for item in site.data.tv.simpleTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
@@ -523,59 +523,13 @@ layout: nothing
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
 					<span class="langTV lang-hb">{{ item.names.hb }}</span>
+					<span class="langTV lang-en">{{ item.names.en }}</span>
+					<span class="langTV lang-et">{{ item.names.et }}</span>
 					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>
 				</article>
 			{% endfor %}
 		</section>
-		<!-- <div id="limudSection">
-            <h1 style="text-align: center;">
-                <span class="langTV lang-hb">לימוד יומי</span>
-                <span class="langTV lang-ru">лимуд ёми</span>
-            </h1>
-            <dl data-zfFind="DafYomi">
-                {% for learning in site.data.tv.learningShaareTefila %}
-                <div style="text-align: center;">
-                    <dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
-                    <dt class="langTV lang-ru">{{ learning.text.ru.short }}</dt>
-                    <dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
-                </div>
-                {% endfor %}
-            </dl>
-			<div class="card mb-2 lang lang-hb hiloulotCard">
-				<div class="card-header"><h5 class="mb-0">הילולות של...</h5></div>
-				<div class="marquee" style="height: 85px;">
-					<ul class="list-group list-group-flush marquee__content" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
-						<li class="list-group-item">אין היום</li>
-					</ul>
-					<ul class="list-group list-group-flush marquee__content" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
-						<li class="list-group-item">אין היום</li>
-					</ul>
-				</div>
-			</div>
-			<div class="card mb-2 lang lang-et hiloulotCard">
-				<div class="card-header"><h5 class="mb-0">Hiloulot of...</h5></div>
-				<div class="marquee" style="height: 85px;">
-					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-				</div>
-			</div>
-			<div class="card mb-2 lang lang-en hiloulotCard">
-				<div class="card-header"><h5 class="mb-0">Hiloulot of...</h5></div>
-				<div class="marquee" style="height: 85px;">
-					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-				</div>
-			</div>
-		</div> -->
 	</div>
 </div>
 
@@ -583,7 +537,6 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
-<!-- <script type="module" src="/assets/js/shul-wall/limud.js"></script> -->
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
