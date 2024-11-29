@@ -75,8 +75,8 @@ const yomTovObj = {
     // I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
     [WebsiteLimudCalendar.SHEMINI_ATZERES]: {
         hb: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
-        en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : ""),
-        "en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : "")
+        en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
+        "en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
     },
     [WebsiteLimudCalendar.SIMCHAS_TORAH]: {
         hb: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
@@ -95,6 +95,12 @@ const yomTovObj = {
 const titleElem = document.querySelector('[data-parasha]')
 if (dateHighlight.isYomTov() && dateHighlight.getYomTovIndex() in yomTovObj) {
     titleElem.innerHTML = yomTovObj[dateHighlight.getYomTovIndex()][preSettings.language()]
+} else if (titleElem.hasAttribute('data-prefix')) {
+    titleElem.innerHTML = {
+        "en-ru": `<span class="langTV lang-hb">Shabbat ${dateHighlight.isChanukah() ? "Ḥannuka" : ""}</span>
+        <span class="langTV lang-ru">Шаббат ${dateHighlight.isChanukah() ? "Ханука" : ""}</span> - `
+            + jCal.getHebrewParasha().join(" / ") + (dateHighlight.isChanukah() ? " (חנוכה)" : "")
+    }[titleElem.getAttribute('data-prefix')]
 } else
     titleElem.innerHTML = jCal.getHebrewParasha().join(" / ") + (dateHighlight.isChanukah() ? " (חנוכה)" : "");
 
