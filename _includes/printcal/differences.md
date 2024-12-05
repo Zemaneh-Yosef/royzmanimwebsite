@@ -2,11 +2,11 @@
 
 To represent two physical calendars, we added a "calendar mode" toggle on our website. This is reflected when exporting the PDF, and one can see which mode they are on by looking at the bottom left. The differences are explained in the "Seasonal Hours + Alot/Tzet" section
 
-###### Seasonal Hours + Alot/Tzet
+###### Seasonal Hours + Dawn/Nightfall
 
 We use the length of the day from sunrise until sunset to determine all Halachic times, whether within the day or *times before sunrise/after sunset*. This means that, just like degree calculations (and unlike some calendars that used fixed minutes), these times are longer in the summer; that's because the days are longer in the summer. However, unlike both degrees calculation (for times outside sunrise->sunset) and fixed minutes, these times are *shorter* in the winter months, despite astronomy dictating that these times should be longer for times outside the day's length. There are a few exceptions, though, when we use other methods of calculation (dawn->nightfall seasonal, degrees, fixed) instead of seasonal sunrise->sunset times:
 
-- Keriath Shema & Hametz use seasonal time calculated from Dawn until nightfall
+- Keriath Shema & Hametz use seasonal time calculated from Dawn until Nightfall
 - Minḥa Gedolah uses a fixed 30 minute minimum, for the winter months
 - Shabbat needs some conformity to astronomical sightings, so we use pure degrees in the Amudeh Hora'ah calendar (7.14) and 40 minutes for the Ohr Hachaim calendar.
 - Rabbenu Tam's Nightfall displays a maximum of 72 fixed minutes in the Amudeh Hora'ah calendar, based on both R' Yitzhak Yosef & R' David Yosef. This does **not** apply to the Ohr Hachaim calendar, though, which explicitly follows R' Ovadia that said one *should* use 72 seasonal minutes, both for leniencies & stringencies.
@@ -16,7 +16,7 @@ For the time portions outside of the days length, the Amudeh Hora'ah calendar us
 
 ---
 
-The Talmudic way of referring to the length of time behind these times is a "mil", which we hold is 18 minutes. Thereby, ¾<sup>th</sup> of a mil is 13 ½ minutes (used for Geonim's nightfall) and 4 mil is 72 minutes (used for dawn and R"T's nightfall). For special occasions (such as ending a fast), we would switch to the Rambam's mil equivalence of 24 minutes, making 3/4<sup>th</sup> of it as 18 minutes. From there, we would round it up to the nearest 10, making it 20 seasonal minutes after sunset.
+The Talmudic way of referring to the measurement behind these times is a "mil", which we hold is 18 minutes. Thereby, ¾<sup>th</sup> of a mil is 13 ½ minutes (used for Geonim's nightfall) and 4 mil is 72 minutes (used for dawn and R"T's nightfall). For special occasions (such as ending a fast), we would switch to the Rambam's mil equivalence of 24 minutes, making it's rounded up ¾<sup>th</sup> value as 20 minutes after sunset.
 
 ###### Sunrise/Sunset
 
@@ -26,13 +26,13 @@ When reporting the times for the calendar, the given time differs from the sunri
 
 These times are provided from the **NOAA algorithm**.
 
-###### Ḥatzot
+###### Midday
 
 Everyday is counted *independently* (as opposed to a mean value), being the halfway point between sunrise->sunset (not sunrise->tzet)
 
 ###### Plag Haminḥa
 
-In addition to the GR"A's Plag Haminḥa (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berurah), we offer the time for Plag Haminḥa according to R' Yitzhak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).
+In addition to the GR"A's Plag Haminḥa (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berura), we offer the time for Plag Haminḥa according to R' Yitzhak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).
 
 ###### Tekufot
 

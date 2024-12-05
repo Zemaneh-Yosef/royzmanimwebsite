@@ -54,6 +54,14 @@ const localization = {
 		<span class="langTV lang-hb">Morning Shiur</span>
 		<span class="langTV lang-ru">Утренний Шиур</span>
 	</b>`,
+	"mainShaharitR": `<b>
+		<span class="langTV lang-hb">Main Shaḥarit</span>
+		<span class="langTV lang-ru">Основной Шахарит</span>
+	</b>`,
+	"youthShaharitR": `<b>
+		<span class="langTV lang-hb">Youth Shaḥarit</span>
+		<span class="langTV lang-ru">Шахарит для молодежи</span>
+	</b>`,
 }
 
 /** @param {string} url */

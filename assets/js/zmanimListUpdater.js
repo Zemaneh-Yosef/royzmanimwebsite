@@ -1095,7 +1095,7 @@ class zmanimListUpdater {
 		let shemaKolenu = this.geoLocation.getLatitude() < 0;
 		if (settings.calendarToggle.tekufaCalc() == 'adabaravah') {
 			const talUmatarRAda = this.zmanFuncs.tekufaCalc.calculateTekufotRAda()[0].toPlainDate().add({ days: 60 })
-			shemaKolenu = shemaKolenu || KosherZmanim.Temporal.PlainDate.compare(talUmatarRAda, this.jCal.getDate()) !== -1
+			shemaKolenu = shemaKolenu || KosherZmanim.Temporal.PlainDate.compare(talUmatarRAda, this.jCal.getDate()) == -1
 		}
 
 		/** @type {HTMLUListElement} */

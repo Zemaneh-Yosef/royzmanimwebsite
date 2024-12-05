@@ -538,8 +538,8 @@ window.addEventListener('offline', () => networkStatus.offline());
 document.querySelectorAll('button > i.bi-pin-map')
 	.forEach((/** @type {HTMLElement} */ i) => i.parentElement.addEventListener('click', () => getLocation()));
 
-document.getElementById('searchIcon').addEventListener('click', (e) => updateList(e));
-document.getElementById('Main').addEventListener('keyup', (ev) => updateList(ev));
+document.getElementById('searchIcon').addEventListener('click', updateList);
+document.getElementById('Main').addEventListener('keyup', updateList);
 
 /** @param {string} tz */
 function appendOptionToTZSel(tz) {

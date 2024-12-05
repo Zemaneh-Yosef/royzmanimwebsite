@@ -81,9 +81,11 @@ layout: nothing
 	.explanationPreface p,
 	.explanationPreface ol,
 	.explanationPreface ul,
+	.explanationPreface .divFakeParagraph,
 	.pagedjs_pages p,
 	.pagedjs_pages ol,
-	.pagedjs_pages ul {
+	.pagedjs_pages ul,
+	.pagedjs_pages .divFakeParagraph {
 		margin-bottom: .5rem;
 		text-align: justify;
 		text-justify: inter-word;
@@ -334,6 +336,18 @@ layout: nothing
 	/*.pagedjs_pagebox > .pagedjs_area > .pagedjs_page_content {
 		column-width: calc(100% - var(--pagedjs-footnotes-height)) !important;
 	}*/
+
+	.divFakeParagraph {
+		display: block;
+		margin-block-start: 1em;
+		margin-block-end: 1em;
+		margin-inline-start: 0px;
+		margin-inline-end: 0px;
+		unicode-bidi: isolate;
+
+		margin-top: 0;
+	    margin-bottom: 1rem;
+	}
 </style>
 
 <div id="cover">

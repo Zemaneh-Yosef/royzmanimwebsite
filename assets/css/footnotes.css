@@ -19,7 +19,7 @@
     }
 }
  
-span.footnote { 
+.footnote { 
     float: footnote; 
     footnote-policy: line;
 }
