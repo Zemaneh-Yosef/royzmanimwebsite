@@ -4,10 +4,11 @@ permalink: /print/full
 layout: nothing
 ---
 
+{% capture differences %}{% include printcal/differences.md %}{% endcapture %}
 {% capture dayExpl %}{% include printcal/explanation-day.md %}{% endcapture %}
 {% capture nightRTExpl %}{% include printcal/explanation-night-rt.md %}{% endcapture %}
+{% capture nightNORTExpl %}{% include printcal/explanation-night-nort.md %}{% endcapture %}
 {% capture miscExpl %}{% include printcal/misc.md %}{% endcapture %}
-{% capture differences %}{% include printcal/differences.md %}{% endcapture %}
 
 {% capture fullHebExpl %}{% include printcal/explanation-hb.rtl.md %}{% endcapture %}
 
@@ -26,7 +27,6 @@ layout: nothing
 		width: 100%;
 		display: grid;
 		text-align: center;
-		font-size: .65em;
 		line-height: 1.1;
 		page-break-before: always;
 	}
@@ -216,7 +216,8 @@ layout: nothing
 		font-size: .85em;
 	}
 
-	.flexElemWorkaround svg {
+	.flexElemWorkaround svg,
+	.flexElemWorkaround img {
 		height: 1em;
 		width: 1em;
 		vertical-align: bottom;
@@ -423,9 +424,17 @@ layout: nothing
 				<p style="text-align: center;">In this section of the calendar, we aim to explain every Halachic time in brief for both calculation and concept. One looking to read more on each time should read the descriptions for each on our website, royzmanim.com, where we give Talmudic based sources in addition to all the later Poskim we already bring in this document.</p>
 				<h5 style="text-align: center; margin-bottom: .125rem;">Zemaneh Hayom Explanations</h5>
 				<div class="columnSplit" data-lang-extract>
-					<span class="lang lang-en">{{ dayExpl | markdownify }}{{ nightRTExpl | markdownify }}</span>
-					<span class="lang lang-et">{{ dayExpl | markdownify }}{{ nightRTExpl | markdownify }}</span>
-					<span class="lang lang-hb">{{ fullHebExpl | markdownify }}</span>
+					<div class="lang lang-en">
+						{{ dayExpl | markdownify }}
+						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
+						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
+					</div>
+					<div class="lang lang-et">
+						{{ dayExpl | markdownify }}
+						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
+						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
+					</div>
+					<div class="lang lang-hb">{{ fullHebExpl | markdownify }}</div>
 				</div>
 				<h5 style="text-align: center; margin-top: .5rem; margin-bottom: .125rem;">Misc. Zemanim Explanations</h5>
 				<div class="columnSplit" style="--description-columns: 3;">{{ miscExpl | markdownify }}</div>
@@ -457,5 +466,37 @@ layout: nothing
 		</div>
 	</div>
 </div>
+
+<script>
+if (new URL(window.location.href).searchParams.has('noRT')) {
+	document.querySelectorAll('[data-rt-text]').forEach(elem => elem.remove());
+	document.querySelector('[data-zyData="getTzaitRT"]').remove();
+	document.querySelector('[data-zyData="candleLighting"]').setAttribute('data-zyData', 'candleLightingRT');
+
+	for (const noRTText of document.querySelectorAll('[data-nort-text]')) {
+		while (noRTText.firstChild) {
+			noRTText.parentNode.insertBefore(noRTText.firstChild, noRTText);
+		}
+		noRTText.remove();
+	}
+
+	const style = document.createElement('style');
+	style.innerHTML = `.tableGrid { font-size: .${new URL(window.location.href).searchParams.has('shabbatOnly') ? "775" : "665"}em; }`;
+	document.head.appendChild(style);
+} else {
+	document.querySelectorAll('[data-nort-text]').forEach(elem => elem.remove());
+
+	for (const RTText of document.querySelectorAll('[data-rt-text]')) {
+		while (RTText.firstChild) {
+			RTText.parentNode.insertBefore(RTText.firstChild, RTText);
+		}
+		RTText.remove();
+	}
+
+	const style = document.createElement('style');
+	style.innerHTML = `.tableGrid { font-size: .65em; }`;
+	document.head.appendChild(style);
+}
+</script>
 
 <script src="/assets/js/features/print-export.js" type="module"></script>

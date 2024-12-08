@@ -30,6 +30,7 @@ const hNum = new HebrewNumberFormatter();
 	candleTime: number;
 	shabbatOnly: boolean;
 	oneYear: boolean;
+	mergeTzet: boolean;
   }} singlePageParams */
 
 // "date" of param will have to be in the iso8601 calendar
@@ -61,6 +62,7 @@ async function messageHandler (x) {
 
 	const havdalahIcon = await (await fetch('/assets/images/havdalah.svg')).text();
 	const candleIcon = '<i class="bi bi-fire"></i>';
+	const wineIcon = '<img src="/assets/images/icons8-wine-bar-64.png">'
 
 	let plainDate = Temporal.PlainDate.from(x.data.date)
 	const jCal = new WebsiteLimudCalendar();
@@ -350,7 +352,7 @@ async function messageHandler (x) {
 					div.appendChild(rHelem);
 					div.style.fontWeight = "bold";
 				}
-	
+
 				if (jCal.tomorrow().getDayOfChanukah() !== -1) {
 					const hanTitleElem = flexWorkAround.cloneNode(true);
 					hanTitleElem.appendChild(document.createTextNode({
@@ -359,7 +361,7 @@ async function messageHandler (x) {
 						"en-et": (jCal.getDayOfChanukah() == -1 ? "Erev " : "") + "Ḥanukah"
 					}[x.data.lang]));
 					div.appendChild(hanTitleElem);
-	
+
 					const hanNightElem = flexWorkAround.cloneNode(true);
 					// @ts-ignore
 					hanNightElem.classList.add("omerText");
@@ -370,7 +372,7 @@ async function messageHandler (x) {
 						"en-et": getOrdinal(jCal.tomorrow().getDayOfChanukah(), true) + " night"
 					}[x.data.lang] + ")";
 					div.appendChild(hanNightElem);
-	
+
 					div.style.fontWeight = "bold";
 				} else if (jCal.getDayOfChanukah() == 8) {
 					const hanTitleElem = flexWorkAround.cloneNode(true);
@@ -381,7 +383,7 @@ async function messageHandler (x) {
 					}[x.data.lang]));
 					div.appendChild(hanTitleElem);
 				}
-	
+
 				if (jCal.isBirkasHachamah()) {
 					const rHelem = flexWorkAround.cloneNode(true);
 					rHelem.appendChild(document.createTextNode({
@@ -389,22 +391,22 @@ async function messageHandler (x) {
 						"en-et": "Birkath Haḥama",
 						'en': "Blessing of the Sun"
 					}[x.data.lang]));
-	
+
 					div.appendChild(rHelem);
 					div.style.fontWeight = "bold";
 				}
-	
+
 				if (jCal.getYomTovIndex() in yomTovObj) {
 					const yomTovElem = flexWorkAround.cloneNode(true);
 					yomTovElem.appendChild(document.createTextNode(yomTovObj[jCal.getYomTovIndex()][x.data.lang]))
 					div.appendChild(yomTovElem);
-	
+
 					div.style.fontWeight = "bold";
 				}
-	
+
 				if (jCal.isTaanis()) {
 					const taanitElem = flexWorkAround.cloneNode(true);
-	
+
 					switch (jCal.getYomTovIndex()) {
 						case WebsiteLimudCalendar.FAST_OF_ESTHER:
 							taanitElem.appendChild(document.createTextNode({
@@ -434,7 +436,7 @@ async function messageHandler (x) {
 								'en': "Fast"
 							}[x.data.lang]));
 					}
-	
+
 					div.appendChild(taanitElem);
 					div.style.fontWeight = "bold";
 				}
@@ -477,7 +479,7 @@ async function messageHandler (x) {
 
 				if (shita !== 'datePri')
 					div.appendChild(secondaryDate);
-	
+
 				if (jCal.isRoshChodesh() || jCal.getYomTovIndex() in yomTovObj || jCal.isBirkasHachamah())
 					div.style.fontWeight = "bold";
 	
@@ -489,14 +491,20 @@ async function messageHandler (x) {
 						renderZmanInDiv(zmanCalc.getCandleLighting(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
 					else if (jCal.getDayOfWeek() === 7)
 						renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
+					else if (x.data.mergeTzet && !(zmanCalc instanceof OhrHachaimZmanim))
+						renderZmanInDiv(zmanCalc.getTzaitLechumra(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
 					else
 						return false;
 				}
-	
+
+				if (x.data.allShitot.includes('getTzaitLechumra') && jCal.isTaanis() && jCal.getJewishMonth() == WebsiteLimudCalendar.AV && jCal.getDayOfWeek() == KosherZmanim.Calendar.SUNDAY)
+					return false;
+
 				if (!jCal.hasCandleLighting() && jCal.isAssurBemelacha()) {
 					renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: havdalahIcon, hideAMPM: true});
-	
-					if (jCal.tomorrow().getDayOfOmer() !== -1) {
+
+					if (x.data.mergeTzet && jCal.tomorrow().getDayOfOmer() !== -1) {
+						omerSpan.style.marginTop = '.1rem';
 						div.appendChild(omerSpan);
 					}
 
@@ -506,21 +514,33 @@ async function messageHandler (x) {
 							"en-et": 'R"T:',
 							'en': 'R"T:'
 						}[x.data.lang], hideAMPM: true});
-						// @ts-ignore
-						div.lastElementChild.style.marginTop = '.1rem';
-						div.lastElementChild.classList.add("omerText");
+						if (x.data.mergeTzet && jCal.tomorrow().getDayOfOmer() !== -1) {
+							const attachedRT = document.createElement("span");
+							attachedRT.classList.add("omerText");
+							attachedRT.innerHTML = "/" + div.lastElementChild.innerHTML;
+							div.lastElementChild.remove();
+							div.firstElementChild.appendChild(attachedRT);
+						} else {
+							// @ts-ignore
+							div.lastElementChild.style.marginTop = '.1rem';
+							div.lastElementChild.classList.add("omerText");
+						}
 					}
 				}
-	
+
 				break;
 			case 'getTzait':
-				if (!jCal.isAssurBemelacha()) {
-					renderZmanInDiv(zmanCalc.getTzait())
-	
+				if (jCal.hasCandleLighting() || !jCal.isAssurBemelacha()) {
+					const potForCandle = zmanCalc instanceof OhrHachaimZmanim && jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7;
+					renderZmanInDiv(zmanCalc.getTzait(), potForCandle ? {dtF: defaulTF, icon: candleIcon, hideAMPM: true} : undefined)
+					if (potForCandle) {
+						div.style.gridColumnEnd = "span 2";
+					}
+
 					if (jCal.tomorrow().getDayOfOmer() !== -1) {
 						div.appendChild(omerSpan);
 					}
-	
+
 					if (jCal.tomorrow().getDayOfChanukah() !== -1 && jCal.getDayOfWeek() !== 6) {
 						renderZmanInDiv(zmanCalc.getTzait().add({ minutes: 30 }), {dtF: defaulTF, icon: {
 							'hb': "תדליק לפני",
@@ -529,31 +549,39 @@ async function messageHandler (x) {
 						}[x.data.lang], hideAMPM: true})
 						div.lastElementChild.classList.add("omerText");
 					}
+
+					if (x.data.mergeTzet && jCal.isTaanis() && !jCal.isYomKippur()) {
+						renderZmanInDiv(zmanCalc.getTzaitLechumra(), {dtF: defaulTF, icon: {
+							'hb': "צאת הצום",
+							"en-et": "Fast Ends",
+							'en': "Fast Ends"
+						}[x.data.lang], hideAMPM: true})
+						div.lastElementChild.classList.add("omerText");
+						div.lastElementChild.style.fontWeight = "bold";
+					}
 				}
 				break;
 			case 'getTzaitLechumra':
-				let appear = false;
+				// Only on Amudeh Hora'ah
 				const potForCandle = jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7;
-				if (zmanCalc instanceof OhrHachaimZmanim) {
-					if (jCal.isTaanis() && !jCal.isYomKippur()) {
-						appear = true;
-						renderZmanInDiv(zmanCalc.getTzait().add({ minutes: 20 }), potForCandle ? {dtF: defaulTF, icon: candleIcon, hideAMPM: true} : undefined)
-						div.style.fontWeight = "bold";
-					}
-				} else {
-					appear = true;
-					renderZmanInDiv(zmanCalc.getTzaitLechumra(), potForCandle ? {dtF: defaulTF, icon: candleIcon, hideAMPM: true} : undefined)
-	
-					if (jCal.isTaanis() && !jCal.isYomKippur()) {
-						div.style.fontWeight = "bold";
-					}
+				const havdalahOnWine = jCal.isTaanis() && jCal.getJewishMonth() == WebsiteLimudCalendar.AV && jCal.getDayOfWeek() == KosherZmanim.Calendar.SUNDAY;
+
+				const iconParams =
+					potForCandle ? {dtF: defaulTF, icon: candleIcon, hideAMPM: true} :
+					havdalahOnWine ? {dtF: defaulTF, icon: wineIcon, hideAMPM: true} :
+					undefined;
+
+				renderZmanInDiv(zmanCalc.getTzaitLechumra(), iconParams)	
+				if (jCal.isTaanis() && !jCal.isYomKippur()) {
+					div.style.fontWeight = "bold";
 				}
-	
-				if (appear && potForCandle) {
+
+				if (potForCandle || havdalahOnWine) {
 					div.style.gridColumnEnd = "span 2";
-					if (jCal.tomorrow().getDayOfOmer() !== -1) {
-						div.appendChild(omerSpan);
-					}
+				}
+
+				if (jCal.tomorrow().getDayOfOmer() !== -1 && !(jCal.hasCandleLighting() || !jCal.isAssurBemelacha())) {
+					div.appendChild(omerSpan);
 				}
 	
 				break;
@@ -614,9 +642,9 @@ async function messageHandler (x) {
 				renderZmanInDiv(zmanCalc.getHatzoth());
 				if (jCal.isYomKippur()) {
 					renderZmanInDiv(zmanCalc.getNetz().add(zmanCalc.fixedToSeasonal(Temporal.Duration.from({ hours: 7 }))), {dtF: defaulTF, icon: '(' + {
-						'hb': "(תסיים מוסף לפני ",
-						"en-et": "(Finish Musaf before ",
-						'en': "(Finish Musaf before "
+						'hb': "תסיים מוסף לפני ",
+						"en-et": "Finish Musaf before ",
+						'en': "Finish Musaf before "
 					}[x.data.lang], appendText: ")", hideAMPM: true});
 					div.lastElementChild.classList.add("omerText");
 				}
@@ -641,11 +669,11 @@ async function messageHandler (x) {
 				)
 		));
 		if (!x.data.oneYear) {
-			dateSel.appendChild(document.createTextNode(` (${
+			dateSel.appendChild(document.createTextNode(' ' +
 				x.data.lang == 'hb'
-					? hNum.formatHebrewNumber(jCal.getJewishYear())
-					: plainDate.withCalendar(x.data.calendar).year
-			})`));
+					? ` (${hNum.formatHebrewNumber(jCal.getJewishYear())})`
+					: " '" + plainDate.withCalendar(x.data.calendar).year.toString().slice(-2)
+			));
 		}
 	}
 

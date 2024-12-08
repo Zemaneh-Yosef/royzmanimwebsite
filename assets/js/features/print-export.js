@@ -27,10 +27,27 @@ const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new GeoLocation(...glArgs);
 const useOhrHachaim = (geoLocation.getLocationName() || "").toLowerCase().includes('israel') || settings.calendarToggle.hourCalculators() == "seasonal"
 
-const listAllShitot = Array.from(document.querySelectorAll('[data-zyData]')).map(elem => elem.getAttribute('data-zyData'))
 /** @type {HTMLElement} */
 // @ts-ignore
 const baseTable = document.getElementsByClassName('tableGrid')[0];
+
+if (useOhrHachaim || printParam.has('mergeTzet')) {
+	const humraTzet = baseTable.querySelector('[data-zyData="getTzaitLechumra"]');
+	if (humraTzet) {
+		/** @type {HTMLElement} */
+		// @ts-ignore
+		const headerTzet = humraTzet.previousElementSibling.previousElementSibling;
+		headerTzet.removeAttribute('data-zyHeaderContainer');
+		headerTzet.setAttribute('data-zyData', 'getTzait');
+		headerTzet.style.removeProperty('grid-column-end');
+		headerTzet.style.gridRow = '1 / span 2';
+
+		humraTzet.previousElementSibling.remove();
+		humraTzet.remove();
+	}
+}
+
+const listAllShitot = Array.from(baseTable.querySelectorAll('[data-zyData]')).map(elem => elem.getAttribute('data-zyData'))
 baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName('tableHeader'))
 	.filter(elem => !elem.hasAttribute('data-zyHeaderContainer'))
 	.map((/** @type {HTMLElement} */elem) => {
@@ -60,7 +77,7 @@ if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isV
 const footer = document.getElementsByClassName("zyCalFooter")[0];
 footer.querySelector("[data-geoCoordinates]")
 	.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
-		useOhrHachaim ? ", ↑" + geoLocation.getElevation : ""
+		useOhrHachaim ? ", ↑" + geoLocation.getElevation().toString() : ""
 	})`));
 footer.querySelector("[data-calendar]")
 	.appendChild(document.createTextNode(
@@ -114,7 +131,8 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 		allShitot: listAllShitot,
 		month: mIndex,
 		candleTime: settings.customTimes.candleLighting(),
-		shabbatOnly: printParam.has('shabbatOnly')
+		shabbatOnly: printParam.has('shabbatOnly'),
+		mergeTzet: printParam.has('mergeTzet') || useOhrHachaim
 	})
 }
 
