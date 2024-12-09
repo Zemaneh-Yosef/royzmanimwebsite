@@ -19,18 +19,18 @@
     }
 }
  
-.footnote { 
+[data-footnote] { 
     float: footnote; 
     footnote-policy: line;
 }
  
-.footnote::footnote-call {
+[data-footnote]::footnote-call {
     content: counter(footnote, decimal) " ";
     vertical-align: top;
     font-size: .6em;
 }
  
-.footnote::footnote-marker {
+[data-footnote]::footnote-marker {
     font-size: 1.3em;
     text-align: right;
 }
