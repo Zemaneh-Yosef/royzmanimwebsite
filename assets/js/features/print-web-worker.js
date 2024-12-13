@@ -8,6 +8,12 @@ import { HebrewNumberFormatter, daysForLocale, getOrdinal, monthForLocale } from
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from '../ROYZmanim.js';
 import n2wordsOrdinal from '../misc/n2wordsOrdinal.js';
 
+const icons = {
+	havdalah: '<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg>',
+	candle: '<i class="bi bi-fire"></i>',
+	wine: '<img src="/assets/images/icons8-wine-bar-64.png">'
+}
+
 const hNum = new HebrewNumberFormatter();
 
 /** @typedef {{
@@ -37,7 +43,7 @@ const hNum = new HebrewNumberFormatter();
 /**
   * @param {MessageEvent<singlePageParams>} x
  */
-async function messageHandler (x) {
+function messageHandler (x) {
 	const geoLocation = new KosherZmanim.GeoLocation(...x.data.geoCoordinates);
 	const vNetz = x.data.netz.map((/** @type {number} */ value) => Temporal.Instant
 		.fromEpochSeconds(value)
@@ -60,10 +66,6 @@ async function messageHandler (x) {
 		new Temporal.Instant(0n).add({ hours: 12 })
 	].map(inst => inst.toLocaleString(defaulTF[0], { hour12: true, hour: 'numeric'}).split(' ').at(-1))
 
-	const havdalahIcon = await (await fetch('/assets/images/havdalah.svg')).text();
-	const candleIcon = '<i class="bi bi-fire"></i>';
-	const wineIcon = '<img src="/assets/images/icons8-wine-bar-64.png">'
-
 	let plainDate = Temporal.PlainDate.from(x.data.date)
 	const jCal = new WebsiteLimudCalendar();
 	jCal.setDate(plainDate)
@@ -82,7 +84,7 @@ async function messageHandler (x) {
 		// Holidays
 		[KosherZmanim.JewishCalendar.PESACH]: {
 			hb: "פסח",
-			"en-et": "Pesach",
+			"en-et": "Pesaḥ",
 			en: "Passover",
 		},
 		[KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH]: {
@@ -91,9 +93,9 @@ async function messageHandler (x) {
 			hb: "חול המועד"
 		},
 		[KosherZmanim.JewishCalendar.SHAVUOS]: {
-			en: "Shavuoth",
+			en: "Shavu'oth",
 			hb: "שבועות",
-			"en-et": "Shavuoth"
+			"en-et": "Shavu'oth"
 		},
 		[KosherZmanim.JewishCalendar.ROSH_HASHANA]: {
 			hb: "ראש השנה",
@@ -115,25 +117,25 @@ async function messageHandler (x) {
 			"en-et": "Hoshanah Rabba",
 			en: "Hoshana Rabba"
 		},
-	
+
 		// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 		// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 		[KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: {
 			hb: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
-			en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : ""),
-			"en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simchath Torah" : "")
+			en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
+			"en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
 		},
 		[KosherZmanim.JewishCalendar.SIMCHAS_TORAH]: {
 			hb: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
-			en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah",
-			"en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
+			en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simḥath Torah",
+			"en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simḥath Torah"
 		},
 	
 		// Semi-Holidays & Fasts
 		[KosherZmanim.JewishCalendar.PESACH_SHENI]: {
 			hb: "פסח שני",
-			en: "Pesach Sheni",
-			"en-et": "Pesach Sheni"
+			en: "Pesaḥ Sheni",
+			"en-et": "Pesaḥ Sheni"
 		},
 		[KosherZmanim.JewishCalendar.LAG_BAOMER]: {
 			hb: "לג בעומר",
@@ -201,10 +203,10 @@ async function messageHandler (x) {
 		const omerSpan = document.createElement("span");
 		omerSpan.classList.add("omerText");
 		omerSpan.innerHTML = getOrdinal(jCal.tomorrow().getDayOfOmer(), true) + " of omer";
-	
+
 		const div = document.createElement('div');
 		div.classList.add('tableCell')
-	
+
 		/**
 		 * @param {Temporal.ZonedDateTime} zDT
 		 * @param {{dtF: typeof defaulTF; icon?: string, hideAMPM: boolean, appendText?: string}} config
@@ -216,16 +218,15 @@ async function messageHandler (x) {
 			if (zDT.dayOfYear !== jCal.getDate().dayOfYear) {
 				const dayElem = document.createElement("span");
 				dayElem.appendChild(document.createTextNode('⤵️'));
-				dayElem.style.filter = 'grayscale(1)';
-	
+
 				if (jCal.getDate().dayOfYear > zDT.dayOfYear) {
 					dayElem.style.display = 'inline-block';
 					dayElem.style.transform = 'scale(-1, 1)';
 				}
-	
+
 				timeElem.appendChild(dayElem)
 			}
-	
+
 			if (config.icon)
 				timeElem.innerHTML += config.icon + " ";
 
@@ -271,7 +272,10 @@ async function messageHandler (x) {
 						rhDays.push(rhDays[0]);
 						rhDays[0] = jCal.getDate().withCalendar('hebrew').with({ day: 30 }).dayOfWeek;
 					}
-					const rhHebrewDisplay = rhDays.map(day => "ביום " + n2wordsOrdinal[(day + 1) % 7]);
+					const rhHebrewDisplay = rhDays.map(day => {
+						const numResult = (day + 1) % 7;
+						return "ביום " + (numResult == 0 ? "השבת" : n2wordsOrdinal[(day + 1) % 7])
+					});
 
 					const daysDisplay = flexWorkAround.cloneNode(true);
 					// @ts-ignore
@@ -357,8 +361,8 @@ async function messageHandler (x) {
 					const hanTitleElem = flexWorkAround.cloneNode(true);
 					hanTitleElem.appendChild(document.createTextNode({
 						"hb": (jCal.getDayOfChanukah() == -1 ? "ערב " : "") + "חנוכה",
-						"en": "Ḥanukah" + (jCal.getDayOfChanukah() == -1 ? " Eve" : ""),
-						"en-et": (jCal.getDayOfChanukah() == -1 ? "Erev " : "") + "Ḥanukah"
+						"en": "Ḥanuka" + (jCal.getDayOfChanukah() == -1 ? " Eve" : ""),
+						"en-et": (jCal.getDayOfChanukah() == -1 ? "Erev " : "") + "Ḥanuka"
 					}[x.data.lang]));
 					div.appendChild(hanTitleElem);
 
@@ -378,8 +382,8 @@ async function messageHandler (x) {
 					const hanTitleElem = flexWorkAround.cloneNode(true);
 					hanTitleElem.appendChild(document.createTextNode({
 						"hb": "זאת חנוכה",
-						"en": "Ḥanukah Day",
-						"en-et": "Yom Ḥanukah"
+						"en": "Ḥanuka Day",
+						"en-et": "Yom Ḥanuka"
 					}[x.data.lang]));
 					div.appendChild(hanTitleElem);
 				}
@@ -488,11 +492,11 @@ async function messageHandler (x) {
 			case 'candleLightingRT':
 				if (jCal.hasCandleLighting()) {
 					if (jCal.getDayOfWeek() === 6 || !jCal.isAssurBemelacha())
-						renderZmanInDiv(zmanCalc.getCandleLighting(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
+						renderZmanInDiv(zmanCalc.getCandleLighting(), {dtF: defaulTF, icon: icons.candle, hideAMPM: true});
 					else if (jCal.getDayOfWeek() === 7)
-						renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
+						renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: icons.candle, hideAMPM: true});
 					else if (x.data.mergeTzet && !(zmanCalc instanceof OhrHachaimZmanim))
-						renderZmanInDiv(zmanCalc.getTzaitLechumra(), {dtF: defaulTF, icon: candleIcon, hideAMPM: true});
+						renderZmanInDiv(zmanCalc.getTzaitLechumra(), {dtF: defaulTF, icon: icons.candle, hideAMPM: true});
 					else
 						return false;
 				}
@@ -501,7 +505,7 @@ async function messageHandler (x) {
 					return false;
 
 				if (!jCal.hasCandleLighting() && jCal.isAssurBemelacha()) {
-					renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: havdalahIcon, hideAMPM: true});
+					renderZmanInDiv(zmanCalc.getTzaitShabbath(), {dtF: defaulTF, icon: icons.havdalah, hideAMPM: true});
 
 					if (x.data.mergeTzet && jCal.tomorrow().getDayOfOmer() !== -1) {
 						omerSpan.style.marginTop = '.1rem';
@@ -532,7 +536,7 @@ async function messageHandler (x) {
 			case 'getTzait':
 				if (jCal.hasCandleLighting() || !jCal.isAssurBemelacha()) {
 					const potForCandle = zmanCalc instanceof OhrHachaimZmanim && jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7;
-					renderZmanInDiv(zmanCalc.getTzait(), potForCandle ? {dtF: defaulTF, icon: candleIcon, hideAMPM: true} : undefined)
+					renderZmanInDiv(zmanCalc.getTzait(), potForCandle ? {dtF: defaulTF, icon: icons.candle, hideAMPM: true} : undefined)
 					if (potForCandle) {
 						div.style.gridColumnEnd = "span 2";
 					}
@@ -557,6 +561,7 @@ async function messageHandler (x) {
 							'en': "Fast Ends"
 						}[x.data.lang], hideAMPM: true})
 						div.lastElementChild.classList.add("omerText");
+						// @ts-ignore
 						div.lastElementChild.style.fontWeight = "bold";
 					}
 				}
@@ -567,8 +572,8 @@ async function messageHandler (x) {
 				const havdalahOnWine = jCal.isTaanis() && jCal.getJewishMonth() == WebsiteLimudCalendar.AV && jCal.getDayOfWeek() == KosherZmanim.Calendar.SUNDAY;
 
 				const iconParams =
-					potForCandle ? {dtF: defaulTF, icon: candleIcon, hideAMPM: true} :
-					havdalahOnWine ? {dtF: defaulTF, icon: wineIcon, hideAMPM: true} :
+					potForCandle ? {dtF: defaulTF, icon: icons.candle, hideAMPM: true} :
+					havdalahOnWine ? {dtF: defaulTF, icon: icons.wine, hideAMPM: true} :
 					undefined;
 
 				renderZmanInDiv(zmanCalc.getTzaitLechumra(), iconParams)	
@@ -752,17 +757,17 @@ async function messageHandler (x) {
 			}[x.data.lang]));
 
 			let tekufaDate;
-			switch (x.data.lang) {
-				default:
+			/* switch (x.data.lang) {
+				default: */
 					tekufaDate = `${daysForLocale('en')[initTekuf.dayOfWeek]}, ${monthForLocale('en')[initTekuf.month]} ${getOrdinal(initTekuf.day, true)}`;
-			}
+			//}
 			const tekufaTimingDiv = document.createElement("p");
 			tekufaTimingDiv.innerHTML = tekufaDate;
 			tekufaTimingDiv.appendChild(document.createElement("br"));
 			tekufaTimingDiv.appendChild(document.createTextNode({
 				"hb": "אל תשתה מים בין ",
-				"en": "Do not drink water between ",
-				"en-et": "Do not drink water between "
+				"en": "Refrain from water between ",
+				"en-et": "Refrain from water between "
 			}[x.data.lang] + [
 				initTekuf.round("minute").subtract({ minutes: 30 }).toLocaleString(...defaulTF),
 				initTekuf.round("minute").add({ minutes: 30 }).toLocaleString(...defaulTF),
@@ -780,7 +785,7 @@ async function messageHandler (x) {
 		const hametzTitle = document.createElement("h5");
 		hametzTitle.innerHTML = {
 			hb: "ערב פסח",
-			en: "Pesaḥ Eve for Ḥametz - " + hamesName,
+			en: "Passover Eve's Ḥametz Times - " + hamesName,
 			"en-et": "Erev Pesaḥ for Ḥametz - " + hamesName
 		}[x.data.lang];
 
@@ -823,9 +828,9 @@ async function messageHandler (x) {
 			const bLContain = document.createElement("div");
 			const bLTitl = document.createElement("h5");
 			bLTitl.innerHTML = {
-				hb: "ברכת הלבנה - חדש " + jCalBMoon.formatJewishMonth().he,
+				hb: "ברכת הלבנה - חודש " + jCalBMoon.formatJewishMonth().he,
 				en: "Moon-Blessing - Month of " + jCalBMoon.formatJewishMonth().en,
-				"en-et": "Birkath Halevana - Month of " + jCalBMoon.formatJewishMonth().en
+				"en-et": "Birkath Halevana - Ḥodesh " + jCalBMoon.formatJewishMonth().en
 			}[x.data.lang];
 
 			const bLTimes = document.createElement("p");
@@ -859,7 +864,7 @@ addEventListener('message', messageHandler)
 function rangeTimes(start, middle, end, inclusive=true) {
 	const acceptedValues = [1];
 	if (inclusive)
-	  acceptedValues.push(0);
-  
+		acceptedValues.push(0);
+
 	return acceptedValues.includes(Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(Temporal.ZonedDateTime.compare(end, middle))
 };

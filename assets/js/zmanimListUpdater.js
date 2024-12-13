@@ -338,7 +338,21 @@ class zmanimListUpdater {
 							})
 
 						return [heading.getAttribute("data-zfFind"), { he, "en-et": et, en }]
-					}))
+					})),
+				tahanun: Object.fromEntries([...document.querySelector('[data-zfFind="Tachanun"]').children]
+					.map(/** @returns {[string, string|{"he": string; "en-et": string; "en": string}]} */
+						tachObj =>
+						[
+						tachObj.getAttribute('data-zfFind'),
+						// @ts-ignore
+						tachObj.childElementCount == 0
+							? tachObj.innerHTML
+							: Object.fromEntries([...tachObj.children]
+								.map(langElem => [
+									langElem.classList.values().find(cl => cl.startsWith('lang-')).replace('lang-', '').replace('hb', 'he'),
+									langElem.innerHTML
+								]))
+					]))
 			}
 		]
 
@@ -376,14 +390,16 @@ class zmanimListUpdater {
 
 			const calName = (this.zmanFuncs instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
 				+ ` Calendar (${isoYear}) - ` + this.geoLocation.getLocationName();
-			const labeledEvents = receiveData.map(obj => ({
-				...obj,
-				calName,
-				/** @type {"utc"} */
-				startInputType: "utc",
-				/** @type {"utc"} */
-				endInputType: "utc"
-			}));
+			const labeledEvents = 
+				Array.from(new Set(receiveData.map(field => JSON.stringify(field)))).map(field => JSON.parse(field))
+				.map(obj => ({
+					...obj,
+					calName,
+					/** @type {"utc"} */
+					startInputType: "utc",
+					/** @type {"utc"} */
+					endInputType: "utc"
+				}));
 
 			const icsRespond = ics.createEvents(labeledEvents)
 			if (icsRespond.error)

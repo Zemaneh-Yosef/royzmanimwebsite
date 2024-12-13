@@ -39,7 +39,7 @@ export default async function autoSchedule() {
 	if (Math.trunc(arvitMS.with({ minute: Math.floor(arvitMS.minute / 5) * 5 }).until(arvitMS).total('minutes')) < 2)
 		arvitMS = arvitMS.with({ minute: Math.floor(arvitMS.minute / 5) * 5 });
 	document.getElementById('arvitMS').lastElementChild.innerHTML = arvitMS.toLocaleString(...dtF);
-	document.getElementById('minchaS').lastElementChild.innerHTML = arvitMS.with({ minute: Math.floor(arvitMS.minute / 30) * 30 }).subtract({ hours: 1 }).toLocaleString(...dtF);
+	document.getElementById('minchaS').lastElementChild.innerHTML = "3:50 PM";//arvitMS.with({ minute: Math.floor(arvitMS.minute / 10) * 10 }).subtract({ hours: 1 }).toLocaleString(...dtF);
 
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
