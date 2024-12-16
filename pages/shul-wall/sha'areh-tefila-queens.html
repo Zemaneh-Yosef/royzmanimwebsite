@@ -319,6 +319,19 @@ layout: nothing
 		--bs-card-bg: transparent;
 		border: none;
 	}
+
+	.marquee__content > img {
+		height: 12.5vh;
+	}
+
+	.marquee {
+		position: absolute;
+		left: 50%;
+		width: 20%;
+		transform: translateX(-50%);
+		top: 60%;
+		z-index: 100;
+	}
 </style>
 
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
@@ -338,6 +351,10 @@ layout: nothing
         <span class="langTV lang-hb">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
         <span class="langTV lang-ru">Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.</span>
 	</div>
+	<div class="marquee marqueeHorizontal" style="--length: 45s">
+		<div class="marquee__content"></div>
+		<div aria-hidden="true" class="marquee__content"></div>
+	</div>
 	<div id="dataGrid">
 		<div>
 			{% include clockCountdown.html %}
@@ -355,150 +372,7 @@ layout: nothing
 				<span class="langTV lang-ru" data-ru-date></span></div>
 			</div>
 			<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
-			<div class="card text-center">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
-					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
-						{% for fast in site.data.events.fasts %}
-						<h5 data-zfFind="{{ fast.yomTovIndex }}">
-							<span class="lang lang-hb">{{ fast.text.hb }}</span>
-							<span class="lang lang-et">{{ fast.text.et }}</span>
-							<span class="lang lang-en">{{ fast.text.en }}</span>
-						</h5>
-						{% endfor %}
-						<span data-zfFind="oneDayTimes">
-							<b class="lang lang-en">Fast Times: </b>
-							<b class="lang lang-et">Fast Times: </b>
-							<b class="lang lang-hb">שעות הצום: </b>
-						</span>
-						<ul data-zfFind="twoDayTimes">
-							<li>
-								<b class="lang lang-en">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-et">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-hb">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
-							</li>
-							<li>
-								<b class="lang lang-en">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-et">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-hb">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
-							</li>
-						</ul>
-					</li>
-					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
-						<div data-zfFind="SefirathHaomer">
-							<div class="lang lang-en">
-								<h5 class="mb-0"><span data-zfReplace="completeCount"></span> day of the Omer</h5>
-								<p><span data-zfReplace="indCount"></span></p>
-								<p class="mb-0">
-									<b>Tonight:</b>
-									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> day of the Omer<span> -
-									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
-								</p>
-							</div>
-							<div class="lang lang-et">
-								<h5 class="mb-0">Today is <span data-zfReplace="completeCount"></span> of the Omer</h5>
-								<p>which <span data-zfReplace="indCount"></span></p>
-								<p class="mb-0">
-									<b>Tonight:</b>
-									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> of the Omer<span>, which
-									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
-								</p>
-							</div>
-							<div class="lang lang-hb">
-								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
-								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
-								<p class="mb-0">
-									<b>הלילה:</b>
-									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
-									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
-								</p>
-							</div>
-							<hr class="my-1" data-zfFind="omerRules">
-						</div>
-						<div data-zfFind="ThreeWeeksHeader">
-							<h5>
-								<span class="lang lang-hb">
-									<span data-zfFind="threeWeeks">שלושה שבועות</span>
-									<span data-zfFind="nineDays">תשעה ימים</span>
-									<span data-zfFind="weekOf">שבוע שחל בו</span>
-								</span>
-								<span class="lang lang-et">
-									<span data-zfFind="threeWeeks">Three Weeks</span>
-									<span data-zfFind="nineDays">Nine Days</span>
-									<span data-zfFind="weekOf">The week of Tisha Beav</span>
-								</span>
-								<span class="lang lang-en">
-									<span data-zfFind="threeWeeks">Three Weeks</span>
-									<span data-zfFind="nineDays">Nine Days</span>
-									<span data-zfFind="weekOf">The week of Tisha Beav</span>
-								</span>
-							</h5>
-						</div>
-						<div class="marquee" style="height: 50px;">
-							<ul class="marquee__content">
-								{% for minhag in site.data.mourningMinhag %}
-								<li data-zfFind="{{ minhag.topic }}">
-									<span class="lang lang-hb">{{ minhag.text.hb }}</span>
-									<span class="lang lang-et">{{ minhag.text.en }}</span>
-									<span class="lang lang-en">{{ minhag.text.en }}</span>
-								</li>
-								{% endfor %}
-							</ul>
-							<ul class="marquee__content">
-								{% for minhag in site.data.mourningMinhag %}
-								<li aria-hidden="true" data-zfFind="{{ minhag.topic }}">
-									<span class="lang lang-hb">{{ minhag.text.hb }}</span>
-									<span class="lang lang-et">{{ minhag.text.en }}</span>
-									<span class="lang lang-en">{{ minhag.text.en }}</span>
-								</li>
-								{% endfor %}
-							</ul>
-						</div>
-					</li>
-					<li class="list-group-item" data-zfReplace="Tachanun"></li>
-					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
-						<span class="lang lang-hb">ברכת החמה!</span>
-						<span class="lang lang-et">Birchath Hachama!</span>
-						<span class="lang lang-en">Blessing of the sun!</span>
-					</li>
-					<li class="list-group-item" data-zfFind="BirchatHalevana">
-						<span class="lang lang-hb">
-							ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
-							<span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
-							<span data-zfFind="ends-tonight"> - נגמר בלילה</span>
-						</span>
-						<span class="lang lang-et">
-							Birchath Halevana (until the night of <span data-zfReplace="date-en-end"></span>)
-							<span data-zfFind="starts-tonight"> - Starts tonight</span>
-							<span data-zfFind="ends-tonight"> - Ends tonight</span>
-						</span>
-						<span class="lang lang-en">
-							Blessing of the moon (until the night of <span data-zfReplace="date-en-end"></span>)
-							<span data-zfFind="starts-tonight"> - Starts tonight</span>
-							<span data-zfFind="ends-tonight"> - Ends tonight</span>
-						</span>
-					</li>
-					<li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
-					<li class="list-group-item" data-zfReplace="Ulchaparat" style="display: none;"></li>
-					<li class="list-group-item" data-zfFind="SeasonalPrayers">
-						<span data-zfReplace="SeasonalPrayers"></span>
-					</li>
-					<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
-						<span class="lang lang-hb">
-							<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
-							<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
-						</span>
-						<span class="lang lang-et">
-							<b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
-							<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
-						</span>
-						<span class="lang lang-en">
-							<b>The <span data-zfReplace="tekufaName-en"></span> season</b> is at <span data-zfReplace="tekufaTime"></span><br>
-							<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
-						</span>
-					</li>
-				</ul>
-			</div>
+			<div></div>
 		</div>
 		<div>
 			<h1 style="text-align: center;" data-parasha data-prefix="en-ru"></h1>
@@ -537,10 +411,17 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
-<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
 <script type="module">
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
 	await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
+
+	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+		.split('\n')
+		.filter(str => str.startsWith('./shaare-tefila-marquee/'))
+
+	for (const marquee of document.getElementsByClassName('marquee__content')) {
+		marquee.innerHTML = flyerURLs.map(url => `<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" />`).join('');
+	}
 </script>
