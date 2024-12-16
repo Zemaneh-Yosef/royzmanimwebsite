@@ -99,16 +99,56 @@ for (const elem of Array.from(calList.children)) {
 const sortedTimes = Object.values(timesDataList).sort((a, b) => Temporal.ZonedDateTime.compare(a.luxonObj, b.luxonObj));
 for (const timeData of sortedTimes) {
 	const artElem = document.createElement('article');
-	// @ts-ignore
-	artElem.innerHTML = langList.map(lang => `<div class="langTV lang-${lang}">${timeData.title[lang]}</div>`).join('')
-		+ `<div class="timeDisplayWide ${Temporal.PlainDate.compare(timeData.luxonObj, dateForSet) == 1 ? "nextDay" : ""}">
-			${timeData.luxonObj.toLocaleString(...dtF)}
-		</div>`;
+
+	const artTitles = langList.map(lang => {
+		const titleElem = document.createElement('div');
+		titleElem.classList.add('langTV', `lang-${lang}`);
+		// @ts-ignore
+		titleElem.appendChild(document.createTextNode(timeData.title[lang]));
+		return titleElem;
+	});
+	for (const titleElem of artTitles)
+		artElem.appendChild(titleElem);
+
+	const artTime = document.createElement('div');
+	artTime.appendChild(document.createTextNode(timeData.luxonObj.toLocaleString(...dtF)));
+	artTime.classList.add('timeDisplayWide')
+	if (Temporal.PlainDate.compare(timeData.luxonObj, dateForSet) == 1)
+		artTime.classList.add("nextDay");
+
+	artElem.appendChild(artTime);
+
+	if (timeData.title.hb.startsWith("שמע") && calList.hasAttribute('data-primaryShema')) {
+		const shemaTimes = sortedTimes
+			.filter(time => time.title.hb.startsWith("שמע"))
+			.map(zmanObj => zmanObj.luxonObj.toPlainDate());
+
+		if (shemaTimes[0].equals(shemaTimes[1])) {
+			if (timeData.function !== calList.getAttribute('data-primaryShema'))
+				continue;
+
+			for (const titleElem of artTitles)
+				titleElem.innerHTML = titleElem.innerHTML.split(" ")[0];
+
+			const secondShemaZmanObj = sortedTimes
+				.find(zmanObj => zmanObj.title.hb.startsWith("שמע") && zmanObj.function !== calList.getAttribute('data-primaryShema'));
+			const secondShemaElem = document.createElement('div');
+			secondShemaElem.classList.add('secondShemaDispl');
+			secondShemaElem.appendChild(document.createTextNode('('))
+			for (const lang of langList) {
+				const titleSecShema = document.createElement('span');
+				titleSecShema.classList.add('langTV', `lang-${lang}`);
+				titleSecShema.style.unicodeBidi = 'isolate';
+				// @ts-ignore
+				titleSecShema.appendChild(document.createTextNode(secondShemaZmanObj.title[lang].split(" ")[1]));
+				secondShemaElem.appendChild(titleSecShema);
+			}
+			secondShemaElem.appendChild(document.createTextNode(': ' + secondShemaZmanObj.luxonObj.toLocaleString(...dtF) + ')'))
+			artElem.appendChild(secondShemaElem);
+		}
+	}
 	calList.appendChild(artElem)
 }
-
-if (calList.children.length > 10)
-	calList.classList.add("needsResize")
 
 let timeForReload = sortedTimes[0].luxonObj;
 if (jCal.tomorrow().isChanukah() && ![6, 7].includes(jCal.getDayOfWeek())) {

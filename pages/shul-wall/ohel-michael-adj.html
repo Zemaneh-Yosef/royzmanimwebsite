@@ -167,9 +167,13 @@ layout: nothing
 		border-right:1px solid white;
 	}
 
-	article > .langTV {
+	article > .langTV:nth-child(1), article > .langTV:nth-child(2) {
 		height: calc(100% - 1em - 8px);
 		font-weight: bold;
+	}
+
+	.secondShemaDispl {
+		font-size: .8em;
 	}
 
 	#poweredBy {
@@ -276,7 +280,7 @@ layout: nothing
 		font-weight: 700;
 		margin-top: .25rem;
 		position: relative;
-		font-size: 1.1em;
+		font-size: .7em;
 	}
 
 	#noPhoneIcon {
@@ -428,7 +432,7 @@ layout: nothing
 				<span data-zfReplace="SeasonalPrayers"></span>
 			</span>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en" data-primaryShema="getSofZmanShmaMGA">
 			{% for item in site.data.tv.simpleTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"

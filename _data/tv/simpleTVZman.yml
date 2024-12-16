@@ -13,7 +13,7 @@
   names:
     hb: משיכיר
     et: Misheyakir
-    en: Early Talit & Tefilin
+    en: Misheyakir
     ru: талит и тфилин
 - id: sunriseNoVisual
   timeGetter: getNetz

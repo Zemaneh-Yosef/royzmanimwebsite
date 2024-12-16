@@ -54,7 +54,7 @@ class ChaiTables {
 			DST: "ON",
 			exactcoord: "OFF",
 			types: type,
-			RoundSecond: -1,
+			RoundSecond: 1,
 			AddCushion: 0,
 			"24hr": "",
 			typezman: -1,
