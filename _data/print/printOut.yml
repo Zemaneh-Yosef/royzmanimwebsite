@@ -29,7 +29,7 @@
       id: gra
   names:
     hb: סוף זמן שמע
-    et: Sof Zman Shema
+    et: Sof Zeman Shema
     en: Latest Shema
 - timeGetter: getSofZmanBrachothShma
   names:
@@ -56,7 +56,7 @@
       id: ketanah
   names:
     hb: זמן מנחה
-    et: Zman Minḥa
+    et: Zeman Minḥa
     en: Minḥa Times
 - shitot:
     - names:

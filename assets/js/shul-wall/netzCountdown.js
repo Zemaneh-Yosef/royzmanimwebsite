@@ -30,6 +30,8 @@ const zmanCalc =
         new OhrHachaimZmanim(geoL, true) :
         new AmudehHoraahZmanim(geoL));
 
+/** @type {HTMLElement} */
+// @ts-ignore
 const timerEl = document.getElementsByClassName('timer--clock')[0];
 const hebDate = zmanCalc.coreZC.getDate().withCalendar("hebrew");
 
@@ -158,5 +160,5 @@ function rangeDates(start, middle, end, inclusive=true) {
 	if (inclusive)
 	  acceptedValues.push(0);
   
-	return acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(end, middle))
+	return acceptedValues.includes(Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(Temporal.ZonedDateTime.compare(end, middle))
 };

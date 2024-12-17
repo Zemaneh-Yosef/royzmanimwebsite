@@ -8,8 +8,6 @@ import { settings } from "./settings/handler.js";
 import { ChaiTables } from "./features/chaiTables.js";
 import * as leaflet from "../libraries/leaflet/leaflet.js"
 
-import icsExport from "./features/icsPrepare.js";
-import { ics } from "../libraries/ics/ics.esm.js"
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
@@ -276,8 +274,16 @@ class zmanimListUpdater {
 
 		if (!this.buttonsInit) {
 			const downloadBtn = document.getElementById("downloadModalBtn");
-			downloadBtn.style.removeProperty("display")
-			downloadBtn.addEventListener('click', () => {this.handleICS()})
+			downloadBtn.addEventListener('click', async () => {await this.handleICS()})
+
+			const spreadSheetBtn = document.getElementById("spreadSheetBtn");
+			spreadSheetBtn.addEventListener('click', async () => {await this.handleExcel()})
+
+			const clipboardBtn = document.getElementById('clipboardDownload');
+			if ('clipboard' in navigator)
+				clipboardBtn.addEventListener('click', async () => {await this.clipboardCopy()})
+			else
+				clipboardBtn.setAttribute('disabled', '')
 
 			for (const dateChanger of Array.from(dateContainer.getElementsByTagName('button')).filter(btn => btn.hasAttribute('data-dateAlter'))) {
 				const days = parseInt(dateChanger.getAttribute("data-dateAlter"))
@@ -297,7 +303,7 @@ class zmanimListUpdater {
 		}
 	}
 
-	handleICS() {
+	async handleExcel() {
 		if (this.midDownload)
 			return;
 
@@ -309,7 +315,92 @@ class zmanimListUpdater {
 
 		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
 
-		/** @type {Parameters<typeof icsExport>} */
+		/** @type {Parameters<import('./features/excelPrepare.js')["default"]>} */
+		const excelParams = [
+			this.zmanFuncs instanceof AmudehHoraahZmanim,
+			undefined,
+			glArgs,
+			this.zmanFuncs.coreZC.isUseElevation(),
+			this.jCal.getInIsrael(),
+			this.zmanimList,
+			true,
+			{
+				// @ts-ignore
+				language: settings.language() == "hb" ? "he" : settings.language(),
+				zmanInfoSettings: this.zmanInfoSettings,
+				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
+				seconds: settings.seconds(),
+				timeFormat: settings.timeFormat()
+			}
+		]
+
+		/** @type {Parameters<import('../libraries/xlsx.mjs')["utils"]["json_to_sheet"]>[1][]} */
+		let workerData = [];
+		let giveData = [];
+
+		const postDataReceive = async () => {
+			const headerImport = (await import('../excelHeaderData.js')).default;
+			const headerLang = Object.entries(headerImport).map(entry => [entry[0], entry[1][settings.language()]]);
+			const tableData = [Object.fromEntries([['DATE', {'hb': "יום", en: 'DATE', "en-et": "DATE"}[settings.language()]]].concat(headerLang))]
+				.concat(workerData.flat().sort((a, b) => new Date(Object.values(a)[1].v) - new Date(Object.values(b)[1].v)));
+			const { utils, writeFile } = (await import('../libraries/xlsx.mjs'));
+			const ws = utils.json_to_sheet(tableData, { skipHeader: true, UTC: true });
+			const wb = utils.book_new();
+			utils.book_append_sheet(wb, ws, "People");
+			writeFile(wb,"Zmanim.xlsx");
+			this.midDownload = false;
+		}
+
+		for (let i = 1; i <= this.jCal.getDate().monthsInYear; i++) {
+			const monthExcelData = [...excelParams]
+			monthExcelData[1] = [isoYear, i, isoDay, isoCalendar]
+			giveData.push(monthExcelData)
+		}
+
+		for (const monthExcelData of giveData) {
+			if (window.Worker) {
+				const myWorker = new Worker("/assets/js/features/excelPrepare.js", { type: "module" });
+				myWorker.postMessage(monthExcelData)
+				myWorker.addEventListener("message", async (message) => {
+					workerData.push(message.data);
+					if (workerData.length == giveData.length)
+						await postDataReceive();
+				})
+			} else {
+				const excelExport = (await import('./features/excelPrepare.js')).default;
+				const icsData = excelExport.apply(excelExport, monthExcelData);
+				workerData.push(icsData);
+				if (workerData.length == giveData.length)
+					await postDataReceive();
+			}
+		}
+	}
+
+	async clipboardCopy() {
+		const copyText = this.geoLocation.getLocationName() + "\n\n"
+		+ this.jCal.formatFancyDate(undefined, false) + ", " + this.jCal.getDate().year
+		+ "\n" + this.jCal.formatJewishFullDate().hebrew + "\n\n"
+		+ Object.values(this.jCal.getZmanimInfo(true, this.zmanFuncs, this.zmanimList, this.zmanInfoSettings))
+		.filter(entry => entry.display == 1)
+		.map(entry => `${entry.title[settings.language()]}: ${entry.luxonObj.toLocaleString(...this.dtF)}`)
+		.join('\n')
+
+		await navigator.clipboard.writeText(copyText);
+	}
+
+	async handleICS() {
+		if (this.midDownload)
+			return;
+
+		this.midDownload = true;
+
+		/** @type {[string, number, number, number, string]} */
+		// @ts-ignore
+		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
+
+		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
+
+		/** @type {Parameters<import('./features/icsPrepare.js')["default"]>} */
 		const icsParams = [
 			this.zmanFuncs instanceof AmudehHoraahZmanim,
 			undefined,
@@ -356,12 +447,13 @@ class zmanimListUpdater {
 			}
 		]
 
-		/** @type {ics.EventAttributes[]} */
+		/** @type {import('../libraries/ics/ics.esm.js').ics.EventAttributes[]} */
 		let receiveData = [];
 		let giveData = [];
 
-		const postDataReceive = () => {
-			console.log('now post received')
+		const postDataReceive = async () => {
+			const ics = (await import('../libraries/ics/ics.esm.js')).ics;
+
 			receiveData = receiveData.flat()
 			this.zmanFuncs.tekufaCalc.calculateTekufotShemuel(this.zmanFuncs instanceof OhrHachaimZmanim)
 				.forEach((tekufa, index) => {
@@ -429,17 +521,18 @@ class zmanimListUpdater {
 				console.log('activate thread')
 				const myWorker = new Worker("/assets/js/features/icsPrepare.js", { type: "module" });
 				myWorker.postMessage(monthICSData)
-				myWorker.addEventListener("message", (message) => {
+				myWorker.addEventListener("message", async (message) => {
 					console.log("received message from other thread");
 					receiveData.push(message.data)
 					if (receiveData.length == giveData.length)
-						postDataReceive();
+						await postDataReceive();
 				})
 			} else {
+				const icsExport = (await import('./features/icsPrepare.js')).default;
 				const icsData = icsExport.apply(icsExport, monthICSData);
 				receiveData.push(icsData);
 				if (receiveData.length == giveData.length)
-					postDataReceive();
+					await postDataReceive();
 			}
 		}
 	}

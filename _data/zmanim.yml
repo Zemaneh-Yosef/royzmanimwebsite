@@ -125,7 +125,7 @@
   timeGetter: getSofZmanBrachothShma
   names:
     hb: סוף זמן ברכות שמע
-    et: Sof Zman Berakhoth Shema
+    et: Sof Zeman Berakhoth Shema
     en: Latest Berakhoth Shema
   description: |-
     <p>
@@ -188,7 +188,7 @@
       id: ketanah
   names:
     hb: זמן מנחה
-    et: Zman Minḥa
+    et: Zeman Minḥa
     en: Times for Minḥa
   descriptionInclude: zmanDescription/mincha.md
 - id: plagHaminha

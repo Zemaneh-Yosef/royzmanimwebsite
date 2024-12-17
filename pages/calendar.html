@@ -92,6 +92,26 @@ chaiTable: true
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="zemanim-tab-pane" role="tabpanel" aria-labelledby="zemanim-tab" tabindex="0">
+				<div class="grid text-center py-2" style="--bs-columns: 3;">
+					<button type="button" class="btn btn-primary" id="downloadModalBtn">
+						<i class="bi bi-calendar2-week"></i>
+						<span class="lang lang-en">Download Digital Calendar</span>
+						<span class="lang lang-et">Download Digital Calendar</span>
+						<span class="lang lang-hb">הורד לוח שנה דיגיטלי</span>
+					</button>
+					<button type="button" class="btn btn-primary" id="clipboardDownload">
+						<i class="bi bi-clipboard"></i>
+						<span class="lang lang-en">Copy to clipboard</span>
+						<span class="lang lang-et">Copy to clipboard</span>
+						<span class="lang lang-hb">העתק ללוח</span>
+					</button>
+					<button type="button" class="btn btn-primary" id="spreadSheetBtn">
+						<img src="/assets/images/download_spread.svg" alt="Download Spreadsheet" style="height: 1em;">
+						<span class="lang lang-en">Download spreadsheet</span>
+						<span class="lang lang-et">Download spreadsheet</span>
+						<span class="lang lang-hb">Download spreadsheet</span>
+					</button>
+				</div>
 				<div class="accordian" data-zfFind="calendarFormatter">
 					{% for item in site.data.zmanim %}
 						{% if item.shitot %}
