@@ -115,27 +115,11 @@ layout: nothing
 		font-family: "Spectral", serif;
 	}
 
-	.explanationPreface .fakeListItem,
-	.pagedjs_pages .fakeListItem {
-		margin-inline-start: 10px; /* Set the desired margin */
-		position: relative;
-		margin-bottom: .25rem;
-	}
-
-	.explanationPreface .fakeListItem::before,
-	.pagedjs_pages .fakeListItem::before {
-		/* Create a pseudo-element to act as the bullet point */
-		content: "\2022"; /* Unicode bullet point (•) */
-		position: absolute;
-	}
-
-	:dir(ltr) .explanationPreface .fakeListItem::before,
 	:dir(ltr) .explanationPreface .customBulletList::before,
 	:dir(ltr) .explanationPreface .customBulletListFinale::before {
 		left: -10px; /* Position the bullet point to the left of the text */
 	}
 
-	:dir(rtl) .explanationPreface .fakeListItem::before,
 	:dir(rtl) .explanationPreface .customBulletList::before,
 	:dir(rtl) .explanationPreface .customBulletListFinale::before {
 		right: -10px; /* Position the bullet point to the left of the text */

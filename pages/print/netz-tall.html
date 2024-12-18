@@ -78,9 +78,31 @@ layout: nothing
 	.pagedjs_pages p,
 	.pagedjs_pages ol,
 	.pagedjs_pages ul {
-		margin-bottom: .5rem;
 		text-align: justify;
 		text-justify: inter-word;
+	}
+
+	.explanationPreface p:not(:last-child),
+	.explanationPreface ol:not(:last-child),
+	.explanationPreface ul:not(:last-child),
+	.pagedjs_pages p:not(:last-child),
+	.pagedjs_pages ol:not(:last-child),
+	.pagedjs_pages ul:not(:last-child) {
+		margin-bottom: .5rem;
+	}
+
+	.explanationPreface ol,
+	.explanationPreface ul,
+	.pagedjs_pages ol,
+	.pagedjs_pages ul {
+		padding-left: 15px;
+	}
+
+	.explanationPreface ol ::marker,
+	.explanationPreface ul ::marker,
+	.pagedjs_pages ol ::marker,
+	.pagedjs_pages ul ::marker {
+		font-size: 10px;
 	}
 
 	#differences {
@@ -106,27 +128,11 @@ layout: nothing
 		font-family: "Spectral", serif;
 	}
 
-	.explanationPreface .fakeListItem,
-	.pagedjs_pages .fakeListItem {
-		margin-inline-start: 10px; /* Set the desired margin */
-		position: relative;
-		margin-bottom: .25rem;
-	}
-
-	.explanationPreface .fakeListItem::before,
-	.pagedjs_pages .fakeListItem::before {
-		/* Create a pseudo-element to act as the bullet point */
-		content: "\2022"; /* Unicode bullet point (•) */
-		position: absolute;
-	}
-
-	:dir(ltr) .explanationPreface .fakeListItem::before,
 	:dir(ltr) .explanationPreface .customBulletList::before,
 	:dir(ltr) .explanationPreface .customBulletListFinale::before {
 		left: -10px; /* Position the bullet point to the left of the text */
 	}
 
-	:dir(rtl) .explanationPreface .fakeListItem::before,
 	:dir(rtl) .explanationPreface .customBulletList::before,
 	:dir(rtl) .explanationPreface .customBulletListFinale::before {
 		right: -10px; /* Position the bullet point to the left of the text */
@@ -140,7 +146,7 @@ layout: nothing
 	}
 
 	.pagedjs_pages .customBulletList {
-		margin-bottom: .05rem;
+		margin-bottom: .05rem !important;
 	}
 	.pagedjs_pages .customBulletListFinale {
 		margin-bottom: .5rem;
@@ -332,6 +338,10 @@ layout: nothing
 	.hebSrc {
 		unicode-bidi: plaintext;
 	}
+
+	/* hr {
+		margin: .85rem 0;
+	} */
 </style>
 
 <div id="cover">
@@ -462,6 +472,11 @@ layout: nothing
 		vertical-align: top;
 	    font-size: .6em;
 	}
+
+	.pagedjs_area ul[data-align-last-split-element='justify'],
+	.pagedjs_area ol[data-align-last-split-element='justify'] {
+		text-align-last: auto;
+	}
 </style>
 
 <div style="page-break-before: always;">
@@ -470,7 +485,7 @@ layout: nothing
 			<div class="explanationPreface">
 				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor'; line-height: 1; margin-bottom: 0;">קונטרס כי יאיר השמש</h4>
 				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
-				<div class="columnSplit" style="font-size: .885rem;" data-lang-extract>
+				<div class="columnSplit" style="font-size: .8875rem;" data-lang-extract>
 					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-et">{{ netzExpl | markdownify }}</span>
 					<span class="lang lang-hb">{{ netzHbExpl | markdownify }}</span>
