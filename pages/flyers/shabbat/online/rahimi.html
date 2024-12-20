@@ -259,7 +259,7 @@ website: true
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		line-height: 1;
 		font-size: 2.5vw;
-		margin-top: 26rem;
+		margin-top: 27rem;
 	}
 
 	#templateAd {
@@ -442,6 +442,24 @@ website: true
 		transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
 		transform-origin: top right;
 	}
+
+	#appBar {
+		padding-top: 1.2rem;
+		display: flex;
+		justify-content: center;
+		width: 40%;
+		margin-left: 50%;
+		transform: translateX(-50%);
+		align-items: center;
+	}
+
+	#appBar > * {
+		flex: 1 1;
+	}
+
+	#appBar > a > img {
+		width: 90%;
+	}
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -494,9 +512,10 @@ website: true
 		Looking for more times? Want to switch locations?<br>
 		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps, available on the respective stores
 
-		<div style="padding-top: 1.2rem;">
-			<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/app-store.png" style="width: 17.5%;" loading="lazy"></a>
-			<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 17.5%;" loading="lazy"></a>
+		<div id="appBar">
+			<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="text-align: right;"><img src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" loading="lazy"></a>
+			<div><img src="/assets/images/app-icon-full.jpeg" style="border-radius: 1.5rem; width: 60%;"></div>
+			<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="text-align: left;"><img src="/assets/images/google-play-store-8-1-73-apk.png" loading="lazy"></a>
 		</div>
 	</div>
 	<span class="shabbatTitleCore">פרשת </span>
@@ -511,7 +530,7 @@ website: true
 		<span style="font-weight: 800;">Sources for the times:</span><br><b style="font-weight: 700;">Yabia' Omer</b> 2:21 • royzmanim.com
 	</div>
 	<img src="/assets/images/MARAN.png" id="maran">
-	<img src="/assets/images/shabbat-abstract/ryy-rdy.png" id="ryy">
+	<img src="/assets/images/shabbat-abstract/ryy-rdy-glima.png" id="ryy">
 	<div class="cube-wrap" style="right: 0; top: 60%;">
 		<div class="cube depth">
 			<div class="front-pane"></div>

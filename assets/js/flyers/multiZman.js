@@ -142,25 +142,114 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			hebrewDate += `-${hnF.formatHebrewNumber(lastFastDay.withCalendar("hebrew").day)} ב${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})}`
 
 		calendars.push(englishDate, hebrewDate);
+	} case 'hanuka': {
+		if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
+			window.location.href = "/"
+		}
+
+		/** @type {[string, number, number, number, string]} */
+		// @ts-ignore
+		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
+		const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
+
+		const calc = settings.location.timezone() == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal;
+		calc.setGeoLocation(geoLocation);
+
+		jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.KISLEV, 24);
+		calc.setDate(jCal.getDate());
+
+		document.getElementById('location').innerHTML = settings.location.name();
+
+		/** @type {({ plagHamincha: KosherZmanim.Temporal.ZonedDateTime; } & ({ msg?: string; candleLighting: KosherZmanim.Temporal.ZonedDateTime } | { msg?: string; tzetShabbat: KosherZmanim.Temporal.ZonedDateTime; rt: KosherZmanim.Temporal.ZonedDateTime } | Record<string, KosherZmanim.Temporal.ZonedDateTime>))[]} */
+		const timeSchedule = [];
+
+		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
+		const timeFormatAttr = ['en', {
+			hourCycle: settings.timeFormat(),
+			hour: 'numeric',
+			minute: '2-digit'
+		}]
+		
+		for (let i = 0; i <= 7; i++) {
+			const buildObj = {
+				plagHamincha: calc.getPlagHaminhaHalachaBrurah()
+			};
+		
+			if (jCal.getDate().dayOfWeek == 5)
+				timeSchedule.push({
+					...buildObj,
+					candleLighting: calc.getCandleLighting()
+				})
+			else if (jCal.getDate().dayOfWeek == 6)
+				timeSchedule.push({
+					...buildObj,
+					tzetShabbat: calc.getTzaitShabbath()
+				})
+			else {
+				/** @type {typeof buildObj & Record<string, KosherZmanim.Temporal.ZonedDateTime>} */
+				const ourObj = {...buildObj};
+				for (const shita of ['getTzait']) {
+					/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+					// @ts-ignore
+					let time = calc[shita]();
+		
+					if (time.second >= 21)
+						time = time.add({ minutes: 1 }).with({second: 0});
+
+					ourObj[shita] = time;
+				}
+
+				timeSchedule.push(ourObj);
+			}
+		
+			jCal.setDate(jCal.getDate().add({days: 1}))
+			calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
+		}
+
+		const pmHB = timeSchedule.map(list => list.plagHamincha)
+			.sort(rZTDsort)[0]
+
+		timeSchedule.forEach((timeObj, index) => {
+			const relevantDay = document.getElementsByClassName('timeshow')[index];
+			for (const [timeName, timeValue] of Object.entries(timeObj)) {
+				if (timeName == 'plagHamincha')
+					continue;
+
+				relevantDay.appendChild(document.createTextNode(timeValue.toLocaleString(...timeFormatAttr)));
+			}
+			/*if ('msg' in timeObj)
+				relevantDay.appendChild(document.createTextNode('tzetShabbat' in timeObj
+					? timeObj.tzetShabbat?.toLocaleString(...timeFormatAttr)
+					: timeObj.candleLighting?.toLocaleString(...timeFormatAttr)) + "<br><span class='helpText'>" + timeObj.msg + "</span>";
+			else
+				// @ts-ignore
+				relevantDay.innerHTML = timeObj.getTzait.toLocaleString(...timeFormatAttr) */
+		});
+		document.querySelector('[data-plag]').innerHTML = pmHB.toLocaleString(...timeFormatAttr)
+
+		shabbatDate = jCal.getDate().subtract({ days: 1 });
 	}
 }
 
-if (['shovavim', 'fast'].includes(document.getElementById('gridElement').getAttribute('data-flyerType')) && document.getElementById('calSubtitle'))
+if (['shovavim', 'fast'].includes(document.getElementById('gridElement')?.getAttribute('data-flyerType')) && document.getElementById('calSubtitle'))
 	document.getElementById("calSubtitle").innerHTML = calendars.map(text=> `<span style="unicode-bidi: isolate;">${text}</span>`).join(" • ")
 
-let shitotOptions = document.getElementById("gridElement")
-	.getAttributeNames()
+let shitotOptions = (document.getElementById("gridElement")?.getAttributeNames() || [])
 	.filter(attr => attr.startsWith('data-functions-backday'))
 
-for (const dateDisplay of document.querySelectorAll('[data-dateRender-backday]')) {
+for (const d8Displ of [...document.querySelectorAll('[data-dateRender-backday]'), ...document.querySelectorAll('[data-dateRenderY-backday]')]) {
 	const dateJCal = jCal.clone();
-	dateJCal.setDate(shabbatDate.subtract({ days: parseInt(dateDisplay.getAttribute('data-dateRender-backday')) }));
+	dateJCal.setDate(shabbatDate.subtract({ days: parseInt(d8Displ.getAttribute('data-dateRender-backday') || d8Displ.getAttribute('data-dateRenderY-backday')) }));
 
-	dateDisplay.innerHTML = dateJCal.formatFancyDate()
+	d8Displ.innerHTML = dateJCal.formatFancyDate() + (d8Displ.hasAttribute('data-dateRenderY-backday') ? ", " + dateJCal.getGregorianYear() : "")
 }
 
 for (const yearDisplay of document.querySelectorAll('[data-yearRender]')) {
-	yearDisplay.innerHTML = jCal.getDate().year.toString()
+	const yNum = jCal.getDate().withCalendar(yearDisplay.getAttribute('data-yearRender').replace('Parsed', '')).year
+	if (yearDisplay.getAttribute('data-yearRender').endsWith('Parsed'))
+		yearDisplay.innerHTML = new HebrewNumberFormatter().formatHebrewNumber(yNum)
+	else
+		yearDisplay.innerHTML = yNum.toString()
 }
 
 const elems = document.getElementsByClassName('timecalc');
@@ -345,4 +434,13 @@ for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) 
 
 		sefiraElement.appendChild(document.createTextNode(ruSefiraText.toLocaleUpperCase()))
 	}
+}
+
+/**
+ * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} a
+ * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} b
+ */
+function rZTDsort(a,b) {
+	const pSort = KosherZmanim.Temporal.ZonedDateTime.compare(a, b);
+	return pSort * -1;
 }

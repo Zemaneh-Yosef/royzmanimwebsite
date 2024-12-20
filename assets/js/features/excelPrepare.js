@@ -12,7 +12,7 @@ import WebsiteCalendar from "../WebsiteCalendar.js";
  * @param {boolean} isIsrael
  * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
  * @param {boolean} monthView
- * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]>; }} funcSettings
+ * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]>; netzTimes: number[] }} funcSettings
  */
 export default function spreadSheetExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList, monthView=true, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams).with({ day: 1 })
@@ -24,20 +24,41 @@ export default function spreadSheetExport (amudehHoraahZman, plainDateParams, ge
 	calc.setDate(baseDate);
 	calc.configSettings(...funcSettings.calcConfig);
 
+	const vNetz = funcSettings.netzTimes.map((/** @type {number} */ value) => Temporal.Instant
+		.fromEpochSeconds(value)
+		.toZonedDateTimeISO(geoLocation.getTimeZone())
+	);
+
 	const events = [];
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
+		const regularNetz = calc.getNetz();
+
+		// @ts-ignore
+		let seeSun;
+		if (vNetz)
+			seeSun = vNetz.find(zDT => Math.abs(regularNetz.until(zDT).total('minutes')) <= 6)
+
+		// @ts-ignore
+		function formatTime(entry) {
+			// @ts-ignore
+			const time = (entry.function == 'getNetz' && seeSun ? seeSun : entry.luxonObj)
+			return '=TIME(' + [time.hour, time.minute, time.second].join(', ') + ')'
+		}
+
 		const dailyZmanim = Object.values(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings))
 			.filter(entry => entry.display == 1)
 			.map(entry => [
 				entry.function || (entry.title["en"].startsWith("Candle Lighting") ? "getCandleLighting" : ""),
 				{t: "d", v: new Date(entry.luxonObj.epochMilliseconds),
-				f: `=TIME(${entry.luxonObj.hour}, ${entry.luxonObj.minute}, ${entry.luxonObj.second})`, z:
+				f: formatTime(entry), z:
 					"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
-					+ ":mm" + (funcSettings.seconds ? ":ss" : "") + (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")}
+					// @ts-ignore
+					+ ":mm" + (funcSettings.seconds || (entry.function == "getNetz" && seeSun) ? ":ss" : "")
+					+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")}
 			])
 
 		const row = Object.fromEntries(
-			[['DATE', {t: "s", v: new Date(), f: `=DATE(${jCal.getDate().year}, ${jCal.getDate().month}, ${jCal.getDate().day})`, z: "yyyy-mm-dd"}]]
+			[['DATE', {t: "s", v: "date", f: `=DATE(${jCal.getDate().year}, ${jCal.getDate().month}, ${jCal.getDate().day})`, z: "yyyy-mm-dd"}]]
 			// @ts-ignore
 			.concat(dailyZmanim)
 		);

@@ -95,14 +95,15 @@ layout: nothing
 	.explanationPreface ul,
 	.pagedjs_pages ol,
 	.pagedjs_pages ul {
-		padding-left: 15px;
+		padding-left: 10px;
 	}
 
 	.explanationPreface ol ::marker,
 	.explanationPreface ul ::marker,
 	.pagedjs_pages ol ::marker,
 	.pagedjs_pages ul ::marker {
-		font-size: 10px;
+		font-size: 14px;
+		content: "\2022  ";
 	}
 
 	#differences {
@@ -339,9 +340,17 @@ layout: nothing
 		unicode-bidi: plaintext;
 	}
 
-	/* hr {
-		margin: .85rem 0;
-	} */
+	hr {
+		display: block;
+		margin-block-start: 0.5em;
+		margin-block-end: 0.5em;
+		margin-inline-start: auto;
+		margin-inline-end: auto;
+		unicode-bidi: isolate;
+		overflow: hidden;
+		border-style: inset;
+		border-width: 1px;
+	}
 </style>
 
 <div id="cover">
@@ -483,7 +492,7 @@ layout: nothing
 	<div>
 		<div data-printFind>
 			<div class="explanationPreface">
-				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor'; line-height: 1; margin-bottom: 0;">קונטרס כי יאיר השמש</h4>
+				<h4 style="text-align: center; font-family: 'Guttman Mantova-Decor'; line-height: 1; margin-bottom: 0;">קונטרס כי יזרח השמש</h4>
 				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
 				<div class="columnSplit" style="font-size: .8875rem;" data-lang-extract>
 					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>

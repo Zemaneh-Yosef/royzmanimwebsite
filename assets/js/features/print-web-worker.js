@@ -616,15 +616,18 @@ function messageHandler (x) {
 				div.lastElementChild.classList.add("omerText");
 				break;
 			case 'getNetz':
-				let seeSun;
-				if (vNetz)
-					seeSun = vNetz.find(zDT => Math.abs(zmanCalc.getNetz().until(zDT).total('minutes')) <= 6)
-	
-				if (seeSun)
-					renderZmanInDiv(seeSun, {dtF: [defaulTF[0], {...defaulTF[1], second: '2-digit'}], hideAMPM: true})
-				else
-					renderZmanInDiv(zmanCalc.getNetz())
-	
+				const rZIDoptions = {dtF: defaulTF, hideAMPM: true};
+
+				let sunriseTime = zmanCalc.getNetz();
+				if (vNetz) {
+					const useVNetz = vNetz.find(zDT => Math.abs(sunriseTime.until(zDT).total('minutes')) <= 6);
+					if (useVNetz) {
+						sunriseTime = useVNetz;
+						rZIDoptions.dtF = [defaulTF[0], {...defaulTF[1], second: '2-digit'}];
+					}
+				}
+
+				renderZmanInDiv(sunriseTime, rZIDoptions);	
 				break;
 			case 'getSofZmanShmaGRA':
 				renderZmanInDiv(zmanCalc.getSofZmanShmaGRA())

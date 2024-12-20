@@ -315,6 +315,14 @@ class zmanimListUpdater {
 
 		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
 
+		let availableVS = [];
+		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
+			const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
+			if (ctNetz.lat == geoLocation.getLatitude()
+			&& ctNetz.lng == geoLocation.getLongitude())
+				availableVS = ctNetz.times
+		}
+
 		/** @type {Parameters<import('./features/excelPrepare.js')["default"]>} */
 		const excelParams = [
 			this.zmanFuncs instanceof AmudehHoraahZmanim,
@@ -330,7 +338,8 @@ class zmanimListUpdater {
 				zmanInfoSettings: this.zmanInfoSettings,
 				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
 				seconds: settings.seconds(),
-				timeFormat: settings.timeFormat()
+				timeFormat: settings.timeFormat(),
+				netzTimes: availableVS
 			}
 		]
 
@@ -338,16 +347,25 @@ class zmanimListUpdater {
 		let workerData = [];
 		let giveData = [];
 
+		const title = (this.zmanFuncs instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
+				+ ` Calendar (${isoYear}) - ` + this.geoLocation.getLocationName();
+
 		const postDataReceive = async () => {
 			const headerImport = (await import('../excelHeaderData.js')).default;
-			const headerLang = Object.entries(headerImport).map(entry => [entry[0], entry[1][settings.language()]]);
-			const tableData = [Object.fromEntries([['DATE', {'hb': "יום", en: 'DATE', "en-et": "DATE"}[settings.language()]]].concat(headerLang))]
-				.concat(workerData.flat().sort((a, b) => new Date(Object.values(a)[1].v) - new Date(Object.values(b)[1].v)));
+			const headerRow = Object.fromEntries(
+				[['DATE', {'hb': "יום", en: 'DATE', "en-et": "DATE"}[settings.language()]]]
+					.concat(Object.entries(headerImport).map(entry => [entry[0], entry[1][settings.language()]]))
+			);
+
+			const tableData = [...new Set(workerData.flat().map(field => JSON.stringify(field)))]
+				.map(field => JSON.parse(field))
+				.sort((a, b) => new Date(Object.values(a)[1].v) - new Date(Object.values(b)[1].v))
+
 			const { utils, writeFile } = (await import('../libraries/xlsx.mjs'));
-			const ws = utils.json_to_sheet(tableData, { skipHeader: true, UTC: true });
+			const ws = utils.json_to_sheet([headerRow].concat(tableData), { skipHeader: true });
 			const wb = utils.book_new();
 			utils.book_append_sheet(wb, ws, "People");
-			writeFile(wb,"Zmanim.xlsx");
+			writeFile(wb, title + ".xlsx");
 			this.midDownload = false;
 		}
 
@@ -400,6 +418,14 @@ class zmanimListUpdater {
 
 		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
 
+		let availableVS = [];
+		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
+			const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
+			if (ctNetz.lat == geoLocation.getLatitude()
+			&& ctNetz.lng == geoLocation.getLongitude())
+				availableVS = ctNetz.times
+		}
+
 		/** @type {Parameters<import('./features/icsPrepare.js')["default"]>} */
 		const icsParams = [
 			this.zmanFuncs instanceof AmudehHoraahZmanim,
@@ -443,7 +469,8 @@ class zmanimListUpdater {
 									langElem.classList.values().find(cl => cl.startsWith('lang-')).replace('lang-', '').replace('hb', 'he'),
 									langElem.innerHTML
 								]))
-					]))
+					])),
+				netzTimes: availableVS
 			}
 		]
 
@@ -1277,3 +1304,15 @@ const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
 window.zmanimListUpdater2 = zmanimListUpdater2;
 // @ts-ignore
 window.KosherZmanim = KosherZmanim;
+
+/**
+ * @param {string} str
+ */
+function isValidJSON(str) {
+	try {
+		JSON.parse(str);
+		return true;
+	} catch (e) {
+		return false;
+	}
+}
