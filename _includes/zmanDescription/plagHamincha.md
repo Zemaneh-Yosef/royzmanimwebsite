@@ -1,4 +1,4 @@
-The time from מנחה קטנה until the end of the day is divided into two halves, each lasting 1¼ seasonal hours (Beraḥot Bavli 27a, since מנחה קטנה itself lasts 2½ seasonal hours). By the second half (which we call פלג המנחה), one can start performing a select few commandments of the night, such as accepting Shabbat early (Oraḥ Ḥayim, 273:4), lighting Ḥanukah candles early (footnotes of Ḥazon Ovadia Hanukah pg. 89) or praying תפילת ערבית when one (preferably) already prayed Minḥa (Beraḥot 26a, Rabbi Yehuda).
+The time from מנחה קטנה until the end of the day is divided into two halves, each lasting 1¼ seasonal hours (Berakhot Bavli 27a, since מנחה קטנה itself lasts 2½ seasonal hours). By the second half (which we call פלג המנחה), one can start performing a select few commandments of the night, such as accepting Shabbat early (Oraḥ Ḥayim, 273:4), lighting Ḥanukah candles early (footnotes of Ḥazon Ovadia Hanukah pg. 89) or praying תפילת ערבית when one (preferably) already prayed Minḥa (Beraḥot 26a, Rabbi Yehuda).
 
 ---
 
