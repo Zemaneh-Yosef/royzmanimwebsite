@@ -98,8 +98,8 @@ const elements = {
 
 /** @param {geoNamesResponse["postalcodes"][0] | geoNamesResponse["geonames"][0]} geoName */
 const geoNameTitleGenerator = (geoName) => [...new Set([('name' in geoName ? geoName.name : geoName.placeName),
-	geoName.adminName1 || geoName.adminCode1,
-	('countryName' in geoName ? geoName.countryName : geoName.countryCode)])].filter(Boolean).join(", ");
+	geoName.adminName1.toLowerCase() || geoName.adminCode1.toLowerCase(),
+	('countryName' in geoName ? geoName.countryName.toLowerCase() : geoName.countryCode.toLowerCase())])].filter(Boolean).join(", ");
 
 let pool;
 const delay = (/** @type {Number} */ms) => new Promise(res => setTimeout(res, ms));
@@ -116,8 +116,11 @@ async function updateList(event) {
 	elements.icons.container.style.paddingLeft = '1rem';
 	elements.icons.container.style.paddingRight = '1rem';
 
-	/** @type {string} */
-	const q = elements.searchBar.value;
+	const q = elements.searchBar.value
+		.split(" ")
+		.map(word => word[0].toUpperCase() + word.substring(1).toLowerCase())
+		.join(" ");
+
 	if (q.length < 3) {
 		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
 			elements.searchBar.classList.add('is-warning')
@@ -155,7 +158,7 @@ async function updateList(event) {
 			if (elements.manual.locationNameInput.value)
 				geoLocation.locationName = elements.manual.locationNameInput.value
 
-			/** @type {Omit<GeolocationPosition, 'coords'> & { coords: Partial<GeolocationCoordinates>}} */
+			/** @type {Omit<GeolocationPosition, 'coords' | 'toJSON'> & { coords: Partial<GeolocationCoordinates>}} */
 			const params = { timestamp: new Date().getTime(), coords: { latitude: lat, longitude: lng } }
 			if (elements.manual.elevationInput.value) {
 				params.coords.altitude = parseFloat(elements.manual.elevationInput.value);
@@ -212,25 +215,35 @@ async function updateList(event) {
 	
 			if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
 				let geoName;
-				if (!locationName)
+				let errorAlert = false;
+				if (!locationName) {
+					errorAlert = data.postalcodes.length >= 2;
 					geoName = data.postalcodes[0];
-				else {
-					geoName = data.geonames.find(entry => entry.name == q);
+				} else {
+					geoName = data.geonames.find(entry => geoNameTitleGenerator(entry).toLowerCase().includes(q.toLowerCase()))
 					if (!geoName)
-						geoName = data.geonames.find(entry => entry.name.includes(q))
+						geoName = data.geonames.find(entry => entry.name.toLowerCase() == q.toLowerCase());
+					if (!geoName)
+						geoName = data.geonames.find(entry => entry.name.toLowerCase().includes(q.toLowerCase()))
 					if (!geoName && q.includes(',')) {
-						geoName = data.geonames.find(entry => entry.name == q.split(',')[0]);
+						geoName = data.geonames.find(entry => entry.name.toLowerCase() == q.split(',')[0].toLowerCase());
 						if (!geoName)
-							geoName = data.geonames.find(entry => entry.name.includes(q.split(',')[0]))
+							geoName = data.geonames.find(entry => entry.name.toLowerCase().includes(q.split(',')[0].toLowerCase()))
 					}
+
 					if (!geoName)
 						geoName = data.geonames[0]
+
+					errorAlert =
+						!data.geonames.find(geoName =>
+							geoNameTitleGenerator(geoName).toLowerCase().includes(q.toLowerCase())
+							|| geoNameTitleGenerator(geoName).toLowerCase().includes(q.toLowerCase().split(',')[0])
+						) && data.geonames.length >= 2
 				}
 
-				const multiZip = (locationName
-					? !data.geonames.find(geoName => geoNameTitleGenerator(geoName).includes(q) || geoNameTitleGenerator(geoName).includes(q.split(',')[0])) && data.geonames.length !== 1
-					: data.postalcodes.length >= 2);
-				if (!geoName || multiZip) {
+				if (!geoName || errorAlert) {
+					console.log(geoName, data);
+	
 					elements.searchBar.disabled = false;
 					elements.icons.error.style.removeProperty("display");
 					elements.icons.search.style.display = "none";
@@ -239,7 +252,7 @@ async function updateList(event) {
 					elements.icons.container.style.paddingLeft = '1rem';
 					elements.icons.container.style.paddingRight = '1rem';
 	
-					const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(!geoName ? 'inaccessibleToast' : 'zipToast'))
+					const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(errorAlert ? 'zipToast' : 'inaccessibleToast'))
 					toastBootstrap.show()
 					return;
 				}
@@ -379,7 +392,7 @@ function getLocation() {
 }
 
 /**
- * @param {Omit<GeolocationPosition, 'coords'> & { coords: Partial<GeolocationCoordinates>}} position 
+ * @param {Omit<GeolocationPosition, 'coords'|'toJSON'> & { coords: Partial<GeolocationCoordinates>}} position 
  */
 async function setLatLong (position, manual=false) {
 	let location;

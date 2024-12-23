@@ -8,7 +8,10 @@ import rYisraelizmanim from "./shabbat-rYisraeli.js";
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
 
-import { HebrewNumberFormatter, getOrdinal } from "../WebsiteCalendar.js";
+import {
+	HebrewNumberFormatter, getOrdinal,
+	monthForLocale, daysForLocale
+} from "../WebsiteCalendar.js";
 import { he as n2heWords } from "../../libraries/n2words.esm.js";
 
 if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
@@ -242,6 +245,14 @@ for (const d8Displ of [...document.querySelectorAll('[data-dateRender-backday]')
 	dateJCal.setDate(shabbatDate.subtract({ days: parseInt(d8Displ.getAttribute('data-dateRender-backday') || d8Displ.getAttribute('data-dateRenderY-backday')) }));
 
 	d8Displ.innerHTML = dateJCal.formatFancyDate() + (d8Displ.hasAttribute('data-dateRenderY-backday') ? ", " + dateJCal.getGregorianYear() : "")
+}
+
+for (const d8Displ of document.querySelectorAll('[data-dateRenderSY-backday]')) {
+	const d8jCal = jCal.clone();
+	d8jCal.setDate(shabbatDate.subtract({ days: parseInt(d8Displ.getAttribute('data-dateRenderSY-backday')) }));
+
+	d8Displ.innerHTML =
+		`${daysForLocale('en')[d8jCal.getDate().dayOfWeek]}, ${monthForLocale('en', 'short')[d8jCal.getDate().month]} ${getOrdinal(d8jCal.getDate().day, true)}, ${d8jCal.getGregorianYear()}`;
 }
 
 for (const yearDisplay of document.querySelectorAll('[data-yearRender]')) {

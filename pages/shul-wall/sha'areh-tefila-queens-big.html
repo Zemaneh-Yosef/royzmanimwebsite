@@ -531,11 +531,13 @@ layout: nothing
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
 	await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
 
-	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
-		.split('\n')
-		.filter(str => str.startsWith('./shaare-tefila-marquee/'))
+	if (![5, 6].includes(new Date().getDay())) {
+		const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+			.split('\n')
+			.filter(str => str.startsWith('./shaare-tefila-marquee/'))
 
-	for (const marquee of document.getElementsByClassName('marquee__content')) {
-		marquee.innerHTML = flyerURLs.map(url => `<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" />`).join('');
+		for (const marquee of document.getElementsByClassName('marquee__content')) {
+			marquee.innerHTML = flyerURLs.map(url => `<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" />`).join('');
+		}
 	}
 </script>

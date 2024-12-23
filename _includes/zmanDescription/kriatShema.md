@@ -1,4 +1,4 @@
-This time is the third halachic hour of the day, by when people of luxury would arise in the morning. The תנאים (Tanaic Sages) codified this time to have one completely read קריאת שמע (Kriat Shema) before then (R' Yehoshua in Mishnah Berachot 1:2, Shemuel in Talmud Bavli 10b), based on the word ובקומך (as one rises).
+This time is the third halachic hour of the day, by when people of luxury would arise in the morning. The תנאים (Tanaic Sages) codified this time to have one completely read קריאת שמע (Kriat Shema) before then (R' Yehoshua in Mishnah Berakhoth 1:2, Shemuel in Talmud Bavli 10b), based on the word ובקומך (as one rises).
 
 ---
 

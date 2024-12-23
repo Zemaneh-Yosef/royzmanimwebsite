@@ -13,7 +13,7 @@ The Rabbis who gave their Haskamot have also contributed to the app. Their credi
 
 ### Perfered-Dependencies Credits
 
-- **[n2words](https://github.com/forzagreen/n2words):** Used to generate Beracha-accurate Hebrew Sefira text
+- **[n2words](https://github.com/forzagreen/n2words):** Used to generate Berakha-accurate Hebrew Sefira text
 - **KosherJava (Eliyahu Hershfeld):** Framework to calculate Zemanim, written in Java
   - **KosherZmanim (Aryeh Berman):** Initial port to TS. The code has been greatly modified since, but we still have Hakarat Hatov
 - **Bootstrap:** Web Framework to make initial components
@@ -29,5 +29,5 @@ The Rabbis who gave their Haskamot have also contributed to the app. Their credi
 ##### Flyer work
 
 - **Adriel Kohananoo** - Flyer Designs
-- **Joshua Nektalov**, **Haim Shaul Niyazov** - Russian transliteration (Shabbat Flyer for Sefira)
+- **Joshua Nektalov**, **Haim Shaul Niyazov A"H** - Russian transliteration (Shabbat Flyer for Sefira)
 - **Aharon N. Varady** and **Andrew Meit** - [Menorah Lamnatzeach](https://opensiddur.org/?p=3393) (under the Creative Commons Attribution-ShareAlike (CC BY-SA) 4.0 International copyleft license)

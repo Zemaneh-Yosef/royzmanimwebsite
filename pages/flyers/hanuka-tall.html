@@ -28,7 +28,7 @@ website: true
 
 	#wrapperElement {
 		width: 100%;
-		aspect-ratio: 8.5/11;
+		aspect-ratio: 1/1;
 
 		position: relative;
 		display: grid;
@@ -79,25 +79,24 @@ website: true
 
 	#zemanehShab {
 		align-self: start;
-		justify-self: start;
+		justify-self: center;
 		font-family: 'Barlow';
-		font-size: 12.75vw;
+		font-size: 14vw;
 		font-weight: 700;
 		color: transparent;
 		background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
 		-webkit-background-clip: text;
 		line-height: .75;
 		text-transform: uppercase;
-		margin-top: 12vw;
-		margin-left: 2.5vw;
+		margin-top: 1vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		text-align: center;
 		padding-bottom: 4rem;
 	}
 
 	#gridElement {
-		top: 40vw;
-		grid-template-columns: 1fr 1fr 1fr;
+		top: 37.5vw;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
 		column-gap: 1.5vw;
 		display: grid;
 		left: 2.5vw;
@@ -108,9 +107,9 @@ website: true
 	.shabbatRow {
 		margin-top: .3vw;
 		margin-bottom: 2.5vw;
-		padding-top: 2.5vw;
-		padding-bottom: 2.5vw;
-		font-size: 5vw;
+		padding-top: 2.25vw;
+		padding-bottom: 2.25vw;
+		font-size: 4vw;
 		font-weight: 700;
 		background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
 		line-height: 1.25rem;
@@ -118,26 +117,41 @@ website: true
 		text-align: center;
 		z-index: 5;
 		position: relative;
+		overflow: hidden;
 	}
 
 	.shabbatRow img {
 		position: absolute;
-		height: 100%;
-		transform: translateX(-50%);
+		left: 50%;
+		height: 90%;
+		transform: translateX(-50%) translateY(25%);
 		opacity: 10%;
 	}
 
-	.shabbatRow:not(.candleLighting) .menora {
-		left: 50%;
+	.candleLighting, .havdala {
+		padding-top: .75vw;
+		padding-bottom: 1.75vw;
 	}
 
-	.shabbatRow.candleLighting .menora {
-		left: 30%;
+	.candleLighting img,
+	.havdala img {
+		transform: translateX(-50%) translateY(14%)
 	}
 
-	.shabbatRow.candleLighting::before {
-		content: " ";
-		left: 75%;
+	.candleLighting::before {
+		display: block;
+		content: "Light נרות חנוכה before נרות שבת";
+		line-height: 1;
+		padding-bottom: 1rem;
+		font-size: .25em;
+	}
+
+	.havdala::before {
+		display: block;
+		content: "Light נרות חנוכה after הבדלה";
+		line-height: 1;
+		padding-bottom: 1rem;
+		font-size: .25em;
 	}
 
 	.timecalc {
@@ -162,60 +176,35 @@ website: true
 		font-size: 2.5em;
 	}
 
-	.header .bi {
-		float: left;
-		height: 2em;
-		width: 2em;
-	}
-
 	.tableShadow {
 		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
 		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
 		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
 	}
 
-	.twoLine {
-		line-height: .4;
-		padding-top: 1vw;
-	}
-
-	.sml {
-		font-size: 10px;
-	}
-
-	#notchLogo {
-		justify-self: center;
-		align-self: start;
-		width: 42.5%;
-		margin-top: 1rem;
-		z-index: 4;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-	}
-
 	#bsD {
 		font-family: "Narkisim";
 		justify-self: end;
 		line-height: 1;
-		padding-right: 4.5rem;
+		padding-right: 1.5rem;
 		color: #FFF2B3;
-		font-size: 6rem;
-		padding-top: 3rem;
+		font-size: 4rem;
+		padding-top: 1.5rem;
 		align-self: start;
 	}
 
 	#location {
 		align-self: start;
-		justify-self: start;
+		justify-self: center;
 		font-family: 'Barlow', 'FrankRuehl';
 		font-weight: 700;
 		color: white;
 		text-transform: uppercase;
-		width: 1025px;
+		width: 1126px;
 		text-align: center;
-		margin-left: 2.5vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		line-height: 1;
-		margin-top: 33.25vw;
+		margin-top: 24vw;
     	font-size: 4vw;
 	}
 
@@ -230,61 +219,40 @@ website: true
 	}
 
 	#advertFooter {
-		justify-self: center;
-		margin-bottom: 1rem;
-		padding-left: 1rem;
-		font-size: 1.7rem;
+		padding-bottom: .5rem;
+		padding-top: .5rem;
+		padding-left: 16.5rem;
+		font-size: 1.75rem;
 		font-weight: 600;
 		line-height: 1.1;
 		z-index: 3;
 		align-self: end;
-	}
 
-	#sourcesFooter {
-		font-size: 1.5em;
-	}
-	#sourcesFooter ul {
-		line-height: 1.25;
-		margin-bottom: 0;
-	}
-
-	#credits {
-		font-size: 2.125em;
-		text-align: right;
-		line-height: 1.25;
-		font-weight: 600;
-		text-transform: uppercase;
-		font-style: italic;
+		width: 100%;
+		background-image: linear-gradient(to right, #F3E6A6, #D7BB63);
 	}
 
 	#shabbatCandles {
 		align-self: end;
-		justify-self: end;
-		width: 50%;
-		margin-right: 8rem;
+		justify-self: start;
+		width: 35%;
+		margin-left: 13rem;
 		z-index: 2;
 		margin-bottom: 2rem;
-	}
-
-	#bottomWave {
-		align-self: end;
-		width: 100%;
-		z-index: 3;
-		margin-bottom: -6.5rem;
-		transform: scaleY(.95);
 	}
 
 	#maran {
 		align-self: end;
 		justify-self: start;
-		width: 22.5%;
+		width: 17.5%;
 		z-index: 4;
 	}
 
 	#rdy {
 		align-self: end;
-		justify-self: end;
-		width: 24%;
+		justify-self: center;
+		width: 17.5%;
+		margin-left: 0rem;
 		z-index: 1;
 	}
 
@@ -294,15 +262,47 @@ website: true
 		font-size: .55em;
 	}
 
-	.header [data-dateRenderY-backday] {
+	.header [data-dateRenderSY-backday] {
 		font-weight: 400;
 		text-transform: none;
-		font-size: .6em;
+		font-size: .575em;
 	}
 
 	.helpText {
 		font-size: 1.25rem;
 	}
+
+	#ashkenaziAd {
+		justify-self: end;
+		align-self: center;
+		width: 40%;
+		margin-top: 100vh;
+		z-index: 10;
+	}
+
+	#guide {
+		align-self: start;
+		justify-self: center;
+		font-family: 'Barlow', 'FrankRuehl';
+		font-weight: 500;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1.2;
+		margin-top: 31vw;
+    	font-size: 2vw;
+		width: 80%;
+	}
+
+    #appIcon {
+        justify-self: end;
+        align-self: end;
+        height: 80px;
+        width: 80px;
+        z-index: 7;
+        filter: drop-shadow(-3px 0 2px rgba(0,0,0,.6))
+    }
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -311,19 +311,28 @@ website: true
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
 <div id="wrapperElement">
-	<div id="zyTrapezoid"></div>
-	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
+	<!--<div id="zyTrapezoid"></div>
+	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" /> -->
 	<!-- <img id="gne" src="/assets/images/shabbat-abstract/la-minyan.jpg" /> -->
 	<span id="bsD">בס"ד</span>
 	<img src="/assets/images/hanukah/ryy-hanuka.png" id="shabbatCandles" />
-	<img src="/assets/images/shabbat-abstract/single-location-wave.png" id="bottomWave" />
+	<div id="guide">
+		It is preferable to light within the following half-hour of each night's prescribed time
+		<div style="display: inline-block; padding: 0 1rem;">|</div>
+		Earliest lighting: <span data-plag></span>
+	</div>
 	<!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
 	<span id="zemanehShab">הדלקת נרות<br>חנוכה <span data-yearRender="hebrewParsed"></span></span>
 	<div id="location">פרשת </div>
-	<img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
-	<span id="lechaDodi" class="lechaDodi">מָעוֹז צוּר יְשׁוּעָתִי<br>לְךָ נָאֶה לְשַׁבֵּחַ</span>
+	<!--<img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
+	<span id="lechaDodi" class="lechaDodi">מָעוֹז צוּר יְשׁוּעָתִי<br>לְךָ נָאֶה לְשַׁבֵּחַ</span> -->
+	<img src="/assets/images/shabbat-abstract/ashkenaziBooks-ad-hanuka.svg" id="ashkenaziAd">
 	<div id="advertFooter">
-		royzmanim.com
+		<span style="font-weight: 700; font-size: 1.05em; text-transform: uppercase;">
+			Halachic Times according to <span style="font-weight: 800;">Rav Ovadia Yosef zt"l & his great sons</span>
+		</span><br>
+		Different location? Use our mobile apps, or visit our website • royzmanim.com
+
 	</div>
 
 	<!-- <img src="/assets/images/hanukah/roy-point.png" id="maran"> -->
@@ -331,28 +340,27 @@ website: true
 	<!-- <img src="/assets/images/hanukah/ryy-point.png" id="ryy"> -->
 	<img src="/assets/images/MARAN.png" id="maran">
 	<img src="/assets/images/hanukah/AE_Gedolim_Rav_David_Yosef-removebg-preview.png" id="rdy">
+	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
 
 	<div id="gridElement" data-flyerType="hanuka">
-		<div class="header tableShadow">1<sup>st</sup> night<br><span data-dateRenderY-backday="7"></span></div>
-		<div class="header tableShadow">2<sup>nd</sup> night<br><span data-dateRenderY-backday="6"></span></div>
-		<div class="header tableShadow">3<sup>rd</sup> night<br><span data-dateRenderY-backday="5"></span></div>
+		<div class="header tableShadow">1<sup>st</sup> night<br><span data-dateRenderSY-backday="7"></span></div>
+		<div class="header tableShadow">2<sup>nd</sup> night<br><span data-dateRenderSY-backday="6"></span></div>
+		<div class="header tableShadow">3<sup>rd</sup> night<br><span data-dateRenderSY-backday="5"></span></div>
+		<div class="header tableShadow">4<sup>th</sup> night<br><span data-dateRenderSY-backday="4"></span></div>
 		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-1.png"></div>
 		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-2.png"></div>
 		<div class="shabbatRow timeshow candleLighting"><img class="menora" src="/assets/images/hanukah/menorah-3.png"></div>
-
-		<div class="header tableShadow">4<sup>th</sup> night<br><span data-dateRenderY-backday="4"></span></div>
-		<div class="header tableShadow">Misc. Timings</div>
-		<div class="header tableShadow">5<sup>th</sup> night<br><span data-dateRenderY-backday="3"></span></div>
 		<div class="shabbatRow timeshow havdala"><img class="menora" src="/assets/images/hanukah/menorah-4.png"></div>
-		<div class="shabbatRow" style="font-size: 2vw; line-height: 1.2; padding-top: .75vw; padding-bottom: .75vw;">
-			Earliest Time: <span data-plag></span><br>
-			<div style="font-size: 1.5vw; line-height:1;">It is best to light within 30 minutes of each day's listed time above</div>
-		</div>
-		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-5.png"></div>
 
-		<div class="header tableShadow">6<sup>th</sup> night<br><span data-dateRenderY-backday="2"></span></div>
-		<div class="header tableShadow">7<sup>th</sup> night<br><span data-dateRenderY-backday="1"></span></div>
-		<div class="header tableShadow">8<sup>th</sup> night<br><span data-dateRenderY-backday="0"></span></div>
+		<!--<div style="grid-row-end: span 2; align-self: end; position: relative;">
+			<img src="/assets/images/hanukah/ryy-hanuka.png" style="width: 80%; z-index: 3; position: absolute; left: 0; bottom: 0;">
+			<img src="/assets/images/hanukah/AE_Gedolim_Rav_David_Yosef-removebg-preview.png" style="width: 35%; position: absolute; right: .5rem; bottom: 0; z-index: 2;">
+		</div>-->
+		<div class="header tableShadow">5<sup>th</sup> night<br><span data-dateRenderSY-backday="3"></span></div>
+		<div class="header tableShadow">6<sup>th</sup> night<br><span data-dateRenderSY-backday="2"></span></div>
+		<div class="header tableShadow">7<sup>th</sup> night<br><span data-dateRenderSY-backday="1"></span></div>
+		<div class="header tableShadow">8<sup>th</sup> night<br><span data-dateRenderSY-backday="0"></span></div>
+		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-5.png"></div>
 		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-6.png"></div>
 		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-7.png"></div>
 		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-8.png"></div>
