@@ -19,6 +19,7 @@
 
 .accordian details {
   position: relative;
+  interpolate-size: allow-keywords;
 }
 
 .accordian summary .timeDisplay {
@@ -82,13 +83,23 @@ body[dir=rtl] .accordian details[open] > summary .accordianText:before {
   transform: rotate(-90deg) translateX(3px) translateY(-3px);
 }
 
+.accordian details::details-content {
+  background: white;
+  overflow-y: scroll;
+  transition:
+    block-size .25s cubic-bezier(.4,0,.2,1),
+    content-visibility .25s cubic-bezier(.4,0,.2,1) allow-discrete;
+  block-size: 0;
+}
+
 .accordian .accordianContent {
   padding: 10px;
   border: 2px solid var(--bs-card-bg);
   border-top: none;
-  background: white;
-  max-height: 35vh;
-  overflow: scroll;
+}
+
+.accordian details[open]::details-content {
+  block-size: 35vh;
 }
 
 .accordian .accordianContent hr:last-child {
