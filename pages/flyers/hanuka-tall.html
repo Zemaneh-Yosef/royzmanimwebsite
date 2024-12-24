@@ -81,27 +81,27 @@ website: true
 		align-self: start;
 		justify-self: center;
 		font-family: 'Barlow';
-		font-size: 14vw;
+		font-size: 13.5vw;
 		font-weight: 700;
 		color: transparent;
 		background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
-		-webkit-background-clip: text;
+		background-clip: text;
 		line-height: .75;
 		text-transform: uppercase;
-		margin-top: 1vw;
+		margin-top: .75vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		text-align: center;
 		padding-bottom: 4rem;
 	}
 
 	#gridElement {
-		top: 37.5vw;
 		grid-template-columns: 1fr 1fr 1fr 1fr;
 		column-gap: 1.5vw;
 		display: grid;
-		left: 2.5vw;
-		right: 2.5vw;
-		position: absolute;
+		margin-left: 2.5vw;
+		margin-right: 2.5vw;
+		width: calc(100% - 5vw);
+		align-self: center;
 	}
 
 	.shabbatRow {
@@ -200,11 +200,11 @@ website: true
 		font-weight: 700;
 		color: white;
 		text-transform: uppercase;
-		width: 1126px;
+		width: 1080px;
 		text-align: center;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		line-height: 1;
-		margin-top: 24vw;
+		margin-top: 22vw;
     	font-size: 4vw;
 	}
 
@@ -221,7 +221,7 @@ website: true
 	#advertFooter {
 		padding-bottom: .5rem;
 		padding-top: .5rem;
-		padding-left: 16.5rem;
+		padding-left: 17rem;
 		font-size: 1.75rem;
 		font-weight: 600;
 		line-height: 1.1;
@@ -235,8 +235,8 @@ website: true
 	#shabbatCandles {
 		align-self: end;
 		justify-self: start;
-		width: 35%;
-		margin-left: 13rem;
+		width: 37.5%;
+		margin-left: 14rem;
 		z-index: 2;
 		margin-bottom: 2rem;
 	}
@@ -244,15 +244,15 @@ website: true
 	#maran {
 		align-self: end;
 		justify-self: start;
-		width: 17.5%;
+		width: 18.5%;
 		z-index: 4;
 	}
 
 	#rdy {
 		align-self: end;
 		justify-self: center;
-		width: 17.5%;
-		margin-left: 0rem;
+		width: 18.5%;
+		margin-left: 8rem;
 		z-index: 1;
 	}
 
@@ -274,14 +274,14 @@ website: true
 
 	#ashkenaziAd {
 		justify-self: end;
-		align-self: center;
-		width: 40%;
-		margin-top: 100vh;
+		align-self: end;
+		width: 41.5%;
+		margin-bottom: 22.5vh;
 		z-index: 10;
 	}
 
 	#guide {
-		align-self: start;
+		align-self: center;
 		justify-self: center;
 		font-family: 'Barlow', 'FrankRuehl';
 		font-weight: 500;
@@ -290,9 +290,24 @@ website: true
 		text-align: center;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		line-height: 1.2;
-		margin-top: 31vw;
-    	font-size: 2vw;
-		width: 80%;
+		margin-bottom: 28vw;
+    	font-size: 1.65vw;
+		width: 97.5%;
+	}
+
+	#extend {
+		align-self: center;
+		justify-self: center;
+		font-family: 'Barlow', 'FrankRuehl';
+		font-weight: 500;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: .9;
+		margin-top: 29.5vw;
+    	font-size: 1.5vw;
+		width: 97.5%;
 	}
 
     #appIcon {
@@ -316,10 +331,10 @@ website: true
 	<!-- <img id="gne" src="/assets/images/shabbat-abstract/la-minyan.jpg" /> -->
 	<span id="bsD">בס"ד</span>
 	<img src="/assets/images/hanukah/ryy-hanuka.png" id="shabbatCandles" />
-	<div id="guide">
-		It is preferable to light within the following half-hour of each night's prescribed time
-		<div style="display: inline-block; padding: 0 1rem;">|</div>
-		Earliest lighting: <span data-plag></span>
+	<div id="guide">One should light within the following half-hour of each night's listed time (Friday/Shabbat excluded)</div>
+	<div id="extend">
+		One who cannot light themselves by these times should appoint a messenger (wife, kids) to light instead.<br>
+		Extended (<span style="font-size: 1.4em;">בדיעבד</span>) range: <span data-plag></span> - Dawn the next day
 	</div>
 	<!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
 	<span id="zemanehShab">הדלקת נרות<br>חנוכה <span data-yearRender="hebrewParsed"></span></span>
@@ -360,10 +375,10 @@ website: true
 		<div class="header tableShadow">6<sup>th</sup> night<br><span data-dateRenderSY-backday="2"></span></div>
 		<div class="header tableShadow">7<sup>th</sup> night<br><span data-dateRenderSY-backday="1"></span></div>
 		<div class="header tableShadow">8<sup>th</sup> night<br><span data-dateRenderSY-backday="0"></span></div>
-		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-5.png"></div>
-		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-6.png"></div>
-		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-7.png"></div>
-		<div class="shabbatRow timeshow"><img class="menora" src="/assets/images/hanukah/menorah-8.png"></div>
+		<div class="shabbatRow timeshow mb-0"><img class="menora" src="/assets/images/hanukah/menorah-5.png"></div>
+		<div class="shabbatRow timeshow mb-0"><img class="menora" src="/assets/images/hanukah/menorah-6.png"></div>
+		<div class="shabbatRow timeshow mb-0"><img class="menora" src="/assets/images/hanukah/menorah-7.png"></div>
+		<div class="shabbatRow timeshow mb-0"><img class="menora" src="/assets/images/hanukah/menorah-8.png"></div>
 	</div>
 </div>
 
