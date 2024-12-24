@@ -359,7 +359,7 @@ class zmanimListUpdater {
 
 			const tableData = [...new Set(workerData.flat().map(field => JSON.stringify(field)))]
 				.map(field => JSON.parse(field))
-				.sort((a, b) => new Date(Object.values(a)[1].v) - new Date(Object.values(b)[1].v))
+				.sort((a, b) => new Date(Object.values(a)[1].v).getTime() - new Date(Object.values(b)[1].v).getTime())
 
 			const { utils, writeFile } = (await import('../libraries/xlsx.mjs'));
 			const ws = utils.json_to_sheet([headerRow].concat(tableData), { skipHeader: true });

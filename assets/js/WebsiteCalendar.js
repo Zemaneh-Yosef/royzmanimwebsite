@@ -718,15 +718,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 	isShvuaShechalBo() {
 		//shevua shechal bo happens on the whole week that tisha beav falls out on
-		if (this.getJewishMonth() !== KosherZmanim.JewishDate.AV)
+		if (this.getJewishMonth() !== KosherZmanim.JewishDate.AV || this.getJewishDayOfMonth() >= 10)
 			return false;
-		
-		const currentDate = this.getDate();
-		this.setJewishDayOfMonth(9);//set to the 9th of Av
-		if ([KosherZmanim.Calendar.SATURDAY, KosherZmanim.Calendar.SUNDAY].includes(this.getDayOfWeek())) {
+
+		if ([6, 7].includes(this.getDate().withCalendar("hebrew").with({ day: 9 }).dayOfWeek))
 			return false;//there is no shevua shechal bo if tisha beav falls out on a sunday or shabbat
-		}
-		this.setDate(currentDate);//reset the date
 
 		const daysOfShvuaShechalBo = [];
 		for (
