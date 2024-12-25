@@ -130,7 +130,8 @@ async function updateList(event) {
 		.split(" ")
 		.map(word => word[0] ? (word[0].toUpperCase() + word.substring(1).toLowerCase()) : word)
 		.join(" ");
-	elements.searchBar.value = q;
+	if (elements.searchBar.value !== q)
+		elements.searchBar.value = q;
 
 	if (q.length < 3) {
 		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
@@ -186,7 +187,7 @@ async function updateList(event) {
 
 		if (!((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)) {
 			pool = q;
-			await delay(1000);
+			await delay(500);
 			if (pool !== q) {
 				console.log('Skipping to next implementation');
 				return;
