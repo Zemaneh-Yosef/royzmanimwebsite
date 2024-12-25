@@ -1164,10 +1164,14 @@ class zmanimListUpdater {
 		
 						const name = document.createElement("b");
 						name.appendChild(document.createTextNode(neshama.name));
-		
 						li.appendChild(name)
-						if (neshama.src)
-							li.appendChild(document.createTextNode(` (${neshama.src})`));
+
+						if (neshama.src) {
+							if (neshama.src.startsWith('http'))
+								li.innerHTML += ` (<a href="${neshama.src}">${new URL(neshama.src).hostname}</a>)`
+							else
+								li.appendChild(document.createTextNode(` (${neshama.src})`));
+						}
 		
 						leilouNishmatList.appendChild(li);
 					}
