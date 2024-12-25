@@ -759,14 +759,15 @@ function messageHandler (x) {
 				"en-et": "Tekufath " + tekufaMonth.en
 			}[x.data.lang]));
 
-			let tekufaDate;
-			/* switch (x.data.lang) {
-				default: */
-					tekufaDate = `${daysForLocale('en')[initTekuf.dayOfWeek]}, ${monthForLocale('en')[initTekuf.month]} ${getOrdinal(initTekuf.day, true)}`;
-			//}
+			const tekufaDate = formatDate(initTekuf);
 			const tekufaTimingDiv = document.createElement("p");
-			tekufaTimingDiv.innerHTML = tekufaDate;
-			tekufaTimingDiv.appendChild(document.createElement("br"));
+
+			if (nextTekufaJDate.getJewishMonth() == KosherZmanim.JewishDate.TISHREI && !x.data.israel) {
+				tekufaTitle.innerHTML += " - " + tekufaDate;
+			} else {
+				tekufaTimingDiv.innerHTML = tekufaDate;
+				tekufaTimingDiv.appendChild(document.createElement("br"));
+			}
 			tekufaTimingDiv.appendChild(document.createTextNode({
 				"hb": "אל תשתה מים בין ",
 				"en": "Refrain from water between ",
@@ -776,6 +777,15 @@ function messageHandler (x) {
 				initTekuf.round("minute").add({ minutes: 30 }).toLocaleString(...defaulTF),
 			].join('-')));
 
+			if (nextTekufaJDate.getJewishMonth() == KosherZmanim.JewishDate.TISHREI && !x.data.israel) {
+				tekufaTimingDiv.appendChild(document.createElement("br"));
+				tekufaTimingDiv.appendChild(document.createTextNode({
+					"en": "Switch to ברך עלינו on ",
+					"hb": "תחליף לברך עלינו ביום ",
+					"en-et": "Switch to ברך עלינו on "
+				}[x.data.lang] + formatDate(initTekuf.add({ days: 60 }))))
+			}
+
 			tekufaContainer.appendChild(tekufaTitle);
 			tekufaContainer.appendChild(tekufaTimingDiv);
 			thisMonthFooter.lastElementChild.appendChild(tekufaContainer);
@@ -783,7 +793,7 @@ function messageHandler (x) {
 	}
 
 	if (hamesDate && thisMonthFooter.lastElementChild.hasAttribute('data-zyfooter-hametz')) {
-		const hamesName = `${daysForLocale('en')[hamesDate.dayOfWeek]}, ${monthForLocale('en')[hamesDate.month]} ${getOrdinal(hamesDate.day, true)}`;
+		const hamesName = formatDate(hamesDate);
 		const hametzContainer = document.createElement("div");
 		const hametzTitle = document.createElement("h5");
 		hametzTitle.innerHTML = {
@@ -871,3 +881,8 @@ function rangeTimes(start, middle, end, inclusive=true) {
 
 	return acceptedValues.includes(Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(Temporal.ZonedDateTime.compare(end, middle))
 };
+
+/** @param {Temporal.ZonedDateTime|Temporal.PlainDate} date */
+function formatDate(date) {
+	return `${daysForLocale('en')[date.dayOfWeek]}, ${monthForLocale('en')[date.month]} ${getOrdinal(date.day, true)}`
+}

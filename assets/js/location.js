@@ -97,9 +97,19 @@ const elements = {
 }
 
 /** @param {geoNamesResponse["postalcodes"][0] | geoNamesResponse["geonames"][0]} geoName */
-const geoNameTitleGenerator = (geoName) => [...new Set([('name' in geoName ? geoName.name : geoName.placeName),
-	geoName.adminName1.toLowerCase() || geoName.adminCode1.toLowerCase(),
-	('countryName' in geoName ? geoName.countryName.toLowerCase() : geoName.countryCode.toLowerCase())])].filter(Boolean).join(", ");
+const geoNameTitleGenerator = (geoName) =>
+	[...new Set([
+		('name' in geoName ? geoName.name : geoName.placeName),
+		geoName.adminName1 || geoName.adminCode1,
+		('countryName' in geoName ? geoName.countryName : geoName.countryCode)
+	])]
+		.filter(Boolean)
+		.map(field => field
+			.split(" ")
+			.map(word => word[0] ? (word[0].toUpperCase() + word.substring(1).toLowerCase()) : word)
+			.join(" ")
+		)
+		.join(", ");
 
 let pool;
 const delay = (/** @type {Number} */ms) => new Promise(res => setTimeout(res, ms));
@@ -118,8 +128,9 @@ async function updateList(event) {
 
 	const q = elements.searchBar.value
 		.split(" ")
-		.map(word => word[0].toUpperCase() + word.substring(1).toLowerCase())
+		.map(word => word[0] ? (word[0].toUpperCase() + word.substring(1).toLowerCase()) : word)
 		.join(" ");
+	elements.searchBar.value = q;
 
 	if (q.length < 3) {
 		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
@@ -273,7 +284,9 @@ async function updateList(event) {
 				openCalendarWithLocationInfo();
 			} else {
 				const list = document.getElementById("locationNames");
-				list.querySelectorAll('*').forEach(n => n.remove());
+				while (list.firstElementChild)
+					list.firstElementChild.remove()
+
 				for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
 					const option = document.createElement("option");
 					option.setAttribute("value", geoNameTitleGenerator(geoName))
