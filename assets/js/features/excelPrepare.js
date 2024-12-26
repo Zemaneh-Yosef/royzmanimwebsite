@@ -4,13 +4,15 @@ import { AmudehHoraahZmanim, OhrHachaimZmanim } from "../ROYZmanim.js";
 import { Temporal, GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
 
+/** @typedef {T[keyof T]} ValueOf<T> */
+
 /**
  * @param {boolean} amudehHoraahZman
  * @param {[number, number, number, string | Temporal.CalendarProtocol]} plainDateParams
  * @param {[string, number, number, number, string]} geoLocationData
  * @param {boolean} useElevation
  * @param {boolean} isIsrael
- * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
+ * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} monthView
  * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]>; netzTimes: number[] }} funcSettings
  */
@@ -38,22 +40,22 @@ export default function spreadSheetExport (amudehHoraahZman, plainDateParams, ge
 		if (vNetz)
 			seeSun = vNetz.find(zDT => Math.abs(regularNetz.until(zDT).total('minutes')) <= 6)
 
-		// @ts-ignore
+		/** @param {import("../WebsiteCalendar.js").zmanData} entry  */
 		function formatTime(entry) {
 			// @ts-ignore
 			const time = (entry.function == 'getNetz' && seeSun ? seeSun : entry.luxonObj)
 			return '=TIME(' + [time.hour, time.minute, time.second].join(', ') + ')'
 		}
 
-		const dailyZmanim = Object.values(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings))
-			.filter(entry => entry.display == 1)
+		const dailyZmanim = Object.entries(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings))
+			.filter(entry => entry[1].display == 1)
 			.map(entry => [
-				entry.function || (entry.title["en"].startsWith("Candle Lighting") ? "getCandleLighting" : ""),
-				{t: "d", v: new Date(entry.luxonObj.epochMilliseconds),
-				f: formatTime(entry), z:
+				entry[0],
+				{t: "d", v: new Date(entry[1].luxonObj.epochMilliseconds),
+				f: formatTime(entry[1]), z:
 					"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
 					// @ts-ignore
-					+ ":mm" + (funcSettings.seconds || (entry.function == "getNetz" && seeSun) ? ":ss" : "")
+					+ ":mm" + (funcSettings.seconds || (entry[1].function == "getNetz" && seeSun) ? ":ss" : "")
 					+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")}
 			])
 

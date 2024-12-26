@@ -4,6 +4,9 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js";
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
 
+/** @typedef {{ hb: string, en: string, "en-et": string; "ru"?: string; }} langType */
+/** @typedef {{display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string}} zmanData */
+
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	formatJewishFullDate() {
@@ -111,8 +114,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 * @param {{ hourCalculator: "degrees" | "seasonal"; tzeithIssurMelakha: { minutes: number; degree: number;}; tzeitTaanitHumra: boolean; }} funcSettings 
 	 */
 	getZmanimInfo(independent, zmanCalc, zmanList, funcSettings) {
-		/** @typedef {{ hb: string, en: string, "en-et": string; "ru"?: string; }} langType */
-		/** @type {Record<string, {display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string}>} */
+		/** @type {Record<string, zmanData>} */
 		const calculatedZmanim = {}
 
 		for (const [zmanId, zmanInfo] of Object.entries(zmanList)) {

@@ -93,11 +93,8 @@ chaiTable: true
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="zemanim-tab-pane" role="tabpanel" aria-labelledby="zemanim-tab" tabindex="0">
 				<div class="grid text-center py-2" style="--bs-columns: 3;">
-					<button type="button" class="btn btn-primary" id="downloadModalBtn">
-						<i class="bi bi-calendar2-week"></i>
-						<span class="lang lang-en">Download Digital Calendar</span>
-						<span class="lang lang-et">Download Digital Calendar</span>
-						<span class="lang lang-hb">הורד לוח שנה דיגיטלי</span>
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+						Export (Digital)
 					</button>
 					<button type="button" class="btn btn-primary" id="clipboardDownload">
 						<i class="bi bi-clipboard"></i>
@@ -105,11 +102,8 @@ chaiTable: true
 						<span class="lang lang-et">Copy to clipboard</span>
 						<span class="lang lang-hb">העתק ללוח</span>
 					</button>
-					<button type="button" class="btn btn-primary" id="spreadSheetBtn">
-						<img src="/assets/images/download_spread.svg" alt="Download Spreadsheet" style="height: 1em;">
-						<span class="lang lang-en">Download spreadsheet</span>
-						<span class="lang lang-et">Download spreadsheet</span>
-						<span class="lang lang-hb">Download spreadsheet</span>
+					<button type="button" class="btn btn-primary" disabled>
+						Print (Coming Soon)
 					</button>
 				</div>
 				<div class="accordian" data-zfFind="calendarFormatter">
@@ -539,6 +533,7 @@ chaiTable: true
 	</div>
 </div>
 {% include modals/location.html %}
+{% include modals/export.html %}
 
 <link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
 <script src="/assets/js/zmanimListUpdater.js" type="module"></script>

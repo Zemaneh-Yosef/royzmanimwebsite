@@ -28,7 +28,7 @@ const monViewNight = (monthView, calc) =>
  * @param {[string, number, number, number, string]} geoLocationData
  * @param {boolean} useElevation
  * @param {boolean} isIsrael
- * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; }}; }} zmanList
+ * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} monthView
  * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]>; fasts: Record<string, { "en-et": string; en: string; he: string; }>; tahanun: Record<string, string | { "en-et": string; en: string; he: string; }> }} funcSettings
  */

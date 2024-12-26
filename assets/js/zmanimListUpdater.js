@@ -9,15 +9,18 @@ import { ChaiTables } from "./features/chaiTables.js";
 import * as leaflet from "../libraries/leaflet/leaflet.js"
 
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
+import exportFriendly from "./features/export.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
 
-class zmanimListUpdater {
+export default class zmanimListUpdater {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	constructor(geoLocation) {
+		this.exportManager = new exportFriendly();
+
 		this.jCal = new WebsiteLimudCalendar();
 		this.jCal.setUseModernHolidays(true);
 
@@ -274,10 +277,10 @@ class zmanimListUpdater {
 
 		if (!this.buttonsInit) {
 			const downloadBtn = document.getElementById("downloadModalBtn");
-			downloadBtn.addEventListener('click', async () => {await this.handleICS()})
+			downloadBtn.addEventListener('click', async () => {await this.exportManager.handleICS(this)})
 
 			const spreadSheetBtn = document.getElementById("spreadSheetBtn");
-			spreadSheetBtn.addEventListener('click', async () => {await this.handleExcel()})
+			spreadSheetBtn.addEventListener('click', async () => {await this.exportManager.handleExcel(this)})
 
 			const clipboardBtn = document.getElementById('clipboardDownload');
 			if ('clipboard' in navigator)
@@ -303,97 +306,6 @@ class zmanimListUpdater {
 		}
 	}
 
-	async handleExcel() {
-		if (this.midDownload)
-			return;
-
-		this.midDownload = true;
-
-		/** @type {[string, number, number, number, string]} */
-		// @ts-ignore
-		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
-
-		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
-
-		let availableVS = [];
-		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-			const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-			if (ctNetz.lat == geoLocation.getLatitude()
-			&& ctNetz.lng == geoLocation.getLongitude())
-				availableVS = ctNetz.times
-		}
-
-		/** @type {Parameters<import('./features/excelPrepare.js')["default"]>} */
-		const excelParams = [
-			this.zmanFuncs instanceof AmudehHoraahZmanim,
-			undefined,
-			glArgs,
-			this.zmanFuncs.coreZC.isUseElevation(),
-			this.jCal.getInIsrael(),
-			this.zmanimList,
-			true,
-			{
-				// @ts-ignore
-				language: settings.language() == "hb" ? "he" : settings.language(),
-				zmanInfoSettings: this.zmanInfoSettings,
-				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
-				seconds: settings.seconds(),
-				timeFormat: settings.timeFormat(),
-				netzTimes: availableVS
-			}
-		]
-
-		/** @type {Parameters<import('../libraries/xlsx.mjs')["utils"]["json_to_sheet"]>[1][]} */
-		let workerData = [];
-		let giveData = [];
-
-		const title = (this.zmanFuncs instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
-				+ ` Calendar (${isoYear}) - ` + this.geoLocation.getLocationName();
-
-		const postDataReceive = async () => {
-			const headerImport = (await import('../excelHeaderData.js')).default;
-			const headerRow = Object.fromEntries(
-				[['DATE', {'hb': "יום", en: 'DATE', "en-et": "DATE"}[settings.language()]]]
-					.concat(Object.entries(headerImport).map(entry => [entry[0], entry[1][settings.language()]]))
-			);
-
-			const tableData = [...new Set(workerData.flat().map(field => JSON.stringify(field)))]
-				.map(field => JSON.parse(field))
-				.sort((a, b) => new Date(Object.values(a)[1].v).getTime() - new Date(Object.values(b)[1].v).getTime())
-
-			const { utils, writeFile } = (await import('../libraries/xlsx.mjs'));
-			const ws = utils.json_to_sheet([headerRow].concat(tableData), { skipHeader: true });
-			const wb = utils.book_new();
-			utils.book_append_sheet(wb, ws, "People");
-			writeFile(wb, title + ".xlsx");
-			this.midDownload = false;
-		}
-
-		for (let i = 1; i <= this.jCal.getDate().monthsInYear; i++) {
-			const monthExcelData = [...excelParams]
-			monthExcelData[1] = [isoYear, i, isoDay, isoCalendar]
-			giveData.push(monthExcelData)
-		}
-
-		for (const monthExcelData of giveData) {
-			if (window.Worker) {
-				const myWorker = new Worker("/assets/js/features/excelPrepare.js", { type: "module" });
-				myWorker.postMessage(monthExcelData)
-				myWorker.addEventListener("message", async (message) => {
-					workerData.push(message.data);
-					if (workerData.length == giveData.length)
-						await postDataReceive();
-				})
-			} else {
-				const excelExport = (await import('./features/excelPrepare.js')).default;
-				const icsData = excelExport.apply(excelExport, monthExcelData);
-				workerData.push(icsData);
-				if (workerData.length == giveData.length)
-					await postDataReceive();
-			}
-		}
-	}
-
 	async clipboardCopy() {
 		const copyText = this.geoLocation.getLocationName() + "\n\n"
 		+ this.jCal.formatFancyDate(undefined, false) + ", " + this.jCal.getDate().year
@@ -404,164 +316,6 @@ class zmanimListUpdater {
 		.join('\n')
 
 		await navigator.clipboard.writeText(copyText);
-	}
-
-	async handleICS() {
-		if (this.midDownload)
-			return;
-
-		this.midDownload = true;
-
-		/** @type {[string, number, number, number, string]} */
-		// @ts-ignore
-		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
-
-		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = this.zmanFuncs.coreZC.getDate().getISOFields()
-
-		let availableVS = [];
-		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-			const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-			if (ctNetz.lat == geoLocation.getLatitude()
-			&& ctNetz.lng == geoLocation.getLongitude())
-				availableVS = ctNetz.times
-		}
-
-		/** @type {Parameters<import('./features/icsPrepare.js')["default"]>} */
-		const icsParams = [
-			this.zmanFuncs instanceof AmudehHoraahZmanim,
-			undefined,
-			glArgs,
-			this.zmanFuncs.coreZC.isUseElevation(),
-			this.jCal.getInIsrael(),
-			this.zmanimList,
-			true,
-			{
-				// @ts-ignore
-				language: settings.language() == "hb" ? "he" : settings.language(),
-				timeFormat: settings.timeFormat(), seconds: settings.seconds(),
-				zmanInfoSettings: this.zmanInfoSettings,
-				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
-				fasts: Object.fromEntries([...document.querySelector('[data-zfFind="FastDays"]').getElementsByTagName("h5")]
-					.map(ogHeading => {
-						/** @type {HTMLHeadingElement} */
-						// @ts-ignore
-						const heading = ogHeading.cloneNode(true);
-						const [ he, et, en ] = [...heading.children]
-							.map(langElem => {
-								while (langElem.querySelector('[data-zfFind="erevTzom"]'))
-									langElem.querySelector('[data-zfFind="erevTzom"]').remove()
-
-								return langElem.innerHTML.replace(/<.*?>/gm, '');
-							})
-
-						return [heading.getAttribute("data-zfFind"), { he, "en-et": et, en }]
-					})),
-				tahanun: Object.fromEntries([...document.querySelector('[data-zfFind="Tachanun"]').children]
-					.map(/** @returns {[string, string|{"he": string; "en-et": string; "en": string}]} */
-						tachObj =>
-						[
-						tachObj.getAttribute('data-zfFind'),
-						// @ts-ignore
-						tachObj.childElementCount == 0
-							? tachObj.innerHTML
-							: Object.fromEntries([...tachObj.children]
-								.map(langElem => [
-									langElem.classList.values().find(cl => cl.startsWith('lang-')).replace('lang-', '').replace('hb', 'he'),
-									langElem.innerHTML
-								]))
-					])),
-				netzTimes: availableVS
-			}
-		]
-
-		/** @type {import('../libraries/ics/ics.esm.js').ics.EventAttributes[]} */
-		let receiveData = [];
-		let giveData = [];
-
-		const postDataReceive = async () => {
-			const ics = (await import('../libraries/ics/ics.esm.js')).ics;
-
-			receiveData = receiveData.flat()
-			this.zmanFuncs.tekufaCalc.calculateTekufotShemuel(this.zmanFuncs instanceof OhrHachaimZmanim)
-				.forEach((tekufa, index) => {
-					const time = tekufa.toZonedDateTime("+02:00").withTimeZone(geoLocation.getTimeZone())
-					const tekufaMonth = [
-						WebsiteLimudCalendar.TISHREI,
-						WebsiteLimudCalendar.TEVES,
-						WebsiteLimudCalendar.NISSAN,
-						WebsiteLimudCalendar.TAMMUZ,
-						WebsiteLimudCalendar.TISHREI,
-						WebsiteLimudCalendar.TEVES,
-					]
-						.map(month => (new WebsiteLimudCalendar(this.jCal.getJewishYear(), month, 15)).formatJewishMonth())
-						[index]
-
-					receiveData.push({
-						start: time.subtract({ minutes: 30 }).epochMilliseconds,
-						end: time.add({ minutes: 30 }).epochMilliseconds,
-						title: {
-							hb: "תקופת " + tekufaMonth.he,
-							en: tekufaMonth.en + " Season",
-							"en-et": "Tekufath " + tekufaMonth.en
-						}[settings.language()]
-					})
-				})
-
-			const calName = (this.zmanFuncs instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
-				+ ` Calendar (${isoYear}) - ` + this.geoLocation.getLocationName();
-			const labeledEvents = 
-				Array.from(new Set(receiveData.map(field => JSON.stringify(field)))).map(field => JSON.parse(field))
-				.map(obj => ({
-					...obj,
-					calName,
-					/** @type {"utc"} */
-					startInputType: "utc",
-					/** @type {"utc"} */
-					endInputType: "utc"
-				}));
-
-			const icsRespond = ics.createEvents(labeledEvents)
-			if (icsRespond.error)
-				throw icsRespond.error;
-
-			const element = document.createElement('a');
-			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(icsRespond.value));
-			element.setAttribute('download', calName + ".ics");
-
-			element.style.display = 'none';
-			document.body.appendChild(element);
-
-			element.click();
-
-			document.body.removeChild(element);
-			this.midDownload = false;
-		}
-
-		for (let i = 1; i <= this.jCal.getDate().monthsInYear; i++) {
-			const monthICSData = [...icsParams]
-			monthICSData[1] = [isoYear, i, isoDay, isoCalendar]
-			giveData.push(monthICSData)
-		}
-
-		for (const monthICSData of giveData) {
-			if (window.Worker) {
-				console.log('activate thread')
-				const myWorker = new Worker("/assets/js/features/icsPrepare.js", { type: "module" });
-				myWorker.postMessage(monthICSData)
-				myWorker.addEventListener("message", async (message) => {
-					console.log("received message from other thread");
-					receiveData.push(message.data)
-					if (receiveData.length == giveData.length)
-						await postDataReceive();
-				})
-			} else {
-				const icsExport = (await import('./features/icsPrepare.js')).default;
-				const icsData = icsExport.apply(icsExport, monthICSData);
-				receiveData.push(icsData);
-				if (receiveData.length == giveData.length)
-					await postDataReceive();
-			}
-		}
 	}
 
 	/**
@@ -644,12 +398,14 @@ class zmanimListUpdater {
 				});
 		}
 
-		const fastJCal = this.jCal.isTaanis() || this.jCal.isTaanisBechoros() ? this.jCal : this.jCal.tomorrow();
+		const fastJCal = todayFast ? this.jCal : this.jCal.tomorrow();
 		const fastCalc = this.zmanFuncs.chainDate(fastJCal.getDate());
 		const nameElements = [...fastContainer.getElementsByTagName("h5")];
 		nameElements.forEach(element => element.style.display = "none");
-		
-		const ourFast = nameElements.find(element => element.getAttribute("data-zfFind") == fastJCal.getYomTovIndex().toString());
+
+		const ourFast = nameElements.find(fastElm =>
+			fastElm.getAttribute("data-zfFind") == (fastJCal.isTaanisBechoros() ? 0 : fastJCal.getYomTovIndex()).toString()
+		);
 		hideErev(ourFast);
 		ourFast.style.removeProperty("display");
 
@@ -665,9 +421,8 @@ class zmanimListUpdater {
 
 			const erevTzom = timeList.multiDay.firstElementChild;
 			hideErev(erevTzom);
-			if (erevTzom.lastChild.nodeType == Node.TEXT_NODE) {
+			if (erevTzom.lastChild.nodeType == Node.TEXT_NODE)
 				erevTzom.lastChild.remove();
-			}
 
 			const erevCalc = this.zmanFuncs.chainDate(fastJCal.getDate().subtract({ days: 1 }));
 			const timeOnErev =
@@ -689,9 +444,8 @@ class zmanimListUpdater {
 		} else {
 			timeList.multiDay.style.display = "none";
 			timeList.oneDay.style.removeProperty("display")
-			if (timeList.oneDay.lastChild.nodeType == Node.TEXT_NODE) {
+			if (timeList.oneDay.lastChild.nodeType == Node.TEXT_NODE)
 				timeList.oneDay.lastChild.remove();
-			}
 
 			timeList.oneDay.appendChild(document.createTextNode(
 				fastCalc.getAlotHashachar().toLocaleString(...this.dtF) + ' - ' + fastCalc.getTzaitLechumra().toLocaleString(...this.dtF)
@@ -1311,15 +1065,3 @@ const zmanimListUpdater2 = new zmanimListUpdater(geoLocation)
 window.zmanimListUpdater2 = zmanimListUpdater2;
 // @ts-ignore
 window.KosherZmanim = KosherZmanim;
-
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-	try {
-		JSON.parse(str);
-		return true;
-	} catch (e) {
-		return false;
-	}
-}
