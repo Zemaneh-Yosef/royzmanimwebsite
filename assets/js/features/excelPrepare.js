@@ -17,7 +17,7 @@ import WebsiteCalendar from "../WebsiteCalendar.js";
  * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]>; netzTimes: number[] }} funcSettings
  */
 export default function spreadSheetExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList, monthView=true, funcSettings) {
-	const baseDate = new Temporal.PlainDate(...plainDateParams).with({ day: 1 })
+	const baseDate = new Temporal.PlainDate(...plainDateParams)
 	const geoLocation = new GeoLocation(...geoLocationData);
 
 	const jCal = new WebsiteCalendar(baseDate);

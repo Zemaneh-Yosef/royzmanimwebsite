@@ -147,7 +147,7 @@ export default class exportFriendly {
 
 		for (let i = 1; i <= zmanLister.jCal.getDate().monthsInYear; i++) {
 			const monthICSData = [...icsParams]
-			monthICSData[1] = [isoYear, i, isoDay, isoCalendar]
+			monthICSData[1] = [isoYear, i, 1, isoCalendar]
 			giveData.push(monthICSData)
 		}
 
@@ -244,7 +244,7 @@ export default class exportFriendly {
 
 		for (let i = 1; i <= zmanLister.jCal.getDate().monthsInYear; i++) {
 			const monthExcelData = [...excelParams]
-			monthExcelData[1] = [isoYear, i, isoDay, isoCalendar]
+			monthExcelData[1] = [isoYear, i, 1, isoCalendar]
 			giveData.push(monthExcelData)
 		}
 
