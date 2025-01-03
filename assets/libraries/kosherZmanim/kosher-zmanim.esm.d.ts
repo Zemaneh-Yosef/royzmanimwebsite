@@ -1201,6 +1201,12 @@ export interface OutputMetadata {
 	timeZoneID: string;
 	timeZoneOffset: string;
 }
+export type Enumerate<N extends number, Acc extends number[] = [
+]> = Acc["length"] extends N ? Acc[number] : Enumerate<N, [
+	...Acc,
+	Acc["length"]
+]>;
+export type Range<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>;
 /**
  * The JewishDate is the base calendar class, that supports maintenance of a {@link java.util.GregorianCalendar}
  * instance along with the corresponding Jewish date. This class can use the standard Java Date and Calendar
@@ -1992,7 +1998,7 @@ export declare class JewishDate {
 	 *
 	 * @return the day of the week as a number between 1-7.
 	 */
-	getDayOfWeek(): 1 | 2 | 3 | 4 | 5 | 6 | 7;
+	getDayOfWeek(): Range<1, 8>;
 	/**
 	 * Sets the Gregorian month.
 	 *
@@ -3681,6 +3687,12 @@ export declare class DafYomiYerushalmi extends Daf {
 	 */
 	getMasechta(): string;
 }
+export type Enumerate$1<N extends number, Acc extends number[] = [
+]> = Acc["length"] extends N ? Acc[number] : Enumerate$1<N, [
+	...Acc,
+	Acc["length"]
+]>;
+export type Range$1<F extends number, T extends number> = Exclude<Enumerate$1<T>, Enumerate$1<F>>;
 /**
  * List of <em>parshiyos</em> or special <em>Shabasos</em>. {@link #NONE} indicates a week without a <em>parsha</em>, while the enum for
  * the <em>parsha</em> of {@link #VZOS_HABERACHA} exists for consistency, but is not currently used. The special <em>Shabasos</em> of
@@ -4275,7 +4287,7 @@ export declare class JewishCalendar extends JewishDate {
 	 * @return the day of <em>Chanukah</em> or -1 if it is not <em>Chanukah</em>.
 	 * @see #isChanukah()
 	 */
-	getDayOfChanukah(): number;
+	getDayOfChanukah(): Range$1<1, 9> | -1;
 	/**
 	 * Returns true if the current day is one of the 8 days of <em>Chanukah</em>.
 	 * @return if the current day is one of the 8 days of <em>Chanukah</em>.
@@ -5040,6 +5052,26 @@ declare class WeeklyHaftarahReading {
 		source: string;
 	};
 }
+/**
+ * This class's main goal is to return the Weekly Haftorah reading said after the Weekly Parasha
+ * reading. Which readings to say were taken from the Chumash "L'maan Shemo B'Ahavah" according to
+ * the Sepharadic Minhag.
+ * @see WeeklyParashaReadings
+ */
+export type Unpacked<T> = T extends (infer U)[] ? U : T;
+declare const entries: ("ADES: 24793" | "GABRIEL A SHREM 1964 SUHV" | "TABBUSH Ms NLI 8*7622, Aleppo" | "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" | "TEBELE Pre1888" | "ELIE SHAUL COHEN FROM AINTAB, ~1880" | "YAAQOB ABADI-PARSIYA" | "YISHAQ YEQAR ARGENTINA" | "Dibre Shelomo S KASSIN Pre1915" | "Knis Betesh Geniza List, Aleppo" | "ABRAHAM DWECK Pre1920" | "IDELSOHN Pre1923" | "S SAGIR Laniado" | "M H Elias, SHIR HADASH, Jerusalem, 1930" | "ASHEAR list" | "ASHEAR NOTES 1936-1940" | "ABRAHAM E SHREM ~1945" | "Argentina 1947 & Ezra Mishanieh" | "Shire Zimra H S ABOUD Jerusalem, 1950" | "D KASSIN/ ISAAC CAIN; RODFE SEDEQ; MEXICO" | "YOSEF YEHEZKEL Jerusalem 1975" | "Ish Massliah \"Abia Renanot\" Tunisians" | "Shaare Zimra YANANI Buenos Aires, 01" | "BOZO, Ades, Shir Ushbaha 2005" | "Yishaq Yeranen Halabi" | "MOSHE AMASH (Shami)" | "EZRA MASLATON TARAB (Shami)" | "ABRAHAM SHAMRICHA (Shami)" | "Victor Afya, Istanbul List" | "Izak Alaluf, Izmir List" | "Hallel VeZimrah, Salonika, 1928" | "Hallel VeZimrah, Greece List, 1926" | "SASSOON #647 Aleppo, 1850" | "Eliahou Yaaqob DWECK-KESAR")[];
+declare class WeeklyMakamReading {
+	hierarchy: (Unpacked<typeof entries> | "MAJORITY")[];
+	constructor(hierarchy?: (Unpacked<typeof entries> | "MAJORITY")[]);
+	getTodayMakam(jCal: JewishCalendar): string[] | undefined;
+	/**
+	 * This method returns a string that contains the weekly Makam. The {@link JewishCalendar}
+	 * object passed into this method should be preset with the correct date.
+	 * @param jCal the JewishCalendar object set to Saturday
+	 * @return All the data fields
+	 */
+	static getMakamData(jCal: JewishCalendar): Partial<Record<Unpacked<typeof entries>, string[]>>;
+}
 export declare function getZmanimJson(options: Options): JsonOutput;
 export interface Options {
 	/**
@@ -5070,6 +5102,7 @@ export declare const temporalExtended: {
 export {
 	Temporal,
 	WeeklyHaftarahReading as Haftara,
+	WeeklyMakamReading as Makam,
 };
 
 export {};

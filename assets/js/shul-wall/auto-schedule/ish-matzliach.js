@@ -1,6 +1,6 @@
 // @ts-check
 
-import { GeoLocation, Temporal } from "../../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { GeoLocation, Temporal, Makam } from "../../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import WebsiteCalendar from '../../WebsiteCalendar.js';
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from '../../ROYZmanim.js';
 import preSettings from '../preSettings.js';
@@ -36,10 +36,10 @@ export default async function autoSchedule() {
 	document.getElementById('minchaErev').lastElementChild.innerHTML = friCL.with({ minute: Math.floor(friCL.minute / 5) * 5 }).toLocaleString(...dtF);
 
 	let arvitMS = zmanCalc.getTzaitShabbath().subtract({ minutes: 5 });
-	if (Math.trunc(arvitMS.with({ minute: Math.floor(arvitMS.minute / 5) * 5 }).until(arvitMS).total('minutes')) < 2)
+	if (Math.trunc(arvitMS.with({ minute: Math.floor(arvitMS.minute / 5) * 5 }).until(arvitMS).total('minutes')) < 3)
 		arvitMS = arvitMS.with({ minute: Math.floor(arvitMS.minute / 5) * 5 });
 	document.getElementById('arvitMS').lastElementChild.innerHTML = arvitMS.toLocaleString(...dtF);
-	document.getElementById('minchaS').lastElementChild.innerHTML = "3:50 PM";//arvitMS.with({ minute: Math.floor(arvitMS.minute / 10) * 10 }).subtract({ hours: 1 }).toLocaleString(...dtF);
+	document.getElementById('minchaS').lastElementChild.innerHTML = arvitMS.with({ minute: Math.floor(arvitMS.minute / 15) * 15 }).subtract({ hours: 1 }).toLocaleString(...dtF);
 
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
@@ -50,4 +50,9 @@ export default async function autoSchedule() {
 		.map((url, index) =>
 			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
 		.join('');
+
+	const makam = new Makam();
+	if (document.getElementById('makam')) {
+		document.getElementById('makam').innerHTML += makam.getTodayMakam(jCalShab);
+	}
 }
