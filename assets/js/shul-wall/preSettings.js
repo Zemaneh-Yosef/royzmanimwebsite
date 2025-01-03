@@ -34,6 +34,7 @@ switch (window.location.href.split('/').at(-1)) {
 		});
 		break;
 	case 'ish-matzliach-bk':
+	case 'ish-matzliach-bk-small':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',
