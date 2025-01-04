@@ -133,34 +133,36 @@ layout: nothing
 
 	[data-zyBranding] {
 		font-family: 'Guttman Mantova-Decor', 'Javar';
-		display: grid;
+		display: flex;
+		flex-direction: column;
 		text-align: center;
 		justify-items: center;
 		line-height: .8;
-		position: relative;
-	}
-
-	[data-zyBranding] > * {
-		grid-area: 1/1;
 	}
 
 	[data-zyBranding] .rotatedText {
 		width: 125px;
 	}
 
-	[data-zyBranding] .genDate {
-		font-family: 'Spectral';
-		grid-row: 2;
-		margin-top: .1rem;
+	.hebrewTitle {
+		font-size: 1.5rem;
+		margin-top: -1.75rem;
+		position: relative;
+		line-height: .8;
+		margin-bottom: 0;
 	}
 
 	[data-zyBranding] .bi {
 		opacity: 0.3;
-		top: -9.5px;
-		font-size: 2.75em;
+		top: -3.5px;
 		position: absolute;
-		left: 50%;
-		transform: translateX(-50%);
+		font-size: 1.65em;
+	}
+
+	[data-zyBranding] .genDate {
+		font-family: 'Spectral';
+		grid-row: 2;
+		margin-top: .1rem;
 	}
 
 	/*[data-zyBranding] .pageLogo {
@@ -181,13 +183,6 @@ layout: nothing
 	}
 
 	[data-zyLocationText] {
-		margin-bottom: 0;
-	}
-
-	.hebrewTitle {
-		line-height: .8;
-		font-size: 1.5rem;
-		padding-top: 1rem;
 		margin-bottom: 0;
 	}
 
@@ -343,9 +338,11 @@ layout: nothing
 		</div>
 	</div>
 	<div data-zyBranding>
-		<h1 class="hebrewTitle">זמני<br>יוסף</h1>
 		<img src="/assets/images/print/sam.svg" class="rotatedText">
-		<i class="bi bi-clock-history"></i>
+		<h1 class="hebrewTitle">
+			<i class="bi bi-clock-history"></i>
+			זמני<br>יוסף
+		</h1>
 		<div class="genDate">Gen.: </div>
 	</div>
 	<div class="sides" data-zyfooter-tekufa data-zyfooter-hametz data-zyfooter-levana></div>
