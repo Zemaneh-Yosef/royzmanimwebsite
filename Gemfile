@@ -17,6 +17,7 @@ end
 
 gem "csv"
 gem "logger"
+gem "base64"
 
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
 # and associated library.
