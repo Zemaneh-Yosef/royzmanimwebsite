@@ -10,6 +10,48 @@ chaiTable: true
 </noscript>
 
 <div id="wideGrid" class="maxWidthContainer">
+	<div id="shabbat">
+		<div class="card mt-2 mt-lg-0 mb-2" data-zfFind="Parasha">
+			<div class="card-header">
+				<div class="d-none d-lg-flex justify-content-between handleSvg align-items-center">
+					<span><i class="bi bi-fire"></i> <span data-zfReplace="CandleLighting"></span></span>
+					<span class="flex-fill text-center" data-zfReplace="Parasha"></span>
+					<span style="text-align: center; line-height: .8;">
+						<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg>
+						<span data-zfReplace="TzetShabbat"></span><br>
+						<span class="lang lang-hb" style="font-size: .75em;">(ר"ת: <span data-zfReplace="TzetRT"></span>)</span>
+						<span class="lang lang-en" style="font-size: .75em;">(R"T: <span data-zfReplace="TzetRT"></span>)</span>
+						<span class="lang lang-et" style="font-size: .75em;">(R"T: <span data-zfReplace="TzetRT"></span>)</span>
+					</span>
+				</div>
+				<div class="d-lg-none">
+					<span data-zfReplace="Parasha"></span>
+					<ul class="lang lang-hb">
+						<li>הדלכת נרות: <span data-zfReplace="CandleLighting"></span></li>
+						<li>צאת שבת: <span data-zfReplace="TzetShabbat"></span> (ר"ת: <span data-zfReplace="TzetRT"></span>)</li>
+					</ul>
+					<ul class="lang lang-en">
+						<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
+						<li>Shabbat Ends: <span data-zfReplace="TzetShabbat"></span> (RT: <span data-zfReplace="TzetRT"></span>)</li>
+					</ul>
+					<ul class="lang lang-et">
+						<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
+						<li>Tzet Shabbat: <span data-zfReplace="TzetShabbat"></span> (RT: <span data-zfReplace="TzetRT"></span>)</li>
+					</ul>
+				</div>
+			</div>
+			<dl class="list-group list-group-flush lh-sm">
+				{% for learning in site.data.learning.shabbat %}
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="lang lang-hb">{{ learning.text.hb.full }}</dt>
+					<dt class="lang lang-et">{{ learning.text.et.full }}</dt>
+					<dt class="lang lang-en">{{ learning.text.en.full }}</dt>
+					<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
+				</div>
+				{% endfor %}
+			</dl>
+		</div>
+	</div>
 	<div id="generic">
 		<h3 class="text-center mb-0" data-zfReplace="LocationName"></h3>
 		<p class="text-center" data-zfFind="LocationYerushalayimLine">
@@ -20,34 +62,6 @@ chaiTable: true
 		</p>
 		<div class="card mb-2">
 			<ul class="list-group list-group-flush">
-				<li class="list-group-item" data-zfFind="Parasha">
-					<div class="d-none d-lg-flex justify-content-between handleSvg align-items-center">
-						<span><i class="bi bi-fire"></i> <span data-zfReplace="CandleLighting"></span></span>
-						<span class="flex-fill text-center" data-zfReplace="Parasha"></span>
-						<span style="text-align: center; line-height: .8;">
-							<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg>
-							<span data-zfReplace="TzetShabbat"></span><br>
-							<span class="lang lang-hb" style="font-size: .75em;">(ר"ת: <span data-zfReplace="TzetRT"></span>)</span>
-							<span class="lang lang-en" style="font-size: .75em;">(R"T: <span data-zfReplace="TzetRT"></span>)</span>
-							<span class="lang lang-et" style="font-size: .75em;">(R"T: <span data-zfReplace="TzetRT"></span>)</span>
-						</span>
-					</div>
-					<div class="d-lg-none">
-						<span data-zfReplace="Parasha"></span>
-						<ul class="lang lang-hb">
-							<li>הדלכת נרות: <span data-zfReplace="CandleLighting"></span></li>
-							<li>צאת שבת: <span data-zfReplace="TzetShabbat"></span> (ר"ת: <span data-zfReplace="TzetRT"></span>)</li>
-						</ul>
-						<ul class="lang lang-en">
-							<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
-							<li>Shabbat Ends: <span data-zfReplace="TzetShabbat"></span> (RT: <span data-zfReplace="TzetRT"></span>)</li>
-						</ul>
-						<ul class="lang lang-et">
-							<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
-							<li>Tzet Shabbat: <span data-zfReplace="TzetShabbat"></span> (RT: <span data-zfReplace="TzetRT"></span>)</li>
-						</ul>
-					</div>
-				</li>
 				<li class="list-group-item" id="cardDateContainer" data-zfFind="dateContainer">
 					<button data-dateAlter="-1" style="grid-column: 1;">
 						<span class="lang lang-hb"><i class="bi bi-arrow-right"></i></span>
@@ -298,7 +312,7 @@ chaiTable: true
 						</h5>
 					</div>
 					<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
-						{% for learning in site.data.learning %}
+						{% for learning in site.data.learning.weekday %}
 						<div class="list-group-item d-flex justify-content-between">
 							<dt class="lang lang-hb">{{ learning.text.hb.full }}</dt>
 							<dt class="lang lang-et">{{ learning.text.et.full }}</dt>

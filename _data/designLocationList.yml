@@ -30,15 +30,14 @@ rahimi:
     humra: 0
     timeFormat: h12
 east:
-  - name: |
-      Five Boroughs, NY<br>
-      <span class="sml">+ Teaneck & Passaic NJ, 5 Towns & Great Neck NY</span>
+  - name: Five Boroughs, NY
+    otherName: + Teaneck & Passaic NJ, 5 Towns & Great Neck NY
     twoLine: True
     # Shul: Beth Torah
     lat: 40.622795584652465
     lng: -73.96960885888677
     timezone: America/New_York
-    humra: 2
+    humra: 1
     timeFormat: h12
   - name: Baltimore, MD
     #flag: https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg
@@ -48,9 +47,8 @@ east:
     timezone: America/New_York
     humra: 0
     timeFormat: h12
-  - name: |
-      Deal, NJ<br>
-      <span class="sml">+ Lakewood, NJ</span>
+  - name: Deal, NJ
+    otherName: + Lakewood, NJ
     twoLine: True
     # Location: Beth Medrash Govoha
     lat: 40.09562417811022
@@ -66,12 +64,12 @@ east:
     humra: 0
     timeFormat: h24
   - name: Miami, FL
+    otherName: + Boca Raton & Hollywood
     #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
     # Location: Chabad of Midtown Miami
     lat: 25.804507405080564
     lng: -80.19053877936163
     timezone: America/New_York
-    doubleLocation: True
     humra: 0
     timeFormat: h12
 central:

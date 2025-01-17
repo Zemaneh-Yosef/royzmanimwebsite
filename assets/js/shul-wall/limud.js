@@ -68,3 +68,16 @@ for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"
 		leilouNishmatList.appendChild(li);
 	}
 }
+
+const mishna = KosherZmanim.MishnaYomi.getMishnaForDate(jCal, true);
+for (const mishnaYomiContainer of document.querySelectorAll('[data-zfReplace="MishnaYomi"]'))
+	mishnaYomiContainer.innerHTML = mishna || "N/A";
+
+const makamObj = await (await fetch("/assets/js/makamObj.json")).json();
+const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
+
+const makam = makamIndex.getTodayMakam(jCal.shabbat());
+for (const makamContainer of document.querySelectorAll('[data-zfReplace="makamot"]'))
+	makamContainer.innerHTML += makam
+		.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
+		.join(" / ");

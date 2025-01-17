@@ -7,10 +7,10 @@ website: true
 
 <style>
 	#gne {
-		height: 115px;
+		height: 135px;
 		justify-self: start;
 		align-self: start;
-		margin-top: 2.5rem;
+		margin-top: 1.5rem;
 		margin-left: 1.5rem;
 		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
 	}
@@ -41,10 +41,10 @@ website: true
 	#zyTrapezoid {
 		justify-self: center;
 		align-self: start;
-		width: 62.5%;
+		width: 56.5%;
 		border-top: 170px solid #12141e;
-		border-left: 125px solid transparent;
-		border-right: 125px solid transparent;
+		border-left: 115px solid transparent;
+		border-right: 115px solid transparent;
 		height: 0;
 	}
 
@@ -273,8 +273,8 @@ website: true
 	}
 
 	#advertFooter {
-		justify-self: center;
-		text-align: center;
+		justify-self: left;
+		text-align: left;
 		padding-left: 1rem;
 		padding-bottom: 1rem;
 		font-size: 2.25rem;
@@ -351,6 +351,24 @@ website: true
 
 	.cube-wrap {
 		position: absolute;
+	}
+
+	#appBar {
+		padding-top: 1.2rem;
+		display: flex;
+		justify-content: center;
+		width: 40%;
+		margin-left: 50%;
+		transform: translateX(-50%);
+		align-items: center;
+	}
+
+	#appBar > * {
+		flex: 1 1;
+	}
+
+	#appBar > a > img {
+		width: 90%;
 	}
 </style>
 <style>
@@ -442,24 +460,6 @@ website: true
 		transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
 		transform-origin: top right;
 	}
-
-	#appBar {
-		padding-top: 1.2rem;
-		display: flex;
-		justify-content: center;
-		width: 40%;
-		margin-left: 50%;
-		transform: translateX(-50%);
-		align-items: center;
-	}
-
-	#appBar > * {
-		flex: 1 1;
-	}
-
-	#appBar > a > img {
-		width: 90%;
-	}
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -530,7 +530,7 @@ website: true
 		<span style="font-weight: 800;">Sources for the times:</span><br><b style="font-weight: 700;">Yabia' Omer</b> 2:21 • royzmanim.com
 	</div>
 	<img src="/assets/images/MARAN.png" id="maran">
-	<img src="/assets/images/shabbat-abstract/ryy-rdy-glima.png" id="ryy">
+	<!-- <img src="/assets/images/shabbat-abstract/ryy-rdy-glima.png" id="ryy"> -->
 	<div class="cube-wrap" style="right: 0; top: 60%;">
 		<div class="cube depth">
 			<div class="front-pane"></div>

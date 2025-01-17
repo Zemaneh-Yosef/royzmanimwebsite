@@ -334,6 +334,22 @@ export default class zmanimListUpdater {
 				parashaElem.innerHTML = this.lastData.parsha
 		}
 
+		const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(this.jCal.shabbat())
+		parashaBar.querySelector('[data-zfReplace="Haftara"]').innerHTML
+			= `<b>${haftara.text}</b> (${haftara.source})`;
+
+		fetch("/assets/js/makamObj.json")
+			.then(res => res.json())
+			.then(makamObj => {
+				const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
+
+				const makam = makamIndex.getTodayMakam(this.jCal.shabbat());
+				parashaBar.querySelector('[data-zfReplace="makamot"]').innerHTML =
+					makam
+						.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
+						.join(" / ");
+			})
+
 		switch (this.jCal.getDate().dayOfWeek) {
 			case 5:
 			case 6: {
@@ -686,8 +702,10 @@ export default class zmanimListUpdater {
 			}
 		)
 
-		const tekufaDate = this.zmanFuncs.nextTekufa(settings.calendarToggle.tekufaMidpoint() !== "hatzoth");
-		if (this.jCal.getDate().toZonedDateTime(this.geoLocation.getTimeZone()).until(tekufaDate).total('days') < 1) {
+		const nextTekufa = this.zmanFuncs.nextTekufa(settings.calendarToggle.tekufaMidpoint() !== "hatzoth").round('minute')
+		const tekufaRange = ['add', 'subtract']
+			.map((/** @type {'add' | 'subtract'} */ act) => nextTekufa[act]({ minutes: 30 }))
+		if (new Set(tekufaRange.map(range=>range.toPlainDate())).keys().some(tekTime => tekTime.equals(this.jCal.getDate()))) {
 			/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 			const tekufaTF = [this.dtF[0], { ...this.dtF[1] }]
 			delete tekufaTF[1].second
@@ -718,14 +736,9 @@ export default class zmanimListUpdater {
 				tekufa.style.removeProperty("display");
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaTime"]'))
-					.forEach(element => element.innerHTML = tekufaDate.round("minute").toLocaleString(...tekufaTF));
+					.forEach(element => element.innerHTML = nextTekufa.toLocaleString(...tekufaTF));
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaFastTime"]'))
-					.forEach(element => element.innerHTML =
-						[
-							tekufaDate.round("minute").subtract({ minutes: 30 }).toLocaleString(...tekufaTF),
-							tekufaDate.round("minute").add({ minutes: 30 }).toLocaleString(...tekufaTF),
-						].join('-')
-					);
+					.forEach(element => element.innerHTML = tekufaRange.map(time => time.toLocaleString(...tekufaTF)).join('-'));
 
 				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
 					.forEach(element => element.innerHTML = nextTekufotNames.en);
@@ -966,9 +979,8 @@ export default class zmanimListUpdater {
 		dafContainer.querySelector('[data-zfReplace="TehilimHodshi"]').innerHTML
 			= KosherZmanim.TehilimYomi.byDayOfMonth(this.jCal).map(met => met.toString()).join(' - ');
 
-		const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(this.jCal.shabbat())
-		dafContainer.querySelector('[data-zfReplace="Haftara"]').innerHTML
-			= `<b>${haftara.text}</b> (${haftara.source})`;
+		const mishna = KosherZmanim.MishnaYomi.getMishnaForDate(this.jCal, true);
+		dafContainer.querySelector('[data-zfReplace="MishnaYomi"]').innerHTML = mishna || "N/A";
 	}
 
 	/** @param {HTMLElement} [tefilahRuleContainer] */

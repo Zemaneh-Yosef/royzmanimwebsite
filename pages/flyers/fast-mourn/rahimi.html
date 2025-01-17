@@ -1,11 +1,20 @@
 ---
-title: Fast Central US Times
-permalink: /fast-design/central-tall
+title: Fast Rahimi Times
+permalink: /fast-design/rahimi
 breakout: true
 website: true
 ---
 
 <style>
+	#gne {
+		height: 135px;
+		justify-self: start;
+		align-self: start;
+		margin-top: 1.5rem;
+		margin-left: 1.5rem;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+	}
+
 	.maxWidthContainer {
 		width: 90rem;
 		font-family: 'Neutro', var(--bs-body-font-family);
@@ -23,7 +32,7 @@ website: true
 		position: relative;
 		display: grid;
 
-		background-image: linear-gradient(45deg, rgba(185, 181, 157, .8) 0%, rgba(97, 80, 64, .8) 100%), url("/assets/images/10-tevet.png");
+		background-image: linear-gradient(to bottom, transparent 50%, #1f1f1f 60%), linear-gradient(45deg, rgba(185, 181, 157, .8) 0%, rgba(97, 80, 64, .8) 100%), url("/assets/images/10-tevet.png");
 		background-size: cover;
 
 		overflow: hidden;
@@ -32,10 +41,10 @@ website: true
 	#zyTrapezoid {
 		justify-self: center;
 		align-self: start;
-		width: 60%;
-		border-top: 220px solid #12141e;
-		border-left: 100px solid transparent;
-		border-right: 100px solid transparent;
+		width: 56.5%;
+		border-top: 170px solid #12141e;
+		border-left: 115px solid transparent;
+		border-right: 115px solid transparent;
 		height: 0;
 	}
 
@@ -52,7 +61,7 @@ website: true
 		align-self: end;
 		justify-self: end;
 		transform: rotateY(180deg);
-		width: 28%;
+		width: 20%;
 		z-index: 3;
 	}
 
@@ -100,13 +109,13 @@ website: true
 		justify-self: start;
 		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
 		text-align: center;
-		line-height: .85;
-		margin-top: 21.5vh;
+		line-height: .9;
+		margin-top: 17vh;
 		margin-left: 2.5vw;
 	}
 
 	#gridElement {
-		top: 37vw;
+		top: 35vw;
 		grid-template-columns: 1fr .75fr .75fr;
 		display: grid;
 		left: 2.5vw;
@@ -138,9 +147,9 @@ website: true
 	.shabbatRow {
 		margin-top: .3vw;
 		margin-bottom: .3vw;
-		padding-top: .5vw;
-		padding-bottom: .5vw;
-		font-size: 3vw;
+		padding-top: .25vw;
+		padding-bottom: .25vw;
+		font-size: 3.5vw;
 		font-weight: 700;
 	}
 
@@ -159,7 +168,7 @@ website: true
 	}
 
 	.timecalc strong {
-		font-size: 3vw;
+		font-size: 3.75vw;
 	}
 
 	.shabbatRowBg {
@@ -239,14 +248,12 @@ website: true
 	}
 
 	#location {
-		margin-top: 17.5vh;
-		font-size: 3.25vw;
-		justify-self: center;
-		margin-left: 0;
+		margin-top: 12vw;
+		font-size: 4vw;
 	}
 
 	#calSubtitle {
-		margin-top: 55vh;
+		margin-top: 52vh;
 		font-size: 4.25vw;
 	}
 
@@ -319,21 +326,135 @@ website: true
 		line-height: 1;
 	}
 
-	#fastHalachas {
-		margin-left: 2.5vw;
-		margin-bottom: 18.5vh;
-		width: 1015px;
-		background-color: rgba(0, 0, 0, .75);
-		padding: 1.15rem;
-		border-radius: 2rem;
-		color: white;
-		justify-self: start;
-		align-self: end;
+	.faderTri {
+		border: 10px solid;
+		border-image-slice: 1;
+		border-top: 0;
+		border-right: 0;
+		aspect-ratio: 1 / 1;
+		transform: rotateZ(-45deg);
+		border-image-source: linear-gradient(45deg, transparent 10%, #B2FF59 37%, transparent 50%);
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		justify-self: center;
+		align-self: center;
+		overflow: hidden;
 	}
 
-	#fastHalachas p {
-		font-size: 1.14em;
-		text-wrap: balance;
+	#bigTri {
+		width: 60%;
+		border-width: 15px;
+		margin-top: 20rem;
+		opacity: 40%;
+	}
+
+	#fullScrTri {
+		width: 70%;
+		margin-top: 40rem;
+		border-width: 5px;
+		opacity: 60%;
+	}
+
+	.cube-wrap {
+		position: absolute;
+	}
+
+	#rahimi {
+		align-self: end;
+		justify-self: center;
+		margin-bottom: 9rem;
+		width: 90%;
+		z-index: 5;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+	}
+</style>
+<style>
+	.cube-wrap {
+		--faceSize: 100px;
+
+		-webkit-perspective: calc(var(--faceSize) * 4);
+		-webkit-perspective-origin: 50% calc(var(--faceSize) / 2);
+		-moz-perspective: calc(var(--faceSize) * 4);
+		-moz-perspective-origin: 50% calc(var(--faceSize) / 2);
+		-ms-perspective: calc(var(--faceSize) * 4);
+		-ms-perspective-origin: 50% calc(var(--faceSize) / 2);
+		perspective: calc(var(--faceSize) * 4);
+		perspective-origin: 50% calc(var(--faceSize) / 2);
+	}
+
+	.cube {
+		position: relative;
+		width: var(--faceSize);
+		margin: 0 auto;
+		-webkit-transform-style: preserve-3d;
+		-moz-transform-style: preserve-3d;
+		-ms-transform-style: preserve-3d;
+		transform-style: preserve-3d;
+		transform: rotate3d(1, 1, 1, 45deg);
+	}
+
+	.cube div {
+		position: absolute;
+		width: var(--faceSize);
+		height: var(--faceSize);
+		box-shadow: inset 0 0 10px #B2FF59;
+	}
+
+	.depth div.front-pane {
+		-webkit-transform: translateZ(calc(var(--faceSize) / 2));
+		-moz-transform: translateZ(calc(var(--faceSize) / 2));
+		-ms-transform: translateZ(calc(var(--faceSize) / 2));
+		transform: translateZ(calc(var(--faceSize) / 2));
+	}
+
+	.depth div.back-pane {
+		-webkit-transform: translateZ(calc(var(--faceSize) / -2)) rotateY(180deg);
+		-moz-transform: translateZ(calc(var(--faceSize) / -2)) rotateY(180deg);
+		-ms-transform: translateZ(calc(var(--faceSize) / -2)) rotateY(180deg);
+		transform: translateZ(calc(var(--faceSize) / -2)) rotateY(180deg);
+	}
+
+	.depth div.top-pane {
+		-webkit-transform: rotateX(-90deg) translateY(calc(var(--faceSize) / -2));
+		-webkit-transform-origin: top center;
+		-moz-transform: rotateX(-90deg) translateY(calc(var(--faceSize) / -2));
+		-moz-transform-origin: top center;
+		-ms-transform: rotateX(-90deg) translateY(calc(var(--faceSize) / -2));
+		-ms-transform-origin: top center;
+		transform: rotateX(-90deg) translateY(calc(var(--faceSize) / -2));
+		transform-origin: top center;
+	}
+
+	.depth div.bottom-pane {
+		-webkit-transform: rotateX(90deg) translateY(calc(var(--faceSize) / 2));
+		-webkit-transform-origin: bottom center;
+		-moz-transform: rotateX(90deg) translateY(calc(var(--faceSize) / 2));
+		-moz-transform-origin: bottom center;
+		-ms-transform: rotateX(90deg) translateY(calc(var(--faceSize) / 2));
+		-ms-transform-origin: bottom center;
+		transform: rotateX(90deg) translateY(calc(var(--faceSize) / 2));
+		transform-origin: bottom center;
+	}
+
+	.depth div.left-pane {
+		-webkit-transform: rotateY(270deg) translateX(calc(var(--faceSize) / -2));
+		-webkit-transform-origin: center left;
+		-moz-transform: rotateY(270deg) translateX(calc(var(--faceSize) / -2));
+		-moz-transform-origin: center left;
+		-ms-transform: rotateY(270deg) translateX(calc(var(--faceSize) / -2));
+		-ms-transform-origin: center left;
+		transform: rotateY(270deg) translateX(calc(var(--faceSize) / -2));
+		transform-origin: center left;
+	}
+
+	.depth div.right-pane {
+		-webkit-transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
+		-webkit-transform-origin: top right;
+		-moz-transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
+		-moz-transform-origin: top right;
+		-ms-transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
+		-ms-transform-origin: top right;
+		transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
+		transform-origin: top right;
 	}
 </style>
 
@@ -345,6 +466,7 @@ website: true
 <div id="wrapperElement">
 	<div id="zyTrapezoid"></div>
 	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
+	<img id="gne" src="/assets/images/shabbat-abstract/image02.png" />
 	<span id="bsD">בס"ד</span>
 	<div id="gridElement"
 		data-functions-backday-0="getAlotHashachar getTzaitLechumra"
@@ -354,7 +476,7 @@ website: true
 		<div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;"></div>
 		<div class="header tableShadow">Fast Starts<br><span style="font-weight: 400;">(Halachic Dawn)</span></div>
 		<div class="header tableShadow">Fast Ends<br><span style="font-weight: 400;">(Halachic Nightfall)</span></div>
-		{% for item in site.data.designLocationList.central %}{% assign gridRow = forloop.index | plus: 1 %}
+		{% for item in site.data.designLocationList.rahimi %}{% assign gridRow = forloop.index | plus: 1 %}
 			<div style="display: contents; --grid-row: {{ gridRow }};">
 				<div class="shabbatRow tableShadow timecalc"
 					{% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
@@ -380,7 +502,7 @@ website: true
 	</div>
 	<!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
 	<span class="shabbatTitleCore"><span id="zemanehShab">זמני הצום</span><br></span>
-	<div id="location">Central North America</div>
+	<!--<div id="location">Central North America</div> -->
 	<span id="calSubtitle"></span>
 	<!-- <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
 	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
@@ -388,23 +510,42 @@ website: true
 	<span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span> -->
 	<div id="betterToGiveTzedakah">אגרא דתעניתא צדקתא<br>(ברכות ו:)</div>
 	<img src="/assets/images/shabbat-abstract/money-svgrepo-com.svg" id="money" />
-	<div id="fastHalachas">
-		<h1 style="text-align: center;">Calculation Explanation</h1>
-		<p><b>Halachic Dawn</b> (which is when fasts start; S"A Orach Chaim 562) is calculated as 72 minutes before sunrise (Halikhot Olam Vol. I pg. 106). Locations further north or south of Israel will change this number relative to how far one is from the equator ("standard deviation"), transforming the minutes to 80 minutes in NY (Halacha Berurah, intro. to Chapter 261, Halacha 13). This time is then further shortened/elongated based on the length of the day ("seasonal minutes").</p>
-		<p>The calculation used for <b>Halachic Nightfall</b> spans 20 minutes after sunset, based on a stringency to accommodate the Rambam's opinion on Nightfall (Ḥazon Ovadia, Arba Ta'aniyot, pg. 12) - there is no need to accommodate any other stringency for any fast (with the exception of Yom Kippur), even in the United States. Nevertheless, the non-stringent time of 13.5 minutes is still the definition of nightfall, meaning one can break the fast as early as then. The changes made to Dawn ("standard deviation", "seasonal minutes") are also included here, measured relative to the short time of 13.5/20</p>
-		<hr>
+	<!-- <div id="fastHalachas">
 		<p class="mb-0">Intentional fasting beyond the end-time above on any fast that falls on a Friday compromises the sanctity of עונג שבת (Halacha Berura on Siman 279, quoting the שלחן הטהור). As such, Gabbaim should pace their minyan, starting at a time that allows Birkat Kohanim to be said within 30 minutes prior to sunset and ending the Arvit services by a time that congregants could return home and say Kiddush as the fast ends.</p>
-	</div>
+	</div> -->
 	<!--<div id="tekufa">+ Tekufat Tishri: 8:09-9:09 ET</div>-->
 	<div id="advertFooter">
 		<span style="font-weight: 700; font-size: 1.15em; text-transform: uppercase;">
-			Halachic Fast Times according to<br><span style="font-weight: 800;">Rav Ovadia Yosef zt"l</span>
+			Fast Times according to <span style="font-weight: 800;">Rav Ovadia Yosef zt"l</span>
 		</span><br>
 		Looking for more times? Want to switch locations?<br>
 		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps,
 		or visit our website • royzmanim.com
 	</div>
 	<img src="/assets/images/MARAN.png" id="maran">
+	<div id="bigTri" class="faderTri"></div>
+	<div id="fullScrTri" class="faderTri"></div>
+	<div class="cube-wrap" style="right: 0; top: 60%;">
+		<div class="cube depth">
+			<div class="front-pane"></div>
+			<div class="back-pane"></div>
+			<div class="top-pane"></div>
+			<div class="bottom-pane"></div>
+			<div class="left-pane"></div>
+			<div class="right-pane"></div>
+		</div>
+	</div>
+	<div class="cube-wrap" style="left: 0; top: 80%;">
+		<div class="cube depth">
+			<div class="front-pane"></div>
+			<div class="back-pane"></div>
+			<div class="top-pane"></div>
+			<div class="bottom-pane"></div>
+			<div class="left-pane"></div>
+			<div class="right-pane"></div>
+		</div>
+	</div>
+	<img id="rahimi" src="/assets/images/shabbat-abstract/r-rahimi-text.png" />
 </div>
 
 <script type="module" src="/assets/js/flyers/multiZman.js"></script>

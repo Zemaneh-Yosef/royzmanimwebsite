@@ -19,7 +19,7 @@ website: true
 
 	.maxWidthContainer {
 		width: 90rem;
-		font-family: 'Neutro';
+		font-family: 'Neutro', var(--bs-body-font-family);
 		color: #30344F;
 	}
 
@@ -29,7 +29,7 @@ website: true
 
 	#wrapperElement {
 		width: 100%;
-		aspect-ratio: 1/1.5;
+		aspect-ratio: 1/1.3;
 
 		position: relative;
 		display: grid;
@@ -63,7 +63,7 @@ website: true
 		align-self: end;
 		justify-self: end;
 		transform: rotateY(180deg);
-		width: 35%;
+		width: 28%;
 		z-index: 3;
 	}
 
@@ -93,22 +93,27 @@ website: true
 	}
 
 	#zemanehShab {
-		align-self: start;
-		justify-self: start;
-		/* font-family: "David"; */
-		font-size: 9vw;
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		font-size: 16.5vw;
 		font-weight: 700;
 		/* font-style: italic; */
 		color: transparent;
 		background: linear-gradient(69deg, rgba(215, 185, 97, 1) 37%, rgba(242, 231, 167, 1) 50%, rgba(215, 185, 97, 1) 62%);
-		-webkit-background-clip: text;
-		line-height: .85;
-		text-transform: uppercase;
-		margin-top: 12vw;
-		margin-left: 2.5vw;
+		-webkit-background-clip: text
+	}
+
+	.shabbatTitleCore {
+		font-size: 6vw;
+		font-family: 'Guttman Mantova';
+		color: #F6E3A9;
+		font-weight: 500;
+		align-self: start;
+		justify-self: start;
 		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
 		text-align: center;
-		width: 959px;
+		line-height: .9;
+		margin-top: 17vh;
+		margin-left: 2.5vw;
 	}
 
 	#gridElement {
@@ -157,13 +162,15 @@ website: true
 		padding-right: 1vw;
 		text-transform: uppercase;
 		border-right: .25vw solid black;
-		line-height: .6;
-		padding-top: 1vw;
-		font-size: 2.75vw;
+		font-size: 18px;
+		line-height: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 	}
 
-	.timecalc:not(.twoLine) {
-		padding-top: 1.75vw;
+	.timecalc strong {
+		font-size: 3vw;
 	}
 
 	.shabbatRowBg {
@@ -203,10 +210,6 @@ website: true
 		border-right: .25vw solid black;
 	}
 
-	.sml {
-		font-size: 15px;
-	}
-
 	#notchLogo {
 		justify-self: center;
 		align-self: start;
@@ -239,7 +242,7 @@ website: true
 		font-weight: 700;
 		color: white;
 		text-transform: uppercase;
-		width: 959px;
+		width: 975px;
 		text-align: center;
 		margin-left: 2.5vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
@@ -252,8 +255,8 @@ website: true
 	}
 
 	#calSubtitle {
-		margin-top: 20vw;
-		font-size: 3vw;
+		margin-top: 52vh;
+		font-size: 4.25vw;
 	}
 
 	#tekufa {
@@ -272,14 +275,17 @@ website: true
 	}
 
 	#advertFooter {
-		justify-self: start;
-		margin-bottom: 1rem;
-		padding-left: 1rem;
+		padding-bottom: .5rem;
+		padding-top: .5rem;
+		padding-left: 1.25rem;
 		font-size: 1.7rem;
 		font-weight: 600;
 		line-height: 1.1;
-		z-index: 3;
+		z-index: 2;
 		align-self: end;
+
+		width: 100%;
+		background-image: linear-gradient(to right, #F3E6A6, #D7BB63);
 	}
 
 	#sourcesFooter {
@@ -325,16 +331,16 @@ website: true
 	#fastHalachas {
 		position: absolute;
 		left: 2.5vw;
-		top: 75.5vw;
-		width: 900px;
+		top: 72.5vw;
+		width: 1000px;
 		background-color: rgba(0, 0, 0, .75);
-		padding: 1.25rem;
+		padding: 1.15rem;
 		border-radius: 2rem;
 		color: white;
 	}
 
 	#fastHalachas p {
-		font-size: 1.35em;
+		font-size: 1.162rem;
 	}
 </style>
 
@@ -348,7 +354,6 @@ website: true
 	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
 	<img id="gne" src="/assets/images/shabbat-abstract/east.svg" />
 	<span id="bsD">בס"ד</span>
-	<img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
 	<div id="gridElement"
 		data-functions-backday-0="getAlotHashachar getTzaitLechumra"
 		data-extra-locales="en"
@@ -358,29 +363,31 @@ website: true
 		<div class="header tableShadow">Fast Starts<br><span style="font-weight: 400;">(Halachic Dawn)</span></div>
 		<div class="header tableShadow">Fast Ends<br><span style="font-weight: 400;">(Halachic Nightfall)</span></div>
 		{% for item in site.data.designLocationList.east %}{% assign gridRow = forloop.index | plus: 1 %}
-			<div class="shabbatRow tableShadow timecalc {% if item.twoLine %}twoLine{% endif %}"
-				{% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
-				data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
-				data-timezone="{{ item.timezone }}"
-				data-format="{{ item.timeFormat }}"
-				{% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
-				{% if item.doubleLocation %}data-double-location{% endif %}
-				style="grid-column: 1; grid-row: {{ gridRow }};">
-				{%- assign check = item.flag | split:'.' | last -%}
-				{% if check == "svg" %}
-					<img class="imgFlag" src="{{ item.flag }}">
-				{% else %}
-					{{ item.flag }}
-				{% endif %}
-				{{ item.name }}
+			<div style="display: contents; --grid-row: {{ gridRow }};">
+				<div class="shabbatRow tableShadow timecalc"
+					{% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+					data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+					data-timezone="{{ item.timezone }}"
+					data-format="{{ item.timeFormat }}"
+					{% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+					{% if item.doubleLocation %}data-double-location{% endif %}
+					style="grid-column: 1; grid-row: var(--grid-row);">
+					{%- assign check = item.flag | split:'.' | last -%}
+					{% if check == "svg" %}
+						<img class="imgFlag" src="{{ item.flag }}">
+					{% else %}
+						{{ item.flag }}
+					{% endif %}
+					<strong>{{ item.name }}</strong>{{ item.otherName}}
+				</div>
+				<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: var(--grid-row)">Start Time</div>
+				<div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: var(--grid-row);">End Time</div>
+				<div class="shabbatRowBg tableShadow" style="grid-row: var(--grid-row);"></div>
 			</div>
-			<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: {{ gridRow }};">Start Time</div>
-			<div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: {{ gridRow }};">End Time</div>
-			<div class="shabbatRowBg tableShadow" style="grid-row: {{ gridRow }};"></div>
 		{% endfor %}
 	</div>
 	<!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
-	<span id="zemanehShab" class="shabbatTitleCore"></span>
+	<span class="shabbatTitleCore"><span id="zemanehShab">זמני הצום</span><br></span>
 	<!--<div id="location">Central North America</div> -->
 	<span id="calSubtitle"></span>
 	<!-- <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
@@ -391,12 +398,12 @@ website: true
 	<img src="/assets/images/shabbat-abstract/money-svgrepo-com.svg" id="money" />
 	<div id="fastHalachas">
 		<h1 style="text-align: center;">Calculation Explanation</h1>
-		<p><b>Halachic Dawn</b> (which is when fasts start; S"A Orach Chaim 562) is measured as 72 seasonal minutes before sunrise (Halikhot Olam Vol. I pg. 106). Locations further north or south of Israel will need to factor standard deviation, turning the time pre-seasonal factoring to 80 minutes in NY (Halacha Berurah, intro. to Chapter 261, Halacha 13)</p>
-		<p>For the context of fasts, <b>Halachic Nightfall</b> is calculated as 20 seasonal minutes (with standard-deviation accounted for) after sunset. Although one can rely on the letter of the law that uses 13.5 minutes instead (Yabia Omer YD 7:41), the recommended (albeit not strictly necessary) practice is to be stringent and hold by 20 minutes to accommodate the Rambam's opinion on nightfall (Ḥazon Ovadia, Arba Ta'aniyot, pg. 12). One need not wait any longer than this time for any fast (with the exception of Yom Kippur), even in the USA.</p>
+		<p><b>Halachic Dawn</b> (which is when fasts start; S"A Orach Chaim 562) is calculated as 72 minutes before sunrise (Halikhot Olam Vol. I pg. 106). Locations further north or south of Israel will change this number relative to how far one is from the equator ("standard deviation"), transforming the minutes to 80 minutes in NY (Halacha Berurah, intro. to Chapter 261, Halacha 13). This time is then further shortened/elongated based on the length of the day ("seasonal minutes").</p>
+		<p>The calculation used for <b>Halachic Nightfall</b> spans 20 minutes after sunset, based on a stringency to accommodate the Rambam's opinion on Nightfall (Ḥazon Ovadia, Arba Ta'aniyot, pg. 12) - there is no need to accommodate any other stringency for any fast (with the exception of Yom Kippur), even in the United States. Nevertheless, the non-stringent time of 13.5 minutes is still the definition of nightfall, meaning one can break the fast as early as then. The changes made to Dawn ("standard deviation", "seasonal minutes") are also included here, measured relative to the short time of 13.5/20</p>
 		<hr>
-		<p>Independent of the fast day is the quarter-yearly Tekufa-fast, which happens at the beginning of every Halachic season. According to Maran zt"l (Halikhot Olam Vol. VII pg. 183, based on נהר מצרים, דף עז ע”ב), we have a time-buffer of an hour around the time of the Tekufa itself, by adding 30 minutes prior and following. During this time, one should abstain from plain water (with other beverages being permitted) due to a concern for spiritual danger.</p>
+		<p class="mb-0">Intentional fasting beyond the end-time above on any fast that falls on a Friday compromises the sanctity of עונג שבת (Halacha Berura on Siman 279, quoting the שלחן הטהור). As such, Gabbaim should pace their minyan, starting at a time that allows Birkat Kohanim to be said within 30 minutes prior to sunset and ending the Arvit services by a time that congregants could return home and say Kiddush as the fast ends.</p>
 	</div>
-	<div id="tekufa">+ Tekufat Tishri: 8:09-9:09 ET</div>
+	<!--<div id="tekufa">+ Tekufat Tishri: 8:09-9:09 ET</div>-->
 	<div id="advertFooter">
 		<span style="font-weight: 700; font-size: 1.15em; text-transform: uppercase;">
 			Halachic Fast Times according to<br><span style="font-weight: 800;">Rav Ovadia Yosef zt"l</span>

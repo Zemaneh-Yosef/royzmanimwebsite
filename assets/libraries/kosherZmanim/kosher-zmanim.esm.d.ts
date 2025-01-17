@@ -4460,6 +4460,7 @@ export declare class JewishCalendar extends JewishDate {
 	 * @see Object#equals(Object)
 	 */
 	equals(jewishCalendar: JewishCalendar): boolean;
+	clone(): JewishCalendar;
 }
 /**
  * Tefila Rules is a utility class that covers the various <em>halachos</em> and <em>minhagim</em> regarding
@@ -5060,17 +5061,77 @@ declare class WeeklyHaftarahReading {
  */
 export type Unpacked<T> = T extends (infer U)[] ? U : T;
 declare const entries: ("ADES: 24793" | "GABRIEL A SHREM 1964 SUHV" | "TABBUSH Ms NLI 8*7622, Aleppo" | "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" | "TEBELE Pre1888" | "ELIE SHAUL COHEN FROM AINTAB, ~1880" | "YAAQOB ABADI-PARSIYA" | "YISHAQ YEQAR ARGENTINA" | "Dibre Shelomo S KASSIN Pre1915" | "Knis Betesh Geniza List, Aleppo" | "ABRAHAM DWECK Pre1920" | "IDELSOHN Pre1923" | "S SAGIR Laniado" | "M H Elias, SHIR HADASH, Jerusalem, 1930" | "ASHEAR list" | "ASHEAR NOTES 1936-1940" | "ABRAHAM E SHREM ~1945" | "Argentina 1947 & Ezra Mishanieh" | "Shire Zimra H S ABOUD Jerusalem, 1950" | "D KASSIN/ ISAAC CAIN; RODFE SEDEQ; MEXICO" | "YOSEF YEHEZKEL Jerusalem 1975" | "Ish Massliah \"Abia Renanot\" Tunisians" | "Shaare Zimra YANANI Buenos Aires, 01" | "BOZO, Ades, Shir Ushbaha 2005" | "Yishaq Yeranen Halabi" | "MOSHE AMASH (Shami)" | "EZRA MASLATON TARAB (Shami)" | "ABRAHAM SHAMRICHA (Shami)" | "Victor Afya, Istanbul List" | "Izak Alaluf, Izmir List" | "Hallel VeZimrah, Salonika, 1928" | "Hallel VeZimrah, Greece List, 1926" | "SASSOON #647 Aleppo, 1850" | "Eliahou Yaaqob DWECK-KESAR")[];
+declare enum makam {
+	HOSENI = 0,
+	HIJAZ = 1,
+	HIJAZ_KAR = 2,
+	BAYAT = 3,
+	SABA = 4,
+	SIGAH = 5,
+	AJAM = 6,
+	RAST = 7,
+	SASGAR = 8,
+	IRAQ = 9,
+	MAHOUR = 10,
+	NAHWAND = 11,
+	NAWAH = 12,
+	MEHAYAR = 13,
+	BUSTANIGAR = 14,
+	ASHIRAN = 15,
+	GIRKA = 16,
+	OJ = 17,
+	RAHAWI = 18,
+	ARAZBAR = 19,
+	SHURI = 20,
+	KURD = 21,
+	ZANGIRAN = 22,
+	MOUHAYAR = 23,
+	HUSEYNI = 24,
+	ACEM_ASHIRAN = 25,
+	SEGAH = 26,
+	HICAZ = 27,
+	NAHOFT = 28,
+	DUGAH = 29,
+	MAHUR = 30,
+	NIHAVEND = 31,
+	ARABAN = 32,
+	BEYATI = 33,
+	USSAK = 34,
+	ISFAHAN = 35,
+	CARGAH = 36,
+	SEHNAZ = 37,
+	SEBAH = 38,
+	FARAHNAQ = 39,
+	HUZAM = 40,
+	QARGIGAR = 41,
+	BUSALIQ = 42,
+	MUHAYER = 43,
+	SUZNIQ = 44,
+	BAYATI = 45
+}
+export type getMaqamReturnType = Partial<Record<Unpacked<typeof entries>, (makam | string)[]>>;
 declare class WeeklyMakamReading {
 	hierarchy: (Unpacked<typeof entries> | "MAJORITY")[];
 	constructor(hierarchy?: (Unpacked<typeof entries> | "MAJORITY")[]);
-	getTodayMakam(jCal: JewishCalendar): string[] | undefined;
+	getTodayMakam(jCal: JewishCalendar): (string | makam)[] | undefined;
 	/**
 	 * This method returns a string that contains the weekly Makam. The {@link JewishCalendar}
 	 * object passed into this method should be preset with the correct date.
 	 * @param jCal the JewishCalendar object set to Saturday
 	 * @return All the data fields
 	 */
-	static getMakamData(jCal: JewishCalendar): Partial<Record<Unpacked<typeof entries>, string[]>>;
+	static getMakamData(jCal: JewishCalendar): getMaqamReturnType;
+}
+export declare class MishnaYomi {
+	/** The start date of the Mishna Yomi Cycle. */
+	private static readonly CYCLE_START_DATE;
+	/** The number of mishnas in a day. */
+	static readonly MISHNAS_PER_DAY = 2;
+	static readonly NUM_MISHNAS = 4192;
+	static readonly CYCLE_LENGTH: number;
+	static readonly UNITS: number[][];
+	static getMishnaForDate(calendar: JewishDate, useHebrewText: boolean): string;
+	private static findMishna;
 }
 export declare function getZmanimJson(options: Options): JsonOutput;
 export interface Options {

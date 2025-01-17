@@ -38,20 +38,20 @@ const rYisraeliCal = new rYisraelizmanim(fallbackGL);
 
 /** @type {string[]} */
 let calendars = [];
-const jCal = new WebsiteLimudCalendar()
+const jCal = new WebsiteLimudCalendar(5785, KosherZmanim.JewishDate.TEVES, 10)
 let shabbatDate = jCal.getDate();
 
 switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 	case 'shabbat':
 	case 'yomTov': {
-		const jCalShabbat = jCal.shabbat();
+		const jCalShabbat = (new WebsiteLimudCalendar()).shabbat();
 		jCalShabbat.back();
 
 		if ((jCalShabbat.isAssurBemelacha() || jCalShabbat.tomorrow().tomorrow().isAssurBemelacha())
 			&& document.getElementById('gridElement').getAttribute('data-flyerType') == 'shabbat')
 			throw new Error("Surrounding-Shabbat Asur Bemelacha")
 
-		shabbatDate = jCalShabbat.getDate();
+		shabbatDate = jCalShabbat.tomorrow().getDate();
 		jCal.setDate(shabbatDate);
 
 		if (document.getElementsByClassName('shabbatTitleCore').length) {
@@ -96,7 +96,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			 * Thereby, the Hebrew version will have no date list - the English option will have a shorter title that the width of the Hebrew title will accomodate
 			 * If not, we add in the Hebrew date to our locales. The year will always go in the title, though, due to how rare this is.
 			 */
-			fastName = ("צום " + n2heWords(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().he)
+			fastName = (/* "צום " + */ n2heWords(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().he)
 				.replace(/[\u0591-\u05C7]/gu, '')
 			hebrewLocale.addToCalendars = jCal.getJewishDayOfMonth() !== fastMonths[jCal.getJewishMonth()];
 			hebrewLocale.titleYear = jCal.getJewishDayOfMonth() == fastMonths[jCal.getJewishMonth()];
@@ -445,6 +445,17 @@ for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) 
 
 		sefiraElement.appendChild(document.createTextNode(ruSefiraText.toLocaleUpperCase()))
 	}
+}
+
+if (document.getElementById('gridElement').hasAttribute('data-hasMakam')) {
+	const makamObj = await (await fetch("/assets/js/makamObj.json")).json();
+	const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
+
+	const makam = makamIndex.getTodayMakam(jCal);
+	for (const makamContainer of document.querySelectorAll('[data-makam]'))
+		makamContainer.innerHTML += makam
+			.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
+			.join(" / ");
 }
 
 /**

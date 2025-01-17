@@ -477,7 +477,7 @@ layout: nothing
 				</div>
 				<div class="marquee" style="height: 125px;">
 					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
-						{% for learning in site.data.learning %}
+						{% for learning in site.data.learning.weekday %}
 						<div class="list-group-item d-flex justify-content-between">
 							<dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
 							<dt class="langTV lang-en-et">{{ learning.text.et.short }}</dt>
@@ -486,7 +486,7 @@ layout: nothing
 						{% endfor %}
 					</dl>
 					<dl class="list-group list-group-flush lh-sm marquee__content" data-zfFind="DafYomi">
-						{% for learning in site.data.learning %}
+						{% for learning in site.data.learning.weekday %}
 						<div class="list-group-item d-flex justify-content-between">
 							<dt class="langTV lang-hb">{{ learning.text.hb.short }}</dt>
 							<dt class="langTV lang-en-et">{{ learning.text.et.short }}</dt>

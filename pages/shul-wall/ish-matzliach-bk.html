@@ -261,19 +261,7 @@ layout: nothing
 			</dl>
 			<h1 class="text-center mb-0 pt-3" style="font-size: 2.75rem;">Weekday Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-items-center">
-						<b>Shaḥarit</b>
-						<span style="text-align: right;">Sun, 8:30 AM<br>Mon-Thu, 6:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Weekly Events</b>
-						<span>Tue, 8:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Gemara Shiur (Avoda Zara)</b>
-						<span>Thu, 8:30 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="weekday">
 				</ul>
 			</div>
 			<h1 class="text-center mb-0 pt-3" style="font-size: 2.75rem;">Hiloulot of...</h1>
@@ -295,31 +283,7 @@ layout: nothing
 		<div>
 			<h1 class="text-center" style="font-size: 4rem;">Shabbat Schedule</h1>
 			<div class="card" style="line-height: 1.25;">
-				<ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between" id="shirHashirim">
-						<b>Shir Hashirim</b>
-						<span>6:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between" id="minchaErev">
-						<b>Minḥa (Korbanot)</b>
-						<span>6:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Shiur</b>
-						<span>8:15 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Shaḥarit</b>
-						<span>9:00 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between" id="minchaS">
-						<b>Minḥa + Seudat Shelishit</b>
-						<span>7:25 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between" id="arvitMS">
-						<b>Arvit</b>
-						<span>9:00 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="shabbat">
 				</ul>
 			</div>
 		</div>
@@ -351,6 +315,16 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
-	import defaultFunc from "/assets/js/shul-wall/auto-schedule/ish-matzliach.js";
-	await defaultFunc();
+	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
+	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/ish-matzliach.ini');
+
+	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+		.split('\n')
+		.filter(str => str.startsWith('./ish-matzliach-events/'))
+
+	const carousel = document.getElementById('ishMatzliachSlide');
+	carousel.firstElementChild.innerHTML = flyerURLs
+		.map((url, index) =>
+			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+		.join('');
 </script>

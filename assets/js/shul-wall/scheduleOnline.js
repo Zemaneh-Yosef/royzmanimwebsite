@@ -65,26 +65,53 @@ const localization = {
 }
 
 /** @param {string} url */
-export default async function onlineSchedule(url, callback = () => {}) {
+export default async function onlineSchedule(url, callback = async () => {}) {
 	const iniText = await (await fetch(url)).text();
 	const iniObj = parse(iniText);
 
+	let autoSchedule = false;
+
 	for (const [tableKey, value] of Object.entries(iniObj)) {
-		if (tableKey == "sponsor") {
-			document.getElementById("sponsor").innerHTML = value;
+		if (typeof value == "string") {
+			document.getElementById(tableKey).innerHTML = value;
 			continue;
 		}
 
 		for (const element of document.querySelectorAll(`#${tableKey} li`))
-			if (element.hasAttribute("data-keep"))
+			if (!element.hasAttribute("data-keep"))
 				element.remove();
 
-		for (const [rowTitle, rowTime] of Object.entries(value)) {
+		const regex = /(we|sh)\|(.*)\|(\+|\-)(\d{2}):(\d{2})/;
+
+		/** @type {[string, string][]} */
+		const table = Object.entries(value);
+		for (const [rowTitle, rowTime] of table) {
 			const localizedName = localization[rowTitle] || rowTitle;
-			document.getElementById(tableKey).innerHTML +=
-				`<li class="list-group-item d-flex justify-content-between align-items-center"><div>${localizedName}</div><div>${rowTime}</div></li>`;
+
+			const rowGroup = document.createElement("li");
+			rowGroup.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+
+			const nameDiv = document.createElement("div");
+			nameDiv.innerHTML = localizedName;
+			rowGroup.appendChild(nameDiv);
+
+			const timeDiv = document.createElement("div");
+			if (regex.test(rowTime)) {
+				autoSchedule = true;
+				const matchers = rowTime.match(regex);
+				timeDiv.setAttribute("data-autoschedule-type", matchers[1]);
+				timeDiv.setAttribute("data-autoschedule-function", matchers[2]);
+				timeDiv.setAttribute("data-autoschedule-plusorminus", matchers[3]);
+				timeDiv.setAttribute("data-autoschedule-hours", matchers[4]);
+				timeDiv.setAttribute("data-autoschedule-minutes", matchers[5]);
+			} else
+				timeDiv.innerHTML = rowTime;
+			rowGroup.appendChild(timeDiv);
+
+			document.getElementById(tableKey).appendChild(rowGroup);
 		}
 	}
 
-	callback();
+	if (autoSchedule)
+		await import("./auto-schedule.js").then(({ default: autoSchedule }) => autoSchedule());
 }

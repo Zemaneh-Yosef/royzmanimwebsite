@@ -1,13 +1,13 @@
 ---
-title: Shabbat Brooklyn Times
-permalink: /shabbat-design/brooklyn
+title: Shabbat NY Times
+permalink: /shabbat-design/nyc-torahflix
 breakout: true
 website: true
 ---
 
 <style>
 	#gne {
-		border-radius: 50%;
+		border-radius: 5%;
 		height: 200px;
 		aspect-ratio: 1/1;
 		justify-self: start;
@@ -76,7 +76,7 @@ website: true
 		position: absolute;
 		transform: rotateZ(7deg);
 		color: #F6E3A9;
-		font-size: 2.25vw;
+		font-size: 2.4vw;
 		text-align: center;
 		font-family: 'Guttman Mantova';
 		line-height: 1;
@@ -98,30 +98,28 @@ website: true
 	}
 
 	#zemanehShab {
-		align-self: start;
-		justify-self: start;
 		font-family: 'Neutro', 'Frank Ruhl Libre';
 		font-size: 19vw;
 		font-weight: 700;
 		color: transparent;
 		background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
 		-webkit-background-clip: text;
-		line-height: .85;
 		text-transform: uppercase;
-		margin-top: 16vw;
-		margin-left: 1vw;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-		text-align: center;
-		line-height: .4;
-		padding-top: 1vw;
-		padding-bottom: 2.5vw;
+		padding-bottom: 3rem;
 	}
 
 	.shabbatTitleCore {
-		font-size: .4em;
+		align-self: start;
+		justify-self: start;
+		margin-left: 1vw;
+		margin-top: 16vw;
+		font-size: 7.5vw;
 		font-family: 'Guttman Mantova';
 		color: #F6E3A9;
 		font-weight: 500;
+		line-height: .6;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		text-align: center;
 	}
 
 	#gridElement {
@@ -202,15 +200,6 @@ website: true
 
 	.shabBorder:not(:nth-last-child(2)) {
 		border-right: .25vw solid black;
-	}
-
-	.twoLine {
-		line-height: .4;
-		padding-top: 1vw;
-	}
-
-	.sml {
-		font-size: 10px;
 	}
 
 	#notchLogo {
@@ -351,7 +340,7 @@ website: true
 <div id="wrapperElement">
 	<div id="zyTrapezoid"></div>
 	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
-	<img id="gne" src="/assets/images/shabbat-abstract/ashkenaziBooks.webp" />
+	<img id="gne" src="https://img1.wsimg.com/isteam/ip/5db5d9d6-5b0e-4eed-9765-9b490516eb22/blob-f7a17cd.png" />
 	<span id="bsD">בס"ד</span>
 	<img src="/assets/images/shabbat-abstract/shabbat-candles-ext.png" id="shabbatCandles" />
 	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
@@ -363,10 +352,10 @@ website: true
 	>
 		<div class="header tableShadow">Earliest Time</div>
 		<div class="header tableShadow">Candle Lighting</div>
-		<div class="header tableShadow">Shabbat Ends</div>
+		<div class="header tableShadow">Havdalah</div>
 		<div class="header tableShadow">Rabbenu Tam</div>
 		<div class="shabbatRow tableShadow timecalc"
-			data-lat="40.622795584652465" data-lng="-73.96960885888677"
+			data-lat="40.72426631668952" data-lng="-73.81533279143895"
 			data-timezone="America/New_York"
 			data-format="h12"
 			style="display: none;">
@@ -378,8 +367,8 @@ website: true
 		<div class="shabbatRowBg tableShadow" style="grid-row: 2;"></div>
 	</div>
 	<div id="makam" data-makam><span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>Makam<span style="display: inline-block; padding-right: .35rem;"></span> </div>
-	<span id="zemanehShab">זמני שבת<br><span class="shabbatTitleCore">פרשת </span></span>
-	<div id="location">Brooklyn, NY</div>
+	<div class="shabbatTitleCore"><div id="zemanehShab">זמני שבת</div>פרשת </div>
+	<div id="location">New York City</div>
 	<img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
 	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
 	<span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>

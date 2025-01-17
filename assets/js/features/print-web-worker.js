@@ -357,6 +357,14 @@ function messageHandler (x) {
 					div.style.fontWeight = "bold";
 				}
 
+				if (jCal.getDayOfWeek() == KosherZmanim.Calendar.SUNDAY
+				 && jCal.getJewishMonth() == KosherZmanim.JewishDate[(jCal.isJewishLeapYear() ? "ADAR_II" : "ADAR")]
+				 && jCal.getJewishDayOfMonth() == 16) {
+					const pur3TitleElem = flexWorkAround.cloneNode(true);
+					pur3TitleElem.appendChild(document.createTextNode(x.data.lang == "hb" ? "פורים משולש" : "Purim Meshulash"));
+					div.appendChild(pur3TitleElem);
+				 }
+
 				if (jCal.tomorrow().getDayOfChanukah() !== -1) {
 					const hanTitleElem = flexWorkAround.cloneNode(true);
 					hanTitleElem.appendChild(document.createTextNode({
@@ -370,11 +378,9 @@ function messageHandler (x) {
 					// @ts-ignore
 					hanNightElem.classList.add("omerText");
 					// @ts-ignore
-					hanNightElem.innerHTML = "(" + {
-						"hb": "ליל " + n2wordsOrdinal[jCal.tomorrow().getDayOfChanukah()],
-						"en": getOrdinal(jCal.tomorrow().getDayOfChanukah(), true) + " night",
-						"en-et": getOrdinal(jCal.tomorrow().getDayOfChanukah(), true) + " night"
-					}[x.data.lang] + ")";
+					hanNightElem.innerHTML = "(" +
+						(x.data.lang == "hb" ? "ליל " + n2wordsOrdinal[jCal.tomorrow().getDayOfChanukah()]
+							: getOrdinal(jCal.tomorrow().getDayOfChanukah(), true) + " night") + ")";
 					div.appendChild(hanNightElem);
 
 					div.style.fontWeight = "bold";
@@ -410,36 +416,14 @@ function messageHandler (x) {
 
 				if (jCal.isTaanis()) {
 					const taanitElem = flexWorkAround.cloneNode(true);
-
-					switch (jCal.getYomTovIndex()) {
-						case WebsiteLimudCalendar.FAST_OF_ESTHER:
-							taanitElem.appendChild(document.createTextNode({
-								'hb': "תענית אסתר",
-								"en-et": "Fast of Ester",
-								'en': "Fast of Ester"
-							}[x.data.lang]));
-							break;
-						case WebsiteLimudCalendar.FAST_OF_GEDALYAH:
-							taanitElem.appendChild(document.createTextNode({
-								'hb': "צום גדליה",
-								"en-et": "Fast of Gedalia",
-								'en': "Fast of Gedalia"
-							}[x.data.lang]));
-							break;
-						case WebsiteLimudCalendar.YOM_KIPPUR:
-							taanitElem.appendChild(document.createTextNode({
-								"hb": "יום כיפור",
-								"en": "Yom Kippur",
-								"en-et": "Yom Kippur"
-							}[x.data.lang]));
-							break;
-						default:
-							taanitElem.appendChild(document.createTextNode({
-								'hb': "צום",
-								"en-et": "Fast",
-								'en': "Fast"
-							}[x.data.lang]));
-					}
+					taanitElem.appendChild(document.createTextNode({
+						[WebsiteLimudCalendar.FAST_OF_ESTHER]:
+							(x.data.lang == 'hb' ? "תענית אסתר" : "Fast of Esther"),
+						[WebsiteLimudCalendar.FAST_OF_GEDALYAH]:
+							(x.data.lang == 'hb' ? "צום גדליה" : "Fast of Gedalia"),
+						[WebsiteLimudCalendar.YOM_KIPPUR]:
+							(x.data.lang == 'hb' ? "יום כיפור" : "Yom Kippur")
+					}[jCal.getYomTovIndex()] || (x.data.lang == 'hb' ? "צום" : "Fast")))
 
 					div.appendChild(taanitElem);
 					div.style.fontWeight = "bold";

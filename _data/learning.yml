@@ -1,85 +1,114 @@
----
-- limud: dafBavli
-  text:
-    ru:
-      short: Бавли
-      full: Талмуд Бавли
-    hb:
-      short: בבלי
-      full: תלמוד בבלי
-    en:
-      short: Babylonian
-      full: Babylonian Talmud
-    et:
-      short: Bavli
-      full: Talmud Bavli
-- limud: DafYerushalmi
-  text:
-    ru:
-      short: Ерушалми-В
-      full: Талмуд Ерушалми (Вильна)
-    hb:
-      short: ירושלמי (ו)
-      full: תלמוד ירושלמי (וילנה)
-    en:
-      short: Jerusalemite-V
-      full: Jerusalemite Talmud (Vilna)
-    et:
-      short: Yerushalmi-V
-      full: Talmud Yerushalmi (Vilna)
-- limud: ccYomi
-  text:
-    ru:
-      short: Хафец Хаим
-      full: Хафец Хаим Ёми
-    hb:
-      short: חפץ חיים
-      full: חפץ חיים יומי
-    en:
-      short: Ḥafes Ḥayim
-      full: Daily Ḥafes Ḥayim
-    et:
-      short: Ḥafes Ḥayim
-      full: Ḥafes Ḥayim Yomi
-- limud: TehilimHodshi
-  text:
-    ru:
-      short: Теилим (месячный)
-      full: Теилим (месячный)
-    hb:
-      short: תהילים (חדשי)
-      full: תהילים יומי (חדשי)
-    en:
-      short: Psalms (Monthly)
-      full: Daily Psalms (Monthly)
-    et:
-      short: Tehilim (Monthly)
-      full: Tehilim Yomi (Monthly)
-- limud: TehilimShvui
-  text:
-    ru:
-      short: Теилим (недельной)
-      full: Теилим (недельной)
-    hb:
-      short: תהילים (שבועי)
-      full: תהילים יומי (שבועי)
-    en:
-      short: Psalms (Weekly)
-      full: Daily Psalms (Weekly)
-    et:
-      short: Tehilim (Weekly)
-      full: Tehilim Yomi (Weekly)
-- limud: Haftara
-  text:
-    ru:
-      short: Хафтара
-      full: Хафтара
-    hb:
-      short: הפטרה
-      full: הפטרה
-    en:
-      short: Haftara
-      full: Haftara
-    et:
-      short: Haftara
-      full: Haftara
+weekday:
+  - limud: dafBavli
+    text:
+      ru:
+        short: Бавли
+        full: Талмуд Бавли
+      hb:
+        short: בבלי
+        full: תלמוד בבלי
+      en:
+        short: Babylonian
+        full: Babylonian Talmud
+      et:
+        short: Bavli
+        full: Talmud Bavli
+  - limud: DafYerushalmi
+    text:
+      ru:
+        short: Ерушалми-В
+        full: Талмуд Ерушалми (Вильна)
+      hb:
+        short: ירושלמי (ו)
+        full: תלמוד ירושלמי (וילנה)
+      en:
+        short: Jerusalemite-V
+        full: Jerusalemite Talmud (Vilna)
+      et:
+        short: Yerushalmi-V
+        full: Talmud Yerushalmi (Vilna)
+  - limud: ccYomi
+    text:
+      ru:
+        short: Хафец Хаим
+        full: Хафец Хаим Ёми
+      hb:
+        short: חפץ חיים
+        full: חפץ חיים יומי
+      en:
+        short: Ḥafes Ḥayim
+        full: Daily Ḥafes Ḥayim
+      et:
+        short: Ḥafes Ḥayim
+        full: Ḥafes Ḥayim Yomi
+  - limud: TehilimHodshi
+    text:
+      ru:
+        short: Теилим (месячный)
+        full: Теилим (месячный)
+      hb:
+        short: תהילים (חדשי)
+        full: תהילים יומי (חדשי)
+      en:
+        short: Psalms (Monthly)
+        full: Daily Psalms (Monthly)
+      et:
+        short: Tehilim (Monthly)
+        full: Tehilim Yomi (Monthly)
+  - limud: TehilimShvui
+    text:
+      ru:
+        short: Теилим (недельной)
+        full: Теилим (недельной)
+      hb:
+        short: תהילים (שבועי)
+        full: תהילים יומי (שבועי)
+      en:
+        short: Psalms (Weekly)
+        full: Daily Psalms (Weekly)
+      et:
+        short: Tehilim (Weekly)
+        full: Tehilim Yomi (Weekly)
+  - limud: MishnaYomi
+    text:
+      ru:
+        short: Мишна
+        full: Мишна Ёми
+      hb:
+        short: משנה
+        full: משנה יומי
+      en:
+        short: Mishna
+        full: Daily Mishna
+      et:
+        short: Mishna
+        full: Mishna Yomi
+shabbat:
+  - limud: Haftara
+    text:
+      ru:
+        short: Хафтара
+        full: Хафтара
+      hb:
+        short: הפטרה
+        full: הפטרה
+      en:
+        short: Haftara
+        full: Haftara
+      et:
+        short: Haftara
+        full: Haftara
+  - limud: makamot
+    text:
+      ru:
+        short: Макам
+        full: Макам
+      hb:
+        short: מקם
+        full: מקם
+      en:
+        short: Makam
+        full: Makam
+      et:
+        short: Makam
+        full: Makam
