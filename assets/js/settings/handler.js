@@ -92,17 +92,15 @@ const settings = Object.freeze({
 	},
 
 	calendarToggle: {
-		/** @returns {'seasonal'|'degrees'} */
-		// @ts-ignore
-		hourCalculators: () => ['seasonal', 'degrees'].includes(settingsURLOverride("hourCalculators")) ? settingsURLOverride("hourCalculators") : 'degrees',
 		rtKulah: () => defaultSettings("rtKulah", "true") == "true",
-		tzeitTaanitHumra: () => settingsURLOverride("tzeitTaanitHumra") == "true",
 		/** @returns {'hatzoth'|'arbitrary'} */
 		// @ts-ignore
 		tekufaMidpoint: () => ['hatzoth', 'arbitrary'].includes(settingsURLOverride("tekufa")) ? settingsURLOverride("tekufa") : 'hatzoth',
 		/** @returns {'shemuel'|'adabaravah'} */
 		// @ts-ignore
-		tekufaCalc: () => ['shemuel', 'adabaravah'].includes(settingsURLOverride("tekufaCalc")) ? settingsURLOverride("tekufaCalc") : 'shemuel'
+		tekufaCalc: () => ['shemuel', 'adabaravah'].includes(settingsURLOverride("tekufaCalc")) ? settingsURLOverride("tekufaCalc") : 'shemuel',
+		// @ts-ignore
+		forceSunSeasonal: () => defaultSettings("forceSunSeasonal") == "true",
 	},
 	customTimes: {
 		candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
@@ -114,7 +112,7 @@ const settings = Object.freeze({
 				};
 
 				// @ts-ignore
-				if (settings.calendarToggle.hourCalculators() == "seasonal" && "zmanimListUpdater2" in window && !window.zmanimListUpdater2.jCal.getInIsrael())
+				if (settings.calendarToggle.forceSunSeasonal() && "zmanimListUpdater2" in window && !window.zmanimListUpdater2.jCal.getInIsrael())
 					retObj.minutes = 40;
 				return retObj;
 			}

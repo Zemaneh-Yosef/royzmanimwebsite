@@ -89,16 +89,6 @@ layout: landing
 				<button type="button" data-mdb-ripple-init class="btn btn-success mb-2 d-lg-none" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-bottom: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7); border-bottom-left-radius: .25rem; border-bottom-right-radius: .25rem;">
 					<i class="bi bi-pin-map"></i> Use my device location
 				</button>
-
-				<div class="form-check">
-					<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked/>
-					<label class="form-check-label" for="flexRadioDefault2">Adjusted Minutes based on Location (לוח עמודי הוראה) - Disabled in Israel</label>
-				</div>
-
-				<div class="form-check">
-					<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
-					<label class="form-check-label" for="flexRadioDefault1">Fixed Israel Minutes (לוח אור החיים)</label>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -161,10 +151,13 @@ layout: landing
     <div class="container">
         <div class="grid">
             <div class="g-col-12 g-col-lg-8">
-                <h1 class="text-center">About us</h1>
-                <p>We are the platform to use whenever and wherever you'd need Halachic Times (Zemanim) according to Hakham Ovadia Yosef zt'l, based on what he held and practiced. This is the digital equivalent to the <strong>Ohr Hachaim</strong> calendar, which is what Maran zt"l himself made with HaRav Shlomo Benizri and HaRav Asher Darshan.</p>
-                <p>For areas outside of the USA, we provide an (optional) derivitive of the Ohr Hachaim calendar called the <strong>Amudeh Hora'ah</strong> calendar, authored by HaRav Leeor Dahan. These shitot differ in times outside of the day's range (such as Dawn & Nightfall) to be complient with R' David Yosef's opinions, accommodating latitudinal deviations from Eretz Yisrael while still using seasonal minutes.</p>
-                <p>These times are accessible; not just through our website, but also our apps, print-out calendars, downloadable iCal calendars (for digital calendar apps) and TV walls for shuls. For other formats that developers would like to be creative with, all of our math/algorithms are fully <a href="https://github.com/Zemaneh-Yosef">open source</a>, with implementations in JavaScript, Java & Swift. Furthermore, anyone looking to calculate it themselves (or just learn how we did it) could learn through the <i>sugya</i> using our descriptions as indexes for the various sources we used.</p>
+                <h1 class="text-center">About זמני יוסף</h1>
+                <p>We are the platform to use whenever and wherever you'd need Halachic Times (Zemanim) according to <strong>Hakham Ovadia Yosef zt'l</strong>, following his practices represented in his <strong>Ohr Hachaim</strong> calendar from Eretz Yisrael. Outside Israel, our algorithm follow's the rules outlined by the Minḥat Kohen (as quoted by R David Yosef, approved by R Yitzḥak Yosef) to comply with the astronomical differences while sticking to seasonal minutes.</p>
+				<ul>
+					<li>Available through apps, print-out calendars, digital exports, TV schedules for shuls & our website (you're on here right now)!</li>
+					<li>Expanded implementations possible through our <a href="https://github.com/Zemaneh-Yosef">open-source codebase</a>. Implementations available in JavaScript, Java & Swift</li>
+					<li><i>Sugya</i> descriptions for every time, with sources and possible trivia</li>
+				</ul>
             </div>
 			<div class="g-col-12 g-col-lg-4" style="align-content: center;">{% include bootstrap/carousel.html carouselItems=site.data.tv.carousel %}</div>
         </div>

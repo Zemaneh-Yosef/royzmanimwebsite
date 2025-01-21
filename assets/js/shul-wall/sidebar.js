@@ -3,7 +3,7 @@
 import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import { AmudehHoraahZmanim, OhrHachaimZmanim, methodNames } from "../ROYZmanim.js";
+import { AmudehHoraahZmanim, OhrHachaimZmanim } from "../ROYZmanim.js";
 import preSettings from "./preSettings.js";
 
 /** @type {[string, number, number, number, string]} */
@@ -16,7 +16,7 @@ const jCal = new WebsiteLimudCalendar(dateForSet);
 jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
 
 const zmanCalc =
-	(preSettings.calendarToggle.hourCalculators() == "seasonal" || jCal.getInIsrael() ?
+	(preSettings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael() ?
 		new OhrHachaimZmanim(geoL, true) :
 		new AmudehHoraahZmanim(geoL));
 zmanCalc.configSettings(preSettings.calendarToggle.rtKulah(), preSettings.customTimes.tzeithIssurMelakha());

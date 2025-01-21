@@ -5,6 +5,7 @@ if (!('timers' in window))
 	// @ts-ignore
 	window.timers = {}
 
+/** @type {typeof settings} */
 let preSetSettings;
 switch (window.location.href.split('/').at(-1)) {
 	case 'shaare-tefila-queens':
@@ -21,11 +22,10 @@ switch (window.location.href.split('/').at(-1)) {
 				timezone: () => "America/New_York"
 			},
 			calendarToggle: {
-				hourCalculators: () => 'degrees',
 				rtKulah: () => true,
-				tzeitTaanitHumra: () => false,
 				tekufaMidpoint: () => 'hatzoth',
-				tekufaCalc: () => 'shemuel'
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
 			},
 			customTimes: {
 				candleLighting: () => 20,
@@ -47,11 +47,10 @@ switch (window.location.href.split('/').at(-1)) {
 				timezone: () => "America/New_York"
 			},
 			calendarToggle: {
-				hourCalculators: () => 'degrees',
 				rtKulah: () => true,
-				tzeitTaanitHumra: () => false,
 				tekufaMidpoint: () => 'hatzoth',
-				tekufaCalc: () => 'shemuel'
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
 			},
 			customTimes: {
 				candleLighting: () => 20,
@@ -72,11 +71,10 @@ switch (window.location.href.split('/').at(-1)) {
 				timezone: () => "America/New_York"
 			},
 			calendarToggle: {
-				hourCalculators: () => 'degrees',
 				rtKulah: () => true,
-				tzeitTaanitHumra: () => false,
 				tekufaMidpoint: () => 'hatzoth',
-				tekufaCalc: () => 'shemuel'
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
 			},
 			customTimes: {
 				candleLighting: () => 20,
@@ -97,11 +95,10 @@ switch (window.location.href.split('/').at(-1)) {
 				timezone: () => "America/New_York"
 			},
 			calendarToggle: {
-				hourCalculators: () => 'degrees',
 				rtKulah: () => true,
-				tzeitTaanitHumra: () => false,
 				tekufaMidpoint: () => 'hatzoth',
-				tekufaCalc: () => 'shemuel'
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
 			},
 			customTimes: {
 				candleLighting: () => 18,
@@ -122,11 +119,10 @@ switch (window.location.href.split('/').at(-1)) {
 				timezone: () => "America/New_York"
 			},
 			calendarToggle: {
-				hourCalculators: () => 'degrees',
 				rtKulah: () => true,
-				tzeitTaanitHumra: () => false,
 				tekufaMidpoint: () => 'hatzoth',
-				tekufaCalc: () => 'shemuel'
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
 			},
 			customTimes: {
 				candleLighting: () => 20,

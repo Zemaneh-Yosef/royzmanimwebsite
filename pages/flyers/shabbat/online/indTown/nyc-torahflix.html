@@ -6,17 +6,6 @@ website: true
 ---
 
 <style>
-	#gne {
-		border-radius: 5%;
-		height: 200px;
-		aspect-ratio: 1/1;
-		justify-self: start;
-		align-self: start;
-		margin-top: 1rem;
-		margin-left: 2.5rem;
-		background-color: white;
-	}
-
 	.maxWidthContainer {
 		width: 90rem;
 		font-family: 'Neutro';
@@ -29,12 +18,12 @@ website: true
 
 	#wrapperElement {
 		width: 100%;
-		aspect-ratio: 1/1.3;
+		aspect-ratio: 1/1;
 
 		position: relative;
 		display: grid;
 
-		background-image: linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
+		background-image: linear-gradient(to bottom, transparent 30%, #000000 80%), linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
 		background-size: cover;
 	}
 
@@ -60,9 +49,8 @@ website: true
 		grid-area: 1/1;
 		align-self: end;
 		justify-self: start;
-		width: 33%;
+		width: 15%;
 		z-index: 3;
-		margin-bottom: 9rem;
 	}
 
 	#prettyLDSurround {
@@ -72,74 +60,55 @@ website: true
 		width: 24.5%;
 	}
 
-	.lechaDodi {
-		position: absolute;
-		transform: rotateZ(7deg);
-		color: #F6E3A9;
-		font-size: 2.4vw;
-		text-align: center;
-		font-family: 'Guttman Mantova';
-		line-height: 1;
-	}
-
-	#lechaDodi {
-		top: 23vw;
-		right: 4vw;
-	}
-
-	#likratKalah {
-		top: 25.5vw;
-		right: 6.75vw;
-	}
-
-	#pnehShabbathNekabelah {
-		top: 29vw;
-		right: 2.5vw;
-	}
-
 	#zemanehShab {
+		align-self: start;
+		justify-self: center;
 		font-family: 'Neutro', 'Frank Ruhl Libre';
-		font-size: 19vw;
+		font-size: 14vw;
 		font-weight: 700;
 		color: transparent;
 		background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
 		-webkit-background-clip: text;
 		text-transform: uppercase;
-		padding-bottom: 3rem;
+		line-height: 1.2;
+		margin-top: -.5vh;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 	}
 
 	.shabbatTitleCore {
 		align-self: start;
-		justify-self: start;
-		margin-left: 1vw;
-		margin-top: 16vw;
-		font-size: 7.5vw;
+		justify-self: center;
+		margin-top: 50vh;
+		font-size: 4.5vw;
 		font-family: 'Guttman Mantova';
 		color: #F6E3A9;
 		font-weight: 500;
-		line-height: .6;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+		text-align: center;
+	}
+	.shabbatTitleCoreEnglish {
+		align-self: start;
+		justify-self: center;
+		margin-top: 57.5vh;
+		font-size: 4.5vw;
+		font-family: 'Barlow';
+		color: #F6E3A9;
+		font-weight: 500;
+		line-height: 1;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
 		text-align: center;
 	}
 
 	#gridElement {
 		align-self: center;
-		grid-template-columns: 1fr 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr;
 		display: grid;
 		width: calc(100% - 5vw);
 		margin-left: 2.5vw;
 		z-index: 3;
-		margin-bottom: 50vh;
-	}
-
-	#shabbatCandles {
-		align-self: end;
-		justify-self: end;
-		width: 80%;
-		right:0;
-		margin-bottom: 18rem;
-		z-index: 1;
-		opacity: 50%;
+		line-height: 1;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 	}
 
 	.timeshow {
@@ -148,12 +117,10 @@ website: true
 	}
 
 	.shabbatRow {
-		margin-top: .3vw;
-		margin-bottom: .3vw;
-		padding-top: .3vw;
-		padding-bottom: .3vw;
-		font-size: 4.4vw;
+		font-size: 6vw;
 		font-weight: 700;
+		font-family: 'Cinzel Decorative';
+		color: #f5c433;
 	}
 
 	.timecalc {
@@ -165,20 +132,8 @@ website: true
 		border-right: .25vw solid black;
 	}
 
-	.shabbatRowBg {
-		background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
-		grid-column: 1 / span 4; 
-		margin-top: .3vw;
-		margin-bottom: .3vw;
-		z-index: 2;
-	}
-
 	.header {
-		padding: 0.5vw;
-		background: #D9BB65;
-		margin-left: .6vw;
-		margin-right: .6vw;
-		color: black;
+		color: white;
 		text-transform: uppercase;
 		text-align: center;
 		line-height: 1.2;
@@ -192,143 +147,69 @@ website: true
 		width: 2em;
 	}
 
-	.tableShadow {
-		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
-		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
-		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
-	}
-
-	.shabBorder:not(:nth-last-child(2)) {
-		border-right: .25vw solid black;
-	}
-
-	#notchLogo {
-		justify-self: center;
-		align-self: start;
-		width: 42.5%;
-		margin-top: 1rem;
-	}
-
-	#bsD {
-		font-family: "Narkisim";
-		justify-self: end;
-		line-height: 1;
-		padding-right: 4.5rem;
-		color: #FFF2B3;
-		font-size: 6rem;
-		padding-top: 3rem;
-		align-self: start;
-	}
-
-	#location/*, .shabbatTitleCore*/ {
+	#location {
 		align-self: start;
 		justify-self: center;
 		font-family: 'Barlow', 'FrankRuehl';
-		font-weight: 700;
-		color: white;
+		font-weight: 600;
+		color: #F4EBD0;
 		text-transform: uppercase;
-		width: 959px;
 		text-align: center;
-		margin-left: 2.5vw;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.75));
 		line-height: 1;
-		margin-top: 9vw;
-		font-size: 4vw;
+		margin-top: 28vh;
+		font-size: 3vw;
 	}
 
-	#templateAd {
-		align-self: center;
-		justify-self: start;
-		border-radius: 50%;
-		margin-top: 75%;
-		margin-left: 5%;
-		width: 25%;
-		z-index: 10;
+	#date {
+		align-self: end;
+		justify-self: center;
+		font-family: 'Barlow', 'FrankRuehl';
+		font-weight: 600;
+		color: #F4EBD0;
+		text-transform: uppercase;
+		text-align: center;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+		margin-bottom: 60vh;
+		font-size: 3vw;
 	}
 
 	#advertFooter {
 		padding-bottom: .5rem;
 		padding-top: .5rem;
-		padding-left: 29.75rem;
-		font-size: 1.69rem;
+		padding-right: 7.5rem;
+		font-size: 3.5rem;
 		font-weight: 600;
-		line-height: 1.1;
 		z-index: 2;
 		align-self: end;
-		margin-bottom: 9rem;
+		text-align: right;
 
 		width: 100%;
 		background-image: linear-gradient(to right, #F3E6A6, #D7BB63);
 	}
 
-	#sourcesFooter {
-		font-size: 1.5em;
-	}
-	#sourcesFooter ul {
-		line-height: 1.25;
-		margin-bottom: 0;
-	}
-
-	#credits {
-		font-size: 2.125em;
-		text-align: right;
-		line-height: 1.25;
-		font-weight: 600;
-		text-transform: uppercase;
-		font-style: italic;
-	}
-
-	#documentClosure {
-		height: 9rem;
-		align-self: end;
-		background: linear-gradient(to right, rgba(4,4,6,1) 0%, #24293D 100%);
-		color: white;
-		display: flex;
-		justify-content: space-between;
-		padding: .5rem 1rem;
-		align-content: end;
-	}
-
-	#ashkenaziAd {
-		justify-self: end;
-		align-self: end;
-		width: 47.5%;
-		margin-bottom: 75vh;
-		z-index: 10;
-	}
-
-	#rdy {
-		justify-self: start;
-		align-self: end;
-		width: 30%;
-		margin-bottom: 4rem;
-		z-index: 1;
-	}
-
 	#appIcon {
         justify-self: end;
         align-self: end;
-        height: 147.5px;
-        width: 147.5px;
+        height: 100px;
+        width: 100px;
         z-index: 7;
         filter: drop-shadow(-3px 0 2px rgba(0,0,0,.6));
-		margin-bottom: 9rem;
     }
 
-	#makam {
-		align-self: center;
-		justify-self: end;
-		font-family: 'Barlow', 'FrankRuehl';
-		font-weight: 600;
-		color: white;
-		text-transform: uppercase;
-		width: 475px;
-		text-align: center;
-		margin-right: 1.5rem;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-		line-height: 1;
-		margin-top: 1vw;
-		font-size: 3vw;
+	#logo {
+		width: 60%;
+		justify-self: center;
+		align-self: end;
+		margin-bottom: 18rem;
+	}
+
+	#subtitle {
+		width: 40%;
+		justify-self: center;
+		align-self: end;
+		margin-bottom: 14rem;
 	}
 </style>
 
@@ -338,64 +219,32 @@ website: true
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
 <div id="wrapperElement">
-	<div id="zyTrapezoid"></div>
-	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
-	<img id="gne" src="https://img1.wsimg.com/isteam/ip/5db5d9d6-5b0e-4eed-9765-9b490516eb22/blob-f7a17cd.png" />
-	<span id="bsD">בס"ד</span>
-	<img src="/assets/images/shabbat-abstract/shabbat-candles-ext.png" id="shabbatCandles" />
 	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
 	<div id="gridElement"
-		data-functions-backday-1="getPlagHaminhaHalachaBrurah getCandleLighting"
-		data-functions-backday-0="getTzaitShabbath getTzaitRT"
+		data-functions-backday-1="getCandleLighting"
+		data-functions-backday-0="getTzaitShabbath"
 		data-flyerType="shabbat"
-		data-hasMakam
 	>
-		<div class="header tableShadow">Earliest Time</div>
-		<div class="header tableShadow">Candle Lighting</div>
-		<div class="header tableShadow">Havdalah</div>
-		<div class="header tableShadow">Rabbenu Tam</div>
 		<div class="shabbatRow tableShadow timecalc"
-			data-lat="40.72426631668952" data-lng="-73.81533279143895"
+			data-lat="40.622795584652465" data-lng="-73.96960885888677"
 			data-timezone="America/New_York"
 			data-format="h12"
 			style="display: none;">
 		</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-column: 1; grid-row: 2;">Early Time</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 2;">Start Time</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: 2;">End Time</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-column: 4; grid-row: 2;">Machmir Time</div>
-		<div class="shabbatRowBg tableShadow" style="grid-row: 2;"></div>
+		<div class="shabbatRow timeshow">Start Time</div>
+		<div class="shabbatRow timeshow">End Time</div>
+		<div class="header tableShadow">Candle Lighting</div>
+		<div class="header tableShadow">Shabbat Ends</div>
 	</div>
-	<div id="makam" data-makam><span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>Makam<span style="display: inline-block; padding-right: .35rem;"></span> </div>
-	<div class="shabbatTitleCore"><div id="zemanehShab">זמני שבת</div>פרשת </div>
-	<div id="location">New York City</div>
-	<img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
-	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
-	<span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
-	<span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
-	<img src="/assets/images/shabbat-abstract/ashkenaziBooks-ad-hanuka.svg" id="ashkenaziAd">
+	<div id="zemanehShab">זמני שבת קודש</div>
+	<div class="shabbatTitleCore">פרשת </div>
+	<div class="shabbatTitleCoreEnglish">Parashat Vaera</div>
+	<div id="date" data-dateRender-backday="0"></div>
+	<div id="location">Sepharadic Shabbat Schedule for New York City</div>
+	<img src="https://img1.wsimg.com/isteam/ip/5db5d9d6-5b0e-4eed-9765-9b490516eb22/TorahFlix%20(Full%20text).png" id="logo">
+	<img src="/assets/images/shabbat-abstract/subtitle.png" id="subtitle">
 	<div id="advertFooter">
-		<span style="font-weight: 700; font-size: 1.20em; text-transform: uppercase;">
-			Sepharadic Halachic Times<br>according to <span style="font-weight: 800;">Rabbi Ovadia Yosef</span> zt"l
-		</span><br>
-		Looking for more times? Want to switch locations?<br>
-		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps,
-		or visit our website • royzmanim.com
-	</div>
-	<div id="documentClosure">
-		<div id="sourcesFooter">
-			<b>Sources:</b>
-			<ul>
-				<li><b>Halacha Berurah</b> - Introduction to 261:21</li>
-				<li><b>Yechave Da'at</b> 7:56</li>
-				<li><b>Yabia' Omer</b> 2:21</li>
-			</ul>
-		</div>
-		<div id="credits">
-			Graphic Design by<br>
-			AK-Graphics<br>
-			(917) 549-5138
-		</div>
+		POWERED BY
 	</div>
 	<img src="/assets/images/MARAN.png" id="maran">
 </div>

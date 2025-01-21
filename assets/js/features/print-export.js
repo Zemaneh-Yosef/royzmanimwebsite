@@ -25,7 +25,7 @@ if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 // @ts-ignore
 const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new GeoLocation(...glArgs);
-const useOhrHachaim = (geoLocation.getLocationName() || "").toLowerCase().includes('israel') || settings.calendarToggle.hourCalculators() == "seasonal"
+const useOhrHachaim = (geoLocation.getLocationName() || "").toLowerCase().includes('israel') || settings.calendarToggle.forceSunSeasonal()
 
 /** @type {HTMLElement} */
 // @ts-ignore
@@ -121,7 +121,7 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 		netz: availableVS,
 		htmlElems: baseTable.outerHTML + footer.outerHTML,
 		calendar: cal,
-		hourCalculator: settings.calendarToggle.hourCalculators(),
+		hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
 		date: plainDateForLoop.with({ month: 1 }).add({ months: mIndex - 1 }).toString(),
 		oneYear: plainDateForLoop.year == plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal - 1 }).year,
 		rtKulah: settings.calendarToggle.rtKulah(),

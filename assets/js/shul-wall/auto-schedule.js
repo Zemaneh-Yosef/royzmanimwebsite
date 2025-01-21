@@ -23,7 +23,7 @@ export default async function autoSchedule() {
 		minute: '2-digit'
 	}];
 
-	const zmanCalc = (preSettings.calendarToggle.hourCalculators() == "seasonal" || jCalShab.getInIsrael() ?
+	const zmanCalc = (preSettings.calendarToggle.forceSunSeasonal() || jCalShab.getInIsrael() ?
 			new OhrHachaimZmanim(geoL, true) :
 			new AmudehHoraahZmanim(geoL));
 	zmanCalc.configSettings(preSettings.calendarToggle.rtKulah(), preSettings.customTimes.tzeithIssurMelakha());

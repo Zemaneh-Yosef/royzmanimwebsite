@@ -20,7 +20,7 @@ const jCal = new WebsiteLimudCalendar(dateForSet);
 jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
 
 const zmanCalc =
-	(preSettings.calendarToggle.hourCalculators() == "seasonal" || jCal.getInIsrael() ?
+	(preSettings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael() ?
 		new OhrHachaimZmanim(geoL, true) :
 		new AmudehHoraahZmanim(geoL));
 zmanCalc.configSettings(preSettings.calendarToggle.rtKulah(), preSettings.customTimes.tzeithIssurMelakha());
@@ -56,9 +56,7 @@ const zmanimList = Object.fromEntries(Array.from(calList.children)
 	))
 
 const zmanInfoSettings = {
-	hourCalculator: preSettings.calendarToggle.hourCalculators(),
 	tzeithIssurMelakha: preSettings.customTimes.tzeithIssurMelakha(),
-	tzeitTaanitHumra: preSettings.calendarToggle.tzeitTaanitHumra()
 };
 
 /** @type {ReturnType<typeof jCal.getZmanimInfo>} */

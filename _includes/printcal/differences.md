@@ -1,18 +1,17 @@
-###### Calendar "Modes"
-
-To represent two physical calendars, we added a "calendar mode" toggle on our website. This is reflected when exporting the PDF, and one can see which mode they are on by looking at the bottom left. The differences are explained in the "Seasonal Hours + Alot/Tzet" section
-
 ###### Seasonal Hours + Dawn/Nightfall
 
 We use the length of the day from sunrise until sunset to determine all Halachic times, whether within the day or *times before sunrise/after sunset*. This means that, just like degree calculations (and unlike some calendars that used fixed minutes), these times are longer in the summer; that's because the days are longer in the summer. However, unlike both degrees calculation (for times outside sunrise->sunset) and fixed minutes, these times are *shorter* in the winter months, despite astronomy dictating that these times should be longer for times outside the day's length. There are a few exceptions, though, when we use other methods of calculation (dawn->nightfall seasonal, degrees, fixed) instead of seasonal sunrise->sunset times:
 
 - Keriath Shema & Hametz use seasonal time calculated from Dawn until Nightfall
 - Minḥa Gedolah uses a fixed 30 minute minimum, for the winter months
-- Shabbat needs some conformity to astronomical sightings, so we use pure degrees in the Amudeh Hora'ah calendar (7.14) and 40 minutes for the Ohr Hachaim calendar.
-- Rabbenu Tam's Nightfall displays a maximum of 72 fixed minutes in the Amudeh Hora'ah calendar, based on both R' Yitzhak Yosef & R' David Yosef. This does **not** apply to the Ohr Hachaim calendar, though, which explicitly follows R' Ovadia that said one *should* use 72 seasonal minutes, both for leniencies & stringencies.
 - Candle Lighting times are using fixed minutes before sunset, due to the entire concept being based on recognition for Shabbat. We use 20 fixed minutes, based on rounding up a mil's length (discussed later on).
+- Tzet Shabbat uses 30 fixed minutes, which should always include time for tosefet and factors in the astronomy for Eretz Yisrael itself
 
-For the time portions outside of the days length, the Amudeh Hora'ah calendar uses the degree-based time for the equinox day and makes those minutes seasonal. Thereby, 13.5 seasonal minutes becomes 16.5 seasonal minutes in NY, due to 13.5 minutes matching 3.77 degees in Israel and also matching 16.5 minutes in NY.
+Outside of Eretz Yisrael, a few other changes are made:
+
+- Tzet Shabbat outside Eretz Yisrael confines to purely astronomical sightings, so we measure the sun's position below the horizon 30 minutes after sunset on March 20th. We then match that spot for every day of the year in every location, in turn making Shabbat the most stringent whenever possible.
+- For all other times, the expected position of the sun must match for times outside sunrise->sunset **on the equinox day**. In turn, these expand/shrink the amount of minutes for Dawn/Nightfall, continuing the minutes parralel (at least for one day) while keeping the minutes seasonal for the other days of the year.
+- Rabbenu Tam's Nightfall is capped at 72 fixed minutes, based on both R' Yitzhak Yosef & R' David Yosef's ruling.
 
 ---
 
@@ -20,11 +19,7 @@ The Talmudic way of referring to the measurement behind these times is a "mil", 
 
 ###### Sunrise/Sunset
 
-When reporting the times for the calendar, the given time differs from the sunrise/sunset times used to compute seasonal hours in the following regards:
-- These times will always be shown without elevation (regardless of whether elevation is used for calculating the other times (like in the Ohr Hachaim calendar) or not (like in the Amudeh Hora'ah calendar)).
-- If the user has scraped "Visual Sunrise" times from the ChaiTables.com website, they will be included in this PDF, as indicated by the inclusion of seconds.
-
-These times are provided from the **NOAA algorithm**.
+These are both astronomical constants, as the base to the other times. Internally, they will use the **NOAA algorithm** with elevation (except for outside Eretz Yisrael), yet sunrise will display a different time: non-elevation sunrise. This is closer to the intended result of "Visual Sunrise", scrapeable from the ChaiTables.com website. Users who did scrape these times (by following the instructions on the website by the sunrise description) will see seconds added to the "Sunrise" column.
 
 ###### Midday
 

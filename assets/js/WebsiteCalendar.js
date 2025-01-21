@@ -111,7 +111,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 * @param {boolean} independent
 	 * @param {AmudehHoraahZmanim|OhrHachaimZmanim} zmanCalc
 	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }}; }} zmanList
-	 * @param {{ hourCalculator: "degrees" | "seasonal"; tzeithIssurMelakha: { minutes: number; degree: number;}; tzeitTaanitHumra: boolean; }} funcSettings 
+	 * @param {{ tzeithIssurMelakha: { minutes: number; degree: number;}; }} funcSettings 
 	 */
 	getZmanimInfo(independent, zmanCalc, zmanList, funcSettings) {
 		/** @type {Record<string, zmanData>} */
@@ -153,7 +153,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 			if (zmanInfo.luachInclusive) {
 				if (!['degrees', 'seasonal'].includes(zmanInfo.luachInclusive)
-				 || funcSettings.hourCalculator !== zmanInfo.luachInclusive
+				 || ((zmanCalc instanceof OhrHachaimZmanim ? "seasonal" : "degrees") !== zmanInfo.luachInclusive)
 				 || (zmanInfo.luachInclusive == 'degrees' && this.getInIsrael())) {
 					calculatedZmanim[zmanId].display = -1;
 					calculatedZmanim[zmanId].code.push('wrong luach')
@@ -280,12 +280,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 							calculatedZmanim[zmanId].display = 0;
 							calculatedZmanim[zmanId].code.push("Not a day with stringent-needed Tzet")
 						}
-					}
-					break;
-				case 'tzeitTaanitLChumra':
-					if (!funcSettings.tzeitTaanitHumra) {
-						calculatedZmanim[zmanId].display = 0;
-						calculatedZmanim[zmanId].code.push("Settings-Hidden")
 					}
 					break;
 				case 'rt':

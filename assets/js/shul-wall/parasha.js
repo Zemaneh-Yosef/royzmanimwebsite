@@ -24,7 +24,7 @@ for (; !jCal.getDate().equals(dateHighlight.getDate()); jCal.forward(5, 1)) {
 jCal.setDate(dateForSet);
 
 const zmanCalc =
-    (preSettings.calendarToggle.hourCalculators() == "seasonal" || jCal.getInIsrael() ?
+    (preSettings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael() ?
         new OhrHachaimZmanim(geoL, true) :
         new AmudehHoraahZmanim(geoL));
 zmanCalc.configSettings(preSettings.calendarToggle.rtKulah(), preSettings.customTimes.tzeithIssurMelakha());

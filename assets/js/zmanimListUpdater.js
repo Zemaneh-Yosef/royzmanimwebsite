@@ -63,12 +63,6 @@ export default class zmanimListUpdater {
 	 */
 	resetCalendar(geoLocation = this.geoLocation) {
 		this.timeoutToChangeDate = null;
-		this.zmanInfoSettings = {
-			hourCalculator: settings.calendarToggle.hourCalculators(),
-			tzeithIssurMelakha: settings.customTimes.tzeithIssurMelakha(),
-			tzeitTaanitHumra: settings.calendarToggle.tzeitTaanitHumra()
-		};
-
 		this.geoLocation = geoLocation;
 		const locationModal = document.getElementById('locationModal')
 
@@ -142,16 +136,19 @@ export default class zmanimListUpdater {
 
 		const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')].filter(elem => elem instanceof HTMLElement);
 		const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')].filter(elem => elem instanceof HTMLElement);
-		if (!this.jCal.getInIsrael() && settings.calendarToggle.hourCalculators() == "degrees") {
-			amudehHoraahIndicators.forEach((/** @type {HTMLElement} */ ind) => ind.style.removeProperty('display'))
-			ohrHachaimIndicators.forEach((/** @type {HTMLElement} */ ind) => ind.style.display = 'none');
-			this.zmanFuncs = new AmudehHoraahZmanim(geoLocation)
-		} else {
+		if (this.jCal.getInIsrael() || settings.calendarToggle.forceSunSeasonal()) {
 			ohrHachaimIndicators.forEach((/** @type {HTMLElement} */ ind) => ind.style.removeProperty('display'))
 			amudehHoraahIndicators.forEach((/** @type {HTMLElement} */ ind) => ind.style.display = 'none');
 			this.zmanFuncs = new OhrHachaimZmanim(geoLocation, true)
+		} else {
+			amudehHoraahIndicators.forEach((/** @type {HTMLElement} */ ind) => ind.style.removeProperty('display'))
+			ohrHachaimIndicators.forEach((/** @type {HTMLElement} */ ind) => ind.style.display = 'none');
+			this.zmanFuncs = new AmudehHoraahZmanim(geoLocation)
 		}
 
+		this.zmanInfoSettings = {
+			tzeithIssurMelakha: settings.customTimes.tzeithIssurMelakha(),
+		};
 		this.zmanFuncs.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha())
 
 		document.querySelectorAll('[data-zfFind="LocationYerushalayimLine"]')

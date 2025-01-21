@@ -26,7 +26,7 @@ const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc(
 const geoL = new GeoLocation(...glArgs);
 
 const zmanCalc =
-    (preSettings.calendarToggle.hourCalculators() == "seasonal" || (geoL.getLocationName() || "").toLowerCase().includes('israel') ?
+    (preSettings.calendarToggle.forceSunSeasonal() || (geoL.getLocationName() || "").toLowerCase().includes('israel') ?
         new OhrHachaimZmanim(geoL, true) :
         new AmudehHoraahZmanim(geoL));
 
