@@ -32,42 +32,7 @@
     hb: טלית ותפילין
     et: Earliest Talit and Tefilin
     en: Earliest Talit and Tefilin
-  description: |-
-    <p>
-    Misheyakir (literally "when you recognize") is the time when a
-    person can distinguish between blue and white. The Gemara (ברכות ט)
-    explains that when a person can distinguish between the blue
-    (techelet) and white strings of their tzitzit, that is the earliest
-    time a person can put on their talit and tefilin for Shacharit.
-    </p>
-    <p>
-    This is also the earliest time one can say Shema L'chatchila
-    (optimally).
-    </p>
-    <p>
-    This time is calculated as 6 zmaniyot/seasonal minutes (according to
-    the GR\"A) after Alot HaShachar (Dawn).
-    </p>
-    <p>
-    Note: This time is only for people who need to go to work or leave
-    early in the morning to travel. However, normally a person should
-    put on his talit/tefilin 60 regular minutes (and in the winter 50
-    regular minutes) before sunrise.
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, this time is calculated by finding out
-    how many minutes are between sunrise and 72 minutes as degrees
-    (16.1) before sunrise on an equal day with sunrise and sunset set
-    around 12 hours apart. Then we take those minutes and make them
-    zmaniyot according to the GR\"A, and we subtract 5/6 of that time
-    from sunrise to get the time for Misheyakir. This is according to
-    the Halacha Berurah, and this should only be done outside of Israel
-    in more northern or southern areas. The Halacha Berurah writes to do
-    this because it is more according to the nature of the world.
-    However, it does not seem like Rabbi Ovadiah Yosef ZT\"L or the
-    Yalkut Yosef agrees with this opinion. Elevation is not included in
-    Luach Amudei Horaah mode.
-    </p>
+  descriptionInclude: zmanDescription/misheyakir.md
 - id: sunrise
   attributes:
     yomTovInclusive:
@@ -140,7 +105,7 @@
     (elevation included) and divides it into 12 equal parts.
     </p>
     <p class="mb-0">
-    In Luach Amudei Horaah mode, this time is calculated the same way as
+    Outside Eretz Yisrael, this time is calculated the same way as
     above except no elevation is included.
     </p>
 - id: hatzoth
@@ -169,7 +134,7 @@
     12 equal parts.
     </p>
     <p>
-    In Luach Amudei Horaah mode, this time is calculated the same way as
+    Outside Eretz Yisrael, this time is calculated the same way as
     above except no elevation is included.
     </p>
 - id: minha
@@ -312,7 +277,7 @@
     a zmaniyot/seasonal minute.
     </p>
     <p>
-    In Luach Amudei Horaah mode, this time is calculated by finding out
+    Outside Eretz Yisrael, this time is calculated by determining
     the amount of minutes between sunset and 3.86 degrees below the
     horizon on an equal day, then we add that amount of zmaniyot minutes
     to sunset to get the time of Tzet/Nightfall. We use 3.86 degrees
@@ -325,25 +290,7 @@
     hb: צאת שבת
     et: Tzet Shabbat
     en: Shabbat Ends
-  description: |-
-    <p>This is the time that Shabbat/Chag ends.</p>
-    <p>
-    Note that there are many customs on when Shabbat ends. By default,
-    it is set to 40 regular minutes after sunset (elevation included),
-    however, you can change the time in the settings.
-    </p>
-    <p>
-    This time is calculated as
-    ${getAteretTorahSunsetOffset()} regular minutes after
-    sunset (elevation included).
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, this time is calculated by using a
-    degree of 7.18. We use this degree because Rabbi Ovadiah Yosef ZT\"L
-    ruled that regarding Motzeh Shabbat the listed time should be set as
-    30 fixed minutes after sunset. This degree is interpreted as 30
-    minutes after sunset all year round in Israel.
-    </p>
+  descriptionInclude: zmanDescription/tzetShabbat.md
   specialDropdownContent: True
 - id: rt
   attributes:
@@ -356,10 +303,12 @@
     et: Rabbenu Tam
     en: Rabbenu Tam
   description: |-
-    <p>This time is Tzet/Nightfall according to Rabbeinu Tam.</p>
     <p>
     Tzet/Nightfall is the time when the next halachic day starts after
-    Bein Hashmashot/twilight finishes.
+    Ben Hashmashot/twilight finishes. Although we normally determine that
+    by waiting 13.5 minutes, there is a recommended (yet optional) stringency
+    by following Rabbenu Tam's opinion, through waiting the same amount
+    of time between Dawn until sunrise
     </p>
     <p>
     This time is calculated as 72 zmaniyot/seasonal minutes after sunset
@@ -370,32 +319,18 @@
     Tzet/Nightfall.
     </p>
     <p>
-    The GR\"A calculates a zmaniyot/seasonal hour by taking the time
-    between sunrise and sunset (elevation included) and divides it into
-    12 equal parts. Then we divide one of those 12 parts into 60 to get
-    a zmaniyot/seasonal minute in order to calculate 72 minutes. Another
-    way of calculating this time is by calculating how many minutes are
-    between sunrise and sunset. Take that number and divide it by 10,
-    and then add the result to sunset. The app uses the first method.
-    </p>
-    <p>
-    In Luach Amudei Horaah mode, this time is calculated by finding out
-    how many minutes are between sunset and 72 minutes as degrees (16.0)
-    after sunset on an equal day with sunrise and sunset set around 12
-    hours apart. Then we take those minutes and make them zmaniyot
-    according to the GR\"A, and we add that time to sunset to get the
-    time for Rabbeinu Tam. This is according to the Halacha Berurah and
-    should only be done outside of Israel in more northern or southern
-    areas. The Halacha Berurah writes to do this because it is more
-    according to the nature of the world; however, it does not seem like
-    Rabbi Ovadiah Yosef ZT\"L or the Yalkut Yosef agrees with this
-    opinion. Elevation is not included in Luach Amudei Horaah mode.
-    </p>
-    <p>
-    It should be noted that Rabbi Ovadiah Yosef ZT\"L was of the opinion
-    to keep the zmaniyot zman of Rabbeinu Tam whether or not it fell out
-    before or after 72 regular minutes after sunset. However, in Luach
-    Amudei Horaah mode, we use the lesser of the two times.
+    Getting the resulting time for the letter-of-the law reading
+    is as easy as following the assertion; if Rabbenu Tam is supposed to
+    match the time from Dawn until sunrise, only difference being one would offset
+    from sunset, one would follow those steps to get the time. Nevertheless,
+    there are leniencies in play that one would want to factor for; specifically,
+    the Yalkut Yosef introduces the opportunity to use RT's Ben Hashemashot
+    to permit melakha after Shabbat for those wanting to be stringent
+    by his nightfall. Similarly, outside Eretz Yisrael, one may be lenient to
+    calculate RT's opinion using fixed minutes when the fixed minute
+    opinion is more leniant than using 72-seasonal minutes. Although this is against
+    Rav Ovadia Yosef's opinion, we rely on his son's who spelt out rulings for outside
+    Eretz Yisrael.
     </p>
 - id: chatzotLayla
   attributes:
