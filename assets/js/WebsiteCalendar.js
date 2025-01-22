@@ -261,7 +261,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				case 'tzeit-humra':
 					if (this.isTaanis() && !this.isYomKippur()) {
 						calculatedZmanim[zmanId].merge_title.hb = "צאת תענית (צאת הכוכבים)";
-						calculatedZmanim[zmanId].merge_title['en-et'] = "Tzeth Ta'anith (Tzeit Hakochavim)";
+						calculatedZmanim[zmanId].merge_title['en-et'] = "Tzeth Ta'anith (Tzeit Hakokhavim)";
 						calculatedZmanim[zmanId].merge_title.en = "Fast Ends (Nightfall)";
 
 						calculatedZmanim[zmanId].title.hb = calculatedZmanim[zmanId].merge_title.hb

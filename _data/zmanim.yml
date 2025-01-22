@@ -60,7 +60,7 @@
       id: gra
   names:
     hb: סוף זמן שמע
-    et: Sof Zman Shema
+    et: Sof Zeman Shema
     en: Latest Shema
   descriptionInclude: zmanDescription/kriatShema.md
 - id: SofZmanChametz
@@ -224,7 +224,7 @@
     halfway through the horizon.
     </p>
     <p>
-    Immediately after the sun sets, Bein Hashmashot/twilight starts
+    Immediately after the sun sets, Ben Hashmashot/twilight starts
     according to the Geonim, however, according to Rabbeinu Tam the sun
     continues to set for another 58.5 minutes and only after that Bein
     Hashmashot starts for another 13.5 minutes.
@@ -262,27 +262,25 @@
     Bein Hashmashot/twilight finishes.
     </p>
     <p>
-    This is the latest time a person can say Mincha according Rav
-    Ovadiah Yosef Z"TL. A person should start mincha at least 2 minutes
-    before this time.
+    This is the latest time a person can start praying Minḥa according to Rav
+    Ovadia Yosef Z"TL. Although he previously ruled one should only do so if he could
+    pray the majority of the Tefila before this time (matching the BI"Ḥ - Vayakhel IX),
+    he uses the sefer "Bateh Knessiot" (siman 89) to permit one to start even if
+    the above condition won't be met (Yabia Omer VII Siman 34).
     </p>
     <p>
     This time is calculated as 13 and a half zmaniyot/seasonal minutes
-    after sunset (elevation included).
-    </p>
-    <p>
-    The GR\"A calculates a zmaniyot/seasonal hour by taking the time
-    between sunrise and sunset (elevation included) and divides it into
+    after sunset (elevation included). For stringent matters (brit milot, end of fasts),
+    we use 20 zemaniyot/seasonal minutes after sunset. The GR\"A calculates a zemaniyot/seasonal
+    hour by taking the time between sunrise and sunset (elevation included) and divides it into
     12 equal parts. Then we divide one of those 12 parts into 60 to get
-    a zmaniyot/seasonal minute.
+    a zemaniyot/seasonal minute.
     </p>
     <p>
-    Outside Eretz Yisrael, this time is calculated by determining
-    the amount of minutes between sunset and 3.86 degrees below the
-    horizon on an equal day, then we add that amount of zmaniyot minutes
-    to sunset to get the time of Tzet/Nightfall. We use 3.86 degrees
-    below the horizon because that is the time when it is 13.5 minutes
-    after sunset in Israel.
+    Outside Eretz Yisrael, these numbers ("13.5" & "20") are measured in the form of degrees
+    below the horizon (thus being converted to 3.86 & 5.3 degrees respectively) to be then
+    applied on the equinox day, thus giving us a new number to make seasonal that reflects
+    the local astronomy.
     </p>
 - id: tzeitShabbat
   timeGetter: getTzaitShabbath
@@ -321,16 +319,15 @@
     <p>
     Getting the resulting time for the letter-of-the law reading
     is as easy as following the assertion; if Rabbenu Tam is supposed to
-    match the time from Dawn until sunrise, only difference being one would offset
-    from sunset, one would follow those steps to get the time. Nevertheless,
-    there are leniencies in play that one would want to factor for; specifically,
-    the Yalkut Yosef introduces the opportunity to use RT's Ben Hashemashot
+    match the time from Dawn until sunrise (only difference being one would offset
+    from sunset), one would just measure those minutes and add onto the time of sunset.
+    Nevertheless, there are leniencies in play that one would want to factor for;
+    specifically, the Yalkut Yosef introduces the opportunity to use RT's Ben Hashemashot
     to permit melakha after Shabbat for those wanting to be stringent
-    by his nightfall. Similarly, outside Eretz Yisrael, one may be lenient to
-    calculate RT's opinion using fixed minutes when the fixed minute
-    opinion is more leniant than using 72-seasonal minutes. Although this is against
-    Rav Ovadia Yosef's opinion, we rely on his son's who spelt out rulings for outside
-    Eretz Yisrael.
+    by his nightfall yet unable to complete it. Similarly, outside Eretz Yisrael,
+    one may be lenient to calculate RT's opinion using fixed minutes when the seasonal minutes
+    surpass them. Although this is against Rav Ovadia Yosef's personal ruling,
+    we rely on his son's who spelt out rulings for outside Eretz Yisrael.
     </p>
 - id: chatzotLayla
   attributes:

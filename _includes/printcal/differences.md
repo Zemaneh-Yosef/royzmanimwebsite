@@ -11,7 +11,7 @@ Outside of Eretz Yisrael, a few other changes are made:
 
 - Tzet Shabbat outside Eretz Yisrael confines to purely astronomical sightings, so we measure the sun's position below the horizon 30 minutes after sunset on March 20th. We then match that spot for every day of the year in every location, in turn making Shabbat the most stringent whenever possible.
 - For all other times, the expected position of the sun must match for times outside sunrise->sunset **on the equinox day**. In turn, these expand/shrink the amount of minutes for Dawn/Nightfall, continuing the minutes parralel (at least for one day) while keeping the minutes seasonal for the other days of the year.
-- Rabbenu Tam's Nightfall is capped at 72 fixed minutes, based on both R' Yitzhak Yosef & R' David Yosef's ruling.
+- Rabbenu Tam's Nightfall is capped at 72 fixed minutes, based on both R' Yitzḥak Yosef & R' David Yosef's ruling.
 
 ---
 
@@ -27,7 +27,7 @@ Everyday is counted *independently* (as opposed to a mean value), being the half
 
 ###### Plag Haminḥa
 
-In addition to the GR"A's Plag Haminḥa (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berura), we offer the time for Plag Haminḥa according to R' Yitzhak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).
+In addition to the GR"A's Plag Haminḥa (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berura), we offer the time for Plag Haminḥa according to R' Yitzḥak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).
 
 ###### Tekufot
 
