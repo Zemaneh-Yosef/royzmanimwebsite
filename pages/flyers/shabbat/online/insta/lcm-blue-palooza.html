@@ -1,0 +1,248 @@
+---
+title: Shabbat East Coast Times
+permalink: /shabbat-design/lcm-blue-palooza
+breakout: true
+website: true
+---
+
+<style>
+    .maxWidthContainer {
+        width: clamp(16rem, 90vw, 90rem);
+        font-family: 'Neutro';
+        color: #30344F;
+    }
+
+    #sidebar, .navbar {
+        display: none !important;
+    }
+
+    #wrapperElement {
+        width: 100%;
+        aspect-ratio: 1/1;
+
+        position: relative;
+        display: grid;
+
+        background-image: url("/assets/images/shabbat-abstract/lcm-palooza.png"), linear-gradient(45deg, rgba(4,4,6,1) 0%, #28005B 100%);
+        background-size: cover;
+    }
+
+    #wrapperElement > *:not(.absRotateText):not(#shabbatCandles) {
+        grid-area: 1/1;
+    }
+
+    #imgFooter {
+        justify-self: end;
+        align-self: end;
+        text-align: right;
+        font-weight: 600;
+        font-size: 1.625em;
+        line-height: 1.2;
+        padding-bottom: 1rem;
+        padding-right: 1rem;
+        z-index: 3;
+    }
+
+    .footerBold {
+        font-weight: 700;
+    }
+
+    .absRotateText {
+        position: absolute;
+        transform: rotateZ(3.5deg);
+        text-align: center;
+        font-family: 'Guttman Mantova';
+        line-height: 1;
+    }
+
+    #wrapperElement .shabbatTitleCore {
+        top: 9vw;
+        right: 2.9vw;
+        font-size: 3.9em;
+        font-family: 'FrankRuehl', serif;
+        font-weight: 500;
+        width: 45vw;
+        color: white;
+        filter: drop-shadow(5px 5px 10px #28015B);
+    }
+
+    #maran {
+        grid-area: 1/1;
+        align-self: end;
+        width: 28%;
+        z-index: 3;
+    }
+
+    #lechaDodi {
+        color: #F6E3A9;
+        width: 40%;
+        position: absolute;
+        right: 2.5%;
+        font-size: 2em;
+        text-align: center;
+        top: 20%;
+    }
+
+    #likratKalah {
+        top: 40%;
+        right: 1%;
+        position: absolute;
+        width: 42.5%;
+        border-radius: 5%;
+        z-index: 2;
+    }
+
+    #zemanehShab {
+        font-family: 'Gladiola-Regular';
+        right: 2.9vw;
+        font-size: 5vw;
+        top: 0;
+        line-height: .8;
+        color: white;
+        text-shadow: 0 0 15px #fff, 0 0 25px #fff, 0 0 35px #e60073, 0 0 45px #e60073, 0 0 55px #e60073, 0 0 65px #e60073, 0 0 75px #e60073;
+    }
+
+    #gridElement {
+        position: absolute;
+        grid-template-columns: 1fr .75fr .75fr;
+        left: 1vw;
+        top: 14.5vw;
+        display: grid;
+    }
+
+    #shabbatCandles {
+        position: absolute;
+        align-self: end;
+        width: 100%;
+        right:0;
+        bottom: 2.5vw;
+        z-index: 1;
+        opacity: 50%;
+    }
+
+    #bottomWave {
+        align-self: end;
+        width: 100%;
+        z-index: 2;
+    }
+
+    .timeshow {
+        text-align: center;
+        z-index: 5;
+    }
+
+    .shabbatRow {
+        margin-top: .3vw;
+        margin-bottom: .3vw;
+        padding-top: .25vw;
+        padding-bottom: .25vw;
+        font-size: 1.8vw;
+        font-weight: 600;
+    }
+
+    .timecalc {
+        background-color: #F1E79F;
+        font-weight: 700;
+        padding-left: 0.5vw;
+        padding-right: 1vw;
+        text-transform: uppercase;
+        border-right: .25vw solid black;
+    }
+
+    .shabbatRowBg {
+        background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
+        grid-column: 2 / span 3; 
+        margin-top: .3vw;
+        margin-bottom: .3vw;
+        z-index: 2;
+    }
+
+    .header {
+        padding: 0.5vw;
+        background: #D9BB65;
+        margin-left: .6vw;
+        margin-right: .6vw;
+        color: black;
+        text-transform: uppercase;
+        text-align: center;
+        line-height: 1.2;
+        font-weight: 600;
+        font-size: 19px;
+    }
+
+    .tableShadow {
+        box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+        -webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+        -moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+    }
+
+    .shabBorder {
+        border-right: .125vw solid black;
+    }
+
+    .twoLine {
+        line-height: .4;
+        padding-top: 1vw;
+    }
+
+    .sml {
+        font-size: 10px;
+    }
+
+    .inlineLogo {
+        display: inline-block;
+        font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
+        vertical-align: text-top;
+        font-size: 1.1em;
+        font-weight: 500;
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+    <img src="/assets/images/shabbat-abstract/shabbat-candles.png" id="shabbatCandles" />
+    <img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
+    <div id="gridElement"
+        data-functions-backday-1="getCandleLighting"
+        data-functions-backday-0="getTzait72Zmanit"
+    >
+        <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">LCM Homes</div>
+        <div class="header tableShadow">Contest Begins<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
+        <div class="header tableShadow">Contest Ends<br><span style="font-weight: 400;">(Late Rabbenu Tam)</span></div>
+        {% for item in site.data.designLocationList.lcm %}{% assign gridRow = forloop.index | plus: 1 %}
+            <div class="shabbatRow tableShadow timecalc {% if item.twoLine %}twoLine{% endif %}"
+                {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+                data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+                data-timezone="{{ item.timezone }}"
+                data-format="{{ item.timeFormat }}"
+                {% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+                {% if item.doubleLocation %}data-double-location{% endif %}
+                style="grid-column: 1; grid-row: {{ gridRow }};">
+                {%- assign check = item.flag | split:'.' | last -%}
+                {% if check == "svg" %}
+                    <img class="imgFlag" src="{{ item.flag }}">
+                {% else %}
+                    {{ item.flag }}
+                {% endif %}
+                {{ item.name }}
+            </div>
+            <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: {{ gridRow }};">Start Time</div>
+            <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: {{ gridRow }};">End Time</div>
+            <div class="shabbatRowBg tableShadow" style="grid-row: {{ gridRow }};"></div>
+        {% endfor %}
+    </div>
+    <span id="zemanehShab" class="absRotateText"><span style="font-family: Higuen; text-shadow: 0 0 15px yellow, 0 0 25px yellow, 0 0 35px #e60073, 0 0 45px #e60073, 0 0 55px #e60073, 0 0 65px #e60073, 0 0 75px #e60073;">GRAND</span><br>Shabbos Chazara Contest</span>
+    <span id="lechaDodi">During non-laining or חזרת הש"ץ times, earn a ticket for every <b>four</b> Dafs!<br>(Special Deal: <span dir=rtl>ט'-כ'</span> is worth 4 tickets)<br><br><span style="font-family: 'Guttman Vilna'; font-size: 3vw;">לקדוש ה' מכובד</span></span>
+    <img src="/assets/images/shabbat-abstract/lcm-ad.png" id="likratKalah">
+    <span class="shabbatTitleCore absRotateText">פרשת </span>
+    <div id="imgFooter">
+        Calculated by LCM student Maor Neim & alumni Elyahu Jacobi via our <span class="inlineLogo">זמני יוסף</span> platform.<br>
+        Download for Halachic Times according to Rabbi Ovadia Yosef zt"l, available on iOS & Android • royzmanim.com
+    </div>
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>

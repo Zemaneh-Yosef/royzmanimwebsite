@@ -7,7 +7,9 @@ layout: nothing
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <link href="/assets/fonts/BreulGroteskA-Heavy/style.css" rel="stylesheet" />
-<link href="/assets/css/marquee.css" rel="stylesheet" />
+
+<link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
+<link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
 
 <style>
 	#content {
@@ -37,10 +39,6 @@ layout: nothing
 		height: calc(100vh - var(--margin) - var(--margin) - var(--margin));
 		width: calc(100vw - var(--margin) - var(--margin));
         background: white;
-	}
-
-	.blink {
-		animation: blinker 1s step-start infinite;
 	}
 
 	#clock {
@@ -73,12 +71,6 @@ layout: nothing
 
 	#topBar > * {
 		flex: 1 1;
-	}
-
-	@keyframes blinker {
-		50% {
-			opacity: 0;
-		}
 	}
 
 	#topBar svg {

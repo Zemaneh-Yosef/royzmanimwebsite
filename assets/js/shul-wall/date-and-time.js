@@ -5,6 +5,8 @@ import WebsiteCalendar from "../WebsiteCalendar.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { reload } from "./reload.js";
 
+import preSettings from "./preSettings.js";
+
 const hourElem = document.querySelector('[data-sw-hour]')
 const minuteElem = document.querySelector('[data-sw-minute]')
 const portElem = document.querySelector('[data-sw-portion]')
@@ -14,7 +16,7 @@ if (!('timers' in window))
 	window.timers = {}
 
 function updateTime() {
-	const curTime = Temporal.Now.zonedDateTimeISO();
+	const curTime = Temporal.Now.zonedDateTimeISO().withTimeZone(preSettings.location.timezone());
 	const textHour = (curTime.hour - ((curTime.hour >= 13 && portElem) ? 12 : 0)).toString().padStart(2, '0')
 
 	if (Math.abs(parseInt(hourElem.innerHTML) - parseInt(textHour)) > 1 && !(hourElem.innerHTML == "12" && curTime.hour == 1)) {

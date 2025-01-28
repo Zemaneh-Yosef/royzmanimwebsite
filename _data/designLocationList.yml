@@ -274,11 +274,13 @@ lcm:
     timezone: America/New_York
     humra: 2
     timeFormat: h12
-  - name: Atlanta, GA
-    # Location: Chabad of Toco Hills
-    lat: 33.814254855365846
-    lng: -84.32203439424957
-    timezone: America/New_York
+  - name: Israel (Jerusalem)
+    # Location: Kotel
+    lat: 31.776766188649376
+    lng: 35.23450233337062
+    timezone: Asia/Jerusalem
+    elevation: 788
+    humra: 0
     timeFormat: h12
   - name: Baltimore, MD
     #flag: https://upload.wikimedia.org/wikipedia/commons/a/a0/Flag_of_Maryland.svg

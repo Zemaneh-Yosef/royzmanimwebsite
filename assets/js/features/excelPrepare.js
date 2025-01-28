@@ -31,31 +31,19 @@ export default function spreadSheetExport (amudehHoraahZman, plainDateParams, ge
 		.toZonedDateTimeISO(geoLocation.getTimeZone())
 	);
 
+	/** @param {Temporal.ZonedDateTime} time */
+	const formatTime = (time) => '=TIME(' + [time.hour, time.minute, time.second].join(', ') + ')'
+
 	const events = [];
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
-		const regularNetz = calc.getNetz();
-
-		// @ts-ignore
-		let seeSun;
-		if (vNetz)
-			seeSun = vNetz.find(zDT => Math.abs(regularNetz.until(zDT).total('minutes')) <= 6)
-
-		/** @param {import("../WebsiteCalendar.js").zmanData} entry  */
-		function formatTime(entry) {
-			// @ts-ignore
-			const time = (entry.function == 'getNetz' && seeSun ? seeSun : entry.luxonObj)
-			return '=TIME(' + [time.hour, time.minute, time.second].join(', ') + ')'
-		}
-
 		const dailyZmanim = Object.entries(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings))
 			.filter(entry => entry[1].display == 1)
 			.map(entry => [
 				entry[0],
 				{t: "d", v: new Date(entry[1].luxonObj.epochMilliseconds),
-				f: formatTime(entry[1]), z:
+				f: formatTime(entry[1].luxonObj), z:
 					"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
-					// @ts-ignore
-					+ ":mm" + (funcSettings.seconds || (entry[1].function == "getNetz" && seeSun) ? ":ss" : "")
+					+ ":mm" + (funcSettings.seconds ? ":ss" : "")
 					+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")}
 			])
 
@@ -69,6 +57,16 @@ export default function spreadSheetExport (amudehHoraahZman, plainDateParams, ge
 
 		jCal.setDate(jCal.getDate().add({ days: 1 }));
 		calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
+	}
+
+	for (const vNetzDay of vNetz) {
+		const netzDay = events.find((event) => event.DATE.f == `=DATE(${vNetzDay.year}, ${vNetzDay.month}, ${vNetzDay.day})`);
+		if (netzDay && 'sunrise' in netzDay && Math.abs(netzDay.sunrise.v - vNetzDay.epochMilliseconds) < 1000 * 60 * 7)
+			netzDay.sunrise = { t: "d", v: new Date(vNetzDay.epochMilliseconds), f: formatTime(vNetzDay), z:
+				"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
+				+ ":mm:ss"
+				+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")}
+
 	}
 
 	return events;
