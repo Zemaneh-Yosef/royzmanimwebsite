@@ -97,9 +97,12 @@ if (dateHighlight.isYomTov() && dateHighlight.getYomTovIndex() in yomTovObj) {
     titleElem.innerHTML = yomTovObj[dateHighlight.getYomTovIndex()][preSettings.language()]
 } else if (titleElem.hasAttribute('data-prefix')) {
     titleElem.innerHTML = {
-        "en-ru": `<span class="langTV lang-hb">Shabbat ${dateHighlight.isChanukah() ? "Ḥannuka" : ""}</span>
+        "en-ru": `<span class="langTV lang-hb">Shabbat ${dateHighlight.isChanukah() ? "Ḥanuka" : ""}</span>
         <span class="langTV lang-ru">Шаббат ${dateHighlight.isChanukah() ? "Ханука" : ""}</span> - `
-            + jCal.getHebrewParasha().join(" / ") + (dateHighlight.isChanukah() ? " (חנוכה)" : "")
+            + jCal.getHebrewParasha().join(" / "),
+        "en-et-hb":
+            `<span class="langTV lang-en-et">Shabbat ${dateHighlight.isChanukah() ? "Ḥanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
+            <span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${dateHighlight.isChanukah() ? "(חנוכה)" : ""}</span>`
     }[titleElem.getAttribute('data-prefix')]
 } else
     titleElem.innerHTML = jCal.getHebrewParasha().join(" / ") + (dateHighlight.isChanukah() ? " (חנוכה)" : "");

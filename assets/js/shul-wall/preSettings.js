@@ -83,6 +83,7 @@ switch (window.location.href.split('/').at(-1)) {
 		});
 		break;
 	case 'ohel-michael-adj':
+	case 'ahavat-achim':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',

@@ -26,7 +26,18 @@ layout: nothing
 	#shulSchedule {
 		width: 72.5%;
 		background: hsl(0, 0%, 25%);
-		position: relative;
+
+		padding-top: 2.5vh;
+		padding-left: 2.5vh;
+		padding-bottom: 2.5vh;
+
+		display: grid;
+		grid-template-columns: 60% 40%;
+		grid-template-rows: 50% 50%;
+	}
+
+	#shulSchedule > *:not(#carouselBG) {
+		z-index: 2;
 	}
 
 	#zemanim {
@@ -48,12 +59,9 @@ layout: nothing
 	}
 
 	#carouselBG {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		padding-top: 2.5vh;
-		padding-left: 2.5vh;
-		padding-bottom: 2.5vh;
+		grid-column: 1 / span 2;
+		grid-row: 1 / span 2;
+
 		border-top-left-radius: 2.5rem;
 		border-bottom-left-radius: 2.5rem;
 		overflow: hidden;
@@ -104,7 +112,33 @@ layout: nothing
         content: "Tom., ";
     }
 
-	#zemanimBody .list-group-item {
+	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
+		content: "מחר, ";
+		unicode-bidi: isolate;
+	}
+
+	#quickTimes {
+		display: grid;
+		justify-content: center;
+		font-size: 1.75rem;
+	}
+
+	#quickTimes i {
+		width: 1em;
+		text-align: center;
+	}
+
+	#quickTimes svg {
+		height: 1em;
+		width: 1em;
+		vertical-align: bottom;
+	}
+
+	#quickTimes svg path {
+		fill: white;
+	}
+
+	.list-group-item {
 		background: transparent;
 		border: none;
 		text-align: center;
@@ -117,10 +151,19 @@ layout: nothing
 		justify-content: space-between;
 	}
 
-	#zemanimBody .card {
+	.card {
 		border: none;
 	    background: transparent;
 		line-height: 1;
+	}
+
+	#shabbatSchedule {
+		grid-row: 1/span 2;
+		grid-column: 1;
+		padding: 1vw;
+		margin: 1vw;
+		background-color: rgba(0,0,0,.45);
+		border-radius: 2.5rem;
 	}
 </style>
 
@@ -128,11 +171,33 @@ layout: nothing
 	<div id="shulSchedule">
 		<div id="carouselBG" class="carousel slide carousel-fade" data-bs-ride="carousel">
 			<div class="carousel-inner">
-				<div class="carousel-item active">
-					<img src="https://g489bf.p3cdn1.secureserver.net/wp-content/uploads/2024/01/3000.png?time=1729502012" class="d-block w-100">
+			</div>
+		</div>
+		<div id="shabbatSchedule">
+			<h1 style="text-align: center; font-size: 3.75rem;" data-parasha data-prefix="en-et-hb"></h1>
+			<div id="quickTimes">
+				<div style="text-align: left; width: fit-content; line-height: 1;">
+					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
+					<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
 				</div>
-				<div class="carousel-item">
-					<img src="/assets/images/ivana-cajina-316246-unsplash.jpg" class="d-block w-100">
+			</div>
+			<div class="card pt-4">
+				<ul class="list-group list-group-flush" id="youth">
+				</ul>
+			</div>
+			<hr>
+			<h3 class="text-center" style="font-size: 2.5rem;">Main Minyan</h3>
+			<div class="card">
+				<ul class="list-group list-group-flush" id="main">
+				</ul>
+			</div>
+		</div>
+		<div style="grid-column: 2; grid-row: 1; margin: 1vw; margin-left: 0vw; text-align: center;">
+			<img src="/assets/images//shul-wall/venmo_qrcode.svg" alt="Venmo QR Code" style="width: 75%; border-radius: 2.5rem;">
+		</div>
+		<div style="grid-column: 2; grid-row: 2; margin: 1vw; margin-left: 0vw; text-align: center; align-self: center;">
+			<div id="carouselFlyers" class="carousel slide" data-bs-ride="carousel">
+				<div class="carousel-inner">
 				</div>
 			</div>
 		</div>
@@ -317,3 +382,24 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
+<script type="module">
+	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
+	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/ateret-marjan/schedule.ini', true);
+
+	const images = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+		.split('\n')
+		.filter(str => str.startsWith('./ateret-marjan/'))
+
+	const carouselBG = document.getElementById('carouselBG');
+	carouselBG.firstElementChild.innerHTML = images.filter(img => img.startsWith('./ateret-marjan/shul-bg'))
+		.map((url, index) =>
+			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+		.join('');
+
+	const carouselFlyers = document.getElementById('carouselFlyers');
+	carouselFlyers.firstElementChild.innerHTML = images.filter(img => img.startsWith('./ateret-marjan/events/'))
+		.map((url, index) =>
+			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+		.join('');
+</script>
