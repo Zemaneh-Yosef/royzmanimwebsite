@@ -83,6 +83,7 @@ switch (window.location.href.split('/').at(-1)) {
 		});
 		break;
 	case 'ohel-michael-adj':
+	case 'ahavat-achim':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',
@@ -130,6 +131,29 @@ switch (window.location.href.split('/').at(-1)) {
 			}
 		});
 		break;
+	case 'ateret-marjan':
+		preSetSettings = Object.freeze({
+			seconds: () => false,
+			timeFormat: () => 'h12',
+			language: () => 'en',
+			location: {
+				name: () => "Ateret Marjan",
+				lat: () => 34.164749,
+				long: () => -118.525887,
+				elevation: () => 0,
+				timezone: () => "America/Los_Angeles"
+			},
+			calendarToggle: {
+				rtKulah: () => true,
+				tekufaMidpoint: () => 'hatzoth',
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
+			},
+			customTimes: {
+				candleLighting: () => 20,
+				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.14 })
+			}
+		});
 }
 
 export default preSetSettings || settings;

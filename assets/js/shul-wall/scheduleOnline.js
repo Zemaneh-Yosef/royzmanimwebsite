@@ -65,13 +65,20 @@ const localization = {
 }
 
 /** @param {string} url */
-export default async function onlineSchedule(url, callback = async () => {}) {
+export default async function onlineSchedule(url, silent=false) {
 	const iniText = await (await fetch(url)).text();
 	const iniObj = parse(iniText);
 
 	let autoSchedule = false;
 
 	for (const [tableKey, value] of Object.entries(iniObj)) {
+		if (!document.getElementById(tableKey)) {
+			if (!silent)
+				throw new Error(`Table with id ${tableKey} not found`);
+
+			continue;
+		}
+
 		if (typeof value == "string") {
 			document.getElementById(tableKey).innerHTML = value;
 			continue;

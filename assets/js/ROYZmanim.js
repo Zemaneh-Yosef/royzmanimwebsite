@@ -376,6 +376,10 @@ class OhrHachaimZmanim extends AlotTzeitZmanim {
 		return this.astronomicalZman.sunset
 			.add(this.fixedToSeasonal(Temporal.Duration.from({ minutes: 72 })))
 	}
+
+	getTzais18Degrees() {
+		return this.coreZC.getSunsetOffsetByDegrees(KosherZmanim.AstronomicalCalendar.ASTRONOMICAL_ZENITH);
+	}
 }
 
 class AmudehHoraahZmanim extends AlotTzeitZmanim {
@@ -439,6 +443,10 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 	getTzait72Zmanit() {
 		return this.astronomicalZman.sunset
 			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(16.01, true)))
+	}
+
+	getTzais18Degrees() {
+		return this.coreZC.getSunsetOffsetByDegrees(KosherZmanim.AstronomicalCalendar.ASTRONOMICAL_ZENITH);
 	}
 }
 
