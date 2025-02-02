@@ -1,117 +1,200 @@
 .accordian summary {
-  --bs-list-group-color: var(--bs-body-color);
-  --accordian-bg: white;
-  outline: none;
-  padding: .5rem .9rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--accordian-bg);
-  color: var(--bs-list-group-color);
-  padding-left: 1.2rem;
-  position: relative;
-  cursor: pointer;
+	--bs-list-group-color: var(--bs-body-color);
+	outline: none;
+	color: var(--bs-list-group-color);
+	position: relative;
+	cursor: pointer;
 }
 
 .accordian {
-  box-shadow: 0 2px 15px -3px rgba(0,0,0,0.07),0 10px 20px -2px rgba(0,0,0,0.04);
+	box-shadow: 0 2px 15px -3px rgba(0,0,0,0.07),0 10px 20px -2px rgba(0,0,0,0.04);
+
+	--accordian-bg: white;
+	background: var(--accordian-bg);
 }
 
 .accordian details {
-  position: relative;
-  interpolate-size: allow-keywords;
+	position: relative;
+	interpolate-size: allow-keywords;
 }
 
 .accordian summary .timeDisplay {
-  font-weight: bold;
+	font-weight: bold;
+	align-self: center;
 }
 
 .accordian details.loading::before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-  background-size: 40px 100%;
-  background-repeat: no-repeat;
-  background-position: left -40px top 0;
-  -webkit-animation: shine 1s ease infinite;
-          animation: shine 1s ease infinite;
-  z-index: 2;
-  opacity: .25;
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+	background-size: 40px 100%;
+	background-repeat: no-repeat;
+	background-position: left -40px top 0;
+	-webkit-animation: shine 1s ease infinite;
+					animation: shine 1s ease infinite;
+	z-index: 2;
+	opacity: .25;
 }
 
-.accordian details:not(:last-child) {
-  border-bottom:  var(--bs-border-width) solid var(--bs-border-color);
+.accordian:not(.accordianModern) details:not(:last-child),
+.accordian.accordianModern details:not(:last-child) .accordianText,
+.accordian.accordianModern details:not(:last-child) .timeDisplay:not(.multiZmanContainer),
+.accordian.accordianModern details:not(:last-child) .timeDisplay.multiZmanContainer .subShita {
+	border-bottom: var(--bs-border-width) solid var(--bs-border-color);
 }
 
 .accordian details summary::-webkit-details-marker {
-  display: none;
+	display: none;
 }
 
 .accordian details[open] {
-  border-top: 1px solid black;
-  box-shadow: 0 1px 6px -2px black;
-  z-index: 12;
-  position: relative;
+	border-top: 1px solid black;
+	box-shadow: 0 1px 6px -2px black;
+	z-index: 12;
+	position: relative;
 }
 
 .accordian details[open] > summary .accordianText:before {
-  transform: rotate(90deg);
+	transform: rotate(90deg);
 }
 
 .accordian summary .accordianText:before {
-  content: "";
-  border-width: 0.4rem;
-  border-style: solid;
-  border-color: transparent transparent transparent var(--bs-list-group-color);
-  transform: rotate(0);
-  transform-origin: left center;
-  transition: 0.25s transform ease;
-  margin-right: 0.25rem;
-  display: inline-block;
+	content: "";
+	border-width: 0.4rem;
+	border-style: solid;
+	border-color: transparent transparent transparent var(--bs-list-group-color);
+	transform: rotate(0);
+	transform-origin: left center;
+	transition: 0.25s transform ease;
+	margin-right: 0.25rem;
+	display: inline-block;
 }
 
 body[dir=rtl] .accordian summary .accordianText:before {
-  border-color: transparent var(--bs-list-group-color) transparent transparent;
-  margin-right: 0;
-  margin-left: 0.25rem;
-  transform-origin: right center;
+	border-color: transparent var(--bs-list-group-color) transparent transparent;
+	margin-right: 0;
+	margin-left: 0.25rem;
+	transform-origin: right center;
 }
 
 body[dir=rtl] .accordian details[open] > summary .accordianText:before {
-  transform: rotate(-90deg) translateX(3px) translateY(-3px);
+	transform: rotate(-90deg) translateX(3px) translateY(-3px);
 }
 
 .accordian details::details-content {
-  background: white;
-  overflow-y: scroll;
-  transition:
-    block-size .25s cubic-bezier(.4,0,.2,1),
-    content-visibility .25s cubic-bezier(.4,0,.2,1) allow-discrete;
-  block-size: 0;
+	background: white;
+	overflow-y: scroll;
+	transition:
+		block-size .25s cubic-bezier(.4,0,.2,1),
+		content-visibility .25s cubic-bezier(.4,0,.2,1) allow-discrete;
+	block-size: 0;
 }
 
 .accordian .accordianContent {
-  padding: 10px;
-  border: 2px solid var(--bs-card-bg);
-  border-top: none;
+	padding: 10px;
+	border: 2px solid var(--bs-card-bg);
+	border-top: none;
 }
 
 .accordian details[open]::details-content {
-  block-size: 35vh;
+	block-size: 35vh;
 }
 
 .accordian .accordianContent hr:last-child {
-  display: none;
+	display: none;
 }
 .accordian .accordianContent:has(hr:last-child) p:nth-last-child(2) {
-  padding-bottom: 0;
+	padding-bottom: 0;
 }
 
-
 @keyframes shine {
-  to {
-    background-position: right -40px top 0;
-  }
+	to {
+		background-position: right -40px top 0;
+	}
+}
+
+/** Fallback for old accordian */
+.accordian:not(.accordianModern) summary {
+	padding: .5rem .9rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-left: 1.2rem;
+}
+
+/** Accordian for Zemanim Display */
+
+.accordian.accordianModern {
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+}
+
+.accordian.accordianModern details .accordianText {
+	padding-top: .5rem;
+	padding-bottom: .5rem;
+	padding-left: 1.2rem;
+}
+
+.accordianModern details, .accordianModern summary {
+	display: contents;
+}
+
+.accordianModern details::details-content {
+	grid-column: span 3;
+}
+
+.accordian.accordianModern details .timeDisplay:not(.multiZmanContainer),
+.accordian.accordianModern details .timeDisplay.multiZmanContainer .subShita:last-child {
+	padding-right: 1rem;
+}
+
+.timeDisplay, .subShita {
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	line-height: 1;
+	justify-content: center;
+	height: 100%;
+}
+
+@media (min-width: 992px) {
+	.accordianModern .subShita {
+		padding-top: .3rem;
+		padding-bottom: .3rem;
+	}
+
+	.accordian:not(.accordianModern) .timeDisplay {
+		width: 20ch;
+	}
+
+	.accordian:not(.accordianModern) .timeDisplay.multiZmanContainer {
+		flex-direction: row;
+		justify-content: center;
+	}
+
+	.accordianModern .timeDisplay:not(.multiZmanContainer) {
+		grid-column: span 2;
+	}
+
+	.accordianModern .timeDisplay.multiZmanContainer {
+		display: contents;
+	}
+	
+	.subShita:not(:last-child) {
+		padding-inline-end: 1ch;
+	}
+	.subShita.leftBorderForShita {
+		padding-inline-start: 1ch;
+		border-inline-start: .125ch solid var(--bs-body-color);
+	}
+
+	.accordianModern .d-lg-detailsBlend {
+		display: contents !important;
+	}
+
+	.accordian:not(.accordianModern) .d-lg-detailsBlend {
+		display: block !important;
+	}
 }

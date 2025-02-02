@@ -160,7 +160,7 @@ chaiTable: true
 						{% endfor %}
 						<details
 							data-zmanid="{{ item.id }}"
-							class="loading d-none d-lg-block"
+							class="loading d-none d-lg-detailsBlend"
 							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
 						>
 							<summary>
@@ -169,7 +169,7 @@ chaiTable: true
 									<span class="lang lang-et">{{ item.names.et }}</span>
 									<span class="lang lang-en">{{ item.names.en }}</span>
 								</div>
-								<span class="timeDisplay flex-row">
+								<span class="timeDisplay multiZmanContainer">
 									{% for pcDisplay in item.shitot %}
 									<span class="subShita" data-subZmanId="{{ pcDisplay.id }}">
 										<div class="upNextText" style="display: none;">
@@ -487,6 +487,13 @@ chaiTable: true
 		</div>
 	</div>
 </div>
+
+<script>
+	if (new URL(window.location.href).searchParams.has('modernAccordian')) {
+		for (const accordian of document.getElementsByClassName('accordian'))
+			accordian.classList.add('accordianModern');
+	}
+</script>
 
 {% comment %}
 <div id="tvLayout">

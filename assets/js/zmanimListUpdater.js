@@ -769,7 +769,9 @@ export default class zmanimListUpdater {
 					// Now we know it's a proper sub-function, but we need to now determine how to display each sub-function
 					let allRowsHidden = true;
 					let firstAlreadyGone = false;
-					for (const shita of timeDisplay.querySelectorAll('[data-subZmanId]')) {
+					let invalidShitot = 0;
+					const shitot = timeDisplay.querySelectorAll('[data-subZmanId]')
+					for (const shita of shitot) {
 						if (!(shita instanceof HTMLElement))
 							return;
 
@@ -816,15 +818,20 @@ export default class zmanimListUpdater {
 							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].title["en-et"]
 
 						// Calculate but hide! Can be derived via Inspect Element
-						if (!zmanInfo[completeName].display)
+						if (!zmanInfo[completeName].display) {
 							shita.style.setProperty('display', 'none', 'important');
-						else {
+							invalidShitot++;
+						} else {
 							allRowsHidden = false;
 							shita.style.removeProperty('display');
 
 							if (!firstAlreadyGone) {
 								firstAlreadyGone = true;
 								shita.classList.remove("leftBorderForShita");
+
+								if (invalidShitot == 1 && shitot.length == 2) {
+									shita.style.gridColumn = "span 2"
+								}
 							} else {
 								shita.classList.add("leftBorderForShita")
 							}

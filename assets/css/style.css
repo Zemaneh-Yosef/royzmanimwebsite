@@ -86,18 +86,13 @@ body {
 		margin-bottom: .5rem;
 	}
 
-	.timeDisplay {
-		width: 20ch;
-		text-align: center;
-		display: flex;
-		flex-direction: column;
-		line-height: 1;
-		justify-content: center;
-	}
-
 	#manualContainer {
 		display: grid;
 		grid-template-columns: auto 1fr auto;
+	}
+
+	.d-lg-contents {
+		display: contents;
 	}
 }
 
@@ -252,22 +247,6 @@ li[data-zfFind="FastDays"] h5 {
 
 #locationModal img {
 	max-height: none;
-}
-
-.subShita {
-	/* d-flex flex-column text-center ps-1 lh-1*/
-	display: flex;
-	flex-direction: column;
-	text-align: center;
-	line-height: 1;
-}
-
-.subShita:not(:last-child) {
-	padding-inline-end: 1ch;
-}
-.subShita.leftBorderForShita {
-	padding-inline-start: 1ch;
-	border-inline-start: .125ch solid var(--bs-body-color);
 }
 
 #gctnd {
