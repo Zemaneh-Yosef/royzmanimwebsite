@@ -353,10 +353,10 @@ export default class zmanimListUpdater {
 							.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
 							.join(" / ");
 
-					if (makamElems.summaryTitle.lastElementChild.nodeType == Node.TEXT_NODE)
-						makamElems.summaryTitle.lastElementChild.remove();
+					if (makamElems.summaryTitle.lastChild.nodeType == Node.TEXT_NODE)
+						makamElems.summaryTitle.lastChild.remove();
 
-					makamElems.summaryTitle.appendChild(document.createTextNode("(" + shabbatMakam.title + ")"));
+					makamElems.summaryTitle.appendChild(document.createTextNode(" (" + shabbatMakam.title + ")"));
 
 					makamElems.details.classList.remove("noContent");
 					makamElems.details.classList.add("smallContent");
