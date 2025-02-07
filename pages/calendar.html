@@ -10,8 +10,8 @@ chaiTable: true
 </noscript>
 
 <div id="wideGrid" class="maxWidthContainer">
-	<div id="shabbat">
-		<div class="card mt-2 mt-lg-0 mb-2" data-zfFind="Parasha">
+	<div id="shabbat" data-zfFind="Parasha">
+		<div class="card mt-2 mt-lg-0">
 			<div class="card-header">
 				<div class="d-none d-lg-flex justify-content-between handleSvg align-items-center">
 					<span><i class="bi bi-fire"></i> <span data-zfReplace="CandleLighting"></span></span>
@@ -40,16 +40,20 @@ chaiTable: true
 					</ul>
 				</div>
 			</div>
-			<dl class="list-group list-group-flush lh-sm">
-				{% for learning in site.data.learning.shabbat %}
-				<div class="list-group-item d-flex justify-content-between">
-					<dt class="lang lang-hb">{{ learning.text.hb.full }}</dt>
-					<dt class="lang lang-et">{{ learning.text.et.full }}</dt>
-					<dt class="lang lang-en">{{ learning.text.en.full }}</dt>
-					<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
-				</div>
-				{% endfor %}
-			</dl>
+		</div>
+		<div class="accordian">
+			{% for learning in site.data.learning.shabbat %}
+			<details class="noContent" data-zfFind="{{ learning.limud }}">
+				<summary>
+					<div class="accordianText">
+						<span class="lang lang-hb">{{ learning.text.hb.full }}</span>
+						<span class="lang lang-et">{{ learning.text.et.full }}</span>
+						<span class="lang lang-en">{{ learning.text.en.full }}</span>
+					</div>
+					<span data-zfReplace="{{ learning.limud }}"></span>
+				</summary>
+			</details>
+			{% endfor %}
 		</div>
 	</div>
 	<div id="generic">
@@ -120,13 +124,13 @@ chaiTable: true
 						Print (Coming Soon)
 					</button>
 				</div>
-				<div class="accordian" data-zfFind="calendarFormatter">
+				<div class="accordian loading" data-zfFind="calendarFormatter">
 					{% for item in site.data.zmanim %}
 						{% if item.shitot %}
 						{% for mobileZman in item.shitot%}
 						<details
 							data-zmanid="{{ item.id }}-{{ mobileZman.id }}"
-							class="loading d-lg-none"
+							class="d-lg-none"
 							data-timeGetter="{{ mobileZman.timeGetter }}"
 							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
 							{% if mobileZman.attributes.luachInclusive %}data-luachInclusive="{{ mobileZman.attributes.luachInclusive }}"{% endif %}
@@ -160,7 +164,7 @@ chaiTable: true
 						{% endfor %}
 						<details
 							data-zmanid="{{ item.id }}"
-							class="loading d-none d-lg-detailsBlend"
+							class="d-none d-lg-detailsBlend"
 							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
 						>
 							<summary>
@@ -196,7 +200,6 @@ chaiTable: true
 						{% else %}
 						<details
 							data-zmanid="{{ item.id }}"
-							class="loading"
 							{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
 							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
 							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
@@ -490,8 +493,7 @@ chaiTable: true
 
 <script>
 	if (new URL(window.location.href).searchParams.has('modernAccordian')) {
-		for (const accordian of document.getElementsByClassName('accordian'))
-			accordian.classList.add('accordianModern');
+		document.querySelector('[data-zfFind="calendarFormatter"]').classList.add('accordianModern');
 	}
 </script>
 

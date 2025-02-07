@@ -2,7 +2,6 @@
 	--bs-list-group-color: var(--bs-body-color);
 	outline: none;
 	color: var(--bs-list-group-color);
-	position: relative;
 	cursor: pointer;
 }
 
@@ -11,6 +10,7 @@
 
 	--accordian-bg: white;
 	background: var(--accordian-bg);
+	position: relative;
 }
 
 .accordian details {
@@ -23,7 +23,7 @@
 	align-self: center;
 }
 
-.accordian details.loading::before {
+.accordian.loading::before {
 	content: '';
 	position: absolute;
 	width: 100%;
@@ -49,18 +49,18 @@
 	display: none;
 }
 
-.accordian details[open] {
+.accordian details[open]:not(.noContent) {
 	border-top: 1px solid black;
 	box-shadow: 0 1px 6px -2px black;
 	z-index: 12;
 	position: relative;
 }
 
-.accordian details[open] > summary .accordianText:before {
+.accordian details[open]:not(.noContent) > summary .accordianText:before {
 	transform: rotate(90deg);
 }
 
-.accordian summary .accordianText:before {
+.accordian details:not(.noContent) > summary .accordianText:before {
 	content: "";
 	border-width: 0.4rem;
 	border-style: solid;
@@ -72,14 +72,33 @@
 	display: inline-block;
 }
 
-body[dir=rtl] .accordian summary .accordianText:before {
+.accordian details.noContent > summary {
+	cursor:default;
+}
+
+.accordian details.noContent > summary div,
+.accordian details.noContent > summary span {
+	cursor: text;
+}
+
+.accordian details.noContent > summary .accordianText {
+	margin-left: 1.25rem;
+	display: inline-block;
+}
+
+body[dir=rtl] details:not(.noContent) .accordian summary .accordianText:before {
 	border-color: transparent var(--bs-list-group-color) transparent transparent;
 	margin-right: 0;
 	margin-left: 0.25rem;
 	transform-origin: right center;
 }
 
-body[dir=rtl] .accordian details[open] > summary .accordianText:before {
+body[dir=rtl] details.noContent .accordian summary .accordianText {
+	margin-left: 0;
+	margin-right: 0.65rem;
+}
+
+body[dir=rtl] .accordian details[open]:not(.noContent) > summary .accordianText:before {
 	transform: rotate(-90deg) translateX(3px) translateY(-3px);
 }
 
@@ -98,8 +117,12 @@ body[dir=rtl] .accordian details[open] > summary .accordianText:before {
 	border-top: none;
 }
 
-.accordian details[open]::details-content {
+.accordian details[open]:not(.noContent)::details-content {
 	block-size: 35vh;
+}
+
+.accordian details.smallContent[open]::details-content {
+	block-size: 12.5vh;
 }
 
 .accordian .accordianContent hr:last-child {
@@ -196,5 +219,14 @@ body[dir=rtl] .accordian details[open] > summary .accordianText:before {
 
 	.accordian:not(.accordianModern) .d-lg-detailsBlend {
 		display: block !important;
+	}
+
+	dl.accordianContent {
+		display: grid;
+		grid-template-columns: 1fr auto;
+	}
+
+	dl.accordianContent dd {
+		text-align: end;
 	}
 }

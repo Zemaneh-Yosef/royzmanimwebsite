@@ -335,17 +335,46 @@ export default class zmanimListUpdater {
 		parashaBar.querySelector('[data-zfReplace="Haftara"]').innerHTML
 			= `<b>${haftara.text}</b> (${haftara.source})`;
 
-		fetch("/assets/js/makamObj.json")
-			.then(res => res.json())
-			.then(makamObj => {
-				const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
+		try {
+			fetch("/assets/js/makamObj.json")
+				.then(res => res.json())
+				.then(makamObj => {
+					const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
+					const shabbatMakam = makamIndex.getTodayMakam(this.jCal.shabbat());
 
-				const makam = makamIndex.getTodayMakam(this.jCal.shabbat());
-				parashaBar.querySelector('[data-zfReplace="makamot"]').innerHTML =
-					makam
-						.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
-						.join(" / ");
-			})
+					const makamElems = {
+						"summaryResult": parashaBar.querySelector('[data-zfReplace="makamot"]'),
+						"summaryTitle": parashaBar.querySelector('[data-zfReplace="makamot"]').previousElementSibling,
+						"details": parashaBar.querySelector('[data-zfFind="makamot"]')
+					}
+
+					makamElems.summaryResult.innerHTML =
+						shabbatMakam.makam
+							.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
+							.join(" / ");
+
+					if (makamElems.summaryTitle.lastElementChild.nodeType == Node.TEXT_NODE)
+						makamElems.summaryTitle.lastElementChild.remove();
+
+					makamElems.summaryTitle.appendChild(document.createTextNode("(" + shabbatMakam.title + ")"));
+
+					makamElems.details.classList.remove("noContent");
+					makamElems.details.classList.add("smallContent");
+
+					if (!makamElems.details.lastElementChild.classList.contains("accordianContent")) {
+						makamElems.details.appendChild(document.createElement("dl")).classList.add("accordianContent");
+					}
+
+					makamElems.details.lastElementChild.innerHTML = Object.entries(KosherZmanim.Makam.getMakamData(this.jCal.shabbat()))
+						.map(([key, value]) => {
+							console.log(typeof value)
+							return `<dt>${key}</dt><dd>${(value.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
+								.join(" / "))}</dd>`
+						}).join('');
+				})
+		} catch (e) {
+			parashaBar.querySelector('[data-zfReplace="makamot"]').innerHTML = "N/A";
+		}
 
 		switch (this.jCal.getDate().dayOfWeek) {
 			case 5:
@@ -834,6 +863,7 @@ export default class zmanimListUpdater {
 								}
 							} else {
 								shita.classList.add("leftBorderForShita")
+								shita.style.removeProperty('grid-column')
 							}
 						}
 					}
@@ -843,7 +873,6 @@ export default class zmanimListUpdater {
 						timeSlot.style.setProperty('display', 'none', 'important');
 					else {
 						timeSlot.style.removeProperty('display')
-						timeSlot.classList.remove('loading')
 					}
 				} else {
 					if (zmanInfo[zmanId].display == -1) {
@@ -882,7 +911,6 @@ export default class zmanimListUpdater {
 						timeSlot.style.setProperty('display', 'none', 'important');
 					else {
 						timeSlot.style.removeProperty('display')
-						timeSlot.classList.remove('loading')
 					}
 				}
 
@@ -893,6 +921,7 @@ export default class zmanimListUpdater {
 						.split('${getCandleLightingOffset()}').join(this.zmanFuncs.coreZC.getCandleLightingOffset().toString())
 				}
 			}
+			calendarContainer.classList.remove("loading")
 		}
 
 		for (let dafContainer of document.querySelectorAll('[data-zfFind="DafYomi"]')) {
@@ -1044,12 +1073,12 @@ export default class zmanimListUpdater {
 		const currentSelectedDate = this.zmanFuncs.coreZC.getDate();
 
 		for (const days of [0, 1]) {
-			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO().add({ days }), true);
+			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).add({ days }), true);
 			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false,this.zmanFuncs,this.zmanimList,this.zmanInfoSettings)).filter(obj => obj.display == 1).map(time => time.luxonObj));
 		}
 
 		this.changeDate(currentSelectedDate, true); //reset the date to the current date
-		zmanim.sort(KosherZmanim.Temporal.ZonedDateTime.compare)
+		zmanim.sort(KosherZmanim.Temporal.ZonedDateTime.compare);
 		this.nextUpcomingZman = zmanim.find(zman => KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(zman).total({ unit: "milliseconds" }) > 0)
 
 		setTimeout(

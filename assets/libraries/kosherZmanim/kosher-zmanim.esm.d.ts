@@ -5113,7 +5113,13 @@ export type getMaqamReturnType = Partial<Record<Unpacked<typeof entries>, (makam
 declare class WeeklyMakamReading {
 	hierarchy: (Unpacked<typeof entries> | "MAJORITY")[];
 	constructor(hierarchy?: (Unpacked<typeof entries> | "MAJORITY")[]);
-	getTodayMakam(jCal: JewishCalendar): (string | makam)[] | undefined;
+	getTodayMakam(jCal: JewishCalendar): {
+		title: "MAJORITY";
+		makam: (string | makam)[];
+	} | {
+		title: "ADES: 24793" | "GABRIEL A SHREM 1964 SUHV" | "TABBUSH Ms NLI 8*7622, Aleppo" | "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" | "TEBELE Pre1888" | "ELIE SHAUL COHEN FROM AINTAB, ~1880" | "YAAQOB ABADI-PARSIYA" | "YISHAQ YEQAR ARGENTINA" | "Dibre Shelomo S KASSIN Pre1915" | "Knis Betesh Geniza List, Aleppo" | "ABRAHAM DWECK Pre1920" | "IDELSOHN Pre1923" | "S SAGIR Laniado" | "M H Elias, SHIR HADASH, Jerusalem, 1930" | "ASHEAR list" | "ASHEAR NOTES 1936-1940" | "ABRAHAM E SHREM ~1945" | "Argentina 1947 & Ezra Mishanieh" | "Shire Zimra H S ABOUD Jerusalem, 1950" | "D KASSIN/ ISAAC CAIN; RODFE SEDEQ; MEXICO" | "YOSEF YEHEZKEL Jerusalem 1975" | "Ish Massliah \"Abia Renanot\" Tunisians" | "Shaare Zimra YANANI Buenos Aires, 01" | "BOZO, Ades, Shir Ushbaha 2005" | "Yishaq Yeranen Halabi" | "MOSHE AMASH (Shami)" | "EZRA MASLATON TARAB (Shami)" | "ABRAHAM SHAMRICHA (Shami)" | "Victor Afya, Istanbul List" | "Izak Alaluf, Izmir List" | "Hallel VeZimrah, Salonika, 1928" | "Hallel VeZimrah, Greece List, 1926" | "SASSOON #647 Aleppo, 1850" | "Eliahou Yaaqob DWECK-KESAR";
+		makam: (string | makam)[] | undefined;
+	} | undefined;
 	/**
 	 * This method returns a string that contains the weekly Makam. The {@link JewishCalendar}
 	 * object passed into this method should be preset with the correct date.

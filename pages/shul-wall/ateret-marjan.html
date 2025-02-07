@@ -21,15 +21,17 @@ layout: nothing
 		font-family: "Albert Sans", var(--bs-font-sans-serif);
 		font-optical-sizing: auto;
 		font-style: normal;
+
+		position: relative;
 	}
 
 	#shulSchedule {
-		width: 72.5%;
+		width: 67.5%;
 		background: hsl(0, 0%, 25%);
 
 		padding-top: 2.5vh;
 		padding-left: 2.5vh;
-		padding-bottom: 2.5vh;
+		padding-bottom: 12.5vh;
 
 		display: grid;
 		grid-template-columns: 60% 40%;
@@ -41,7 +43,7 @@ layout: nothing
 	}
 
 	#zemanim {
-		width: 27.5%;
+		width: 32.5%;
 		background: #29A1F2;
 		display: flex;
 		flex-direction: column;
@@ -92,15 +94,10 @@ layout: nothing
 		font-weight: 800;
 	}
 
-	#zemanimFooter {
-		display: flex;
-		justify-content: space-between;
-	}
-
 	.wideView article {
 		display: flex;
 		justify-content: space-between;
-		font-size: 1.6em;
+		font-size: 2em;
 		line-height: 1.4;
 	}
 
@@ -145,12 +142,6 @@ layout: nothing
 		font-size: 1.45em;
 	}
 
-	#zemanimBody {
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-	}
-
 	.card {
 		border: none;
 	    background: transparent;
@@ -165,8 +156,32 @@ layout: nothing
 		background-color: rgba(0,0,0,.45);
 		border-radius: 2.5rem;
 	}
+
+	#advertCarousel {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 67.5vw;
+		z-index: 5;
+	}
+
+	#advertCarousel img {
+		object-fit: contain;
+		height: 10.5vh;
+		width: 100%;
+	}
 </style>
 
+<div id="advertCarousel" class="carousel slide" data-bs-ride="carousel">
+	<div class="carousel-inner">
+		<div class="carousel-item active">
+			<img src="https://haichalmoshe.org/wp-content/uploads/2024/01/am-sideways-1.png" alt="Ateret Marjan Logo" class="d-block">
+		</div>
+		<div class="carousel-item">
+			<img src="/assets/images/logo.png" alt="Zemaneh Yosef Logo" class="d-block">
+		</div>
+	</div>
+</div>
 <div id="content" data-current-page="1" data-page-count="2">
 	<div id="shulSchedule">
 		<div id="carouselBG" class="carousel slide carousel-fade" data-bs-ride="carousel">
@@ -174,7 +189,7 @@ layout: nothing
 			</div>
 		</div>
 		<div id="shabbatSchedule">
-			<h1 style="text-align: center; font-size: 3.75rem;" data-parasha data-prefix="en-et-hb"></h1>
+			<h1 style="text-align: center; font-size: 3.25rem;" data-parasha data-prefix="en-et-hb"></h1>
 			<div id="quickTimes">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
@@ -193,7 +208,7 @@ layout: nothing
 			</div>
 		</div>
 		<div style="grid-column: 2; grid-row: 1; margin: 1vw; margin-left: 0vw; text-align: center;">
-			<img src="/assets/images//shul-wall/venmo_qrcode.svg" alt="Venmo QR Code" style="width: 75%; border-radius: 2.5rem;">
+			<img src="/assets/images/shul-wall/venmo_qrcode.svg" alt="Venmo QR Code" style="width: 75%; border-radius: 2.5rem;">
 		</div>
 		<div style="grid-column: 2; grid-row: 2; margin: 1vw; margin-left: 0vw; text-align: center; align-self: center;">
 			<div id="carouselFlyers" class="carousel slide" data-bs-ride="carousel">
@@ -225,6 +240,8 @@ layout: nothing
 					</article>
 				{% endfor %}
 			</section>
+		</div>
+		<div id="zemanimFooter">
 			<div class="card mt-2">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
@@ -369,11 +386,6 @@ layout: nothing
 					</li>
 				</ul>
 			</div>
-			<div></div>
-		</div>
-		<div id="zemanimFooter">
-			<img src="https://haichalmoshe.org/wp-content/uploads/2024/01/am-sideways-1.png" alt="Ateret Marjan Logo" style="width: 72.5%;">
-			<img src="/assets/images/app-icon-full.jpeg" alt="Zemaneh Yosef Logo" style="width: 22.5%; border-radius: .5rem;">
 		</div>
 	</div>
 </div>
