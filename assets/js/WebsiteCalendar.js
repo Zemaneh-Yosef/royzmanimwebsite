@@ -402,8 +402,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"english": "Tu Be'av"
 			},
 			[KosherZmanim.JewishCalendar.TU_BESHVAT]: {
-				"hebrew": 'ט"ו בשבת',
-				"english": "Tu Bishvath"
+				"hebrew": 'ט"ו בשבט',
+				"english": "Tu Bishvat"
 			},
 			[KosherZmanim.JewishCalendar.PURIM_KATAN]: {
 				"hebrew": "פורים קתן",
