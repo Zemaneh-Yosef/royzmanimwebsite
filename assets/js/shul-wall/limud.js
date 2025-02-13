@@ -78,6 +78,6 @@ const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
 
 const makam = makamIndex.getTodayMakam(jCal.shabbat());
 for (const makamContainer of document.querySelectorAll('[data-zfReplace="makamot"]'))
-	makamContainer.innerHTML += makam
+	makamContainer.innerHTML += makam.makam
 		.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
 		.join(" / ");
