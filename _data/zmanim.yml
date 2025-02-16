@@ -30,8 +30,8 @@
   timeGetter: getMisheyakir
   names:
     hb: טלית ותפילין
-    et: Earliest Talit and Tefilin
-    en: Earliest Talit and Tefilin
+    et: Earliest Tallit and Tefilin
+    en: Earliest Tallit and Tefilin
   descriptionInclude: zmanDescription/misheyakir.md
 - id: sunrise
   attributes:
