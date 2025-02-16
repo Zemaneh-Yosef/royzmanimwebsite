@@ -10,7 +10,7 @@ We use the length of the day from sunrise until sunset to determine all Halachic
 Outside of Eretz Yisrael, a few other changes are made:
 
 - Tzet Shabbat outside Eretz Yisrael confines to purely astronomical sightings, so we measure the sun's position below the horizon 30 minutes after sunset on March 20th. We then match that spot for every day of the year in every location, in turn making Shabbat the most stringent whenever possible.
-- For all other times, the expected position of the sun must match for times outside sunrise->sunset **on the equinox day**. In turn, these expand/shrink the amount of minutes for Dawn/Nightfall, continuing the minutes parralel (at least for one day) while keeping the minutes seasonal for the other days of the year.
+- For all other times, the expected position of the sun must match for times outside sunrise->sunset **on the equinox day**. In turn, these expand/shrink the amount of minutes for Dawn/Nightfall, continuing the minutes parallel (at least for one day) while keeping the minutes seasonal for the other days of the year.
 - Rabbenu Tam's Nightfall is capped at 72 fixed minutes, based on both R' Yitzḥak Yosef & R' David Yosef's ruling.
 
 ---
