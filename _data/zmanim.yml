@@ -172,8 +172,8 @@
       id: yy
   names:
     hb: פלג המנחה
-    et: Plag HaMinḥa
-    en: Plag HaMinḥa
+    et: Pelag HaMinḥa
+    en: Pelag HaMinḥa
   descriptionInclude: zmanDescription/plagHamincha.md
 - id: candleLighting
   attributes:

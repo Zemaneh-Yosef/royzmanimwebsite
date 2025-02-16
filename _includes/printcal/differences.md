@@ -25,9 +25,9 @@ These are both astronomical constants, as the base to the other times. Internall
 
 Everyday is counted *independently* (as opposed to a mean value), being the halfway point between sunrise->sunset (not sunrise->tzet)
 
-###### Plag Haminḥa
+###### Pelag Haminḥa
 
-In addition to the GR"A's Plag Haminḥa (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berura), we offer the time for Plag Haminḥa according to R' Yitzḥak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).
+In addition to the GR"A's Pelag Haminḥa (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berura), we offer the time for Pelag Haminḥa according to R' Yitzḥak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).
 
 ###### Tekufot
 

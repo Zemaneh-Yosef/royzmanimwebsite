@@ -73,8 +73,8 @@
       id: yy
   names:
     hb: פלג המנחה
-    et: Plag HaMinḥa
-    en: Plag HaMinḥa
+    et: Pelag HaMinḥa
+    en: Pelag HaMinḥa
 - timeGetter: getShkiya
   names:
     hb: שקיעה

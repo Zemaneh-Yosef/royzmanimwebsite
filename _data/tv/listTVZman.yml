@@ -80,7 +80,7 @@
   names:
     hb: פלג המנחה
     en: Plag Hamincha
-    et: Plag HaMinḥa
+    et: Pelag HaMinḥa
     ru: Плаг минха
 - id: sunset
   timeGetter: getShkiya
