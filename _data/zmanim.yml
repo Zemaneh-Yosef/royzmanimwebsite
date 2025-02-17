@@ -112,7 +112,7 @@
   timeGetter: getHatzoth
   names:
     hb: חצות
-    et: Ḥatsoth Hayom
+    et: Ḥatzot Hayom
     en: Midday
   description: |-
     <p>
@@ -172,8 +172,8 @@
       id: yy
   names:
     hb: פלג המנחה
-    et: Pelag HaMinḥa
-    en: Pelag HaMinḥa
+    et: Pelag Ha'Minḥa
+    en: Pelag Ha'Minḥa
   descriptionInclude: zmanDescription/plagHamincha.md
 - id: candleLighting
   attributes:
@@ -254,7 +254,7 @@
       id: humra
   names:
     hb: צאת הכוכבים
-    et: Tzet Hakokhavim
+    et: Tzet Ha'Kokhavim
     en: Nightfall
   description: |-
     <p>
