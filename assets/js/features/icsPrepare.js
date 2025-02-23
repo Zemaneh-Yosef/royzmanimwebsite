@@ -157,7 +157,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 		if (!jCal.isCholHamoed() && jCal.tomorrow().isCholHamoed()) {
 			let endHolHamoed = jCal.tomorrow();
 			let holHamoedDay = 1;
-			let dateList = getOrdinal(1, false) + " day: " + jCal.formatFancyDate()
+			let dateList = getOrdinal(1, false) + " day: " + jCal.formatFancyDate('long', false)
 			do {
 				endHolHamoed = endHolHamoed.tomorrow();
 				holHamoedDay++;
