@@ -72,19 +72,26 @@ export default async function onlineSchedule(url, silent=false) {
 	let autoSchedule = false;
 
 	for (const [tableKey, value] of Object.entries(iniObj)) {
-		if (!document.getElementById(tableKey)) {
+		const elemTitle = tableKey.split(" ");
+		const elemId = elemTitle.shift(); // Fixes elemTitle as it gets the id
+
+		if (!document.getElementById(elemId)) {
 			if (!silent)
-				throw new Error(`Table with id ${tableKey} not found`);
+				throw new Error(`Table with id ${tableKey} (simple: ${elemId}) not found`);
 
 			continue;
 		}
 
 		if (typeof value == "string") {
-			document.getElementById(tableKey).innerHTML = value;
+			document.getElementById(elemId).innerHTML = value;
 			continue;
 		}
 
-		for (const element of document.querySelectorAll(`#${tableKey} li`))
+		if (elemTitle.length) {
+			document.getElementById(elemId).parentElement.previousElementSibling.innerHTML = elemTitle.join(" ")
+		}
+
+		for (const element of document.querySelectorAll(`#${elemId} li`))
 			if (!element.hasAttribute("data-keep"))
 				element.remove();
 
@@ -115,7 +122,7 @@ export default async function onlineSchedule(url, silent=false) {
 				timeDiv.innerHTML = rowTime;
 			rowGroup.appendChild(timeDiv);
 
-			document.getElementById(tableKey).appendChild(rowGroup);
+			document.getElementById(elemId).appendChild(rowGroup);
 		}
 	}
 
