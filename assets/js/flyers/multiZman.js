@@ -66,19 +66,19 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 	} case 'fast': {
 		if (!jCal.isTaanis())
 			throw new Error("Non-Fast day")
-	
+
 		const fastMonths = {
 			[WebsiteLimudCalendar.TAMMUZ]: 17,
 			[WebsiteLimudCalendar.AV]: 9,
 			[WebsiteLimudCalendar.TEVES]: 10
 		}
-	
+
 		const locales = document.getElementById('gridElement').getAttribute('data-extra-locales').split(" ").filter(Boolean)
 		const hebrewLocale = {
 			titleYear: false,
 			addToCalendars: false,
 		};
-	
+
 		let fastName;
 		if (!(jCal.getJewishMonth() in fastMonths)) {
 			/**
@@ -101,20 +101,19 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			hebrewLocale.addToCalendars = jCal.getJewishDayOfMonth() !== fastMonths[jCal.getJewishMonth()];
 			hebrewLocale.titleYear = jCal.getJewishDayOfMonth() == fastMonths[jCal.getJewishMonth()];
 		}
-	
+
 		for (const title of document.getElementsByClassName('shabbatTitleCore'))
 			title.innerHTML += fastName + (hebrewLocale.titleYear ? " " + jCal.formatJewishYear().hebrew : "")
-	
-	
+
 		/*if (!window.location.href.includes('usa'))
 			locales.push('fa', 'ar-u-ca-islamic-umalqura'); */
-	
+
 		console.log(locales)
 		calendars = locales.map(loc => jCal.getDate().toLocaleString(loc, { weekday: "long", month: "long", day: "numeric", year: "numeric" }));
 		//if (!window.location.href.includes('usa'))
 		//    calendars[2] = calendars[2].replace(/0/g, '۰').replace(/1/g, '۱').replace(/2/g, '۲').replace(/3/g, '۳')
 		//    .replace(/4/g, '٤').replace(/5/g, '٥').replace(/6/g, '٦').replace(/7/g, '۷').replace(/8/g, '۸').replace(/9/g, '۹')
-	
+
 		if (hebrewLocale.addToCalendars) {
 			const hnF = new HebrewNumberFormatter();
 			calendars.push(`${jCal.getDayOfTheWeek().hebrew}, `
@@ -325,7 +324,8 @@ for (const elem of elems) {
 				const LeKhumra = shitotOptions.length >= 2 ?
 					shitotDay !== shitotOptions[0] : 
 					KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1
-				if (elem.hasAttribute('data-humra'))
+
+				if (elem.hasAttribute('data-humra') && (!editElem.hasAttribute('data-humra') || editElem.getAttribute('data-humra') !== "false"))
 					time = time[LeKhumra ? 'add' : 'subtract']({minutes: parseInt(elem.getAttribute('data-humra'))});
 			}
 
