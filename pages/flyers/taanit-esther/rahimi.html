@@ -1,0 +1,551 @@
+---
+title: Fast Rahimi Times
+permalink: /taanit-esther/rahimi
+breakout: true
+website: true
+---
+
+<style>
+	#gne {
+		height: 135px;
+		justify-self: start;
+		align-self: start;
+		margin-top: 1.5rem;
+		margin-left: 1.5rem;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+	}
+
+	.maxWidthContainer {
+		width: 90rem;
+		font-family: 'Neutro', var(--bs-body-font-family);
+		color: #30344F;
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1/1.3;
+
+		position: relative;
+		display: grid;
+
+		background-image: linear-gradient(to bottom, transparent 50%, #1f1f1f 60%), linear-gradient(45deg, rgba(185, 181, 157, .8) 0%, rgba(97, 80, 64, .8) 100%), url("/assets/images/10-tevet.png");
+		background-size: cover;
+
+		overflow: hidden;
+	}
+
+	#zyTrapezoid {
+		justify-self: center;
+		align-self: start;
+		width: 56.5%;
+		border-top: 170px solid #12141e;
+		border-left: 115px solid transparent;
+		border-right: 115px solid transparent;
+		height: 0;
+	}
+
+	#wrapperElement > *:not(.lechaDodi) {
+		grid-area: 1/1;
+	}
+
+	.footerBold {
+		font-weight: 700;
+	}
+
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		justify-self: end;
+		transform: rotateY(180deg);
+		width: 20%;
+		z-index: 3;
+	}
+
+	.lechaDodi {
+		position: absolute;
+		transform: rotateZ(7deg);
+		color: #F6E3A9;
+		font-size: 3vw;
+		text-align: center;
+		font-family: 'Guttman Mantova';
+		line-height: 1;
+	}
+
+	#lechaDodi {
+		top: 24.5vw;
+		right: 4vw;
+	}
+
+	#likratKalah {
+		top: 27.375vw;
+		right: 6.75vw;
+	}
+
+	#pnehShabbathNekabelah {
+		top: 31.5vw;
+		right: 2.5vw;
+	}
+
+	#zemanehShab {
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		font-size: 16.5vw;
+		font-weight: 700;
+		/* font-style: italic; */
+		color: transparent;
+		background: linear-gradient(69deg, rgba(215, 185, 97, 1) 37%, rgba(242, 231, 167, 1) 50%, rgba(215, 185, 97, 1) 62%);
+		-webkit-background-clip: text
+	}
+
+	.shabbatTitleCore {
+		font-size: 6vw;
+		font-family: 'Guttman Mantova';
+		color: #F6E3A9;
+		font-weight: 500;
+		align-self: start;
+		justify-self: start;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+		text-align: center;
+		line-height: .9;
+		margin-top: 17vh;
+		margin-left: 2.5vw;
+	}
+
+	#gridElement {
+		top: 35vw;
+		grid-template-columns: 1fr .75fr .75fr;
+		display: grid;
+		left: 2.5vw;
+		right: 2.5vw;
+		position: absolute;
+	}
+
+	#shabbatCandles {
+		align-self: end;
+		width: 77.5%;
+		right:0;
+		margin-bottom: 10rem;
+		z-index: 1;
+		opacity: 50%;
+	}
+
+	#bottomWave {
+		align-self: end;
+		width: 100%;
+		z-index: 2;
+		transform: scale(1.25) rotateY(180deg);
+	}
+
+	.timeshow {
+		text-align: center;
+		z-index: 5;
+	}
+
+	.shabbatRow {
+		margin-top: .3vw;
+		margin-bottom: .3vw;
+		padding-top: .25vw;
+		padding-bottom: .25vw;
+		font-size: 3.5vw;
+		font-weight: 700;
+	}
+
+	.timecalc {
+		background-color: #F1E79F;
+		font-weight: 700;
+		padding-left: 0.5vw;
+		padding-right: 1vw;
+		text-transform: uppercase;
+		border-right: .25vw solid black;
+		font-size: 18px;
+		line-height: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.timecalc strong {
+		font-size: 3.75vw;
+	}
+
+	.shabbatRowBg {
+		background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
+		grid-column: 2 / span 3; 
+		margin-top: .3vw;
+		margin-bottom: .3vw;
+		z-index: 2;
+	}
+
+	.header {
+		padding: 0.5vw;
+		background: #D9BB65;
+		margin-left: .6vw;
+		margin-right: .6vw;
+		color: black;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1.2;
+		font-weight: 600;
+		font-size: 1.8em;
+	}
+
+	.header .bi {
+		float: left;
+		height: 2em;
+		width: 2em;
+	}
+
+	.tableShadow {
+		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+	}
+
+	.shabBorder {
+		border-right: .25vw solid black;
+	}
+
+	#notchLogo {
+		justify-self: center;
+		align-self: start;
+		width: 42.5%;
+		margin-top: 1rem;
+	}
+
+	#prettyLDSurround {
+		justify-self: end;
+		align-self: start;
+		margin-top: 12.5%;
+		width: 27.5%;
+	}
+
+	#bsD {
+		font-family: "Narkisim";
+		justify-self: end;
+		line-height: 1;
+		padding-right: 4.5rem;
+		color: #FFF2B3;
+		font-size: 6rem;
+		padding-top: 3rem;
+		align-self: start;
+	}
+
+	#location, #calSubtitle, #tekufa {
+		align-self: start;
+		justify-self: start;
+		font-family: 'Barlow', 'FrankRuehl';
+		font-weight: 700;
+		color: white;
+		text-transform: uppercase;
+		width: 975px;
+		text-align: center;
+		margin-left: 2.5vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+	}
+
+	#location {
+		margin-top: 12vw;
+		font-size: 4vw;
+	}
+
+	#calSubtitle {
+		margin-top: 52vh;
+		font-size: 4.25vw;
+	}
+
+	#tekufa {
+		margin-top: 25vw;
+		font-size: 4vw;
+	}
+
+	#templateAd {
+		align-self: center;
+		justify-self: start;
+		border-radius: 50%;
+		margin-top: 75%;
+		margin-left: 5%;
+		width: 25%;
+		z-index: 10;
+	}
+
+	#advertFooter {
+		padding-bottom: .5rem;
+		padding-top: .5rem;
+		padding-left: 1.25rem;
+		font-size: 1.7rem;
+		font-weight: 600;
+		line-height: 1.1;
+		z-index: 2;
+		align-self: end;
+
+		width: 100%;
+		background-image: linear-gradient(to right, #F3E6A6, #D7BB63);
+	}
+
+	#sourcesFooter {
+		font-size: 1.5em;
+	}
+	#sourcesFooter ul {
+		line-height: 1.25;
+		margin-bottom: 0;
+	}
+
+	#credits {
+		font-size: 2.125em;
+		text-align: right;
+		line-height: 1.25;
+		font-weight: 600;
+		text-transform: uppercase;
+		font-style: italic;
+	}
+
+	#money {
+		color: #e2dfc6;
+		width: 225px;
+		position: absolute;
+		right: 4.75vw;
+		top: 12.5vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+	}
+
+	#betterToGiveTzedakah {
+		color: #e2dfc6;
+		width: 375px;
+		position: absolute;
+		right: 1vw;
+		top: 28vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+		text-align: center;
+		font-size: 2.5em;
+		font-family: 'Guttman Mantova';
+		unicode-bidi: plaintext;
+		line-height: 1;
+	}
+
+	.faderTri {
+		border: 10px solid;
+		border-image-slice: 1;
+		border-top: 0;
+		border-right: 0;
+		aspect-ratio: 1 / 1;
+		transform: rotateZ(-45deg);
+		border-image-source: linear-gradient(45deg, transparent 10%, #B2FF59 37%, transparent 50%);
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		justify-self: center;
+		align-self: center;
+		overflow: hidden;
+	}
+
+	#bigTri {
+		width: 60%;
+		border-width: 15px;
+		margin-top: 20rem;
+		opacity: 40%;
+	}
+
+	#fullScrTri {
+		width: 70%;
+		margin-top: 40rem;
+		border-width: 5px;
+		opacity: 60%;
+	}
+
+	.cube-wrap {
+		position: absolute;
+	}
+
+	#rahimi {
+		align-self: end;
+		justify-self: center;
+		margin-bottom: 9rem;
+		width: 90%;
+		z-index: 5;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+	}
+</style>
+<style>
+	.cube-wrap {
+		--faceSize: 100px;
+
+		-webkit-perspective: calc(var(--faceSize) * 4);
+		-webkit-perspective-origin: 50% calc(var(--faceSize) / 2);
+		-moz-perspective: calc(var(--faceSize) * 4);
+		-moz-perspective-origin: 50% calc(var(--faceSize) / 2);
+		-ms-perspective: calc(var(--faceSize) * 4);
+		-ms-perspective-origin: 50% calc(var(--faceSize) / 2);
+		perspective: calc(var(--faceSize) * 4);
+		perspective-origin: 50% calc(var(--faceSize) / 2);
+	}
+
+	.cube {
+		position: relative;
+		width: var(--faceSize);
+		margin: 0 auto;
+		-webkit-transform-style: preserve-3d;
+		-moz-transform-style: preserve-3d;
+		-ms-transform-style: preserve-3d;
+		transform-style: preserve-3d;
+		transform: rotate3d(1, 1, 1, 45deg);
+	}
+
+	.cube div {
+		position: absolute;
+		width: var(--faceSize);
+		height: var(--faceSize);
+		box-shadow: inset 0 0 10px #B2FF59;
+	}
+
+	.depth div.front-pane {
+		-webkit-transform: translateZ(calc(var(--faceSize) / 2));
+		-moz-transform: translateZ(calc(var(--faceSize) / 2));
+		-ms-transform: translateZ(calc(var(--faceSize) / 2));
+		transform: translateZ(calc(var(--faceSize) / 2));
+	}
+
+	.depth div.back-pane {
+		-webkit-transform: translateZ(calc(var(--faceSize) / -2)) rotateY(180deg);
+		-moz-transform: translateZ(calc(var(--faceSize) / -2)) rotateY(180deg);
+		-ms-transform: translateZ(calc(var(--faceSize) / -2)) rotateY(180deg);
+		transform: translateZ(calc(var(--faceSize) / -2)) rotateY(180deg);
+	}
+
+	.depth div.top-pane {
+		-webkit-transform: rotateX(-90deg) translateY(calc(var(--faceSize) / -2));
+		-webkit-transform-origin: top center;
+		-moz-transform: rotateX(-90deg) translateY(calc(var(--faceSize) / -2));
+		-moz-transform-origin: top center;
+		-ms-transform: rotateX(-90deg) translateY(calc(var(--faceSize) / -2));
+		-ms-transform-origin: top center;
+		transform: rotateX(-90deg) translateY(calc(var(--faceSize) / -2));
+		transform-origin: top center;
+	}
+
+	.depth div.bottom-pane {
+		-webkit-transform: rotateX(90deg) translateY(calc(var(--faceSize) / 2));
+		-webkit-transform-origin: bottom center;
+		-moz-transform: rotateX(90deg) translateY(calc(var(--faceSize) / 2));
+		-moz-transform-origin: bottom center;
+		-ms-transform: rotateX(90deg) translateY(calc(var(--faceSize) / 2));
+		-ms-transform-origin: bottom center;
+		transform: rotateX(90deg) translateY(calc(var(--faceSize) / 2));
+		transform-origin: bottom center;
+	}
+
+	.depth div.left-pane {
+		-webkit-transform: rotateY(270deg) translateX(calc(var(--faceSize) / -2));
+		-webkit-transform-origin: center left;
+		-moz-transform: rotateY(270deg) translateX(calc(var(--faceSize) / -2));
+		-moz-transform-origin: center left;
+		-ms-transform: rotateY(270deg) translateX(calc(var(--faceSize) / -2));
+		-ms-transform-origin: center left;
+		transform: rotateY(270deg) translateX(calc(var(--faceSize) / -2));
+		transform-origin: center left;
+	}
+
+	.depth div.right-pane {
+		-webkit-transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
+		-webkit-transform-origin: top right;
+		-moz-transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
+		-moz-transform-origin: top right;
+		-ms-transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
+		-ms-transform-origin: top right;
+		transform: rotateY(-270deg) translateX(calc(var(--faceSize) / 2));
+		transform-origin: top right;
+	}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Frank+Ruhl+Libre:wght@300..900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<div id="zyTrapezoid"></div>
+	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
+	<img id="gne" src="/assets/images/shabbat-abstract/image02.png" />
+	<span id="bsD">בס"ד</span>
+	<div id="gridElement"
+		data-functions-backday-0="getAlotHashachar getTzaitLechumra"
+		data-extra-locales="en"
+		data-flyerType="fast"
+	>
+		<div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;"></div>
+		<div class="header tableShadow">Fast Starts<br><span style="font-weight: 400;">(Halachic Dawn)</span></div>
+		<div class="header tableShadow">Fast Ends<br><span style="font-weight: 400;">(Halachic Nightfall)</span></div>
+		{% for item in site.data.designLocationList.rahimi %}{% assign gridRow = forloop.index | plus: 1 %}
+			<div style="display: contents; --grid-row: {{ gridRow }};">
+				<div class="shabbatRow tableShadow timecalc"
+					{% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+					data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+					data-timezone="{{ item.timezone }}"
+					data-format="{{ item.timeFormat }}"
+					{% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+					{% if item.doubleLocation %}data-double-location{% endif %}
+					style="grid-column: 1; grid-row: var(--grid-row);">
+					{%- assign check = item.flag | split:'.' | last -%}
+					{% if check == "svg" %}
+						<img class="imgFlag" src="{{ item.flag }}">
+					{% else %}
+						{{ item.flag }}
+					{% endif %}
+					<strong>{{ item.name }}</strong>{{ item.otherName}}
+				</div>
+				<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: var(--grid-row)">Start Time</div>
+				<div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: var(--grid-row);">End Time</div>
+				<div class="shabbatRowBg tableShadow" style="grid-row: var(--grid-row);"></div>
+			</div>
+		{% endfor %}
+	</div>
+	<!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
+	<span class="shabbatTitleCore"><span id="zemanehShab">זמני הצום</span><br></span>
+	<!--<div id="location">Central North America</div> -->
+	<span id="calSubtitle"></span>
+	<!-- <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
+	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
+	<span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
+	<span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span> -->
+	<div id="betterToGiveTzedakah">אגרא דתעניתא צדקתא<br>(ברכות ו:)</div>
+	<img src="/assets/images/shabbat-abstract/money-svgrepo-com.svg" id="money" />
+	<!-- <div id="fastHalachas">
+		<p class="mb-0">Intentional fasting beyond the end-time above on any fast that falls on a Friday compromises the sanctity of עונג שבת (Halacha Berura on Siman 279, quoting the שלחן הטהור). As such, Gabbaim should pace their minyan, starting at a time that allows Birkat Kohanim to be said within 30 minutes prior to sunset and ending the Arvit services by a time that congregants could return home and say Kiddush as the fast ends.</p>
+	</div> -->
+	<!--<div id="tekufa">+ Tekufat Tishri: 8:09-9:09 ET</div>-->
+	<div id="advertFooter">
+		<span style="font-weight: 700; font-size: 1.15em; text-transform: uppercase;">
+			Fast Times according to <span style="font-weight: 800;">Rav Ovadia Yosef zt"l</span>
+		</span><br>
+		Looking for more times? Want to switch locations?<br>
+		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps,
+		or visit our website • royzmanim.com
+	</div>
+	<img src="/assets/images/MARAN.png" id="maran">
+	<div id="bigTri" class="faderTri"></div>
+	<div id="fullScrTri" class="faderTri"></div>
+	<div class="cube-wrap" style="right: 0; top: 60%;">
+		<div class="cube depth">
+			<div class="front-pane"></div>
+			<div class="back-pane"></div>
+			<div class="top-pane"></div>
+			<div class="bottom-pane"></div>
+			<div class="left-pane"></div>
+			<div class="right-pane"></div>
+		</div>
+	</div>
+	<div class="cube-wrap" style="left: 0; top: 80%;">
+		<div class="cube depth">
+			<div class="front-pane"></div>
+			<div class="back-pane"></div>
+			<div class="top-pane"></div>
+			<div class="bottom-pane"></div>
+			<div class="left-pane"></div>
+			<div class="right-pane"></div>
+		</div>
+	</div>
+	<img id="rahimi" src="/assets/images/shabbat-abstract/r-rahimi-text.png" />
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>

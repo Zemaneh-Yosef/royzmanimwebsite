@@ -1,0 +1,434 @@
+---
+title: Fast East Coast Times
+permalink: /taanit-esther/east-tall
+breakout: true
+website: true
+---
+
+<style>
+	#gne {
+		border-radius: 50%;
+		height: 170px;
+		aspect-ratio: 1/1;
+		justify-self: start;
+		align-self: start;
+		margin-top: 1rem;
+		margin-left: 2.5rem;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+	}
+
+	.maxWidthContainer {
+		width: 90rem;
+		font-family: 'Neutro', var(--bs-body-font-family);
+		color: #30344F;
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1/1.3;
+
+		position: relative;
+		display: grid;
+
+		background-image: linear-gradient(45deg, #412543 0%, #612E7B 100%);
+		background-size: cover;
+
+		overflow: hidden;
+	}
+
+	#zyTrapezoid {
+		justify-self: center;
+		align-self: start;
+		width: 62.5%;
+		border-top: 170px solid #12141e;
+		border-left: 125px solid transparent;
+		border-right: 125px solid transparent;
+		height: 0;
+	}
+
+	#wrapperElement > *:not(.lechaDodi) {
+		grid-area: 1/1;
+	}
+
+	.footerBold {
+		font-weight: 700;
+	}
+
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		justify-self: end;
+		transform: rotateY(180deg);
+		width: 28%;
+		z-index: 3;
+	}
+
+	.lechaDodi {
+		position: absolute;
+		transform: rotateZ(7deg);
+		color: #F6E3A9;
+		font-size: 3vw;
+		text-align: center;
+		font-family: 'Guttman Mantova';
+		line-height: 1;
+	}
+
+	#lechaDodi {
+		top: 24.5vw;
+		right: 4vw;
+	}
+
+	#likratKalah {
+		top: 27.375vw;
+		right: 6.75vw;
+	}
+
+	#pnehShabbathNekabelah {
+		top: 31.5vw;
+		right: 2.5vw;
+	}
+
+	#zemanehShab {
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		font-size: 16.5vw;
+		font-weight: 700;
+		/* font-style: italic; */
+		color: transparent;
+		background: linear-gradient(69deg, rgba(215, 185, 97, 1) 37%, rgba(242, 231, 167, 1) 50%, rgba(215, 185, 97, 1) 62%);
+		-webkit-background-clip: text
+	}
+
+	.shabbatTitleCore {
+		font-size: 6vw;
+		font-family: 'Guttman Mantova';
+		color: #F6E3A9;
+		font-weight: 500;
+		align-self: start;
+		justify-self: start;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+		text-align: center;
+		line-height: .9;
+		margin-top: 17vh;
+		margin-left: 2.5vw;
+	}
+
+	#gridElement {
+		top: 35vw;
+		grid-template-columns: 1fr .75fr .75fr .75fr;
+		display: grid;
+		left: 2.5vw;
+		right: 2.5vw;
+		position: absolute;
+	}
+
+	#shabbatCandles {
+		align-self: end;
+		width: 77.5%;
+		right:0;
+		margin-bottom: 10rem;
+		z-index: 1;
+		opacity: 50%;
+	}
+
+	#bottomWave {
+		align-self: end;
+		width: 100%;
+		z-index: 2;
+		transform: scale(1.25) rotateY(180deg);
+	}
+
+	.timeshow {
+		text-align: center;
+		z-index: 5;
+	}
+
+	.shabbatRow {
+		margin-top: .3vw;
+		margin-bottom: .3vw;
+		padding-top: .5vw;
+		padding-bottom: .5vw;
+		font-size: 3vw;
+		font-weight: 700;
+	}
+
+	.timecalc {
+		background-color: #F1E79F;
+		font-weight: 700;
+		padding-left: 0.5vw;
+		padding-right: .5vw;
+		text-transform: uppercase;
+		border-right: .25vw solid black;
+		font-size: 14px;
+		line-height: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.timecalc strong {
+		font-size: 2.4vw;
+	}
+
+	.shabbatRowBg {
+		background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
+		grid-column: 2 / span 4; 
+		margin-top: .3vw;
+		margin-bottom: .3vw;
+		z-index: 2;
+	}
+
+	.header {
+		padding: 0.5vw;
+		background: #D9BB65;
+		margin-left: .6vw;
+		margin-right: .6vw;
+		color: black;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1.2;
+		font-weight: 600;
+		font-size: 1.8em;
+	}
+
+	.header .bi {
+		float: left;
+		height: 2em;
+		width: 2em;
+	}
+
+	.tableShadow {
+		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+	}
+
+	.shabBorder {
+		border-right: .25vw solid black;
+	}
+
+	#notchLogo {
+		justify-self: center;
+		align-self: start;
+		width: 42.5%;
+		margin-top: 1rem;
+	}
+
+	#prettyLDSurround {
+		justify-self: end;
+		align-self: start;
+		margin-top: 12.5%;
+		width: 27.5%;
+	}
+
+	#bsD {
+		font-family: "Narkisim";
+		justify-self: end;
+		line-height: 1;
+		padding-right: 4.5rem;
+		color: #FFF2B3;
+		font-size: 6rem;
+		padding-top: 3rem;
+		align-self: start;
+	}
+
+	#location, #calSubtitle, #tekufa {
+		align-self: start;
+		justify-self: start;
+		font-family: 'Barlow', 'FrankRuehl';
+		font-weight: 700;
+		color: white;
+		text-transform: uppercase;
+		width: 975px;
+		text-align: center;
+		margin-left: 2.5vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+	}
+
+	#location {
+		margin-top: 12vw;
+		font-size: 4vw;
+	}
+
+	#calSubtitle {
+		margin-top: 54vh;
+		font-size: 4.25vw;
+	}
+
+	#tekufa {
+		margin-top: 25vw;
+		font-size: 4vw;
+	}
+
+	#templateAd {
+		align-self: center;
+		justify-self: start;
+		border-radius: 50%;
+		margin-top: 75%;
+		margin-left: 5%;
+		width: 25%;
+		z-index: 10;
+	}
+
+	#advertFooter {
+		padding-bottom: .5rem;
+		padding-top: .5rem;
+		padding-left: 1.25rem;
+		font-size: 1.7rem;
+		font-weight: 600;
+		line-height: 1.1;
+		z-index: 2;
+		align-self: end;
+
+		width: 100%;
+		background-image: linear-gradient(to right, #F3E6A6, #D7BB63);
+	}
+
+	#sourcesFooter {
+		font-size: 1.5em;
+	}
+	#sourcesFooter ul {
+		line-height: 1.25;
+		margin-bottom: 0;
+	}
+
+	#credits {
+		font-size: 2.125em;
+		text-align: right;
+		line-height: 1.25;
+		font-weight: 600;
+		text-transform: uppercase;
+		font-style: italic;
+	}
+
+	#money {
+		color: #e2dfc6;
+		width: 225px;
+		position: absolute;
+		right: 4.75vw;
+		top: 12.5vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+	}
+
+	#betterToGiveTzedakah {
+		color: #e2dfc6;
+		width: 375px;
+		position: absolute;
+		right: 1vw;
+		top: 28vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+		text-align: center;
+		font-size: 2.5em;
+		font-family: 'Guttman Mantova';
+		unicode-bidi: plaintext;
+		line-height: 1;
+	}
+
+	#fastHalachas {
+		position: absolute;
+		left: 2.5vw;
+		top: 72.5vw;
+		width: 1000px;
+		background-color: rgba(0, 0, 0, .75);
+		padding: 1.15rem;
+		border-radius: 2rem;
+		color: white;
+	}
+
+	#fastHalachas p {
+		font-size: 1.162rem;
+	}
+
+	#fastHalachas p:last-child,
+	#fastHalachas p:first-of-type {
+		margin-bottom: 0;
+	}
+
+	#fastHalachas p:not(:first-of-type) {
+		text-wrap: balance;
+	}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Frank+Ruhl+Libre:wght@300..900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<div id="zyTrapezoid"></div>
+	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
+	<img id="gne" src="/assets/images/shabbat-abstract/east.svg" />
+	<span id="bsD">בס"ד</span>
+	<div id="gridElement"
+		data-functions-backday-0="getAlotHashachar getTzait getTzaitLechumra"
+		data-extra-locales="en"
+		data-flyerType="fast"
+	>
+		<div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;"></div>
+		<div class="header tableShadow">Fast Starts<br><span style="font-weight: 400; font-size: .8em;">(Halachic Dawn)</span></div>
+		<div class="header tableShadow">Megillah Reading<br><span style="font-weight: 400; font-size: .8em;">(Halachic Nightfall)</span></div>
+		<div class="header tableShadow">Fast Ends<br><span style="font-weight: 400; font-size: .8em;">(Strict Nightfall)</span></div>
+		{% for item in site.data.designLocationList.east %}{% assign gridRow = forloop.index | plus: 1 %}
+			<div style="display: contents; --grid-row: {{ gridRow }};">
+				<div class="shabbatRow tableShadow timecalc"
+					{% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+					data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+					data-timezone="{{ item.timezone }}"
+					data-format="{{ item.timeFormat }}"
+					{% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+					{% if item.doubleLocation %}data-double-location{% endif %}
+					style="grid-column: 1; grid-row: var(--grid-row);">
+					{%- assign check = item.flag | split:'.' | last -%}
+					{% if check == "svg" %}
+						<img class="imgFlag" src="{{ item.flag }}">
+					{% else %}
+						{{ item.flag }}
+					{% endif %}
+					<strong>{{ item.name }}</strong>{{ item.otherName}}
+				</div>
+				<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: var(--grid-row)">Start Time</div>
+				<div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: var(--grid-row);">End Time</div>
+				<div class="shabbatRow timeshow shabBorder" data-humra="false" style="grid-column: 4; grid-row: var(--grid-row);">End Time</div>
+				<div class="shabbatRowBg tableShadow" style="grid-row: var(--grid-row);"></div>
+			</div>
+		{% endfor %}
+	</div>
+	<!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
+	<span class="shabbatTitleCore"><span id="zemanehShab">זמני הצום</span><br></span>
+	<!--<div id="location">Central North America</div> -->
+	<span id="calSubtitle"></span>
+	<!-- <img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
+	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
+	<span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
+	<span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span> -->
+	<div id="betterToGiveTzedakah">אגרא דתעניתא צדקתא<br>(ברכות ו:)</div>
+	<img src="/assets/images/shabbat-abstract/money-svgrepo-com.svg" id="money" />
+	<div id="fastHalachas">
+		<h1 style="text-align: center;">Calculation Explanation</h1>
+		<p><b>Halachic Dawn</b> signifies the commencement of a fast; individuals intending to rise before this time to eat should make a prior stipulation before sleeping. (Shulchan Aruch, Oraḥ Ḥayim 564)</p>
+		<p>This time is calculated as 72 minutes before sunrise (Halikhot Olam, Vol. I, p. 19), with adjustments based on their geographic location relative to Israel ("standard deviation"; Halacha Berurah, introduction to Chapter 261, Halacha 13) and the length of the day ("seasonal minutes"; Halikhot Olam, ibid).</p>
+		<p class="mb-0"><b>Halachic Nightfall</b> denotes the beginning of a new day in the Jewish calendar, transitioning the day away from the fast and into Purim. Purim features a separate prohibition of having a full meal until they have fulfilled their obligation to hear the Megillah reading. However, one is permitted to snack on bread or cake/cookies up to a kabetza (i.e., up to 54 grams), consume fruits and vegetables in quantities exceeding a kabetza (54 grams), and drink tea or coffee. Those who stringently refrain from tasting anything will receive special blessings.<br>
+			This time is calculated at 13.5 minutes after sunset (Halikhot Olam, Vol. I, p. 250), with the same adjustments from Dawn applied. Individuals wishing to conclude the fast and listen to the Megillah later into the night (such as women) should instead wait 20 minutes (Ḥazon Ovadia, Arba Ta'aniyot, p. 12).</p>
+	</div>
+	<div id="advertFooter">
+		<span style="font-weight: 700; font-size: 1.15em; text-transform: uppercase;">
+			Halachic Fast Times according to<br><span style="font-weight: 800;">Rav Ovadia Yosef zt"l</span>
+		</span><br>
+		Looking for more times? Want to switch locations?<br>
+		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps,
+		or visit our website • royzmanim.com
+	</div>
+	<img src="/assets/images/MARAN.png" id="maran">
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>
+<script>
+	setTimeout(() => {
+		document.getElementById("calSubtitle").lastElementChild.remove();
+		document.getElementById("calSubtitle").lastChild.remove();
+	}, 5000)
+</script>
