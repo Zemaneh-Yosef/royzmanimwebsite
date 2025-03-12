@@ -64,13 +64,13 @@ east:
     humra: 0
     timeFormat: h24
   - name: Miami, FL
-    otherName: + Boca Raton & Hollywood
+    otherName: + Boca Raton, Boynton Beach, Hollywood & Surfside
     #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
     # Location: Chabad of Midtown Miami
     lat: 25.804507405080564
     lng: -80.19053877936163
     timezone: America/New_York
-    humra: 0
+    humra: 1
     timeFormat: h12
 central:
   - name: Chicago, IL

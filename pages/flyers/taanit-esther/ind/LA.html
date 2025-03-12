@@ -1,0 +1,272 @@
+---
+title: Fast LA Times
+permalink: /taanit-esther/la
+breakout: true
+website: true
+---
+
+<style>
+	.maxWidthContainer {
+		width: clamp(16rem, 90vw, 90rem);
+		font-family: 'Neutro', var(--bs-body-font-family);
+		color: #30344F;
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1.73/1;
+
+		position: relative;
+		display: grid;
+
+		background-image: linear-gradient(45deg, #412543 0%, #612E7B 100%);
+		background-size: cover;
+	}
+
+	#wrapperElement > *:not(.absRotateText):not(#shabbatCandles) {
+		grid-area: 1/1;
+	}
+
+	#imgFooter {
+		padding-bottom: .5rem;
+		padding-top: .5rem;
+		padding-right: .85rem;
+		font-size: 1.7rem;
+		font-weight: 600;
+		line-height: 1.1;
+		z-index: 2;
+		text-align: end;
+		align-self: end;
+		text-transform: uppercase;
+
+		width: 100%;
+		background-image: linear-gradient(to right, #F3E6A6, #D7BB63);
+	}
+
+	.footerBold {
+		font-weight: 700;
+	}
+
+	.absRotateText {
+		position: absolute;
+		transform: rotateZ(1.5deg);
+		text-align: center;
+		font-family: 'Guttman Mantova';
+		line-height: 1;
+	}
+
+	#wrapperElement #calSubtitle {
+		font-family: 'Neutro', 'FrankRuehl', serif;
+		font-weight: 500;
+		width: 930px;
+		color: white;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+	}
+
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		width: 22.5%;
+		z-index: 3;
+	}
+
+	#zemanehShab {
+		font-family: 'Frank Ruhl Libre';
+		right: 2.9vw;
+		font-size: 3.5rem;
+		font-weight: 900;
+		top: 1.75vw;
+		color: #343434;
+	}
+
+	#zemanehShab .shabbatTitleCore {
+		font-size: 7vw;
+		color: transparent;
+		background: linear-gradient(69deg, rgba(215, 185, 97, 1) 37%, rgba(242, 231, 167, 1) 50%, rgba(215, 185, 97, 1) 62%);
+		-webkit-background-clip: text;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+	}
+
+	#gridElement {
+		grid-template-columns: 1fr 1fr;
+		margin-left: 19vw;
+		align-self: center;
+		justify-self: start;
+		margin-top: 9vh;
+		display: grid;
+	}
+
+	#shabbatCandles {
+		position: absolute;
+		align-self: end;
+		width: 80%;
+		right:0;
+		bottom: 5vw;
+		z-index: 1;
+		opacity: 50%;
+	}
+
+	#bottomWave {
+		align-self: end;
+		width: 100%;
+		z-index: 2;
+		transform: scaleY(.7);
+		margin-bottom: -1.65rem;
+	}
+
+	.timeshow {
+		text-align: center;
+		z-index: 5;
+	}
+
+	.shabbatRow {
+		padding-top: .25vw;
+		padding-bottom: .25vw;
+		font-size: 3.5rem;
+		font-weight: 700;
+		line-height: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.shabbatRowBg {
+		background: linear-gradient(90deg, #c0a26b 0%, #d2b988 100%);
+		z-index: 2;
+		grid-row: 1 / span 3;
+		grid-column: 2; 
+	}
+
+	.header {
+		padding: 0.5vw;
+		background: #D9BB65;
+		margin-top: .6vw;
+		margin-bottom: .6vw;
+		color: black;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1;
+		font-weight: 600;
+		font-size: 1.475em;
+	}
+
+	.tableShadow {
+		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+	}
+
+	.shabBorder {
+		border-bottom: .25vw solid black;
+	}
+
+	.twoLine {
+		line-height: .4;
+		padding-top: 1vw;
+	}
+
+	.sml {
+		font-size: 14px;
+	}
+
+	#internalLogo {
+		vertical-align: text-top;
+		height: 1.1em;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+	}
+
+	#fastHalachas {
+		position: absolute;
+		right: 1vw;
+		top: 14.5vw;
+		width: 550px;
+		background-color: rgba(0, 0, 0, .75);
+		padding: 1rem;
+		border-radius: 2rem;
+		color: white;
+	}
+
+	#fastHalachas > p {
+		font-size: .94em;
+	}
+
+	#fastHalachas > p:last-child,
+	#fastHalachas > p:first-of-type {
+		margin-bottom: 0;
+	}
+
+	#money {
+		color: #e2dfc6;
+		width: 225px;
+		position: absolute;
+		left: 6vw;
+		top: 1vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+	}
+
+	#betterToGiveTzedakah {
+		color: #e2dfc6;
+		width: 400px;
+		position: absolute;
+		left: 1vw;
+		top: 15vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
+		text-align: center;
+		font-size: 2.5em;
+		font-family: 'Guttman Mantova';
+		unicode-bidi: plaintext;
+		line-height: 1;
+	}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<div id="gridElement"
+		data-functions-backday-0="getAlotHashachar getTzait getTzaitLechumra"
+		data-extra-locales="en"
+		data-flyerType="fast"
+	>
+		<div class="shabbatRow tableShadow timecalc d-none"
+			data-lat="34.1688520530159" data-lng="-118.40607216944592"
+			data-timezone="America/Los_Angeles"
+			data-humra="1"
+			data-format="h12">
+		</div>
+		<div class="header tableShadow">Fast Starts<br><span style="font-weight: 400;">(Halachic Dawn)</span></div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 1;">Start Time</div>
+		<div class="header tableShadow">Megillah Reading<br><span style="font-weight: 400;">(Halachic Nightfall)</span></div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 2;">End Time</div>
+		<div class="header tableShadow">Fast Ends<br><span style="font-weight: 400;">(Strict Nightfall)</span></div>
+		<div class="shabbatRow timeshow" data-humra="false" style="grid-column: 2; grid-row: 3;">End Time</div>
+		<div class="shabbatRowBg tableShadow"></div>
+	</div>
+	<div id="fastHalachas">
+		<h1 style="text-align: center; font-size: 2rem; margin-bottom: 0;">Calculation Explanation</h1>
+		<p><b>Halachic Dawn</b> signifies the commencement of a fast; individuals intending to rise before this time to eat should make a prior stipulation before sleeping. (Shulchan Aruch, Oraḥ Ḥayim 564)</p>
+		<p>This time is calculated as 72 minutes before sunrise (Halikhot Olam, Vol. I, p. 19), with adjustments based on their geographic location relative to Israel ("standard deviation"; Halacha Berurah, introduction to Chapter 261, Halacha 13) and the length of the day ("seasonal minutes"; Halikhot Olam, ibid).</p>
+		<p class="mb-0"><b>Halachic Nightfall</b> denotes the beginning of a new day in the Jewish calendar, transitioning the day away from the fast and into Purim. Purim features a separate prohibition of having a full meal until they have fulfilled their obligation to hear the Megillah reading. However, one is permitted to snack on bread or cake/cookies up to 54 grams (a kabetza), consume fruits and vegetables in quantities exceeding 54 grams, and drink tea or coffee.
+			This time is calculated at 13.5 minutes after sunset (Halikhot Olam, Vol. I, p. 250), with the same adjustments from Dawn applied. Individuals wishing to conclude the fast and listen to the Megillah later into the night (such as women) should instead wait 20 minutes (Ḥazon Ovadia, Arba Ta'aniyot, p. 12).</p>
+	</div>
+	<div id="betterToGiveTzedakah">אגרא דתעניתא צדקתא<br>(ברכות ו:)</div>
+	<img src="/assets/images/shabbat-abstract/money-svgrepo-com.svg" id="money" />
+	<span id="zemanehShab" class="absRotateText">
+		<span class="shabbatTitleCore"></span><br>
+		<span id="calSubtitle"></span>
+	</span>
+	<div id="imgFooter">
+        Fast Times according to Rabbi Ovadia Yosef ZT"L for <b>Los Angeles, CA</b><br>
+		Brought to you by <img src="/assets/images/shabbat-abstract/zy-logo.png" id="internalLogo">,
+		available on <span style="text-transform: lowercase;">i</span>OS & Android • royzmanim.com
+	</div>
+	<img src="/assets/images/MARAN.png" id="maran">
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>
