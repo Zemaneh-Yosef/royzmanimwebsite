@@ -64,7 +64,7 @@ function messageHandler (x) {
 	const amPMStrs = [
 		new Temporal.Instant(0n),
 		new Temporal.Instant(0n).add({ hours: 12 })
-	].map(inst => inst.toLocaleString(defaulTF[0], { hour12: true, hour: 'numeric'}).split(' ').at(-1))
+	].map(inst => inst.toLocaleString(defaulTF[0], { hour12: true, hour: 'numeric'}).split(' ').pop());
 
 	let plainDate = Temporal.PlainDate.from(x.data.date)
 	const jCal = new WebsiteLimudCalendar();

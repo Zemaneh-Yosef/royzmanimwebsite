@@ -7,7 +7,7 @@ if (!('timers' in window))
 
 /** @type {typeof settings} */
 let preSetSettings;
-switch (window.location.href.split('/').at(-1)) {
+switch (window.location.href.split('/').pop()) {
 	case 'shaare-tefila-queens':
 	case 'shaare-tefila-queens-big':
 		preSetSettings = Object.freeze({
