@@ -520,15 +520,17 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
 <script type="module">
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
+	(async () => {
+		await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
 
-	if (![5, 6].includes(new Date().getDay())) {
-		const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
-			.split('\n')
-			.filter(str => str.startsWith('./shaare-tefila-marquee/'))
+		if (![5, 6].includes(new Date().getDay())) {
+			const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+				.split('\n')
+				.filter(str => str.startsWith('./shaare-tefila-marquee/'))
 
-		for (const marquee of document.getElementsByClassName('marquee__content')) {
-			marquee.innerHTML = flyerURLs.map(url => `<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" />`).join('');
+			for (const marquee of document.getElementsByClassName('marquee__content')) {
+				marquee.innerHTML = flyerURLs.map(url => `<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" />`).join('');
+			}
 		}
-	}
+	})();
 </script>
