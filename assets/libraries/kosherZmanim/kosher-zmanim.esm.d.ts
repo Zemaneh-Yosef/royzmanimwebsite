@@ -1062,7 +1062,7 @@ export declare class AstronomicalCalendar {
 	 * @return the degrees below the horizon before sunrise that match the offset in minutes passed it as a parameter.
 	 * @see #getSunsetSolarDipFromOffset(double)
 	 */
-	getSunriseSolarDipFromOffset(minutes: number): number | null;
+	getSunriseSolarDipFromOffset(durationObj: Temporal.Duration | Temporal.DurationLike): number | null;
 	/**
 	 * Returns the dip below the horizon after sunset that matches the offset minutes on passed in as a parameter. For
 	 * example passing in 72 minutes for a calendar set to the equinox in Jerusalem returns a value close to 16.1&deg;
@@ -1074,7 +1074,7 @@ export declare class AstronomicalCalendar {
 	 * @return the degrees below the horizon after sunset that match the offset in minutes passed it as a parameter.
 	 * @see #getSunriseSolarDipFromOffset(double)
 	 */
-	getSunsetSolarDipFromOffset(minutes: number): number | null;
+	getSunsetSolarDipFromOffset(durationObj: Temporal.Duration | Temporal.DurationLike): number | null;
 	/**
 	 * FIXME broken for czc.getRiseSetSolarDipFromOffset(-72, czc.getSunrise());
 	 * and broken in other was as well
