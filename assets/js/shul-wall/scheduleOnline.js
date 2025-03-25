@@ -1,5 +1,6 @@
 // @ts-check
 import { parse } from "../../libraries/ini.js";
+import { methodNames } from "../ROYZmanim.js";
 
 /** @type {Record<string, string>} */
 const localization = {
@@ -95,7 +96,7 @@ export default async function onlineSchedule(url, silent=false) {
 			if (!element.hasAttribute("data-keep"))
 				element.remove();
 
-		const regex = /(we|sh)\|(.*)\|(\+|\-)(\d{2}):(\d{2})/;
+		const regex = new RegExp(`(we|sh)\|(${methodNames.filter(str => str.startsWith('get')).join("|")})\|(\\+|-)(\d{2}):(\d{2})(r(?:05|10|15|30)|e)`);
 
 		/** @type {[string, string][]} */
 		const table = Object.entries(value);
@@ -118,6 +119,7 @@ export default async function onlineSchedule(url, silent=false) {
 				timeDiv.setAttribute("data-autoschedule-plusorminus", matchers[3]);
 				timeDiv.setAttribute("data-autoschedule-hours", matchers[4]);
 				timeDiv.setAttribute("data-autoschedule-minutes", matchers[5]);
+				timeDiv.setAttribute('data-autoschedule-round', matchers[6]);
 			} else
 				timeDiv.innerHTML = rowTime;
 			rowGroup.appendChild(timeDiv);

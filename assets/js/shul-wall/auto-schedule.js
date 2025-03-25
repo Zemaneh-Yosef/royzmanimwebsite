@@ -13,8 +13,8 @@ export default async function autoSchedule() {
 
 	const jCalShab = new WebsiteCalendar(Temporal.Now.plainDateISO(preSettings.location.timezone())).shabbat();
 	jCalShab.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
-    const jCalWeekday = jCalShab.clone();
-    jCalWeekday.setDate(jCalShab.getDate().subtract({ days: 6 }))
+	const jCalWeekday = jCalShab.clone();
+	jCalWeekday.setDate(jCalShab.getDate().subtract({ days: 6 }))
 
 	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 	const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
@@ -31,18 +31,21 @@ export default async function autoSchedule() {
 	zmanCalc.setDate(jCalShab.getDate());
 
 	for (const autoSchedule of document.querySelectorAll('[data-autoschedule-type]')) {
-        const jCal = autoSchedule.getAttribute('data-autoschedule-type') == 'sh' ? jCalShab : jCalWeekday;
-        zmanCalc.setDate(jCal.getDate());
+		const jCal = autoSchedule.getAttribute('data-autoschedule-type') == 'sh' ? jCalShab : jCalWeekday;
+		zmanCalc.setDate(jCal.getDate());
 
-        const autoScheduleShita = autoSchedule.getAttribute('data-autoschedule-function');
-        // @ts-ignore
-        const autoScheduleTime = zmanCalc[autoScheduleShita]()
-            [(autoSchedule.getAttribute('data-autoschedule-plusorminus') == '+' ? 'add' : 'subtract')]({
-                hours: parseInt(autoSchedule.getAttribute('data-autoschedule-hours')),
-                minutes: parseInt(autoSchedule.getAttribute('data-autoschedule-minutes'))
-            })
-        const autoScheduleTimeRounded = autoScheduleTime.with({ minute: Math.floor(autoScheduleTime.minute / 5) * 5 });
+		// @ts-ignore
+		let autoScheduleTime = zmanCalc[autoSchedule.getAttribute('data-autoschedule-function')]()
+			[(autoSchedule.getAttribute('data-autoschedule-plusorminus') == '+' ? 'add' : 'subtract')]({
+				hours: parseInt(autoSchedule.getAttribute('data-autoschedule-hours')),
+				minutes: parseInt(autoSchedule.getAttribute('data-autoschedule-minutes'))
+			})
 
-        autoSchedule.innerHTML = autoScheduleTimeRounded.toLocaleString(...dtF);
-    }
+		if (autoSchedule.getAttribute('data-autoschedule-round') !== 'e') {
+			const roundTime = parseInt(autoSchedule.getAttribute('data-autoschedule-round').split('r')[1]);
+			autoScheduleTime = autoScheduleTime.with({ minute: Math.floor(autoScheduleTime.minute / roundTime) * roundTime });
+		}
+
+		autoSchedule.innerHTML = autoScheduleTime.toLocaleString(...dtF);
+	}
 }
