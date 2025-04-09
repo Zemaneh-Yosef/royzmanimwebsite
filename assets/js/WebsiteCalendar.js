@@ -177,7 +177,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 							/** @type {KosherZmanim.Temporal.ZonedDateTime[]} */
 							const timeSheet = ctNetz.times
 								.map((/** @type {number} */ value) => KosherZmanim.Temporal.Instant
-									.fromEpochSeconds(value)
+									.fromEpochMilliseconds(value * 1000)
 									.toZonedDateTimeISO(zmanCalc.coreZC.getGeoLocation().getTimeZone())
 								)
 

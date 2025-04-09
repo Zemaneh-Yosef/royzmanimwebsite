@@ -8,7 +8,7 @@ import WebsiteCalendar from "../WebsiteCalendar.js";
 
 /**
  * @param {boolean} amudehHoraahZman
- * @param {[number, number, number, string | Temporal.CalendarProtocol]} plainDateParams
+ * @param {ConstructorParameters<typeof Temporal.PlainDate>} plainDateParams
  * @param {[string, number, number, number, string]} geoLocationData
  * @param {boolean} useElevation
  * @param {boolean} isIsrael
@@ -27,7 +27,7 @@ export default function spreadSheetExport (amudehHoraahZman, plainDateParams, ge
 	calc.configSettings(...funcSettings.calcConfig);
 
 	const vNetz = funcSettings.netzTimes.map((/** @type {number} */ value) => Temporal.Instant
-		.fromEpochSeconds(value)
+		.fromEpochMilliseconds(value * 1000)
 		.toZonedDateTimeISO(geoLocation.getTimeZone())
 	);
 

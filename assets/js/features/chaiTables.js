@@ -147,7 +147,7 @@ class ChaiTables {
 				const time = loopCal.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour, minute, second })
 
 				if (KosherZmanim.Temporal.ZonedDateTime.compare(time, jDate.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour: 0, minute: 0, second: 0 })) == 1)
-					times.push(time.epochSeconds)
+					times.push(time.epochMilliseconds / 1000)
 			}
 		}
 

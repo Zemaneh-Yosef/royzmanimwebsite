@@ -24,7 +24,7 @@ export default class exportFriendly {
 		// @ts-ignore
 		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 
-		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = zmanLister.zmanFuncs.coreZC.getDate().getISOFields()
+		const { year: isoYear, calendarId: isoCalendar } = zmanLister.jCal.getDate()
 
 		let availableVS = [];
 		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
@@ -187,7 +187,7 @@ export default class exportFriendly {
 		// @ts-ignore
 		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 
-		const { isoDay, isoMonth, isoYear, calendar: isoCalendar } = zmanLister.zmanFuncs.coreZC.getDate().getISOFields()
+		const { year: isoYear, calendarId: isoCalendar } = zmanLister.jCal.getDate()
 
 		let availableVS = [];
 		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {

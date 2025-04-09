@@ -46,7 +46,7 @@ const hNum = new HebrewNumberFormatter();
 function messageHandler (x) {
 	const geoLocation = new KosherZmanim.GeoLocation(...x.data.geoCoordinates);
 	const vNetz = x.data.netz.map((/** @type {number} */ value) => Temporal.Instant
-		.fromEpochSeconds(value)
+		.fromEpochMilliseconds(value * 1000)
 		.toZonedDateTimeISO(geoLocation.getTimeZone())
 	);
 

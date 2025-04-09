@@ -24,7 +24,7 @@ const monViewNight = (monthView, calc) =>
 
 /**
  * @param {boolean} amudehHoraahZman
- * @param {[number, number, number, string | Temporal.CalendarProtocol]} plainDateParams
+ * @param {ConstructorParameters<typeof Temporal.PlainDate>} plainDateParams
  * @param {[string, number, number, number, string]} geoLocationData
  * @param {boolean} useElevation
  * @param {boolean} isIsrael
