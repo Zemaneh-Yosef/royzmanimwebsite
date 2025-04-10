@@ -60,7 +60,9 @@ function renderFastIndex(fastContainer) {
     const nameElements = [...fastContainer.getElementsByTagName("h5")];
     nameElements.forEach(element => element.style.display = "none");
     
-    const ourFast = nameElements.find(element => element.getAttribute("data-zfFind") == fastJCal.getYomTovIndex().toString());
+    const ourFast = nameElements.find(fastElm =>
+        fastElm.getAttribute("data-zfFind") == (fastJCal.isTaanisBechoros() ? 0 : fastJCal.getYomTovIndex()).toString()
+    );
     hideErev(ourFast);
     ourFast.style.removeProperty("display");
 

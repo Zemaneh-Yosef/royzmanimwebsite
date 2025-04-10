@@ -109,26 +109,35 @@ if (dateHighlight.isYomTov() && dateHighlight.getYomTovIndex() in yomTovObj) {
 
 const lightCand = document.querySelector('[data-lightingCandles]');
 if (dateHighlight.hasCandleLighting()) {
+    const dayLoop = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     /** @type {Element} */
     // @ts-ignore
     const lightCand2 = lightCand.cloneNode(true);
-    lightCand2.innerHTML += "(2<sup>nd</sup> night): " + zmanCalc.chainDate(dateHighlight.getDate()).getTzaitLechumra().toLocaleString(...dtF);
+    lightCand2.innerHTML += `(${dayLoop[dateHighlight.getDayOfWeek()]}. night): ` +
+        zmanCalc.chainDate(dateHighlight.getDate())
+            [(dateHighlight.getDayOfWeek() == 6 ? 'getCandleLighting' :
+                dateHighlight.getDayOfWeek() == 7 ? 'getTzaitShabbath' : 'getTzaitLechumra')]()
+            .toLocaleString(...dtF);
     lightCand.insertAdjacentElement('afterend', lightCand2);
 
     if (dateHighlight.tomorrow().hasCandleLighting()) {
-        // There is no 3 day YT without Shabbat, so we could automatically call the getCandleLighting function for this
-
         /** @type {Element} */
         // @ts-ignore
         const lightCand3 = lightCand.cloneNode(true);
-        lightCand3.innerHTML += "(3<sup>rd</sup> night): " + zmanCalc.chainDate(dateHighlight.tomorrow().getDate()).getCandleLighting().toLocaleString(...dtF);
+        lightCand3.innerHTML += `(${dayLoop[dateHighlight.getDayOfWeek() + 1]}. night): ` +
+            zmanCalc.chainDate(dateHighlight.tomorrow().getDate())
+            [(dateHighlight.getDayOfWeek() == 5 ? 'getCandleLighting' : 'getTzaitLechumra')]()
+            .toLocaleString(...dtF);
 
         lightCand2.insertAdjacentElement('afterend', lightCand3);
     }
 
-    lightCand.innerHTML += "(1<sup>st</sup> night): ";
+    lightCand.innerHTML += `(${dayLoop[dateHighlight.getDayOfWeek() - 1]}. night): `;
 }
-lightCand.innerHTML += zmanCalc.chainDate(dateHighlight.getDate().subtract({ days: 1 })).getCandleLighting().toLocaleString(...dtF);
+lightCand.innerHTML += zmanCalc.chainDate(dateHighlight.getDate().subtract({ days: 1 }))
+    [(dateHighlight.getDayOfWeek() == 7 ? 'getCandleLighting' :
+        dateHighlight.getDayOfWeek() == 1 ? 'getTzaitShabbath' : 'getTzaitLechumra')]()
+    .toLocaleString(...dtF);
 
 const tzet = dateHighlight.clone();
 do {
