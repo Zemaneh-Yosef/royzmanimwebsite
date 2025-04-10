@@ -520,10 +520,11 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
 <script type="module">
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
+	import WebsiteCalendar from '/assets/js/WebsiteCalendar.js'
 	(async () => {
 		await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
 
-		if (![5, 6].includes(new Date().getDay())) {
+		if (![5, 6].includes(new Date().getDay()) && !(new WebsiteCalendar()).isYomTovAssurBemelacha()) {
 			const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 				.split('\n')
 				.filter(str => str.startsWith('./shaare-tefila-marquee/'))
