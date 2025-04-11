@@ -8,6 +8,11 @@ import { settings } from "../settings/handler.js"
 const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
 
+if (new URLSearchParams(window.location.search).has('sefiraDay')) {
+	jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.NISSAN, 15);
+	jCal.setDate(jCal.getDate().add({ days: parseInt(new URLSearchParams(window.location.search).get('sefiraDay')) }));
+}
+
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
 ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
