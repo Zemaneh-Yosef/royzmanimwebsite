@@ -645,7 +645,11 @@ function messageHandler (x) {
 				// @ts-ignore
 				renderZmanInDiv(zmanCalc[shita]())
 		}
-	
+
+		if (div.childElementCount == 1 && div.firstElementChild.childNodes.length <= 2) {
+			div.style.fontSize = '2.75ex';
+			div.style.paddingTop = '.2em'
+		}
 		return div;
 	}
 

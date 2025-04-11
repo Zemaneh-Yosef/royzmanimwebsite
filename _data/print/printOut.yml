@@ -1,9 +1,9 @@
 ---
 - timeGetter: getAlotHashachar
   names:
-    hb: עלות
-    et: Aloth
-    en: Dawn
+    hb: עלות <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
+    et: Alot <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
+    en: Dawn <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
 - timeGetter: getMisheyakir
   names:
     hb: מישיקיר
@@ -94,9 +94,9 @@
       timeGetter: getTzaitLechumra
       id: humra
   names:
-    hb: צאת הכוכבים
-    et: Tzet Ha'Kokhavim
-    en: Nightfall
+    hb: לילה <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
+    et: Night <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
+    en: Nightfall <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
 - timeGetter: candleLighting
   names:
     hb: נרות וצאת מלכה
@@ -105,5 +105,5 @@
 - timeGetter: getTzaitRT
   names:
     hb: ר״ת
-    et: Rabbeinu Tam
-    en: Rabbeinu Tam
+    et: Rabbenu Tam
+    en: Rabbenu Tam

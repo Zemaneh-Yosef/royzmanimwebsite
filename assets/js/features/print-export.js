@@ -25,7 +25,15 @@ if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 // @ts-ignore
 const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new GeoLocation(...glArgs);
+
 const useOhrHachaim = (geoLocation.getLocationName() || "").toLowerCase().includes('israel') || settings.calendarToggle.forceSunSeasonal()
+const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')].filter(elem => elem instanceof HTMLElement);
+const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')].filter(elem => elem instanceof HTMLElement);
+if (useOhrHachaim) {
+	amudehHoraahIndicators.forEach(elem => elem.remove());
+} else {
+	ohrHachaimIndicators.forEach(elem => elem.remove());
+}
 
 /** @type {HTMLElement} */
 // @ts-ignore
@@ -79,17 +87,6 @@ footer.querySelector("[data-geoCoordinates]")
 	.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
 		useOhrHachaim ? ", ↑" + geoLocation.getElevation().toString() : ""
 	})`));
-footer.querySelector("[data-calendar]")
-	.appendChild(document.createTextNode(
-		(useOhrHachaim ? {
-			"en": "Ohr Hachaim",
-			"en-et": "Ohr Hachaim",
-			"hb": "אור החיים"
-		} : {
-			"en": "Amudeh Hora'ah",
-			"en-et": "Amudeh Hora'ah",
-			"hb": "עמודי הוראה"
-		})[settings.language()]))
 footer.querySelector("[data-timeZone]")
 	.appendChild(document.createTextNode(geoLocation.getTimeZone()))
 
