@@ -1,6 +1,6 @@
 ---
 title: Ohel Michael Shul
-permalink: /shul-wall/ohel-michael-adj-bak
+permalink: /shul-wall/ohel-michael-adj
 layout: nothing
 ---
 
@@ -12,7 +12,7 @@ layout: nothing
 		height: 100dvh;
 		display: grid;
 		background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.5) 100%), url("/assets/images/shul-wall/yonah-bg.png");
-        background-size: cover;
+		background-size: cover;
 		background-position-y: bottom;
 		font-family: 'Neutro', var(--bs-body-font-family);
 	}
@@ -22,11 +22,12 @@ layout: nothing
 	}
 
 	#zyTrapezoid {
-        justify-self: center;
-        align-self: start;
-        width: 65%;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-    }
+		justify-self: center;
+		align-self: start;
+		width: 40%;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+		transform: scaleY(4);
+	}
 
 	#shulBar {
 		width: 45%;
@@ -91,16 +92,16 @@ layout: nothing
 	}
 
 	#bsD {
-        font-family: 'Guttman Mantova';
-        justify-self: end;
-        line-height: 1;
-        padding-right: .75rem;
-        color: white;
-        font-size: 3rem;
-        padding-top: 1.25rem;
-        align-self: start;
-        z-index: 3;
-    }
+		font-family: 'Guttman Mantova';
+		justify-self: end;
+		line-height: 1;
+		padding-right: .75rem;
+		color: white;
+		font-size: 3rem;
+		padding-top: 1.25rem;
+		align-self: start;
+		z-index: 3;
+	}
 
 	#dataGrid {
 		width: calc(100% - 2vw);
@@ -297,11 +298,11 @@ layout: nothing
 	}
 
 	.timeDisplayWide.nextDay::before {
-        content: "(Tomorrow)";
+		content: "(Tomorrow)";
 		font-size: .75em;
 		margin-bottom: -5px;
 		display: block;
-    }
+	}
 </style>
 
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
@@ -314,15 +315,10 @@ layout: nothing
 	<img id="zyTrapezoid" src="/assets/images/shul-wall/square-trapezoid.svg" />
 	<div id="shulBar">Bet Midrash Ohel Michael | In the memory of <b>Michael Ben Ilanit</b></div>
 	<div id="poweredBy">
-		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l
+		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l<br>
+		[MANUAL SCHEDULE MODE - The TV did not respond correctly to the power/internet outage and needs to be reset - It was too late for me by the time I noticed it was broken]
 	</div>
 	<div id="topBar">
-		<div>
-			<span data-en-date></span>
-			<hr style="margin: .25rem 0">
-			<span data-hb-date></span>
-		</div>
-		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
 		<div id="quickTimes">
 			<div style="text-align: left; width: fit-content">
 				<div style="text-align: center; font-weight: bold; font-size: 1.15em;" data-parasha></div>
@@ -334,70 +330,42 @@ layout: nothing
 	<!-- <h2 id="tefila">Please keep smartphones away throughout Tefila. Connect to Hashem!</h2> -->
 	<div id="dataGrid">
 		<div style="line-height: 1.3;">
-			<h2>Weekday Tefilot</h2>
-			<div class="card">
-				<ul class="list-group list-group-flush" id="weekday">
-				</ul>
-			</div>
 			<h2>Shabbat Tefilot</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shabbat">
+				<ul class="list-group list-group-flush" id="weekday">
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Mincha Erev Shabbat</div>
+						<div>Early Minyan: 5:55 PM<br>Regular Minyan: 7:15 PM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Early Shacharit</div>
+						<div>6:45 AM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Chametz Times</div>
+						<div>Eat before 10:14 AM<br>
+						Dispose by 11:35 AM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Mincha</div>
+						<div>1:30 AM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Learning</div>
+						<div>6:00 AM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Arvit</div>
+						<div>8:10 AM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Finish Hallel by</div>
+						<div>Chatzot Halayla - 12:55</div>
+					</li>
 				</ul>
 			</div>
 		</div>
 		<div>
-			<div id="noSmartphoneWithIcon">
-				<img src="/assets/images/shul-wall/no-phone.webp" id="noPhoneIcon" />
-				<p>Please keep cellphones away throughout Tefila.</p>
-			</div>
-			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .75rem;">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
-					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
-						{% for fast in site.data.events.fasts %}
-						<h5 data-zfFind="{{ fast.yomTovIndex }}">{{ fast.text.en }}</h5>
-						{% endfor %}
-						<span data-zfFind="oneDayTimes"><b>Fast Times: </b></span>
-						<ul data-zfFind="twoDayTimes">
-							<li><b>Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
-							<li><b>Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
-						</ul>
-					</li>
-					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
-						<div data-zfFind="SefirathHaomer">
-							<div class="lang lang-hb" style="display: block !important;">
-								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
-								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
-								<p class="mb-0">
-									<b>הלילה:</b>
-									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
-									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
-								</p>
-							</div>
-							<hr class="my-1" data-zfFind="omerRules">
-						</div>
-						<div data-zfFind="ThreeWeeksHeader">
-							<h5 style="font-size: .9rem; margin-bottom: .1em;">
-								<span data-zfFind="threeWeeks">Three Weeks</span>
-								<span data-zfFind="nineDays">Nine Days</span>
-								<span data-zfFind="weekOf">The week of Tisha Beav</span>
-							</h5>
-						</div>
-						<ul style="padding-left: 1.5rem;" class="d-none">
-							{% for minhag in site.data.mourningMinhag %}
-							<li data-zfFind="{{ minhag.topic }}">{{ minhag.text.en }}</li>
-							{% endfor %}
-						</ul>
-					</li>
-					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
-						ברכת החמה!
-					</li>
-					<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
-						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
-						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
-					</li>
-				</ul>
-			</div>
 			<div id="jug"><i class="bi bi-fire"></i><div id="jugPercent"></div></div>
 			<h2 class="text-center">שמן למאור<br>Total Budget</h2>
 			<p>
@@ -406,47 +374,49 @@ layout: nothing
 			</p>
 		</div>
 		<div style="line-height: 1.3;">
-			<h2>Official Sedarim</h2>
+			<h2>Yom Tov Tefilot</h2>
 			<div class="card">
 				<ul class="list-group list-group-flush" id="sedarim">
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Shacharit (with Kiddush & Learning)</div>
+						<div>8:40 AM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Open Bet Midrash</div>
+						<div>5:40 PM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Mincha</div>
+						<div>7:10 PM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Arvit</div>
+						<div>Sun Night: 7:50 PM<br>Mon Night: 8:00 PM</div>
+					</li>
 				</ul>
 			</div>
-			<h2>Weekday Shiurim</h2>
+			<h2>Chol Hamoed Schedule</h2>
 			<div class="card">
 				<ul class="list-group list-group-flush" id="shiurim">
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Shacharit</div>
+						<div>8:15 AM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Morning Ben Hazmanim Kollel</div>
+						<div>9:45 AM - 1:30 PM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Early Mincha</div>
+						<div>1:30 PM</div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div>Mincha</div>
+						<div>7:20 PM</div>
+					</li>
 				</ul>
 			</div>
 		</div>
-		<div id="megaline">
-			<span data-zfFind="BirchatHalevana">
-				Birkat Halvana (until the night of <span data-zfReplace="date-en-end"></span>)
-				<span data-zfFind="starts-tonight"> - Starts tonight</span>
-				<span data-zfFind="ends-tonight"> - Ends tonight</span>
-			</span>
-			<span data-zfReplace="Tachanun"></span>
-			<span data-zfReplace="Hallel" style="display: none;"></span>
-			<span data-zfReplace="Ulchaparat" style="display: none;"></span>
-			<span data-zfFind="SeasonalPrayers">
-				<span data-zfReplace="SeasonalPrayers"></span>
-			</span>
-		</div>
-		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en" data-primaryShema="getSofZmanShmaMGA">
-			{% for item in site.data.tv.simpleTVZman %}
-				<article
-					data-zmanid="{{ item.id }}"
-					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
-					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-				>
-					<span class="langTV lang-hb">{{ item.names.hb }}</span>
-					<span class="langTV lang-en">{{ item.names.en }}</span>
-					<span class="langTV lang-et">{{ item.names.et }}</span>
-					<span class="langTV lang-ru">{{ item.names.ru }}</span>
-					<span class="timeDisplay"></span>
-				</article>
-			{% endfor %}
-		</section>
 	</div>
 </div>
 
@@ -460,12 +430,16 @@ layout: nothing
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
 	document.body.setAttribute('data-bs-theme', 'dark');
 
-	const moneyFundraiser = await (await fetch('https://zemaneh-yosef.github.io/extras/yonah-budget.txt', {cache: "no-store"})).text();
-	const [moneyRaised, moneyNeeded] = moneyFundraiser.split('\n');
+	let moneyNeeded, moneyRaised;
+	try {
+		const moneyFundraiser = await (await fetch('https://zemaneh-yosef.github.io/extras/yonah-budget.txt', {cache: "no-store"})).text();
+		[moneyRaised, moneyNeeded] = moneyFundraiser.split('\n');
+	} catch (e) {
+		[moneyRaised, moneyNeeded] = [6470, 10000]; // default values
+		console.error("Error fetching budget data", e);
+	}
 
 	document.getElementById('jugPercent').style.height = ((moneyRaised / moneyNeeded) * 100) + "%";
 	document.querySelector('[data-raised-money]').innerHTML = moneyRaised;
 	document.querySelector('[data-fundraising-money]').innerHTML = moneyNeeded;
-
-	await schedule('https://zemaneh-yosef.github.io/extras/yonah-schedule.ini');
 </script>

@@ -314,7 +314,7 @@ layout: nothing
 	</div>
 	<div id="dataGrid">
 		<div>
-			<h1 style="text-align: center;">Weekday</h1>
+			<h1 style="text-align: center;">Yom Tov</h1>
 			{% include clockCountdown.html %}
 			<div class="card">
 				<ul class="list-group list-group-flush" id="weekday">
@@ -524,7 +524,8 @@ layout: nothing
 	(async () => {
 		await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
 
-		if (![5, 6].includes(new Date().getDay()) && !(new WebsiteCalendar()).isYomTovAssurBemelacha()) {
+		const dayCal = new WebsiteCalendar();
+		if (!dayCal.hasCandleLighting() && !dayCal.isYomTovAssurBemelacha()) {
 			const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 				.split('\n')
 				.filter(str => str.startsWith('./shaare-tefila-marquee/'))

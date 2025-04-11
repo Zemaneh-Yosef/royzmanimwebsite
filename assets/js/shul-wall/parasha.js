@@ -10,7 +10,10 @@ import preSettings from "./preSettings.js";
 const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
 const geoL = new GeoLocation(...glArgs);
 
-const dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
+let dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
+if (dateForSet.year < 2025)
+    dateForSet = dateForSet.with({ year: 2025, month: 4, day: 12 });
+
 const jCal = new WebsiteLimudCalendar(dateForSet);
 jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
 
