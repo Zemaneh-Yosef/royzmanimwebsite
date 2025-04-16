@@ -1,21 +1,22 @@
-###### Seasonal Hours + Dawn/Nightfall
+###### Seasonal Hours + Twilight (Dawn/Nightfall)
 
-We use the length of the day from sunrise until sunset to determine all Halachic times, whether within the day or *times before sunrise/after sunset*. This means that, just like degree calculations (and unlike some calendars that used fixed minutes), these times are longer in the summer; that's because the days are longer in the summer. However, unlike both degrees calculation (for times outside sunrise->sunset) and fixed minutes, these times are *shorter* in the winter months, despite astronomy dictating that these times should be longer for times outside the day's length. There are a few exceptions, though, when we use other methods of calculation (dawn->nightfall seasonal, degrees, fixed) instead of seasonal sunrise->sunset times:
+The day is measured from sunrise to sunset and divided into twelve even "seasonal hours", each shortened/extended depending on how short/long the day is. This measurement is used for all Halachic times, whether throughout the day itself _or even the times of twilight_. This makes the length of twilight _shorter_ during the winter months than during the spring/fall months, unlike astronomy (represented through other calendars "degree" listings) dictating that they should be _longer_ in those months. However, the longest astronomical twilights happen during the summer season, which are also when the days are longer (and thus these halachic twilights will adjust accordingly).
 
-- Keriath Shema & Hametz use seasonal time calculated from Dawn until Nightfall
-- Minḥa Gedolah uses a fixed 30 minute minimum, for the winter months
-- Candle Lighting times are using fixed minutes before sunset, due to the entire concept being based on recognition for Shabbat. We use 20 fixed minutes, based on rounding up a mil's length (discussed later on).
-- Tzet Shabbat uses 30 fixed minutes, which should always include time for tosefet and factors in the astronomy for Eretz Yisrael itself
+These are some expection to the default measurement, though, where we will opt for other measurements that provide different results:
+
+- A lengthier seasonal hour (from Dawn until Rabbenu Tam's Nightfall) is either enforced or encouraged for matters of strict Biblical restriction.
+- A 30 fixed-minute minimum is used for Minḥa Gedolah, making a difference in the winter months
+- Matters dependent on societal recognition does not depend on season, hence making them always fixed. This includes additional Shabbat time (20 minutes before sunset for candle lighting, 10 minutes after Nightfall for Shabbat ending) as well as the time-window to light Hanuka candles.
 
 Outside of Eretz Yisrael, a few other changes are made:
 
-- Tzet Shabbat outside Eretz Yisrael confines to purely astronomical sightings, so we measure the sun's position below the horizon 30 minutes after sunset on March 20th. We then match that spot for every day of the year in every location, in turn making Shabbat the most stringent whenever possible.
-- For all other times, the expected position of the sun must match for times outside sunrise->sunset **on the equinox day**. In turn, these expand/shrink the amount of minutes for Dawn/Nightfall, continuing the minutes parallel (at least for one day) while keeping the minutes seasonal for the other days of the year.
+- Tzet Shabbat/Yom Tov outside Eretz Yisrael confines to purely astronomical sightings, by measuring the sun's position below the horizon 30 minutes after sunset on March 20th in Eretz Yisrael. We then match that spot for every day of the year in every location, in turn making Tzet Shabbat/Yom Tov as stringent as possible.
+- The twilight times are extended/shrunk on the equinox day (and thus affecting all other days) to match the sun's positioning in Eretz Yisrael on said equinox day. The result of such math when applied in Eretz Yisrael makes no difference (as it is still 72 seasonal minutes), yet this detail lets the seasonal minutes factor astronomy while still keeping the defining detail of being shorter in the winter months.
 - Rabbenu Tam's Nightfall is capped at 72 fixed minutes, based on both R' Yitzḥak Yosef & R' David Yosef's ruling.
 
 ---
 
-The Talmudic way of referring to the measurement behind these times is a "mil", which we hold is 18 minutes. Thereby, ¾<sup>th</sup> of a mil is 13 ½ minutes (used for Geonim's nightfall) and 4 mil is 72 minutes (used for dawn and R"T's nightfall). For special occasions (such as ending a fast), we would switch to the Rambam's mil equivalence of 24 minutes, making it's rounded up ¾<sup>th</sup> value as 20 minutes after sunset.
+The measurements of the day are divided into 40 individual mil, which we hold is 18 minutes each. Thereby, ¾<sup>th</sup> of a mil is 13 ½ minutes (used for Geonim's nightfall) and 4 mil is 72 minutes (used for dawn and R"T's nightfall). For special occasions (such as ending a fast), we would switch to the Rambam's mil equivalence of 24 minutes, making it's rounded up ¾<sup>th</sup> value as 20 minutes after sunset.
 
 ###### Sunrise/Sunset
 
