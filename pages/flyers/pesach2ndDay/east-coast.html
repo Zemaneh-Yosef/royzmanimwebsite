@@ -202,7 +202,7 @@ website: true
     <img src="/assets/images/shabbat-abstract/bottom-wave-pesach.png" id="bottomWave" />
     <div id="gridElement"
         data-functions-backday-2="getCandleLighting"
-        data-functions-backday-1="getTzaitLechumra"
+        data-functions-backday-1="getTzaitShabbath"
         data-functions-backday-0="getTzaitShabbath"
     >
         <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;">NA East Coast Locations</div>
@@ -232,7 +232,7 @@ website: true
             <div class="shabbatRowBg tableShadow" style="grid-row: {{ gridRow }};"></div>
         {% endfor %}
     </div>
-    <span id="zemanehShab" class="absRotateText">זמני פסח תשפ"ד</span>
+    <span id="zemanehShab" class="absRotateText">זמני פסח <span data-yearRender="hebrewParsed"></span></span>
     <span id="lechaDodi" class="absRotateText lechaDodi">בְּצֵאת יִשְׂרָאֵל מִמִּצְרָיִם<br>בֵּית יַעֲקֹב מֵעַם לֹעֵז</span>
     <span id="dateElement" class="absRotateText"><span data-dateRender-backday="2"></span> - <span data-dateRender-backday="0"></span>, <span data-yearRender="iso8601"></span></span>
     <div id="imgFooter">

@@ -1,0 +1,260 @@
+---
+title: Shabbat Pomona Times
+permalink: /pesach/2ndDay/pomona
+breakout: true
+website: true
+---
+
+<style>
+	.maxWidthContainer {
+		width: clamp(16rem, 90vw, 90rem);
+		font-family: 'Neutro', var(--bs-body-font-family);
+		color: #30344F;
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1.3/1;
+
+		position: relative;
+		display: grid;
+
+		background-image: url("/assets/images/shabbat-abstract/bg-ltr-pesach.png");
+		background-size: cover;
+	}
+
+	#wrapperElement > *:not(.absRotateText):not(#shabbatCandles) {
+		grid-area: 1/1;
+	}
+
+	#imgFooter {
+		padding-bottom: .5rem;
+		padding-top: .5rem;
+		padding-left: .5rem;
+		font-size: 2rem;
+		font-weight: 600;
+		line-height: 1.1;
+		z-index: 2;
+		align-self: end;
+
+		width: 100%;
+		background-image: linear-gradient(to right, #F3E6A6, #D7BB63);
+	}
+
+	.footerBold {
+		font-weight: 700;
+	}
+
+	.absRotateText {
+		position: absolute;
+		transform: rotateZ(3.5deg);
+		text-align: center;
+		font-family: 'Guttman Mantova';
+		line-height: 1;
+	}
+
+	#wrapperElement #dateElement {
+		top: 9.5vw;
+		right: 4.25vw;
+		font-size: 1.9em;
+		font-family: 'Neutro', serif;
+		font-weight: 500;
+		width: 41vw;
+		color: #001524;
+	}
+
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		justify-self: end;
+		width: 22.5%;
+		z-index: 3;
+		transform: rotateY(180deg);
+	}
+
+	#lechaDodi {
+		top: 73%;
+		left: 4vw;
+		text-align: center;
+		transform: rotateZ(-7deg);
+		color: #001524;
+		font-size: 3vw;
+	}
+
+	#zemanehShab {
+		font-family: 'Frank Ruhl Libre';
+		right: 2.9vw;
+		font-size: 7vw;
+		font-weight: 900;
+		top: 2.75vw;
+		color: #001524;
+	}
+
+	#gridElement {
+		position: absolute;
+		grid-template-columns: 1fr 1fr 1fr;
+		left: 3vw;
+		top: 15.5vw;
+		display: grid;
+	}
+
+	#shabbatCandles {
+		position: absolute;
+		align-self: end;
+		width: 50%;
+		right: 15%;
+		bottom: 5vw;
+		z-index: 1;
+		opacity: 50%;
+	}
+
+	#bottomWave {
+		align-self: end;
+		width: 100%;
+		z-index: 2;
+	}
+
+	.shabbatRow {
+		margin-top: .3vw;
+		margin-bottom: .3vw;
+		padding-top: .25vw;
+		padding-bottom: .25vw;
+		font-size: 5vw;
+		font-weight: 600;
+		padding-left: 2vw;
+		padding-right: 2vw;
+	}
+
+	.timecalc {
+		background-color: #D9BB65;
+		font-weight: 700;
+		padding-left: 0.5vw;
+		padding-right: 1vw;
+		text-transform: uppercase;
+		border-right: .25vw solid black;
+	}
+
+	.timeshow {
+		z-index: 5;
+		text-align: center;
+	}
+
+	.shabbatRowBg {
+		background: linear-gradient(90deg, #F2A541 0%, #DCD1BB 100%);
+		grid-column: 1 / span 3;
+		margin-top: .3vw;
+		margin-bottom: .3vw;
+		z-index: 2;
+	}
+
+	.header {
+		padding: 0.5vw;
+		background: #D9BB65;
+		margin-left: .6vw;
+		margin-right: .6vw;
+		color: black;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1.2;
+		font-weight: 600;
+		font-size: 25px;
+	}
+
+	.header sup {
+		text-transform: none;
+	}
+
+	.tableShadow {
+		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+	}
+
+	.shabBorder {
+		border-right: .125vw solid black;
+	}
+
+	.twoLine {
+		line-height: .4;
+		padding-top: 1vw;
+	}
+
+	.sml {
+		font-size: 10px;
+	}
+
+	.inlineLogo {
+		display: inline-block;
+		font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
+		vertical-align: text-top;
+		font-size: 1.1em;
+	}
+
+	#fastHalachas {
+		position: absolute;
+		left: 2.5vw;
+		top: 60vh;
+		width: 1000px;
+		background-color: rgba(0, 0, 0, .75);
+		padding: 1.15rem;
+		border-radius: 2rem;
+		color: white;
+		text-align: right;
+	}
+
+	#fastHalachas p {
+		font-size: 1.8rem;
+	}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<!-- <img src="/assets/images/shabbat-abstract/seder-plate.png" id="shabbatCandles" /> -->
+	<!-- <img src="/assets/images/shabbat-abstract/bottom-wave-pesach.png" id="bottomWave" /> -->
+	<div id="gridElement"
+		data-functions-backday-2="getCandleLighting"
+		data-functions-backday-1="getTzaitShabbath"
+		data-functions-backday-0="getTzaitShabbath"
+	>
+		<div class="header tableShadow">Erev Yom Tov<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
+		<div class="header tableShadow">1<sup>st</sup> Day Yom Tov<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
+		<div class="header tableShadow">2<sup>nd</sup> Day Yom Tov<br><span style="font-weight: 400;">(End of Y"T)</span></div>
+		<div class="shabbatRow tableShadow timecalc"
+			data-lat="41.198124" data-lng="-74.055571"
+			data-timezone="America/New_York"
+			data-format="h12"
+			style="display: none;">
+		</div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-column: 1; grid-row: 2;">Start Time</div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 2;">End Time</div>
+		<div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: 2;">Machmir Time</div>
+		<div class="shabbatRowBg tableShadow" style="grid-row: 2;"></div>
+	</div>
+	<span id="zemanehShab" class="absRotateText">זמני פסח <span data-yearRender="hebrewParsed"></span></span>
+	<!-- <span id="lechaDodi" class="absRotateText lechaDodi">בְּצֵאת יִשְׂרָאֵל מִמִּצְרָיִם<br>בֵּית יַעֲקֹב מֵעַם לֹעֵז</span> -->
+	<span id="dateElement" class="absRotateText"><span data-dateRender-backday="2"></span> - <span data-dateRender-backday="0"></span>, <span data-yearRender="iso8601"></span></span>
+	<div id="imgFooter">
+		Halachic Pesach Times according to Rabbi Ovadia Yosef ZT"L.<br>
+		Brought to you by <span class="inlineLogo">זמני יוסף</span>, available on iOS & Android • royzmanim.com
+	</div>
+	<div id="fastHalachas">
+		<h1 style="text-align: center;">Sefira Count</h1>
+		<p><b>בָּרוּךְ אַתָּה יְהֹוָה, אֱלֹהֵֽינוּ מֶֽלֶךְ הָעוֹלָם, אֲשֶׁר קִדְּשָֽׁנוּ בְּמִצְוֹתָיו וְצִוָּֽנוּ עַל סְפִירַת הָעֹֽמֶר: הַיּוֹם</b></p>
+		<p>שִׁשָּׁה יָמִים לָעֹֽמֶר</p>
+		<hr>
+		<p>שִׁבְעָה יָמִים לָעֹֽמֶר, שֶׁהֵם שָׁבֽוּעַ אֶחָד</p>
+		<hr>
+		<p class="mb-0">שְׁמוֹנָה יָמִים לָעֹֽמֶר, שֶׁהֵם שָׁבֽוּעַ אֶחָד וְיוֹם אֶחָד</p>
+	</div>
+	<img src="/assets/images/MARAN.png" id="maran">
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>
