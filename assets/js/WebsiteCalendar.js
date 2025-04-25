@@ -341,7 +341,6 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				calculatedZmanim[zmanId].code.push("Invalid Date");
 			}
 
-			console.log(zmanId, zmanInfo.round)
 			if (!('second' in calculatedZmanim[zmanId].dtF[1])
 			 && (calculatedZmanim[zmanId].luxonObj.second > 40 || (calculatedZmanim[zmanId].luxonObj.second > 20 && zmanInfo.round == 'later'))) {
 				calculatedZmanim[zmanId].luxonObj = calculatedZmanim[zmanId].luxonObj.with({ second: 0, millisecond: 0 }).add({ minutes: 1 });

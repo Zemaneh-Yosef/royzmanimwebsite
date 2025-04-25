@@ -63,7 +63,8 @@ const zmanInfoSettings = {
 const timesDataList = {};
 jCal.back();
 
-for (let index = 0; index < 2; index++) {
+for (let index = 0; index < 3; index++) {
+	zmanCalc.setDate(jCal.getDate());
 	for (const [yTimeName, yTimeData] of Object.entries(jCal.getZmanimInfo(true, zmanCalc, zmanimList, zmanInfoSettings, dtF))) {
 		if (yTimeData.luxonObj &&
 			yTimeData.display == 1
