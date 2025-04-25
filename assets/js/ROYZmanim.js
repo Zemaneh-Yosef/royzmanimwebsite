@@ -2,7 +2,7 @@
 
 // Comment the following line before going live (as well as the export line on the bottom)!
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
-import { Temporal } from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { MathUtils, Temporal } from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import TekufahCalculator from "./tekufot.js";
 
 /**
@@ -21,6 +21,7 @@ class ZmanimMathBase {
 	constructor(geoLocation) {
 		this.coreZC = new KosherZmanim.ZmanimCalendar(geoLocation)
 		this.coreZC.getAstronomicalCalculator().setRefraction(34.478885263888294 / 60)
+		this.coreZC.getAstronomicalCalculator().setEarthRadius(getEarthRadiusAtLatitude(geoLocation.getLatitude()));
 		this.tekufaCalc = new TekufahCalculator(this.coreZC.getDate().withCalendar("hebrew").year);
 
 		this.setDate(Temporal.Now.plainDateISO())
@@ -46,6 +47,7 @@ class ZmanimMathBase {
 	 */
 	setGeoLocation(geoLocation) {
 		this.coreZC.setGeoLocation(geoLocation);
+		this.coreZC.getAstronomicalCalculator().setEarthRadius(getEarthRadiusAtLatitude(geoLocation.getLatitude()));
 		this.setDate(this.coreZC.getDate())
 	}
 
@@ -67,6 +69,9 @@ class ZmanimMathBase {
 	 * @returns {this}
 	 */
 	chainDate(date) {
+		if (date == this.coreZC.getDate())
+			return this;
+
 		let calc;
 		if (this instanceof OhrHachaimZmanim) {
 			calc = new OhrHachaimZmanim(this.coreZC.getGeoLocation(), this.coreZC.isUseElevation());
@@ -419,12 +424,12 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 
 	getTzait() {
 		return this.astronomicalZman.sunset
-			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(3.77, true)))
+			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(3.7, true)))
 	}
 
 	getTzaitLechumra() {
 		return this.astronomicalZman.sunset
-			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(5.135, true)));
+			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(5.075, true)));
 	}
 
 	/**
@@ -435,14 +440,14 @@ class AmudehHoraahZmanim extends AlotTzeitZmanim {
 		const degree = shabbatTimeObj.degree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH;
 		const sunsetOffset = this.coreZC.getSunsetOffsetByDegrees(degree);
 		if (!sunsetOffset || Temporal.ZonedDateTime.compare(sunsetOffset, this.getSolarMidnight()) == 1)
-			return (shabbatTimeObj.degree > 5.32 ? this.getTzaitShabbath({ degree: 5.32, minutes: null }) : this.getSolarMidnight());
+			return (shabbatTimeObj.degree > 5.2 ? this.getTzaitShabbath({ degree: 5.2, minutes: null }) : this.getSolarMidnight());
 
 		return sunsetOffset;
 	}
 
 	getTzait72Zmanit() {
 		return this.astronomicalZman.sunset
-			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(16.01, true)))
+			.add(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(16.04, true)))
 	}
 
 	getTzais18Degrees() {
@@ -461,6 +466,31 @@ function getAllMethods (toCheck) {
     } while (obj = Object.getPrototypeOf(obj));
     
     return props.sort().filter((e, i, arr) => (e!=arr[i+1] && typeof toCheck[e] == 'function'));
+}
+
+/**
+ * Constants for the WGS84 Earth model.
+ * The Earth is modeled as an oblate spheroid.
+ */
+const WGS84_EQUATORIAL_RADIUS = 6378.137; // in KM
+const WGS84_POLAR_RADIUS = 6356.752; // in KM
+
+/**
+ * A method to calculate the Earth's radius at a given latitude using the WGS84 model.
+ * This accounts for the Earth's oblateness.
+
+ * @param {number} latitude The latitude in degrees.
+ * @return The Earth's radius at the given latitude in KM.
+ */
+function getEarthRadiusAtLatitude(latitude) {
+  const latRad = MathUtils.degreesToRadians(latitude); // Convert latitude to radians
+  const a = WGS84_EQUATORIAL_RADIUS; // Equatorial radius
+  const b = WGS84_POLAR_RADIUS; // Polar radius
+
+  // Calculate the radius using the formula for an oblate spheroid
+  const numerator = Math.pow(a * Math.cos(latRad), 2) + Math.pow(b * Math.sin(latRad), 2);
+  const denominator = Math.pow(a * Math.cos(latRad), 2) / Math.pow(a, 2) + Math.pow(b * Math.sin(latRad), 2) / Math.pow(b, 2);
+  return Math.sqrt(numerator / denominator);
 }
 
 const methodNames = getAllMethods(AlotTzeitZmanim.prototype)

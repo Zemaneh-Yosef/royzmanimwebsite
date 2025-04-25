@@ -35,17 +35,18 @@ export default class zmanimListUpdater {
 
 		/** @type {Parameters<typeof this.jCal.getZmanimInfo>[2]} */
 		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
-			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), {
+			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), Object.freeze({
 				function: timeSlot.getAttribute('data-timeGetter'),
 				yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
 				luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
 				condition: timeSlot.getAttribute('data-condition'),
+				round: timeSlot.getAttribute('data-round'),
 				title: {
 					'hb': timeSlot.querySelector('span.lang.lang-hb').innerHTML,
 					'en': timeSlot.querySelector('span.lang.lang-en').innerHTML,
 					'en-et': timeSlot.querySelector('span.lang.lang-et').innerHTML
 				}
-			}])
+			})])
 			.filter(
 				arrayEntry =>
 					arrayEntry[0] !== null
@@ -307,7 +308,7 @@ export default class zmanimListUpdater {
 		const copyText = this.geoLocation.getLocationName() + "\n\n"
 		+ this.jCal.formatFancyDate(undefined, false) + ", " + this.jCal.getDate().year
 		+ "\n" + this.jCal.formatJewishFullDate().hebrew + "\n\n"
-		+ Object.values(this.jCal.getZmanimInfo(true, this.zmanFuncs, this.zmanimList, this.zmanInfoSettings))
+		+ Object.values(this.jCal.getZmanimInfo(true, this.zmanFuncs, this.zmanimList, this.zmanInfoSettings, this.dtF))
 		.filter(entry => entry.display == 1)
 		.map(entry => `${entry.title[settings.language()]}: ${entry.luxonObj.toLocaleString(...this.dtF)}`)
 		.join('\n')
@@ -367,7 +368,6 @@ export default class zmanimListUpdater {
 
 					makamElems.details.lastElementChild.innerHTML = Object.entries(KosherZmanim.Makam.getMakamData(this.jCal.shabbat()))
 						.map(([key, value]) => {
-							console.log(typeof value)
 							return `<dt>${key}</dt><dd>${(value.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
 								.join(" / "))}</dd>`
 						}).join('');
@@ -776,7 +776,7 @@ export default class zmanimListUpdater {
 			)
 		}
 
-		const zmanInfo = this.jCal.getZmanimInfo(false, this.zmanFuncs, this.zmanimList, this.zmanInfoSettings);
+		const zmanInfo = this.jCal.getZmanimInfo(false, this.zmanFuncs, this.zmanimList, this.zmanInfoSettings, this.dtF);
 		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]')) {
 			for (const timeSlot of calendarContainer.children) {
 				if (!(timeSlot instanceof HTMLElement))
@@ -827,7 +827,7 @@ export default class zmanimListUpdater {
 							upNextElem.style.display = "none";
 						}
 
-						shita.lastElementChild.innerHTML = zmanInfo[completeName].luxonObj.toLocaleString(...this.dtF)
+						shita.lastElementChild.innerHTML = zmanInfo[completeName].luxonObj.toLocaleString(...zmanInfo[completeName].dtF)
 
 						const validMergeTitle = 'merge_title' in zmanInfo[completeName];
 						// We're going to affect the main row title since the only time we actually change the title for multi-row is tzet for fasts
@@ -895,7 +895,7 @@ export default class zmanimListUpdater {
 						upNextElem.style.display = "none";
 					}
 
-					timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].luxonObj.toLocaleString(...this.dtF)
+					timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].luxonObj.toLocaleString(...zmanInfo[zmanId].dtF)
 
 					if (zmanInfo[zmanId].title.hb)
 						timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb
@@ -1074,7 +1074,7 @@ export default class zmanimListUpdater {
 
 		for (const days of [0, 1]) {
 			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).add({ days }), true);
-			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false,this.zmanFuncs,this.zmanimList,this.zmanInfoSettings)).filter(obj => obj.display == 1).map(time => time.luxonObj));
+			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false,this.zmanFuncs,this.zmanimList,this.zmanInfoSettings, this.dtF)).filter(obj => obj.display == 1).map(time => time.luxonObj));
 		}
 
 		this.changeDate(currentSelectedDate, true); //reset the date to the current date

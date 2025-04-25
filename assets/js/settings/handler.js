@@ -108,7 +108,7 @@ const settings = Object.freeze({
 			if (!(settingsURLOverride("tzeithIMmin") || "").trim() || isNaN(parseInt(settingsURLOverride("tzeithIMmin")))) {
 				const retObj = {
 					minutes: 30,
-					degree: 7.14
+					degree: 7.165
 				};
 
 				// @ts-ignore

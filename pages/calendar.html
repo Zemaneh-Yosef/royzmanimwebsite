@@ -133,6 +133,7 @@ chaiTable: true
 							class="d-lg-none"
 							data-timeGetter="{{ mobileZman.timeGetter }}"
 							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+							{% if mobileZman.round %}data-round="{{ mobileZman.round }}"{% endif %}
 							{% if mobileZman.attributes.luachInclusive %}data-luachInclusive="{{ mobileZman.attributes.luachInclusive }}"{% endif %}
 							{% if mobileZman.attributes.yomTovInclusive %}data-yomTovInclusive="{{ mobileZman.attributes.yomTovInclusive }}"{% endif %}
 							{% if mobileZman.attributes.condition %}data-condition="{{ mobileZman.attributes.condition }}"{% endif %}
@@ -202,6 +203,7 @@ chaiTable: true
 							data-zmanid="{{ item.id }}"
 							{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
 							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+							{% if item.round %}data-round="{{ item.round }}"{% endif %}
 							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
 							{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 							{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}

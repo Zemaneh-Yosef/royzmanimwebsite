@@ -453,7 +453,7 @@ if (document.getElementById('gridElement').hasAttribute('data-hasMakam')) {
 
 	const makam = makamIndex.getTodayMakam(jCal);
 	for (const makamContainer of document.querySelectorAll('[data-makam]'))
-		makamContainer.innerHTML += makam
+		makamContainer.innerHTML += makam.makam
 			.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
 			.join(" / ");
 }

@@ -5,7 +5,7 @@ import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js
 import { AmudehHoraahZmanim, OhrHachaimZmanim } from "./ROYZmanim.js";
 
 /** @typedef {{ hb: string, en: string, "en-et": string; "ru"?: string; }} langType */
-/** @typedef {{display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string}} zmanData */
+/** @typedef {{display: -2|-1|0|1, code: string[], luxonObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
@@ -110,10 +110,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	/**
 	 * @param {boolean} independent
 	 * @param {AmudehHoraahZmanim|OhrHachaimZmanim} zmanCalc
-	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }}; }} zmanList
+	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }; round: "earlier"|"later"|"exact"}; }} zmanList
 	 * @param {{ tzeithIssurMelakha: { minutes: number; degree: number;}; }} funcSettings 
+	 * @param {[string | string[], options?: Intl.DateTimeFormatOptions]} dtF
 	 */
-	getZmanimInfo(independent, zmanCalc, zmanList, funcSettings) {
+	getZmanimInfo(independent, zmanCalc, zmanList, funcSettings, dtF) {
 		/** @type {Record<string, zmanData>} */
 		const calculatedZmanim = {}
 
@@ -134,7 +135,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					en: null,
 					"en-et": null,
 					ru: null
-				}
+				},
+				dtF: [dtF[0], Object.assign({}, dtF[1])]
 			}
 
 			if (independent) {
@@ -163,7 +165,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 			if (zmanInfo.function) {
 				// @ts-ignore
-				calculatedZmanim[zmanId].luxonObj = zmanCalc.chainDate(this.getDate())[zmanInfo.function]()
+				calculatedZmanim[zmanId].luxonObj = zmanCalc[zmanInfo.function]()
 			}
 
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
@@ -193,8 +195,10 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						calculatedZmanim[zmanId].title.hb += ' (משור)';
 						calculatedZmanim[zmanId].title['en-et'] += ' (Mishor)';
 						calculatedZmanim[zmanId].title.en += ' (Sea Level)';
-					} else
+					} else {
 						calculatedZmanim[zmanId].luxonObj = visibleSunrise
+						calculatedZmanim[zmanId].dtF[1].second = '2-digit'
+					}
 
 					break;
 				case 'candleLighting':
@@ -204,11 +208,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						continue;
 					} else {
 						if (this.getDayOfWeek() === 6 || !this.isAssurBemelacha())
-							calculatedZmanim[zmanId].luxonObj = zmanCalc.chainDate(this.getDate()).getCandleLighting();
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.getCandleLighting();
 						else if (this.getDayOfWeek() === 7)
-							calculatedZmanim[zmanId].luxonObj = zmanCalc.chainDate(this.getDate()).getTzaitShabbath();
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.getTzaitShabbath();
 						else
-							calculatedZmanim[zmanId].luxonObj = zmanCalc.chainDate(this.getDate()).getTzaitLechumra();
+							calculatedZmanim[zmanId].luxonObj = zmanCalc.getTzaitLechumra();
 					}
 
 					break;
@@ -231,15 +235,15 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 							calculatedZmanim[zmanId].title.ru = `Конец Праздника`;
 						}
 
-						if (!calculatedZmanim[zmanId].luxonObj.equals(zmanCalc.chainDate(this.getDate()).getSolarMidnight())) {
+						if (!calculatedZmanim[zmanId].luxonObj.equals(zmanCalc.getSolarMidnight())) {
 							const internDegree = KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH + funcSettings.tzeithIssurMelakha.degree;
-							let attemptedTime = zmanCalc.chainDate(this.getDate()).coreZC.getSunsetOffsetByDegrees(internDegree);
+							let attemptedTime = zmanCalc.coreZC.getSunsetOffsetByDegrees(internDegree);
 							const reducedTime =
 								!attemptedTime ? true
-								: KosherZmanim.Temporal.ZonedDateTime.compare(attemptedTime, zmanCalc.chainDate(this.getDate()).getSolarMidnight()) == 1;
+								: KosherZmanim.Temporal.ZonedDateTime.compare(attemptedTime, zmanCalc.getSolarMidnight()) == 1;
 							const elements = [
 								!reducedTime ? funcSettings.tzeithIssurMelakha.minutes + "m" : null,
-								zmanCalc instanceof AmudehHoraahZmanim ? (reducedTime ? 5.32 : funcSettings.tzeithIssurMelakha.degree) + "°" : null
+								zmanCalc instanceof AmudehHoraahZmanim ? (reducedTime ? 5.2 : funcSettings.tzeithIssurMelakha.degree) + "°" : null
 							].filter(Boolean);
 							if (elements.length)
 								['hb', 'en-et', 'en']
@@ -335,6 +339,12 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			if (!calculatedZmanim[zmanId].luxonObj) {
 				calculatedZmanim[zmanId].display = -2;
 				calculatedZmanim[zmanId].code.push("Invalid Date");
+			}
+
+			console.log(zmanId, zmanInfo.round)
+			if (!('second' in calculatedZmanim[zmanId].dtF[1])
+			 && (calculatedZmanim[zmanId].luxonObj.second > 40 || (calculatedZmanim[zmanId].luxonObj.second > 20 && zmanInfo.round == 'later'))) {
+				calculatedZmanim[zmanId].luxonObj = calculatedZmanim[zmanId].luxonObj.with({ second: 0, millisecond: 0 }).add({ minutes: 1 });
 			}
 		}
 

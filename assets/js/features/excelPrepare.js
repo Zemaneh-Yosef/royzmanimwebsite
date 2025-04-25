@@ -13,10 +13,9 @@ import WebsiteCalendar from "../WebsiteCalendar.js";
  * @param {boolean} useElevation
  * @param {boolean} isIsrael
  * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
- * @param {boolean} monthView
  * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; zmanInfoSettings: Parameters<typeof jCal.getZmanimInfo>[3]; calcConfig: Parameters<OhrHachaimZmanim["configSettings"]>; netzTimes: number[] }} funcSettings
  */
-export default function spreadSheetExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList, monthView=true, funcSettings) {
+export default function spreadSheetExport (amudehHoraahZman, plainDateParams, geoLocationData, useElevation, isIsrael, zmanList, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
 	const geoLocation = new GeoLocation(...geoLocationData);
 
@@ -36,7 +35,7 @@ export default function spreadSheetExport (amudehHoraahZman, plainDateParams, ge
 
 	const events = [];
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
-		const dailyZmanim = Object.entries(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings))
+		const dailyZmanim = Object.entries(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings, null))
 			.filter(entry => entry[1].display == 1)
 			.map(entry => [
 				entry[0],

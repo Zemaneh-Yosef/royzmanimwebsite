@@ -205,7 +205,6 @@ export default class exportFriendly {
 			zmanLister.zmanFuncs.coreZC.isUseElevation(),
 			zmanLister.jCal.getInIsrael(),
 			exportZmanList,
-			true,
 			{
 				// @ts-ignore
 				language: settings.language() == "hb" ? "he" : settings.language(),

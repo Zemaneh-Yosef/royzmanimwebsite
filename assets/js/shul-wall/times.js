@@ -63,31 +63,17 @@ const zmanInfoSettings = {
 const timesDataList = {};
 jCal.back();
 
-for (const [yTimeName, yTimeData] of Object.entries(jCal.getZmanimInfo(true, zmanCalc, zmanimList, zmanInfoSettings))) {
-	if (yTimeData.luxonObj &&
-		yTimeData.display == 1
-		&& Temporal.ZonedDateTime.compare(yTimeData.luxonObj, Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())) == 1)
-		timesDataList[yTimeName] = yTimeData;
-}
+for (let index = 0; index < 2; index++) {
+	for (const [yTimeName, yTimeData] of Object.entries(jCal.getZmanimInfo(true, zmanCalc, zmanimList, zmanInfoSettings, dtF))) {
+		if (yTimeData.luxonObj &&
+			yTimeData.display == 1
+			&& Temporal.ZonedDateTime.compare(yTimeData.luxonObj, Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())) == 1
+			&& !(yTimeName in timesDataList))
+			timesDataList[yTimeName] = yTimeData;
+	}
 
-jCal.setDate(dateForSet);
-for (const [todTimeName, todTimeData] of Object.entries(jCal.getZmanimInfo(true, zmanCalc, zmanimList, zmanInfoSettings))) {
-	if (todTimeData.luxonObj &&
-		todTimeData.display == 1
-		&& Temporal.ZonedDateTime.compare(todTimeData.luxonObj, Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())) == 1
-		&& !(todTimeName in timesDataList))
-		timesDataList[todTimeName] = todTimeData;
+	jCal.setDate(jCal.getDate().add({ days: 1 }));
 }
-
-jCal.setDate(dateForSet.add({ days: 1 }));
-for (const [tomTimeName, tomTimeData] of Object.entries(jCal.getZmanimInfo(true, zmanCalc, zmanimList, zmanInfoSettings))) {
-	if (tomTimeData.luxonObj &&
-		tomTimeData.display == 1
-		&& Temporal.ZonedDateTime.compare(tomTimeData.luxonObj, Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())) == 1
-		&& !(tomTimeName in timesDataList))
-		timesDataList[tomTimeName] = tomTimeData;
-}
-
 jCal.back();
 
 for (const elem of Array.from(calList.children)) {

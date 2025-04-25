@@ -98,7 +98,7 @@ export default function icsExport (amudehHoraahZman, plainDateParams, geoLocatio
 	/** @type {import('ics').EventAttributes[]} */
 	const events = [];
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
-		const dailyZmanim = Object.values(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings))
+		const dailyZmanim = Object.values(jCal.getZmanimInfo(true, calc, zmanList, funcSettings.zmanInfoSettings, dtF))
 			.filter(entry => entry.display == 1)
 			.map(entry => `${entry.title[funcSettings.language == "he" ? "hb" : funcSettings.language]}: ${entry.luxonObj.toLocaleString(...dtF)}`)
 			.join('\n')

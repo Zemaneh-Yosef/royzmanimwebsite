@@ -5,6 +5,7 @@
     hb: עלות השחר
     et: Alot Ha'Shaḥar
     en: Dawn
+  round: earlier
   descriptionIncludeArray:
     short:
       - zmanDescription/alot/body.md
@@ -19,13 +20,6 @@
       timeGetter:
         functionCall: getAlotHashachar
         param: {minutes: 90, degree: 19.8}
-    - titles:
-        hb: עלות השחר (4 מיל - 24 דקות)
-        et: Alot Hashachar (4 mil - 24 minutes each)
-        en: Dawn (4 mil - 24 minutes each)
-      timeGetter:
-        functionCall: getAlotHashachar
-        param: {minutes: 96, degree: 23.8}
 - id: earliestTefilin
   timeGetter: getMisheyakir
   names:
@@ -33,6 +27,7 @@
     et: Earliest Tallit and Tefilin
     en: Earliest Tallit and Tefilin
   descriptionInclude: zmanDescription/misheyakir.md
+  round: later
 - id: sunrise
   attributes:
     yomTovInclusive:
@@ -44,6 +39,7 @@
     et: HaNetz (Mishor)
     en: Sunrise (Sea Level)
   descriptionInclude: zmanDescription/hanetz.md
+  round: later
 - id: latestShma
   shitot:
     - names:
@@ -52,12 +48,14 @@
         et: MG'A
       timeGetter: getSofZmanShmaMGA
       id: mga
+      round: earlier
     - names:
         hb: גר'א
         en: GR'A
         et: GR'A
       timeGetter: getSofZmanShmaGRA
       id: gra
+      round: earlier
   names:
     hb: סוף זמן שמע
     et: Sof Zeman Shema
@@ -73,6 +71,7 @@
       id: eating
       attributes:
         yomTovInclusive: EREV_PESACH
+      round: earlier
     - names:
         hb: ביעור
         en: Burning
@@ -81,6 +80,7 @@
       id: burning
       attributes:
         yomTovInclusive: EREV_PESACH
+      round: earlier
   names:
     hb: זמני חמץ
     et: Ḥametz Times
@@ -108,6 +108,7 @@
     Outside Eretz Yisrael, this time is calculated the same way as
     above except no elevation is included.
     </p>
+  round: earlier
 - id: hatzoth
   timeGetter: getHatzoth
   names:
@@ -137,6 +138,7 @@
     Outside Eretz Yisrael, this time is calculated the same way as
     above except no elevation is included.
     </p>
+  round: earlier
 - id: minha
   shitot:
     - names:
@@ -145,12 +147,14 @@
         et: Earliest
       timeGetter: getMinhaGedolah
       id: gedolah
+      round: later
     - names:
         hb: קטנה
         en: Ketana
         et: Preferable
       timeGetter: getMinchaKetana
       id: ketanah
+      round: later
   names:
     hb: זמן מנחה
     et: Zeman Minḥa
@@ -164,12 +168,14 @@
         et: H"B
       timeGetter: getPlagHaminhaHalachaBrurah
       id: hb
+      round: later
     - names:
         hb: י"י
         en: Y"Y
         et: Y"Y
       timeGetter: getPlagHaminhaYalkutYosef
       id: yy
+      round: later
   names:
     hb: פלג המנחה
     et: Pelag Ha'Minḥa
@@ -202,6 +208,7 @@
     sunset (elevation included).
     </p>
   specialDropdownContent: True
+  round: earlier
 - id: sunset
   attributes:
     yomTovInclusive:
@@ -238,6 +245,7 @@
     Most mitzvot that are to be done during the day should ideally be
     done before this time.
     </p>
+  round: earlier
 - id: tzeit
   shitot:
     - names:
@@ -246,12 +254,14 @@
         et: Regular
       timeGetter: getTzait
       id: regular
+      round: later
     - names:
         hb: חומרה
         et: Ḥumra
         en: Stringent
       timeGetter: getTzaitLechumra
       id: humra
+      round: later
   names:
     hb: צאת הכוכבים
     et: Tzet Ha'Kokhavim
@@ -278,7 +288,7 @@
     </p>
     <p>
     Outside Eretz Yisrael, these numbers ("13.5" & "20") are measured in the form of degrees
-    below the horizon (thus being converted to 3.86 & 5.3 degrees respectively) to be then
+    below the horizon (thus being converted to 3.7 & 5.075 degrees respectively) to be then
     applied on the equinox day, thus giving us a new number to make seasonal that reflects
     the local astronomy.
     </p>
@@ -290,6 +300,7 @@
     en: Shabbat Ends
   descriptionInclude: zmanDescription/tzetShabbat.md
   specialDropdownContent: True
+  round: later
 - id: rt
   attributes:
     yomTovInclusive:
@@ -329,6 +340,7 @@
     surpass them. Although this is against Rav Ovadia Yosef's personal ruling,
     we rely on his son's who spelt out rulings for outside Eretz Yisrael.
     </p>
+  round: earlier
 - id: chatzotLayla
   attributes:
     yomTovInclusive:
@@ -350,3 +362,4 @@
     between sunrise and sunset (elevation included) and divides it into
     12 equal parts.
     </p>
+  round: later
