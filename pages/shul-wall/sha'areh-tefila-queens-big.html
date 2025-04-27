@@ -487,7 +487,7 @@ layout: nothing
 				</ul>
 			</div>
 		</div>
-		<div class="marquee marqueeHorizontal" style="grid-column: 1 / span 3; --length: 45s">
+		<div class="marquee marqueeHorizontal" id="flyerForBusiness" style="grid-column: 1 / span 3; --length: 45s">
 			<div class="marquee__content"></div>
 			<div aria-hidden="true" class="marquee__content"></div>
 		  </div>
@@ -525,12 +525,12 @@ layout: nothing
 		await schedule('https://zemaneh-yosef.github.io/extras/shaare-tefila.ini');
 
 		const dayCal = new WebsiteCalendar();
-		if (!dayCal.hasCandleLighting() && !dayCal.isYomTovAssurBemelacha()) {
+		if (!dayCal.hasCandleLighting() && !dayCal.isAssurBemelacha()) {
 			const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 				.split('\n')
 				.filter(str => str.startsWith('./shaare-tefila-marquee/'))
 
-			for (const marquee of document.getElementsByClassName('marquee__content')) {
+			for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
 				marquee.innerHTML = flyerURLs.map(url => `<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" />`).join('');
 			}
 		}
