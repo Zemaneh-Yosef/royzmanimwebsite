@@ -6,243 +6,250 @@ website: true
 ---
 
 <style>
-    .maxWidthContainer {
-        width: clamp(16rem, 90vw, 90rem);
-        font-family: 'Neutro', 'Frank Ruhl Libre';
-        color: #30344F;
-    }
+	.maxWidthContainer {
+		width: clamp(16rem, 90vw, 90rem);
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		color: #30344F;
+	}
 
-    #sidebar, .navbar {
-        display: none !important;
-    }
+	#sidebar,
+	.navbar {
+		display: none !important;
+	}
 
-    #wrapperElement {
-        width: 100%;
-        aspect-ratio: 1/1;
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1.3/1;
+		position: relative;
 
-        position: relative;
-        display: grid;
+		background-image: url("/assets/images/sefira/combo.png");
+		background-size: cover;
+		background-position: bottom;
+	}
 
-        background-image: url("/assets/images/sefira/combo.png");
-        background-size: cover;
-    }
+	#mainTitle {
+		margin-top: -.25rem;
+		background: radial-gradient(circle, rgba(210, 156, 56, 1) 0%, rgba(152, 100, 27, 1) 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		z-index: 3;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
 
-    #wrapperElement > * {
-        grid-area: 1/1;
-    }
+		line-height: 1;
+		text-align: center;
+		font-size: 13.5rem;
+		font-weight: 900;
+	}
 
-    .inlineLogo {
-        display: inline-block;
-        font-family: 'Guttman Mantova-Decor', 'Courier New', Courier, monospace;
-        vertical-align: text-top;
-        font-size: 1.1em;
-    }
+	#dayPointer {
+		width: 46rem;
+		height: 3.75rem;
+		border-radius: 1rem;
+		color: #976520;
+		display: flex;
+		padding: .5rem 2rem;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 1.75em;
+		background: #FFFFFFAA;
+		margin-left: 50%;
+		transform: translateX(-50%);
+	}
 
-    #footer {
-        justify-self: start;
-        align-self: end;
-        text-align: start;
-        font-size: 1.375em;
-        font-weight: 500;
-        font-style: italic;
-        line-height: 1.2;
-        padding-top: .5em;
-        padding-inline-start: .5em;
-        height: 6.125rem;
-        width: 100%;
-        background-color: #d2ba70;
-        filter: drop-shadow(0px -5px 4px rgba(0,0,0,1));
-    }
+	#dayPointer b {
+		color: black;
+		text-transform: uppercase;
+	}
 
-    #appIcon {
-        justify-self: end;
-        align-self: end;
-        height: 6.125em;
-        width: 6.125em;
-        z-index: 3;
-        filter: drop-shadow(-3px 0 2px rgba(0,0,0,.6))
-    }
+	#hayom {
+		font-family: "Guttman Mantova";
+		color: black;
+		text-align: center;
+		font-size: 3.5em;
+		line-height: 1.25;
+		unicode-bidi: plaintext;
+	}
 
-    #gridElement {
-        justify-self: center;
-        align-self: center;
-        grid-template-columns: 1fr;
-        row-gap: 1em;
-        display: grid;
-        margin-block-end: 30em;
-    }
+	#bsD {
+		font-family: "Frank Ruhl Libre";
+		font-size: 2.5em;
+		line-height: 1;
+		font-weight: 700;
+		color: rgb(210, 156, 56);
 
-    #gridElement > * {
-        text-align: center;
-        width: 11.75rem;
-        height: 4rem;
-        font-weight: 700;
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        flex-wrap: wrap;
-        flex-direction: column;
+		position: absolute;
+		right: .125em;
+	}
 
-        box-shadow: 0 0 20px 0px rgba(0,0,0,0.75);
-        -webkit-box-shadow: 0 0 20px 0px rgba(0,0,0,0.75);
-        -moz-box-shadow: 0 0 20px 0px rgba(0,0,0,0.75);
-    }
+	#content {
+		margin-left: 4rem;
+		margin-top: 4rem;
+		display: flex;
 
-    .timecalc {
-        background-color: #F3E5A6;
-        font-size: 1.25vw;
-        z-index: 3;
-    }
+		justify-items: center;
+		gap: 1.5rem;
+	}
 
-    #gridElement > .timeBox {
-        background-color: #DAC06B;
-        font-size: 2.5vw;
-        z-index: 2;
-        transform: scale(2);
-    }
+	.notebook {
+		display: flex;
+		flex-direction: column;
+		position: relative;
+		background-color: #946947;
+		background: linear-gradient(175deg, rgba(235, 214, 149, 1), rgba(197, 172, 90, 1));
+		aspect-ratio: 1 / 1;
+		border-top: 1px solid #946947;
+		width: 700px;
+		align-items: center;
+		justify-items: center;
+		padding: 1rem;
+		perspective-origin: center;
+		/* perspective: 200px; */
+		transform: perspective(600px) rotateY(4.5deg);
+		box-shadow: 
+			-0.2vmin 0.1vmin #222,
+			-0.4vmin 0.2vmin #222,
+			-0.6vmin 0.3vmin #222,
+			-0.8vmin 0.4vmin #222,
+			-1.0vmin 0.5vmin #222,
+			-1.2vmin 0.6vmin #222,
+			-1.4vmin 0.7vmin #222,
+			-1.6vmin 0.8vmin #222;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+	}
 
-    .twoLine {
-        line-height: 1;
-    }
+	.notebook:after {
+		position: absolute;
+		content: '';
+		bottom: -1px;
+		left: 0px;
+		height: 4px;
+		width: 100%;
+		background-size: 3px 1px;
+		background-image: -webkit-radial-gradient(40% 100%, circle, transparent 20%, gray 35%);
+		background-image: -moz-radial-gradient(40% 100%, circle, transparent 20%, gray 35%);
+		background-image: -ms-radial-gradient(40% 100%, circle, transparent 20%, gray 35%);
+		background-image: -o-radial-gradient(40% 100%, circle, transparent 20%, gray 35%);
+		background-image: radial-gradient(40% 100%, circle, transparent 20%, gray 35%);
+	}
 
-    .sml {
-        font-size: 14px;
-    }
+	.notebook:before {
+		position: absolute;
+		content: '';
+		top: -12px;
+		left: 0;
+		height: 20px;
+		width: 99%;
+		background-size: 18px 24px;
+		background-image: -webkit-radial-gradient(5% 40%, circle, transparent 70%, #555 20%);
+		background-image: -moz-radial-gradient(5% 40%, circle, transparent 70%, #555 20%);
+		background-image: -ms-radial-gradient(5% 40%, circle, transparent 70%, #555 20%);
+		background-image: -o-radial-gradient(5% 40%, circle, transparent 70%, #555 20%);
+		background-image: radial-gradient(circle at 5% 40%, transparent 70%, #555 20%);
+	}
 
-    .sefiraTitle {
-        position: absolute;
-        line-height: 1;
-        justify-self: center;
-        font-size: 13.5rem;
-        font-weight: 900;
-    }
+	.notebook > * {
+		flex: 1 1;
+		max-width: 100%;
 
-    #mainTitle {
-        padding-top: 3.5rem;
-        background: radial-gradient(circle, rgba(210,156,56,1) 0%, rgba(152,100,27,1) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        z-index: 3;
-    }
+		display: grid;
+		align-items: center;
+		justify-items: center;
+	}
 
-    #shadowTitle {
-        padding-top: 3.75rem;
-        padding-left: .25rem;
-        color: black;
-        filter: blur(.25rem)
-    }
+	#gridElement {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		text-align: center;
+		height: min-content;
+		margin-top: 3rem;
+	}
 
-    #dayPointer {
-        width: 46rem;
-        height: 3.75rem;
-        justify-self: center;
-        margin-top: 1.25rem;
-        border-radius: 1rem;
-        color: #976520;
-        display: flex;
-        padding: .5rem 2rem;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 1.75em;
-        background: white;
-    }
+	#announcement {
+		font-family: "Cinzel";
+		font-weight: 800;
+		color: white;
+		text-decoration: underline;
+		margin-bottom: 3rem;
 
-    #dayPointer b {
-        color: black;
-        text-transform: uppercase;
-    }
+		grid-column-end: span 2;
+		font-size: 2.65rem;
+	}
 
-    #earliestTimeAlert {
-        margin-block-end: 45rem;
-        background-color: #DAC06B;
-        justify-self: center;
-        align-self: center;
-        text-transform: uppercase;
-        font-weight: 700;
-        padding: .5rem .25rem;
-        font-size: 1.75rem;
-        box-shadow: 0 0 20px 0px rgba(0,0,0,0.75);
-        -webkit-box-shadow: 0 0 20px 0px rgba(0,0,0,0.75);
-        -moz-box-shadow: 0 0 20px 0px rgba(0,0,0,0.75);
-    }
+	.locationHolder {
+		font-family: "Cinzel";
+		color: white;
+		font-size: 2.25rem;
+		font-weight: 600;
+	}
 
-    #hayom {
-        font-family: "Guttman Mantova";
-        color: #D6A03E;
-        align-self: end;
-        justify-self: end;
-        margin-bottom: 28.75rem;
-        text-align: center;
-        font-size: 4em;
-        line-height: 1.25;
-        width: 65%;
-        padding-right: 1.25%;
-        text-shadow: 0px 0px 16px rgba(0, 0, 0, 0.8);
-        filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, .7));
-        unicode-bidi: plaintext;
-    }
+	.timeResult {
+		font-size: 5rem;
+		font-family: "Cinzel Decorative";
+		color: white;
+		font-weight: 800;
+	}
 
-    #bsD {
-        font-family: "Frank Ruhl Libre";
-        justify-self: end;
-        font-size: 2.5em;
-        line-height: 1;
-        padding-right: .125em;
-        font-weight: 700;
-        color: rgb(210,156,56);
-    }
+	.timecalc {
+		line-height: 1;
+	}
 
-    #menorah {
-        justify-self: start;
-        align-self: end;
-        width: 27.5%;
-        margin-left: 5%;
-        margin-bottom: 11%;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-    }
-
-    #wallText {
-        align-self: end;
-        justify-self: end;
-        margin-bottom: 17rem;
-        margin-right: 3.25%;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
-        width: 60%;
-    }
+	.closing {
+		font-family: "Cinzel";
+		grid-column-end: span 2;
+		margin-top: 3rem;
+		color: white;
+		font-size: 2rem;
+		font-weight: 600;
+	}
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..900&family=Rubik+Gemstones&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..900&family=Rubik+Gemstones&display=swap"
+	rel="stylesheet">
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
 <div id="wrapperElement">
-    <div id="bsD">בס"ד</div>
-    <h1 id="mainTitle" class="sefiraTitle">ספירת העומר</h1>
-    <h1 id="shadowTitle" class="sefiraTitle">ספירת העומר</h1>
-    <div id="dayPointer">
-        <div id="nightOf"><b>Night of: </b></div>
-        <div id="omerCount"><b>Omer count: </b></div>
-    </div>
-    <div id="earliestTimeAlert">Earliest time to count*</div>
-    <div id="gridElement">
-        <div class="timecalc d-none"
-            data-lat="40.61385313885733" data-lng="-73.91164582565503"
-            data-timezone="America/New_York"
-            data-format="h12">
-        </div>
-        <div class="timeBox"></div>
-    </div>
-    <div id="footer">
-        This time of "<b>צאת הכוכבים</b>" represents the opinion held by Rabbi Ovadia Yosef zt"l;<br>
-        confirm with your Posek if you suspect a different opinion would be observed instead.<br>
-        For locations other than <b>Brooklyn, NY</b>, use our <span class="inlineLogo">זמני יוסף</span> application for iOS and Android - royzmanim.com
-    </div>
-    <img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
-    <img src="/assets/images/sefira/menorah-digital.svg" id="menorah">
-    <div id="hayom">הַיּוֹם </div>
-    <img id="wallText" src="/assets/images/sefira/wall-text-digital.png" />
+	<div id="bsD">בס"ד</div>
+	<h1 id="mainTitle" class="sefiraTitle">ספירת העומר</h1>
+	<div id="dayPointer">
+		<div id="nightOf"><b>Night of: </b></div>
+		<div id="omerCount"><b>Omer count: </b></div>
+	</div>
+	<div id="content">
+		<div class="notebook">
+			<div><img src="/assets/images/sefira/print-bracha.png" style="width: 100%;" /></div>
+			<div id="hayom">הַיּוֹם </div>
+			<div><img src="/assets/images/sefira/harahaman.png" style="width: 100%;" /></div>
+		</div>
+		<div id="gridElement">
+			<h1 id="announcement">Preferable Time To Count</h1>
+			<div class="timecalc"
+				data-lat="40.61385313885733" data-lng="-73.91164582565503"
+				data-timezone="America/New_York"
+				data-format="h12"
+				style="grid-column-end: span 2;">
+				<div class="locationHolder">Brooklyn, NY</div>
+				<div class="timeResult"></div>
+			</div>
+			<div class="closing">
+				The listed time for "Nightfall"<br>was brought to you by<br>
+				<img src="/assets/images/logo.png" style="width: 20rem; filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));">
+			</div>
+		</div>
+	</div>
+	<!-- <div id="earliestTimeAlert">Earliest time to count*</div> -->
+	
+	<!-- <div id="footer">
+		This time of "<b>צאת הכוכבים</b>" represents the opinion held by Rabbi Ovadia Yosef zt"l;<br>
+		confirm with your Posek if you suspect a different opinion would be observed instead.<br>
+		For locations other than <b>Brooklyn, NY</b>, use our <span class="inlineLogo">זמני יוסף</span> application for iOS and Android - royzmanim.com
+	</div>
+	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
+	<img src="/assets/images/sefira/menorah-digital.svg" id="menorah">
+	<div id="hayom">הַיּוֹם </div>
+	<img id="wallText" src="/assets/images/sefira/wall-text-digital.png" /> -->
 </div>
 
 <script type="module" src="/assets/js/flyers/omer.js"></script>

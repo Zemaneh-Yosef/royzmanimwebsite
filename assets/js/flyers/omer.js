@@ -8,6 +8,19 @@ import { settings } from "../settings/handler.js"
 const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
 
+document.getElementById("nightOf").appendChild(document.createTextNode(
+	[jCal.getDate().year, jCal.getDate().month, jCal.getDate().day]
+		.map(num => num.toString().padStart(2, '0'))
+		.join("/")
+))
+
+const omerjCal = jCal.tomorrow();
+document.getElementById("omerCount").appendChild(document.createTextNode(omerjCal.getDayOfOmer().toString().padStart(2, "0")));
+
+let countText = omerjCal.getOmerInfo().title.hb.mainCount + ` לָעֹמֶר` +
+	(omerjCal.getDayOfOmer() >= 7 ? `, שֶׁהֵם ` + omerjCal.getOmerInfo().title.hb.subCount.toString() : '');
+document.getElementById("hayom").appendChild(document.createTextNode(countText));
+
 if (new URLSearchParams(window.location.search).has('sefiraDay')) {
 	jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.NISSAN, 15);
 	jCal.setDate(jCal.getDate().add({ days: parseInt(new URLSearchParams(window.location.search).get('sefiraDay')) }));
@@ -69,22 +82,9 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 		const times = ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) ? [currentCalc.getTzaitShabbath(), currentCalc.getTzaitRT()] : [currentCalc.getTzait()])
 			.map(time => time.add({ minutes: (!elem.hasAttribute('data-humra') ? 0 : parseInt(elem.getAttribute('data-humra')) )}));
 
-		const timeElem = elem.nextElementSibling;
+		const timeElem = elem.lastElementChild;
 		timeElem.innerHTML =
 			times[0].toLocaleString(...dtF)
 			+ (jCal.getDate().dayOfWeek == 6 ? `<br><span style="font-size: .5em;">(R"T: ${times[1].toLocaleString(...dtF)})</span>` : "");
 	}
 }
-
-document.getElementById("nightOf").appendChild(document.createTextNode(
-	[jCal.getDate().year, jCal.getDate().month, jCal.getDate().day]
-		.map(num => num.toString().padStart(2, '0'))
-		.join("/")
-))
-
-const omerjCal = jCal.tomorrow();
-document.getElementById("omerCount").appendChild(document.createTextNode(omerjCal.getDayOfOmer().toString().padStart(2, "0")));
-
-let countText = omerjCal.getOmerInfo().title.hb.mainCount + ` לָעֹמֶר` +
-	(omerjCal.getDayOfOmer() >= 7 ? `, שֶׁהֵם ` + omerjCal.getOmerInfo().title.hb.subCount.toString() : '');
-document.getElementById("hayom").appendChild(document.createTextNode(countText));
