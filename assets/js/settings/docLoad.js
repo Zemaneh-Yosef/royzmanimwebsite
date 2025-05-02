@@ -4,6 +4,10 @@ import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.esm.js"
 document.addEventListener("DOMContentLoaded", () => {
     handleLanguage();
     initMDB({Input, Ripple});
+    document.querySelectorAll('[data-mdb-ripple-init]').forEach((el) => {
+        const ripple = new Ripple(el);
+        ripple.init();
+    })
 
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new window.bootstrap.Tooltip(tooltipTriggerEl))

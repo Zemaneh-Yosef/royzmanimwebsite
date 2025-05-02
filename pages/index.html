@@ -4,38 +4,38 @@ layout: landing
 ---
 
 <nav class="navbar navbar-expand-lg fixed-top p-2 p-lg-3" id="mainNav">
-    <div class="container maxWidthHeader">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+	<div class="container maxWidthHeader">
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		  </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-            <ul class="navbar-nav me-auto py-4 py-lg-0">
-                <li class="nav-item"><a class="nav-link" href="#services">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="#portfolio">Download</a></li>
+		<div class="collapse navbar-collapse" id="navbarResponsive">
+			<ul class="navbar-nav me-auto py-4 py-lg-0">
+				<li class="nav-item"><a class="nav-link" href="#services">About</a></li>
+				<li class="nav-item"><a class="nav-link" href="#portfolio">Download</a></li>
 				<li class="nav-item"><a class="nav-link" href="#socialMedia">Social Media</a></li>
-                <li class="nav-item"><a class="nav-link" href="#about">Testimony</a></li>
-            </ul>
-        </div>
-        <ul class="navbar-nav ms-auto py-4 py-lg-0 d-none d-lg-flex">
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="modal" data-bs-target="#settingsModal">
-                <span class="lang lang-hb">תְצוּרָה</span>
-                <span class="lang lang-et">Settings</span>
-                <span class="lang lang-en">Settings</span>
-            </a></li>
-            <li class="nav-item"><a class="nav-link" href="https://github.com/Zemaneh-Yosef/royzmanimwebsite">Source Code</a></li>
-        </ul>
-    </div>
+				<li class="nav-item"><a class="nav-link" href="#about">Testimony</a></li>
+			</ul>
+		</div>
+		<ul class="navbar-nav ms-auto py-4 py-lg-0 d-none d-lg-flex">
+			<li class="nav-item"><a class="nav-link" data-bs-toggle="modal" data-bs-target="#settingsModal">
+				<span class="lang lang-hb">תְצוּרָה</span>
+				<span class="lang lang-et">Settings</span>
+				<span class="lang lang-en">Settings</span>
+			</a></li>
+			<li class="nav-item"><a class="nav-link" href="https://github.com/Zemaneh-Yosef/royzmanimwebsite">Source Code</a></li>
+		</ul>
+	</div>
 </nav>
 <img src="/assets/images/logo.png" alt="..." id="logo" class="stepF" />
 <img src="/assets/images/ivana-cajina-316246-unsplash.jpg" id="heroImage" />
 <header id="heroBanner" style="min-height: 40vh; align-content: center; aspect-ratio: 1622 / 500; max-width: 100%;">
-    <div class="container text-center">
-        <div id="fakeLogo"></div>
-        <div>
-            <h2 id="subtitle">Worldwide Halachic Times according to our Sepharadic Tradition.</h2>
-            <a class="btn btn-primary btn-xl" href="#getStarted">Get Started!</a>
-        </div>
-    </div>
+	<div class="container text-center">
+		<div id="fakeLogo"></div>
+		<div>
+			<h2 id="subtitle">Worldwide Halachic Times according to our Sepharadic Tradition.</h2>
+			<a class="btn btn-primary btn-xl" data-mdb-ripple-init href="#getStarted">Get Started!</a>
+		</div>
+	</div>
 </header>
 
 <div class="modal" style="position: static; display: block; height: auto;" id="getStarted">
@@ -151,78 +151,79 @@ layout: landing
 
 <!-- Services-->
 <section class="page-section" id="services">
-    <div class="container">
-        <div class="grid">
-            <div class="g-col-12 g-col-lg-8">
-                <h1 class="text-center">About זמני יוסף</h1>
-                <p>We are the platform to use whenever and wherever you'd need Halachic Times (Zemanim) according to <strong>Hakham Ovadia Yosef zt'l</strong>, following his practices represented in his <strong>Ohr Hachaim</strong> calendar from Eretz Yisrael. Outside Israel, our algorithm follow's the rules outlined by the Minḥat Kohen (as quoted by R David Yosef, approved by R Yitzḥak Yosef) to comply with the astronomical differences while sticking to seasonal minutes.</p>
+	<div class="container">
+		<div class="grid">
+			<div class="g-col-12 g-col-lg-8">
+				<h1 class="text-center">About זמני יוסף</h1>
+				<p>We are the platform to use whenever and wherever you'd need Halachic Times (Zemanim) according to <strong>Hakham Ovadia Yosef zt'l</strong>, following his practices represented in his <strong>Ohr Hachaim</strong> calendar from Eretz Yisrael. Outside Israel, our algorithm follow's the rules outlined by the Minḥat Kohen (as quoted by R David Yosef, approved by R Yitzḥak Yosef) to comply with the astronomical differences while sticking to seasonal minutes.</p>
 				<ul>
 					<li>Available through apps, print-out calendars, digital exports, TV schedules for shuls & our website (you're on here right now)!</li>
 					<li>Expanded implementations possible through our <a href="https://github.com/Zemaneh-Yosef">open-source codebase</a>. Implementations available in JavaScript, Java & Swift</li>
 					<li><i>Sugya</i> descriptions for every time, with sources and possible trivia</li>
 				</ul>
-            </div>
+			</div>
 			<div class="g-col-12 g-col-lg-4" style="align-content: center;">{% include bootstrap/carousel.html carouselItems=site.data.tv.carousel %}</div>
-        </div>
-    </div>
+		</div>
+	</div>
 </section>
 <!-- Portfolio Grid-->
 <section class="py-3" id="portfolio">
-    <div class="container">
-        <div class="grid">
-            <div class="g-col-12 g-col-lg-8">
-                <h1 class="text-center">Download the mobile apps</h1>
-                <p>Need Zemanim on the go? Our apps are made for just that!</p>
-                <ul>
-                    <li>Siddur text tailored to the day</li>
-                    <li>Customizable Notifications, to stay on top of Shema & co.</li>
-                    <li>Visible Sunrise, with countdown</li>
-                    <li>Home-Screen Widgets</li>
-                </ul>
-                <div style="text-align: center;">
-                    <a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" style="width: 30%;" loading="lazy"></a>
-                    <a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 30%;" loading="lazy"></a><br>
-                    <div class="d-none d-lg-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
-                        <a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
-                            <div style="border-radius: .5rem; background: white;">
-                                <img src="/assets/images/app-store.svg" style="width: 100%" loading="lazy">
-                            </div>
-                            App Store
-                        </a>
-                        <a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
-                            <div style="border-radius: .5rem; background: white;">
-                                <img src="/assets/images/play-store.svg" style="width: 100%" loading="lazy">
-                            </div>
-                            Play Store
-                        </a>
-                    </div>
-                </div>
-            </div>
+	<div class="container">
+		<div class="grid">
+			<div class="g-col-12 g-col-lg-8">
+				<h1 class="text-center">Download the mobile apps</h1>
+				<p>Need Zemanim on the go? Our apps are made for just that!</p>
+				<ul>
+					<li>Siddur text tailored to the day</li>
+					<li>Customizable Notifications, to stay on top of Shema & co.</li>
+					<li>Visible Sunrise, with countdown</li>
+					<li>Home-Screen Widgets</li>
+				</ul>
+				<div style="text-align: center;">
+					<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" style="width: 30%;" loading="lazy"></a>
+					<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 30%;" loading="lazy"></a><br>
+					<div class="d-none d-lg-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
+						<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
+							<div style="border-radius: .5rem; background: white;">
+								<img src="/assets/images/app-store.svg" style="width: 100%" loading="lazy">
+							</div>
+							App Store
+						</a>
+						<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
+							<div style="border-radius: .5rem; background: white;">
+								<img src="/assets/images/play-store.svg" style="width: 100%" loading="lazy">
+							</div>
+							Play Store
+						</a>
+					</div>
+				</div>
+			</div>
 			<div class="g-col-12 g-col-lg-4" id="phoneImgCont">
 				<img src="/assets/images/landing/phonescreen.png" alt="...">
 			</div>
-        </div>
-    </div>
+		</div>
+	</div>
 </section>
 <section class="py-3" id="socialMedia">
-    <div class="container">
-        <div class="grid">
-            <div class="g-col-12 g-col-lg-8">
-                <h1 class="text-center">Zemanim Images for the community</h1>
-                <p>Own a community somewhere in the world and want to have Zemanim to send out weekly on social media? We will generate images for you weekly/before every YT to send out to the community at large!</p>
-                <ul>
-                    <li>Shabbat Zemanim Flyer: 10 USD</li>
-                    <li>Yom Tov Zemanim Flyer: 25 USD</li>
-                </ul>
-                <p>All generated by <b>AK Graphics</b>. Contact us for more information: +1 (917) 549-5138</p>
+	<div class="container">
+		<div class="grid">
+			<div class="g-col-12 g-col-lg-8">
+				<h1 class="text-center">Zemanim Images for the community</h1>
+				<p>Own a community somewhere in the world and want to have Zemanim to send out weekly on social media? We will generate images for you weekly/before every YT to send out to the community at large!</p>
+				<ul>
+					<li>Shabbat Zemanim Flyer: 10 USD</li>
+					<li>Yom Tov Zemanim Flyer: 25 USD</li>
+				</ul>
+				<p>All generated by <b>AK Graphics</b>. Contact us for more information: +1 (917) 549-5138</p>
 				<hr>
-				<p>Communities already partnered include:</p>
+				<p>Communities already partnered for these flyers include:</p>
 				<ul>
 					<li><a href="https://chat.whatsapp.com/IAdb7js5Hdl0MYkrc8OhIj">Great Neck, NY, USA</a></li>
 					<li><a href="https://chat.whatsapp.com/Dh2FgfkJrlI7Cwf9eF1mIA">Rabbi Elbaz' Shiurim</a> (multi-location)</li>
 					<li><a href="https://chat.whatsapp.com/H9xGEouy02VLCanxrPTSOw">Daily Halacha with Rabbi Yaakov Rahimi</a> (multi-location)</li>
+					<li><a href="https://www.shulspace.org/kehillat-sephardim-of-pomona">Kehillat Sephardim of Pomona, NY, USA (Rabbi Gavriel Shimunov)</a></li>
 				</ul>
-            </div>
+			</div>
 			<div class="g-col-12 g-col-lg-4" style="align-content: center;">
 				<div id="akGraphics" class="carousel slide">
 					<div class="carousel-indicators">
@@ -251,13 +252,13 @@ layout: landing
 					</button>
 				  </div>
 			</div>
-        </div>
-    </div>
+		</div>
+	</div>
 </section>
 <!-- About-->
 <section class="page-section" id="about">
-    <div class="container">
-        <h2 class="text-center section-heading">Testimonials</h2>
+	<div class="container">
+		<h2 class="text-center section-heading">Testimonials</h2>
 		<div class="grid">
 			<div class="g-col-12 g-col-lg-4">
 				<div class="card h-100">
@@ -293,7 +294,7 @@ layout: landing
 				</div>
 			</div>
 		</div>
-    </div>
+	</div>
 </section>
 
 <script src="/assets/js/landing.js"></script>

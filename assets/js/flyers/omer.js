@@ -3,23 +3,41 @@
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
 import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import { settings } from "../settings/handler.js"
 
 const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
 
-document.getElementById("nightOf").appendChild(document.createTextNode(
-	[jCal.getDate().year, jCal.getDate().month, jCal.getDate().day]
-		.map(num => num.toString().padStart(2, '0'))
-		.join("/")
-))
+const subtitle = document.getElementById("subTitle");
+subtitle.firstElementChild.innerHTML += jCal.formatFancyDate() + ", " + jCal.getGregorianYear();
+subtitle.lastElementChild.innerHTML += jCal.dateRenderer("hb").primary.text
 
 const omerjCal = jCal.tomorrow();
-document.getElementById("omerCount").appendChild(document.createTextNode(omerjCal.getDayOfOmer().toString().padStart(2, "0")));
+//document.getElementById("omerCount").appendChild(document.createTextNode(omerjCal.getDayOfOmer().toString().padStart(2, "0")));
 
-let countText = omerjCal.getOmerInfo().title.hb.mainCount + ` לָעֹמֶר` +
-	(omerjCal.getDayOfOmer() >= 7 ? `, שֶׁהֵם ` + omerjCal.getOmerInfo().title.hb.subCount.toString() : '');
-document.getElementById("hayom").appendChild(document.createTextNode(countText));
+for (const omerElem of document.querySelectorAll("[data-omer-count]")) {
+	/** @type {'en'|'hb'} */
+	// @ts-ignore
+	const lang = omerElem.getAttribute('data-omer-count');
+
+	omerElem.querySelector('[data-zfReplace="completeCount"]').innerHTML =
+		omerjCal.getOmerInfo().title[lang].mainCount
+
+	const indCount = omerElem.querySelector('[data-zfReplace="indCount"]');
+	if (omerjCal.getDayOfOmer() >= 7) {
+		indCount.parentElement.style.removeProperty("display");
+		indCount.innerHTML = omerjCal.getOmerInfo().title[lang].subCount.toString()
+			.replace(" • ", " & ");
+	} else {
+		indCount.parentElement.style.display = 'none';
+	}
+}
+
+if (document.querySelector('[data-omer-day]')) {
+	document.querySelector('[data-omer-day]').innerHTML = (new HebrewNumberFormatter()).formatHebrewNumber(omerjCal.getDayOfOmer());
+}
+
 
 if (new URLSearchParams(window.location.search).has('sefiraDay')) {
 	jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.NISSAN, 15);
@@ -42,12 +60,6 @@ amudehHoraahCal.setDate(jCal.getDate());
 if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.location.href.includes("forceShabbat")) {
 	document.getElementById("gridElement").remove();
 	document.getElementById("earliestTimeAlert").remove();
-
-	const footer = document.getElementById("footer");
-	footer.innerHTML =
-		`Flyer provided by <span class="inlineLogo">זמני יוסף</span>, the app for Rabbi Ovadiah Yosef's Zemanim<br>`
-		+ `Install now for iOS & Android - royzmanim.com`
-	footer.style.fontSize = "1.8em";
 } else {
 	if (jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) {
 		document.getElementById("earliestTimeAlert").innerHTML = "Proper time of night"
@@ -79,7 +91,7 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 			minute: '2-digit'
 		}];
 
-		const times = ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) ? [currentCalc.getTzaitShabbath(), currentCalc.getTzaitRT()] : [currentCalc.getTzait()])
+		const times = ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) ? [currentCalc.getTzaitShabbath(), currentCalc.getTzaitRT()] : [elem.hasAttribute('data-shkiya') ? currentCalc.getShkiya() : currentCalc.getTzait()])
 			.map(time => time.add({ minutes: (!elem.hasAttribute('data-humra') ? 0 : parseInt(elem.getAttribute('data-humra')) )}));
 
 		const timeElem = elem.lastElementChild;

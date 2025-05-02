@@ -19,7 +19,7 @@ website: true
 
 	#wrapperElement {
 		width: 100%;
-		aspect-ratio: 1.3/1;
+		aspect-ratio: 1/1;
 		position: relative;
 
 		background-image: url("/assets/images/sefira/combo.png");
@@ -28,7 +28,7 @@ website: true
 	}
 
 	#mainTitle {
-		margin-top: -.25rem;
+		margin-top: .25rem;
 		background: radial-gradient(circle, rgba(210, 156, 56, 1) 0%, rgba(152, 100, 27, 1) 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
@@ -37,12 +37,13 @@ website: true
 
 		line-height: 1;
 		text-align: center;
-		font-size: 13.5rem;
+		font-size: 9.5rem;
 		font-weight: 900;
+		margin-bottom: 0rem;
 	}
 
 	#dayPointer {
-		width: 46rem;
+		width: 42rem;
 		height: 3.75rem;
 		border-radius: 1rem;
 		color: #976520;
@@ -53,8 +54,7 @@ website: true
 		justify-content: space-between;
 		font-size: 1.75em;
 		background: #FFFFFFAA;
-		margin-left: 50%;
-		transform: translateX(-50%);
+		margin-bottom: 1rem;
 	}
 
 	#dayPointer b {
@@ -66,7 +66,7 @@ website: true
 		font-family: "Guttman Mantova";
 		color: black;
 		text-align: center;
-		font-size: 3.5em;
+		font-size: 3.25em;
 		line-height: 1.25;
 		unicode-bidi: plaintext;
 	}
@@ -84,7 +84,8 @@ website: true
 
 	#content {
 		margin-left: 4rem;
-		margin-top: 4rem;
+		margin-right: 3rem;
+		margin-top: 2rem;
 		display: flex;
 
 		justify-items: center;
@@ -97,14 +98,12 @@ website: true
 		position: relative;
 		background-color: #946947;
 		background: linear-gradient(175deg, rgba(235, 214, 149, 1), rgba(197, 172, 90, 1));
-		aspect-ratio: 1 / 1;
+		gap: 2rem;
 		border-top: 1px solid #946947;
-		width: 700px;
-		align-items: center;
-		justify-items: center;
+		width: 750px;
+		min-width: 750px;
 		padding: 1rem;
 		perspective-origin: center;
-		/* perspective: 200px; */
 		transform: perspective(600px) rotateY(4.5deg);
 		box-shadow: 
 			-0.2vmin 0.1vmin #222,
@@ -116,6 +115,10 @@ website: true
 			-1.4vmin 0.7vmin #222,
 			-1.6vmin 0.8vmin #222;
 		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+		color: black;
+
+		text-align: center;
+		justify-content: space-between;
 	}
 
 	.notebook:after {
@@ -145,16 +148,11 @@ website: true
 		background-image: -moz-radial-gradient(5% 40%, circle, transparent 70%, #555 20%);
 		background-image: -ms-radial-gradient(5% 40%, circle, transparent 70%, #555 20%);
 		background-image: -o-radial-gradient(5% 40%, circle, transparent 70%, #555 20%);
-		background-image: radial-gradient(circle at 5% 40%, transparent 70%, #555 20%);
+		background-image: radial-gradient(circle at 5% 40%, transparent 65%, #555 65%, #555 75%, transparent 71%)
 	}
 
 	.notebook > * {
-		flex: 1 1;
 		max-width: 100%;
-
-		display: grid;
-		align-items: center;
-		justify-items: center;
 	}
 
 	#gridElement {
@@ -162,7 +160,7 @@ website: true
 		grid-template-columns: 1fr 1fr;
 		text-align: center;
 		height: min-content;
-		margin-top: 3rem;
+		margin-top: 2rem;
 	}
 
 	#announcement {
@@ -170,10 +168,20 @@ website: true
 		font-weight: 800;
 		color: white;
 		text-decoration: underline;
+
+		grid-column-end: span 2;
+		font-size: 2.5rem;
+	}
+
+	#location {
+		font-family: "Cinzel Decorative";
+		font-weight: 600;
+		color: white;
 		margin-bottom: 3rem;
 
 		grid-column-end: span 2;
-		font-size: 2.65rem;
+		font-size: 3.25rem;
+		font-style: italic;
 	}
 
 	.locationHolder {
@@ -201,6 +209,55 @@ website: true
 		color: white;
 		font-size: 2rem;
 		font-weight: 600;
+		line-height: 1.4;
+	}
+
+	.halachot {
+		color: white;
+		background: #000000DD;
+		padding: 1rem;
+		margin-top: 3rem;
+		grid-column-end: span 2;
+		border-radius: 1rem;
+		font-size: 1.15rem;
+	}
+
+	.halachot ol {
+		text-align: left;
+		line-height: 1.5;
+		margin-bottom: 0;
+	}
+
+	#footer {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		background: linear-gradient(to right, black, #00000066 85%, transparent 100%);
+		color: white;
+		font-size: 2rem;
+	}
+
+	#subTitle {
+		font-family: "Cinzel";
+		font-size: 2.5rem;
+		line-height: 1;
+		font-weight: 700;
+		color: rgb(210, 156, 56);
+		text-align: center;
+		margin-bottom: 3.5rem;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+	}
+
+	#englishRep {
+		font-size: 1.75rem;
+		font-weight: 700;
+	}
+
+	#russianRep {
+		line-height: 1;
+		text-transform: uppercase;
+		font-size: 1.75rem;
 	}
 </style>
 
@@ -212,44 +269,68 @@ website: true
 
 <div id="wrapperElement">
 	<div id="bsD">בס"ד</div>
-	<h1 id="mainTitle" class="sefiraTitle">ספירת העומר</h1>
-	<div id="dayPointer">
-		<div id="nightOf"><b>Night of: </b></div>
-		<div id="omerCount"><b>Omer count: </b></div>
-	</div>
+	<h1 id="mainTitle" class="sefiraTitle">ספירת העומר - יום <span data-omer-day></span></h1>
+	<h3 id="subTitle"><span style="unicode-bidi: isolate;">Night of </span> • <span style="unicode-bidi: isolate; font-size: 1.25em;">ליל של </span></h3>
 	<div id="content">
 		<div class="notebook">
-			<div><img src="/assets/images/sefira/print-bracha.png" style="width: 100%;" /></div>
-			<div id="hayom">הַיּוֹם </div>
-			<div><img src="/assets/images/sefira/harahaman.png" style="width: 100%;" /></div>
+			<div style="font-size: 2.25rem; font-weight: 600; line-height: 1.2;">
+				Stand for the counting of the Omer:<br>
+				<div style="font-weight: 500;">Просим вас встать для счёта Омера:</div>
+				<img src="/assets/images/sefira/print-bracha.png" style="width: 95%;" />
+			</div>
+			<div>
+				<div style="font-size: 1.25em;">Count in the language you will understand:</div>
+				<div id="englishRep" data-omer-count="en"><span data-zfReplace="completeCount"></span> day of the Omer • <span data-zfReplace="indCount"></span></div>
+				<div id="hayom" data-omer-count="hb">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר,<br>שֶׁהֵם <span data-zfReplace="indCount"></span></div>
+                <div id="russianRep" data-omer-count="ru">hаём <span data-zfReplace="completeCount"></span> лаóмер,<br>шеһэм <span data-zfReplace="indCount"></span></div>
+			</div>
+			<div>
+				<img src="/assets/images/sefira/harahaman.png" style="width: 95%;" />
+				<div style="display: flex; gap: 1rem; justify-content: center;" dir="rtl">
+					<div><img src="/assets/images/sefira/menorah-print.svg" style="width: 10rem; filter: brightness(0);"></div>
+					<div style="font-size: 1.5rem; font-family: 'Guttman Vilna'; text-align: start;">אָֽנָּֽא בְּכֹֽחַ. גְּדוּלַת יְמִינֶֽךָ. תַּתִּיר צְרוּרָה:<br>
+						קַבֵּל רִנַּת. עַמֶּֽךָ שַׂגְּבֵֽנוּ. טַהֲרֵֽנוּ נוֹרָא:<br>
+						נָא גִבּוֹר. דּֽוֹרְשֵֽׁי יִחוּדֶֽךָ. כְּבָבַת שָׁמְרֵם:<br>
+						בָּֽרְכֵֽם טַהֲרֵם. רַחֲמֵי צִדְקָתֶֽךָ. תָּמִיד גָּמְלֵם:<br>
+						חֲסִין קָדוֹשׁ. בְּרֹב טֽוּבְךָֽ. נַהֵל עֲדָתֶֽךָ:<br>
+						יָחִיד גֵּאֶה. לְעַמְּךָ פְנֵה. זֽוֹכְרֵֽי קְדֻשָּׁתֶֽךָ:<br> 
+						שַׁוְעָתֵֽנוּ קַבֵּל. וּשְׁמַע צַעֲקָתֵֽנוּ. יוֹדֵֽעַ תַּעֲלוּמוֹת:<br> 
+						בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד:
+						</div>
+				</div>
+			</div>
 		</div>
 		<div id="gridElement">
-			<h1 id="announcement">Preferable Time To Count</h1>
+			<h1 id="announcement">Earliest Counting Times</h1>
+			<h3 id="location">(Queens, NY)</h3>
+			<div class="timecalc"
+                data-lat="40.729397" data-lng="-73.847694"
+                data-timezone="America/New_York"
+                data-format="h12"
+				data-shkiya
+				style="grid-column-end: span 2; margin-bottom: 2rem;">
+				<div class="locationHolder">With a minyan</div>
+				<div class="timeResult"></div>
+			</div>
 			<div class="timecalc"
                 data-lat="40.729397" data-lng="-73.847694"
                 data-timezone="America/New_York"
                 data-format="h12"
 				style="grid-column-end: span 2;">
-				<div class="locationHolder">Queens, NY</div>
+				<div class="locationHolder">Individual</div>
 				<div class="timeResult"></div>
 			</div>
-			<div class="closing">
-				The listed time for "Nightfall"<br>was brought to you by<br>
-				<img src="/assets/images/logo.png" style="width: 20rem; filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));">
+			<div class="halachot">
+				<h3>The Holistic Sephirat Ha'Omer</h3>
+				<h6>Source: Yalkut Yosef vol. 22 page 85 onwards - 5779 edition | Hazon Ovadia Yom Tov, page 232 onwards</h6>
+				<p class="mb-0">The מצוה is performed best at the beginning of the night (3/4<sup>th</sup>'s of a mil after sunset, but a minyan can do by sunset if needed), thus allowing the weeks to be "complete". This completeness is factored into whether one can say the blessing: if one of the previous days had been forgotten (from its night until the next day's night) or the counting for that day is happening after Dawn, one would not say the blessing.</p>
 			</div>
 		</div>
 	</div>
-	<!-- <div id="earliestTimeAlert">Earliest time to count*</div> -->
-	
-	<!-- <div id="footer">
-		This time of "<b>צאת הכוכבים</b>" represents the opinion held by Rabbi Ovadia Yosef zt"l;<br>
-		confirm with your Posek if you suspect a different opinion would be observed instead.<br>
-		For locations other than <b>Brooklyn, NY</b>, use our <span class="inlineLogo">זמני יוסף</span> application for iOS and Android - royzmanim.com
+	<div id="footer">
+		<img src="/assets/images/right-wave-for-icon.png" style="width:80px;">
+		Get these "Nightfall" times for any location, only on our apps for iOS and Android
 	</div>
-	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
-	<img src="/assets/images/sefira/menorah-digital.svg" id="menorah">
-	<div id="hayom">הַיּוֹם </div>
-	<img id="wallText" src="/assets/images/sefira/wall-text-digital.png" /> -->
 </div>
 
 <script type="module" src="/assets/js/flyers/omer.js"></script>

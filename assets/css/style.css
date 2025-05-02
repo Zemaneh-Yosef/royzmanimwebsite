@@ -275,6 +275,11 @@ li[data-zfFind="FastDays"] h5 {
 	border-radius: 0.375rem;
 }
 
+#inDateBoxCalBtn {
+	aspect-ratio: 1/1;
+	border-radius: 50%;
+}
+
 @keyframes steam {
 	0% {
 		background-position: 0 0;

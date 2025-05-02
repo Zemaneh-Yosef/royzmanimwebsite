@@ -77,7 +77,7 @@ chaiTable: true
 						<h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
 						<div class="d-flex" style="flex-direction: row; align-items: center; gap: .5rem; justify-content: center;">
 							<h5 data-zfReplace="secondaryDate" class="d-inline-block m-0"></h5>
-							<input type="button" value="&#xF1FD;" class="bi btn btn-primary btn-floating d-none d-md-block">
+							<input type="button" value="&#xF1FD;" id="inDateBoxCalBtn" class="bi btn btn-primary d-none d-md-block">
 							<h5 data-zfReplace="otherDate" class="d-inline-block m-0"></h5>
 						</div>
 					</div>
@@ -111,10 +111,10 @@ chaiTable: true
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="zemanim-tab-pane" role="tabpanel" aria-labelledby="zemanim-tab" tabindex="0">
 				<div class="grid text-center py-2" style="--bs-columns: 3;">
-					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+					<button data-mdb-ripple-init type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
 						Export (Digital)
 					</button>
-					<button type="button" class="btn btn-primary" id="clipboardDownload">
+					<button data-mdb-ripple-init type="button" class="btn btn-primary" id="clipboardDownload">
 						<i class="bi bi-clipboard"></i>
 						<span class="lang lang-en">Copy to clipboard</span>
 						<span class="lang lang-et">Copy to clipboard</span>
