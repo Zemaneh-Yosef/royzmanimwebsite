@@ -9,6 +9,11 @@ import { settings } from "../settings/handler.js"
 const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
 
+if (new URLSearchParams(window.location.search).has('sefiraDay')) {
+	jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.NISSAN, 14);
+	jCal.setDate(jCal.getDate().add({ days: parseInt(new URLSearchParams(window.location.search).get('sefiraDay')) }));
+}
+
 const subtitle = document.getElementById("subTitle");
 subtitle.firstElementChild.innerHTML += jCal.formatFancyDate() + ", " + jCal.getGregorianYear();
 subtitle.lastElementChild.innerHTML += jCal.dateRenderer("hb").primary.text
@@ -36,12 +41,6 @@ for (const omerElem of document.querySelectorAll("[data-omer-count]")) {
 
 if (document.querySelector('[data-omer-day]')) {
 	document.querySelector('[data-omer-day]').innerHTML = (new HebrewNumberFormatter()).formatHebrewNumber(omerjCal.getDayOfOmer());
-}
-
-
-if (new URLSearchParams(window.location.search).has('sefiraDay')) {
-	jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.NISSAN, 15);
-	jCal.setDate(jCal.getDate().add({ days: parseInt(new URLSearchParams(window.location.search).get('sefiraDay')) }));
 }
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
