@@ -529,6 +529,18 @@ async function getAverageElevation (lat, long) {
 }
 
 function openCalendarWithLocationInfo() {
+	if (!geoLocation.locationName.toLowerCase().includes('israel')) {
+		localStorage.setItem("hourCalculators", "degrees");
+		localStorage.setItem("rtKulah", "true");
+		localStorage.setItem("tzeitTaanitHumra", "false");
+		localStorage.setItem("tekufa", "hatzoth");
+	} else {
+		localStorage.setItem("hourCalculators", "seasonal");
+		localStorage.setItem("rtKulah", "false");
+		localStorage.setItem("tzeitTaanitHumra", "true");
+		localStorage.setItem("tekufa", "arbitrary");
+	}
+
 	const typedGL = Object.entries(geoLocation).map(([key, value]) => [key, (typeof value == 'number' ? value.toString() : value)])
 	const params = new URLSearchParams(Object.fromEntries(typedGL));
 	window.location.href = "calendar?" + params.toString();
