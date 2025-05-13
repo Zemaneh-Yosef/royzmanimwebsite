@@ -476,7 +476,7 @@ layout: nothing
 <script>
 if (new URL(window.location.href).searchParams.has('noRT')) {
 	document.querySelectorAll('[data-rt-text]').forEach(elem => elem.remove());
-	document.querySelector('[data-zyData="getTzaitRT"]').remove();
+	document.querySelector('[data-zyData="getTzetRT"]').remove();
 	document.querySelector('[data-zyData="candleLighting"]').setAttribute('data-zyData', 'candleLightingRT');
 
 	for (const noRTText of document.querySelectorAll('[data-nort-text]')) {

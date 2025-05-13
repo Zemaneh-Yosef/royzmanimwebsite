@@ -4,7 +4,7 @@
 import { gsap as jsGsap } from "../../libraries/gsap.js";
 
 import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
-import { AmudehHoraahZmanim, OhrHachaimZmanim } from "../ROYZmanim.js";
+import { zDTFromFunc, ZemanFunctions } from "../ROYZmanim.js";
 import preSettings from "./preSettings.js";
 
 if (!('timers' in window))
@@ -25,10 +25,13 @@ gsap.defaults({
 const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
 const geoL = new GeoLocation(...glArgs);
 
-const zmanCalc =
-    (preSettings.calendarToggle.forceSunSeasonal() || (geoL.getLocationName() || "").toLowerCase().includes('israel') ?
-        new OhrHachaimZmanim(geoL, true) :
-        new AmudehHoraahZmanim(geoL));
+const zmanCalc = new ZemanFunctions(geoL, {
+		elevation: (geoL.getLocationName() || "").toLowerCase().includes('israel'),
+		rtKulah: preSettings.calendarToggle.rtKulah(),
+		candleLighting: preSettings.customTimes.candleLighting(),
+		fixedMil: preSettings.calendarToggle.forceSunSeasonal() || (geoL.getLocationName() || "").toLowerCase().includes('israel'),
+		melakha: preSettings.customTimes.tzeithIssurMelakha()
+	})
 
 /** @type {HTMLElement} */
 // @ts-ignore
@@ -140,10 +143,11 @@ if (hebDate.month == hebDate.monthsInYear || (hebDate.month == 1 && hebDate.day 
 	}
 }
 
-if (rangeDates(zmanCalc.getMisheyakir(), Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()), zmanCalc.getNetz())) {
-	const launchCountdown = () => requestAnimationFrame(() => counter.updateTimer(zmanCalc.getNetz()))
+const netz = zDTFromFunc(zmanCalc.getNetz())
+if (rangeDates(zmanCalc.getMisheyakir(), Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()), netz)) {
+	const launchCountdown = () => requestAnimationFrame(() => counter.updateTimer(netz))
 	const untilCountdown = Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())
-		.until(zmanCalc.getNetz().subtract({ minutes: 101 }))
+		.until(netz.subtract({ minutes: 101 }))
 		.total('milliseconds');
 
 	// @ts-ignore

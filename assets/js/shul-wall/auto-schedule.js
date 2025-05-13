@@ -2,7 +2,7 @@
 
 import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import WebsiteCalendar from '../WebsiteCalendar.js';
-import { AmudehHoraahZmanim, OhrHachaimZmanim } from '../ROYZmanim.js';
+import { zDTFromFunc, ZemanFunctions } from '../ROYZmanim.js';
 import preSettings from './preSettings.js';
 
 export default async function autoSchedule() {
@@ -23,19 +23,20 @@ export default async function autoSchedule() {
 		minute: '2-digit'
 	}];
 
-	const zmanCalc = (preSettings.calendarToggle.forceSunSeasonal() || jCalShab.getInIsrael() ?
-			new OhrHachaimZmanim(geoL, true) :
-			new AmudehHoraahZmanim(geoL));
-	zmanCalc.configSettings(preSettings.calendarToggle.rtKulah(), preSettings.customTimes.tzeithIssurMelakha());
-	zmanCalc.coreZC.setCandleLightingOffset(preSettings.customTimes.candleLighting())
-	zmanCalc.setDate(jCalShab.getDate());
+	const zmanCalc = new ZemanFunctions(geoL, {
+		elevation: jCalWeekday.getInIsrael(),
+		rtKulah: preSettings.calendarToggle.rtKulah(),
+		candleLighting: preSettings.customTimes.candleLighting(),
+		fixedMil: preSettings.calendarToggle.forceSunSeasonal() || jCalWeekday.getInIsrael(),
+		melakha: preSettings.customTimes.tzeithIssurMelakha()
+	})
 
 	for (const autoSchedule of document.querySelectorAll('[data-autoschedule-type]')) {
 		const jCal = autoSchedule.getAttribute('data-autoschedule-type') == 'sh' ? jCalShab : jCalWeekday;
 		zmanCalc.setDate(jCal.getDate());
 
 		// @ts-ignore
-		let autoScheduleTime = zmanCalc[autoSchedule.getAttribute('data-autoschedule-function')]()
+		let autoScheduleTime = zDTFromFunc(zmanCalc[autoSchedule.getAttribute('data-autoschedule-function')]())
 			[(autoSchedule.getAttribute('data-autoschedule-plusorminus') == '+' ? 'add' : 'subtract')]({
 				hours: parseInt(autoSchedule.getAttribute('data-autoschedule-hours')),
 				minutes: parseInt(autoSchedule.getAttribute('data-autoschedule-minutes'))

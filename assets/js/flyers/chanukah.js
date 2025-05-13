@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
+import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 import WebsiteCalendar from "../WebsiteCalendar.js"
 import { settings } from "../settings/handler.js";
 
@@ -14,9 +14,15 @@ if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 
-const calc = (settings.location.timezone() == 'Asia/Jerusalem' ? new OhrHachaimZmanim(geoLocation, true) : (new AmudehHoraahZmanim(geoLocation)));
-calc.configSettings(settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha());
 const jCal = new WebsiteCalendar()
+jCal.setInIsrael(settings.location.timezone() == 'Asia/Jerusalem')
+const calc = new ZemanFunctions(geoLocation, {
+	elevation: jCal.getInIsrael(),
+	fixedMil: settings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael(),
+	melakha: settings.customTimes.tzeithIssurMelakha(),
+	candleLighting: settings.customTimes.candleLighting(),
+	rtKulah: settings.calendarToggle.rtKulah()
+})
 
 for (const title of document.getElementsByClassName('shabbatTitleCore')) {
 	title.innerHTML = [
@@ -55,8 +61,8 @@ for (let i = 0; i <= 7; i++) {
 	else if (jCal.getDate().dayOfWeek == 6)
 		timeSchedule[jCal.formatFancyDate()] = {
 			...buildObj,
-			tzetShabbat: calc.getTzaitShabbath(),
-			rt: calc.getTzaitRT(),
+			tzetShabbat: zDTFromFunc(calc.getTzetMelakha()),
+			rt: calc.getTzetRT(),
 			msg: '(At home, make Havdalah before lighting Chanukah Candles)'
 		}
 	else {

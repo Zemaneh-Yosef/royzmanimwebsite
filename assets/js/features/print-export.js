@@ -40,13 +40,13 @@ if (useOhrHachaim) {
 const baseTable = document.getElementsByClassName('tableGrid')[0];
 
 if (useOhrHachaim || printParam.has('mergeTzet')) {
-	const humraTzet = baseTable.querySelector('[data-zyData="getTzaitLechumra"]');
+	const humraTzet = baseTable.querySelector('[data-zyData="getTzetHumra"]');
 	if (humraTzet) {
 		/** @type {HTMLElement} */
 		// @ts-ignore
 		const headerTzet = humraTzet.previousElementSibling.previousElementSibling;
 		headerTzet.removeAttribute('data-zyHeaderContainer');
-		headerTzet.setAttribute('data-zyData', 'getTzait');
+		headerTzet.setAttribute('data-zyData', 'getTzet');
 		headerTzet.style.removeProperty('grid-column-end');
 		headerTzet.style.gridRow = '1 / span 2';
 

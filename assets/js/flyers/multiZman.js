@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
+import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 import { settings } from "../settings/handler.js"
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js"
 import rYisraelizmanim from "./shabbat-rYisraeli.js";
@@ -28,13 +28,9 @@ if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
-const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
-ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
-ohrHachaimCal.coreZC.setCandleLightingOffset(20);
-const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
-amudehHoraahCal.configSettings(true, settings.customTimes.tzeithIssurMelakha());
-amudehHoraahCal.coreZC.setCandleLightingOffset(20);
-const rYisraeliCal = new rYisraelizmanim(fallbackGL);
+const ohrHachaimCal = new ZemanFunctions(fallbackGL, { elevation: true, melakha: {minutes: 30, degree: 7.165}, rtKulah: false, fixedMil: true, candleLighting: 20 });
+const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melakha: {minutes: 30, degree: 7.165}, rtKulah: true, fixedMil: false, candleLighting: 20 });
+const rYisraeliCal = new rYisraelizmanim(fallbackGL, { elevation: false, melakha: null, rtKulah: null, fixedMil: false, candleLighting: 20 });
 
 /** @type {string[]} */
 let calendars = [];
@@ -116,7 +112,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 
 		if (hebrewLocale.addToCalendars) {
 			const hnF = new HebrewNumberFormatter();
-			calendars.push(`${jCal.getDayOfTheWeek().hebrew}, `
+			calendars.push(`${jCal.getDayOfTheWeek().hb}, `
 			+ (!hebrewLocale.titleYear
 				? jCal.formatJewishFullDate().hebrew
 				: `${hnF.formatHebrewNumber(jCal.getJewishDayOfMonth())} ${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})}`))
@@ -185,12 +181,12 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			else if (jCal.getDate().dayOfWeek == 6)
 				timeSchedule.push({
 					...buildObj,
-					tzetShabbat: calc.getTzaitShabbath()
+					tzetShabbat: zDTFromFunc(calc.getTzetMelakha())
 				})
 			else {
 				/** @type {typeof buildObj & Record<string, KosherZmanim.Temporal.ZonedDateTime>} */
 				const ourObj = {...buildObj};
-				for (const shita of ['getTzait']) {
+				for (const shita of ['getTzet']) {
 					/** @type {KosherZmanim.Temporal.ZonedDateTime} */
 					// @ts-ignore
 					let time = calc[shita]();
@@ -225,7 +221,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 					: timeObj.candleLighting?.toLocaleString(...timeFormatAttr)) + "<br><span class='helpText'>" + timeObj.msg + "</span>";
 			else
 				// @ts-ignore
-				relevantDay.innerHTML = timeObj.getTzait.toLocaleString(...timeFormatAttr) */
+				relevantDay.innerHTML = timeObj.getTzet.toLocaleString(...timeFormatAttr) */
 		});
 		document.querySelector('[data-plag]').innerHTML = pmHB.toLocaleString(...timeFormatAttr)
 
@@ -332,10 +328,10 @@ for (const elem of elems) {
 			editElem.setAttribute('data-milisecondValue', time.epochMilliseconds.toString())
 			editElem.innerHTML = time.toLocaleString(...dtF);
 
-			if (timeFunc == 'getTzaitShabbath'
+			if (timeFunc == 'getTzetMelakha'
 			 && document.getElementById('gridElement').hasAttribute('data-rt-text')
-			 && !document.getElementById('gridElement').getAttribute(shitotDay).includes('getTzaitRT')) {
-				let rTime = currentCalc.getTzaitRT()
+			 && !document.getElementById('gridElement').getAttribute(shitotDay).includes('getTzetRT')) {
+				let rTime = currentCalc.getTzetRT()
 				if (elem.hasAttribute('data-humra'))
 					rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
 	
@@ -349,11 +345,11 @@ for (const elem of elems) {
 		if (stateLoc in dupLocs) {
 			const baseLocation = dupLocs[stateLoc].elem;
 
-			const baseCalc = (baseLocation.getAttribute('data-timezone') == 'Asia/Jerusalem' ? new OhrHachaimZmanim(dupLocs[stateLoc].geo, true) : new AmudehHoraahZmanim(dupLocs[stateLoc].geo))
+			const baseCalc = new ZemanFunctions(dupLocs[stateLoc].geo,
+				baseLocation.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal.config : amudehHoraahCal.config)
 			baseCalc.setDate(shabbatDate);
-			baseCalc.configSettings(currentCalc.rtKulah, currentCalc.shabbatObj)
 
-			const compTimes = baseCalc.getTzaitShabbath().until(currentCalc.getTzaitShabbath()).total({ unit: 'minutes' })
+			const compTimes = zDTFromFunc(baseCalc.getTzetMelakha()).until(zDTFromFunc(currentCalc.getTzetMelakha())).total({ unit: 'minutes' })
 			if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
 				editElem = elem;
 				for (let _i of ['', ...shitotOptions.map(attrName => document.getElementById("gridElement").getAttribute(attrName).split(" ")).flat()]) {
@@ -423,10 +419,10 @@ for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) 
 		.split(" ");
 
 	let headerText = omerJCal.getDayOfOmer().toString();
-	if (!(shitaOptions.some(shita => shita.startsWith('getTzait'))))
+	if (!(shitaOptions.some(shita => shita.startsWith('getTzet'))))
 		headerText += ` after ${amudehHoraahCal
 			.chainDate(omerJCal.getDate().subtract({ days: 1 }))
-			.getTzait()
+			.getTzet()
 			.toLocaleString('en', { hourCycle: "h12", hour: "numeric", minute: "2-digit"})}`;
 
 	const sefiraText = "הַיּוֹם " +  omerJCal.getOmerInfo().title.hb.mainCount + ` לָעֹמֶר` +

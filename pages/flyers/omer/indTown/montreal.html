@@ -1,6 +1,6 @@
 ---
-title: Sefirat Haomer - Queens
-permalink: /omer/queens
+title: Sefirat Haomer - Montreal
+permalink: /omer/montreal
 breakout: true
 website: true
 ---
@@ -66,7 +66,7 @@ website: true
 		font-family: "Guttman Mantova";
 		color: black;
 		text-align: center;
-		font-size: 3.25em;
+		font-size: 3em;
 		line-height: 1.25;
 		unicode-bidi: plaintext;
 	}
@@ -98,10 +98,10 @@ website: true
 		position: relative;
 		background-color: #946947;
 		background: linear-gradient(175deg, rgba(235, 214, 149, 1), rgba(197, 172, 90, 1));
-		gap: 2rem;
+		aspect-ratio: 1 / 1.3;
 		border-top: 1px solid #946947;
-		width: 750px;
-		min-width: 750px;
+		width: 700px;
+		min-width: 700px;
 		padding: 1rem;
 		perspective-origin: center;
 		transform: perspective(600px) rotateY(4.5deg);
@@ -168,20 +168,10 @@ website: true
 		font-weight: 800;
 		color: white;
 		text-decoration: underline;
-
-		grid-column-end: span 2;
-		font-size: 2.5rem;
-	}
-
-	#location {
-		font-family: "Cinzel Decorative";
-		font-weight: 600;
-		color: white;
 		margin-bottom: 3rem;
 
 		grid-column-end: span 2;
-		font-size: 3.25rem;
-		font-style: italic;
+		font-size: 2.25rem;
 	}
 
 	.locationHolder {
@@ -235,7 +225,7 @@ website: true
 		width: 100%;
 		background: linear-gradient(to right, black, #00000066 85%, transparent 100%);
 		color: white;
-		font-size: 2rem;
+		font-size: 1.5rem;
 	}
 
 	#subTitle {
@@ -253,12 +243,6 @@ website: true
 		font-size: 1.75rem;
 		font-weight: 700;
 	}
-
-	#russianRep {
-		line-height: 1;
-		text-transform: uppercase;
-		font-size: 1.75rem;
-	}
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -270,22 +254,20 @@ website: true
 <div id="wrapperElement">
 	<div id="bsD">בס"ד</div>
 	<h1 id="mainTitle" class="sefiraTitle">ספירת העומר - יום <span data-omer-day></span></h1>
-	<h3 id="subTitle"><span style="unicode-bidi: isolate;" data-zfDateRender="en">Night of </span> • <span style="unicode-bidi: isolate; font-size: 1.25em;" data-zfDateRender="hb">ליל של </span></h3>
+	<h3 id="subTitle"><span style="unicode-bidi: isolate;" data-zfDateRender="fr">Nuit de </span> • <span style="unicode-bidi: isolate; font-size: 1.25em;" data-zfDateRender="hb">ליל של </span></h3>
 	<div id="content">
 		<div class="notebook">
-			<div style="font-size: 2.25rem; font-weight: 600; line-height: 1.2;">
-				Stand for the counting of the Omer:<br>
-				<div style="font-weight: 500;">Просим вас встать для счёта Омера:</div>
-				<img src="/assets/images/sefira/print-bracha.png" style="width: 95%;" />
+			<div style="font-size: 1.75rem; font-weight: 600;">
+				Tenez-vous debout pour le compte de l'Omer
+				<img src="/assets/images/sefira/print-bracha.png" style="width: 100%;" />
 			</div>
 			<div>
-				<div style="font-size: 1.25em;">Count in the language you will understand:</div>
-				<div id="englishRep" data-omer-count="en"><span data-zfReplace="completeCount"></span> day of the Omer • <span data-zfReplace="indCount"></span></div>
-				<div id="hayom" data-omer-count="hb">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר,<br>שֶׁהֵם <span data-zfReplace="indCount"></span></div>
-                <div id="russianRep" data-omer-count="ru">hаём <span data-zfReplace="completeCount"></span> лаóмер,<br>шеһэм <span data-zfReplace="indCount"></span></div>
+				Effectuez le comptage dans la langue que vous comprenez:
+				<div id="englishRep" data-omer-count="fr"><span data-zfReplace="completeCount"></span> jour de l'Omer • <span data-zfReplace="indCount"></span></div>
+				<div id="hayom" data-omer-count="hb">הַיּוֹם <b data-zfReplace="completeCount"></b> לָעֹמֶר,<br>שֶׁהֵם <span data-zfReplace="indCount"></span></div>
 			</div>
 			<div>
-				<img src="/assets/images/sefira/harahaman.png" style="width: 95%;" />
+				<img src="/assets/images/sefira/harahaman.png" style="width: 100%;" />
 				<div style="display: flex; gap: 1rem; justify-content: center;" dir="rtl">
 					<div><img src="/assets/images/sefira/menorah-print.svg" style="width: 10rem; filter: brightness(0);"></div>
 					<div style="font-size: 1.5rem; font-family: 'Guttman Vilna'; text-align: start;">אָֽנָּֽא בְּכֹֽחַ. גְּדוּלַת יְמִינֶֽךָ. תַּתִּיר צְרוּרָה:<br>
@@ -301,35 +283,32 @@ website: true
 			</div>
 		</div>
 		<div id="gridElement">
-			<h1 id="announcement">Earliest Counting Times</h1>
-			<h3 id="location">(Queens, NY)</h3>
+			<h1 id="announcement">Temps optimal pour compter</h1>
 			<div class="timecalc"
                 data-lat="40.729397" data-lng="-73.847694"
-                data-timezone="America/New_York"
-                data-format="h12"
-				data-shkiya
-				style="grid-column-end: span 2; margin-bottom: 2rem;">
-				<div class="locationHolder">With a minyan</div>
-				<div class="timeResult"></div>
-			</div>
-			<div class="timecalc"
-                data-lat="40.729397" data-lng="-73.847694"
-                data-timezone="America/New_York"
+                data-timezone="America/Toronto"
                 data-format="h12"
 				style="grid-column-end: span 2;">
-				<div class="locationHolder">Individual</div>
+				<div class="locationHolder">Montréal, QC</div>
 				<div class="timeResult"></div>
 			</div>
 			<div class="halachot">
-				<h3>The Holistic Sephirat Ha'Omer</h3>
-				<h6>Source: Yalkut Yosef vol. 22 page 85 onwards - 5779 edition | Hazon Ovadia Yom Tov, page 232 onwards</h6>
-				<p class="mb-0">The מצוה is performed best at the beginning of the night (3/4<sup>th</sup>'s of a mil after sunset, but a minyan can do by sunset if needed), thus allowing the weeks to be "complete". This completeness is factored into whether one can say the blessing: if one of the previous days had been forgotten (from its night until the next day's night) or the counting for that day is happening after Dawn, one would not say the blessing.</p>
+				<h3>Règles temporelles halakhiques</h3>
+				<h6>Source : Yalkout Yossef, vol. 22, page 85 et suivantes – édition 5779 | Hazon Ovadia Yom Tov, page 232 et suivantes</h6>
+				<ol>
+					<li>Il est préférable de compter chaque jour du Omer à <b>la tombée de la nuit</b> (qui survient 13,5 minutes après le coucher du soleil, durée prolongée selon la latitude et la saison/la longueur du jour), permettant ainsi d’avoir un comptage holistique (nuits complètes).<br>
+					Néanmoins, bien que les retards intentionnels (tels que des calculs stricts de la tombée de la nuit) soient déconseillés, celui qui a manqué ce moment devrait tout de même compter dès que possible, tant que la journée n’est pas écoulée (<i>voir point 3</i>).</li>
+					<li>Il est d’usage de refaire le comptage durant la journée si le comptage nocturne a été omis. Toutefois, on ne récite pas la bénédiction après <b>l’aube</b>, même en cas d’incertitude sur l’heure exacte de celle-ci.</li>
+					<li>L’intervalle entre le coucher du soleil et la tombée de la nuit peut être utilisé pour le jour précédent (en cas d’oubli) ou le jour suivant, mais jamais pour les deux simultanément.<br>
+					Ainsi, un <i>minyan priant ערבית après le coucher du soleil</i> devrait procéder au comptage du Omer même avant la tombée de la nuit, afin d’éviter que les fidèles n’oublient de compter plus tard.</li>
+					<li>Si l’on manque entièrement un jour de comptage (depuis sa tombée de la nuit jusqu’à celle du jour suivant), il convient de <i>désigner une autre personne</i> pour réciter les bénédictions des jours suivants en son nom.</li>
+				</ol>				
 			</div>
 		</div>
 	</div>
 	<div id="footer">
 		<img src="/assets/images/right-wave-for-icon.png" style="width:80px;">
-		Get these "Nightfall" times for any location, only on our apps for iOS and Android
+		Obtenez ces horaires de 'tombée de la nuit' pour n'importe quel endroit, uniquement sur nos applications iOS et Android.
 	</div>
 </div>
 

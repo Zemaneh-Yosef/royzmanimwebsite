@@ -14,18 +14,6 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
         document.body.appendChild(backdrop)
     }
 } else {
-    /**
-     * @param {MediaQueryListEvent | MediaQueryList} e
-     */
-    function handleThemeChange(e) {
-        if (!document.documentElement.hasAttribute('forceLight'))
-            document.documentElement.setAttribute('data-bs-theme', (e.matches ? 'dark' : 'light'))
-    }
-
-    var landscapeMQ = window.matchMedia("(prefers-color-scheme: dark)");
-    landscapeMQ.addEventListener("change", handleThemeChange);
-    handleThemeChange(landscapeMQ)
-
     var queryString = window.location.search;
     var urlParams = new URLSearchParams(queryString);
 

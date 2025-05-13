@@ -11,7 +11,8 @@
 				<md-outlined-select id="MAIndex" required label="Country Selector">
 					<md-select-option selected aria-label="blank"></md-select-option>
 					{% for location in site.data.chaiTable %}
-					<md-select-option value="{{location.info.value}}">
+					<md-select-option value="{{location.info.value}}"
+					data-bounds='[{% for bound in location.bounds %}{"n":{{bound.n}}, "s":{{bound.s}}, "e":{{bound.e}}, "w":{{bound.w}}}{% if forloop.last == false %},{% endif %}{% endfor %}]'>
 						<div slot="headline">{{ location.info.title }}</div>
 					</md-select-option>
 					{% endfor %}
@@ -19,9 +20,10 @@
 				{% for location in site.data.chaiTable %}
 				<md-outlined-select id="{{location.info.value}}MetroArea" label="MA of {{ location.info.title }}">
 					<md-select-option selected aria-label="blank"></md-select-option>
-					{% for metropolitician in location.metroAreas %}
-					<md-select-option value="{{metropolitician}}">
-						<div slot="headline">{{ metropolitician | replace: "_", " " }}</div>
+					{% for mA in location.metroAreas %}
+					<md-select-option value="{{forloop.index0}}"
+					data-bounds='{"n":{{mA.bounds.n}}, "s":{{mA.bounds.s}}, "e":{{mA.bounds.e}}, "w":{{mA.bounds.w}}}'>
+						<div slot="headline">{{ mA.name | replace: "_", " " }}</div>
 					</md-select-option>
 					{% endfor %}
 				</md-outlined-select>

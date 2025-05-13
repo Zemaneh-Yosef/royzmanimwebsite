@@ -1,10 +1,9 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
+import { zDTFromFunc, ZemanFunctions } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
-import { settings } from "../settings/handler.js"
 
 const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
@@ -14,15 +13,16 @@ if (new URLSearchParams(window.location.search).has('sefiraDay')) {
 	jCal.setDate(jCal.getDate().add({ days: parseInt(new URLSearchParams(window.location.search).get('sefiraDay')) }));
 }
 
-const subtitle = document.getElementById("subTitle");
-subtitle.firstElementChild.innerHTML += jCal.formatFancyDate() + ", " + jCal.getGregorianYear();
-subtitle.lastElementChild.innerHTML += jCal.dateRenderer("hb").primary.text
+for (const dateRender of document.querySelectorAll("[data-zfDateRender]")) {
+	const lang = dateRender.getAttribute('data-zfDateRender');
+	dateRender.innerHTML += (lang !== "hb" ? jCal.getDayOfTheWeek()[lang] + ", " : "") + jCal.dateRenderer(lang).primary.text
+}
 
 const omerjCal = jCal.tomorrow();
 //document.getElementById("omerCount").appendChild(document.createTextNode(omerjCal.getDayOfOmer().toString().padStart(2, "0")));
 
 for (const omerElem of document.querySelectorAll("[data-omer-count]")) {
-	/** @type {'en'|'hb'} */
+	/** @type {'en'|'hb'|'fr'} */
 	// @ts-ignore
 	const lang = omerElem.getAttribute('data-omer-count');
 
@@ -44,16 +44,9 @@ if (document.querySelector('[data-omer-day]')) {
 }
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
-const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
-ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
+const ohrHachaimCal = new ZemanFunctions(fallbackGL, { elevation: true, melakha: {minutes: 30, degree: 7.165}, rtKulah: false, fixedMil: true, candleLighting: 20 });
 ohrHachaimCal.setDate(jCal.getDate())
-const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
-amudehHoraahCal.configSettings(
-	document.getElementById('gridElement').hasAttribute('data-force-rtkulah') ?
-		document.getElementById('gridElement').getAttribute('data-force-rtkulah') == "true" :
-		true,
-	settings.customTimes.tzeithIssurMelakha()
-);
+const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melakha: {minutes: 30, degree: 7.165}, rtKulah: true, fixedMil: false, candleLighting: 20 });
 amudehHoraahCal.setDate(jCal.getDate());
 
 if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.location.href.includes("forceShabbat")) {
@@ -90,7 +83,7 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 			minute: '2-digit'
 		}];
 
-		const times = ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) ? [currentCalc.getTzaitShabbath(), currentCalc.getTzaitRT()] : [elem.hasAttribute('data-shkiya') ? currentCalc.getShkiya() : currentCalc.getTzait()])
+		const times = ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) ? [zDTFromFunc(currentCalc.getTzetMelakha())] : [elem.hasAttribute('data-shkiya') ? currentCalc.getShkiya() : currentCalc.getTzet()])
 			.map(time => time.add({ minutes: (!elem.hasAttribute('data-humra') ? 0 : parseInt(elem.getAttribute('data-humra')) )}));
 
 		const timeElem = elem.lastElementChild;

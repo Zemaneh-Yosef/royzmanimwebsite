@@ -1,6 +1,5 @@
 // @ts-check
 
-import { AmudehHoraahZmanim } from '../ROYZmanim.js';
 import { settings } from "../settings/handler.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
 
@@ -26,20 +25,11 @@ export default class exportFriendly {
 
 		const { year: isoYear, calendarId: isoCalendar } = zmanLister.jCal.getDate()
 
-		let availableVS = [];
-		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-			const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-			if (ctNetz.lat == zmanLister.geoLocation.getLatitude()
-			&& ctNetz.lng == zmanLister.geoLocation.getLongitude())
-				availableVS = ctNetz.times
-		}
-
 		/** @type {Parameters<import('./icsPrepare.js')["default"]>} */
 		const icsParams = [
-			zmanLister.zmanFuncs instanceof AmudehHoraahZmanim,
 			undefined,
 			glArgs,
-			zmanLister.zmanFuncs.coreZC.isUseElevation(),
+			zmanLister.zmanCalc.config,
 			zmanLister.jCal.getInIsrael(),
 			exportZmanList,
 			true,
@@ -47,7 +37,6 @@ export default class exportFriendly {
 				// @ts-ignore
 				language: settings.language() == "hb" ? "he" : settings.language(),
 				timeFormat: settings.timeFormat(), seconds: settings.seconds(),
-				zmanInfoSettings: zmanLister.zmanInfoSettings,
 				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
 				fasts: Object.fromEntries([...document.querySelector('[data-zfFind="FastDays"]').getElementsByTagName("h5")]
 					.map(ogHeading => {
@@ -78,7 +67,7 @@ export default class exportFriendly {
 									langElem.innerHTML
 								]))
 					])),
-				netzTimes: availableVS
+				netzTimes: zmanLister.zmanCalc.vSunrise.preservedInts
 			}
 		]
 
@@ -90,7 +79,7 @@ export default class exportFriendly {
 			const ics = (await import('../../libraries/ics/ics.esm.js')).ics;
 
 			receiveData = receiveData.flat()
-			zmanLister.zmanFuncs.tekufaCalc.calculateTekufotShemuel(!(zmanLister.zmanFuncs instanceof AmudehHoraahZmanim))
+			zmanLister.zmanCalc.tekufaCalc.calculateTekufotShemuel(!zmanLister.zmanCalc.config.fixedMil)
 				.forEach((tekufa, index) => {
 					const time = tekufa.toZonedDateTime("+02:00").withTimeZone(zmanLister.geoLocation.getTimeZone())
 					const tekufaMonth = [
@@ -115,7 +104,7 @@ export default class exportFriendly {
 					})
 				})
 
-			const calName = (zmanLister.zmanFuncs instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
+			const calName = (!zmanLister.zmanCalc.config.fixedMil ? "Amudeh Hora'ah" : "Ohr Hachaim")
 				+ ` Calendar (${isoYear}) - ` + zmanLister.geoLocation.getLocationName();
 			const labeledEvents = 
 				Array.from(new Set(receiveData.map(field => JSON.stringify(field)))).map(field => JSON.parse(field))
@@ -147,7 +136,7 @@ export default class exportFriendly {
 
 		for (let i = 1; i <= zmanLister.jCal.getDate().monthsInYear; i++) {
 			const monthICSData = [...icsParams]
-			monthICSData[1] = [isoYear, i, 1, isoCalendar]
+			monthICSData[0] = [isoYear, i, 1, isoCalendar]
 			giveData.push(monthICSData)
 		}
 
@@ -181,7 +170,7 @@ export default class exportFriendly {
 
 		const exportZmanList = Object.fromEntries(Object.entries(zmanLister.zmanimList)
 			// @ts-ignore
-			.filter(([key, value]) => document.getElementById(`exportzmanid-${key}`).checked))
+			.filter(([key]) => document.getElementById(`exportzmanid-${key}`).checked))
 
 		/** @type {[string, number, number, number, string]} */
 		// @ts-ignore
@@ -199,16 +188,14 @@ export default class exportFriendly {
 
 		/** @type {Parameters<import('./excelPrepare.js')["default"]>} */
 		const excelParams = [
-			zmanLister.zmanFuncs instanceof AmudehHoraahZmanim,
 			undefined,
 			glArgs,
-			zmanLister.zmanFuncs.coreZC.isUseElevation(),
+			zmanLister.zmanCalc.config,
 			zmanLister.jCal.getInIsrael(),
 			exportZmanList,
 			{
 				// @ts-ignore
 				language: settings.language() == "hb" ? "he" : settings.language(),
-				zmanInfoSettings: zmanLister.zmanInfoSettings,
 				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
 				seconds: settings.seconds(),
 				timeFormat: settings.timeFormat(),
@@ -220,7 +207,7 @@ export default class exportFriendly {
 		let workerData = [];
 		let giveData = [];
 
-		const title = (zmanLister.zmanFuncs instanceof AmudehHoraahZmanim ? "Amudeh Hora'ah" : "Ohr Hachaim")
+		const title = (!zmanLister.zmanCalc.config.fixedMil ? "Amudeh Hora'ah" : "Ohr Hachaim")
 				+ ` Calendar (${isoYear}) - ` + zmanLister.geoLocation.getLocationName();
 
 		const postDataReceive = async () => {
@@ -243,7 +230,7 @@ export default class exportFriendly {
 
 		for (let i = 1; i <= zmanLister.jCal.getDate().monthsInYear; i++) {
 			const monthExcelData = [...excelParams]
-			monthExcelData[1] = [isoYear, i, 1, isoCalendar]
+			monthExcelData[0] = [isoYear, i, 1, isoCalendar]
 			giveData.push(monthExcelData)
 		}
 

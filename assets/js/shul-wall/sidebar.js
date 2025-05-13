@@ -3,7 +3,7 @@
 import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import { AmudehHoraahZmanim, OhrHachaimZmanim } from "../ROYZmanim.js";
+import { ZemanFunctions } from "../ROYZmanim.js";
 import preSettings from "./preSettings.js";
 
 /** @type {[string, number, number, number, string]} */
@@ -15,11 +15,13 @@ const dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
 const jCal = new WebsiteLimudCalendar(dateForSet);
 jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
 
-const zmanCalc =
-	(preSettings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael() ?
-		new OhrHachaimZmanim(geoL, true) :
-		new AmudehHoraahZmanim(geoL));
-zmanCalc.configSettings(preSettings.calendarToggle.rtKulah(), preSettings.customTimes.tzeithIssurMelakha());
+const zmanCalc = new ZemanFunctions(geoL, {
+    elevation: jCal.getInIsrael(),
+    rtKulah: preSettings.calendarToggle.rtKulah(),
+    candleLighting: preSettings.customTimes.candleLighting(),
+    fixedMil: preSettings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael(),
+    melakha: preSettings.customTimes.tzeithIssurMelakha()
+})
 zmanCalc.setDate(dateForSet);
 
 /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
@@ -94,10 +96,10 @@ function renderFastIndex(fastContainer) {
 
         if (jCal.isYomKippur()) {
             yomTzom.appendChild(document.createTextNode(
-                fastCalc.getTzaitShabbath().toLocaleString(...dtF) + ` (R"T: ${fastCalc.getTzaitRT().toLocaleString(...dtF)})`
+                fastCalc.getTzetMelakha().toLocaleString(...dtF) + ` (R"T: ${fastCalc.getTzetRT().toLocaleString(...dtF)})`
             ));
         } else {
-            yomTzom.appendChild(document.createTextNode(fastCalc.getTzaitLechumra().toLocaleString(...dtF)))
+            yomTzom.appendChild(document.createTextNode(fastCalc.getTzetHumra().toLocaleString(...dtF)))
         }
     } else {
         timeList.multiDay.style.display = "none";
@@ -107,7 +109,7 @@ function renderFastIndex(fastContainer) {
         }
 
         timeList.oneDay.appendChild(document.createTextNode(
-            fastCalc.getAlotHashachar().toLocaleString(...dtF) + ' - ' + fastCalc.getTzaitLechumra().toLocaleString(...dtF)
+            fastCalc.getAlotHashahar().toLocaleString(...dtF) + ' - ' + fastCalc.getTzetHumra().toLocaleString(...dtF)
         ))
     }
 }
@@ -298,7 +300,7 @@ function renderSeasonalRules(tefilahRuleContainer) {
     /** @type {import('../WebsiteCalendar.js').default} */
     let calForRules = jCal;
     if (jCal.getDate().equals(Temporal.Now.plainDateISO())
-        && Temporal.ZonedDateTime.compare(zmanCalc.getTzait(), Temporal.Now.zonedDateTimeISO(geoL.getTimeZone())) < 1) {
+        && Temporal.ZonedDateTime.compare(zmanCalc.getTzet(), Temporal.Now.zonedDateTimeISO(geoL.getTimeZone())) < 1) {
         calForRules = jCal.tomorrow();
     }
     const seasonalRules = [

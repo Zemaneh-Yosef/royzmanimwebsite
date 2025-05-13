@@ -1,8 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { OhrHachaimZmanim, AmudehHoraahZmanim } from "../ROYZmanim.js";
-import { settings } from "../settings/handler.js"
+import { ZemanFunctions } from "../ROYZmanim.js";
 import WebsiteLimudCalendar, { HebrewNumberFormatter } from "../WebsiteCalendar.js"
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
@@ -20,29 +19,22 @@ if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
-const ohrHachaimCal = new OhrHachaimZmanim(fallbackGL, true);
-ohrHachaimCal.configSettings(false, settings.customTimes.tzeithIssurMelakha());
-const amudehHoraahCal = new AmudehHoraahZmanim(fallbackGL);
-amudehHoraahCal.configSettings(
-	document.getElementById('gridElement').hasAttribute('data-force-rtkulah') ?
-		document.getElementById('gridElement').getAttribute('data-force-rtkulah') == "true" :
-		true,
-	settings.customTimes.tzeithIssurMelakha()
-);
+const ohrHachaimCal = new ZemanFunctions(fallbackGL, { elevation: true, melakha: {minutes: 30, degree: 7.165}, rtKulah: false, fixedMil: true, candleLighting: 20 });
+const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melakha: {minutes: 30, degree: 7.165}, rtKulah: true, fixedMil: false, candleLighting: 20 });
 
 const jCal = new WebsiteLimudCalendar(ohrHachaimCal.coreZC.getDate().withCalendar("hebrew").year, 1, 13)
 const dayB4ErevPesach = jCal.getDate();
 const times = {
-	'bedikatHametz': { date: dayB4ErevPesach, method: 'getTzait' },
-	'taanitBechorotStart': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getAlotHashachar' },
-	'taanitBechorotEnd': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getTzaitLechumra' },
-	'achilah': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getSofZmanAchilathHametz' },
-	'biur': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getSofZmanBiurHametz' },
+	'bedikatHametz': { date: dayB4ErevPesach, method: 'getTzet' },
+	'taanitBechorotStart': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getAlotHashahar' },
+	'taanitBechorotEnd': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getTzetHumra' },
+	'achilah': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getSofZemanAhilathHametz' },
+	'biur': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getSofZemanBiurHametz' },
 	'hatzot': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getHatzoth' },
 	'getCandle': { date: dayB4ErevPesach.add({ days: 1 }), method: 'getCandleLighting' },
-	'endFirstDay': { date: dayB4ErevPesach.add({ days: 2 }), method: 'getTzaitLechumra' },
-	'endOutsideIsrael': { date: dayB4ErevPesach.add({ days: 3 }), method: 'getTzaitShabbath' },
-	'endIsrael': { date: dayB4ErevPesach.add({ days: 2 }), method: 'getTzaitShabbath' },
+	'endFirstDay': { date: dayB4ErevPesach.add({ days: 2 }), method: 'getTzetHumra' },
+	'endOutsideIsrael': { date: dayB4ErevPesach.add({ days: 3 }), method: 'getTzetMelakha' },
+	'endIsrael': { date: dayB4ErevPesach.add({ days: 2 }), method: 'getTzetMelakha' },
 	'hatzotMidnight': { date: dayB4ErevPesach.add({ days: 2 }), method: 'getSolarMidnight' },
 }
 
@@ -51,7 +43,6 @@ document.getElementById("zemanehShab").innerHTML += jCal.formatJewishYear().hebr
 const elems = document.getElementsByClassName('timecalc');
 let anyIsrael = false;
 for (const locationTitleElem of elems) {
-	/** @type { AmudehHoraahZmanim | OhrHachaimZmanim } */
 	let currentCalc = amudehHoraahCal;
 	if (locationTitleElem.getAttribute('data-timezone') == 'Asia/Jerusalem') {
 		currentCalc = ohrHachaimCal;
@@ -85,7 +76,7 @@ for (const locationTitleElem of elems) {
 			// @ts-ignore
 			let time = currentCalc.chainDate(zmanDetails.date)[zmanDetails.method]()
 			if (locationTitleElem.hasAttribute('data-humra'))
-				time = time[(zmanDetails.method.startsWith("getTzait") ? "add" : "subtract")]({
+				time = time[(zmanDetails.method.startsWith("getTzet") ? "add" : "subtract")]({
 					minutes: parseInt(locationTitleElem.getAttribute('data-humra'))
 				});
 

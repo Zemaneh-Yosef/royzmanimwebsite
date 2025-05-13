@@ -1,5 +1,5 @@
 ---
-- timeGetter: getAlotHashachar
+- timeGetter: getAlotHashahar
   names:
     hb: עלות <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
     et: Alot <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
@@ -19,19 +19,19 @@
         hb: מג'א
         en: MG'A
         et: MG'A
-      timeGetter: getSofZmanShmaMGA
+      timeGetter: getSofZemanShemaMGA
       id: mga
     - names:
         hb: גר'א
         en: GR'A
         et: GR'A
-      timeGetter: getSofZmanShmaGRA
+      timeGetter: getSofZemanShemaGRA
       id: gra
   names:
     hb: סוף זמן שמע
     et: Sof Zeman Shema
     en: Latest Shema
-- timeGetter: getSofZmanBrachothShma
+- timeGetter: getSofZemanBerakhothShema
   names:
     hb: סוף זמן ברכות שמע
     et: Sof Shach.
@@ -85,13 +85,13 @@
         hb: שיטת מרן
         en: Reg.
         et: Reg.
-      timeGetter: getTzait
+      timeGetter: getTzet
       id: regular
     - names:
         hb: לחומרה
         et: Ḥumra
         en: Strict
-      timeGetter: getTzaitLechumra
+      timeGetter: getTzetHumra
       id: humra
   names:
     hb: לילה <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
@@ -102,7 +102,7 @@
     hb: נרות וצאת מלכה
     et: Candles & Tzet Melakha
     en: Candles & Tzet Melakha
-- timeGetter: getTzaitRT
+- timeGetter: getTzetRT
   names:
     hb: ר״ת
     et: Rabbenu Tam

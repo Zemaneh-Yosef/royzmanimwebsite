@@ -1,6 +1,6 @@
 ---
 - id: alot
-  timeGetter: getAlotHashachar
+  timeGetter: getAlotHashahar
   names:
     hb: עלות
     et: Alot
@@ -23,14 +23,14 @@
     et: HaNetz
     en: Sunrise
 - id: latestShmaMGA
-  timeGetter: getSofZmanShmaMGA
+  timeGetter: getSofZemanShemaMGA
   names:
     hb: שמע מג'א
     ru: Шма МГ"А
     en: Shema MG"A
     et: Shema MG"A
 - id: latestShmaGRA
-  timeGetter: getSofZmanShmaGRA
+  timeGetter: getSofZemanShemaGRA
   names:
     hb: שמע גר'א
     ru: шма Гра
@@ -39,7 +39,7 @@
 - id: SofZmanAchilatChametz
   attributes:
     yomTovInclusive: EREV_PESACH
-  timeGetter: getSofZmanAchilathHametz
+  timeGetter: getSofZemanAhilathHametz
   names:
     hb: סוף אכילת חמץ
     ru: время для поедания хамеца
@@ -48,14 +48,14 @@
 - id: SofZmanBiurChametz
   attributes:
     yomTovInclusive: EREV_PESACH
-  timeGetter: getSofZmanBiurHametz
+  timeGetter: getSofZemanBiurHametz
   names:
     hb: סוף ביעור חמץ
     ru: время для сжигание хамеца
     en: Dispose Hametz by
     et: Dispose Ḥametz by
 - id: latestBrachotShmaGRA
-  timeGetter: getSofZmanBrachothShma
+  timeGetter: getSofZemanBerakhothShema
   names:
     hb: זמן תפילה
     ru: Шахарит
@@ -90,7 +90,7 @@
     et: Sheqi'a
     ru: Закат
 - id: tzeit
-  timeGetter: getTzait
+  timeGetter: getTzet
   names:
     hb: לילה
     en: Nightfall

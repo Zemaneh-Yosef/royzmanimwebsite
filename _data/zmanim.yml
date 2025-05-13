@@ -1,6 +1,6 @@
 ---
 - id: alot
-  timeGetter: getAlotHashachar
+  timeGetter: getAlotHashahar
   names:
     hb: עלות השחר
     et: Alot Ha'Shaḥar
@@ -18,7 +18,7 @@
         et: Alot Hashachar (5 mil/⅛<sup>th</sup> of the day)
         en: Dawn (5 mil/⅛<sup>th</sup> of the day)
       timeGetter:
-        functionCall: getAlotHashachar
+        functionCall: getAlotHashahar
         param: {minutes: 90, degree: 19.8}
 - id: earliestTefilin
   timeGetter: getMisheyakir
@@ -46,14 +46,14 @@
         hb: מג'א
         en: MG'A
         et: MG'A
-      timeGetter: getSofZmanShmaMGA
+      timeGetter: getSofZemanShemaMGA
       id: mga
       round: earlier
     - names:
         hb: גר'א
         en: GR'A
         et: GR'A
-      timeGetter: getSofZmanShmaGRA
+      timeGetter: getSofZemanShemaGRA
       id: gra
       round: earlier
   names:
@@ -67,7 +67,7 @@
         hb: אכילת
         en: Eating
         et: Akhilath
-      timeGetter: getSofZmanAchilathHametz
+      timeGetter: getSofZemanAhilathHametz
       id: eating
       attributes:
         yomTovInclusive: EREV_PESACH
@@ -76,7 +76,7 @@
         hb: ביעור
         en: Burning
         et: Biur
-      timeGetter: getSofZmanBiurHametz
+      timeGetter: getSofZemanBiurHametz
       id: burning
       attributes:
         yomTovInclusive: EREV_PESACH
@@ -87,7 +87,7 @@
     en: Ḥametz Times
   descriptionInclude: zmanDescription/hametz.md
 - id: latestBrachotShmaGRA
-  timeGetter: getSofZmanBrachothShma
+  timeGetter: getSofZemanBerakhothShema
   names:
     hb: סוף זמן ברכות שמע
     et: Sof Zeman Berakhoth Shema
@@ -252,14 +252,14 @@
         hb: שיטת מרן
         en: Regular
         et: Regular
-      timeGetter: getTzait
+      timeGetter: getTzet
       id: regular
       round: later
     - names:
         hb: חומרה
         et: Ḥumra
         en: Stringent
-      timeGetter: getTzaitLechumra
+      timeGetter: getTzetHumra
       id: humra
       round: later
   names:
@@ -293,7 +293,7 @@
     the local astronomy.
     </p>
 - id: tzeitShabbat
-  timeGetter: getTzaitShabbath
+  timeGetter: getTzetMelakha
   names:
     hb: צאת שבת
     et: Tzet Shabbat
@@ -306,7 +306,7 @@
     yomTovInclusive:
     luachInclusive:
     condition:
-  timeGetter: getTzaitRT
+  timeGetter: getTzetRT
   names:
     hb: ר״ת
     et: Rabbenu Tam

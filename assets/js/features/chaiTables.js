@@ -2,14 +2,11 @@
 
 import "../../libraries/materialComp/materialweb.js"
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
-export { ChaiTables }
 
-class ChaiTables {
-	/**
-	 * @param {KosherZmanim.GeoLocation} geoL
-	 */
-	constructor(geoL) {
-		this.geoL = geoL;
+export default class ChaiTables {
+	constructor() {
+		/** @type {KosherZmanim.GeoLocation} */
+		this.geoL = null;
 		this.modal = new window.bootstrap.Modal(document.getElementById("ctModal"));
 	}
 
@@ -191,61 +188,123 @@ class ChaiTables {
 		return data;
 	}
 
-	initForm() {
-		const submitBtn = document.getElementById('gctnd');
+	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
+	initForm(zmanLister) {
+		this.geoL = zmanLister.geoLocation;
 
-		const selectors = Array.from(document.getElementsByTagName("md-outlined-select")).map((/** @type {HTMLSelectElement} */elem) => elem);
+		window.addEventListener('load', () => {
+			const submitBtn = document.getElementById('gctnd');
 
-		const MASubFormEvent = () => {
-			submitBtn.removeAttribute('disabled');
-			window.requestAnimationFrame(() => submitBtn.focus());
-		}
-
-		const primaryIndex = selectors.find(select => select.id == 'MAIndex');
-		const hideAllForms = () => {
-			if (!submitBtn.hasAttribute('disabled'))
-				submitBtn.setAttribute('disabled', '')
-
-			const previouslySelectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
-			if (previouslySelectedMASel)
-				previouslySelectedMASel.removeEventListener('change', MASubFormEvent)
-
-			selectors.filter(selector => selector.id.endsWith('MetroArea')).forEach(selector=>selector.style.display = 'none')
-		}
-
-		hideAllForms();
-		primaryIndex.addEventListener('change', (/** @type {Event & { target: HTMLSelectElement }} */chngEvnt) => {
-			hideAllForms();
-
-			const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
-			highlightedSelector.style.removeProperty('display');
-			highlightedSelector.addEventListener('change', MASubFormEvent)
-			//window.requestAnimationFrame(() => highlightedSelector.focus())
-			highlightedSelector.shadowRoot.getElementById("field").click()
-		})
-
-		submitBtn.addEventListener('click', async () => {
-			submitBtn.setAttribute('disabled', '')
-			submitBtn.classList.add("sbmitl")
-			const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
-			this.setOtherData(selectors[0].value, selectors[selectors.indexOf(selectedMASel)].selectedIndex);
-			const ctData = await this.formatInterfacer();
-
-			if (!ctData.times.length) {
-				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
-				toastBootstrap.show();
-				return;
-			}
-
-			localStorage.setItem("ctNetz", JSON.stringify(ctData));
-			this.modal.hide();
-
-			if ("zmanimListUpdater2" in window) {
+			const selectors = Array.from(document.getElementsByTagName("md-outlined-select")).map((/** @type {HTMLSelectElement} */elem) => elem);
+			selectors.forEach(selector => {
 				// @ts-ignore
-				window.zmanimListUpdater2.resetCalendar();
+				selector.reset();
+
+				/* const options = Array.from(selector.options);
+				options.shift()
+				options.forEach(option => {
+					if (option.disabled)
+						option.disabled = false;
+
+					const bounds = JSON.parse(option.getAttribute('data-bounds'));
+					if (Array.isArray(bounds)) {
+						if (bounds.length == 1 && bounds[0].n == 0)
+							return;
+
+						console.log(option.value, bounds, this.geoL.getLatitude(), this.geoL.getLongitude())
+						option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), bounds);;
+					} else {
+						if (bounds.n == 0)
+							return;
+
+						option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), [bounds]);
+					}
+				}) */
+			});
+
+			const MASubFormEvent = () => {
+				submitBtn.removeAttribute('disabled');
+				window.requestAnimationFrame(() => submitBtn.focus());
 			}
 
-			submitBtn.classList.remove("sbmitl");
-		});
+			const primaryIndex = selectors.find(select => select.id == 'MAIndex');
+			const hideAllForms = () => {
+				if (!submitBtn.hasAttribute('disabled'))
+					submitBtn.setAttribute('disabled', '')
+
+				const previouslySelectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
+				if (previouslySelectedMASel)
+					previouslySelectedMASel.removeEventListener('change', MASubFormEvent)
+
+				selectors.filter(selector => selector.id.endsWith('MetroArea')).forEach(selector=>selector.style.display = 'none')
+			}
+
+			hideAllForms();
+			primaryIndex.addEventListener('change', (/** @type {Event & { target: HTMLSelectElement }} */chngEvnt) => {
+				hideAllForms();
+
+				const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
+				highlightedSelector.style.removeProperty('display');
+				highlightedSelector.addEventListener('change', MASubFormEvent)
+				//window.requestAnimationFrame(() => highlightedSelector.focus())
+				highlightedSelector.shadowRoot.getElementById("field").click()
+			})
+
+			submitBtn.addEventListener('click', async () => {
+				submitBtn.setAttribute('disabled', '')
+				submitBtn.classList.add("sbmitl")
+				const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
+				this.setOtherData(selectors[0].value, parseInt(selectors[selectors.indexOf(selectedMASel)].selectedOptions.item(0).value));
+				const ctData = await this.formatInterfacer();
+
+				if (!ctData.times.length) {
+					const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
+					toastBootstrap.show();
+					return;
+				}
+
+				localStorage.setItem("ctNetz", JSON.stringify(ctData));
+				this.modal.hide();
+
+				const prevDate = zmanLister.jCal.getDate();
+				zmanLister.resetCalendar();
+				zmanLister.changeDate(prevDate);
+
+				submitBtn.classList.remove("sbmitl");
+			});
+		})
 	}
+}
+
+/**
+ * @param {number} lat
+ * @param {number} long
+ * @param {{ n: number; s: number; e: number; w: number; }[]} bounds
+ */
+function isInsideBoundingBox(lat, long, bounds) {
+    return bounds.some(b => {
+        // Convert all values to floats with fixed precision
+        const north = Number(parseFloat(`${b.n}`).toFixed(10));
+        const south = Number(parseFloat(`${b.s}`).toFixed(10));
+        const east = Number(parseFloat(`${b.e}`).toFixed(10));
+        const west = Number(parseFloat(`${b.w}`).toFixed(10));
+        const fixedLat = Number(parseFloat(`${lat}`).toFixed(10));
+        const fixedLong = Number(parseFloat(`${long}`).toFixed(10));
+
+        // Normalize latitude to handle crossing the poles
+        const normalizedLat = (fixedLat + 90) % 180 - 90;
+
+        // Handle cases where longitude wraps around
+        if (west > east) {
+            return (
+                north > normalizedLat && south < normalizedLat &&
+                (fixedLong > west || fixedLong < east)
+            );
+        } else {
+            return (
+                north > normalizedLat && south < normalizedLat &&
+                west < fixedLong && east > fixedLong
+            );
+        }
+    });
 }

@@ -1,0 +1,5940 @@
+[
+	{
+		"info": {
+			"title": "Argentina",
+			"value": "Argentina"
+		},
+		"metroAreas": [
+			{
+				"name": "Buenos-Aires",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Concordia",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Salto",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": -21.59679192239588,
+				"s": -52.46186299200765,
+				"e": -55.82508488065808,
+				"w": -74.14969315481945
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Australia",
+			"value": "Australia"
+		},
+		"metroAreas": [
+			{
+				"name": "Melbourne",
+				"bounds": {
+					"n": -37.50268540745914,
+					"s": -38.434090531293435,
+					"e": 145.52238191318582,
+					"w": 144.5824328202715
+				}
+			},
+			{
+				"name": "Sydney",
+				"bounds": {
+					"n": -33.577488810504725,
+					"s": -34.09831109719282,
+					"e": 151.35522582000573,
+					"w": 150.51121650723806
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": -37.50268540745914,
+				"s": -38.434090531293435,
+				"e": 145.52238191318582,
+				"w": 144.5824328202715
+			},
+			{
+				"n": -33.577488810504725,
+				"s": -34.09831109719282,
+				"e": 151.35522582000573,
+				"w": 150.51121650723806
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Austria",
+			"value": "Austria"
+		},
+		"metroAreas": [
+			{
+				"name": "Vienna",
+				"bounds": {
+					"n": 48.32591662536395,
+					"s": 48.1191812527597,
+					"e": 16.58004134290675,
+					"w": 16.17603340771819
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 48.32591662536395,
+				"s": 48.1191812527597,
+				"e": 16.58004134290675,
+				"w": 16.17603340771819
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Belgium",
+			"value": "Belgium"
+		},
+		"metroAreas": [
+			{
+				"name": "Antwerpen",
+				"bounds": {
+					"n": 51.38058088206805,
+					"s": 51.14253915346697,
+					"e": 4.5094378292874495,
+					"w": 4.2164009340019035
+				}
+			},
+			{
+				"name": "Bruxelles",
+				"bounds": {
+					"n": 50.91465749356942,
+					"s": 50.83211421998073,
+					"e": 4.437898677135789,
+					"w": 4.313959167938621
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 50.91465749356942,
+				"s": 50.83211421998073,
+				"e": 4.437898677135789,
+				"w": 4.313959167938621
+			},
+			{
+				"n": 51.38058088206805,
+				"s": 51.14253915346697,
+				"e": 4.5094378292874495,
+				"w": 4.2164009340019035
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Brazil",
+			"value": "Brazil"
+		},
+		"metroAreas": [
+			{
+				"name": "Rio-de-Janeiro",
+				"bounds": {
+					"n": -22.74190701936652,
+					"s": -23.089755970212824,
+					"e": -43.09512019571373,
+					"w": -43.798931813038365
+				}
+			},
+			{
+				"name": "Sao Paulo",
+				"bounds": {
+					"n": -23.354274112998965,
+					"s": -24.01138795124398,
+					"e": -46.360192966568945,
+					"w": -46.81182465423406
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": -22.74190701936652,
+				"s": -23.089755970212824,
+				"e": -43.09512019571373,
+				"w": -43.798931813038365
+			},
+			{
+				"n": -23.354274112998965,
+				"s": -24.01138795124398,
+				"e": -46.360192966568945,
+				"w": -46.81182465423406
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Bulgaria",
+			"value": "Bulgaria"
+		},
+		"metroAreas": [
+			{
+				"name": "Sofia",
+				"bounds": {
+					"n": 42.79092335690822,
+					"s": 42.60142690326228,
+					"e": 23.460627397771592,
+					"w": 23.185638615374096
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 42.79092335690822,
+				"s": 42.60142690326228,
+				"e": 23.460627397771592,
+				"w": 23.185638615374096
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Canada",
+			"value": "Canada"
+		},
+		"metroAreas": [
+			{
+				"name": "Calgary_area_AB",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Edmonton_area_AB",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Fredericton_area_NB",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Halifax_area_NS",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Hamilton_area_ON",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Kitchener_area_ON",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "London_area_ON",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Montreal_area_QC",
+				"bounds": {
+					"n": 45.71112596762122,
+					"s": 45.41210097724409,
+					"e": -73.46085327259802,
+					"w": -73.95935789130795
+				}
+			},
+			{
+				"name": "Ottawa_area_ON",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Regina_area_SK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Toronto_area_ON",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Vancouver_area_BC",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Windsor_area_ON",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Winnipeg_area_MB",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 83.3393091016799,
+				"s": 41.68186233577834,
+				"e": -52.59850538217461,
+				"w": -141.1684232546248
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Chile",
+			"value": "Chile"
+		},
+		"metroAreas": [
+			{
+				"name": "Santiago",
+				"bounds": {
+					"n": -33.26989873931834,
+					"s": -33.675937102438624,
+					"e": -70.42466069223713,
+					"w": -70.83576184430802
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": -33.26989873931834,
+				"s": -33.675937102438624,
+				"e": -70.42466069223713,
+				"w": -70.83576184430802
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "China",
+			"value": "China"
+		},
+		"metroAreas": [
+			{
+				"name": "Hong-Kong",
+				"bounds": {
+					"n": 22.564356623559547,
+					"s": 22.154348306317086,
+					"e": 114.40655583614159,
+					"w": 113.83093528837146
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 22.564356623559547,
+				"s": 22.154348306317086,
+				"e": 114.40655583614159,
+				"w": 113.83093528837146
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Colombia",
+			"value": "Colombia"
+		},
+		"metroAreas": [
+			{
+				"name": "Bogota",
+				"bounds": {
+					"n": 4.841248801940378,
+					"s": 4.457993490658591,
+					"e": -73.98521120367252,
+					"w": -74.22536243325378
+				}
+			},
+			{
+				"name": "Cali",
+				"bounds": {
+					"n": 3.5076371277006753,
+					"s": 3.2841115595267882,
+					"e": -76.45989361086974,
+					"w": -76.59502670628954
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 4.841248801940378,
+				"s": 4.457993490658591,
+				"e": -73.98521120367252,
+				"w": -74.22536243325378
+			},
+			{
+				"n": 3.5076371277006753,
+				"s": 3.2841115595267882,
+				"e": -76.45989361086974,
+				"w": -76.59502670628954
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Czech Republic",
+			"value": "Czech-Republic"
+		},
+		"metroAreas": [
+			{
+				"name": "Prague",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Denmark",
+			"value": "Denmark"
+		},
+		"metroAreas": [
+			{
+				"name": "Copenhagen",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Eretz Yisrael (Cities)",
+			"value": "Eretz_Yisroel"
+		},
+		"metroAreas": [
+			{
+				"name": "acco",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "achiezer",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "achisamach",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "achituv",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "achuzam",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "aderet",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "adiad",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "afulah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "agur",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "airport",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "alefei_menasheh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "almah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "almon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "alonei_habashan",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "alon_moreh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "alon_shvut",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "alumim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "amazia",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "amkah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "amuna",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "arad",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ariel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ashdod",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ashkolon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "atlit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "aviezer",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "avnei_chafetz",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "avnei_eiton",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "azrikam",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "barak",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bareket",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "barkan-beit_abah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bat_iyen",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "B",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bat_shlomo",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bedulach",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beerot_yitzhak",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beersheva",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beer_tuviah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beer_yaakov",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beetar_eilit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_ariyeh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_chelkiah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_choron",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_dagan",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_el",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_gamliel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_hagedi",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_hillel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_meir",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_rimon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_shemes_(old-part)",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_shean",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_shemes_combined",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_uziel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_yehoshuah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "beit_yosef",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ben_zakai",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "berechiah-hodayah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "binyaminah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "birea",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bnei_azmon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bnei_ayish",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bnei_atarot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bnei_brak_Zuriel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bnei_brak-ramat_gan-givatiyim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bnei_darom",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bnei_reem",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "bracha",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "brosh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "burgatah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "caesarea",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "calanit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "carmel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "carmiel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chaderah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chadid",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chagai",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chalamish",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chamat_geder",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chasmonaim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chavat_hashomer",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chazon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chazor_haglilit-rosh_pinah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chemed",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "cherev-laat_elyachin-kfar_haraah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chermash",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chofetz_chaim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chofit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chof_kinar",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "chorasha",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "dalton",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "dimonah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "dolev",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "dovev",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "efrata",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "eilat",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "einav",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ein_ayalah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ein_bokek",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ein_gedi_(kibbutz)",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ein_gev",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ein_hanaziv",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ein_yaakov",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ein_zurim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "eitan",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "eitanim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "el_freidis",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "elad",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "elazar",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "eli",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "elipelet",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "elkanah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "elyakim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "emanuel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "eshbol",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "eshtaohl",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "etz_efraim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "even_menachem",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "even_shmuel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "even_yehuda",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gaderah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gadid",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gamzu",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gan_ohr",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gan_yavneh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gefen",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "geulei_teman",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gibolim-melilot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gilat",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ginton",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gitit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "givat_washington",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "givat_yitzhar",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "givat_yaarim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "givat_zeev",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "givat_zeev_agan_haayalot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "givat_zeev_agan_haayalot_combined",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "givat_adah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gush_chizpin",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "gush_dan",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "haifa",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "har_shmuel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "har_yona",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Harish",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "hazorim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "hebron-kirat_arbah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Herzliah_A-kfar_smaryahu",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Herzliah_B-ramat_hasharon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "hinanit-shaked-tal_menashe",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "hosen",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "hoshayahu",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "itamar",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "jerusalem",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kadima",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "karmei_zur",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "karnei_shomron",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kazrin",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kedumim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kerem_ben_zimrah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kesalon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "keshet",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kever_schmuel_hanavi_roof",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kever_rachel-beit_lechem",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kever_rebbi_meir_baal_hanes",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_adumim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_chanannia",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_chabad",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_chasidim-rechesim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_etzion",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_gidon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_menachem",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_rosh_hanikra",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_sabah-raananah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_sirkin",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_shamai",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_tapuach",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_tavor",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_veradim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_yonah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_yaabez-ezriel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kfar_zeitim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kibutz_yavneh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_anavim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_atah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_ekron",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_gat",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_malachi",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_netafim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_ohno-sabion-yehud",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_sefer",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_sefer_water_tower",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_shemonah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_tivon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat_yaarim-camp",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kiriat-yam-mozkin-bialik",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kochav_hashachar",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "kochav_yair",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "komemiut",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "lachish",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "lavi",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "lod",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "lod_Ben_Gurion_airport",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maaleh_gilboah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maaleh_michmash",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maaleh_amos",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maaleh_adumim-mizpeh_navoh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maaleh_efraim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maaleh_levonah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maaleh_shomron",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maalot_tarsicha",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "macabim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "macheneh_yatir",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "machsiah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "malchishah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "manof",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Marchavei_David",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "margaliyyot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "masada",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "maskiot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "masuot_yizhak",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "matah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "matityahu",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mazkeret_batiah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mazor",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mecholah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "megadim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "meiron",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "meitar",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "menachemiah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "meoz_zion",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mercaz_shapirah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "metulah_top",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "metulah_bottom",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "metzad",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mevaseret_zion",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mevaseret_zion_area_(combined)",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mevoh_modyim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mevoh_charon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mevoh_dotan",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mevoot_yericho",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "meyrav",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "migdal",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "migdalim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "migdal_oz",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "migdal_haemek",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "misgav",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mishmar_hayarden",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mizadot_yehudah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mizpeh_ramon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mizpeh_nevoh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mizpeh_yericho",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "modiin",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "morag",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "moreshet",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mozah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "mozah_elit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "naaleh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nachalim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nacham",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nachliel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nahariah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "natanyah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Naveh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nazaret_eilit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nechushah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "neriah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nes_harim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nes_zionah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "neter",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "netivot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Netua",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "neveh_daniel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "neveh_ziv",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nezer_chazoni",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nili",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nirit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nir_etzion",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nir_galim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "noam",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "nokdim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ofakim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ofra",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ohel_nachum_tiberias",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ohra",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ohr_akibah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ohr_haganuz",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ohr_yehudah-ramat_pinkas-neveh_efraim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "omer",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "otniel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ozem",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "paamei_tashas",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "pakiin_chadashah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "pardes_channah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "patish",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "peduel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "pesagot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "petach_tikvah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "pnei_chever",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "porat",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "poriah_naveh_oved",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "poriah_eilit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "raananah-kfar_sabah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "rachov",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramat_beit_shemes",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramat_beit_shemes_gimmel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramat_matred",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramat_raziel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramat_yishai",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramat_magshimim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramlah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramon_airbase",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "ramot_sesh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "rechovot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "reut",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "revacha",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "revava",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "revayah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "rimonim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "rishon_lezion-nachalat_yehudah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "rosh_haeiin",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "rosh_pinah-chazor_haglilit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "rosh_zurim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "saad",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "sadeh_eliyahu",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "sadeh_trumot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "sadeh_yaakov",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "sadeh_elan",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "safed",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "sah_nor",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "schem",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "schlomi",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "sedei_chemed",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "sederot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shaalvim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shaarei_avraham",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shaarei_tikvah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Shaar_Yeshuv",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shadmot_mechulah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shagav",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shalvah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "sharsheret",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shavei_shomron",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shebolim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shiloh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shimah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shluchot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shoeva",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shoham",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shokdah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Shomera",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "shvut_rachel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "susiah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "talmon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "taoz",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tarom",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tefachot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tekoa",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tekumah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "telz_stone_ravshulman",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "telz_stone_all_mountains",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tel_aviv-bat_yam-cholon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tel_zion_kochav_yaakov",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tenah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tiberias_eilit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tiberias_old",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tifrach",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tirat_yehudah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tirat_zvi",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tirat_carmel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "tirosh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "toshiah-kfar_mimon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "vered_yericho",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yaara",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yad_binyamin",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yad_rambam",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yakir",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yavneel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yavneh",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yeruchom",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yesodot",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yesod_hamaalah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yishai",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yitzhar",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yokneam",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yonatan",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yoshiveah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "yotvatah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zafriah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zanoach",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Zarit",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zavdiel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zealim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zerachia",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zeruah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zichron_yaakov",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zimrat-shuvah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zipori",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zufim",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zuriel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "zur_hadassah",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Eretz Yisrael (Neighborhoods)",
+			"value": "Israel"
+		},
+		"metroAreas": [
+			{
+				"name": "Beit-Shemes",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Haifa",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Jerusalem",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Safed",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Tiberias",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "France",
+			"value": "France"
+		},
+		"metroAreas": [
+			{
+				"name": "Aix-En-Provence",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Aix-Les-Bains",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Colmar",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Grenoble",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Lille",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Lyon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Marseille",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Metz",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Mulhouse",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Nantes",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Nice",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Nimes",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Paris",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Strasbourg",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Toulon",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Toulouse",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Troyes",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Vichy",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Germany",
+			"value": "Germany"
+		},
+		"metroAreas": [
+			{
+				"name": "Aix-En-Provence_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Aix-Les-Bains_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Colmar_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Grenoble_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Lille_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Lyon_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Marseille_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Metz_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Mulhouse_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Nantes_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Nice_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Nimes_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Paris_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Strasbourg_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Toulon_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Toulouse_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Troyes_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Vichy_area_France",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Greece",
+			"value": "Greece"
+		},
+		"metroAreas": [
+			{
+				"name": "Athens",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Hungary",
+			"value": "Hungary"
+		},
+		"metroAreas": [
+			{
+				"name": "Budapest",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Italy",
+			"value": "Italy"
+		},
+		"metroAreas": [
+			{
+				"name": "Bologna",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Florence",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Milan",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Rome",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Mexico",
+			"value": "Mexico"
+		},
+		"metroAreas": [
+			{
+				"name": "Cuernevaca_Morelos_area",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Mexico-City",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Netherlands",
+			"value": "Netherlands"
+		},
+		"metroAreas": [
+			{
+				"name": "Amsterdam",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Panama",
+			"value": "Panama"
+		},
+		"metroAreas": [
+			{
+				"name": "Panama-City",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Poland",
+			"value": "Poland"
+		},
+		"metroAreas": [
+			{
+				"name": "Krakow",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Romania",
+			"value": "Romania"
+		},
+		"metroAreas": [
+			{
+				"name": "Bucharest",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Russia",
+			"value": "Russia"
+		},
+		"metroAreas": [
+			{
+				"name": "Moscow",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "South-Africa",
+			"value": "South-Africa"
+		},
+		"metroAreas": [
+			{
+				"name": "Cape_Town",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Johannesburg",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Spain",
+			"value": "Spain"
+		},
+		"metroAreas": [
+			{
+				"name": "Barcelona",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Madrid",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Malaga",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Marbella",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Melilla",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Switzerland",
+			"value": "Switzerland"
+		},
+		"metroAreas": [
+			{
+				"name": "Basel",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Einsiedeln",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Geneve",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Lausanne",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Lugano",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Luzern",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Zurich",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Turkey",
+			"value": "Turkey"
+		},
+		"metroAreas": [
+			{
+				"name": "Antalya",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Istanbul",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "UK and Ireland",
+			"value": "England"
+		},
+		"metroAreas": [
+			{
+				"name": "Belfast_area_Northern-Ireland",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Birmingham_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Cardiff_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Dublin_area_Ireland",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Edinburgh_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Gateshead-Newcastle_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Glasgow_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Leeds_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Leicester_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Liverpool_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "London_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Manchester_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Southend-On-Sea_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Southport_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Sunderland_area_UK",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Ukraine",
+			"value": "Ukraine"
+		},
+		"metroAreas": [
+			{
+				"name": "Berdychiv",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Bogorodichin",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Kiev",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Kolomyya",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Odessa",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Stanislau",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Uman",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Zhytomyr",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Uruguay",
+			"value": "Uruguay"
+		},
+		"metroAreas": [
+			{
+				"name": "Montevideo",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "San_Jose",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 0,
+				"s": 0,
+				"e": 0,
+				"w": 0
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "USA",
+			"value": "USA"
+		},
+		"metroAreas": [
+			{
+				"name": "Albuquerque_area_NM",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Atlanta_area_GA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Austin_area_TX",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Baltimore_area_MD",
+				"bounds": {
+					"n": 39.37284584038175,
+					"s": 39.196929900400754,
+					"e": -76.52847870077062,
+					"w": -76.71318633497582
+				}
+			},
+			{
+				"name": "Bethlehem_area_NH",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Binghamton_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Boston_area_MA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Buffalo_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Catskill_village_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Chicago_area_IL",
+				"bounds": {
+					"n": 42.06538615128075,
+					"s": 41.64350436122063,
+					"e": -87.5224642364964,
+					"w": -87.94269127045024
+				}
+			},
+			{
+				"name": "Cincinnati_area_OH",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Cleveland_area_OH",
+				"bounds": {
+					"n": 41.60126649523984,
+					"s": 41.389816633821454,
+					"e": -81.53143282285649,
+					"w": -81.88194452143432
+				}
+			},
+			{
+				"name": "Columbus_area_OH",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Dallas_area_TX",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Deal_area_NJ",
+				"bounds": {
+					"n": 40.2637053690761,
+					"s": 40.2374114346483,
+					"e": -73.98792290383342,
+					"w": -74.00998484367209
+				}
+			},
+			{
+				"name": "Denver_area_CO",
+				"bounds": {
+					"n": 39.91597036945644,
+					"s": 39.61036295108667,
+					"e": -104.59864610607839,
+					"w": -105.111570279875
+				}
+			},
+			{
+				"name": "Detroit_area_MI",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "El_Paso_area_TX",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Fort_Worth_area_TX",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Franconia_area_NH",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Harrisburg_area_PA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Hartford_area_CT",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Houston_area_TX",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Howell_area_NJ",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Indianapolis_area_IN",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Ithaca_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Jackson_area_NJ",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Kansas_City_area_MO",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Lakewood_area_NJ",
+				"bounds": {
+					"n": 40.120673594713104,
+					"s": 40.023729138530804,
+					"e": -74.15057573688577,
+					"w": -74.25958070688606
+				}
+			},
+			{
+				"name": "Liberty_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Long_Island_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Los_Angeles_area_CA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Memphis_area_TN",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Miami_area_FL",
+				"bounds": {
+					"n": 25.95493912878682,
+					"s": 25.689104483081497,
+					"e": -80.0836216503867,
+					"w": -80.33176805257612
+				}
+			},
+			{
+				"name": "Milwaukee_area_WI",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Minneapolis_area_MN",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Monroe_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Monsey_area_NY",
+				"bounds": {
+					"n": 41.22033,
+					"s": 41.05927,
+					"e": -73.99855,
+					"w": -74.1485
+				}
+			},
+			{
+				"name": "Monticello_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "New_Haven_area_CT",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "New_York_City_area_NY",
+				"bounds": {
+					"n": 40.923265616116936,
+					"s": 40.48915368126925,
+					"e": -73.69391045969228,
+					"w": -74.26794608123706
+				}
+			},
+			{
+				"name": "North_East_New_Jersey_area_NJ",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Philadelphia_area_PA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Phoenix_area_AZ",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Pittsburgh_area_PA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Providence_area_RI",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Richmond_area_VA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Rochester_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "San_Antonio_area_TX",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "San_Diego_area_CA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "San_Francisco_area_CA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Santa-Fe_area_NM",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Scranton_area_PA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Seattle_area_WA",
+				"bounds": {
+					"n": 47.73528619309127,
+					"s": 47.49180836328766,
+					"e": -122.22857239614449,
+					"w": -122.43868591312138
+				}
+			},
+			{
+				"name": "Sierra-Nevada_area_CA",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "South_Bend_area_IN",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "South_Fallsburg_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "South_Haven_area_MI",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Spring_Valley_area_NY",
+				"bounds": {
+					"n": 41.22033,
+					"s": 41.05927,
+					"e": -73.99855,
+					"w": -74.1485
+				}
+			},
+			{
+				"name": "St_Louis_area_MO",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Stamford_area_CT",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Toms-River_area_NJ",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Tuscon_area_AZ",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "WashingtonDC_area_MD",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Waterbury_area_CT",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Williams_area_AZ",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			},
+			{
+				"name": "Woodridge_area_NY",
+				"bounds": {
+					"n": 0,
+					"s": 0,
+					"e": 0,
+					"w": 0
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 71.30326274264803,
+				"s": 54.7634705812347,
+				"e": -129.7510304693756,
+				"w": -156.5324933457165
+			},
+			{
+				"n": 49.324823031429986,
+				"s": 24.969237316981467,
+				"e": -66.55052990795255,
+				"w": -124.87711223630524
+			}
+		]
+	},
+	{
+		"info": {
+			"title": "Venezuela",
+			"value": "Venezuela"
+		},
+		"metroAreas": [
+			{
+				"name": "Caracas",
+				"bounds": {
+					"n": 10.54332112480365,
+					"s": 10.393026788490136,
+					"e": -66.71786924131058,
+					"w": -67.0660398400967
+				}
+			}
+		],
+		"bounds": [
+			{
+				"n": 10.54332112480365,
+				"s": 10.393026788490136,
+				"e": -66.71786924131058,
+				"w": -67.0660398400967
+			}
+		]
+	}
+]
