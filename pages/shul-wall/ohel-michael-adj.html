@@ -7,6 +7,10 @@ layout: nothing
 <link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
 
 <style>
+	body {
+		--bs-body-color: white;
+	}
+
 	#content {
 		width: 100vw;
 		height: 100dvh;
@@ -21,47 +25,21 @@ layout: nothing
 		grid-area: 1 / 1;
 	}
 
-	#zyTrapezoid {
-        justify-self: center;
-        align-self: start;
-        width: 65%;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-    }
+	#trapezoid {
+		border-top: 147px solid #555;
+		border-left: 50px solid transparent;
+		border-right: 50px solid transparent;
+		height: 0;
+		width: 275px;
 
-	#shulBar {
-		width: 45%;
-		background-color: #2e334a;
 		justify-self: center;
-		align-self: start;
-		font-family: 'Neutro';
-		border-bottom-left-radius: 5rem;
-		border-bottom-right-radius: 5rem;
-		text-align: center;
-		z-index: 2;
-		font-size: 0.8em;
+        align-self: start;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 	}
 
 	#clock {
-		font-size: 3em;
-	}
-
-	#topBar {
-		text-align: center;
-		display: flex;
-		justify-content: space-evenly;
-		width: 55%;
-		justify-self: center;
-		align-self: start;
-		color: white;
-		z-index: 3;
+		font-size: 2em;
 		line-height: 1;
-		margin-top: 1.25rem;
-		align-items: center;
-		font-size: .8em;
-	}
-
-	#topBar > * {
-		flex: 1 1;
 	}
 
 	@keyframes blinker {
@@ -70,19 +48,21 @@ layout: nothing
 		}
 	}
 
-	#topBar svg {
+	#quickTimes svg {
 		height: 1em;
 		width: 1em;
 		vertical-align: bottom;
 	}
 
-	#topBar svg path {
+	#quickTimes svg path {
 		fill: white;
 	}
 
 	#quickTimes {
 		display: grid;
 		justify-content: center;
+		padding-bottom: .5rem;
+		font-size: 1.25em;
 	}
 
 	#quickTimes i {
@@ -90,37 +70,23 @@ layout: nothing
 		text-align: center;
 	}
 
-	#bsD {
-        font-family: 'Guttman Mantova';
-        justify-self: end;
-        line-height: 1;
-        padding-right: .75rem;
-        color: white;
-        font-size: 3rem;
-        padding-top: 1.25rem;
-        align-self: start;
-        z-index: 3;
-    }
-
 	#dataGrid {
 		width: calc(100% - 2vw);
-		height: calc(100dvh - 2.75vw - 12dvh);
+		height: calc(100dvh - 2.75vw - 2dvh);
+		margin-top: 2dvh;
 		margin-left: 1vw;
-		margin-top: 12dvh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 1.2fr 1fr 1.2fr;
+		grid-template-columns: 1.25fr 1fr 1.25fr;
 		grid-template-rows: 1fr auto auto;
-		align-items: center;
-		column-gap: 6px;
+		column-gap: 10px;
 	}
 
 	#gne {
-		height: 10dvh;
-		justify-self: start;
+		height: 12.5dvh;
+		justify-self: center;
 		align-self: start;
-		margin-top: 1rem;
-		margin-left: 1.5rem;
+		margin-top: .5rem;
 		z-index: 3;
 		border-radius: 25%;
 	}
@@ -166,7 +132,7 @@ layout: nothing
 	}
 
 	article > .langTV:nth-child(1), article > .langTV:nth-child(2) {
-		height: calc(100% - 1em - 8px);
+		padding-bottom: .5rem;
 		font-weight: bold;
 	}
 
@@ -197,6 +163,7 @@ layout: nothing
 		--bs-list-group-item-padding-y: 0.25rem;
 		--bs-list-group-border-color: #49505755;
 		--bs-list-group-item-padding-x: .35rem;
+		--bs-list-group-color: white;
 	}
 
 	#dataGrid h2 {
@@ -206,15 +173,15 @@ layout: nothing
 		margin-top: .25em;
 	}
 
-	#dataGrid > *:not(:nth-child(2)) .card {
-		background: rgba(0,0,0,.4);
+	#dataGrid .card {
+		--bs-card-bg: rgba(0,0,0,.4);
 	}
 
 	#dataGrid > *:not(:nth-child(2)):not(#megaline) {
 		font-size: 0.75em;
 	}
 
-	#dataGrid > *:not(:nth-child(2)) .card .list-group-item {
+	#dataGrid .card .list-group-item {
 		--bs-list-group-border-color: #49505755;
 		background: transparent;
 	}
@@ -234,24 +201,26 @@ layout: nothing
 	}
 
 	#jug {
-		width: 15%;
-		aspect-ratio: 1/2.5;
+		float: left;
+		width: 17.5%;
+		aspect-ratio: 1.25/1;
 		border: 5px solid white;
 		border-top: none;
 		border-radius: 7.5px;
 		display: flex;
 		flex-direction: row;
 		align-items: end;
-		margin-top: 2.5rem;
-		float: left;
-		position: relative;
+		margin-top: 1.5rem;
 		margin-right: .5rem;
+		position: relative;
 	}
 
 	#jug i {
 		position: absolute;
-		top: -2.25rem;
-		font-size: 2.5rem;
+		top: -1.25rem;
+		font-size: 1.25rem;
+		left: 50%;
+		transform: translateX(-50%);
 	}
 
 	#jugPercent {
@@ -309,14 +278,12 @@ layout: nothing
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <div id="content" data-current-page="1" data-page-count="2">
-	<div id="bsD">בס"ד</div>
 	<img id="gne" src="/assets/images/shul-wall/ohel-michael-logo.jpg" />
-	<img id="zyTrapezoid" src="/assets/images/shul-wall/square-trapezoid.svg" />
-	<div id="shulBar">Bet Midrash Ohel Michael | In the memory of <b>Michael Ben Ilanit</b></div>
+	<div id="trapezoid"></div>
 	<div id="poweredBy">
 		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l
 	</div>
-	<div id="topBar">
+	<!-- <div id="topBar">
 		<div>
 			<span data-en-date></span>
 			<hr style="margin: .25rem 0">
@@ -330,27 +297,27 @@ layout: nothing
 				<div data-tzetShab data-ikar-text='LOTL'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
 			</div>
 		</div>
-	</div>
+	</div> -->
 	<!-- <h2 id="tefila">Please keep smartphones away throughout Tefila. Connect to Hashem!</h2> -->
 	<div id="dataGrid">
 		<div style="line-height: 1.3;">
-			<h2>Weekday Tefilot</h2>
+			<h2>Official Sedarim</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="weekday">
+				<ul class="list-group list-group-flush" id="sedarim">
 				</ul>
 			</div>
-			<h2>Shabbat Tefilot</h2>
+			<h2>Weekday Shiurim</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shabbat">
+				<ul class="list-group list-group-flush" id="shiurim">
 				</ul>
 			</div>
 		</div>
-		<div>
-			<div id="noSmartphoneWithIcon">
-				<img src="/assets/images/shul-wall/no-phone.webp" id="noPhoneIcon" />
-				<p>Please keep cellphones away throughout Tefila.</p>
-			</div>
-			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .75rem;">
+		<div style="padding-top: 4.5rem;">
+			<div data-en-date class="langTV lang-en text-center"></div>
+			<div data-hb-date class="langTV lang-hb text-center"></div>
+			<hr style="margin: .15rem 0">
+			<div id="clock" class="text-center"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
+			<div class="card mb-2 mt-3" style="font-size: .75rem;">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
 					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
@@ -366,7 +333,7 @@ layout: nothing
 					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
 						<div data-zfFind="SefirathHaomer">
 							<div class="lang lang-hb" style="display: block !important;">
-								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
+								<h5 class="mb-0" style="font-size: 1.15rem;">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
 								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
 									<b>הלילה:</b>
@@ -399,27 +366,32 @@ layout: nothing
 				</ul>
 			</div>
 			<div id="jug"><i class="bi bi-fire"></i><div id="jugPercent"></div></div>
-			<h2 class="text-center">שמן למאור<br>Total Budget</h2>
-			<p>
-				<b>Money raised thus far:</b> $<span data-raised-money></span><br>
-				<b>Money needed:</b> $<span data-fundraising-money></span><br>
-			</p>
+			<h2 class="text-center">Total Budget: $<span data-raised-money></span>/$<span data-fundraising-money></span></h2>
 		</div>
 		<div style="line-height: 1.3;">
-			<h2>Official Sedarim</h2>
-			<div class="card">
-				<ul class="list-group list-group-flush" id="sedarim">
-				</ul>
+			<h2 style="text-align: center;" data-parasha data-prefix="en-hb"></h2>
+			<div id="quickTimes">
+				<div style="text-align: left; width: fit-content; line-height: 1;">
+					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
+					<div data-tzetShab data-ikar-text='LOTL'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
+				</div>
 			</div>
-			<h2>Weekday Shiurim</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shiurim">
+				<ul class="list-group list-group-flush" id="shabbat"></ul>
+			</div>
+			<h2>Weekday Tefilot</h2>
+			<div id="noSmartphoneWithIcon">
+				<img src="/assets/images/shul-wall/no-phone.webp" id="noPhoneIcon" />
+				<p>Please keep cellphones away throughout Tefila.</p>
+			</div>
+			<div class="card">
+				<ul class="list-group list-group-flush" id="weekday">
 				</ul>
 			</div>
 		</div>
 		<div id="megaline">
 			<span data-zfFind="BirchatHalevana">
-				Birkat Halvana (until the night of <span data-zfReplace="date-en-end"></span>)
+				Birkat Halevana (until the night of <span data-zfReplace="date-en-end"></span>)
 				<span data-zfFind="starts-tonight"> - Starts tonight</span>
 				<span data-zfFind="ends-tonight"> - Ends tonight</span>
 			</span>

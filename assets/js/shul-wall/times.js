@@ -37,6 +37,8 @@ const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
 
 const calList = document.querySelector('[data-zfFind="calendarFormatter"]')
 const langList = calList.getAttribute('data-langPull').split(' ')
+
+/** @type {Parameters<typeof jCal.getZmanimInfo>[2]} */
 const zmanimList = Object.fromEntries(Array.from(calList.children)
 	.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), {
 		function: timeSlot.getAttribute('data-timeGetter'),
