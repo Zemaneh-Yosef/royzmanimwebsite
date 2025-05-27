@@ -1,24 +1,14 @@
 ---
 title: Shabbat Rahimi Times
-permalink: /shabbat-design/rahimi
+permalink: /shabbat/rahimi
 breakout: true
 website: true
 ---
 
 <style>
-	#gne {
-		height: 135px;
-		justify-self: start;
-		align-self: start;
-		margin-top: 1.5rem;
-		margin-left: 1.5rem;
-		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
-	}
-
 	.maxWidthContainer {
 		width: 90rem;
-		font-family: 'Neutro';
-		color: #30344F;
+		font-family: 'Neutro', var(--bs-body-font-family);
 	}
 
 	#sidebar, .navbar {
@@ -27,24 +17,26 @@ website: true
 
 	#wrapperElement {
 		width: 100%;
-		aspect-ratio: 1/1.5;
+		aspect-ratio: 9/16;
+		overflow: hidden;
 
 		position: relative;
 		display: grid;
 
-		background-image: linear-gradient(to bottom, transparent 60%, #1f1f1f 70%), linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
+		background-image:
+		linear-gradient(to bottom, black 0%, transparent 5%, transparent 67.5%, #251810 72.5%, #251810 95%, black 100%),
+			url('/assets/images/shabbat-abstract/background_notop.png');
 		background-size: cover;
-
-		overflow: hidden;
+		background-position: center;
 	}
 
 	#zyTrapezoid {
 		justify-self: center;
 		align-self: start;
-		width: 56.5%;
-		border-top: 170px solid #12141e;
-		border-left: 115px solid transparent;
-		border-right: 115px solid transparent;
+		width: 60%;
+		border-top: 220px solid #12141e;
+		border-left: 100px solid transparent;
+		border-right: 100px solid transparent;
 		height: 0;
 	}
 
@@ -56,136 +48,68 @@ website: true
 		font-weight: 700;
 	}
 
-	#maran {
-		grid-area: 1/1;
-		align-self: end;
-		justify-self: end;
-		transform: rotateY(180deg);
-		width: 20%;
-		z-index: 3;
-		margin-bottom: -3rem;
-	}
-
-	#ryy {
-		grid-area: 1/1;
-		align-self: end;
-		justify-self: start;
-		width: 30%;
-		z-index: 3;
-	}
-
-	.lechaDodi {
-		position: absolute;
-		transform: rotateZ(7deg);
-		color: #F6E3A9;
-		font-size: 3vw;
-		text-align: center;
-		font-family: 'Guttman Mantova';
-		line-height: 1;
-	}
-
-	#lechaDodi {
-		top: 24.5vw;
-		right: 4vw;
-	}
-
-	#likratKalah {
-		top: 27.375vw;
-		right: 6.75vw;
-	}
-
-	#pnehShabbathNekabelah {
-		top: 31.5vw;
-		right: 2.5vw;
-	}
-
 	#zemanehShab {
 		align-self: start;
-		justify-self: start;
-		font-family: 'Barlow';
-		font-size: 14.25vw;
+		justify-self: center;
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		font-size: 16.5vw;
 		font-weight: 700;
-		font-style: italic;
 		color: transparent;
-		background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
+		background: linear-gradient(69deg, hsl(45, 91%, 58%) 37%, hsl(45, 91%, 72%) 50%, hsl(45, 91%, 58%) 62%);
 		-webkit-background-clip: text;
 		line-height: .85;
 		text-transform: uppercase;
-		margin-top: 12vw;
-		margin-left: 2.5vw;
+		margin-top: 4.5vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		text-align: center;
+		line-height: .4;
+		padding-top: 1vw;
+		padding-bottom: 2.5vw;
+	}
+
+	.subtitle {
+		font-size: .3em;
+		font-family: 'Cinzel';
+		color: hsl(45, 91%, 42%);
+		font-weight: 600;
+		text-transform: capitalize;
 	}
 
 	#gridElement {
-		top: 43vw;
-		grid-template-columns: 1fr .75fr .75fr .75fr;
+		align-self: center;
+		grid-template-columns: 1fr .8fr .8fr;
 		display: grid;
-		left: 2.5vw;
-		right: 2.5vw;
-		position: absolute;
-		z-index: 5;
-	}
-
-	#shabbatCandles {
-		align-self: end;
+		margin-bottom: 70vh;
+		width: 92%;
 		justify-self: center;
-		width: 60%;
-		right:0;
-		margin-bottom: 5rem;
-		z-index: 1;
-	}
-
-	#bottomWave {
-		align-self: end;
-		width: 125%;
-		z-index: 2;
-		transform: rotateY(180deg) scaleY(.6);
-		margin-bottom: -3rem;
+		align-items: center;
+		gap: 12.5px;
 	}
 
 	.timeshow {
 		text-align: center;
-		z-index: 5;
 	}
 
 	.shabbatRow {
-		margin-top: .3vw;
-		margin-bottom: .3vw;
-		padding-top: .5vw;
-		padding-bottom: .5vw;
-		font-size: 3vw;
+		font-size: 5vw;
 		font-weight: 700;
+		font-family: 'Cinzel Decorative';
+		color: white;
+		line-height: 1.1;
 	}
 
 	.timecalc {
-		background-color: #F1E79F;
-		font-weight: 700;
-		padding-left: 0.5vw;
-		padding-right: 1vw;
-		text-transform: uppercase;
-		border-right: .25vw solid black;
-		font-size: 2.75vw;
-	}
-
-	.shabbatRowBg {
-		background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
-		grid-column: 2 / span 3; 
-		margin-top: .3vw;
-		margin-bottom: .3vw;
-		z-index: 2;
+		font-family: 'Cinzel';
+		font-size: 3.5vw;
 	}
 
 	.header {
-		padding: 0.5vw;
-		background: #D9BB65;
-		margin-left: .6vw;
-		margin-right: .6vw;
-		color: black;
+		color: white;
 		text-transform: uppercase;
 		text-align: center;
 		line-height: 1.2;
 		font-weight: 600;
-		font-size: 1.8em;
+		font-size: 2rem;
 	}
 
 	.header .bi {
@@ -194,183 +118,92 @@ website: true
 		width: 2em;
 	}
 
-	.tableShadow {
-		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
-		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
-		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
+	.twoLine {
+		line-height: .4;
+		padding-top: 1vw;
 	}
 
-	.shabBorder:not(:nth-last-child(2)) {
-		border-right: .25vw solid black;
-	}
-
-	.sml {
-		font-size: 15px;
-	}
-
-	#notchLogo {
+	#location, #parashaBox {
+		align-self: center;
 		justify-self: center;
-		align-self: start;
-		width: 42.5%;
-		margin-top: 1rem;
-	}
-
-	#prettyLDSurround {
-		justify-self: end;
-		align-self: start;
-		margin-top: 12.5%;
-		width: 27.5%;
-	}
-
-	#bsD {
-		font-family: "Narkisim";
-		justify-self: end;
-		line-height: 1;
-		padding-right: 4.5rem;
-		color: #FFF2B3;
-		font-size: 6rem;
-		padding-top: 3rem;
-		align-self: start;
-	}
-
-	.shabbatTitleCore {
-		align-self: start;
-		justify-self: start;
-		font-family: 'Barlow', 'FrankRuehl';
+		font-family: 'Guttman Mantova', 'Barlow', 'FrankRuehl';
 		font-weight: 700;
 		color: white;
 		text-transform: uppercase;
-		width: 959px;
-		text-align: center;
-		margin-left: 2.5vw;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-		line-height: 1;
-		margin-top: 36vw;
-		font-size: 5vw;
-	}
-
-	#location {
-		align-self: center;
-		justify-self: center;
-		font-family: 'Barlow', 'FrankRuehl';
-		font-weight: 700;
-		color: white;
 		text-align: center;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		line-height: 1;
 		font-size: 2.5vw;
-		margin-top: 27rem;
+		margin-top: 20vh;
 	}
 
-	#templateAd {
-		align-self: center;
-		justify-self: start;
-		border-radius: 50%;
-		margin-top: 75%;
-		margin-left: 5%;
-		width: 25%;
-		z-index: 10;
-	}
-
-	#advertFooter {
-		justify-self: left;
-		text-align: left;
-		padding-left: 1rem;
-		padding-bottom: 1rem;
-		font-size: 2.25rem;
+	#parashaBox {
 		font-weight: 600;
-		line-height: 1.1;
-		z-index: 3;
-		align-self: end;
-	}
-
-	#sourcesFooter {
-		font-size: 1.5em;
-	}
-	#sourcesFooter ul {
-		line-height: 1.25;
-		margin-bottom: 0;
-	}
-
-	#credits {
-		font-size: 2.125em;
-		text-align: right;
-		line-height: 1.25;
-		font-weight: 600;
-		text-transform: uppercase;
-		font-style: italic;
-	}
-
-	#documentClosure {
-		height: 9rem;
-		align-self: end;
-		background: linear-gradient(to right, rgba(4,4,6,1) 0%, #24293D 100%);
-		color: white;
+		margin-top: 50vh;
+		font-size: 4vw;
 		display: flex;
-		justify-content: space-between;
-		padding: .5rem 1rem;
-		align-content: end;
+		flex-direction: column;
+		align-items: center;
+		align-self: start;
+	}
+
+	[data-haftara] {
+		font-family: 'Guttman Vilna', 'Barlow';
+	}
+
+	.rt {
+		display: block;
+		font-size: 2vw;
+		font-family: 'Barlow';
+	}
+
+	#appAds {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+		gap: 1rem;
+
+		justify-items: center;
+		align-items: center;
+
+		width: 25%;
+		margin-top: 68vh;
+		align-self: center;
+		justify-self: center;
+
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+	}
+
+	#appAds img {
+		width: 100%;
 	}
 
 	#rahimi {
+		width: 100%;
 		align-self: end;
-		justify-self: center;
-		margin-bottom: 9rem;
-		width: 90%;
-		z-index: 5;
+		z-index: 10;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		margin-bottom: 1rem;
 	}
 
-	.faderTri {
-		border: 10px solid;
-		border-image-slice: 1;
-		border-top: 0;
-		border-right: 0;
-		aspect-ratio: 1 / 1;
-		transform: rotateZ(-45deg);
-		border-image-source: linear-gradient(45deg, transparent 10%, #B2FF59 37%, transparent 50%);
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-		justify-self: center;
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		justify-self: end;
+		transform: rotateY(180deg);
+		width: 20%;
+		z-index: 3;
+	}
+
+	#backToSinai {
 		align-self: center;
-		overflow: hidden;
-	}
-
-	#bigTri {
-		width: 60%;
-		border-width: 15px;
-		margin-top: 20rem;
-		opacity: 40%;
-	}
-
-	#fullScrTri {
-		width: 70%;
-		margin-top: 40rem;
-		border-width: 5px;
-		opacity: 60%;
-	}
-
-	.cube-wrap {
-		position: absolute;
-	}
-
-	#appBar {
-		padding-top: 1.2rem;
-		display: flex;
-		justify-content: center;
-		width: 40%;
-		margin-left: 50%;
-		transform: translateX(-50%);
-		align-items: center;
-	}
-
-	#appBar > * {
-		flex: 1 1;
-	}
-
-	#appBar > a > img {
-		width: 90%;
+		justify-self: center;
+		margin-top: 64rem;
+		width: 36%;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 	}
 </style>
+
 <style>
 	.cube-wrap {
 		--faceSize: 100px;
@@ -461,6 +294,39 @@ website: true
 		transform-origin: top right;
 	}
 </style>
+<style>
+	.faderTri {
+		border: 10px solid;
+		border-image-slice: 1;
+		border-top: 0;
+		border-right: 0;
+		aspect-ratio: 1 / 1;
+		transform: rotateZ(-45deg);
+		border-image-source: linear-gradient(45deg, transparent 10%, #B2FF59 37%, transparent 50%);
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		justify-self: center;
+		align-self: center;
+		overflow: hidden;
+	}
+
+	#bigTri {
+		width: 60%;
+		border-width: 15px;
+		margin-top: 40rem;
+		opacity: 40%;
+	}
+
+	#fullScrTri {
+		width: 70%;
+		margin-top: 60rem;
+		border-width: 5px;
+		opacity: 60%;
+	}
+
+	.cube-wrap {
+		position: absolute;
+	}
+</style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -468,89 +334,89 @@ website: true
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
 <div id="wrapperElement">
-	<div id="zyTrapezoid"></div>
+	<!-- <div id="zyTrapezoid"></div>
 	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
-	<img id="gne" src="/assets/images/shabbat-abstract/image02.png" />
+	<img id="gne" src="/assets/images/shabbat-abstract/ashkenaziBooks.webp" />
 	<span id="bsD">בס"ד</span>
-	<!-- <img src="/assets/images/shabbat-abstract/shabbat-candles-rahimi.png" id="shabbatCandles" /> -->
-	<img src="/assets/images/shabbat-abstract/bottom-wave.png" id="bottomWave" />
+	<img src="/assets/images/shabbat-abstract/shabbat-candles-ext.png" id="shabbatCandles" />
+	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png"> -->
 	<div id="gridElement"
-        data-functions-backday-1="getCandleLighting"
-        data-functions-backday-0="getTzetMelakha getTzetRT"
-        data-flyerType="shabbat"
-    >
-        <div style="align-self: end; justify-self: center; color: white; font-size: 1.5vw;"></div>
-        <div class="header tableShadow">Shabbat Starts<br><span style="font-weight: 400;">(Candle Lighting)</span></div>
-        <div class="header tableShadow">Shabbat Ends</div>
-        <div class="header tableShadow">Rabbenu Tam</div>
-        {% for item in site.data.designLocationList.rahimi %}{% assign gridRow = forloop.index | plus: 1 %}
-            <div class="shabbatRow tableShadow timecalc {% if item.twoLine %}twoLine{% endif %}"
-                {% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
-                data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
-                data-timezone="{{ item.timezone }}"
-                data-format="{{ item.timeFormat }}"
-                {% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
-                {% if item.doubleLocation %}data-double-location{% endif %}
-                style="grid-column: 1; grid-row: {{ gridRow }};">
-                {%- assign check = item.flag | split:'.' | last -%}
-                {% if check == "svg" %}
-                    <img class="imgFlag" src="{{ item.flag }}">
-                {% else %}
-                    {{ item.flag }}
-                {% endif %}
-                {{ item.name }}
-            </div>
-            <div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: {{ gridRow }};">Start Time</div>
-            <div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: {{ gridRow }};">End Time</div>
-            <div class="shabbatRow timeshow shabBorder" style="grid-column: 4; grid-row: {{ gridRow }};">Machmir Time</div>
-            <div class="shabbatRowBg tableShadow" style="grid-row: {{ gridRow }};"></div>
-        {% endfor %}
-    </div>
-	<!-- <img src="/assets/images/shabbat-abstract/your logo here.png" id="templateAd"> -->
-	<span id="zemanehShab">Shabbat<br>Zemanim</span>
+		data-functions-backday-1="getCandleLighting"
+		data-functions-backday-0="getTzetMelakha"
+		data-flyerType="shabbat"
+		data-rt-text='R"T'
+	>
+		<div></div>
+		<div class="header tableShadow">Candle Lighting</div>
+		<div class="header tableShadow">Shabbat Ends</div>
+		{% for item in site.data.designLocationList.rahimi %}
+		<div class="shabbatRow tableShadow timecalc"
+			{% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+			data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+			data-timezone="{{ item.timezone }}"
+			data-format="{{ item.timeFormat }}"
+			{% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+			{% if item.doubleLocation %}data-double-location{% endif %}>
+			{%- assign check = item.flag | split:'.' | last -%}
+			{% if check == "svg" %}
+				<img class="imgFlag" src="{{ item.flag }}">
+			{% else %}
+				{{ item.flag }}
+			{% endif %}
+			{{ item.name }}
+		</div>
+		<div class="shabbatRow timeshow">Start Time</div>
+		<div class="shabbatRow timeshow">End Time</div>
+		{% endfor %}
+	</div>
+	<span id="zemanehShab">שבת השבועי<br><span class="subtitle">Shabbat of <span data-dateRenderFormal-backday="0"></span></span></span>
 	<div id="location">
-		Looking for more times? Want to switch locations?<br>
-		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps, available on the respective stores
-
-		<div id="appBar">
-			<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="text-align: right;"><img src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" loading="lazy"></a>
-			<div><img src="/assets/images/app-icon-full.jpeg" style="border-radius: 1.5rem; width: 60%;"></div>
-			<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="text-align: left;"><img src="/assets/images/google-play-store-8-1-73-apk.png" loading="lazy"></a>
+		Times taken from our app (<img src="/assets/images/shabbat-abstract/zy-logo.png" style="height: 1.75ch;"> - <span style="font-size: .8em;">Zemaneh Yosef</span>)<br>
+		Available on the Google Play Store & Apple App Store
+	</div>
+	<div id="parashaBox">
+		<div class="shabbatTitleCore" style="font-size: 6vw;">פרשת </div>
+		<div style="text-align: left;">
+			<div data-haftara><img src="/assets/images/shabbat-abstract/megila-icon.png" style="height: 1.5ch; vertical-align: inherit; aspect-ratio: 1/1;">Haftara: </div>
+			<div data-makam><span style="color: transparent;
+				text-shadow: 0 0 0 white;
+				display: inline-block;
+				margin-left: -1rem;
+				font-size: .75em;
+				aspect-ratio: 1/1;">🎵</span>Makam </div>
 		</div>
 	</div>
-	<span class="shabbatTitleCore">פרשת </span>
-	<img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
-	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
-	<span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
-	<span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
-	<img id="rahimi" src="/assets/images/shabbat-abstract/r-rahimi-text.png" />
+	<!-- <div id="appAds">
+		<img src="/assets/images/app-icon-full.jpeg" style="border-radius: 1.5rem; grid-column: 1 / span 2; width: 40%; margin-bottom: -1.5rem;">
+		<!--<img src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" loading="lazy">
+		<img src="/assets/images/google-play-store-8-1-73-apk.png" loading="lazy">
+	</div>-->
 	<div id="bigTri" class="faderTri"></div>
 	<div id="fullScrTri" class="faderTri"></div>
-	<div id="advertFooter">
-		<span style="font-weight: 800;">Sources for the times:</span><br><b style="font-weight: 700;">Yabia' Omer</b> 2:21 • royzmanim.com
+	<img id="backToSinai" src="/assets/images/shabbat-abstract/image02.png">
+
+	<div class="cube-wrap" style="right: 0; top: 70%;">
+		<div class="cube depth">
+			<div class="front-pane"></div>
+			<div class="back-pane"></div>
+			<div class="top-pane"></div>
+			<div class="bottom-pane"></div>
+			<div class="left-pane"></div>
+			<div class="right-pane"></div>
+		</div>
 	</div>
+	<div class="cube-wrap" style="left: 0; top: 90%;">
+		<div class="cube depth">
+			<div class="front-pane"></div>
+			<div class="back-pane"></div>
+			<div class="top-pane"></div>
+			<div class="bottom-pane"></div>
+			<div class="left-pane"></div>
+			<div class="right-pane"></div>
+		</div>
+	</div>
+	<img src="/assets/images/shabbat-abstract/r-rahimi-text.png" id="rahimi">
 	<img src="/assets/images/MARAN.png" id="maran">
-	<!-- <img src="/assets/images/shabbat-abstract/ryy-rdy-glima.png" id="ryy"> -->
-	<div class="cube-wrap" style="right: 0; top: 60%;">
-		<div class="cube depth">
-			<div class="front-pane"></div>
-			<div class="back-pane"></div>
-			<div class="top-pane"></div>
-			<div class="bottom-pane"></div>
-			<div class="left-pane"></div>
-			<div class="right-pane"></div>
-		</div>
-	</div>
-	<div class="cube-wrap" style="left: 0; top: 80%;">
-		<div class="cube depth">
-			<div class="front-pane"></div>
-			<div class="back-pane"></div>
-			<div class="top-pane"></div>
-			<div class="bottom-pane"></div>
-			<div class="left-pane"></div>
-			<div class="right-pane"></div>
-		</div>
-	</div>
 </div>
 
 <script type="module" src="/assets/js/flyers/multiZman.js"></script>

@@ -250,6 +250,13 @@ for (const d8Displ of document.querySelectorAll('[data-dateRenderSY-backday]')) 
 		`${daysForLocale('en')[d8jCal.getDate().dayOfWeek]}, ${monthForLocale('en', 'short')[d8jCal.getDate().month]} ${getOrdinal(d8jCal.getDate().day, true)}, ${d8jCal.getGregorianYear()}`;
 }
 
+for (const d8Displ of document.querySelectorAll('[data-dateRenderFormal-backday]')) {
+	const d8jCal = jCal.clone();
+	d8jCal.setDate(shabbatDate.subtract({ days: parseInt(d8Displ.getAttribute('data-dateRenderFormal-backday')) }));
+
+	d8Displ.innerHTML = jCal.dateRenderer('en').primary.text;
+}
+
 for (const yearDisplay of document.querySelectorAll('[data-yearRender]')) {
 	const yNum = jCal.getDate().withCalendar(yearDisplay.getAttribute('data-yearRender').replace('Parsed', '')).year
 	if (yearDisplay.getAttribute('data-yearRender').endsWith('Parsed'))
@@ -297,7 +304,7 @@ for (const elem of elems) {
 
 			/** @type {KosherZmanim.Temporal.ZonedDateTime} */
 			// @ts-ignore
-			let time = currentCalc[timeFunc]()
+			let time = zDTFromFunc(currentCalc[timeFunc]())
 
 			if (document.getElementById('gridElement').getAttribute('data-flyerType') == 'shovavim') {
 				// @ts-ignore
@@ -335,7 +342,7 @@ for (const elem of elems) {
 				if (elem.hasAttribute('data-humra'))
 					rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
 	
-				editElem.innerHTML += ` / <span class="explanation">(${document.getElementById('gridElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
+				editElem.innerHTML += `<span class="rt">(${document.getElementById('gridElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
 			}
 		}
 	}
@@ -452,6 +459,15 @@ if (document.getElementById('gridElement').hasAttribute('data-hasMakam')) {
 		makamContainer.innerHTML += makam.makam
 			.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
 			.join(" / ");
+} else {
+	for (const makamContainer of document.querySelectorAll('[data-makam]'))
+		// @ts-ignore
+		makamContainer.style.display = "none";
+}
+
+for (const haftara of document.querySelectorAll('[data-haftara]')) {
+	const haftaraText = KosherZmanim.Haftara.getThisWeeksHaftarah(jCal).text;
+	haftara.innerHTML += (haftaraText.length ? haftaraText : "No Haftara");
 }
 
 /**

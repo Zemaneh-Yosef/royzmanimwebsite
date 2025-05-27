@@ -1,26 +1,14 @@
 ---
 title: Shabbat Brooklyn Times
-permalink: /shabbat-design/brooklyn
+permalink: /shabbat/brooklyn
 breakout: true
 website: true
 ---
 
 <style>
-	#gne {
-		border-radius: 50%;
-		height: 200px;
-		aspect-ratio: 1/1;
-		justify-self: start;
-		align-self: start;
-		margin-top: 1rem;
-		margin-left: 2.5rem;
-		background-color: white;
-	}
-
 	.maxWidthContainer {
 		width: 90rem;
-		font-family: 'Neutro';
-		color: #30344F;
+		font-family: 'Neutro', var(--bs-body-font-family);
 	}
 
 	#sidebar, .navbar {
@@ -34,7 +22,9 @@ website: true
 		position: relative;
 		display: grid;
 
-		background-image: linear-gradient(45deg, rgba(4,4,6,1) 0%, rgba(86,97,145,1) 100%);
+		background-image:
+		linear-gradient(to bottom, black 0%, transparent 5%, transparent 95%, black 100%),
+			url('/assets/images/shabbat-abstract/background.png');
 		background-size: cover;
 	}
 
@@ -56,60 +46,18 @@ website: true
 		font-weight: 700;
 	}
 
-	#maran {
-		grid-area: 1/1;
-		align-self: end;
-		justify-self: start;
-		width: 33%;
-		z-index: 3;
-		margin-bottom: 9rem;
-	}
-
-	#prettyLDSurround {
-		justify-self: end;
-		align-self: start;
-		margin-top: 12%;
-		width: 24.5%;
-	}
-
-	.lechaDodi {
-		position: absolute;
-		transform: rotateZ(7deg);
-		color: #F6E3A9;
-		font-size: 2.25vw;
-		text-align: center;
-		font-family: 'Guttman Mantova';
-		line-height: 1;
-	}
-
-	#lechaDodi {
-		top: 23vw;
-		right: 4vw;
-	}
-
-	#likratKalah {
-		top: 25.5vw;
-		right: 6.75vw;
-	}
-
-	#pnehShabbathNekabelah {
-		top: 29vw;
-		right: 2.5vw;
-	}
-
 	#zemanehShab {
 		align-self: start;
-		justify-self: start;
+		justify-self: center;
 		font-family: 'Neutro', 'Frank Ruhl Libre';
-		font-size: 19vw;
+		font-size: 16vw;
 		font-weight: 700;
 		color: transparent;
-		background: linear-gradient(69deg, rgba(215,185,97,1) 37%, rgba(242,231,167,1) 50%, rgba(215,185,97,1) 62%);
+		background: linear-gradient(69deg, hsl(45, 91%, 58%) 37%, hsl(45, 91%, 72%) 50%, hsl(45, 91%, 58%) 62%);
 		-webkit-background-clip: text;
 		line-height: .85;
 		text-transform: uppercase;
-		margin-top: 16vw;
-		margin-left: 1vw;
+		margin-top: 4vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		text-align: center;
 		line-height: .4;
@@ -120,72 +68,39 @@ website: true
 	.shabbatTitleCore {
 		font-size: .4em;
 		font-family: 'Guttman Mantova';
-		color: #F6E3A9;
+		color: hsl(45, 91%, 42%);
 		font-weight: 500;
 	}
 
 	#gridElement {
 		align-self: center;
-		grid-template-columns: 1fr 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr;
 		display: grid;
-		width: calc(100% - 5vw);
-		margin-left: 2.5vw;
-		z-index: 3;
-		margin-bottom: 50vh;
-	}
-
-	#shabbatCandles {
-		align-self: end;
-		justify-self: end;
-		width: 80%;
-		right:0;
-		margin-bottom: 18rem;
-		z-index: 1;
-		opacity: 50%;
+		margin-bottom: 40vh;
+		width: 88%;
+		justify-self: center;
 	}
 
 	.timeshow {
 		text-align: center;
-		z-index: 5;
 	}
 
 	.shabbatRow {
-		margin-top: .3vw;
-		margin-bottom: .3vw;
-		padding-top: .3vw;
-		padding-bottom: .3vw;
-		font-size: 4.4vw;
+		font-size: 6.5vw;
 		font-weight: 700;
-	}
-
-	.timecalc {
-		background-color: #F1E79F;
-		font-weight: 700;
-		padding-left: 0.5vw;
-		padding-right: 1vw;
-		text-transform: uppercase;
-		border-right: .25vw solid black;
-	}
-
-	.shabbatRowBg {
-		background: linear-gradient(90deg, rgba(197,172,90,1) 0%, rgba(235,214,149,1) 100%);
-		grid-column: 1 / span 4; 
-		margin-top: .3vw;
-		margin-bottom: .3vw;
-		z-index: 2;
+		font-family: 'Cinzel Decorative';
+		color: white;
+		line-height: 1;
 	}
 
 	.header {
-		padding: 0.5vw;
-		background: #D9BB65;
-		margin-left: .6vw;
-		margin-right: .6vw;
-		color: black;
+		margin-top: 5rem;
+		color: white;
 		text-transform: uppercase;
 		text-align: center;
 		line-height: 1.2;
 		font-weight: 600;
-		font-size: 2.15em;
+		font-size: 2.5rem;
 	}
 
 	.header .bi {
@@ -194,41 +109,9 @@ website: true
 		width: 2em;
 	}
 
-	.tableShadow {
-		box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
-		-webkit-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
-		-moz-box-shadow: 0px 1px 5px 5px rgba(0,0,0,0.25);
-	}
-
-	.shabBorder:not(:nth-last-child(2)) {
-		border-right: .25vw solid black;
-	}
-
 	.twoLine {
 		line-height: .4;
 		padding-top: 1vw;
-	}
-
-	.sml {
-		font-size: 10px;
-	}
-
-	#notchLogo {
-		justify-self: center;
-		align-self: start;
-		width: 42.5%;
-		margin-top: 1rem;
-	}
-
-	#bsD {
-		font-family: "Narkisim";
-		justify-self: end;
-		line-height: 1;
-		padding-right: 4.5rem;
-		color: #FFF2B3;
-		font-size: 6rem;
-		padding-top: 3rem;
-		align-self: start;
 	}
 
 	#location/*, .shabbatTitleCore*/ {
@@ -238,108 +121,72 @@ website: true
 		font-weight: 700;
 		color: white;
 		text-transform: uppercase;
-		width: 959px;
 		text-align: center;
-		margin-left: 2.5vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		line-height: 1;
-		margin-top: 9vw;
+		margin-top: 50vh;
 		font-size: 4vw;
 	}
 
-	#templateAd {
-		align-self: center;
+	#royCorner {
 		justify-self: start;
-		border-radius: 50%;
-		margin-top: 75%;
-		margin-left: 5%;
-		width: 25%;
-		z-index: 10;
-	}
-
-	#advertFooter {
-		padding-bottom: .5rem;
-		padding-top: .5rem;
-		padding-left: 29.75rem;
-		font-size: 1.69rem;
-		font-weight: 600;
-		line-height: 1.1;
-		z-index: 2;
 		align-self: end;
-		margin-bottom: 9rem;
-
-		width: 100%;
-		background-image: linear-gradient(to right, #F3E6A6, #D7BB63);
+		width: 32.5%;
 	}
 
-	#sourcesFooter {
-		font-size: 1.5em;
-	}
-	#sourcesFooter ul {
-		line-height: 1.25;
-		margin-bottom: 0;
-	}
-
-	#credits {
-		font-size: 2.125em;
-		text-align: right;
-		line-height: 1.25;
-		font-weight: 600;
-		text-transform: uppercase;
-		font-style: italic;
-	}
-
-	#documentClosure {
-		height: 9rem;
-		align-self: end;
-		background: linear-gradient(to right, rgba(4,4,6,1) 0%, #24293D 100%);
-		color: white;
-		display: flex;
-		justify-content: space-between;
-		padding: .5rem 1rem;
-		align-content: end;
-	}
-
-	#ashkenaziAd {
+	#hoCorner {
 		justify-self: end;
 		align-self: end;
-		width: 47.5%;
-		margin-bottom: 75vh;
-		z-index: 10;
+		width: 32.5%;
+		text-align: right;
+		position: relative;
 	}
 
-	#rdy {
-		justify-self: start;
-		align-self: end;
-		width: 30%;
-		margin-bottom: 4rem;
+	#oykids {
+		width: 90%;
+		margin-bottom: -1.5rem;
+	}
+
+	#maran {
+		width: 60%;
+		margin-bottom: -2.5rem;
+		transform: rotateY(180deg);
+		z-index: 2;
+		position: relative;
+	}
+
+	#book {
+		position: absolute;
+		width: 35%;
+		top: 8rem;
+		left: 3.5rem;
 		z-index: 1;
 	}
 
-	#appIcon {
-        justify-self: end;
-        align-self: end;
-        height: 147.5px;
-        width: 147.5px;
-        z-index: 7;
-        filter: drop-shadow(-3px 0 2px rgba(0,0,0,.6));
-		margin-bottom: 9rem;
-    }
-
-	#makam {
-		align-self: center;
-		justify-self: end;
-		font-family: 'Barlow', 'FrankRuehl';
-		font-weight: 600;
-		color: white;
-		text-transform: uppercase;
-		width: 475px;
+	.cornerAd > div {
 		text-align: center;
-		margin-right: 1.5rem;
+		padding: 2rem;
+		background: #00000088;
+		color: white;
+		font-size: 1.8rem;
+		line-height: 1.3;
+		font-weight: 600;
+		text-transform: uppercase;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-		line-height: 1;
-		margin-top: 1vw;
-		font-size: 3vw;
+		z-index: 3;
+		position: relative;
+	}
+
+	#royCorner > div {
+		border-top-right-radius: 2rem;
+	}
+
+	#hoCorner > div {
+		border-top-left-radius: 2rem;
+	}
+
+	.cornerAd > div > img {
+		width: 60%;
 	}
 </style>
 
@@ -349,12 +196,12 @@ website: true
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
 <div id="wrapperElement">
-	<div id="zyTrapezoid"></div>
+	<!-- <div id="zyTrapezoid"></div>
 	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
 	<img id="gne" src="/assets/images/shabbat-abstract/ashkenaziBooks.webp" />
 	<span id="bsD">בס"ד</span>
 	<img src="/assets/images/shabbat-abstract/shabbat-candles-ext.png" id="shabbatCandles" />
-	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png">
+	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png"> -->
 	<div id="gridElement"
 		data-functions-backday-1="getPlagHaminhaHalachaBrurah getCandleLighting"
 		data-functions-backday-0="getTzetMelakha getTzetRT"
@@ -363,52 +210,44 @@ website: true
 	>
 		<div class="header tableShadow">Earliest Time</div>
 		<div class="header tableShadow">Candle Lighting</div>
-		<div class="header tableShadow">Shabbat Ends</div>
-		<div class="header tableShadow">Rabbenu Tam</div>
 		<div class="shabbatRow tableShadow timecalc"
 			data-lat="40.622795584652465" data-lng="-73.96960885888677"
 			data-timezone="America/New_York"
 			data-format="h12"
 			style="display: none;">
 		</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-column: 1; grid-row: 2;">Early Time</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-column: 2; grid-row: 2;">Start Time</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-column: 3; grid-row: 2;">End Time</div>
-		<div class="shabbatRow timeshow shabBorder" style="grid-column: 4; grid-row: 2;">Machmir Time</div>
-		<div class="shabbatRowBg tableShadow" style="grid-row: 2;"></div>
+		<div class="shabbatRow timeshow">Early Time</div>
+		<div class="shabbatRow timeshow">Start Time</div>
+		<div class="header tableShadow">Shabbat Ends</div>
+		<div class="header tableShadow">Rabbenu Tam</div>
+		<div class="shabbatRow timeshow">End Time</div>
+		<div class="shabbatRow timeshow">Machmir Time</div>
 	</div>
-	<div id="makam" data-makam><span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>Makam<span style="display: inline-block; padding-right: .35rem;"></span> </div>
 	<span id="zemanehShab">זמני שבת<br><span class="shabbatTitleCore">פרשת </span></span>
-	<div id="location">Brooklyn, NY</div>
-	<img id="prettyLDSurround" src="/assets/images/shabbat-abstract/pretty-LD-surround.png">
-	<span id="lechaDodi" class="lechaDodi">לְכָה דוֹדִי</span>
-	<span id="likratKalah" class="lechaDodi">לִקְרַאת כַּלָּה</span>
-	<span id="pnehShabbathNekabelah" class="lechaDodi">פְּנֵי שַׁבָּת נְקַבְּלָה</span>
-	<img src="/assets/images/shabbat-abstract/ashkenaziBooks-ad-hanuka.svg" id="ashkenaziAd">
-	<div id="advertFooter">
-		<span style="font-weight: 700; font-size: 1.20em; text-transform: uppercase;">
-			Sepharadic Halachic Times<br>according to <span style="font-weight: 800;">Rabbi Ovadia Yosef</span> zt"l
-		</span><br>
-		Looking for more times? Want to switch locations?<br>
-		Use our <span style="text-transform: lowercase;">i</span>OS & Android apps,
-		or visit our website • royzmanim.com
+	<div id="location">
+		Times for Brooklyn, NY,<br>
+		Pulled from <img src="/assets/images/shabbat-abstract/zy-logo.png" style="height: 2ch;">
 	</div>
-	<div id="documentClosure">
-		<div id="sourcesFooter">
-			<b>Sources:</b>
-			<ul>
-				<li><b>Halacha Berurah</b> - Introduction to 261:21</li>
-				<li><b>Yechave Da'at</b> 7:56</li>
-				<li><b>Yabia' Omer</b> 2:21</li>
-			</ul>
-		</div>
-		<div id="credits">
-			Graphic Design by<br>
-			AK-Graphics<br>
-			(917) 549-5138
+	<div id="royCorner" class="cornerAd">
+		<div>
+			<div style="font-weight: 800; font-family: 'Barlow'; font-size: 1.25em;" data-dateRender-backday="0"></div>
+			<div data-makam><span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>Makam </div>
+			<div data-haftara><img src="/assets/images/shabbat-abstract/megila-icon.png" style="height: 1.5ch; vertical-align: inherit;"> Haftara: </div>
+			<hr style="margin: .5rem 0;">
+			Visit our website:
+			ROYZMANIM.COM
 		</div>
 	</div>
-	<img src="/assets/images/MARAN.png" id="maran">
+	<div id="hoCorner" class="cornerAd">
+		<img src="/assets/images/shabbat-abstract/MARAN.png" id="maran">
+		<img src="/assets/images/shabbat-abstract/shabbat-ho.png" id="book">
+		<div>
+			<span style="font-size: 1.75em; font-weight: 800; font-family: 'Barlow', 'Neutro', var(--bs-body-font-family);">ḤAZON OVADIA</span><br>
+			<span style="font-family: 'Catalish Huntera'; text-transform: none; font-weight: 300;">Shabbat Laws in a<br>2-volume English Set</span><br>
+			<hr style="margin: .5rem 0;">
+			Ashkenazibooks.com
+		</div>
+	</div>
 </div>
 
 <script type="module" src="/assets/js/flyers/multiZman.js"></script>

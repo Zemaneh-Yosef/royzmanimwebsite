@@ -145,7 +145,7 @@ async function updateList(event) {
 	 && q.replace('(', '').replace(')', '').replaceAll(' ', '').split(',').every(val => !isNaN(val) && !isNaN(parseFloat(val)))) {
 		if (elements.manual.container.classList.contains('d-none')) {
 			elements.manual.container.classList.remove('d-none');
-			requestAnimationFrame(() => elements.manual.map.scrollIntoView());
+			requestAnimationFrame(() => elements.manual[navigator.onLine ? 'map' : 'timezoneSelect'].scrollIntoView());
 		}
 
 		const [lat, lng] = q.replace('(', '').replace(')', '').split(',').map(num=>parseFloat(num))
@@ -170,11 +170,10 @@ async function updateList(event) {
 			if (elements.manual.locationNameInput.value)
 				geoLocation.locationName = elements.manual.locationNameInput.value
 
-			/** @type {Omit<GeolocationPosition, 'coords' | 'toJSON'> & { coords: Partial<GeolocationCoordinates>}} */
+			/** @type {Omit<GeolocationPosition, 'coords' | 'toJSON'> & { coords: Partial<{ -readonly [key in keyof GeolocationCoordinates]: GeolocationCoordinates[key]}>}} */
 			const params = { timestamp: new Date().getTime(), coords: { latitude: lat, longitude: lng } }
 			if (elements.manual.elevationInput.value) {
 				params.coords.altitude = parseFloat(elements.manual.elevationInput.value);
-				params.coords.altitudeAccuracy = true
 			}
 
 			await setLatLong(params, !elements.manual.timezoneSelect.value);
@@ -264,8 +263,11 @@ async function updateList(event) {
 					elements.icons.container.style.paddingLeft = '1rem';
 					elements.icons.container.style.paddingRight = '1rem';
 	
-					const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(errorAlert ? 'zipToast' : 'inaccessibleToast'))
-					toastBootstrap.show()
+					if ('bootstrap' in window) {
+						// @ts-ignore
+						const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(errorAlert ? 'zipToast' : 'inaccessibleToast'))
+						toastBootstrap.show()
+					}
 					return;
 				}
 
@@ -553,6 +555,7 @@ const networkStatus = {
 
 document.addEventListener("DOMContentLoaded", function(){
 	if (urlParams.get('modalShow') == 'tekufa') {
+		// @ts-ignore
 		window.bootstrap.Modal.getOrCreateInstance(document.getElementById("tekufaModal")).show()
 	}
 
@@ -586,4 +589,5 @@ Intl.supportedValuesOf("timeZone")
 	.filter(tz => tz !== Intl.DateTimeFormat().resolvedOptions().timeZone)
 	.forEach(tz => appendOptionToTZSel(tz))
 
+// @ts-ignore
 window.elements = elements;
