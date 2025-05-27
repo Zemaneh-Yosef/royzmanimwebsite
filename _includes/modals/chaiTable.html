@@ -21,7 +21,7 @@
 				<md-outlined-select id="{{location.info.value}}MetroArea" label="MA of {{ location.info.title }}">
 					<md-select-option selected aria-label="blank"></md-select-option>
 					{% for mA in location.metroAreas %}
-					<md-select-option value="{{forloop.index0}}"
+					<md-select-option value="{{forloop.index}}"
 					data-bounds='{"n":{{mA.bounds.n}}, "s":{{mA.bounds.s}}, "e":{{mA.bounds.e}}, "w":{{mA.bounds.w}}}'>
 						<div slot="headline">{{ mA.name | replace: "_", " " }}</div>
 					</md-select-option>

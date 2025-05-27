@@ -254,7 +254,7 @@ export default class ChaiTables {
 				submitBtn.setAttribute('disabled', '')
 				submitBtn.classList.add("sbmitl")
 				const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
-				this.setOtherData(selectors[0].value, parseInt(selectors[selectors.indexOf(selectedMASel)].selectedOptions.item(0).value));
+				this.setOtherData(selectors[0].value, parseInt(selectedMASel.selectedOptions[0].value));
 				const ctData = await this.formatInterfacer();
 
 				if (!ctData.times.length) {
