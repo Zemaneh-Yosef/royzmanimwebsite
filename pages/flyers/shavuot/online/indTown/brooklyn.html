@@ -1,0 +1,201 @@
+---
+title: Shavuot Brooklyn Times
+permalink: /shavuot/brooklyn
+breakout: true
+website: true
+---
+
+<style>
+	.maxWidthContainer {
+		width: 90rem;
+		font-family: 'Neutro', var(--bs-body-font-family);
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1/1.3;
+
+		position: relative;
+		display: grid;
+
+		background-image:
+		linear-gradient(to bottom, black 0%, transparent 15%, transparent 95%, black 100%),
+			url('/assets/images/shabbat-abstract/shavuot-bg.png');
+		background-size: cover;
+		background-position: center;
+	}
+
+	#zyTrapezoid {
+		justify-self: center;
+		align-self: start;
+		width: 60%;
+		border-top: 220px solid #12141e;
+		border-left: 100px solid transparent;
+		border-right: 100px solid transparent;
+		height: 0;
+	}
+
+	#wrapperElement > *:not(.lechaDodi) {
+		grid-area: 1/1;
+	}
+
+	.footerBold {
+		font-weight: 700;
+	}
+
+	#zemanehShab {
+		align-self: start;
+		justify-self: center;
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		font-size: 16vw;
+		font-weight: 700;
+		color: transparent;
+		background: linear-gradient(69deg, hsl(111, 52%, 50%) 37%, hsl(111, 52%, 68%) 50%, hsl(111, 52%, 50%) 62%);
+		background-clip: text;
+		line-height: .85;
+		text-transform: uppercase;
+		margin-top: 3vw;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		text-align: center;
+		line-height: .6;
+		padding-top: 1vw;
+		padding-bottom: 4.5vw;
+	}
+
+	.shabbatTitleCore {
+		font-size: .4em;
+		font-family: 'Guttman Mantova';
+		color: hsl(45, 91%, 42%);
+		font-weight: 500;
+	}
+
+	#gridElement {
+		align-self: center;
+		grid-template-columns: 1fr 1fr 1fr;
+		display: grid;
+		width: 88%;
+		justify-self: center;
+		margin-top: 25vh;
+	}
+
+	.timeshow {
+		text-align: center;
+	}
+
+	.shabbatRow {
+		font-size: 5.25vw;
+		font-weight: 700;
+		font-family: 'Cinzel Decorative';
+		color: white;
+		line-height: 1;
+	}
+
+	.header {
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1.2;
+		font-weight: 600;
+		font-size: 2.5rem;
+		margin-top: 4rem;
+	}
+
+	.dateHeader {
+		font-family: 'Barlow', 'FrankRuehl';
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		font-size: 3.5rem;
+		grid-column: 1 / span 3;
+		margin-bottom: -3rem;
+	}
+
+	.dateHeader:not(:first-child) {
+		margin-top: 6rem;
+	}
+
+	.twoLine {
+		line-height: .4;
+		padding-top: 1vw;
+	}
+
+	#location {
+		align-self: start;
+		justify-self: center;
+		font-family: 'Barlow', 'FrankRuehl';
+		font-weight: 700;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+		margin-top: 32.5vh;
+		font-size: 3.5vw;
+	}
+
+	#maran {
+		justify-self: start;
+		align-self: end;
+		width: 20%;
+	}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Frank+Ruhl+Libre:wght@300..900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<!-- <div id="zyTrapezoid"></div>
+	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
+	<img id="gne" src="/assets/images/shabbat-abstract/ashkenaziBooks.webp" />
+	<span id="bsD">בס"ד</span>
+	<img src="/assets/images/shabbat-abstract/shabbat-candles-ext.png" id="shabbatCandles" />
+	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png"> -->
+	<div id="gridElement"
+		data-functions-backday-2="getCandleLighting getTzet getSolarMidnight"
+		data-functions-backday-1="getAlotHashahar getMisheyakir getNetz getPlagHaminhaHalachaBrurah getShkiya getTzetHumra"
+		data-functions-backday-0="getTzetMelakha"
+		data-flyerType="yomTov"
+	>
+		<div class="header dateHeader" data-dateRender-backday="2"></div>
+		<div class="header">Candle Lighting</div>
+		<div class="header">Nightfall (Kiddush)</div>
+		<div class="header">Midnight</div>
+		<div class="shabbatRow timecalc"
+			data-lat="40.622795584652465" data-lng="-73.96960885888677"
+			data-timezone="America/New_York"
+			data-format="h12"
+			style="display: none;">
+		</div>
+		<div class="shabbatRow timeshow">Early Time</div>
+		<div class="shabbatRow timeshow">Early Time</div>
+		<div class="shabbatRow timeshow">Start Time</div>
+		<div class="header dateHeader" data-dateRender-backday="1"></div>
+		<div class="header">Dawn</div>
+		<div class="header">Earliest Tallit</div>
+		<div class="header">Netz</div>
+		<div class="shabbatRow timeshow">End Time</div>
+		<div class="shabbatRow timeshow">Machmir Time</div>
+		<div class="shabbatRow timeshow">Machmir Time</div>
+		<div class="header">Pelag Ha'Minḥa</div>
+		<div class="header">Sunset</div>
+		<div class="header">Candle Lighting</div>
+		<div class="shabbatRow timeshow">End Time</div>
+		<div class="shabbatRow timeshow">Machmir Time</div>
+		<div class="shabbatRow timeshow">Machmir Time</div>
+		<div class="header dateHeader" data-dateRender-backday="0"></div>
+		<div class="header" style="grid-column-end: span 3;">Yom Tov Concludes</div>
+		<div class="shabbatRow timeshow" style="grid-column-end: span 3;">End Time</div>
+	</div>
+	<span id="zemanehShab">זמני שבועות</span>
+	<div id="location">
+		<div style="font-size: 1.6em;">Brooklyn, NY (<span data-yearRender="iso8601"></span>)</div>
+		Halachic Times from <img src="/assets/images/shabbat-abstract/zy-logo.png" style="height: 2ch;">
+	</div>
+	<img src="/assets/images/MARAN.png" id="maran">
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>

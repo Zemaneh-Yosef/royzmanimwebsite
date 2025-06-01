@@ -4,7 +4,6 @@ import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 import { settings } from "../settings/handler.js"
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js"
-import rYisraelizmanim from "./shabbat-rYisraeli.js";
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
 
@@ -30,16 +29,14 @@ const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
 const ohrHachaimCal = new ZemanFunctions(fallbackGL, { elevation: true, melakha: {minutes: 30, degree: 7.165}, rtKulah: false, fixedMil: true, candleLighting: 20 });
 const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melakha: {minutes: 30, degree: 7.165}, rtKulah: true, fixedMil: false, candleLighting: 20 });
-const rYisraeliCal = new rYisraelizmanim(fallbackGL, { elevation: false, melakha: null, rtKulah: null, fixedMil: false, candleLighting: 20 });
 
 /** @type {string[]} */
 let calendars = [];
-const jCal = new WebsiteLimudCalendar(5785, KosherZmanim.JewishDate.NISSAN, 22)
+const jCal = new WebsiteLimudCalendar();
 let shabbatDate = jCal.getDate();
 
 switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
-	case 'shabbat':
-	case 'yomTov': {
+	case 'shabbat': {
 		const jCalShabbat = (new WebsiteLimudCalendar()).shabbat();
 		jCalShabbat.back();
 
@@ -58,6 +55,14 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			for (const title of document.getElementsByClassName('shabbatTitleCore'))
 				title.innerHTML = parashaText + " " + jCal.formatJewishYear().hebrew
 		}
+		break;
+	} case 'yomTov': {
+		let tempJcal = jCal.clone();
+		while (!tempJcal.isYomTov() || (tempJcal.isYomTov() && tempJcal.tomorrow().isYomTov()))
+			tempJcal = tempJcal.tomorrow();
+
+		shabbatDate = tempJcal.getDate();
+		jCal.setDate(shabbatDate);
 		break;
 	} case 'fast': {
 		if (!jCal.isTaanis())
@@ -167,12 +172,12 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			hour: 'numeric',
 			minute: '2-digit'
 		}]
-		
+
 		for (let i = 0; i <= 7; i++) {
 			const buildObj = {
 				plagHamincha: calc.getPlagHaminhaHalachaBrurah()
 			};
-		
+
 			if (jCal.getDate().dayOfWeek == 5)
 				timeSchedule.push({
 					...buildObj,
@@ -190,7 +195,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 					/** @type {KosherZmanim.Temporal.ZonedDateTime} */
 					// @ts-ignore
 					let time = calc[shita]();
-		
+
 					if (time.second >= 21)
 						time = time.add({ minutes: 1 }).with({second: 0});
 
@@ -199,7 +204,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 
 				timeSchedule.push(ourObj);
 			}
-		
+
 			jCal.setDate(jCal.getDate().add({days: 1}))
 			calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
 		}
@@ -269,8 +274,7 @@ const elems = document.getElementsByClassName('timecalc');
 /** @type {Record<string, {elem: Element; geo: KosherZmanim.GeoLocation}>} */
 const dupLocs = {}
 for (const elem of elems) {
-	const currentCalc = (elem.getAttribute('data-calc') == 'rYisraeli' ? rYisraeliCal :
-		(elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal));
+	const currentCalc = elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal;
 	const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
 
 	const geoLocationsParams = [
@@ -325,7 +329,7 @@ for (const elem of elems) {
 				time = times.sort(KosherZmanim.Temporal.ZonedDateTime.compare)[action == 'subtract' ? 0 : times.length - 1]
 			} else {
 				const LeKhumra = shitotOptions.length >= 2 ?
-					shitotDay !== shitotOptions[0] : 
+					shitotDay !== shitotOptions[0] :
 					KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1
 
 				if (elem.hasAttribute('data-humra') && (!editElem.hasAttribute('data-humra') || editElem.getAttribute('data-humra') !== "false"))
@@ -341,7 +345,7 @@ for (const elem of elems) {
 				let rTime = currentCalc.getTzetRT()
 				if (elem.hasAttribute('data-humra'))
 					rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
-	
+
 				editElem.innerHTML += `<span class="rt">(${document.getElementById('gridElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
 			}
 		}
@@ -376,7 +380,7 @@ for (const elem of elems) {
 					currentCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
 					baseCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
 					const plag = currentCalc.getPlagHaminhaHalachaBrurah();
-			
+
 					for (const timeFunc of document.getElementById('gridElement').getAttribute(shitotDay).split(" ")) {
 						editElem = editElem.nextElementSibling;
 						baseEditElem = baseEditElem.nextElementSibling;
@@ -388,7 +392,7 @@ for (const elem of elems) {
 
 							if ((index == 0 ? elem : baseLocation).hasAttribute('data-humra')) {
 								const LeKhumra = shitotOptions.length >= 2 ?
-									parseInt(shitotDay.replace('data-functions-backday-', '')) == 0 : 
+									parseInt(shitotDay.replace('data-functions-backday-', '')) == 0 :
 									KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1;
 								time = time[LeKhumra ? 'add' : 'subtract']({
 									minutes: parseInt((index == 0 ? elem : baseLocation).getAttribute('data-humra'))
@@ -397,12 +401,12 @@ for (const elem of elems) {
 
 							return time;
 						})
-			
+
 						if (!Math.trunc(curCalcTime.until(baseCalcTime).total({ unit: "minute" })) || curCalcTime.until(baseCalcTime).total({ unit: "minute" }) < 0) {
 							console.log("new one was later, continue")
 							continue;
 						}
-	
+
 						baseEditElem.setAttribute('data-milisecondValue', curCalcTime.epochMilliseconds.toString())
 						baseEditElem.innerHTML = curCalcTime.toLocaleString(...dtF)
 					}
