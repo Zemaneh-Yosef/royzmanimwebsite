@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
+import { ZemanFunctions, zDTFromFunc, methodNames } from "../ROYZmanim.js";
 import { settings } from "../settings/handler.js"
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js"
 
@@ -295,6 +295,8 @@ for (const elem of elems) {
 		minute: '2-digit'
 	}];
 
+	/** @type {HTMLElement} */
+	// @ts-ignore
 	let editElem = elem;
 
 	for (const shitotDay of shitotOptions) {
@@ -303,6 +305,7 @@ for (const elem of elems) {
 
 		for (const timeFunc of document.getElementById('gridElement').getAttribute(shitotDay).split(" ")) {
 			do {
+				// @ts-ignore
 				editElem = editElem.nextElementSibling
 			} while (!editElem.classList.contains('timeshow'))
 
@@ -336,18 +339,33 @@ for (const elem of elems) {
 					time = time[LeKhumra ? 'add' : 'subtract']({minutes: parseInt(elem.getAttribute('data-humra'))});
 			}
 
-			editElem.setAttribute('data-milisecondValue', time.epochMilliseconds.toString())
 			editElem.innerHTML = time.toLocaleString(...dtF);
 
-			if (timeFunc == 'getTzetMelakha'
-			 && document.getElementById('gridElement').hasAttribute('data-rt-text')
-			 && !document.getElementById('gridElement').getAttribute(shitotDay).includes('getTzetRT')) {
-				let rTime = currentCalc.getTzetRT()
-				if (elem.hasAttribute('data-humra'))
-					rTime = rTime.add({minutes: parseInt(elem.getAttribute('data-humra'))})
+			for (const attr in editElem.dataset) {
+				const [functionName, prefOrSuf] = attr.split(/(?<![A-Z])(?=[A-Z])/);
+				if (!functionName.startsWith('get') || prefOrSuf !== 'Prefix')
+					continue;
 
-				editElem.innerHTML += `<span class="rt">(${document.getElementById('gridElement').getAttribute('data-rt-text')}: ${rTime.toLocaleString(...dtF)})</span>`;
+				const methodName = methodNames.find(name => name.toLowerCase() == functionName.toLowerCase());
+				/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+				// @ts-ignore
+				let subTime = currentCalc[methodName]();
+
+				const LeKhumra = shitotOptions.length >= 2 ?
+					shitotDay !== shitotOptions[0] :
+					KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1
+
+				if (elem.hasAttribute('data-humra') && (!editElem.hasAttribute('data-humra') || editElem.getAttribute('data-humra') !== "false"))
+					subTime = subTime[LeKhumra ? 'add' : 'subtract']({minutes: parseInt(elem.getAttribute('data-humra'))});
+
+				editElem.innerHTML += `<div class="addOn">${[
+					editElem.dataset[attr],
+					subTime.toLocaleString(...dtF),
+					editElem.getAttribute('data-' + functionName + '-suffix')
+				].join('')}</div>`;
 			}
+
+			editElem.setAttribute('data-milisecondValue', time.epochMilliseconds.toString())
 		}
 	}
 
@@ -362,10 +380,12 @@ for (const elem of elems) {
 
 			const compTimes = zDTFromFunc(baseCalc.getTzetMelakha()).until(zDTFromFunc(currentCalc.getTzetMelakha())).total({ unit: 'minutes' })
 			if (Math.abs(compTimes) <= 2 && elem.getAttribute('data-timezone') == baseLocation.getAttribute('data-timezone')) {
+				// @ts-ignore
 				editElem = elem;
 				for (let _i of ['', ...shitotOptions.map(attrName => document.getElementById("gridElement").getAttribute(attrName).split(" ")).flat()]) {
 					// @ts-ignore
 					editElem.style.display = 'none';
+					// @ts-ignore
 					editElem = editElem.nextElementSibling;
 				}
 
@@ -375,6 +395,7 @@ for (const elem of elems) {
 				].join('/') + ', ' + stateLoc
 
 				let baseEditElem = baseLocation;
+				// @ts-ignore
 				editElem = elem;
 				for (const shitotDay of shitotOptions) {
 					currentCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
@@ -382,6 +403,7 @@ for (const elem of elems) {
 					const plag = currentCalc.getPlagHaminhaHalachaBrurah();
 
 					for (const timeFunc of document.getElementById('gridElement').getAttribute(shitotDay).split(" ")) {
+						// @ts-ignore
 						editElem = editElem.nextElementSibling;
 						baseEditElem = baseEditElem.nextElementSibling;
 
