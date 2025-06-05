@@ -151,7 +151,7 @@ website: true
 		font-family: 'Guttman Vilna', 'Barlow';
 	}
 
-	.rt {
+	.addOn {
 		display: block;
 		font-size: 2vw;
 		font-family: 'Barlow';
@@ -344,7 +344,6 @@ website: true
 		data-functions-backday-1="getCandleLighting"
 		data-functions-backday-0="getTzetMelakha"
 		data-flyerType="shabbat"
-		data-rt-text='R"T'
 	>
 		<div></div>
 		<div class="header tableShadow">Candle Lighting</div>
@@ -366,7 +365,7 @@ website: true
 			{{ item.name }}
 		</div>
 		<div class="shabbatRow timeshow">Start Time</div>
-		<div class="shabbatRow timeshow">End Time</div>
+		<div class="shabbatRow timeshow" data-getTzetRT-prefix='(R"T: ' data-getTzetRT-suffix=")">End Time</div>
 		{% endfor %}
 	</div>
 	<span id="zemanehShab">שבת השבועי<br><span class="subtitle">Shabbat of <span data-dateRenderFormal-backday="0"></span></span></span>

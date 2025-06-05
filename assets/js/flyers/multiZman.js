@@ -27,8 +27,8 @@ if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
-const ohrHachaimCal = new ZemanFunctions(fallbackGL, { elevation: true, melakha: {minutes: 30, degree: 7.165}, rtKulah: false, fixedMil: true, candleLighting: 20 });
-const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melakha: {minutes: 30, degree: 7.165}, rtKulah: true, fixedMil: false, candleLighting: 20 });
+const ohrHachaimCal = new ZemanFunctions(fallbackGL, { elevation: true, melakha: {minutes: 30, degree: null}, rtKulah: false, fixedMil: true, candleLighting: 20 });
+const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melakha: [{minutes: 27, degree: 6.75}, {minutes: 30, degree: 7.165}], rtKulah: true, fixedMil: false, candleLighting: 20 });
 
 /** @type {string[]} */
 let calendars = [];
@@ -37,7 +37,7 @@ let shabbatDate = jCal.getDate();
 
 switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 	case 'shabbat': {
-		const jCalShabbat = (new WebsiteLimudCalendar()).shabbat();
+		const jCalShabbat = jCal.shabbat();
 		jCalShabbat.back();
 
 		if ((jCalShabbat.isAssurBemelacha() || jCalShabbat.tomorrow().tomorrow().isAssurBemelacha())
@@ -58,7 +58,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		break;
 	} case 'yomTov': {
 		let tempJcal = jCal.clone();
-		while (!tempJcal.isYomTov() || (tempJcal.isYomTov() && tempJcal.tomorrow().isYomTov()))
+		while (!tempJcal.isYomTovAssurBemelacha() || (tempJcal.isYomTovAssurBemelacha() && tempJcal.tomorrow().isYomTovAssurBemelacha()))
 			tempJcal = tempJcal.tomorrow();
 
 		shabbatDate = tempJcal.getDate();

@@ -4,6 +4,8 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import { MathUtils, Temporal } from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
 import TekufahCalculator from "./tekufot.js";
 
+/** @typedef {{minutes: number; degree: number}} melakhaTzet */
+
 /**
  * @param {string | Temporal.Duration | KosherZmanim.Temporal.DurationLike} a
  * @param {string | Temporal.Duration | KosherZmanim.Temporal.DurationLike} b
@@ -16,7 +18,7 @@ function durationSort(a,b) {
 class ZemanimMathBase {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
-	 * @param {{ elevation: boolean | undefined; fixedMil: boolean; rtKulah: boolean; melakha: {minutes: number; degree: number}; candleLighting: number; }} config
+	 * @param {{ elevation: boolean | undefined; fixedMil: boolean; rtKulah: boolean; melakha: melakhaTzet|melakhaTzet[]; candleLighting: number; }} config
 	 */
 	constructor(geoLocation, config={ elevation: undefined, fixedMil: false, rtKulah: true, melakha: {minutes: 30, degree: 7.165}, candleLighting: 20 }) {
 		this.config = config;
@@ -357,18 +359,90 @@ class ZemanFunctions extends ZemanimMathBase {
 		);
 	}
 
+	/* The philosophy behind Tzet Shabbat is as such:
+	 * The passed value will be both the public facing response & the highly technical one
+	 * If the expectation is that you could just minus X amount of minutes to get sunset, that's clearly public facing;
+	 * thus use the public facing (aka stringent value)
+	 * When you're using degrees, it's clear that you're being different week-to-week, and thus leave room for more technical math
+	 * Thus, although we will not default to the most technical time, we will factor it in when we want to be more public-facing
+	 * In our case, we have four options to handle the multiple Zemanim:
+	 * PRETTY - The stricter time is the one that's meant to be there, but if there is time between the two is divisable by 5, use that time instead
+	 * LENIENT - Either the degree or the fixed minute as a cap-off for the degree.
+	 * Each object has both fixed minutes and its degree-equivalent - thus, you'll instead use the "strictest" fixed minute and the lenient degree
+	 * STRINGENT - The degree is meant to increase, not decrease from the stringent fixed value - find the strictest fixed, lenient degree and adjust
+	 * This functionality goes unused anywhere that shows sunset - nevertheless, for flyers, we default to pretty
+	 * The app implements "lenient", stringent remains unused by our flyers but used elsewhere
+	 */
+	/** @param {"PRETTY"|"LENIENT"|"STRINGENT"} [multiHandle="PRETTY"] */
 	/** @returns {Temporal.ZonedDateTime|{time:Temporal.ZonedDateTime; minutes?: number; degree?: number;}} */
-	// @ts-ignore
-	getTzetMelakha(humraObj = this.config.melakha) {
-		if (this.config.fixedMil)
+	getTzetMelakha(humraConf = this.config.melakha, multiHandle="PRETTY") {
+		if (!humraConf) {
+			return this.getTzetHumra();
+		}
+
+		if (this.config.fixedMil) {
+			let humraObj = Array.isArray(humraConf) ? humraConf.sort((humraObjA, humraObjB) => humraObjB.minutes - humraObjA.minutes)[0] : humraConf;
 			return { time: this.timeRange.current.sunset.add({ minutes: humraObj.minutes }), minutes: humraObj.minutes };
+		}
 
-		const degree = this.config.melakha.degree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH;
-		const sunsetOffset = this.coreZC.getSunsetOffsetByDegrees(degree);
-		if (!sunsetOffset || Temporal.ZonedDateTime.compare(sunsetOffset, this.getSolarMidnight()) == 1)
-			return (humraObj.degree > 5.2 ? this.getTzetMelakha({ degree: 5.2, minutes: null }) : this.getSolarMidnight());
+		if (!Array.isArray(humraConf) || humraConf.length == 1) {
+			const humraObj = (Array.isArray(humraConf) ? humraConf[0] : humraConf);
 
-		return { time: sunsetOffset, minutes: humraObj.minutes, degree: humraObj.degree };
+			const degree = humraObj.degree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH;
+			const sunsetOffset = this.coreZC.getSunsetOffsetByDegrees(degree);
+			if (!sunsetOffset || Temporal.ZonedDateTime.compare(sunsetOffset, this.getSolarMidnight()) == 1)
+				return (humraObj.degree > 5.2 ? this.getTzetMelakha({ degree: 5.2, minutes: null }) : this.getSolarMidnight());
+
+			return { time: sunsetOffset, minutes: humraObj.minutes, degree: humraObj.degree };
+		}
+
+		switch (multiHandle) {
+			case 'LENIENT':
+			case "STRINGENT":
+				const stringentFixed = humraConf.sort((humraObjA, humraObjB) => humraObjB.minutes - humraObjA.minutes)[0];
+				const lenientDegree = humraConf.sort((humraObjA, humraObjB) => humraObjA.degree - humraObjB.degree)[0];
+
+				let degreeTzet = this.coreZC.getSunsetOffsetByDegrees(lenientDegree.degree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH);
+				if (!degreeTzet || Temporal.ZonedDateTime.compare(degreeTzet, this.getSolarMidnight()) == 1)
+					degreeTzet = this.getSolarMidnight();
+
+				const sortedEntries = [degreeTzet, this.timeRange.current.sunset.add({ minutes: stringentFixed.minutes })]
+					.sort(Temporal.ZonedDateTime.compare);
+
+				return sortedEntries[multiHandle == "LENIENT" ? 0 : sortedEntries.length - 1];
+				break;
+			default:
+				if (humraConf.length >= 3)
+					throw Error("Too many humra objects provided for Tzet Melakha calculation, expected 1 or 2");
+
+				// Discard fixed minutes
+				const sortedDegrees = humraConf
+					.map(humraObj => {
+						const degree = humraObj.degree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH;
+						let sunsetOffset = this.coreZC.getSunsetOffsetByDegrees(degree);
+						if (!sunsetOffset || Temporal.ZonedDateTime.compare(sunsetOffset, this.getSolarMidnight()) == 1) {
+							sunsetOffset = this.coreZC.getSunsetOffsetByDegrees(5.2 + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH);
+							if (!sunsetOffset || Temporal.ZonedDateTime.compare(sunsetOffset, this.getSolarMidnight()) == 1)
+								sunsetOffset = this.getSolarMidnight();
+						}
+
+						return sunsetOffset;
+					}).reduce((/** @type {Temporal.ZonedDateTime[]} */acc, obj) => {
+						if (!acc.some(o => o.epochMilliseconds === obj.epochMilliseconds)) acc.push(obj);
+						return acc;
+					}, [])
+					.sort(Temporal.ZonedDateTime.compare);
+
+				if (sortedDegrees.length == 1)
+					return { time: sortedDegrees[0] };
+
+				return (
+					[sortedDegrees[0]
+						.round({ smallestUnit: 'second', roundingIncrement: 10, roundingMode: "trunc" })
+						.round({ smallestUnit: 'minute', roundingIncrement: 5, roundingMode: "ceil" }),
+					sortedDegrees[1]]
+					.sort(Temporal.ZonedDateTime.compare)[0]);
+		}
 	}
 
 	getTzetRT() {

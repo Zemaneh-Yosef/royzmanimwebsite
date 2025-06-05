@@ -229,7 +229,7 @@ export default class zmanimListUpdater {
 			hour: 'numeric',
             minute: '2-digit'
 		}];
-		
+
 		if (settings.seconds()) {
 			this.dtF[1].second = '2-digit'
 		}
@@ -251,7 +251,7 @@ export default class zmanimListUpdater {
 
 	/**
 	 * @param {Temporal.PlainDate} date
-	 * @param {boolean} internal 
+	 * @param {boolean} internal
 	 */
 	changeDate(date, internal=false) {
 		this.zmanCalc.setDate(date)
@@ -631,7 +631,7 @@ export default class zmanimListUpdater {
 			for (const specialDay of document.querySelectorAll('[data-zfReplace="SpecialDay"]')) {
 				if (!(specialDay instanceof HTMLElement))
 					continue;
-	
+
 				if (!specialDayText) {
 					specialDay.style.display = "none";
 				} else {
@@ -721,7 +721,7 @@ export default class zmanimListUpdater {
 				if (this.jCal.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
 					tachanunId = Math.min(tachanunId + 3, 4)
 				}
-				
+
 				for (const tachanunDiv of tachanun.children) {
 					if (!(tachanunDiv instanceof HTMLElement))
 						continue;
@@ -964,7 +964,7 @@ export default class zmanimListUpdater {
 					while (leilouNishmatList.firstElementChild) {
 						leilouNishmatList.firstElementChild.remove()
 					}
-		
+
 					/** @type {'en'|'he'} */
 					// @ts-ignore
 					const hLang = leilouNishmatList.getAttribute('data-zfIndex')
@@ -973,14 +973,14 @@ export default class zmanimListUpdater {
 						li.classList.add('list-group-item');
 						li.appendChild(document.createTextNode(leilouNishmatList.getAttribute('data-fillText')));
 						leilouNishmatList.appendChild(li);
-		
+
 						continue;
 					}
-		
+
 					for (const neshama of leilouNishmat[hLang]) {
 						const li = document.createElement('li');
 						li.classList.add('list-group-item');
-		
+
 						const name = document.createElement("b");
 						name.appendChild(document.createTextNode(neshama.name));
 						li.appendChild(name)
@@ -991,7 +991,7 @@ export default class zmanimListUpdater {
 							else
 								li.appendChild(document.createTextNode(` (${neshama.src})`));
 						}
-		
+
 						leilouNishmatList.appendChild(li);
 					}
 				}
