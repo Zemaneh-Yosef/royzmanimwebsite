@@ -127,7 +127,7 @@ function messageHandler (x) {
 			en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simḥath Torah",
 			"en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simḥath Torah"
 		},
-	
+
 		// Semi-Holidays & Fasts
 		[KosherZmanim.JewishCalendar.PESACH_SHENI]: {
 			hb: "פסח שני",
@@ -169,7 +169,7 @@ function messageHandler (x) {
 			en: "Shushan Purim",
 			"en-et": "Shushan Purim"
 		},
-	
+
 		/*
 		Rabbi Leeor Dahan doesn't include these. I'm not getting involved
 		// Modern-Day Celebrations
@@ -425,7 +425,7 @@ function messageHandler (x) {
 					div.appendChild(taanitElem);
 					div.style.fontWeight = "bold";
 				}
-	
+
 				break;
 			case 'date':
 			case 'datePri':
@@ -467,7 +467,7 @@ function messageHandler (x) {
 
 				if (jCal.isRoshChodesh() || jCal.getYomTovIndex() in yomTovObj || jCal.isBirkasHachamah())
 					div.style.fontWeight = "bold";
-	
+
 				break;
 			case 'candleLighting':
 			case 'candleLightingRT':
@@ -558,7 +558,7 @@ function messageHandler (x) {
 					havdalahOnWine ? {dtF: defaulTF, icon: icons.wine, hideAMPM: true} :
 					undefined;
 
-				renderZmanInDiv(zmanCalc.getTzetHumra(), iconParams)	
+				renderZmanInDiv(zmanCalc.getTzetHumra(), iconParams)
 				if (jCal.isTaanis() && !jCal.isYomKippur()) {
 					div.style.fontWeight = "bold";
 				}
@@ -570,7 +570,7 @@ function messageHandler (x) {
 				if (jCal.tomorrow().getDayOfOmer() !== -1 && !(jCal.hasCandleLighting() || !jCal.isAssurBemelacha())) {
 					div.appendChild(omerSpan);
 				}
-	
+
 				break;
 			case 'getAlotHashahar':
 			case 'getTallAlotHashacharWKorbanot':
@@ -606,11 +606,11 @@ function messageHandler (x) {
 					sunriseTime = sunriseTime.time;
 				}
 
-				renderZmanInDiv(sunriseTime, rZIDoptions);	
+				renderZmanInDiv(sunriseTime, rZIDoptions);
 				break;
 			case 'getSofZemanShemaGRA':
 				renderZmanInDiv(zmanCalc.getSofZemanShemaGRA())
-	
+
 				if (jCal.isBirkasHachamah()) {
 					div.style.fontWeight = "bold";
 					const hanukahSpan = flexWorkAround.cloneNode(true);
@@ -621,7 +621,7 @@ function messageHandler (x) {
 						"en-et": "(Sof Zeman Birkath Haḥama)",
 						'en': "(Birkath Haḥama end time)"
 					}[x.data.lang]));
-	
+
 					div.appendChild(hanukahSpan);
 				}
 				break;
@@ -635,6 +635,12 @@ function messageHandler (x) {
 					}[x.data.lang], appendText: ")", hideAMPM: true});
 					div.lastElementChild.classList.add("omerText");
 				}
+				break;
+			case 'getShkiya':
+				renderZmanInDiv(zmanCalc.getShkiya());
+				if (jCal.tomorrow().getYomTovIndex() == KosherZmanim.JewishCalendar.TISHA_BEAV)
+					div.style.fontWeight = "bold";
+
 				break;
 			default:
 				// @ts-ignore

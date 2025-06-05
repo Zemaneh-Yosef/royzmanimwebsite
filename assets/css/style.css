@@ -278,6 +278,7 @@ li[data-zfFind="FastDays"] h5 {
 #inDateBoxCalBtn {
 	aspect-ratio: 1/1;
 	border-radius: 50%;
+	font-family:bootstrap-icons!important;
 }
 
 @keyframes steam {
