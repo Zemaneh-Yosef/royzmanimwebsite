@@ -145,7 +145,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					"en-et": null,
 					ru: null
 				},
-				dtF: [dtF[0], Object.assign({}, dtF[1])]
+				dtF: (dtF == null ? null : [dtF[0], Object.assign({}, dtF[1])])
 			}
 
 			if (independent) {
@@ -189,7 +189,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						calculatedZman.title['en-et'] += ' (Mishor)';
 						calculatedZman.title.en += ' (Sea Level)';
 					} else {
-						calculatedZman.dtF[1].second = '2-digit'
+						if (calculatedZman.dtF)
+							calculatedZman.dtF[1].second = '2-digit'
 					}
 
 					break;
@@ -238,7 +239,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 						if (calculatedZman.funcRet.minutes)
 							elements.push(calculatedZman.funcRet.minutes + "m");
-						
+
 						if (calculatedZman.funcRet.degree)
 							elements.push(calculatedZman.funcRet.degree + "°");
 
@@ -331,7 +332,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				calculatedZman.display = calculatedZman.display == -1 ? -1 : -2;
 				calculatedZman.code.push("Invalid Date");
 			} else {
-				if (!('second' in calculatedZman.dtF[1])
+				if (calculatedZmanim.dtF && !('second' in calculatedZman.dtF[1])
 					&& (calculatedZman.zDTObj.second > 40 || (calculatedZman.zDTObj.second > 20 && zmanInfo.round == 'later'))) {
 						calculatedZman.zDTObj = calculatedZman.zDTObj.with({ second: 0, millisecond: 0 }).add({ minutes: 1 });
 					}

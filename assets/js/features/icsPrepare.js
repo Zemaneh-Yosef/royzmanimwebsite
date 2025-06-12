@@ -15,9 +15,9 @@ import { he as n2heWords } from "../../libraries/n2words.esm.js";
 const exportDate = (date) => [date.year, date.month, date.day]
 
 /**
- * @param {boolean} monthView 
- * @param {ZemanFunctions} calc 
- * @returns {number} 
+ * @param {boolean} monthView
+ * @param {ZemanFunctions} calc
+ * @returns {number}
  */
 const monViewNight = (monthView, calc) =>
 	(monthView ? calc.getTzet().with({ hour: 23, minute: 59, second: 59 }) : calc.tomorrow().getAlotHashahar()).epochMilliseconds
