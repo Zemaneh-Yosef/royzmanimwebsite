@@ -1,48 +1,18 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
-import { HebrewNumberFormatter, default as webCal } from "../WebsiteCalendar.js";
+import LimudCalendar from "../WebsiteLimudCalendar.js";
+
+const jCal = new LimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
+
+for (const [key, value] of Object.entries(jCal.getAllLearning()))
+	if (document.querySelector(`[data-zfReplace="${key}"]`) instanceof HTMLElement)
+		document.querySelector(`[data-zfReplace="${key}"]`).innerHTML = value;
+
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
+await hiloulahIndex.init();
 
-const todayDate = KosherZmanim.Temporal.Now.plainDateISO();
-const jCal = new webCal(todayDate);
-
-const hNum = new HebrewNumberFormatter();
-
-for (const daf of document.querySelectorAll('[data-zfReplace="dafBavli"]')) {
-	if (jCal.getJewishYear() < 5684) {
-		daf.innerHTML = "N/A. Daf Yomi (Bavli) was only created on Rosh Hashanah 5684 and continues onto this day"
-	} else {
-		const dafObject = jCal.getDafYomiBavli();
-		daf.innerHTML =
-			dafObject.getMasechta() + " " +
-			hNum.formatHebrewNumber(dafObject.getDaf());
-	}
-}
-for (const dafYerushalmi of document.querySelectorAll('[data-zfReplace="DafYerushalmi"]')) {
-	const dafYerushalmiObject = jCal.getDafYomiYerushalmi();
-	if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
-		dafYerushalmi.innerHTML = "N/A";
-	} else {
-		dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
-	}
-}
-
-for (const tehilimShvui of document.querySelectorAll('[data-zfReplace="TehilimShvui"]'))
-	tehilimShvui.innerHTML = KosherZmanim.TehilimYomi.byWeek(jCal).map(num => num.toString()).join(' - ');
-for (const tehilimHodshi of document.querySelectorAll('[data-zfReplace="TehilimHodshi"]'))
-	tehilimHodshi.innerHTML	= KosherZmanim.TehilimYomi.byDayOfMonth(jCal).map(met => met.toString()).join(' - ');
-
-const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(jCal.shabbat())
-for (const haftaraElem of document.querySelectorAll('[data-zfReplace="Haftara"]'))
-	haftaraElem.innerHTML
-		= `<b>${haftara.text}</b> (${haftara.source})`;
-
-const chafetzChayimYomi = jCal.getChafetzChayimYomi();
-for (const ccYomi of document.querySelectorAll('[data-zfReplace="ccYomi"]'))
-	ccYomi.innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A";
-
-const leilouNishmat = await hiloulahIndex.getHiloulah(jCal)
+const leilouNishmat = hiloulahIndex.getHiloulah(jCal)
 for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {
 	while (leilouNishmatList.firstElementChild) {
 		leilouNishmatList.firstElementChild.remove()

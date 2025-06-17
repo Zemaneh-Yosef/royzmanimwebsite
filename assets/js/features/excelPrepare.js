@@ -12,9 +12,10 @@ import WebsiteCalendar from "../WebsiteCalendar.js";
  * @param {ConstructorParameters<typeof ZemanFunctions>[1]} config
  * @param {boolean} isIsrael
  * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
+ * @param {boolean} isTimelyView
  * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; netzTimes: number[] }} funcSettings
  */
-export default function spreadSheetExport (plainDateParams, geoLocationData, config, isIsrael, zmanList, funcSettings) {
+export default function spreadSheetExport (plainDateParams, geoLocationData, config, isIsrael, zmanList, isTimelyView, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
 	const geoLocation = new GeoLocation(...geoLocationData);
 

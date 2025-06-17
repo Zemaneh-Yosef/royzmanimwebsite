@@ -2102,6 +2102,7 @@ export declare namespace TimeZone {
 	 * @param {number} millisSinceEpoch
 	 */
 	function getOffset(timeZoneId: string, millisSinceEpoch: number): number;
+	function inDaylightTime(zonedDateTime: Temporal.ZonedDateTime): boolean;
 }
 /**
  * java.util.Calendar
@@ -2247,8 +2248,8 @@ export declare class NOAACalculator extends AstronomicalCalculator {
 	 *
 	 * @param calendar
 	 *            The Java Calendar
-	 * @return the Julian day corresponding to the date Note: Number is returned for start of day. Fractional days
-	 *         should be added later.
+	 * @return the Julian day corresponding to the date Note: Number is returned for the start of the Julian
+	 *         day. Fractional days / time should be added later.
 	 */
 	private static getJulianDay;
 	/**
@@ -2361,35 +2362,32 @@ export declare class NOAACalculator extends AstronomicalCalculator {
 	 * @param zenith
 	 *            the zenith
 	 * @param solarEvent
-	   *             If the hour angle is for sunrise or sunset
+	 *             If the hour angle is for sunrise or sunset
 	 * @return hour angle of sunrise in radians
 	 */
 	private static getSunHourAngle;
-	/**
-	 * Return the <a href="https://en.wikipedia.org/wiki/Celestial_coordinate_system">Solar Elevation</a> for the
-	 * horizontal coordinate system at the given location at the given time. Can be negative if the sun is below the
-	 * horizon. Not corrected for altitude.
-	 *
-	 * @param cal
-	 *            time of calculation
-	 * @param lat
-	 *            latitude of location for calculation
-	 * @param lon
-	 *            longitude of location for calculation
-	 * @return solar elevation in degrees - horizon is 0 degrees, civil twilight is -6 degrees
+	/**Add commentMore actions
+	 * @see com.kosherjava.zmanim.util.AstronomicalCalculator#getSolarElevation(Calendar, GeoLocation)
+	 */
+	/**Add commentMore actions
+	 * @see com.kosherjava.zmanim.util.AstronomicalCalculator#getSolarAzimuth(Calendar, GeoLocation)
 	 */
 	/**
-	 * Return the <a href="https://en.wikipedia.org/wiki/Celestial_coordinate_system">Solar Azimuth</a> for the
-	 * horizontal coordinate system at the given location at the given time. Not corrected for altitude. True south is 0
-	 * degrees.
+	 * Return the <a href="https://en.wikipedia.org/wiki/Celestial_coordinate_system">Solar Elevation</a> or
+	 * <a href="https://en.wikipedia.org/wiki/Celestial_coordinate_system">Solar Azimuth</a> at the given location
+	 * and time. Can be negative if the sun is below the horizon. Elevation is based on sea-level and is not
+	 * adjusted for altitude.
 	 *
-	 * @param cal
+	 * @param date
 	 *            time of calculation
-	 * @param latitude
-	 *            latitude of location for calculation
-	 * @param lon
-	 *            longitude of location for calculation
-	 * @return FIXME
+	 * @param geoLocation
+	 *            The location for calculating the elevation or azimuth.
+	 * @param isAzimuth
+	 *            true for azimuth, false for elevation
+	 * @return solar elevation or azimuth in degrees.
+	 *
+	 * @see #getSolarElevation(Calendar, GeoLocation)
+	 * @see #getSolarAzimuth(Calendar, GeoLocation)
 	 */
 	getUTCNoon(calendar: Temporal.PlainDate, geoLocation: GeoLocation): number;
 	/**
@@ -4758,10 +4756,11 @@ export declare class HiloulahYomiCalculator {
 	hiloulot_he: Record<string, hiloulahObj>;
 	constructor(dir?: string);
 	init(): Promise<void>;
-	getHiloulah(jewishCalendar: JewishDate): Promise<{
+	getHiloulah(jewishCalendar: JewishDate): {
 		en: hiloulahObj;
 		he: hiloulahObj;
-	}>;
+	};
+	private useHiloulahData;
 }
 export declare class TehilimYomi {
 	static byDayOfMonth(jDate: JewishDate): [

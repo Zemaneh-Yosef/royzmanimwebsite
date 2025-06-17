@@ -796,9 +796,9 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 */
 	birkathHalevanaCheck(zmanCalc) {
 		const dateObjs = {
-			start: this.getTchilasZmanKidushLevana7Days(),
+			start: this.getTchilasZmanKidushLevana7Days().withTimeZone(zmanCalc.coreZC.getGeoLocation().getTimeZone()),
 			current: this.getDate().toZonedDateTime(zmanCalc.coreZC.getGeoLocation().getTimeZone()).with({ hour: 11, minute: 59 }),
-			end: this.getSofZmanKidushLevana15Days()
+			end: this.getSofZmanKidushLevana15Days().withTimeZone(zmanCalc.coreZC.getGeoLocation().getTimeZone())
 		}
 
 		if ([KosherZmanim.JewishCalendar.AV, KosherZmanim.JewishCalendar.TISHREI].includes(this.getJewishMonth())) {
@@ -811,13 +811,13 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					tishaBeav.setJewishDayOfMonth(9);
 					if (tishaBeav.getDayOfWeek() == 7)
 						tishaBeav.setJewishDayOfMonth(10);
-	
+
 					monthCalc.setDate(tishaBeav.getDate());
 					break;
 				case KosherZmanim.JewishCalendar.TISHREI:
 					const yomKippur = this.clone();
 					yomKippur.setJewishDayOfMonth(10);
-	
+
 					monthCalc.setDate(yomKippur.getDate());
 					break;
 			}
@@ -833,7 +833,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 }
 
 /**
- * @param {number} n 
+ * @param {number} n
  * @param {boolean} [htmlSup]
  */
 export function getOrdinal (n, htmlSup=false) {

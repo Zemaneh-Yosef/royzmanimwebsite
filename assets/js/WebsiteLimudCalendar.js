@@ -1,5 +1,7 @@
-import { Parsha } from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
-import WebsiteCalendar from "./WebsiteCalendar.js";
+// @ts-check
+
+import { Parsha, TehilimYomi, MishnaYomi } from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import WebsiteCalendar, { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 export default
 class WebsiteLimudCalendar extends WebsiteCalendar {
     static hebrewParshaMap = {
@@ -82,4 +84,37 @@ class WebsiteLimudCalendar extends WebsiteCalendar {
 			WebsiteLimudCalendar.hebrewParshaMap[this.shabbat().getSpecialShabbos()]
 		].filter(Boolean)
 	}
+
+	getAllLearning() {
+		/** @type {Record<string, string>} */
+		const learning = {};
+		const hNum = new HebrewNumberFormatter();
+
+		if (this.getJewishYear() < 5684) {
+			learning.dafBavli = "N/A. Daf Yomi (Bavli) was only created on Rosh Hashanah 5684"
+		} else {
+			const dafObject = this.getDafYomiBavli();
+			learning.dafBavli =
+				dafObject.getMasechta() + " " +
+				hNum.formatHebrewNumber(dafObject.getDaf());
+		}
+
+		const dafYerushalmiObject = this.getDafYomiYerushalmi();
+		if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
+			learning.DafYerushalmi = "N/A";
+		} else {
+			learning.DafYerushalmi = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
+		}
+
+		const chafetzChayimYomi = this.getChafetzChayimYomi();
+		learning.ccYomi = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A";
+
+		learning.TehilimShvui = TehilimYomi.byWeek(this).map(num => num.toString()).join(' - ');
+		learning.TehilimHodshi = TehilimYomi.byDayOfMonth(this).map(met => met.toString()).join(' - ');
+
+		learning.MishnaYomi = MishnaYomi.getMishnaForDate(this, true) || "N/A";
+
+		return learning;
+	}
 }
+

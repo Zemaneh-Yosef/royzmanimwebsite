@@ -61,7 +61,7 @@ function renderFastIndex(fastContainer) {
     const fastCalc = zmanCalc.chainDate(fastJCal.getDate());
     const nameElements = [...fastContainer.getElementsByTagName("h5")];
     nameElements.forEach(element => element.style.display = "none");
-    
+
     const ourFast = nameElements.find(fastElm =>
         fastElm.getAttribute("data-zfFind") == (fastJCal.isTaanisBechoros() ? 0 : fastJCal.getYomTovIndex()).toString()
     );
@@ -213,7 +213,7 @@ const specialDayText = jCal.listOfSpecialDays().join(" / ");
 for (const specialDay of document.querySelectorAll('[data-zfReplace="SpecialDay"]')) {
     if (!(specialDay instanceof HTMLElement))
         continue;
-	
+
     if (!specialDayText) {
         specialDay.style.display = "none";
     } else {

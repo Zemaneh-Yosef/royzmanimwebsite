@@ -67,7 +67,22 @@ export default class exportFriendly {
 									langElem.innerHTML
 								]))
 					])),
-				netzTimes: zmanLister.zmanCalc.vSunrise.preservedInts
+				netzTimes: zmanLister.zmanCalc.vSunrise.preservedInts,
+				learningTitle: Object.fromEntries(
+					Object.keys(zmanLister.jCal.getAllLearning())
+					.map(/** @returns {[string, {"he": string; "en-et": string; "en": string}]} */
+						learnFind =>
+						[learnFind,
+							// @ts-ignore
+							Object.fromEntries([...document.querySelector(`[data-zfReplace="${learnFind}"]`)
+							.parentElement
+							.getElementsByTagName("dt")]
+							.map(titleElem => [
+								titleElem.classList.values().find(cl => cl.startsWith('lang-')).replace('lang-', '').replace('hb', 'he'),
+								titleElem.innerHTML
+							]))
+						]
+					))
 			}
 		]
 
@@ -81,6 +96,9 @@ export default class exportFriendly {
 			receiveData = receiveData.flat()
 			zmanLister.zmanCalc.tekufaCalc.calculateTekufotShemuel(!zmanLister.zmanCalc.config.fixedMil)
 				.forEach((tekufa, index) => {
+					if (tekufa.year != zmanLister.jCal.getGregorianYear())
+						return;
+
 					const time = tekufa.toZonedDateTime("+02:00").withTimeZone(zmanLister.geoLocation.getTimeZone())
 					const tekufaMonth = [
 						WebsiteCalendar.TISHREI,
@@ -106,16 +124,13 @@ export default class exportFriendly {
 
 			const calName = (!zmanLister.zmanCalc.config.fixedMil ? "Amudeh Hora'ah" : "Ohr Hachaim")
 				+ ` Calendar (${isoYear}) - ` + zmanLister.geoLocation.getLocationName();
-			const labeledEvents = 
-				Array.from(new Set(receiveData.map(field => JSON.stringify(field)))).map(field => JSON.parse(field))
-				.map(obj => ({
-					...obj,
-					calName,
-					/** @type {"utc"} */
-					startInputType: "utc",
-					/** @type {"utc"} */
-					endInputType: "utc"
-				}));
+
+			const labeledEvents = this.dedupICSEntries(receiveData);
+			for (const lEvent of labeledEvents) {
+				lEvent.calName = calName;
+				lEvent.startInputType = "utc";
+				lEvent.endInputType = "utc";
+			}
 
 			const icsRespond = ics.createEvents(labeledEvents)
 			if (icsRespond.error)
@@ -147,18 +162,32 @@ export default class exportFriendly {
 				myWorker.postMessage(monthICSData)
 				myWorker.addEventListener("message", async (message) => {
 					console.log("received message from other thread");
-					receiveData.push(message.data)
+					receiveData.push(await message.data)
 					if (receiveData.length == giveData.length)
 						await postDataReceive();
 				})
 			} else {
 				const icsExport = (await import('./icsPrepare.js')).default;
 				const icsData = icsExport.apply(icsExport, monthICSData);
-				receiveData.push(icsData);
+				receiveData.push(await icsData);
 				if (receiveData.length == giveData.length)
 					await postDataReceive();
 			}
 		}
+	}
+
+
+	/**
+	 * @function
+	 * @template {any[]} A
+	 * @param {A} values
+	 * @returns {A}
+	 */
+	dedupICSEntries(values) {
+		const setFromValues = new Set(values.map(value => JSON.stringify(value)));
+
+		// @ts-ignore
+		return [...setFromValues].map(value => JSON.parse(value));
 	}
 
 	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
@@ -193,6 +222,7 @@ export default class exportFriendly {
 			zmanLister.zmanCalc.config,
 			zmanLister.jCal.getInIsrael(),
 			exportZmanList,
+			false,
 			{
 				// @ts-ignore
 				language: settings.language() == "hb" ? "he" : settings.language(),

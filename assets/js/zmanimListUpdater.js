@@ -8,11 +8,12 @@ import { settings } from "./settings/handler.js";
 import ChaiTables from "./features/chaiTables.js";
 import * as leaflet from "../libraries/leaflet/leaflet.js"
 
-import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import exportFriendly from "./features/export.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
+
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
+await hiloulahIndex.init();
 
 export default class zmanimListUpdater {
 	/**
@@ -944,8 +945,12 @@ export default class zmanimListUpdater {
 		}
 
 		for (let dafContainer of document.querySelectorAll('[data-zfFind="DafYomi"]')) {
-			if (dafContainer instanceof HTMLElement)
-				this.renderDafYomi(dafContainer);
+			if (!(dafContainer instanceof HTMLElement))
+				continue;
+
+			for (const [key, value] of Object.entries(this.jCal.getAllLearning()))
+				if (dafContainer.querySelector(`[data-zfReplace="${key}"]`) instanceof HTMLElement)
+					dafContainer.querySelector(`[data-zfReplace="${key}"]`).innerHTML = value;
 		}
 
 		for (let seasonalRuleContainer of document.querySelectorAll('[data-zfFind="SeasonalPrayers"]')) {
@@ -958,81 +963,46 @@ export default class zmanimListUpdater {
 				this.shaahZmanits(shaahZmanitCont);
 		}
 
-		hiloulahIndex.getHiloulah(this.jCal)
-			.then(leilouNishmat => {
-				for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {
-					while (leilouNishmatList.firstElementChild) {
-						leilouNishmatList.firstElementChild.remove()
-					}
-
-					/** @type {'en'|'he'} */
-					// @ts-ignore
-					const hLang = leilouNishmatList.getAttribute('data-zfIndex')
-					if (!leilouNishmat[hLang].length) {
-						const li = document.createElement('li');
-						li.classList.add('list-group-item');
-						li.appendChild(document.createTextNode(leilouNishmatList.getAttribute('data-fillText')));
-						leilouNishmatList.appendChild(li);
-
-						continue;
-					}
-
-					for (const neshama of leilouNishmat[hLang]) {
-						const li = document.createElement('li');
-						li.classList.add('list-group-item');
-
-						const name = document.createElement("b");
-						name.appendChild(document.createTextNode(neshama.name));
-						li.appendChild(name)
-
-						if (neshama.src) {
-							if (neshama.src.startsWith('http'))
-								li.innerHTML += ` (<a href="${neshama.src}">${new URL(neshama.src).hostname}</a>)`
-							else
-								li.appendChild(document.createTextNode(` (${neshama.src})`));
-						}
-
-						leilouNishmatList.appendChild(li);
-					}
-				}
-			})
+		this.renderHiloulot();
 	}
 
-	/**
-	 * @param {HTMLElement} [dafContainer]
-	 */
-	renderDafYomi(dafContainer) {
-		const hNum = new HebrewNumberFormatter();
+	renderHiloulot() {
+		const leilouNishmat = hiloulahIndex.getHiloulah(this.jCal);
+		for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {
+			while (leilouNishmatList.firstElementChild) {
+				leilouNishmatList.firstElementChild.remove()
+			}
 
-		const daf = dafContainer.querySelector('[data-zfReplace="dafBavli"]');
-		const dafYerushalmi = dafContainer.querySelector('[data-zfReplace="DafYerushalmi"]');
+			/** @type {'en'|'he'} */
+			// @ts-ignore
+			const hLang = leilouNishmatList.getAttribute('data-zfIndex')
+			if (!leilouNishmat[hLang].length) {
+				const li = document.createElement('li');
+				li.classList.add('list-group-item');
+				li.appendChild(document.createTextNode(leilouNishmatList.getAttribute('data-fillText')));
+				leilouNishmatList.appendChild(li);
 
-		if (this.jCal.getJewishYear() < 5684) {
-			daf.innerHTML = "N/A. Daf Yomi (Bavli) was only created on Rosh Hashanah 5684 and continues onto this day"
-		} else {
-			const dafObject = this.jCal.getDafYomiBavli();
-			daf.innerHTML =
-				dafObject.getMasechta() + " " +
-				hNum.formatHebrewNumber(dafObject.getDaf());
+				continue;
+			}
+
+			for (const neshama of leilouNishmat[hLang]) {
+				const li = document.createElement('li');
+				li.classList.add('list-group-item');
+
+				const name = document.createElement("b");
+				name.appendChild(document.createTextNode(neshama.name));
+				li.appendChild(name)
+
+				if (neshama.src) {
+					if (neshama.src.startsWith('http'))
+						li.innerHTML += ` (<a href="${neshama.src}">${new URL(neshama.src).hostname}</a>)`
+					else
+						li.appendChild(document.createTextNode(` (${neshama.src})`));
+				}
+
+				leilouNishmatList.appendChild(li);
+			}
 		}
-
-		const dafYerushalmiObject = this.jCal.getDafYomiYerushalmi();
-		if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
-			dafYerushalmi.innerHTML = "N/A";
-		} else {
-			dafYerushalmi.innerHTML = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
-		}
-
-		const chafetzChayimYomi = this.jCal.getChafetzChayimYomi();
-		dafContainer.querySelector('[data-zfReplace="ccYomi"]').innerHTML = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A";
-
-		dafContainer.querySelector('[data-zfReplace="TehilimShvui"]').innerHTML
-			= KosherZmanim.TehilimYomi.byWeek(this.jCal).map(num => num.toString()).join(' - ');
-		dafContainer.querySelector('[data-zfReplace="TehilimHodshi"]').innerHTML
-			= KosherZmanim.TehilimYomi.byDayOfMonth(this.jCal).map(met => met.toString()).join(' - ');
-
-		const mishna = KosherZmanim.MishnaYomi.getMishnaForDate(this.jCal, true);
-		dafContainer.querySelector('[data-zfReplace="MishnaYomi"]').innerHTML = mishna || "N/A";
 	}
 
 	/** @param {HTMLElement} [tefilahRuleContainer] */
