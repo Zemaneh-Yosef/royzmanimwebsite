@@ -219,39 +219,56 @@ async function preparePrint() {
 
 	await sleep();
 
-	let paged = new Previewer();
-	let flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
+	const paged = new Previewer();
+	const flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
 	console.log("Rendered", flow.total, "pages.");
 
 	finalExplanation.style.display = "none";
 
 	await sleep();
 
-	[
-		'pagedjs_margin-top-left-corner-holder',
-		'pagedjs_margin-top',
-		'pagedjs_margin-top-right-corner-holder',
-		'pagedjs_margin-right',
-		'pagedjs_margin-left',
-		'pagedjs_margin-bottom-left-corner-holder',
-		'pagedjs_margin-bottom',
-		'pagedjs_margin-bottom-right-corner-holder',
-		'pagedjs_bleed'
-	]
-		.flatMap(className => Array.from(document.getElementsByClassName(className)))
-		.forEach(elem => elem.remove());
+	for (const pagedJSPage of document.getElementsByClassName('pagedjs_page')) {
+		if (!(pagedJSPage instanceof HTMLElement))
+			continue;
 
-	for (const pageSheet of document.getElementsByClassName('pagedjs_sheet')) {
+		//const lastPage = pagedJSPage.getAttribute('data-page-number') == pagedJSPage.parentElement.style.getPropertyValue('--pagedjs-page-count')
+
+		//if (!lastPage) {
+			//pagedJSPage.style.height = 'initial';
+		//}
+
+		const pageSheet = pagedJSPage.firstElementChild;
 		if (!(pageSheet instanceof HTMLElement))
 			continue;
 
-		pageSheet.style.setProperty('overflow', 'reset');
+		//if (!lastPage) {
+			//pageSheet.style.height = 'initial';
+		//}
+		pageSheet.style.overflow = 'initial';
 
+		[
+			'pagedjs_margin-top-left-corner-holder',
+			'pagedjs_margin-top',
+			'pagedjs_margin-top-right-corner-holder',
+			'pagedjs_margin-right',
+			'pagedjs_margin-left',
+			'pagedjs_margin-bottom-left-corner-holder',
+			'pagedjs_margin-bottom',
+			'pagedjs_margin-bottom-right-corner-holder',
+			'pagedjs_bleed'
+		]
+			.flatMap(className => Array.from(pageSheet.getElementsByClassName(className)))
+			.forEach(elem => elem.remove());
+
+		const pageBox = pageSheet.firstElementChild;
+		if (!(pageBox instanceof HTMLElement))
+			continue;
+
+		//pageBox.style.height = 'initial';
 		['top', 'right', 'left', 'bottom']
-			// @ts-ignore
-			.forEach(dir => pageSheet.firstElementChild.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
+			.forEach(dir => pageBox.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
 
-		const pageContent = pageSheet.getElementsByClassName('pagedjs_page_content')[0];
+		const pageContent = pageBox.getElementsByClassName('pagedjs_page_content')[0];
 		if (!(pageContent instanceof HTMLElement))
 			continue;
 
