@@ -179,7 +179,7 @@ async function preparePrint() {
 			otherLang.remove();
 
 		while (selectedLangChild.firstChild) {
-			if (!(selectedLangChild.firstChild instanceof HTMLParagraphElement)) {
+			if (!(selectedLangChild.firstChild instanceof HTMLParagraphElement) || selectedLangChild.hasAttribute('data-force-regAppend')) {
 				toExtract.appendChild(selectedLangChild.firstChild);
 				continue;
 			}
@@ -246,20 +246,25 @@ async function preparePrint() {
 			// @ts-ignore
 			.forEach(dir => pageBox.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
 
-	Array.from(document.getElementsByClassName('pagedjs_page_content'))
-		.forEach((/** @type {HTMLElement} */pageContent) => {
-			pageContent.style.columnWidth = 'unset';
-			pageContent.style.height = 'unset';
-			pageContent.style.flex = '1 1';
+	for (const pageContent of document.getElementsByClassName('pagedjs_page_content')) {
+		if (!(pageContent instanceof HTMLElement))
+			continue;
 
-			[...pageContent.children]
-				.filter(child => child.nodeName == "DIV")
-				.forEach((/** @type {HTMLDivElement} */pageContentChild) => pageContentChild.style.height = 'unset')
+		pageContent.style.columnWidth = 'unset';
+		pageContent.style.height = 'unset';
+		pageContent.style.flex = '1 1';
 
-			if (pageContent.nextElementSibling && pageContent.nextElementSibling.classList.contains('pagedjs_footnote_area'))
-				// @ts-ignore
-				pageContent.nextElementSibling.style.height = 'unset'
-		})
+		for (const pageContentChild of pageContent.children) {
+			if (!(pageContentChild instanceof HTMLDivElement))
+				continue;
+
+			pageContentChild.style.height = 'unset';
+		}
+
+		if (pageContent.nextElementSibling && pageContent.nextElementSibling.classList.contains('pagedjs_footnote_area'))
+			// @ts-ignore
+			pageContent.nextElementSibling.style.height = 'unset'
+	}
 
 	await sleep();
 
