@@ -693,7 +693,7 @@ function messageHandler (x) {
 		if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH)
 			hamesDate = jCal.getDate();
 
-		if (!x.data.shabbatOnly || jCal.getJewishDayOfMonth() <= 18) {
+		if (!x.data.shabbatOnly || jCal.getJewishDayOfMonth() <= 16) {
 			const bLevIndex = jCal.getJewishMonth() + '-' + jCal.getJewishYear();
 			const counterIncrease = (jewishMonthsInSecMonth.has(bLevIndex)
 				? jewishMonthsInSecMonth.get(bLevIndex) + 1

@@ -170,14 +170,46 @@ async function preparePrint() {
 	const finalExplanation = document.querySelector('[data-printFind]');
 
 	for (const toExtract of document.querySelectorAll('[data-lang-extract]')) {
-		Array.from(toExtract.children)
-			.filter(langElem => !langElem.classList.contains(`lang-${settings.language().replace('en-et', 'et')}`))
-			.forEach(otherLang => otherLang.remove())
+		const childFromExtract = Array.from(toExtract.children);
+		const selectedLangChild = childFromExtract
+			.find(langElem => langElem.classList.contains(`lang-${settings.language().replace('en-et', 'et')}`))
 
-		while (toExtract.firstElementChild.childElementCount > 0) {
-			toExtract.appendChild(toExtract.firstElementChild.firstElementChild)
+		childFromExtract.splice(childFromExtract.indexOf(selectedLangChild), 1); // Deletes the elem from the array
+		for (const otherLang of childFromExtract)
+			otherLang.remove();
+
+		while (selectedLangChild.firstChild) {
+			if (!(selectedLangChild.firstChild instanceof HTMLParagraphElement)) {
+				toExtract.appendChild(selectedLangChild.firstChild);
+				continue;
+			}
+
+			if (selectedLangChild.firstChild.textContent.trim() !== "") {
+				const newParagraph = selectedLangChild.firstChild.cloneNode();
+				while (selectedLangChild.firstChild.firstChild) {
+					if (selectedLangChild.firstChild.firstChild.nodeType == selectedLangChild.TEXT_NODE) {
+						const words = selectedLangChild.firstChild.firstChild.textContent.split(" ")
+						for (let index = 0; index < words.length; index++) {
+							if (words[index].trim() === "")
+								continue;
+
+							newParagraph.appendChild(document.createTextNode(
+								(index == 1 && words[0].trim() === "" ? " " : "")
+								+ words[index]
+								+ (index + 1 == words.length ? "" : " ")))
+							if (index + 1 !== words.length)
+								newParagraph.appendChild(document.createElement("span"));
+						}
+						selectedLangChild.firstChild.firstChild.remove()
+					} else
+						newParagraph.appendChild(selectedLangChild.firstChild.firstChild)
+				}
+				toExtract.appendChild(newParagraph);
+			}
+
+			selectedLangChild.firstChild.remove()
 		}
-		toExtract.firstElementChild.remove()
+		selectedLangChild.remove()
 	}
 
 	if (settings.language() == 'hb') {
@@ -206,8 +238,7 @@ async function preparePrint() {
 		'pagedjs_margin-bottom-right-corner-holder',
 		'pagedjs_bleed'
 	]
-		.map(className => Array.from(document.getElementsByClassName(className)))
-		.flat()
+		.flatMap(className => Array.from(document.getElementsByClassName(className)))
 		.forEach(elem => elem.remove());
 
 	for (const pageBox of document.getElementsByClassName('pagedjs_pagebox'))
