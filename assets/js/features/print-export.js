@@ -241,12 +241,17 @@ async function preparePrint() {
 		.flatMap(className => Array.from(document.getElementsByClassName(className)))
 		.forEach(elem => elem.remove());
 
-	for (const pageBox of document.getElementsByClassName('pagedjs_pagebox'))
+	for (const pageSheet of document.getElementsByClassName('pagedjs_sheet')) {
+		if (!(pageSheet instanceof HTMLElement))
+			continue;
+
+		pageSheet.style.setProperty('overflow', 'reset');
+
 		['top', 'right', 'left', 'bottom']
 			// @ts-ignore
-			.forEach(dir => pageBox.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
+			.forEach(dir => pageSheet.firstElementChild.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
 
-	for (const pageContent of document.getElementsByClassName('pagedjs_page_content')) {
+		const pageContent = pageSheet.getElementsByClassName('pagedjs_page_content')[0];
 		if (!(pageContent instanceof HTMLElement))
 			continue;
 
