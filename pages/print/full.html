@@ -78,6 +78,21 @@ layout: nothing
 		text-justify: inter-word;
 	}
 
+	.explanationPreface ol,
+	.explanationPreface ul,
+	.pagedjs_pages ol,
+	.pagedjs_pages ul {
+		padding-left: 10px;
+	}
+
+	.explanationPreface ol li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
+	.explanationPreface ul li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
+	.pagedjs_pages ol li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
+	.pagedjs_pages ul li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker {
+		font-size: 14px;
+		content: "\2022  ";
+	}
+
 	#differences {
 		page-break-before: always;
 	}
@@ -425,25 +440,21 @@ layout: nothing
 				<h4 style="text-align: center;">Calendar Explanation</h4>
 				<p style="text-align: center;">This section of the calendar aims to briefly explain every Halachic time for both calculation and concept.<br>For further research, please visit our website, royzmanim.com - we give additional sources from the Talmud onwards.</p>
 				<h5 style="text-align: center; margin-bottom: .125rem;">Daily Halachic Times Explanations</h5>
-				<div class="columnSplit">
-					<div data-lang-extract>
-						<div class="lang lang-hb">{{ dayExpl | markdownify }}</div>
-						<div class="lang lang-et">{{ dayExpl | markdownify }}</div>
-						<div class="lang lang-en">{{ dayExpl | markdownify }}</div>
+				<div class="columnSplit" data-lang-extract>
+					<div class="lang lang-hb">
+						{{ dayExpl | markdownify }}
+						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
+						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
 					</div>
-					<div data-lang-extract>
-						<div class="lang lang-hb">
-							<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
-							<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
-						</div>
-						<div class="lang lang-et">
-							<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
-							<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
-						</div>
-						<div class="lang lang-en">
-							<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
-							<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
-						</div>
+					<div class="lang lang-et">
+						{{ dayExpl | markdownify }}
+						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
+						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
+					</div>
+					<div class="lang lang-en">
+						{{ dayExpl | markdownify }}
+						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
+						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
 					</div>
 				</div>
 				<h5 style="text-align: center; margin-top: .5rem; margin-bottom: .125rem;">Misc. Zemanim Explanations</h5>
@@ -456,19 +467,19 @@ layout: nothing
 					See more from...<br>
 					<img src="/assets/images/print/ZY-b&w-banner.png" style="margin-bottom: .5rem; width: 30%;">
 					<div style="color: white;">
-                        <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+                        <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 8%; padding: .35rem; text-align: center; font-size: .8em;">
                             <div style="border-radius: .35rem; background: white;">
                                 <img src="/assets/images/app-store.svg" style="width: 100%">
                             </div>
                             App Store
                         </div>
-                        <div style="margin-left: .35rem; margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+                        <div style="margin-left: .35rem; margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 8%; padding: .35rem; text-align: center; font-size: .8em;">
                             <div style="border-radius: .35rem; background: white;">
                                 <img src="/assets/images/play-store.svg" style="width: 100%">
                             </div>
                             Play Store
                         </div>
-						<div style="margin-left: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 10%; padding: .35rem; text-align: center; font-size: .8em;">
+						<div style="margin-left: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 8%; padding: .35rem; text-align: center; font-size: .8em;">
                             <div style="border-radius: .35rem; background: white;">
                                 <img src="/assets/images/globe.svg" style="width: 100%; padding: .5rem;">
                             </div>

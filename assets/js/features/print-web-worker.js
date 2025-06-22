@@ -832,7 +832,7 @@ function messageHandler (x) {
 			bLTitl.innerHTML = {
 				hb: "ברכת הלבנה - חודש " + jCalBMoon.formatJewishMonth().he,
 				en: "Moon-Blessing - Month of " + jCalBMoon.formatJewishMonth().en,
-				"en-et": "Birkath Halevana - Ḥodesh " + jCalBMoon.formatJewishMonth().en
+				"en-et": "Birkath Ha'Levana - Ḥodesh " + jCalBMoon.formatJewishMonth().en
 			}[x.data.lang];
 
 			const bLTimes = document.createElement("p");

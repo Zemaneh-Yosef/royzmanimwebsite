@@ -179,15 +179,22 @@ async function preparePrint() {
 			otherLang.remove();
 
 		while (selectedLangChild.firstChild) {
-			if (!(selectedLangChild.firstChild instanceof HTMLParagraphElement) || selectedLangChild.hasAttribute('data-force-regAppend')) {
+			if ((!(selectedLangChild.firstChild instanceof HTMLParagraphElement)
+			 && !(selectedLangChild.firstChild instanceof HTMLUListElement))
+			 || selectedLangChild.hasAttribute('data-force-regAppend')) {
 				toExtract.appendChild(selectedLangChild.firstChild);
 				continue;
 			}
 
-			if (selectedLangChild.firstChild.textContent.trim() !== "") {
-				const newParagraph = selectedLangChild.firstChild.cloneNode();
-				while (selectedLangChild.firstChild.firstChild) {
-					if (selectedLangChild.firstChild.firstChild.nodeType == selectedLangChild.TEXT_NODE) {
+			if (selectedLangChild.firstChild instanceof HTMLParagraphElement) {
+				if (selectedLangChild.firstChild.textContent.trim() !== "") {
+					const newParagraph = selectedLangChild.firstChild.cloneNode();
+					while (selectedLangChild.firstChild.firstChild) {
+						if (selectedLangChild.firstChild.firstChild.nodeType !== selectedLangChild.TEXT_NODE) {
+							newParagraph.appendChild(selectedLangChild.firstChild.firstChild)
+							continue;
+						}
+
 						const words = selectedLangChild.firstChild.firstChild.textContent.split(" ")
 						for (let index = 0; index < words.length; index++) {
 							if (words[index].trim() === "")
@@ -201,10 +208,61 @@ async function preparePrint() {
 								newParagraph.appendChild(document.createElement("span"));
 						}
 						selectedLangChild.firstChild.firstChild.remove()
-					} else
-						newParagraph.appendChild(selectedLangChild.firstChild.firstChild)
+					}
+					toExtract.appendChild(newParagraph);
 				}
-				toExtract.appendChild(newParagraph);
+			}
+
+			if (selectedLangChild.firstChild instanceof HTMLUListElement) {
+				console.log("Detected List", selectedLangChild.firstChild);
+				const newList = selectedLangChild.firstChild.cloneNode();
+				while (selectedLangChild.firstChild.firstChild) {
+					const ogListItem = selectedLangChild.firstChild.firstChild;
+					if (ogListItem.nodeType == selectedLangChild.TEXT_NODE) {
+						if (ogListItem.textContent.trim() === "") {
+							ogListItem.remove();
+							continue;
+						}
+
+						throw new Error("Invalid HTML structure, expected <li> element inside <ul> or <ol>.");
+					}
+
+					if (!(ogListItem instanceof HTMLLIElement)) {
+						console.log(ogListItem);
+						throw new Error("Invalid HTML sturcture, expected <li> element inside <ul> or <ol>.");
+					}
+
+					const newListItem = ogListItem.cloneNode();
+					const elementToScan =
+						ogListItem.childElementCount == 1
+						&& ogListItem.firstElementChild instanceof HTMLParagraphElement
+							? ogListItem.firstElementChild
+							: ogListItem;
+
+					while (elementToScan.firstChild) {
+						if (elementToScan.firstChild.nodeType !== selectedLangChild.TEXT_NODE) {
+							newListItem.appendChild(elementToScan.firstChild)
+							continue;
+						}
+
+						const words = elementToScan.firstChild.textContent.split(" ")
+						for (let index = 0; index < words.length; index++) {
+							if (words[index].trim() === "")
+								continue;
+
+							newListItem.appendChild(document.createTextNode(
+								(index == 1 && words[0].trim() === "" ? " " : "")
+								+ words[index]
+								+ (index + 1 == words.length ? "" : " ")))
+							if (index + 1 !== words.length)
+								newListItem.appendChild(document.createElement("span"));
+						}
+						elementToScan.firstChild.remove()
+					}
+					selectedLangChild.firstChild.firstChild.remove()
+					newList.appendChild(newListItem);
+				}
+				toExtract.appendChild(newList);
 			}
 
 			selectedLangChild.firstChild.remove()
@@ -234,7 +292,7 @@ async function preparePrint() {
 		//const lastPage = pagedJSPage.getAttribute('data-page-number') == pagedJSPage.parentElement.style.getPropertyValue('--pagedjs-page-count')
 
 		//if (!lastPage) {
-			//pagedJSPage.style.height = 'initial';
+			//pagedJSPage.style.height = 'unset';
 		//}
 
 		const pageSheet = pagedJSPage.firstElementChild;
@@ -242,9 +300,9 @@ async function preparePrint() {
 			continue;
 
 		//if (!lastPage) {
-			//pageSheet.style.height = 'initial';
+			//pageSheet.style.height = 'unset';
 		//}
-		pageSheet.style.overflow = 'initial';
+		pageSheet.style.overflow = 'unset';
 
 		[
 			'pagedjs_margin-top-left-corner-holder',
@@ -264,7 +322,7 @@ async function preparePrint() {
 		if (!(pageBox instanceof HTMLElement))
 			continue;
 
-		//pageBox.style.height = 'initial';
+		//pageBox.style.height = 'unset';
 		['top', 'right', 'left', 'bottom']
 			.forEach(dir => pageBox.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
 
@@ -283,9 +341,12 @@ async function preparePrint() {
 			pageContentChild.style.height = 'unset';
 		}
 
-		if (pageContent.nextElementSibling && pageContent.nextElementSibling.classList.contains('pagedjs_footnote_area'))
+		if (pageContent.nextElementSibling && pageContent.nextElementSibling.classList.contains('pagedjs_footnote_area')) {
 			// @ts-ignore
 			pageContent.nextElementSibling.style.height = 'unset'
+			// @ts-ignore
+			pageContent.nextElementSibling.style.overflow = 'unset';
+		}
 	}
 
 	await sleep();

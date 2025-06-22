@@ -4,9 +4,9 @@ The day is measured from sunrise to sunset and divided into twelve even "seasona
 
 These are some expection to the default measurement, though, where we will opt for other measurements that provide different results:
 
-- A lengthier seasonal hour (from Dawn until Rabbenu Tam's Nightfall) is either enforced or encouraged for matters of strict Biblical restriction.
-- A 30 fixed-minute minimum is used for Minḥa Gedolah, making a difference in the winter months
-- Matters dependent on societal recognition does not depend on season, hence making them always fixed. This includes additional Shabbat time (20 minutes before sunset for candle lighting, 10 minutes after Nightfall for Shabbat ending) as well as the time-window to light Hanuka candles.
+- A lengthier seasonal hour (from Dawn until Rabbenu Tam's Nightfall) is either enforced or encouraged for Biblical matters.
+- A 30 fixed-minute minimum is used for the Early Minḥa time, making a difference in the winter months
+- Matters dependent on societal recognition does not depend on season, hence making them always fixed. This includes additional Shabbat time (20 minutes before sunset for candle lighting, 10 minutes after Nightfall for Shabbat ending) as well as the time-window to light Ḥanuka candles.
 
 Outside of Eretz Yisrael, a few other changes are made:
 
@@ -26,16 +26,16 @@ These are both astronomical constants, as the base to the other times. Internall
 
 Everyday is counted *independently* (as opposed to a mean value), being the halfway point between sunrise->sunset (not sunrise->tzet)
 
-###### Pelag Haminḥa
+###### Pelag Ha'Minḥa
 
-In addition to the GR"A's Pelag Haminḥa (held by Maran Ovadia in Halichot Olam & R' David in Halacha Berura), we offer the time for Pelag Haminḥa according to R' Yitzḥak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13 ½ minutes after sunset).
+In addition to the GR"A's Pelag Ha'Minḥa (labeled as the "Halacha Berura Pelag Ha'Minḥa"), we offer the time for Pelag Ha'Minḥa according to R' Yitzḥak Yosef & R' Avraham Yosef. This retains the GR"A's seasonal minutes while counting backwards from the Geonic nightfall (which as established above is 13½ minutes after sunset).
 
 ###### Tekufot
 
 This is a concept no other calendar lists, and explaining it here would require documenting the entire practice (which is too long for our purposes). Please reference the back of the PDF for an explanation.
 
-###### Birkat Halevana
-Between Sepharadim and Ashkenazim, we start later (because we start by day 7 rather than day 3) and end later. Whereas starting later is just whatever time we start + 96 hours, we end later because we say Birkat Halevana throughout the night of the 15th while the Rama wants to match the molad.
+###### Birkat Ha'Levana & Molad
 
-###### Molad
-Although Ashkenazic (+ some Sepharadic) communities announce the specific time that the molad takes place, we ommited this formula as per the normative Minhag Eretz Yisrael.
+The Molad for the new month is not announced in the normative Eretz Yisrael minhag (despite Ashkenazic + some Sepharadic communities announcing it by שבת מברכים). Nevertheless, we still use it to determine when one may start saying Birkat Ha'Levana - the difference between Sepharadim & Ashenazim on this detail, however, is that we offset 168 hours as opposed to the Ashkenazim who only offset 72 hours (thus creating an extra 96 hour offset on our end).
+
+According to the letter of the law, the Sepharadic deadline to say Birkat Ha'Levana is not dependent on the calculation of the Molad, and one may say it through the night of the 15<sup>th</sup>.
