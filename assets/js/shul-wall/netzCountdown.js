@@ -1,6 +1,6 @@
 // @ts-check
-/** @import {gsap as tsGsap} from 'gsap' */
 
+/** @import {gsap as tsGsap} from 'gsap' */
 import { gsap as jsGsap } from "../../libraries/gsap.js";
 
 import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";

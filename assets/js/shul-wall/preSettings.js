@@ -5,8 +5,7 @@ if (!('timers' in window))
 	// @ts-ignore
 	window.timers = {}
 
-/** @type {typeof settings} */
-let preSetSettings;
+let preSetSettings = settings;
 switch (window.location.href.split('/').pop()) {
 	case 'shaare-tefila-queens':
 	case 'shaare-tefila-queens-big':
@@ -156,4 +155,4 @@ switch (window.location.href.split('/').pop()) {
 		});
 }
 
-export default preSetSettings || settings;
+export default preSetSettings;
