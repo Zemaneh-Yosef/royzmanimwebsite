@@ -1,0 +1,354 @@
+<style>
+	.maxWidthContainer {
+		width: 90rem;
+		font-family: 'Neutro', var(--bs-body-font-family);
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1/1.6;
+		overflow: hidden;
+
+		position: relative;
+		display: grid;
+
+		background-image:
+		linear-gradient(to bottom, black 0%, transparent 5%, transparent 95%, black 100%),
+			url('/assets/images/shabbat-abstract/iStock-1176809832.jpg');
+		background-size: initial;
+		background-position: top 36% center;
+	}
+
+	#zyTrapezoid {
+		justify-self: center;
+		align-self: start;
+		width: 60%;
+		border-top: 220px solid #12141e;
+		border-left: 100px solid transparent;
+		border-right: 100px solid transparent;
+		height: 0;
+	}
+
+	#wrapperElement > *:not(.lechaDodi) {
+		grid-area: 1/1;
+	}
+
+	.footerBold {
+		font-weight: 700;
+	}
+
+	#zemanehShab {
+		align-self: start;
+		justify-self: center;
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		font-size: 8.25vw;
+		font-weight: 700;
+		text-transform: uppercase;
+		margin-top: 5.5vh;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		text-align: center;
+		line-height: .85;
+		display: grid;
+	}
+
+	.subtitle {
+		font-size: 4.25rem;
+		font-family: 'Cinzel';
+		color: #D3D3D3;
+		font-weight: 600;
+		text-transform: capitalize;
+		grid-row: 2;
+		grid-column: 1;
+	}
+
+	#gridElement {
+		align-self: start;
+		justify-self: center;
+		grid-template-columns: 1fr 1fr;
+		display: grid;
+		margin-top: 42vh;
+		align-items: center;
+		transform: scale(1.2);
+	}
+
+	.timeshow {
+		text-align: center;
+	}
+
+	.shabbatRow {
+		font-size: 5vw;
+		font-weight: 700;
+		font-family: 'Cinzel Decorative';
+		color: white;
+		line-height: 1;
+	}
+
+	.timecalc {
+		font-family: 'Cinzel';
+		font-size: 3.5vw;
+	}
+
+	.header {
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1.2;
+		font-weight: 600;
+		font-size: 23px;
+	}
+
+	.fastHeader {
+		font-family: 'Barlow', 'Frank Ruhl Libre';
+		grid-column: 1 / span 2;
+		font-size: 3rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.fastHeader:not(:first-child) {
+		margin-top: 3rem;
+	}
+
+	.twoLine {
+		line-height: .4;
+		padding-top: 1vw;
+	}
+
+	.addOn {
+		display: block;
+		font-size: 2vw;
+		font-family: 'Barlow';
+	}
+
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		justify-self: end;
+		transform: rotateY(180deg);
+		width: 16%;
+		z-index: 3;
+	}
+
+	#brandFooter {
+		justify-self: center;
+		align-self: end;
+		font-family: 'Guttman Mantova', 'Barlow', 'FrankRuehl';
+		font-weight: 700;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+		font-size: 3vw;
+		margin-bottom: 1.5vh;
+		width: 30vw;
+	}
+
+	#appLogo {
+		width: 30vw;
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	#ho {
+		align-self: end;
+		justify-self: start;
+		width: 17.5%;
+		margin-left: .25rem;
+	}
+
+	#fastHalachot {
+		align-self: center;
+		justify-self: end;
+		width: 55%;
+		background-color: rgba(0, 0, 0, .75);
+		padding: 1rem;
+		border-radius: 2rem;
+		margin-left: 1.5vw;
+		margin-right: 1.5vw;
+		margin-top: 83vh;
+		font-size: 1.15em;
+		align-items: center;
+	}
+
+	#threeWeeksHalachot {
+		align-self: center;
+		justify-self: start;
+		margin-top: 88.5vh;
+		line-height: 1.6;
+		font-size: 1.5em;
+		margin-left: 1.5vw;
+	}
+</style>
+<style>
+.titleForBH {
+	grid-row: 1;
+	grid-column: 1;
+	--dark-gray: #a9a9a9;
+	--gray: #c0c0c0;
+	--light-gray: #d3d3d3;
+	--contour: white;
+	padding-bottom: 1.25rem;
+	padding-top: 1.25rem;
+}
+
+.background {
+  color: var(--contour);
+}
+
+.gradient-1 {
+  background: linear-gradient(#000, var(--gray), var(--dark-gray), var(--light-gray), var(--dark-gray), var(--contour), var(--light-gray), var(--dark-gray), var(--light-gray), var(--dark-gray), var(--contour));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: lighten;
+}
+
+.gradient-2 {
+  background: linear-gradient(to right, #000 0%, var(--light-gray) 36%, var(--light-gray) 50%, var(--dark-gray) 56%, var(--light-gray) 60%, var(--dark-gray) 66%, var(--contour) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: difference;
+  opacity: 0.4;
+}
+
+.glow {
+  color: transparent;
+  text-shadow: 0px 0px 8px #000;
+  -webkit-background-clip: text;
+     -moz-background-clip: text;
+          background-clip: text;
+  mix-blend-mode: darken;
+  opacity: 0.8;
+}
+
+.glow-2 {
+  color: var(--contour);
+  filter: blur(12.5px);
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Frank+Ruhl+Libre:wght@300..900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<div id="gridElement"
+		data-functions-backday-0="getAlotHashahar getTzetHumra"
+		data-functions-frontday-21="getShkiya getTzetHumra"
+		data-flyerType="fast"
+		data-extra-locales="en"
+	>
+		<div class="header tableShadow fastHeader">
+			<div style="font-size: 4rem;">צום י"ז בטמוז, <span data-yearRender="hebrewParsed"></span></div>
+			Fast of <span data-dateRender-backday="0"></span>
+		</div>
+		<div class="header tableShadow">
+			<span style="font-size: 32px;">Fast Starts</span>
+			<br>(Dawn - עלות השחר)
+		</div>
+		<div class="header tableShadow">
+			<span style="font-size: 32px;">Fast Ends</span>
+			<br>(Strict Nightfall - צאת הכוכבים)
+		</div>
+		<div class="shabbatRow tableShadow timecalc"
+			{% if include.location.elevation %}data-elevation="{{ include.location.elevation }}"{% endif %}
+			data-lat="{{ include.location.lat }}" data-lng="{{ include.location.lng }}"
+			data-timezone="{{ include.location.timezone }}"
+			data-format="{{ include.location.timeFormat }}"
+			{% if include.location.humra %}data-humra="{{ include.location.humra }}"{% endif %}
+			{% if include.location.doubleLocation %}data-double-location{% endif %}
+			style="display: none">
+			{%- assign check = include.location.flag | split:'.' | last -%}
+			{% if check == "svg" %}
+				<img class="imgFlag" src="{{ include.location.flag }}">
+			{% else %}
+				{{ include.location.flag }}
+			{% endif %}
+			{{ include.location.name }}
+		</div>
+		<div class="shabbatRow timeshow">Start Time</div>
+		<div class="shabbatRow timeshow">End Time</div>
+		<div class="header tableShadow fastHeader">
+			<div style="font-size: 4rem;">צום ט' באב, <span data-yearRender="hebrewParsed"></span></div>
+			<div style="font-size: .75em;">Fast of <span data-dateRender-backday="-20"></span> - <span data-dateRenderS-backday="-21"></span></div>
+		</div>
+		<div class="header tableShadow">
+			<span style="font-size: 32px;">Fast Starts</span>
+			<br>(Sunset - שקיעה)
+		</div>
+		<div class="header tableShadow">
+			<span style="font-size: 32px;">Fast Ends</span>
+			<br>(Strict Nightfall - צאת הכוכבים)
+		</div>
+		<div class="shabbatRow timeshow">Start Time</div>
+		<div class="shabbatRow timeshow">End Time</div>
+	</div>
+	<div id="zemanehShab">
+		<div class="titleForBH background">בין המיצרים - זמנים והלכות</div>
+		<div class="titleForBH glow">בין המיצרים - זמנים והלכות</div>
+		<div class="titleForBH gradient-1">בין המיצרים - זמנים והלכות</div>
+		<div class="titleForBH gradient-2">בין המיצרים - זמנים והלכות</div>
+		<div class="titleForBH glow-2">בין המיצרים - זמנים והלכות</div>
+		<div class="subtitle">The Three Weeks - Fast Timings & Laws</div>
+	</div>
+	<div id="fastHalachot">
+		<div>
+			<h1 style="text-align: center; line-height: 1;">Calculation Explanation</h1>
+			<h4 style="text-align: center;">(All times are calculated for {{ include.location.name }})</h4>
+			<p><b>Sunset</b>, the complete setting of the solar sphere in the west,<sup>[1]</sup> begins [the transition into] the new Halachic day. Thus, the start of the three weeks on <span data-dateRender-backday="1"></span> and the start of the Tisha Be'Av fast on <span data-dateRender-backday="-20"></span> will happen at sunset.<sup>[2]</sup></p>
+			<p>All other Rabbinical fasts begin from the moment one goes to sleep; however, a stipulation made before sleeping can negate that until <b>Halachic Dawn</b>.<sup>[3]</sup> Dawn marks the beginning of the morning's twilight, whose standard length is legislated as 72 minutes long.<sup>[4]</sup> This length is subject to change depending on the distance from the equator ("standard deviation") as well as the length of the day ("seasonal minutes").<sup>[5]</sup></p>
+			<p>We are <i>stringent</i> for fasts to consider <b>Halachic Nightfall</b> only after 20 adjusted-seasonal minutes have passed since sunset<sup>[6]</sup> - there is no need to accommodate any other stringency for any fast (with the exception of Yom Kippur), even in the United States. The changes made to Dawn ("standard deviation", "seasonal minutes") are also included here, measured relative to the short time of 13.5/20</p>
+		</div>
+		<div style="font-size: .9em;">
+			<div>[1]: Halacha Berurah, intro. to Chapter 261 Halacha 21</div>
+			<div>[2]: See Ḥazon Ovadia, Arba Ta'aniyot, pg. 275-278 who recommends a 1-2 minute precaution to ensure no oversteps occur</div>
+			<div>[3]: Shulḥan Arukh O.Ḥ 562</div>
+			<div>[4]: Halikhot Olam Vol. I pg. 106</div>
+			<div>[5]: Halacha Berurah, intro. to Chapter 261, Halacha 13</div>
+			<div>[6]: Ḥazon Ovadia, Arba Ta'aniyot, pg. 12. This reflects the Rambam's view<br>To use the legal end time, use the time listed as "Nightfall" on our platform.</div>
+		</div>
+	</div>
+	<div id="threeWeeksHalachot">
+		<ul>
+			<li>
+				<b>Music</b> should not be listened to
+			</li>
+			<li>
+				<b>שהחינו blessings</b> are reserved for required-cases<br>
+				<i>from <span data-dateRender-backday="0"></span>-<span data-dateRender-backday="-21"></span></i>
+			</li>
+			<li>
+				<b>Weddings</b> are customarily restricted<br>
+				<i>from <span data-dateRender-backday="-13"></span>-<span data-dateRender-backday="-21"></span></i>
+			</li>
+			<li>
+				<b>Sewing</b> (& purchasing) new clothing is forbidden<br>
+				<i>from <span data-dateRender-backday="-13"></span>-<span data-dateRender-backday="-21"></span></i>
+			</li>
+			<li>
+				<b>Meat</b> should be avoided (Shabbat excluded)<br>
+				<i>from <span data-dateRender-backday="-14"></span>-<span data-dateRender-backday="-22"></span></i>
+			</li>
+		</ul>
+	</div>
+	<div id="brandFooter">
+		<div style="font-size: 4.5vw; display: flex; justify-content: space-around;">
+			<i class="bi bi-apple"></i>
+        	<i class="bi bi-android2"></i>
+			<i class="bi bi-globe"></i>
+		</div>
+		<img id="appLogo" src="/assets/images/logo.png" />
+		<br>
+		ROYZMANIM.COM
+	</div>
+	<img src="/assets/images/MARAN.png" id="maran">
+	<img src="/assets/images/shabbat-abstract/723bf0a035ed3839bd4f742c6cb94e92_1200x.webp" id="ho">
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>

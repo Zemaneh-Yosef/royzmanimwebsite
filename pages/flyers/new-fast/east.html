@@ -1,0 +1,292 @@
+---
+title: Fast East Times
+permalink: /fast/east
+breakout: true
+website: true
+---
+
+<style>
+	.maxWidthContainer {
+		width: 90rem;
+		font-family: 'Neutro', var(--bs-body-font-family);
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1/1.3;
+		overflow: hidden;
+
+		position: relative;
+		display: grid;
+
+		background-image:
+		linear-gradient(to bottom, black 0%, transparent 5%, transparent 95%, black 100%),
+			url('/assets/images/shabbat-abstract/iStock-1176809832.jpg');
+		background-size: initial;
+		background-position: top 34% center;
+	}
+
+	#zyTrapezoid {
+		justify-self: center;
+		align-self: start;
+		width: 60%;
+		border-top: 220px solid #12141e;
+		border-left: 100px solid transparent;
+		border-right: 100px solid transparent;
+		height: 0;
+	}
+
+	#wrapperElement > *:not(.lechaDodi) {
+		grid-area: 1/1;
+	}
+
+	.footerBold {
+		font-weight: 700;
+	}
+
+	#zemanehShab {
+		align-self: start;
+		justify-self: center;
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		font-size: 10.5vw;
+		font-weight: 700;
+		text-transform: uppercase;
+		margin-top: 12vh;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		text-align: center;
+		line-height: .9;
+		display: grid;
+	}
+
+	.subtitle {
+		font-size: 5rem;
+		font-family: 'Cinzel';
+		color: #D3D3D3;
+		font-weight: 600;
+		text-transform: capitalize;
+		grid-row: 2;
+		grid-column: 1;
+	}
+
+	#gridElement {
+		align-self: center;
+		grid-template-columns: 1fr .8fr .8fr;
+		display: grid;
+		margin-bottom: 65vh;
+		width: 92%;
+		justify-self: center;
+		align-items: center;
+		gap: 12.5px;
+	}
+
+	.timeshow {
+		text-align: center;
+	}
+
+	.shabbatRow {
+		font-size: 5vw;
+		font-weight: 700;
+		font-family: 'Cinzel Decorative';
+		color: white;
+		line-height: 1.3;
+	}
+
+	.timecalc {
+		font-family: 'Cinzel';
+		font-size: 3.5vw;
+	}
+
+	.header {
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1.2;
+		font-weight: 600;
+		font-size: 2rem;
+	}
+
+	.header .bi {
+		float: left;
+		height: 2em;
+		width: 2em;
+	}
+
+	.twoLine {
+		line-height: .4;
+		padding-top: 1vw;
+	}
+
+	.addOn {
+		display: block;
+		font-size: 2vw;
+		font-family: 'Barlow';
+	}
+
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		justify-self: end;
+		transform: rotateY(180deg);
+		width: 17.5%;
+		z-index: 3;
+	}
+
+	#brandFooter {
+		justify-self: center;
+		align-self: end;
+		font-family: 'Guttman Mantova', 'Barlow', 'FrankRuehl';
+		font-weight: 700;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+		font-size: 3.5vw;
+		margin-bottom: 2vh;
+		width: 35vw;
+	}
+
+	#appLogo {
+		width: 35vw;
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	#ho {
+		align-self: end;
+		justify-self: start;
+		width: 17.5%;
+		margin-left: .25rem;
+	}
+
+	#fastHalachot {
+		align-self: end;
+		margin-bottom: 50vh;
+		font-size: 1.4rem;
+		background-color: rgba(0, 0, 0, .75);
+		padding: 1.15rem;
+		border-radius: 2rem;
+		margin-left: 2.5vw;
+		margin-right: 2.5vw;
+	}
+</style>
+<style>
+.shabbatTitleCore {
+	grid-row: 1;
+	grid-column: 1;
+	--dark-gray: #a9a9a9;
+	--gray: #c0c0c0;
+	--light-gray: #d3d3d3;
+	--contour: white;
+}
+
+.background {
+  color: var(--contour);
+}
+
+.gradient-1 {
+  background: linear-gradient(#000, var(--gray), var(--dark-gray), var(--light-gray), var(--dark-gray), var(--contour), var(--light-gray), var(--dark-gray), var(--light-gray), var(--dark-gray), var(--contour));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: lighten;
+}
+
+.gradient-2 {
+  background: linear-gradient(to right, #000 0%, var(--light-gray) 36%, var(--light-gray) 50%, var(--dark-gray) 56%, var(--light-gray) 60%, var(--dark-gray) 66%, var(--contour) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: difference;
+  opacity: 0.4;
+}
+
+.glow {
+  color: transparent;
+  text-shadow: 0px 0px 8px #000;
+  -webkit-background-clip: text;
+     -moz-background-clip: text;
+          background-clip: text;
+  mix-blend-mode: darken;
+  opacity: 0.8;
+}
+
+.glow-2 {
+  color: var(--contour);
+  filter: blur(50px);
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Frank+Ruhl+Libre:wght@300..900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<!-- <div id="zyTrapezoid"></div>
+	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
+	<img id="gne" src="/assets/images/shabbat-abstract/ashkenaziBooks.webp" />
+	<span id="bsD">בס"ד</span>
+	<img src="/assets/images/shabbat-abstract/shabbat-candles-ext.png" id="shabbatCandles" />
+	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png"> -->
+	<div id="gridElement"
+		data-functions-backday-0="getAlotHashahar getTzetHumra"
+		data-flyerType="fast"
+		data-extra-locales="en"
+	>
+		<div></div>
+		<div class="header tableShadow">
+			Fast Starts<br>(Dawn - עלות השחר)</div>
+		<div class="header tableShadow" style="font-size: 23px;"><span style="font-size: 32px;">Fast Ends</span><br>(Strict Nightfall - צאת הכוכבים)</div>
+		{% for item in site.data.designLocationList.rahimi %}
+		<div class="shabbatRow tableShadow timecalc"
+			{% if item.elevation %}data-elevation="{{ item.elevation }}"{% endif %}
+			data-lat="{{ item.lat }}" data-lng="{{ item.lng }}"
+			data-timezone="{{ item.timezone }}"
+			data-format="{{ item.timeFormat }}"
+			{% if item.humra %}data-humra="{{ item.humra }}"{% endif %}
+			{% if item.doubleLocation %}data-double-location{% endif %}>
+			{%- assign check = item.flag | split:'.' | last -%}
+			{% if check == "svg" %}
+				<img class="imgFlag" src="{{ item.flag }}">
+			{% else %}
+				{{ item.flag }}
+			{% endif %}
+			{{ item.name }}
+		</div>
+		<div class="shabbatRow timeshow">Start Time</div>
+		<div class="shabbatRow timeshow">End Time</div>
+		{% endfor %}
+	</div>
+	<div id="zemanehShab">
+		<div class="shabbatTitleCore background" data-gematria>צום </div>
+		<div class="shabbatTitleCore glow" data-gematria>צום </div>
+		<div class="shabbatTitleCore gradient-1" data-gematria>צום </div>
+		<div class="shabbatTitleCore gradient-2" data-gematria>צום </div>
+		<div class="shabbatTitleCore glow-2" data-gematria>צום </div>
+		<div class="subtitle">Fast of <span id="calSubtitle"></span></div>
+	</div>
+	<div id="fastHalachot">
+		<h1 style="text-align: center;">Calculation Explanation</h1>
+		<p><b>Halachic Dawn</b> (which is when fasts start; S"A Orach Chaim 562) is calculated as 72 minutes before sunrise (Halikhot Olam Vol. I pg. 106). Locations further north or south of Israel will change this number relative to how far one is from the equator ("standard deviation"), transforming the minutes to 80 minutes in NY (Halacha Berurah, intro. to Chapter 261, Halacha 13). This time is then further shortened/elongated based on the length of the day ("seasonal minutes").</p>
+		<p>The calculation used for <b>Halachic Nightfall</b> spans 20 minutes after sunset, based on a stringency to accommodate the Rambam's opinion on Nightfall (Ḥazon Ovadia, Arba Ta'aniyot, pg. 12) - there is no need to accommodate any other stringency for any fast (with the exception of Yom Kippur), even in the United States. Nevertheless, the non-stringent time of 13.5 minutes is still the definition of nightfall, meaning one can break the fast as early as then. The changes made to Dawn ("standard deviation", "seasonal minutes") are also included here, measured relative to the short time of 13.5/20</p>
+	</div>
+	<div id="brandFooter">
+		<div style="font-size: 4.5vw; display: flex; justify-content: space-around;">
+			<i class="bi bi-apple"></i>
+        	<i class="bi bi-android2"></i>
+			<i class="bi bi-globe"></i>
+		</div>
+		<img id="appLogo" src="/assets/images/logo.png" />
+		<br>
+		ROYZMANIM.COM
+	</div>
+	<img src="/assets/images/MARAN.png" id="maran">
+	<img src="/assets/images/shabbat-abstract/723bf0a035ed3839bd4f742c6cb94e92_1200x.webp" id="ho">
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>

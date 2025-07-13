@@ -192,87 +192,85 @@ export default class ChaiTables {
 	initForm(zmanLister) {
 		this.geoL = zmanLister.geoLocation;
 
-		window.addEventListener('load', () => {
-			const submitBtn = document.getElementById('gctnd');
+		const submitBtn = document.getElementById('gctnd');
 
-			const selectors = Array.from(document.getElementsByTagName("md-outlined-select")).map((/** @type {HTMLSelectElement} */elem) => elem);
-			selectors.forEach(selector => {
-				// @ts-ignore
-				selector.reset();
+		const selectors = Array.from(document.getElementsByTagName("md-outlined-select"))
+			.map((/** @type {HTMLSelectElement} */elem) => elem);
 
-				/* const options = Array.from(selector.options);
-				options.shift()
-				options.forEach(option => {
-					if (option.disabled)
-						option.disabled = false;
+		for (const selector of selectors) {
+			// @ts-ignore
+			selector.reset();
 
-					const bounds = JSON.parse(option.getAttribute('data-bounds'));
-					if (Array.isArray(bounds)) {
-						if (bounds.length == 1 && bounds[0].n == 0)
-							return;
+			/* for (const option of Array.from(selector.options).slice(1)) {
+				if (option.disabled)
+					option.disabled = false;
 
-						console.log(option.value, bounds, this.geoL.getLatitude(), this.geoL.getLongitude())
-						option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), bounds);;
-					} else {
-						if (bounds.n == 0)
-							return;
+				const bounds = JSON.parse(option.getAttribute('data-bounds'));
+				if (Array.isArray(bounds)) {
+					if (bounds.length == 1 && bounds[0].n == 0)
+						continue;
 
-						option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), [bounds]);
-					}
-				}) */
-			});
+					console.log(option.value, bounds, this.geoL.getLatitude(), this.geoL.getLongitude())
+					option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), bounds);;
+				} else {
+					if (bounds.n == 0)
+						continue;
 
-			const MASubFormEvent = () => {
-				submitBtn.removeAttribute('disabled');
-				window.requestAnimationFrame(() => submitBtn.focus());
-			}
-
-			const primaryIndex = selectors.find(select => select.id == 'MAIndex');
-			const hideAllForms = () => {
-				if (!submitBtn.hasAttribute('disabled'))
-					submitBtn.setAttribute('disabled', '')
-
-				const previouslySelectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
-				if (previouslySelectedMASel)
-					previouslySelectedMASel.removeEventListener('change', MASubFormEvent)
-
-				selectors.filter(selector => selector.id.endsWith('MetroArea')).forEach(selector=>selector.style.display = 'none')
-			}
-
-			hideAllForms();
-			primaryIndex.addEventListener('change', (/** @type {Event & { target: HTMLSelectElement }} */chngEvnt) => {
-				hideAllForms();
-
-				const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
-				highlightedSelector.style.removeProperty('display');
-				highlightedSelector.addEventListener('change', MASubFormEvent)
-				//window.requestAnimationFrame(() => highlightedSelector.focus())
-				highlightedSelector.shadowRoot.getElementById("field").click()
-			})
-
-			submitBtn.addEventListener('click', async () => {
-				submitBtn.setAttribute('disabled', '')
-				submitBtn.classList.add("sbmitl")
-				const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
-				this.setOtherData(selectors[0].value, parseInt(selectedMASel.selectedOptions[0].value));
-				const ctData = await this.formatInterfacer();
-
-				if (!ctData.times.length) {
-					const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
-					toastBootstrap.show();
-					return;
+					option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), [bounds]);
 				}
+			} */
+		}
 
-				localStorage.setItem("ctNetz", JSON.stringify(ctData));
-				this.modal.hide();
+		const MASubFormEvent = () => {
+			submitBtn.removeAttribute('disabled');
+			window.requestAnimationFrame(() => submitBtn.focus());
+		}
 
-				const prevDate = zmanLister.jCal.getDate();
-				zmanLister.resetCalendar();
-				zmanLister.changeDate(prevDate);
+		const primaryIndex = selectors.find(select => select.id == 'MAIndex');
+		const hideAllForms = () => {
+			if (!submitBtn.hasAttribute('disabled'))
+				submitBtn.setAttribute('disabled', '')
 
-				submitBtn.classList.remove("sbmitl");
-			});
+			const previouslySelectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
+			if (previouslySelectedMASel)
+				previouslySelectedMASel.removeEventListener('change', MASubFormEvent)
+
+			selectors.filter(selector => selector.id.endsWith('MetroArea')).forEach(selector=>selector.style.display = 'none')
+		}
+
+		hideAllForms();
+		primaryIndex.addEventListener('change', (/** @type {Event & { target: HTMLSelectElement }} */chngEvnt) => {
+			hideAllForms();
+
+			const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
+			highlightedSelector.style.removeProperty('display');
+			highlightedSelector.addEventListener('change', MASubFormEvent)
+			//window.requestAnimationFrame(() => highlightedSelector.focus())
+			highlightedSelector.shadowRoot.getElementById("field").click()
 		})
+
+		submitBtn.addEventListener('click', async () => {
+			submitBtn.setAttribute('disabled', '')
+			submitBtn.classList.add("sbmitl")
+			const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
+			this.setOtherData(selectors[0].value, parseInt(selectedMASel.selectedOptions[0].value));
+			const ctData = await this.formatInterfacer();
+
+			if (!ctData.times.length) {
+				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
+				toastBootstrap.show();
+				return;
+			}
+
+			localStorage.setItem("ctNetz", JSON.stringify(ctData));
+			this.modal.hide();
+
+			const prevDate = zmanLister.jCal.getDate();
+			zmanLister.resetCalendar();
+			zmanLister.changeDate(prevDate);
+
+			submitBtn.classList.remove("sbmitl");
+		});
 	}
 }
 

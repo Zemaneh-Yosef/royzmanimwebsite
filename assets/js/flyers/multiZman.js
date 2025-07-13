@@ -40,8 +40,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		const jCalShabbat = jCal.shabbat();
 		jCalShabbat.back();
 
-		if ((jCalShabbat.isAssurBemelacha() || jCalShabbat.tomorrow().tomorrow().isAssurBemelacha())
-			&& document.getElementById('gridElement').getAttribute('data-flyerType') == 'shabbat')
+		if ((jCalShabbat.isAssurBemelacha() || jCalShabbat.tomorrow().tomorrow().isAssurBemelacha()))
 			throw new Error("Surrounding-Shabbat Asur Bemelacha")
 
 		shabbatDate = jCalShabbat.tomorrow().getDate();
@@ -65,14 +64,35 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		jCal.setDate(shabbatDate);
 		break;
 	} case 'fast': {
-		if (!jCal.isTaanis())
-			throw new Error("Non-Fast day")
-
 		const fastMonths = {
 			[WebsiteLimudCalendar.TAMMUZ]: 17,
 			[WebsiteLimudCalendar.AV]: 9,
 			[WebsiteLimudCalendar.TEVES]: 10
 		}
+
+		if (!Object.keys(fastMonths).includes(jCal.getJewishMonth().toString()) && !jCal.isTaanis())
+			throw new Error("Not a fast day");
+
+		let tempJcal = jCal.clone();
+		let resetToFirstOfMonth = false;
+		while (!tempJcal.isTaanis()) {
+			tempJcal = tempJcal.tomorrow();
+			if (!Object.keys(fastMonths).includes(tempJcal.getJewishMonth().toString())) {
+				if (!resetToFirstOfMonth) {
+					tempJcal.setJewishMonth(tempJcal.getJewishMonth() - 1);
+					tempJcal.setJewishDayOfMonth(1);
+					resetToFirstOfMonth = true;
+					continue;
+				}
+
+				throw new Error("No fast found in this month");
+			}
+		}
+
+		shabbatDate = tempJcal.getDate();
+		jCal.setDate(shabbatDate);
+
+		const hnF = new HebrewNumberFormatter();
 
 		const locales = document.getElementById('gridElement').getAttribute('data-extra-locales').split(" ").filter(Boolean)
 		const hebrewLocale = {
@@ -80,31 +100,35 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			addToCalendars: false,
 		};
 
-		let fastName;
-		if (!(jCal.getJewishMonth() in fastMonths)) {
-			/**
-			 * The date of the fast doesn't correspond to the fast name, so always add the Hebrew date to our list of dates
-			 * However, for the year going in the title, we don't want that in the Hebrew version (saves title width)
-			 * While we explicitly want that in the English version (where the date list will be so long so we extend the width to accomodate
-			 */
-			fastName = (jCal.getJewishMonth() == WebsiteLimudCalendar.TISHREI ? "צום גדליה" : "תענית אסתר")
-			hebrewLocale.titleYear = !!locales.length
-			hebrewLocale.addToCalendars = true
-		} else {
-			/**
-			 * The date of the fast corresponds to the fast name in most cases, so check for those.
-			 * If it does, then we could add our Hebrew year to the fast name title to save a need to add the Hebrew date to the date list
-			 * Thereby, the Hebrew version will have no date list - the English option will have a shorter title that the width of the Hebrew title will accomodate
-			 * If not, we add in the Hebrew date to our locales. The year will always go in the title, though, due to how rare this is.
-			 */
-			fastName = (/* "צום " + */ n2heWords(fastMonths[jCal.getJewishMonth()]) + " ב" + jCal.formatJewishMonth().he)
-				.replace(/[\u0591-\u05C7]/gu, '')
-			hebrewLocale.addToCalendars = jCal.getJewishDayOfMonth() !== fastMonths[jCal.getJewishMonth()];
-			hebrewLocale.titleYear = jCal.getJewishDayOfMonth() == fastMonths[jCal.getJewishMonth()];
-		}
-
-		for (const title of document.getElementsByClassName('shabbatTitleCore'))
+		for (const title of document.getElementsByClassName('shabbatTitleCore')) {
+			let fastName;
+			if (!(jCal.getJewishMonth() in fastMonths)) {
+				/**
+				 * The date of the fast doesn't correspond to the fast name, so always add the Hebrew date to our list of dates
+				 * However, for the year going in the title, we don't want that in the Hebrew version (saves title width)
+				 * While we explicitly want that in the English version (where the date list will be so long so we extend the width to accomodate
+				 */
+				fastName = (jCal.getJewishMonth() == WebsiteLimudCalendar.TISHREI ? "צום גדליה" : "תענית אסתר")
+				hebrewLocale.titleYear = !!locales.length
+				hebrewLocale.addToCalendars = true
+			} else {
+				/**
+				 * The date of the fast corresponds to the fast name in most cases, so check for those.
+				 * If it does, then we could add our Hebrew year to the fast name title to save a need to add the Hebrew date to the date list
+				 * Thereby, the Hebrew version will have no date list - the English option will have a shorter title that the width of the Hebrew title will accomodate
+				 * If not, we add in the Hebrew date to our locales. The year will always go in the title, though, due to how rare this is.
+				 */
+				fastName =
+					((title.hasAttribute('data-gematria') ?
+						hnF.formatHebrewNumber(fastMonths[jCal.getJewishMonth()])
+						: n2heWords(fastMonths[jCal.getJewishMonth()]))
+					+ " ב" + jCal.formatJewishMonth().he)
+					.replace(/[\u0591-\u05C7]/gu, '')
+				hebrewLocale.addToCalendars = jCal.getJewishDayOfMonth() !== fastMonths[jCal.getJewishMonth()];
+				hebrewLocale.titleYear = jCal.getJewishDayOfMonth() == fastMonths[jCal.getJewishMonth()];
+			}
 			title.innerHTML += fastName + (hebrewLocale.titleYear ? " " + jCal.formatJewishYear().hebrew : "")
+		}
 
 		/*if (!window.location.href.includes('usa'))
 			locales.push('fa', 'ar-u-ca-islamic-umalqura'); */
@@ -116,7 +140,6 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		//    .replace(/4/g, '٤').replace(/5/g, '٥').replace(/6/g, '٦').replace(/7/g, '۷').replace(/8/g, '۸').replace(/9/g, '۹')
 
 		if (hebrewLocale.addToCalendars) {
-			const hnF = new HebrewNumberFormatter();
 			calendars.push(`${jCal.getDayOfTheWeek().hb}, `
 			+ (!hebrewLocale.titleYear
 				? jCal.formatJewishFullDate().hebrew
@@ -124,10 +147,10 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		}
 		break;
 	} case 'shovavim': {
-		const internationalCheck = window.location.href.endsWith('/international') || window.location.href.endsWith('/international/')
 		const weekNumber = jCal.shabbat().getParshah() - KosherZmanim.Parsha.VAYECHI
-		const textWeekNumber = internationalCheck ? n2heWords(weekNumber) : weekNumber
-		document.getElementsByClassName('shabbatTitleCore')[0].innerHTML += textWeekNumber + ` (${jCal.getHebrewParasha()})`
+		for (const title of document.getElementsByClassName('shabbatTitleCore'))
+			title.innerHTML += (title.getAttribute('data-gematriaTitle') ? n2heWords(weekNumber) : weekNumber)
+				+ ` (${jCal.getHebrewParasha()})`
 
 		const lastFastDay = jCal.getDate().add({ days: 5 })
 
@@ -137,12 +160,13 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		else
 			englishDate += getOrdinal(lastFastDay.day, true)
 
-		const hnF = new HebrewNumberFormatter();
-		let hebrewDate = `שבוע של ${hnF.formatHebrewNumber(jCal.getDate().withCalendar("hebrew").day)}`;
-		if (jCal.getDate().withCalendar("hebrew").month !== lastFastDay.withCalendar("hebrew").month)
-			hebrewDate += ` ב${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})} עד ${hnF.formatHebrewNumber(lastFastDay.withCalendar("hebrew").day)} ב${lastFastDay.toLocaleString('he-u-ca-hebrew', {month: 'long'})}`;
+		const lastHebFastDay = lastFastDay.withCalendar("hebrew");
+		const formatHebNum = (new HebrewNumberFormatter()).formatHebrewNumber;
+		let hebrewDate = `שבוע של ${formatHebNum(jCal.getJewishDayOfMonth())}`;
+		if (jCal.getDate().withCalendar("hebrew").month !== lastHebFastDay.month)
+			hebrewDate += ` ב${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})} עד ${formatHebNum(lastHebFastDay.day)} ב${lastFastDay.toLocaleString('he-u-ca-hebrew', {month: 'long'})}`;
 		else
-			hebrewDate += `-${hnF.formatHebrewNumber(lastFastDay.withCalendar("hebrew").day)} ב${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})}`
+			hebrewDate += `-${formatHebNum(lastHebFastDay.day)} ב${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})}`
 
 		calendars.push(englishDate, hebrewDate);
 	} case 'hanuka': {
@@ -238,28 +262,33 @@ if (['shovavim', 'fast'].includes(document.getElementById('gridElement')?.getAtt
 	document.getElementById("calSubtitle").innerHTML = calendars.map(text=> `<span style="unicode-bidi: isolate;">${text}</span>`).join(" • ")
 
 let shitotOptions = (document.getElementById("gridElement")?.getAttributeNames() || [])
-	.filter(attr => attr.startsWith('data-functions-backday'))
+	.filter(attr => attr.startsWith('data-functions-backday') || attr.startsWith('data-functions-frontday'))
 
-for (const d8Displ of [...document.querySelectorAll('[data-dateRender-backday]'), ...document.querySelectorAll('[data-dateRenderY-backday]')]) {
-	const dateJCal = jCal.clone();
-	dateJCal.setDate(shabbatDate.subtract({ days: parseInt(d8Displ.getAttribute('data-dateRender-backday') || d8Displ.getAttribute('data-dateRenderY-backday')) }));
+for (const d8Displ of document.querySelectorAll(['', 'Formal', 'Y', 'SY', 'S'].map(format => `[data-dateRender${format}-backday]`).join(', '))) {
+	if (!(d8Displ instanceof HTMLElement))
+		continue;
 
-	d8Displ.innerHTML = dateJCal.formatFancyDate() + (d8Displ.hasAttribute('data-dateRenderY-backday') ? ", " + dateJCal.getGregorianYear() : "")
-}
+	const attributes = d8Displ.dataset;
+	const entryFound = Object.entries(attributes).find(attr => attr[0].startsWith('daterender'));
 
-for (const d8Displ of document.querySelectorAll('[data-dateRenderSY-backday]')) {
 	const d8jCal = jCal.clone();
-	d8jCal.setDate(shabbatDate.subtract({ days: parseInt(d8Displ.getAttribute('data-dateRenderSY-backday')) }));
+	d8jCal.setDate(shabbatDate[parseInt(entryFound[1]) < 0 ? 'add' : 'subtract']({ days: Math.abs(parseInt(entryFound[1])) }));
 
-	d8Displ.innerHTML =
-		`${daysForLocale('en')[d8jCal.getDate().dayOfWeek]}, ${monthForLocale('en', 'short')[d8jCal.getDate().month]} ${getOrdinal(d8jCal.getDate().day, true)}, ${d8jCal.getGregorianYear()}`;
-}
+	console.log(entryFound, d8jCal.getDate().toLocaleString('en', { month: 'long', day: 'numeric', year: 'numeric' }), d8Displ)
 
-for (const d8Displ of document.querySelectorAll('[data-dateRenderFormal-backday]')) {
-	const d8jCal = jCal.clone();
-	d8jCal.setDate(shabbatDate.subtract({ days: parseInt(d8Displ.getAttribute('data-dateRenderFormal-backday')) }));
+	const [dateRender] = entryFound[0].split(/(?<![A-Z])(?=[A-Z])/);
 
-	d8Displ.innerHTML = jCal.dateRenderer('en').primary.text;
+	if (dateRender.endsWith('formal')) {
+		d8Displ.innerHTML = d8jCal.dateRenderer('en').primary.text;
+	} else if (dateRender.endsWith('sy')) {
+		d8Displ.innerHTML = `${daysForLocale('en')[d8jCal.getDate().dayOfWeek]}, ${monthForLocale('en', 'short')[d8jCal.getDate().month]}. ${getOrdinal(d8jCal.getDate().day, true)}`
+		+ (", " + d8jCal.getGregorianYear());
+	} else if (dateRender.endsWith('s')) {
+		d8Displ.innerHTML = `${daysForLocale('en')[d8jCal.getDate().dayOfWeek]}, ${monthForLocale('en', 'short')[d8jCal.getDate().month]}. ${getOrdinal(d8jCal.getDate().day, true)}`;
+	} else if (dateRender.endsWith('y'))
+		d8Displ.innerHTML = d8jCal.formatFancyDate() + (", " + d8jCal.getGregorianYear());
+	else
+		d8Displ.innerHTML = d8jCal.formatFancyDate();
 }
 
 for (const yearDisplay of document.querySelectorAll('[data-yearRender]')) {
@@ -300,7 +329,10 @@ for (const elem of elems) {
 	let editElem = elem;
 
 	for (const shitotDay of shitotOptions) {
-		currentCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
+		const backday = shitotDay.startsWith('data-functions-backday-');
+		currentCalc.setDate(shabbatDate[backday ? 'subtract' : 'add']
+			({ days: Math.abs(parseInt(shitotDay.replace(backday ? 'data-functions-backday-' : 'data-functions-frontday-', ''))) })
+		);
 		const plag = currentCalc.getPlagHaminhaHalachaBrurah();
 
 		for (const timeFunc of document.getElementById('gridElement').getAttribute(shitotDay).split(" ")) {
@@ -342,6 +374,13 @@ for (const elem of elems) {
 			editElem.innerHTML = time.toLocaleString(...dtF);
 
 			for (const attr in editElem.dataset) {
+				if (attr == 'append') {
+					const appendText = editElem.dataset[attr];
+					if (appendText)
+						editElem.innerHTML += `<div class="addOn">${appendText}</div>`;
+					continue;
+				}
+
 				const [functionName, prefOrSuf] = attr.split(/(?<![A-Z])(?=[A-Z])/);
 				if (!functionName.startsWith('get') || prefOrSuf !== 'Prefix')
 					continue;
@@ -398,8 +437,13 @@ for (const elem of elems) {
 				// @ts-ignore
 				editElem = elem;
 				for (const shitotDay of shitotOptions) {
-					currentCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
-					baseCalc.setDate(shabbatDate.subtract({ days: parseInt(shitotDay.replace('data-functions-backday-', '')) }));
+					const backday = shitotDay.startsWith('data-functions-backday-');
+					currentCalc.setDate(shabbatDate[backday ? 'subtract' : 'add']
+						({ days: parseInt(shitotDay.replace(backday ? 'data-functions-backday-' : 'data-functions-frontday-', '')) })
+					);
+					baseCalc.setDate(shabbatDate[backday ? 'subtract' : 'add']
+						({ days: parseInt(shitotDay.replace(backday ? 'data-functions-backday-' : 'data-functions-frontday-', '')) })
+					);
 					const plag = currentCalc.getPlagHaminhaHalachaBrurah();
 
 					for (const timeFunc of document.getElementById('gridElement').getAttribute(shitotDay).split(" ")) {
@@ -414,7 +458,7 @@ for (const elem of elems) {
 
 							if ((index == 0 ? elem : baseLocation).hasAttribute('data-humra')) {
 								const LeKhumra = shitotOptions.length >= 2 ?
-									parseInt(shitotDay.replace('data-functions-backday-', '')) == 0 :
+									parseInt(shitotDay.replace(backday ? 'data-functions-backday-' : 'data-functions-frontday-', '')) == 0 :
 									KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1;
 								time = time[LeKhumra ? 'add' : 'subtract']({
 									minutes: parseInt((index == 0 ? elem : baseLocation).getAttribute('data-humra'))

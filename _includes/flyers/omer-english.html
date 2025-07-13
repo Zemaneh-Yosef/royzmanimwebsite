@@ -1,10 +1,3 @@
----
-title: Sefirat Haomer - NYC
-permalink: /omer/nyc
-breakout: true
-website: true
----
-
 <style>
 	.maxWidthContainer {
 		width: clamp(16rem, 90vw, 90rem);
@@ -275,8 +268,8 @@ website: true
 						נָא גִבּוֹר. דּֽוֹרְשֵֽׁי יִחוּדֶֽךָ. כְּבָבַת שָׁמְרֵם:<br>
 						בָּֽרְכֵֽם טַהֲרֵם. רַחֲמֵי צִדְקָתֶֽךָ. תָּמִיד גָּמְלֵם:<br>
 						חֲסִין קָדוֹשׁ. בְּרֹב טֽוּבְךָֽ. נַהֵל עֲדָתֶֽךָ:<br>
-						יָחִיד גֵּאֶה. לְעַמְּךָ פְנֵה. זֽוֹכְרֵֽי קְדֻשָּׁתֶֽךָ:<br> 
-						שַׁוְעָתֵֽנוּ קַבֵּל. וּשְׁמַע צַעֲקָתֵֽנוּ. יוֹדֵֽעַ תַּעֲלוּמוֹת:<br> 
+						יָחִיד גֵּאֶה. לְעַמְּךָ פְנֵה. זֽוֹכְרֵֽי קְדֻשָּׁתֶֽךָ:<br>
+						שַׁוְעָתֵֽנוּ קַבֵּל. וּשְׁמַע צַעֲקָתֵֽנוּ. יוֹדֵֽעַ תַּעֲלוּמוֹת:<br>
 						בָּרוּךְ שֵׁם כְּבוֹד מַלְכוּתוֹ לְעוֹלָם וָעֶד:
 						</div>
 				</div>
@@ -285,11 +278,13 @@ website: true
 		<div id="gridElement">
 			<h1 id="announcement">Preferred Time To Count</h1>
 			<div class="timecalc"
-                data-lat="40.729397" data-lng="-73.847694"
-                data-timezone="America/New_York"
-                data-format="h12"
+                {% if include.location.elevation %}data-elevation="{{ include.location.elevation }}"{% endif %}
+                data-lat="{{ include.location.lat }}" data-lng="{{ include.location.lng }}"
+                data-timezone="{{ include.location.timezone }}"
+                data-format="{{ include.location.timeFormat }}"
+                {% if include.location.humra %}data-humra="{{ include.location.humra }}"{% endif %}
 				style="grid-column-end: span 2;">
-				<div class="locationHolder">New York City</div>
+				<div class="locationHolder">{{ include.location.name }}</div>
 				<div class="timeResult"></div>
 			</div>
 			<div class="halachot">

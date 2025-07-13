@@ -1,0 +1,366 @@
+<style>
+	.maxWidthContainer {
+		width: 90rem;
+		font-family: 'Neutro', var(--bs-body-font-family);
+	}
+
+	#sidebar, .navbar {
+		display: none !important;
+	}
+
+	#wrapperElement {
+		width: 100%;
+		aspect-ratio: 1/1.3;
+		overflow: hidden;
+
+		position: relative;
+		display: grid;
+
+		background-image:
+		linear-gradient(to bottom, black 0%, transparent 5%, transparent 95%, black 100%),
+			url('/assets/images/shabbat-abstract/iStock-1176809832.jpg');
+		background-size:auto;
+		background-position: top 34% center;
+	}
+
+	#zyTrapezoid {
+		justify-self: center;
+		align-self: start;
+		width: 60%;
+		border-top: 220px solid #12141e;
+		border-left: 100px solid transparent;
+		border-right: 100px solid transparent;
+		height: 0;
+	}
+
+	#wrapperElement > * {
+		grid-area: 1/1;
+	}
+
+	#zemanehShab {
+		align-self: start;
+		justify-self: center;
+		font-family: 'Neutro', 'Frank Ruhl Libre';
+		font-size: 8.25vw;
+		font-weight: 700;
+		text-transform: uppercase;
+		margin-top: 9.5vh;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		text-align: center;
+		line-height: .85;
+		display: grid;
+	}
+
+	.subtitle {
+		font-size: 4.25rem;
+		font-family: 'Cinzel';
+		color: #D3D3D3;
+		font-weight: 600;
+		text-transform: capitalize;
+		grid-row: 2;
+		grid-column: 1;
+	}
+
+	#gridElement {
+		align-self: center;
+		justify-self: center;
+		grid-template-columns: 1fr 1fr;
+		display: grid;
+		align-items: center;
+		column-gap: 8rem;
+		transform: scale(1.2);
+		margin-bottom: 25vh;
+		justify-items: center;
+	}
+
+	.timeshow {
+		text-align: center;
+	}
+
+	.shabbatRow {
+		font-size: 5rem;
+		font-weight: 700;
+		font-family: 'Cinzel Decorative';
+		color: black;
+		line-height: 1;
+		background-color: #dfdfdf;
+		padding-bottom: 1rem;
+		border-radius: .5rem;
+		width: max-content;
+		padding-right: 2rem;
+		padding-left: 2rem;
+		border: 2px solid black;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		text-transform: uppercase;
+	}
+
+	.timecalc {
+		font-family: 'Cinzel';
+		font-size: 5vw;
+	}
+
+	.header {
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 1.2;
+		font-weight: 600;
+		font-size: 28px;
+	}
+
+	.fastHeader {
+		font-family: 'Barlow', 'Frank Ruhl Libre';
+		grid-column: 1 / span 2;
+		font-size: 3rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.fastHeader:not(:nth-child(2)) {
+		margin-top: 5.5rem;
+	}
+
+	.twoLine {
+		line-height: .4;
+		padding-top: 1vw;
+	}
+
+	.addOn {
+		display: block;
+		padding-top: .5vh;
+		font-size: 2vw;
+		font-family: 'Barlow';
+	}
+
+	#maran {
+		grid-area: 1/1;
+		align-self: end;
+		justify-self: start;
+		width: 20%;
+		z-index: 3;
+	}
+
+	#brandFooter {
+		justify-self: start;
+		align-self: end;
+		font-family: 'Guttman Mantova', 'Barlow', 'FrankRuehl';
+		font-weight: 700;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		line-height: 1;
+		font-size: 2.75vw;
+		margin-left: 17vw;
+		margin-bottom: 4.5vh;
+		width: 25vw;
+	}
+
+	#appLogo {
+		width: 25vw;
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	#ho {
+		align-self: end;
+		justify-self: start;
+		width: 17.5%;
+		margin-left: .25rem;
+	}
+
+	#fastHalachot {
+		align-self: center;
+		justify-self: start;
+		background-color: rgba(0, 0, 0, .75);
+		padding: 1rem;
+		border-radius: 2rem;
+		margin-left: 1.5vw;
+		margin-right: 1.5vw;
+		margin-top: 77.5vh;
+		font-size: 1.05em;
+		display: flex;
+		gap: 1.5rem;
+		align-items: center;
+	}
+
+	#fastHalachot > div:last-child {
+		min-width: 400px;
+	}
+
+	#threeWeeksHalachot {
+		line-height: 1.6;
+		font-size: 1.75em;
+		justify-self: end;
+		align-self: end;
+		margin-right: 2.5vw;
+		margin-bottom: 4.5vh;
+		padding: 1rem;
+		background-color: rgba(0, 0, 0, .35);
+		border-radius: 2rem;
+		filter: drop-shadow(0px 0px 10px rgba(0,0,0,1));
+		font-weight: 500;
+	}
+
+	#threeWeeksHalachot b {
+		color: white;
+	}
+
+	#locationTitle {
+		grid-column: 1 / span 2;
+		text-align: center;
+		font-family: Cinzel;
+		font-weight: 800;
+		font-size: 4vw;
+	}
+</style>
+<style>
+.titleForBH {
+	grid-row: 1;
+	grid-column: 1;
+	--dark-gray: #a9a9a9;
+	--gray: #c0c0c0;
+	--light-gray: #d3d3d3;
+	--contour: white;
+	padding-bottom: 1.25rem;
+	padding-top: 1.25rem;
+}
+
+.background {
+  color: var(--contour);
+}
+
+.gradient-1 {
+  background: linear-gradient(#000, var(--gray), var(--dark-gray), var(--light-gray), var(--dark-gray), var(--contour), var(--light-gray), var(--dark-gray), var(--light-gray), var(--dark-gray), var(--contour));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: lighten;
+}
+
+.gradient-2 {
+  background: linear-gradient(to right, #000 0%, var(--light-gray) 36%, var(--light-gray) 50%, var(--dark-gray) 56%, var(--light-gray) 60%, var(--dark-gray) 66%, var(--contour) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: difference;
+  opacity: 0.4;
+}
+
+.glow {
+  color: transparent;
+  text-shadow: 0px 0px 8px #000;
+  -webkit-background-clip: text;
+     -moz-background-clip: text;
+          background-clip: text;
+  mix-blend-mode: darken;
+  opacity: 0.8;
+}
+
+.glow-2 {
+  color: var(--contour);
+  filter: blur(12.5px);
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Frank+Ruhl+Libre:wght@300..900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+
+<div id="wrapperElement">
+	<div id="gridElement"
+		data-functions-backday-0="getAlotHashahar getTzetHumra"
+		data-functions-frontday-21="getShkiya getTzetHumra"
+		data-flyerType="fast"
+		data-extra-locales="en"
+	>
+		<h1 id="locationTitle">{{ include.location.name }}</h1>
+		<div class="header fastHeader">
+			<span style="unicode-bidi: isolate; font-size: 1.25em;">שבעה עשר בתמוז</span> ⋄ <span data-dateRenderY-backday="0"></span>
+		</div>
+		<div class="header">
+			<span style="font-size: 32px;">Fast Starts</span>
+			<br>(Dawn - עלות השחר)
+		</div>
+		<div class="header">
+			<span style="font-size: 32px;">Fast Ends</span>
+			<br>(Strict Nightfall - צאת הכוכבים)
+		</div>
+		<div class="shabbatRow timecalc"
+			{% if include.location.elevation %}data-elevation="{{ include.location.elevation }}"{% endif %}
+			data-lat="{{ include.location.lat }}" data-lng="{{ include.location.lng }}"
+			data-timezone="{{ include.location.timezone }}"
+			data-format="{{ include.location.timeFormat }}"
+			{% if include.location.humra %}data-humra="{{ include.location.humra }}"{% endif %}
+			{% if include.location.doubleLocation %}data-double-location{% endif %}
+			style="display: none">
+			{%- assign check = include.location.flag | split:'.' | last -%}
+			{% if check == "svg" %}
+				<img class="imgFlag" src="{{ include.location.flag }}">
+			{% else %}
+				{{ include.location.flag }}
+			{% endif %}
+			{{ include.location.name }}
+		</div>
+		<div class="shabbatRow timeshow">Start Time</div>
+		<div class="shabbatRow timeshow">End Time</div>
+		<div class="header fastHeader">
+			<span style="unicode-bidi: isolate; font-size: 1.25em;">תשעה באב</span> ⋄ <span data-dateRenderY-backday="-21"></span>
+		</div>
+		<div class="header">
+			<span style="font-size: 32px;">Fast Starts</span>
+			<br>(Sunset - שקיעה)
+		</div>
+		<div class="header">
+			<span style="font-size: 32px;">Fast Ends</span>
+			<br>(Strict Nightfall - צאת הכוכבים)
+		</div>
+		<div class="shabbatRow timeshow" style="padding-bottom: .5rem;" data-append="of the previous day">Start Time</div>
+		<div class="shabbatRow timeshow">End Time</div>
+	</div>
+	<div id="zemanehShab">
+		<div class="titleForBH background">בין המיצרים - זמנים והלכות</div>
+		<div class="titleForBH glow">בין המיצרים - זמנים והלכות</div>
+		<div class="titleForBH gradient-1">בין המיצרים - זמנים והלכות</div>
+		<div class="titleForBH gradient-2">בין המיצרים - זמנים והלכות</div>
+		<div class="titleForBH glow-2">בין המיצרים - זמנים והלכות</div>
+		<div class="subtitle">The Three Weeks - Fast Timings & Laws</div>
+	</div>
+	<div id="brandFooter">
+		<div style="font-size: 3vw; display: flex; justify-content: space-around;">
+			<i class="bi bi-apple"></i>
+        	<i class="bi bi-android2"></i>
+			<i class="bi bi-globe"></i>
+		</div>
+		<img id="appLogo" src="/assets/images/logo.png" />
+		<br>
+		ROYZMANIM.COM
+	</div>
+	<div id="threeWeeksHalachot">
+		<h1 style="text-align: center;">Restrictions</h1>
+		<ul>
+			<li>
+				<b>Music</b> should not be listened to
+			</li>
+			<li>
+				<b>שהחינו blessings</b> are reserved for required-cases<br>
+				<i>from <span data-dateRender-backday="0"></span>-<span data-dateRender-backday="-21"></span></i>
+			</li>
+			<li>
+				<b>Weddings</b> are customarily restricted<br>
+				<i>from <span data-dateRender-backday="-13"></span>-<span data-dateRender-backday="-21"></span></i>
+			</li>
+			<li>
+				<b>Sewing</b> (& purchasing) new clothing is forbidden<br>
+				<i>from <span data-dateRender-backday="-13"></span>-<span data-dateRender-backday="-21"></span></i>
+			</li>
+			<li>
+				<b>Meat</b> should be avoided (Shabbat excluded)<br>
+				<i>from <span data-dateRender-backday="-14"></span>-<span data-dateRender-backday="-22"></span></i>
+			</li>
+		</ul>
+	</div>
+	<img src="/assets/images/MARAN.png" id="maran">
+</div>
+
+<script type="module" src="/assets/js/flyers/multiZman.js"></script>

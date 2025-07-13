@@ -1,6 +1,6 @@
 ---
-title: Shabbat Rahimi Times
-permalink: /shabbat/rahimi
+title: Fast Rahimi Times
+permalink: /fast/rahimi
 breakout: true
 website: true
 ---
@@ -25,8 +25,8 @@ website: true
 
 		background-image:
 		linear-gradient(to bottom, black 0%, transparent 5%, transparent 67.5%, #251810 72.5%, #251810 95%, black 100%),
-			url('/assets/images/shabbat-abstract/background_notop.png');
-		background-size: cover;
+			url('/assets/images/shabbat-abstract/iStock-1176809832.jpg');
+		background-size: initial;
 		background-position: center;
 	}
 
@@ -52,42 +52,40 @@ website: true
 		align-self: start;
 		justify-self: center;
 		font-family: 'Neutro', 'Frank Ruhl Libre';
-		font-size: 16.5vw;
+		font-size: 10.5vw;
 		font-weight: 700;
 		color: transparent;
-		background: linear-gradient(69deg, hsl(45, 91%, 58%) 37%, hsl(45, 91%, 72%) 50%, hsl(45, 91%, 58%) 62%);
+		background: linear-gradient(69deg, #a9a9a9 25%, #d3d3d3 50%, #a9a9a9 75%);
 		background-clip: text;
-		line-height: .85;
 		text-transform: uppercase;
 		margin-top: 4.5vw;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 		text-align: center;
-		line-height: .4;
 		padding-top: 1vw;
-		padding-bottom: 2.5vw;
+		line-height: .9;
+		display: grid;
 	}
 
 	.subtitle {
-		font-size: .3em;
+		font-size: 5rem;
 		font-family: 'Cinzel';
-		color: hsl(45, 91%, 42%);
+		color: #D3D3D3;
 		font-weight: 600;
 		text-transform: capitalize;
+		grid-row: 2;
+		grid-column: 1;
 	}
 
 	#gridElement {
 		align-self: center;
-		grid-template-columns: 1fr .8fr .8fr;
+		grid-template-columns: 1fr 1fr;
 		display: grid;
 		margin-bottom: 70vh;
 		width: 92%;
 		justify-self: center;
 		align-items: center;
+		justify-items: center;
 		gap: 12.5px;
-	}
-
-	.timeshow {
-		text-align: center;
 	}
 
 	.shabbatRow {
@@ -98,9 +96,33 @@ website: true
 		line-height: 1.1;
 	}
 
+	.timeshow {
+		text-align: center;
+		font-size: 5rem;
+		font-weight: 700;
+		font-family: 'Cinzel Decorative';
+		color: black;
+		line-height: 1;
+		background-color: #dfdfdf;
+		padding-bottom: 1rem;
+		border-radius: .5rem;
+		width: max-content;
+		padding-right: 2rem;
+		padding-left: 2rem;
+		border: 2px solid black;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		text-transform: uppercase;
+	}
+
 	.timecalc {
 		font-family: 'Cinzel';
 		font-size: 3.5vw;
+		grid-column: 1 / span 2;
+		text-align: center;
+	}
+
+	.timecalc:not(:first-child) {
+		margin-top: 3rem;
 	}
 
 	.header {
@@ -327,6 +349,51 @@ website: true
 		position: absolute;
 	}
 </style>
+<style>
+.shabbatTitleCore {
+	grid-row: 1;
+	grid-column: 1;
+	--dark-gray: #555555;
+	--gray: #808080;
+	--light-gray: #b5a6a5;
+}
+
+.background {
+  color: white;
+}
+
+.gradient-1 {
+  background: linear-gradient(#000, var(--gray), var(--dark-gray), var(--light-gray), var(--dark-gray), #fff, var(--light-gray), var(--dark-gray), var(--light-gray), var(--dark-gray), #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: lighten;
+}
+
+.gradient-2 {
+  background: linear-gradient(to right, #000 0%, var(--light-gray) 36%, var(--light-gray) 50%, var(--dark-gray) 56%, var(--light-gray) 60%, var(--dark-gray) 66%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: difference;
+  opacity: 0.4;
+}
+
+.glow {
+  color: transparent;
+  text-shadow: 0px 0px 8px #000;
+  -webkit-background-clip: text;
+     -moz-background-clip: text;
+          background-clip: text;
+  mix-blend-mode: darken;
+  opacity: 0.8;
+}
+
+.glow-2 {
+  color: white;
+  filter: blur(50px);
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+}
+</style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -334,20 +401,11 @@ website: true
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
 <div id="wrapperElement">
-	<!-- <div id="zyTrapezoid"></div>
-	<img id="notchLogo" src="/assets/images/shabbat-abstract/zy-logo.png" />
-	<img id="gne" src="/assets/images/shabbat-abstract/ashkenaziBooks.webp" />
-	<span id="bsD">בס"ד</span>
-	<img src="/assets/images/shabbat-abstract/shabbat-candles-ext.png" id="shabbatCandles" />
-	<img id="appIcon" src="/assets/images/app-icon-wavy-side.png"> -->
 	<div id="gridElement"
-		data-functions-backday-1="getCandleLighting"
-		data-functions-backday-0="getTzetMelakha"
-		data-flyerType="shabbat"
+		data-functions-backday-0="getAlotHashahar getTzetHumra"
+		data-flyerType="fast"
+		data-extra-locales="en"
 	>
-		<div></div>
-		<div class="header tableShadow">Candle Lighting</div>
-		<div class="header tableShadow">Shabbat Ends</div>
 		{% for townID in site.data.multiLocationPointer.rahimi %}
 		<div class="shabbatRow tableShadow timecalc"
 			{% if site.data.locations[townID].elevation %}data-elevation="{{ site.data.locations[townID].elevation }}"{% endif %}
@@ -364,32 +422,20 @@ website: true
 			{% endif %}
 			{{ site.data.locations[townID].name }}
 		</div>
+		<div class="header tableShadow">Fast Starts<br>(Dawn - עלות השחר)</div>
+		<div class="header tableShadow">Fast Concludes<br>(Strict Nightfall - צאת הכוכבים)</div>
 		<div class="shabbatRow timeshow">Start Time</div>
-		<div class="shabbatRow timeshow" data-getTzetRT-prefix='(R"T: ' data-getTzetRT-suffix=")">End Time</div>
+		<div class="shabbatRow timeshow">End Time</div>
 		{% endfor %}
 	</div>
-	<span id="zemanehShab">שבת השבועי<br><span class="subtitle">Shabbat of <span data-dateRenderFormal-backday="0"></span></span></span>
-	<div id="location">
-		Times taken from our app (<img src="/assets/images/shabbat-abstract/zy-logo.png" style="height: 1.75ch;"> - <span style="font-size: .8em;">Zemaneh Yosef</span>)<br>
-		Available on the Google Play Store & Apple App Store
+	<div id="zemanehShab">
+		<div class="shabbatTitleCore background" data-gematria>צום </div>
+		<div class="shabbatTitleCore glow" data-gematria>צום </div>
+		<div class="shabbatTitleCore gradient-1" data-gematria>צום </div>
+		<div class="shabbatTitleCore gradient-2" data-gematria>צום </div>
+		<div class="shabbatTitleCore glow-2" data-gematria>צום </div>
+		<div class="subtitle">Fast of <span id="calSubtitle"></span></div>
 	</div>
-	<div id="parashaBox">
-		<div class="shabbatTitleCore" style="font-size: 6vw;">פרשת </div>
-		<div style="text-align: left;">
-			<div data-haftara><img src="/assets/images/shabbat-abstract/megila-icon.png" style="height: 1.5ch; vertical-align: inherit; aspect-ratio: 1/1;">Haftara: </div>
-			<div data-makam><span style="color: transparent;
-				text-shadow: 0 0 0 white;
-				display: inline-block;
-				margin-left: -1rem;
-				font-size: .75em;
-				aspect-ratio: 1/1;">🎵</span>Makam </div>
-		</div>
-	</div>
-	<!-- <div id="appAds">
-		<img src="/assets/images/app-icon-full.jpeg" style="border-radius: 1.5rem; grid-column: 1 / span 2; width: 40%; margin-bottom: -1.5rem;">
-		<!--<img src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" loading="lazy">
-		<img src="/assets/images/google-play-store-8-1-73-apk.png" loading="lazy">
-	</div>-->
 	<div id="bigTri" class="faderTri"></div>
 	<div id="fullScrTri" class="faderTri"></div>
 	<img id="backToSinai" src="/assets/images/shabbat-abstract/image02.png">
