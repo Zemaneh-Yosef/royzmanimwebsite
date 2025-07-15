@@ -397,7 +397,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			},
 			[KosherZmanim.JewishCalendar.LAG_BAOMER]: {
 				"hebrew": "לג בעומר",
-				"english": "Lag Baomer"
+				"english": "Lag Ba'Omer"
 			},
 			[KosherZmanim.JewishCalendar.TU_BEAV]: {
 				"hebrew": 'ט"ו באב',
