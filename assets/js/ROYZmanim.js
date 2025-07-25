@@ -85,8 +85,8 @@ class ZemanimMathBase {
 	}
 
 	/**
-	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[0]} degree 
-	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[1]} sunset 
+	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[0]} degree
+	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[1]} sunset
 	 * @returns {Temporal.Duration}
 	 */
 	durationOfEquinoxDegreeSeasonalHour(degree, sunset) {
@@ -150,7 +150,7 @@ class ZemanimMathBase {
 	}
 
 	/**
-	 * @param {boolean} useElevation 
+	 * @param {boolean} useElevation
 	 */
 	setUseElevation(useElevation) {
 		this.coreZC.setUseElevation(useElevation);
@@ -174,7 +174,7 @@ class ZemanimMathBase {
 	}
 
 	/**
-	 * @param {Temporal.PlainDate} date 
+	 * @param {Temporal.PlainDate} date
 	 * @returns {this}
 	 */
 	chainDate(date) {
@@ -280,7 +280,7 @@ class ZemanFunctions extends ZemanimMathBase {
 	 * starting at <em>alos</em> and ending at <em>tzais</em> using the same time or degree offset will also return
 	 * the same time. The returned value is identical to {@link #getSunTransit()}. In reality due to lengthening or
 	 * shortening of day, this is not necessarily the exact midpoint of the day, but it is very close.
-	 * 
+	 *
 	 * @see AstronomicalCalendar#getSunTransit()
 	 * @return {Temporal.ZonedDateTime} the <code>Date</code> of chatzos. If the calculation can't be computed such as in the Arctic Circle
 	 *                          where there is at least one day where the sun does not rise, and one where it does not set, a null will
@@ -307,7 +307,7 @@ class ZemanFunctions extends ZemanimMathBase {
 			Temporal.Duration.from({ minutes: 30 }),
 			this.fixedToSeasonal(Temporal.Duration.from({ minutes: 30 }))
 		].sort(durationSort)[0]);
-	}	
+	}
 
 	/**
 	 * A generic method for calculating <em>mincha ketana</em>, (the preferred time to recite the mincha prayers in
@@ -471,7 +471,7 @@ function getAllMethods (toCheck) {
     do {
         props.push(...Object.getOwnPropertyNames(obj));
     } while (obj = Object.getPrototypeOf(obj));
-    
+
     return props.sort().filter((e, i, arr) => (e!=arr[i+1] && typeof toCheck[e] == 'function'));
 }
 
