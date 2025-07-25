@@ -150,7 +150,7 @@ class ZemanimMathBase {
 	}
 
 	/**
-	 * @param {boolean} useElevation 
+	 * @param {boolean} useElevation
 	 */
 	setUseElevation(useElevation) {
 		this.coreZC.setUseElevation(useElevation);
@@ -174,7 +174,7 @@ class ZemanimMathBase {
 	}
 
 	/**
-	 * @param {Temporal.PlainDate} date 
+	 * @param {Temporal.PlainDate} date
 	 * @returns {this}
 	 */
 	chainDate(date) {
@@ -307,7 +307,7 @@ class ZemanFunctions extends ZemanimMathBase {
 			Temporal.Duration.from({ minutes: 30 }),
 			this.fixedToSeasonal(Temporal.Duration.from({ minutes: 30 }))
 		].sort(durationSort)[0]);
-	}	
+	}
 
 	/**
 	 * A generic method for calculating <em>mincha ketana</em>, (the preferred time to recite the mincha prayers in
@@ -471,7 +471,7 @@ function getAllMethods (toCheck) {
     do {
         props.push(...Object.getOwnPropertyNames(obj));
     } while (obj = Object.getPrototypeOf(obj));
-    
+
     return props.sort().filter((e, i, arr) => (e!=arr[i+1] && typeof toCheck[e] == 'function'));
 }
 
