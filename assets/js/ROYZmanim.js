@@ -85,8 +85,8 @@ class ZemanimMathBase {
 	}
 
 	/**
-	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[0]} degree
-	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[1]} sunset
+	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[0]} degree 
+	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[1]} sunset 
 	 * @returns {Temporal.Duration}
 	 */
 	durationOfEquinoxDegreeSeasonalHour(degree, sunset) {
@@ -280,7 +280,7 @@ class ZemanFunctions extends ZemanimMathBase {
 	 * starting at <em>alos</em> and ending at <em>tzais</em> using the same time or degree offset will also return
 	 * the same time. The returned value is identical to {@link #getSunTransit()}. In reality due to lengthening or
 	 * shortening of day, this is not necessarily the exact midpoint of the day, but it is very close.
-	 *
+	 * 
 	 * @see AstronomicalCalendar#getSunTransit()
 	 * @return {Temporal.ZonedDateTime} the <code>Date</code> of chatzos. If the calculation can't be computed such as in the Arctic Circle
 	 *                          where there is at least one day where the sun does not rise, and one where it does not set, a null will
