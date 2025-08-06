@@ -4,10 +4,12 @@ import "../../libraries/materialComp/materialweb.js"
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
 
 export default class ChaiTables {
-	constructor() {
-		/** @type {KosherZmanim.GeoLocation} */
-		this.geoL = null;
+	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
+	constructor(zmanLister) {
+		this.geoL = zmanLister.geoLocation;
 		this.modal = new window.bootstrap.Modal(document.getElementById("ctModal"));
+
+		this.initForm();
 	}
 
 	/**
@@ -188,10 +190,7 @@ export default class ChaiTables {
 		return data;
 	}
 
-	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
-	initForm(zmanLister) {
-		this.geoL = zmanLister.geoLocation;
-
+	initForm() {
 		const submitBtn = document.getElementById('gctnd');
 
 		const selectors = Array.from(document.getElementsByTagName("md-outlined-select"))

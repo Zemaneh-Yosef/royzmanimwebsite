@@ -145,7 +145,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					"en-et": null,
 					ru: null
 				},
-				dtF: (dtF == null ? null : [dtF[0], Object.assign({}, dtF[1])])
+				dtF: [dtF[0], Object.assign({}, dtF[1])]
 			}
 
 			if (independent) {
@@ -189,8 +189,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						calculatedZman.title['en-et'] += ' (Mishor)';
 						calculatedZman.title.en += ' (Sea Level)';
 					} else {
-						if (calculatedZman.dtF)
-							calculatedZman.dtF[1].second = '2-digit'
+						calculatedZman.dtF[1].second = '2-digit'
 					}
 
 					break;
@@ -332,7 +331,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				calculatedZman.display = calculatedZman.display == -1 ? -1 : -2;
 				calculatedZman.code.push("Invalid Date");
 			} else {
-				if (calculatedZmanim.dtF && !('second' in calculatedZman.dtF[1])
+				if (calculatedZman.dtF[0] !== null && !('second' in calculatedZman.dtF[1])
 					&& (calculatedZman.zDTObj.second > 40 || (calculatedZman.zDTObj.second > 20 && zmanInfo.round == 'later'))) {
 						calculatedZman.zDTObj = calculatedZman.zDTObj.with({ second: 0, millisecond: 0 }).add({ minutes: 1 });
 					}
@@ -398,7 +397,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			},
 			[KosherZmanim.JewishCalendar.LAG_BAOMER]: {
 				"hebrew": "לג בעומר",
-				"english": "Lag Baomer"
+				"english": "Lag Ba'Omer"
 			},
 			[KosherZmanim.JewishCalendar.TU_BEAV]: {
 				"hebrew": 'ט"ו באב',

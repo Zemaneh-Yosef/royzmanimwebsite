@@ -34,14 +34,14 @@ export default function spreadSheetExport (plainDateParams, geoLocationData, con
 
 	const events = [];
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
-		const dailyZmanim = Object.entries(jCal.getZmanimInfo(true, calc, zmanList, null))
+		const dailyZmanim = Object.entries(jCal.getZmanimInfo(true, calc, zmanList, [null, funcSettings.seconds ? {second: '2-digit'} : {}]))
 			.filter(entry => entry[1].display == 1)
 			.map(entry => [
 				entry[0],
 				{t: "d", v: new Date(entry[1].zDTObj.epochMilliseconds),
 				f: formatTime(entry[1].zDTObj), z:
 					"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
-					+ ":mm" + (funcSettings.seconds ? ":ss" : "")
+					+ ":mm" + ('second' in entry[1].dtF[1] ? ":ss" : "")
 					+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")}
 			])
 

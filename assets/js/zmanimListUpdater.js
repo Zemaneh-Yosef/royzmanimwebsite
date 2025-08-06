@@ -235,8 +235,7 @@ export default class zmanimListUpdater {
 			this.dtF[1].second = '2-digit'
 		}
 
-		this.chaiTableInfo = new ChaiTables();
-		this.chaiTableInfo.initForm(this);
+		this.chaiTableInfo = new ChaiTables(this);
 
 		this.lastData = {
 			'parsha': undefined,
