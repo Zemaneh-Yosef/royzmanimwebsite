@@ -1,6 +1,6 @@
 // @ts-check
 // taken from https://webspace.science.uu.nl/~gent0113/hebrew/hebrewyear_year.htm#tekufot
-import { Temporal } from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { Temporal } from "../libraries/kosherZmanim/kosher-zmanim.js";
 
 /**
  * @param {number} mjd

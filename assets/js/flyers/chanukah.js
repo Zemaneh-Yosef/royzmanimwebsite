@@ -1,6 +1,6 @@
 // @ts-check
 
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 import WebsiteCalendar from "../WebsiteCalendar.js"
 import { settings } from "../settings/handler.js";

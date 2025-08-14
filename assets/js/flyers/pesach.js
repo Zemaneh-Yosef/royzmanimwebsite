@@ -1,6 +1,6 @@
 // @ts-check
 
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions } from "../ROYZmanim.js";
 import WebsiteLimudCalendar, { HebrewNumberFormatter } from "../WebsiteCalendar.js"
 

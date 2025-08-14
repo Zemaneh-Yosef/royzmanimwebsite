@@ -1,6 +1,6 @@
 // @ts-check
 
-import { Parsha, TehilimYomi, MishnaYomi } from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import { Parsha, TehilimYomi, MishnaYomi } from "../libraries/kosherZmanim/kosher-zmanim.js"
 import WebsiteCalendar, { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 export default
 class WebsiteLimudCalendar extends WebsiteCalendar {

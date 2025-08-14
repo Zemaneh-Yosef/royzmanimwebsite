@@ -1,6 +1,6 @@
 //@ts-check
 
-import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { settings } from "../settings/handler.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import { Previewer } from "../../libraries/paged.js"

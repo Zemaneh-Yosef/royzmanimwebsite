@@ -1,6 +1,6 @@
 // @ts-check
 
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import LimudCalendar from "../WebsiteLimudCalendar.js";
 
 const jCal = new LimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());

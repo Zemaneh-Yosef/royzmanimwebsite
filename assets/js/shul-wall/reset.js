@@ -1,6 +1,6 @@
 // @ts-check
 
-import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { reload } from "./reload.js";
 import preSettings from "./preSettings.js";
 

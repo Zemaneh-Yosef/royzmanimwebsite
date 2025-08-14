@@ -1,11 +1,12 @@
 //@ts-check
 
 import "../../libraries/materialComp/materialweb.js"
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 
 export default class ChaiTables {
 	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
 	constructor(zmanLister) {
+		this.zmanLister = zmanLister;
 		this.geoL = zmanLister.geoLocation;
 		this.modal = new window.bootstrap.Modal(document.getElementById("ctModal"));
 
@@ -264,9 +265,9 @@ export default class ChaiTables {
 			localStorage.setItem("ctNetz", JSON.stringify(ctData));
 			this.modal.hide();
 
-			const prevDate = zmanLister.jCal.getDate();
-			zmanLister.resetCalendar();
-			zmanLister.changeDate(prevDate);
+			const prevDate = this.zmanLister.jCal.getDate();
+			this.zmanLister.resetCalendar();
+			this.zmanLister.changeDate(prevDate);
 
 			submitBtn.classList.remove("sbmitl");
 		});

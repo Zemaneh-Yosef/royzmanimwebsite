@@ -1,7 +1,7 @@
 // @ts-check
 
 import { ZemanFunctions } from "../ROYZmanim.js";
-import { Temporal, GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { Temporal, GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
 
 /** @typedef {T[keyof T]} ValueOf<T> */

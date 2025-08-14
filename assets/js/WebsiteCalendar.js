@@ -1,6 +1,6 @@
 // @ts-check
 
-import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js"
+import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js"
 import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js";
 import { zDTFromFunc } from "./ROYZmanim.js";
 

@@ -2,7 +2,7 @@
 
 import { getOrdinal } from "../WebsiteCalendar.js";
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
-import { Temporal, GeoLocation, Calendar, HiloulahYomiCalculator, Parsha } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { Temporal, GeoLocation, Calendar, HiloulahYomiCalculator, Parsha } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import YihudCalendar from "../WebsiteLimudCalendar.js";
 import { HebrewNumberFormatter as hebNumFormat } from "../WebsiteCalendar.js"
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";

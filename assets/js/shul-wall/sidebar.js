@@ -1,7 +1,7 @@
 // @ts-check
 
-import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { ZemanFunctions } from "../ROYZmanim.js";
 import preSettings from "./preSettings.js";

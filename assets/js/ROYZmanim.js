@@ -1,7 +1,7 @@
 // @ts-check
 
-import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
-import { MathUtils, Temporal } from "../libraries/kosherZmanim/kosher-zmanim.esm.js";
+import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
+import { MathUtils, Temporal } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import TekufahCalculator from "./tekufot.js";
 
 /** @typedef {{minutes: number; degree: number}} melakhaTzet */
