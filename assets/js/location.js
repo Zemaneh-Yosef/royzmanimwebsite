@@ -128,7 +128,7 @@ async function updateList(event) {
 
 	const q = elements.searchBar.value
 		.split(" ")
-		.map(word => word[0] ? (word[0].toUpperCase() + word.substring(1).toLowerCase()) : word)
+		.map(word => word[0] ? (word[0].toUpperCase() + word.substring(1)) : word)
 		.join(" ");
 	if (elements.searchBar.value !== q)
 		elements.searchBar.value = q;

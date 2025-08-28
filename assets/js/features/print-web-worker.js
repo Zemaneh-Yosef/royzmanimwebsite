@@ -334,7 +334,7 @@ function messageHandler (x) {
 				}
 				break;
 			case 'special':
-				if (jCal.getDayOfWeek() === 7) {
+				if (jCal.getDayOfWeek() === 7 && jCal.getParshah() in WebsiteLimudCalendar.hebrewParshaMap && WebsiteLimudCalendar.hebrewParshaMap[jCal.getParshah()]) {
 					const shabElem = flexWorkAround.cloneNode(true);
 					shabElem.appendChild(document.createTextNode(WebsiteLimudCalendar.hebrewParshaMap[jCal.getParshah()]));
 					div.appendChild(shabElem)
@@ -528,10 +528,10 @@ function messageHandler (x) {
 					}
 
 					if (jCal.tomorrow().getDayOfChanukah() !== -1 && jCal.getDayOfWeek() !== 6) {
-						renderZmanInDiv(zmanCalc.getTzet().add({ minutes: 30 }), {dtF: defaulTF, icon: {
-							'hb': "תדליק לפני",
-							"en-et": "Light before",
-							'en': "Light before"
+						renderZmanInDiv(zmanCalc.getTzet().add({ minutes: 30 }), {dtF: defaulTF, icon: "🕎" + {
+							'hb': " לפני",
+							"en-et": " before",
+							'en': " before"
 						}[x.data.lang], hideAMPM: true})
 						div.lastElementChild.classList.add("omerText");
 					}
@@ -649,7 +649,7 @@ function messageHandler (x) {
 
 		if (div.childElementCount == 1 && div.firstElementChild.childNodes.length <= 2) {
 			div.style.fontSize = '2.75ex';
-			div.style.paddingTop = '.2em'
+			div.style.marginTop = '.2em'
 		}
 		return div;
 	}
@@ -703,11 +703,17 @@ function messageHandler (x) {
 
 		if (x.data.shabbatOnly && !jCal.isAssurBemelacha() && !jCal.tomorrow().isAssurBemelacha() && !jCal.isTaanis() && !jCal.isPurim()) continue;
 
+		const newWeekSeparator = !x.data.shabbatOnly && index !== halfDaysInMonth && jCal.getDayOfWeek() == 7;
+
 		for (const shita of x.data.allShitot) {
 			const cell = handleShita(shita);
 			if (!cell) continue;
 
-			cell.classList.add(index == halfDaysInMonth ? 'lastRow' : 'borderRow');
+			if (newWeekSeparator)
+				cell.classList.add('lastRow')
+			else if (index !== halfDaysInMonth)
+				cell.classList.add('borderRow');
+
 			monthTable.appendChild(cell)
 		}
 	}
