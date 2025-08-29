@@ -135,11 +135,11 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 
 for (const monthData of arrayOfFuncParams) {
 	const webWorker = new Worker('/assets/js/features/print-web-worker.js', { type: 'module' });
-	webWorker.postMessage(monthData)
 	webWorker.addEventListener("message", async (msg) => {
 		actualReceive += 1;
-		// @ts-ignore
-		receiveData[msg.data.month] = msg.data.data
+
+		const respData = await msg.data;
+		receiveData[respData.month] = respData.data
 		if (actualReceive == expectedReceive) {
 			const sortedObject = Object.keys(receiveData)
 				.sort()
@@ -157,12 +157,14 @@ for (const monthData of arrayOfFuncParams) {
 			footer.remove();
 			baseTable.remove();
 
-			document.documentElement.setAttribute('forceLight', '')
-			document.documentElement.removeAttribute('data-bs-theme');
-
 			await preparePrint();
 		}
 	})
+	webWorker.addEventListener("error", (err) => {
+		console.error(err);
+	})
+
+	webWorker.postMessage(monthData)
 }
 
 async function preparePrint() {
