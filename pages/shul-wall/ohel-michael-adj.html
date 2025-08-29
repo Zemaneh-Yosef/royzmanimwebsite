@@ -48,24 +48,24 @@ layout: nothing
 		}
 	}
 
-	#quickTimes svg {
+	.centerLeftgrid svg {
 		height: 1em;
 		width: 1em;
 		vertical-align: bottom;
 	}
 
-	#quickTimes svg path {
+	.centerLeftgrid svg path {
 		fill: white;
 	}
 
-	#quickTimes {
+	.centerLeftgrid {
 		display: grid;
 		justify-content: center;
 		padding-bottom: .5rem;
 		font-size: 1.25em;
 	}
 
-	#quickTimes i {
+	.centerLeftgrid i {
 		width: 1em;
 		text-align: center;
 	}
@@ -247,14 +247,14 @@ layout: nothing
 		font-weight: 700;
 		margin-top: .25rem;
 		position: relative;
-		font-size: .7em;
+		font-size: 1.25em;
 	}
 
 	#noPhoneIcon {
 		position: absolute;
 		left: .25rem;
 		height: 1.25em;
-		top: .175rem;
+		top: 1rem;
 	}
 
 	#noSmartphoneWithIcon p {
@@ -283,22 +283,6 @@ layout: nothing
 	<div id="poweredBy">
 		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l
 	</div>
-	<!-- <div id="topBar">
-		<div>
-			<span data-en-date></span>
-			<hr style="margin: .25rem 0">
-			<span data-hb-date></span>
-		</div>
-		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
-		<div id="quickTimes">
-			<div style="text-align: left; width: fit-content">
-				<div style="text-align: center; font-weight: bold; font-size: 1.15em;" data-parasha></div>
-				<div data-lightingCandles><i class="bi bi-fire"></i> </div>
-				<div data-tzetShab data-ikar-text='LOTL'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
-			</div>
-		</div>
-	</div> -->
-	<!-- <h2 id="tefila">Please keep smartphones away throughout Tefila. Connect to Hashem!</h2> -->
 	<div id="dataGrid">
 		<div style="line-height: 1.3;">
 			<h2>Official Sedarim</h2>
@@ -315,7 +299,7 @@ layout: nothing
 		<div style="padding-top: 4.5rem;">
 			<div data-en-date class="langTV lang-en text-center"></div>
 			<div data-hb-date class="langTV lang-hb text-center"></div>
-			<hr style="margin: .15rem 0">
+			<hr style="margin: .15rem 0; width: 78%; margin-left: auto; margin-right: auto;">
 			<div id="clock" class="text-center"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
 			<div class="card mb-2 mt-3" style="font-size: .75rem;">
 				<ul class="list-group list-group-flush">
@@ -365,12 +349,21 @@ layout: nothing
 					</li>
 				</ul>
 			</div>
-			<div id="jug"><i class="bi bi-fire"></i><div id="jugPercent"></div></div>
-			<h2 class="text-center">Total Budget: $<span data-raised-money></span>/$<span data-fundraising-money></span></h2>
+			<div id="noSmartphoneWithIcon">
+				<img src="/assets/images/shul-wall/no-phone.webp" id="noPhoneIcon" />
+				<p>Please keep cellphones away throughout Tefila.</p>
+			</div>
 		</div>
 		<div style="line-height: 1.3;">
 			<h2 style="text-align: center;" data-parasha data-prefix="en-hb"></h2>
-			<div id="quickTimes">
+			<div class="centerLeftgrid">
+				<div style="text-align: left; width: fit-content; line-height: 1;">
+					<div data-zfReplace="Haftara"><img src="/assets/images/shabbat-abstract/megila-icon.png" style="height: 1.5ch; vertical-align: inherit;"> Haftara: </div>
+					<div data-zfReplace="makamot"><span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>Makam </div>
+				</div>
+			</div>
+			<hr style="margin: .15rem 0">
+			<div class="centerLeftgrid">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
 					<div data-tzetShab data-ikar-text='LOTL'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
@@ -380,10 +373,6 @@ layout: nothing
 				<ul class="list-group list-group-flush" id="shabbat"></ul>
 			</div>
 			<h2>Weekday Tefilot</h2>
-			<div id="noSmartphoneWithIcon">
-				<img src="/assets/images/shul-wall/no-phone.webp" id="noPhoneIcon" />
-				<p>Please keep cellphones away throughout Tefila.</p>
-			</div>
 			<div class="card">
 				<ul class="list-group list-group-flush" id="weekday">
 				</ul>
@@ -428,16 +417,9 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
+<script type="module" src="/assets/js/shul-wall/limud.js"></script>
 <script type="module">
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	document.body.setAttribute('data-bs-theme', 'dark');
-
-	const moneyFundraiser = await (await fetch('https://zemaneh-yosef.github.io/extras/yonah-budget.txt', {cache: "no-store"})).text();
-	const [moneyRaised, moneyNeeded] = moneyFundraiser.split('\n');
-
-	document.getElementById('jugPercent').style.height = ((moneyRaised / moneyNeeded) * 100) + "%";
-	document.querySelector('[data-raised-money]').innerHTML = moneyRaised;
-	document.querySelector('[data-fundraising-money]').innerHTML = moneyNeeded;
 
 	await schedule('https://zemaneh-yosef.github.io/extras/yonah-schedule.ini');
 </script>

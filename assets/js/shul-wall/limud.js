@@ -9,6 +9,12 @@ for (const [key, value] of Object.entries(jCal.getAllLearning()))
 	if (document.querySelector(`[data-zfReplace="${key}"]`) instanceof HTMLElement)
 		document.querySelector(`[data-zfReplace="${key}"]`).innerHTML = value;
 
+const haftaraBar = document.querySelector('[data-zfReplace="Haftara"]')
+if (haftaraBar) {
+	const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(jCal.shabbat())
+	haftaraBar.innerHTML += `<b>${haftara.text}</b> (${haftara.source})`
+}
+
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
 await hiloulahIndex.init();
 
