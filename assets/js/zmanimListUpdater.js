@@ -68,7 +68,7 @@ export default class zmanimListUpdater {
 			dragging: false,
 			minZoom: 16,
 			touchZoom: 'center',
-			scrollWheelZoom: 'center',
+			scrollWheelZoom: 'center'
 		}).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 13);
 		leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
