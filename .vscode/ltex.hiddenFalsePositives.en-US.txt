@@ -1,0 +1,2 @@
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QThis website is a platform where you can find zemanim (times) and various other daily information according to Rabbi Ovadia Yosef ZT\"L and his sons for anywhere in the world.\\E$"}
+{"rule":"EN_UNPAIRED_QUOTES","sentence":"^\\QThis website is a platform where you can find zemanim (times) and various other daily information according to Rabbi Ovadia Yosef ZT\"L and his sons for anywhere in the world.\\E$"}

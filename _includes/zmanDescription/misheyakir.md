@@ -1,4 +1,4 @@
-Misheyakir (literally "when you recognize") is the time where there is enough light in the sky for one to distinguish between the colors of white & "Techelet" (blue - משנה תורה ב:א & מגיד משרים פרשת קרח). Mitzvot that depend on recongition can be done now (Berakhot 9b), such as:
+Misheyakir (literally "when you recognize") is the time where there is enough light in the sky for one to distinguish between the colors of white & "Techelet" (blue - משנה תורה ב:א & מגיד משרים פרשת קרח). Mitzvot that depend on recognition can be done now (Berakhot 9b), such as:
 
 - Wearing ציצית (Braitah in Menachot 43b quoting the verse in Bamidbar 15:39 - וראיתם אותו)
 - Wearing תפילין (Rabbenu Yona quoting the verse in Devarim 28:10 - וְרָאוּ֙ כׇּל־עַמֵּ֣י הָאָ֔רֶץ כִּ֛י שֵׁ֥ם יְהֹוָ֖ה נִקְרָ֣א עָלֶ֑יךָ)

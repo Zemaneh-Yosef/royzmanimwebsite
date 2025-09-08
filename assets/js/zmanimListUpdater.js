@@ -68,15 +68,35 @@ export default class zmanimListUpdater {
 			dragging: false,
 			minZoom: 16,
 			touchZoom: 'center',
-			scrollWheelZoom: 'center'
+			scrollWheelZoom: 'center',
 		}).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 13);
 		leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 		}).addTo(this.locationMap);
+
 		leaflet.polyline([
 			[geoLocation.getLatitude(), geoLocation.getLongitude()],
 			[harHabait.getLatitude(), harHabait.getLongitude()]
-		], { color: 'red' }).addTo(this.locationMap)
+		], { color: 'red' }).addTo(this.locationMap);
+
+		// 🔵 Accuracy circle (halo)
+		L.circle([geoLocation.getLatitude(), geoLocation.getLongitude()], {
+			radius: 30,          // meters (adjust based on your desired accuracy radius)
+			color: "blue",
+			fillColor: "blue",
+			fillOpacity: 0.15,
+			weight: 0            // no border
+		}).addTo(this.locationMap);
+
+		// 🔵 Solid center dot
+		L.circleMarker([geoLocation.getLatitude(), geoLocation.getLongitude()], {
+			radius: 8,
+			fillColor: "blue",
+			color: "white",      // thin white outline like on mobile maps
+			weight: 2,
+			opacity: 1,
+			fillOpacity: 1
+		}).addTo(this.locationMap);
 	}
 
 	closeLocationModal() {
