@@ -109,6 +109,10 @@ export default class ChaiTables {
 		if (!zmanTable)
 			throw Error("No zman table found: " + domParsed.getElementById('fetchURLInject').innerHTML);
 
+		let compareDate = jDate.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour: 0, minute: 0, second: 0 });
+		compareDate = [compareDate.with({ day: 1 }), compareDate.withCalendar('hebrew').with({ day: 1 })]
+			.sort(KosherZmanim.Temporal.ZonedDateTime.compare)[0]
+
 		for (let rowIndexString of Object.keys(zmanTable.rows)) {
 			let rowIndex = parseInt(rowIndexString);
 
@@ -146,7 +150,9 @@ export default class ChaiTables {
 				const [hour, minute, second] = zmanTime.split(":").map(time => parseInt(time))
 				const time = loopCal.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour, minute, second })
 
-				if (KosherZmanim.Temporal.ZonedDateTime.compare(time, jDate.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour: 0, minute: 0, second: 0 })) == 1)
+				// ensure that we're not adding times from the previous days
+				// unless it's from the beginning of either the jewish or secular month (whichever is earlier)
+				if (KosherZmanim.Temporal.ZonedDateTime.compare(time, compareDate) == 1)
 					times.push(time.epochMilliseconds / 1000)
 			}
 		}
@@ -228,8 +234,10 @@ export default class ChaiTables {
 
 		const primaryIndex = selectors.find(select => select.id == 'MAIndex');
 		const hideAllForms = () => {
-			if (!submitBtn.hasAttribute('disabled'))
-				submitBtn.setAttribute('disabled', '')
+			if (!submitBtn.hasAttribute('disabled')) {
+				submitBtn.setAttribute('disabled', '');
+				submitBtn.classList.remove("sbmitl");
+			}
 
 			const previouslySelectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
 			if (previouslySelectedMASel)
