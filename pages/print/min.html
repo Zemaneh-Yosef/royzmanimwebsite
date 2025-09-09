@@ -1,0 +1,254 @@
+---
+title: Full-Print Calendar
+permalink: /print/min
+layout: nothing
+---
+
+<link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Noto+Serif+Hebrew:wght@100..900&display=swap" rel="stylesheet">
+
+<style>
+	.tableGrid {
+		width: 100%;
+		display: grid;
+		text-align: center;
+		line-height: 1.1;
+		page-break-before: always;
+	}
+
+	.tableCell {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		height: 100%;
+		line-height: .8;
+		filter: grayscale(1);
+
+		margin-top: .185em;
+		margin-bottom: .125em;
+	}
+
+	.tableHeader {
+		font-weight: bold;
+		padding-right: .125em;
+		padding-left: .125em;
+	}
+
+	.special {
+		display: flex;
+	}
+
+	.explanationPreface {
+		line-height: 1.25;
+		font-size: .79em;
+		word-break: keep-all;
+	}
+
+	.explanationPreface p,
+	.explanationPreface ol,
+	.explanationPreface ul,
+	.pagedjs_pages p,
+	.pagedjs_pages ol,
+	.pagedjs_pages ul {
+		margin-bottom: .5rem;
+		text-align: justify;
+		text-justify: inter-word;
+	}
+
+	.explanationPreface ol,
+	.explanationPreface ul,
+	.pagedjs_pages ol,
+	.pagedjs_pages ul {
+		padding-left: 10px;
+	}
+
+	.explanationPreface ol li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
+	.explanationPreface ul li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
+	.pagedjs_pages ol li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
+	.pagedjs_pages ul li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker {
+		font-size: 14px;
+		content: "\2022  ";
+	}
+
+	#differences {
+		page-break-before: always;
+	}
+
+	#differences p,
+	#differences ol,
+	#differences ul {
+		font-size: .865rem;
+	}
+
+	.explanationPreface h6,
+	.pagedjs_pages h6 {
+		margin-bottom: .125rem;
+	}
+
+	.pagedjs_footnote_inner_content {
+		font-size: .65rem;
+	}
+
+	body {
+		font-family: "Spectral", serif;
+	}
+
+	.explanationPreface .fakeListItem,
+	.pagedjs_pages .fakeListItem,
+	.explanationPreface .fakeListItemNoBullet,
+	.pagedjs_pages .fakeListItemNoBullet {
+		margin-inline-start: 8px; /* Set the desired margin */
+		position: relative;
+		margin-bottom: .25rem;
+	}
+
+	.explanationPreface .fakeListItem::before,
+	.pagedjs_pages .fakeListItem::before {
+		/* Create a pseudo-element to act as the bullet point */
+		content: "\2022"; /* Unicode bullet point (•) */
+		position: absolute;
+	}
+
+	:dir(ltr) .explanationPreface .fakeListItem::before {
+		left: -8px; /* Position the bullet point to the left of the text */
+	}
+
+	:dir(rtl) .explanationPreface .fakeListItem::before {
+		right: -8px; /* Position the bullet point to the left of the text */
+	}
+
+	.omerText {
+		font-size: .675em;
+	}
+
+	[data-zyBranding] {
+		text-align: center;
+		line-height: 1.2;
+	}
+
+	.zyCalFooter {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		margin-top: .75rem;
+	}
+
+	.zyCalFooter .sides {
+		flex: 1 1;
+		line-height: 1;
+	}
+
+	[data-zyLocationText] {
+		margin-bottom: 0;
+	}
+
+	[data-zyData="date"] {
+		font-size: 1.5em;
+		grid-row: 1 / span 2;
+		grid-column-end: span 2;
+	}
+
+	[data-zyData="min-special"] {
+		display: none;
+	}
+
+	.zyCalFooter > .sides:last-child {
+		display: flex;
+		justify-content: space-around;
+		font-size: .6rem;
+		text-align: center;
+	}
+
+	.zyCalFooter > .sides:last-child h5 {
+		font-size: .85rem;
+		margin-bottom: 0;
+	}
+
+	.flexElemWorkaround svg,
+	.flexElemWorkaround img {
+		height: 1em;
+		vertical-align: bottom;
+	}
+
+	.flexElemWorkaround svg {
+		width: 1em;
+	}
+
+	.flexElemWorkaround svg path {
+		fill: black;
+	}
+
+	.columnSplit, .pagedjs_footnote_inner_content {
+		columns: var(--description-columns, 4);
+	}
+
+	.borderRow {
+		border-bottom: 1px solid #21252922;
+	}
+
+	.lastRow {
+		border-bottom: 3px solid #21252922;
+	}
+
+	.hebMidWord {
+		unicode-bidi: isolate;
+	}
+
+	.hebSrc {
+		unicode-bidi: plaintext;
+	}
+</style>
+
+<div class="zyCalFooter">
+	<div class="sides">
+		<h5 data-zyLocationText>
+			<span class="lang lang-hb">זמנים של</span>
+			<span class="lang lang-et">For:</span>
+			<span class="lang lang-en">For:</span>
+		</h5>
+	</div>
+	<div data-zyBranding>
+		Download זמני יוסף<br>
+		for a digital calendar
+	</div>
+	<div class="sides" data-zyfooter-tekufa data-zyfooter-hametz data-zyfooter-levana></div>
+</div>
+
+<main>
+	<div class="tableGrid" data-zyTemplate>
+		<div class="tableHeader" data-zyData="min-special"></div>
+		<div class="tableHeader" data-zyData="date"></div>
+		{% for item in site.data.print.min-printOut %}
+		{% if item.shitot %}
+		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
+			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-en">{{ item.names.en }}</span>
+		</div>
+		{% for shita in item.shitot %}
+		<div class="tableHeader" data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
+			<span class="lang lang-hb">{{ shita.names.hb }}</span>
+			<span class="lang lang-et">{{ shita.names.et }}</span>
+			<span class="lang lang-en">{{ shita.names.en }}</span>
+		</div>
+		{% endfor %}
+		{% else %}
+		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}">
+			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-en">{{ item.names.en }}</span>
+		</div>
+		{% endif %}
+		{% endfor %}
+	</div>
+</main>
+
+<script>
+	const style = document.createElement('style');
+	style.innerHTML = `.tableGrid { font-size: .65em; }`;
+	document.head.appendChild(style);
+</script>
+
+<script src="/assets/js/features/print-export.js" type="module"></script>
