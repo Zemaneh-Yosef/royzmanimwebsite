@@ -24,7 +24,7 @@ These are both astronomical constants, as the base to the other times. Internall
 
 ###### Midday
 
-Everyday is counted *independently* (as opposed to a mean value), being the halfway point between sunrise->sunset (not sunrise->tzet)
+Every day is counted *independently* (as opposed to a mean value), being the halfway point between sunrise->sunset (not sunrise->tzet)
 
 ###### Pelag Ha'Minḥa
 
@@ -36,6 +36,6 @@ This is a concept no other calendar lists, and explaining it here would require 
 
 ###### Birkat Ha'Levana & Molad
 
-The Molad for the new month is not announced in the normative Eretz Yisrael minhag (despite Ashkenazic + some Sepharadic communities announcing it by שבת מברכים). Nevertheless, we still use it to determine when one may start saying Birkat Ha'Levana - the difference between Sepharadim & Ashenazim on this detail, however, is that we offset 168 hours as opposed to the Ashkenazim who only offset 72 hours (thus creating an extra 96 hour offset on our end).
+The Molad for the new month is not announced in the normative Eretz Yisrael minhag (despite Ashkenazic + some Sepharadic communities announcing it by שבת מברכים). Nevertheless, we still use it to determine when one may start saying Birkat Ha'Levana - the difference between Sepharadim & Ashkenazim on this detail, however, is that we offset 168 hours as opposed to the Ashkenazim who only offset 72 hours (thus creating an extra 96-hour offset on our end).
 
 According to the letter of the law, the Sepharadic deadline to say Birkat Ha'Levana is not dependent on the calculation of the Molad, and one may say it through the night of the 15<sup>th</sup>.
