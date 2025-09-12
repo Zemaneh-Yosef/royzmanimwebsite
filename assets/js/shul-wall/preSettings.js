@@ -57,7 +57,7 @@ switch (window.location.href.split('/').pop()) {
 			}
 		});
 		break;
-	case 'mercaz-bne-aliya':
+	case 'charm-circle':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',
