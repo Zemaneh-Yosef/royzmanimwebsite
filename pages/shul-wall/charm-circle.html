@@ -290,7 +290,7 @@ layout: nothing
 
 	.blurOverlay {
 		height: 12vh;
-		backdrop-filter: blur(10px);
+		backdrop-filter: blur(8px);
 		width: 100%;
 		align-self: start;
 	}
@@ -357,7 +357,28 @@ layout: nothing
 					<span data-zfFind="starts-tonight"> - Starts tonight</span>
 					<span data-zfFind="ends-tonight"> - Ends tonight</span>
 				</span>
-				<span data-zfReplace="Tachanun"></span>
+				<span data-zfReplace="Tachanun">
+					<span data-zfFind="0">
+						<span class="langTV lang-hb">לוח-תחנון יום</span>
+						<span class="langTV lang-en-et">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-en">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-ru">Календарь — День Тахануна</span>
+					</span>
+					<span data-zfFind="1">
+						<span class="langTV lang-hb">תחנון רק בשחרית</span>
+						<span class="langTV lang-en-et">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-en">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-ru">Только Таханун от Шахарит</span>
+					</span>
+					<span data-zfFind="2">
+						<span class="langTV lang-hb">אין תחנון היום</span>
+						<span class="langTV lang-en-et">No Taḥanun</span>
+						<span class="langTV lang-en">No Taḥanun</span>
+						<span class="langTV lang-ru">Нет Тахануна</span>
+					</span>
+					<span data-zfFind="3">צדקתך</span>
+					<span data-zfFind="4">יהי שם</span>
+				</span>
 				<span data-zfReplace="Hallel" style="display: none;"></span>
 				<span data-zfReplace="Ulchaparat" style="display: none;"></span>
 				<span data-zfFind="SeasonalPrayers">

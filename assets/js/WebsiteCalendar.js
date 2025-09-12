@@ -855,7 +855,7 @@ export function getFrenchOrdinal (n, htmlSup=false) {
 
 /**
  * @param {string | string[]} localeName
- * @param {"short" | "long" | "narrow"} [weekday] 
+ * @param {"short" | "long" | "narrow"} [weekday]
  */
 export function daysForLocale(localeName, weekday = 'long', calendar = 'iso8601') {
 	const baseDate = KosherZmanim.Temporal.PlainDate.from({ year: 2024, month: 1, day: 1 }).withCalendar(calendar);
