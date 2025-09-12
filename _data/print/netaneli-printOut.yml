@@ -1,0 +1,114 @@
+---
+- timeGetter: getAlotHashahar
+  names:
+    hb: עלות
+    et: עלות
+    en: עלות
+- timeGetter: getMisheyakir
+  names:
+    hb: משיכיר
+    et: משיכיר
+    en: משיכיר
+- timeGetter: getNetz
+  names:
+    hb: הנץ
+    et: HaNetz
+    en: Sunrise
+- shitot:
+    - names:
+        hb: מג'א
+        en: מג'א
+        et: מג'א
+      timeGetter: getSofZemanShemaMGA
+      id: mga
+    - names:
+        hb: גר'א
+        en: גר'א
+        et: גר'א
+      timeGetter: getSofZemanShemaGRA
+      id: gra
+  names:
+    hb: זמן שמע
+    et: זמן שמע
+    en: זמן שמע
+- timeGetter: getSofZemanAhilathHametz
+  names:
+    hb: זמן שחרית
+    et: זמן שחרית
+    en: זמן שחרית
+- timeGetter: getSofZemanBerakhothShema
+  names:
+    hb: זמן ברכות שמע
+    et: זמן ברכות שמע
+    en: זמן ברכות שמע
+- timeGetter: getHatzoth
+  names:
+    hb: חצות
+    et: Ḥatsoth
+    en: Midday
+- shitot:
+    - names:
+        hb: גדולה
+        en: Early
+        et: Early
+      timeGetter: getMinhaGedolah
+      id: gedolah
+    - names:
+        hb: קטנה
+        en: Pref.
+        et: Pref.
+      timeGetter: getMinchaKetana
+      id: ketanah
+  names:
+    hb: זמן מנחה
+    et: Zeman Minḥa
+    en: Minḥa Times
+- shitot:
+    - names:
+        hb: ה"ב
+        en: H"B
+        et: H"B
+      timeGetter: getPlagHaminhaHalachaBrurah
+      id: hb
+    - names:
+        hb: י"י
+        en: Y"Y
+        et: Y"Y
+      timeGetter: getPlagHaminhaYalkutYosef
+      id: yy
+  names:
+    hb: פלג המנחה
+    et: Pelag Ha'Minḥa
+    en: Pelag Ha'Minḥa
+- timeGetter: getShkiya
+  names:
+    hb: שקיעה
+    et: Sheqi'a
+    en: Sunset
+- shitot:
+    - names:
+        hb: שיטת מרן
+        en: Reg.
+        et: Reg.
+      timeGetter: getTzet
+      id: regular
+    - names:
+        hb: לחומרה
+        et: Ḥumra
+        en: Strict
+      timeGetter: getTzetHumra
+      id: humra
+  names:
+    hb: לילה
+    et: לילה
+    en: לילה
+- timeGetter: candleLighting
+  names:
+    hb: נרות וצאת מלכה
+    et: נרות וצאת מלכה
+    en: נרות וצאת מלכה
+- timeGetter: getTzetRT
+  names:
+    hb: ר״ת
+    et: Rabbenu Tam
+    en: Rabbenu Tam

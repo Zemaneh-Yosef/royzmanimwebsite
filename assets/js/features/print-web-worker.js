@@ -642,6 +642,7 @@ function messageHandler (x) {
 					div.style.fontWeight = "bold";
 
 				break;
+
 			case 'min-shema':
 				renderZmanInDiv(zmanCalc.getSofZemanShemaMGA());
 				renderZmanInDiv(zmanCalc.getSofZemanShemaGRA(), {dtF: defaulTF, icon: "(GRA) ", hideAMPM: true});
@@ -766,6 +767,46 @@ function messageHandler (x) {
 					div.style.fontWeight = "bold";
 				}
 
+				break;
+
+			case 'netaneli-strictNight': {
+				const potForCandle = jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7;
+				const havdalahOnWine = jCal.isTaanis() && jCal.getJewishMonth() == WebsiteLimudCalendar.AV && jCal.getDayOfWeek() == KosherZmanim.Calendar.SUNDAY;
+
+				const iconParams =
+					potForCandle ? {dtF: defaulTF, icon: icons.candle, hideAMPM: true} :
+					havdalahOnWine ? {dtF: defaulTF, icon: icons.wine, hideAMPM: true} :
+					undefined;
+
+				let humraTzetZman = zmanCalc.coreZC.getSunsetOffsetByDegrees(3.7);
+				if (jCal.hasCandleLighting() || jCal.isAssurBemelacha())
+					humraTzetZman = zmanCalc.coreZC.getSunsetOffsetByDegrees(4.8);
+				renderZmanInDiv(humraTzetZman, iconParams)
+				if (jCal.isTaanis() && !jCal.isYomKippur()) {
+					div.style.fontWeight = "bold";
+				}
+
+				if (potForCandle || havdalahOnWine) {
+					div.style.gridColumnEnd = "span 2";
+				}
+
+				if (jCal.tomorrow().getDayOfOmer() !== -1 && !(jCal.hasCandleLighting() || !jCal.isAssurBemelacha())) {
+					div.appendChild(omerSpan);
+				}
+
+				break;
+			} case 'netaneli-rt':
+				renderZmanInDiv(zmanCalc.timeRange.current.tzethakokhavim)
+			case 'netaneli-minhaGedola':
+				renderZmanInDiv(zmanCalc.getMinhaGedolah());
+				renderZmanInDiv(
+					zmanCalc.timeRange.current.sunrise.add(
+						zmanCalc.fixedToSeasonal(
+							Temporal.Duration.from({ hours: 6, minutes: 30 }),
+							zmanCalc.timeRange.current.sunrise.until(zmanCalc.timeRange.current.nightfall)
+					))
+				);
+				div.lastElementChild.classList.add("omerText");
 				break;
 			case 'blank':
 				break;
