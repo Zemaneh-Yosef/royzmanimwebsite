@@ -6,7 +6,7 @@
     en: Dawn <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
 - timeGetter: getMisheyakir
   names:
-    hb: מישיקיר
+    hb: משיכיר
     et: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
