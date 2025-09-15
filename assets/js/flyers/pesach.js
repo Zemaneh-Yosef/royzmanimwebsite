@@ -69,7 +69,7 @@ for (const locationTitleElem of elems) {
 		hour: 'numeric',
 		minute: '2-digit'
 	}];
-	
+
 	const adjustedTimes = Object.fromEntries(Object.entries(times)
 		.map(([zmanName, zmanDetails]) => {
 			/** @type {KosherZmanim.Temporal.ZonedDateTime} */

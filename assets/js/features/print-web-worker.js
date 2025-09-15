@@ -769,34 +769,17 @@ function messageHandler (x) {
 
 				break;
 
-			case 'netaneli-strictNight': {
-				const potForCandle = jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7;
-				const havdalahOnWine = jCal.isTaanis() && jCal.getJewishMonth() == WebsiteLimudCalendar.AV && jCal.getDayOfWeek() == KosherZmanim.Calendar.SUNDAY;
-
-				const iconParams =
-					potForCandle ? {dtF: defaulTF, icon: icons.candle, hideAMPM: true} :
-					havdalahOnWine ? {dtF: defaulTF, icon: icons.wine, hideAMPM: true} :
-					undefined;
-
-				let humraTzetZman = zmanCalc.coreZC.getSunsetOffsetByDegrees(3.7);
-				if (jCal.hasCandleLighting() || jCal.isAssurBemelacha())
-					humraTzetZman = zmanCalc.coreZC.getSunsetOffsetByDegrees(4.8);
-				renderZmanInDiv(humraTzetZman, iconParams)
-				if (jCal.isTaanis() && !jCal.isYomKippur()) {
-					div.style.fontWeight = "bold";
-				}
-
-				if (potForCandle || havdalahOnWine) {
-					div.style.gridColumnEnd = "span 2";
-				}
-
-				if (jCal.tomorrow().getDayOfOmer() !== -1 && !(jCal.hasCandleLighting() || !jCal.isAssurBemelacha())) {
-					div.appendChild(omerSpan);
-				}
-
+			case 'getPlagHaminhaTT':
+				renderZmanInDiv(zmanCalc.timeRange.current.dawn.add(
+					zmanCalc.fixedToSeasonal(Temporal.Duration.from({ hours: 10, minutes: 45 }), zmanCalc.timeRange.current.ranges.mga)
+				));
 				break;
-			} case 'netaneli-rt':
+			case 'testSunriseHBWorking':
+				renderZmanInDiv(zmanCalc.testSunriseHBWorking(), {dtF: [defaulTF[0], {...defaulTF[1], second: '2-digit'}], hideAMPM: true});
+				break;
+			case 'netaneli-rt':
 				renderZmanInDiv(zmanCalc.timeRange.current.tzethakokhavim)
+				break;
 			case 'netaneli-minhaGedola':
 				renderZmanInDiv(zmanCalc.getMinhaGedolah());
 				renderZmanInDiv(
@@ -808,6 +791,33 @@ function messageHandler (x) {
 				);
 				div.lastElementChild.classList.add("omerText");
 				break;
+			case 'netaneli-candleLighting':
+				if (jCal.hasCandleLighting()) {
+					const candleConfig = {dtF: defaulTF, icon: icons.candle, hideAMPM: true}
+					if (jCal.getDayOfWeek() === 6 || !jCal.isAssurBemelacha())
+						renderZmanInDiv(zmanCalc.getCandleLighting(), candleConfig);
+					else if (jCal.getDayOfWeek() === 7)
+						renderZmanInDiv(zDTFromFunc(zmanCalc.getTzetMelakha({ degree: 8.1, minutes: 30})), candleConfig);
+					else if (x.data.mergeTzet && zmanCalc)
+						renderZmanInDiv(zmanCalc.getTzetHumra(), candleConfig);
+					else
+						return false;
+				}
+
+				if (x.data.allShitot.includes('getTzetHumra') && jCal.isTaanis() && jCal.getJewishMonth() == WebsiteLimudCalendar.AV && jCal.getDayOfWeek() == KosherZmanim.Calendar.SUNDAY)
+					return false;
+
+				if (!jCal.hasCandleLighting() && jCal.isAssurBemelacha()) {
+					renderZmanInDiv(zDTFromFunc(zmanCalc.getTzetMelakha()), {dtF: defaulTF, icon: icons.havdalah, hideAMPM: true});
+
+					if (x.data.mergeTzet && jCal.tomorrow().getDayOfOmer() !== -1) {
+						omerSpan.style.marginTop = '.1rem';
+						div.appendChild(omerSpan);
+					}
+				}
+
+				break;
+
 			case 'blank':
 				break;
 			default:

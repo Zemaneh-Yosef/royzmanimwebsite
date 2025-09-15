@@ -460,6 +460,14 @@ class ZemanFunctions extends ZemanimMathBase {
 	getSolarMidnight() {
 		return this.coreZC.getSolarMidnight()
 	}
+
+	testSunriseHBWorking() {
+		const solarRadius = this.coreZC.getAstronomicalCalculator().getSolarRadius();
+		const zenith = KosherZmanim.ZmanimCalendar.GEOMETRIC_ZENITH;
+		const refraction = this.coreZC.getAstronomicalCalculator().getRefraction();
+
+		return this.coreZC.getSunriseOffsetByDegrees(zenith - solarRadius + refraction); // proper adjustment
+	}
 }
 
 /**
