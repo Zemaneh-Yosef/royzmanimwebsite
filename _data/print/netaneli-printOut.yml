@@ -9,11 +9,23 @@
     hb: משיכיר
     et: משיכיר
     en: משיכיר
-- timeGetter: getNetz
+- shitot:
+    - names:
+        hb: הנראה
+        en: הנראה
+        et: הנראה
+      timeGetter: getNetz
+      id: nire
+    - names:
+        hb: כל השמש
+        en: כל השמש
+        et: כל השמש
+      timeGetter: testSunriseHBWorking
+      id: shemesh
   names:
     hb: הנץ
-    et: HaNetz
-    en: Sunrise
+    et: הנץ
+    en: הנץ
 - shitot:
     - names:
         hb: מג'א
@@ -31,84 +43,91 @@
     hb: זמן שמע
     et: זמן שמע
     en: זמן שמע
-- timeGetter: getSofZemanAhilathHametz
-  names:
-    hb: זמן שחרית
-    et: זמן שחרית
-    en: זמן שחרית
-- timeGetter: getSofZemanBerakhothShema
-  names:
-    hb: זמן ברכות שמע
-    et: זמן ברכות שמע
-    en: זמן ברכות שמע
+- names:
+    hb: זמן תפילה
+    et: זמן תפילה
+    en: זמן תפילה
+  shitot:
+    - names:
+        hb: שחרית ("מג'א")
+        en: שחרית ("מג'א")
+        et: שחרית ("מג'א")
+      timeGetter: getSofZemanAhilathHametz
+      id: mga
+    - names:
+        hb: שמע ("גר'א")
+        en: שמע ("גר'א")
+        et: שמע ("גר'א")
+      timeGetter: getSofZemanBerakhothShema
+      id: gra
 - timeGetter: getHatzoth
   names:
     hb: חצות
-    et: Ḥatsoth
-    en: Midday
+    et: חצות
+    en: חצות
 - shitot:
     - names:
         hb: גדולה
-        en: Early
-        et: Early
-      timeGetter: getMinhaGedolah
+        en: גדולה
+        et: גדולה
+      timeGetter: netaneli-minhaGedola
       id: gedolah
     - names:
         hb: קטנה
-        en: Pref.
-        et: Pref.
+        en: קטנה
+        et: קטנה
       timeGetter: getMinchaKetana
       id: ketanah
   names:
     hb: זמן מנחה
-    et: Zeman Minḥa
-    en: Minḥa Times
+    et: זמן מנחה
+    en: זמן מנחה
 - shitot:
     - names:
-        hb: ה"ב
-        en: H"B
-        et: H"B
+        hb: גר"א
+        en: גר"א
+        et: גר"א
       timeGetter: getPlagHaminhaHalachaBrurah
       id: hb
     - names:
-        hb: י"י
-        en: Y"Y
-        et: Y"Y
-      timeGetter: getPlagHaminhaYalkutYosef
+        hb: תד"ש
+        en: תד"ש
+        et: תד"ש
+      timeGetter: getPlagHaminhaTT
       id: yy
   names:
     hb: פלג המנחה
-    et: Pelag Ha'Minḥa
-    en: Pelag Ha'Minḥa
+    et: פלג המנחה
+    en: פלג המנחה
 - timeGetter: getShkiya
   names:
     hb: שקיעה
-    et: Sheqi'a
-    en: Sunset
+    et: שקיעה
+    en: שקיעה
 - shitot:
     - names:
-        hb: שיטת מרן
-        en: Reg.
-        et: Reg.
+        hb: עיקר הדין
+        en: עיקר הדין
+        et: עיקר הדין
       timeGetter: getTzet
       id: regular
     - names:
         hb: לחומרה
-        et: Ḥumra
-        en: Strict
+        et: לחומרה
+        en: לחומרה
       timeGetter: getTzetHumra
       id: humra
   names:
     hb: לילה
     et: לילה
     en: לילה
-- timeGetter: candleLighting
+- timeGetter: netaneli-candleLighting
   names:
     hb: נרות וצאת מלכה
     et: נרות וצאת מלכה
     en: נרות וצאת מלכה
-- timeGetter: getTzetRT
+- timeGetter: netaneli-rt
   names:
     hb: ר״ת
-    et: Rabbenu Tam
-    en: Rabbenu Tam
+    et: ר״ת
+    en: ר״ת
