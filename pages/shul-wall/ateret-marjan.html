@@ -38,7 +38,7 @@ layout: nothing
 		margin: var(--margin);
 		height: calc(100vh - var(--margin) - var(--margin) - var(--margin));
 		width: calc(100% - var(--margin) - var(--margin));
-        background: #FFFFFF99;
+        background: #FFFFFFBB;
 		border-radius: 3rem;
 	}
 
@@ -61,7 +61,7 @@ layout: nothing
         padding-left: 1.5rem;
         padding-bottom: .25rem;
 		align-items: center;
-		font-size: 1.05rem;
+		font-size: 1.65rem;
         background: #FFFFFF88;
 		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.5));
 
@@ -100,7 +100,7 @@ layout: nothing
 		line-height: 1;
 		padding-right: 2rem;
 		color: #000000;
-		font-size: 2.5rem;
+		font-size: 4.5rem;
 		padding-top: 1.5rem;
 		align-self: start;
 		z-index: 3;
@@ -113,11 +113,15 @@ layout: nothing
 		margin-top: 13dvh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 1fr .1fr 1fr;
+		grid-template-columns: 1fr .75fr 1fr;
 		grid-template-rows: 1fr auto;
 		align-items: center;
-		gap: 20px;
+		gap: 12px;
 		font-size: .8rem;
+	}
+
+	#dataGrid > *:not(.wideView):not(:nth-child(2)) {
+		font-size: 2.15rem;
 	}
 
 	#dataGrid .h1,
@@ -139,15 +143,7 @@ layout: nothing
 		text-align: center;
 		align-self: end;
 		grid-column: 1 / span 3;
-		font-size: .9em;
-	}
-
-	#content[data-current-page="1"] .langTV.lang-en {
-		display: none;
-	}
-
-	#content[data-current-page="2"] .langTV.lang-hb {
-		display: none;
+		font-size: 1.45em;
 	}
 
 	.wideView > * {
@@ -178,7 +174,7 @@ layout: nothing
 		margin-bottom: .75vw;
 		text-align: center;
 		line-height: 1.2;
-		font-size: .6rem;
+		font-size: .95rem;
         font-weight: bold;
 	}
 
@@ -226,7 +222,7 @@ layout: nothing
 	}
 </style>
 
-<div id="content" data-current-page="1" data-page-count="2">
+<div id="content">
 	<div id="bsD">בס“ד</div>
 	<img id="gne" src="/assets/images/shul-wall/AM-LOGO-1368x1536.png" />
 	<div id="background"></div>
@@ -253,7 +249,6 @@ layout: nothing
 		<div style="line-height: 1.3;">
 			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
 				<div class="list-group-item d-flex justify-content-between">
-					<dt class="langTV lang-hb">תלמוד בבלי</dt>
 					<dt class="langTV lang-en">Talmud Bavli</dt>
 					<dd class="m-0" data-zfReplace="dafBavli"></dd>
 				</div>
@@ -263,9 +258,9 @@ layout: nothing
 				<ul class="list-group list-group-flush" id="weekday">
 				</ul>
 			</div> -->
-			<h1 class="text-center mb-0 pt-3">Hiloulot of...</h1>
+			<h1 class="text-center mb-0 pt-3" style="font-size: 2.75rem;">Hiloulot of...</h1>
 			<div class="card hiloulotCard">
-				<div class="marquee" style="height: 60px; --length: 27.5s;">
+				<div class="marquee" style="height: 100px; --length: 27.5s;">
 					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
 						<li class="list-group-item">There aren't any today</li>
 					</ul>
@@ -277,14 +272,14 @@ layout: nothing
 		</div>
 		<div></div>
 		<div>
-			<h1 class="text-center mb-0" style="font-size: 2rem; line-height: 1;">Shabbat Schedule</h1>
-			<h3 class="text-center" style="font-size: 1rem;" id="makam" data-zfReplace="makamot">🎵Makam </h3>
-			<div class="card" style="line-height: 1.25; font-size: 1.15rem;">
+			<h1 class="text-center mb-0" style="font-size: 4rem; line-height: 1;">Shabbat Schedule</h1>
+			<h3 class="text-center" style="font-size: 2rem;" id="makam" data-zfReplace="makamot">🎵Makam </h3>
+			<div class="card" style="line-height: 1.25;">
 				<ul class="list-group list-group-flush" id="youth">
 				</ul>
 			</div>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="en">
 			{% for item in site.data.tv.simpleTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
@@ -293,10 +288,7 @@ layout: nothing
 					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
-					<span class="langTV lang-hb">{{ item.names.hb }}</span>
 					<span class="langTV lang-en">{{ item.names.en }}</span>
-					<span class="langTV lang-et">{{ item.names.et }}</span>
-					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>
 				</article>
 			{% endfor %}
