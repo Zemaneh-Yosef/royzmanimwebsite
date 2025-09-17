@@ -168,36 +168,28 @@ layout: nothing
 	}
 
 	#content[data-current-page="1"] #limudSection,
-	#content[data-current-page="2"] #limudSection,
-	#content[data-current-page="3"] #limudSection {
+	#content[data-current-page="2"] #limudSection {
 		display: none;
 	}
 
-	#content[data-current-page="4"] #zemanehHayom,
-	#content[data-current-page="5"] #zemanehHayom,
-	#content[data-current-page="6"] #zemanehHayom {
+	#content[data-current-page="3"] #zemanehHayom,
+	#content[data-current-page="4"] #zemanehHayom {
 		display: none;
 	}
 
 	#content[data-current-page="1"] #shulShiurim,
-	#content[data-current-page="2"] #shulShiurim,
-	#content[data-current-page="3"] #shulShiurim {
+	#content[data-current-page="2"] #shulShiurim {
 		display: none;
 	}
 
-	#content[data-current-page="4"] #shulScheduling,
-	#content[data-current-page="5"] #shulScheduling,
-	#content[data-current-page="6"] #shulScheduling {
+	#content[data-current-page="3"] #shulScheduling,
+	#content[data-current-page="4"] #shulScheduling {
 		display: none;
-	}
-
-	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
-		content: "מחר, ";
-		unicode-bidi: isolate;
 	}
 
 	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
-		content: "завтра, ";
+		content: "מחר, ";
+		unicode-bidi: isolate;
 	}
 
 	#content[data-current-page="1"] .timeDisplayWide.nextDay::before {
@@ -205,17 +197,12 @@ layout: nothing
 	}
 
 	#content[data-current-page="1"] .langTV:not(.lang-en),
-	#content[data-current-page="4"] .langTV:not(.lang-en) {
+	#content[data-current-page="3"] .langTV:not(.lang-en) {
 		display: none;
 	}
 
-	#content[data-current-page="2"] .langTV:not(.lang-ru),
-	#content[data-current-page="5"] .langTV:not(.lang-ru) {
-		display: none;
-	}
-
-	#content[data-current-page="3"] .langTV:not(.lang-hb),
-	#content[data-current-page="6"] .langTV:not(.lang-hb) {
+	#content[data-current-page="2"] .langTV:not(.lang-hb),
+	#content[data-current-page="4"] .langTV:not(.lang-hb) {
 		display: none;
 	}
 
@@ -327,7 +314,7 @@ layout: nothing
 	}
 </style>
 
-<div id="content" data-current-page="1" data-page-count="6">
+<div id="content" data-current-page="1" data-page-count="4" data-swap-time="8000">
 	<div id="bsD">בס"ד</div>
 	<img id="gne" src="https://zemaneh-yosef.github.io/extras/charm-circle/logo.png" />
 	<div class="blurOverlay"></div>
@@ -397,7 +384,7 @@ layout: nothing
 				<span class="langTV lang-en">Halachic Times</span>
 			</h1>
 			{% include clockCountdown.html %}
-			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en ru">
+			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
 				{% for item in site.data.tv.simpleTVZman %}
 					<article
 						data-zmanid="{{ item.id }}"
@@ -408,8 +395,6 @@ layout: nothing
 					>
 						<span class="langTV lang-hb">{{ item.names.hb }}</span>
 						<span class="langTV lang-en">{{ item.names.en }}</span>
-						<span class="langTV lang-et">{{ item.names.et }}</span>
-						<span class="langTV lang-ru">{{ item.names.ru }}</span>
 						<span class="timeDisplay"></span>
 					</article>
 				{% endfor %}
@@ -536,107 +521,29 @@ layout: nothing
 		<div id="shulScheduling">
 			<h1 style="text-align: center;">Weekday Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Selichot</b>
-						<span>7:20 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Shaharit</b>
-						<span>8:00 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Minha & Arvit</b>
-						<span>6:45 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="weekdaySchCard">
 				</ul>
 			</div>
 			<h1 style="text-align: center;">Shabbat Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Shir Ha'Shirim</b>
-						<span>6:45 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<div>
-							<b>Hakhnasat Shabbat</b><br>
-							<span>Minha, Kabbalat Shabbat & Arvit</span>
-						</div>
-						<span>7:00 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Main Shaharit</b>
-						<span>8:30 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Minha + Seudat Shlishit</b>
-						<span>6:25 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between">
-						<b>Arvit</b>
-						<span>7:48 PM</span>
-					</li>
+				<ul class="list-group list-group-flush" id="shabbatSchCard">
 				</ul>
 			</div>
 		</div>
 		<div id="shulShiurim">
 			<h1 style="text-align: center;">Weekday Shiurim</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Queens Community Kollel</b><br>
-							<span>R' Doniel Milgram</span>
-						</div>
-						<span>Sun - Thu<br>9:00 AM - 5:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Masechet Berakhot</b><br>
-							<span>R' Moshe Muratov</span>
-						</div>
-						<span>Sun - Thu<br>8:00 PM - 9:00 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Ben Ish Hai Halacha</b><br>
-							<span>R' Ilan Meirov</span>
-						</div>
-						<span>Sun<br>9:00 AM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Zera Shimshon</b><br>
-							<span>R' Shimunov</span>
-						</div>
-						<span>Tue.<br>9:00 - 9:30 PM</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Semichat Chaver</b><br>
-							<span>R' Rubinov</span>
-						</div>
-						<span>Wed.<br>9:00 - 10:00 PM</span>
-					</li>
-				</ul>
-			</div>
-			<h1 style="text-align: center;">Shabbat Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-content-center">
-						<div>
-							<b>Daf Yomi</b>
-						</div>
-						<span>5:25 PM</span>
-					</li>
-				</ul>
+				<ul class="list-group list-group-flush" id="dailWeekdayCard"></ul>
+				<ul class="list-group list-group-flush" id="speWeekdayCard"></ul>
 			</div>
 		</div>
 	</div>
 </div>
 
 <script type="module">
+	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
+	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/charm-circle/schedule.ini');
+
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
 		.filter(str => str.startsWith('./charm-circle/flyer/'))

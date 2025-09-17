@@ -45,12 +45,12 @@ const zmanimList = Object.fromEntries(Array.from(calList.children)
 		yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
 		luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
 		condition: timeSlot.getAttribute('data-condition'),
-		title: {
-			'hb': timeSlot.querySelector('span.langTV.lang-hb').innerHTML,
-			'en': timeSlot.querySelector('span.langTV.lang-en').innerHTML,
-			'en-et': timeSlot.querySelector('span.langTV.lang-et').innerHTML,
-			ru: timeSlot.querySelector('span.langTV.lang-ru').innerHTML
-		}
+		title: Object.fromEntries(['hb', 'en', 'en-et', 'ru'].map(lang => {
+			if (!timeSlot.querySelector(`span.langTV.lang-${lang}`))
+				return null;
+
+			return [lang, timeSlot.querySelector(`span.langTV.lang-${lang}`).innerHTML];
+		}).filter(Boolean))
 	}])
 	.filter(
 		arrayEntry =>
@@ -103,9 +103,11 @@ for (const timeData of sortedTimes) {
 
 	artElem.appendChild(artTime);
 
-	if (timeData.title.hb.startsWith("שמע") && calList.hasAttribute('data-primaryShema')) {
+	const curTimeIsShema = (/** @type {typeof timeData} */row) => ("hb" in row.title && row.title.hb) ? row.title.hb.startsWith("שמע")
+		: row.title.en.startsWith("Shema");
+	if (curTimeIsShema(timeData) && calList.hasAttribute('data-primaryShema')) {
 		const shemaTimes = sortedTimes
-			.filter(time => time.title.hb.startsWith("שמע"))
+			.filter(curTimeIsShema)
 			.map(zmanObj => zmanObj.zDTObj.toPlainDate());
 
 		if (shemaTimes[0].equals(shemaTimes[1])) {

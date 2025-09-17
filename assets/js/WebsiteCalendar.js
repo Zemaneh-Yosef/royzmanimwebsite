@@ -4,7 +4,7 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js"
 import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js";
 import { zDTFromFunc } from "./ROYZmanim.js";
 
-/** @typedef {{ hb: string, en: string, "en-et": string; "ru"?: string; }} langType */
+/** @typedef {{ hb?: string, en?: string, "en-et"?: string; "ru"?: string; }} langType */
 /** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
 
 export default
@@ -133,18 +133,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				code: [],
 				zDTObj: null,
 				funcRet: null,
-				title: {
-					hb: null,
-					en: null,
-					"en-et": null,
-					ru: null
-				},
-				merge_title: {
-					hb: null,
-					en: null,
-					"en-et": null,
-					ru: null
-				},
+				title: {},
+				merge_title: {},
 				dtF: [dtF[0], Object.assign({}, dtF[1])]
 			}
 
@@ -283,11 +273,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					if (KosherZmanim.Temporal.ZonedDateTime.compare(calculatedZman.zDTObj, zmanCalc.timeRange.current.tzethakokhavim) == 0) {
 						calculatedZman.title.hb = 'ר"ת (זמנית)';
 						calculatedZman.title['en-et'] = "Rabbenu Tam (Zemanit)";
-						calculatedZman.title.en = "Rabbeinu Tam (Seasonal)";
+						calculatedZman.title.en = "Rabbenu Tam (Seasonal)";
 					} else {
 						calculatedZman.title.hb = 'ר"ת (קבוע)';
 						calculatedZman.title['en-et'] = "Rabbenu Tam (Kavuah)";
-						calculatedZman.title.en = "Rabbeinu Tam (Fixed)";
+						calculatedZman.title.en = "Rabbenu Tam (Fixed)";
 					}
 			}
 
