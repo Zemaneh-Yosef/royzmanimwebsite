@@ -101,10 +101,13 @@ export default async function onlineSchedule(url, silent=false) {
 		/** @type {[string, string][]} */
 		const table = Object.entries(value);
 		for (const [rowTitle, rowTime] of table) {
-			const localizedName = localization[rowTitle] || rowTitle;
+			let localizedName = localization[rowTitle] || rowTitle;
+			const fullWidthDescription = localizedName.startsWith('fullWidthDescription');
+			if (fullWidthDescription)
+				localizedName = localizedName.split('|')[1];
 
 			const rowGroup = document.createElement("li");
-			rowGroup.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+			rowGroup.classList.add("list-group-item", (fullWidthDescription ? 'schedule-entry-grid' : "d-flex"), "justify-content-between", "align-items-center");
 
 			const nameDiv = document.createElement("div");
 			nameDiv.innerHTML = localizedName;
@@ -125,6 +128,12 @@ export default async function onlineSchedule(url, silent=false) {
 			rowGroup.appendChild(timeDiv);
 
 			document.getElementById(elemId).appendChild(rowGroup);
+
+			if (fullWidthDescription) {
+				const descriptionDiv = document.createElement("div");
+				descriptionDiv.innerHTML = (localization[rowTitle] || rowTitle).split('|')[2]
+				rowGroup.appendChild(descriptionDiv);
+			}
 		}
 	}
 

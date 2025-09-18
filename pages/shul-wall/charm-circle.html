@@ -312,6 +312,15 @@ layout: nothing
 	:root {
 		--bs-body-color: white;
 	}
+
+	.schedule-entry-grid {
+		display: grid;
+		grid-template-columns: 1fr auto;
+	}
+
+	.schedule-entry-grid > *:last-child {
+		grid-column: 1 / span 2;
+	}
 </style>
 
 <div id="content" data-current-page="1" data-page-count="4" data-swap-time="8000">

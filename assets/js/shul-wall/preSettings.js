@@ -58,6 +58,7 @@ switch (window.location.href.split('/').pop()) {
 		});
 		break;
 	case 'charm-circle':
+	case 'charm-circle-schedule':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',
