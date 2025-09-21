@@ -2,8 +2,30 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import LimudCalendar from "../WebsiteLimudCalendar.js";
+import preSettings from "./preSettings.js";
 
-const jCal = new LimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
+const Temporal = KosherZmanim.Temporal;
+
+/** @type {[string, number, number, number, string]} */
+// @ts-ignore
+const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
+const geoL = new KosherZmanim.GeoLocation(...glArgs);
+
+let dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
+if (dateForSet.year < 2025)
+	dateForSet = dateForSet.with({ year: 2025, month: 4, day: 12 });
+
+const jCal = new LimudCalendar(dateForSet);
+jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
+
+let melakhaJCal = jCal.shabbat();
+for (; !jCal.getDate().equals(melakhaJCal.getDate()); jCal.forward(5, 1)) {
+	if (jCal.isAssurBemelacha()) {
+		melakhaJCal = jCal.clone();
+		break;
+	}
+}
+jCal.setDate(dateForSet);
 
 for (const [key, value] of Object.entries(jCal.getAllLearning()))
 	if (document.querySelector(`[data-zfReplace="${key}"]`) instanceof HTMLElement)
@@ -11,7 +33,7 @@ for (const [key, value] of Object.entries(jCal.getAllLearning()))
 
 const haftaraBar = document.querySelector('[data-zfReplace="Haftara"]')
 if (haftaraBar) {
-	const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(jCal.shabbat())
+	const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(melakhaJCal)
 	haftaraBar.innerHTML += `<b>${haftara.text}</b> (${haftara.source})`
 }
 
@@ -52,7 +74,7 @@ for (const mishnaYomiContainer of document.querySelectorAll('[data-zfReplace="Mi
 const makamObj = await (await fetch("/assets/js/makamObj.json")).json();
 const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
 
-const makam = makamIndex.getTodayMakam(jCal.shabbat());
+const makam = makamIndex.getTodayMakam(melakhaJCal);
 for (const makamContainer of document.querySelectorAll('[data-zfReplace="makamot"]'))
 	makamContainer.innerHTML += makam.makam
 		.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))

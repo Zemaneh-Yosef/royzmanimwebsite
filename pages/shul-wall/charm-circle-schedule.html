@@ -12,7 +12,7 @@ layout: nothing
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 
 <style>
 	#content {
@@ -21,7 +21,7 @@ layout: nothing
 		display: grid;
 		background-image: url(/assets/images/shul-wall/wp10073984-white-stone-wallpapers.jpg);
 		background-size: contain;
-		font-family: var(--bs-body-font-family);
+		font-family: 'Neutro', var(--bs-body-font-family);
 	}
 
 	#content > * {
@@ -104,10 +104,10 @@ layout: nothing
 		margin-bottom: 2vh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 1fr 1.25fr 1fr;
+		grid-template-columns: 1fr 1.35fr 1fr;
 		grid-template-rows: 1fr;
 		align-items: end;
-		gap: 2vw;
+		gap: 1.75vw;
 	}
 
 	#dataGrid .templeBG {
@@ -115,15 +115,16 @@ layout: nothing
 		background: rgba(0,0,0,.85);
 		border-top-left-radius: 50% 15%;
 		border-top-right-radius: 50% 15%;
-		padding: 1rem;
+		padding: .5rem;
 		box-shadow: 0 0 7px 5px black;
-		padding-top: 2.5rem;
+		padding-top: 1.5rem;
 	}
 
 	#dataGrid .templeBGSurround {
 		height: 77.5%;
 		display: grid;
 		align-content: center;
+		padding-top: 1.5rem;
 	}
 
 	.schedule-entry-grid {
@@ -133,6 +134,7 @@ layout: nothing
 
 	.schedule-entry-grid > *:last-child {
 		grid-column: 1 / span 2;
+		line-height: 1.3;
 	}
 
 	.carousel-item > img {
@@ -141,11 +143,11 @@ layout: nothing
 	}
 
 	#gne {
-		height: 15vh;
+		height: 14.5vh;
 		justify-self: start;
 		align-self: start;
 		margin-top: 1.5rem;
-		margin-left: .75rem;
+		margin-left: 1vw;
 		z-index: 3;
 	}
 
@@ -306,6 +308,20 @@ layout: nothing
 		margin-right: 8rem;
 		margin-top: 2rem;
 	}
+
+	#dailWeekdayCard .list-group-item > *:first-child,
+	#speWeekdayCard .list-group-item > *:first-child {
+		font-weight: 600;
+	}
+
+	#dailWeekdayCard .list-group-item > *:first-child i,
+	#speWeekdayCard .list-group-item > *:first-child i {
+		font-weight: 400;
+	}
+
+	#shabbatSchCard .list-group-item > *:first-child b {
+		font-weight: 900;
+	}
 </style>
 
 <div id="content">
@@ -319,7 +335,12 @@ layout: nothing
 			</div>
 		</div>
 		<div id="shulScheduling" class="templeBG">
-			<h1 style="text-align: center; font-size: 4rem;" data-parasha data-prefix="hb"></h1>
+			<h1 style="    text-align: center;
+			font-size: 5rem;
+			margin-bottom: 0;
+			font-family: 'Frank Ruhl Libre';
+			font-weight: 800;
+			line-height: 1;" data-parasha data-prefix="hb"></h1>
 			<!-- <div class="centerLeftgrid">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-zfReplace="Haftara"><img src="/assets/images/shabbat-abstract/megila-icon.png" style="height: 1.5ch; vertical-align: inherit;"> Haftara: </div>
@@ -328,18 +349,18 @@ layout: nothing
 			</div>
 			<hr style="margin: .15rem 0"> -->
 			<div class="centerLeftgrid">
-				<div style="text-align: left; width: fit-content; line-height: 1; font-size: 1.5rem;">
+				<div style="text-align: left; width: fit-content; line-height: 1; font-size: 1.6rem; font-weight: 600;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
 					<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
 				</div>
 			</div>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shabbatSchCard" style="font-size: 1.15rem;">
+				<ul class="list-group list-group-flush" id="shabbatSchCard" style="font-size: 1.25rem;">
 				</ul>
 			</div>
 			<h1 style="text-align: center;">Weekday Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="weekdaySchCard" style="font-size: 1.15rem;">
+				<ul class="list-group list-group-flush" id="weekdaySchCard" style="font-size: 1.25rem;">
 				</ul>
 			</div>
 		</div>
