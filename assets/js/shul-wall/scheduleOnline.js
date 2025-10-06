@@ -89,7 +89,11 @@ export default async function onlineSchedule(url, silent=false) {
 		}
 
 		if (elemTitle.length) {
-			document.getElementById(elemId).parentElement.previousElementSibling.innerHTML = elemTitle.join(" ")
+			let titleElem = document.getElementById(elemId).parentElement.previousElementSibling;
+			if (titleElem.hasAttribute('data-zfreplace'))
+				titleElem = titleElem.previousElementSibling;
+
+			titleElem.innerHTML = elemTitle.join(" ")
 		}
 
 		for (const element of document.querySelectorAll(`#${elemId} li`))
