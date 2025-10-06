@@ -63,7 +63,7 @@ layout: nothing
 
 	.explanationPreface {
 		line-height: 1.25;
-		font-size: .79em;
+		font-size: .7825em;
 		word-break: keep-all;
 	}
 
@@ -123,6 +123,11 @@ layout: nothing
 		margin-inline-start: 8px; /* Set the desired margin */
 		position: relative;
 		margin-bottom: .25rem;
+	}
+
+	.explanationPreface hr,
+	.pagedjs_pages hr {
+		margin: .65rem 0;
 	}
 
 	.explanationPreface .fakeListItem::before,
@@ -300,6 +305,10 @@ layout: nothing
 	.hebSrc {
 		unicode-bidi: plaintext;
 	}
+
+	.backExplainer .columnSplit {
+		margin-bottom: .5rem;
+	}
 </style>
 
 <div id="cover">
@@ -355,7 +364,7 @@ layout: nothing
 		</h1>
 		<div class="genDate">Gen.: </div>
 	</div>
-	<div class="sides" data-zyfooter-tekufa data-zyfooter-hametz data-zyfooter-levana></div>
+	<div class="sides" data-zyfooter-tekufa data-zyfooter-hametz data-zyfooter-levana data-zyfooter-yomkippur></div>
 </div>
 
 <main>
@@ -431,13 +440,17 @@ layout: nothing
 		vertical-align: top;
 	    font-size: .6em;
 	}
+
+	.mb-0 {
+		margin-bottom: 0;
+	}
 </style>
 
 <div style="page-break-before: always;">
 	<div>
 		<div data-printFind>
-			<div class="explanationPreface">
-				<h4 style="text-align: center;">Calendar Explanation</h4>
+			<div class="explanationPreface backExplainer">
+				<h4 style="text-align: center; margin-bottom: .25rem;">Calendar Explanation</h4>
 				<p style="text-align: center;">This section of the calendar aims to briefly explain every Halachic time for both calculation and concept.<br>For further research, please visit our website, royzmanim.com - we give additional sources from the Talmud onwards.</p>
 				<h5 style="text-align: center; margin-bottom: .125rem;">Daily Halachic Times Explanations</h5>
 				<div class="columnSplit" data-lang-extract>
@@ -457,13 +470,13 @@ layout: nothing
 						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
 					</div>
 				</div>
-				<h5 style="text-align: center; margin-top: .5rem; margin-bottom: .125rem;">Misc. Zemanim Explanations</h5>
+				<h5 style="text-align: center; margin-bottom: .125rem;">Misc. Zemanim Explanations</h5>
 				<div class="columnSplit" style="--description-columns: 3;" data-lang-extract>
 					<div class="lang lang-hb">{{ miscExpl | markdownify }}</div>
 					<div class="lang lang-et">{{ miscExpl | markdownify }}</div>
 					<div class="lang lang-en">{{ miscExpl | markdownify }}</div>
 				</div>
-				<div class="advert" style="margin-top: .5rem; text-align: center;">
+				<div class="advert" style="text-align: center;">
 					See more from...<br>
 					<img src="/assets/images/print/ZY-b&w-banner.png" style="margin-bottom: .5rem; width: 30%;">
 					<div style="color: white;">
