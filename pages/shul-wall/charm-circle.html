@@ -10,10 +10,6 @@ layout: nothing
 <link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
 <link href="/assets/css/timer.css" rel="stylesheet" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
-
 <style>
 	#content {
 		width: 100vw;
@@ -21,43 +17,12 @@ layout: nothing
 		display: grid;
 		background-image: url(/assets/images/shul-wall/wp10073984-white-stone-wallpapers.jpg);
 		background-size: contain;
-		font-family: var(--bs-body-font-family);
+		font-family: 'Neutro', var(--bs-body-font-family);
 	}
 
 	#content > * {
 		grid-area: 1 / 1;
 	}
-
-	/* #zyTrapezoid {
-		justify-self: center;
-		align-self: start;
-		width: 70%;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-	} */
-
-	/* #background {
-		--margin: 1.25vw;
-		margin: var(--margin);
-		height: calc(100vh - var(--margin) - var(--margin) - var(--margin) - var(--margin));
-		width: calc(100vw - var(--margin) - var(--margin));
-		border-radius: 1.25rem;
-		filter: brightness(0.4);
-		object-fit: cover;
-		object-position: top;
-	} */
-
-	/* #shulBar {
-		width:45%;
-		background-color: #2e334a;
-		justify-self: center;
-		align-self: start;
-		font-family: 'Neutro';
-		border-bottom-left-radius: 5rem;
-		border-bottom-right-radius: 5rem;
-		text-align: center;
-		z-index: 2;
-		font-size: 1.15em;
-	} */
 
 	.blink {
 		animation: blinker 1s step-start infinite;

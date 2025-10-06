@@ -1,6 +1,6 @@
 ---
 title: ChCi Queens
-permalink: /shul-wall/charm-circle-schedule
+permalink: /shul-wall/charm-circle-schedule-ocol
 layout: nothing
 ---
 
@@ -12,7 +12,7 @@ layout: nothing
 
 <style>
 	#content {
-		width: 100vw;
+		aspect-ratio: 3/4;
 		height: 100vh;
 		display: grid;
 		background-image: url(/assets/images/shul-wall/wp10073984-white-stone-wallpapers.jpg);
@@ -96,11 +96,11 @@ layout: nothing
 	#dataGrid {
 		margin-left: 1vw;
 		margin-right: 1vw;
-		margin-top: 2vh;
+		margin-top: 18vh;
 		margin-bottom: 2vh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 1fr 1.35fr 1fr;
+		grid-template-columns: 1fr;
 		grid-template-rows: 1fr;
 		align-items: end;
 		gap: 1.75vw;
@@ -109,8 +109,8 @@ layout: nothing
 	#dataGrid .templeBG {
 		height: 100%;
 		background: rgba(0,0,0,.85);
-		border-top-left-radius: 50% 15%;
-		border-top-right-radius: 50% 15%;
+		border-top-left-radius: 25% 15%;
+		border-top-right-radius: 25% 15%;
 		padding: .5rem;
 		box-shadow: 0 0 7px 5px black;
 		padding-top: 1.5rem;
@@ -301,7 +301,7 @@ layout: nothing
 	#physicalLocation {
 		width: 17.5%;
 		justify-self: end;
-		margin-right: 8rem;
+		margin-right: 3rem;
 		margin-top: 2rem;
 	}
 
@@ -324,12 +324,6 @@ layout: nothing
 	<img id="gne" src="https://zemaneh-yosef.github.io/extras/charm-circle/logo.png" />
 	<img id="physicalLocation" src="https://zemaneh-yosef.github.io/extras/charm-circle/shul-physical.jpg">
 	<div id="dataGrid">
-		<div id="dailWeekday" class="templeBG templeBGSurround">
-			<h1 style="text-align: center;">Daily Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush" id="dailWeekdayCard"></ul>
-			</div>
-		</div>
 		<div id="shulScheduling" class="templeBG">
 			<h1 style="    text-align: center;
 			font-size: 5rem;
@@ -360,18 +354,12 @@ layout: nothing
 				</ul>
 			</div>
 		</div>
-		<div id="shulShiurim" class="templeBG templeBGSurround">
-			<h1 style="text-align: center;">Weekday Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush" id="speWeekdayCard"></ul>
-			</div>
-		</div>
 	</div>
 </div>
 
 <script type="module">
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/charm-circle/schedule.ini');
+	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/charm-circle/schedule.ini', true);
 
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
