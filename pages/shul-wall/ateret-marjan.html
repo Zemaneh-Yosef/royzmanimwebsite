@@ -113,7 +113,7 @@ layout: nothing
 		margin-top: 13dvh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 1fr .75fr 1fr;
+		grid-template-columns: 1fr .85fr 1fr;
 		grid-template-rows: 1fr auto;
 		align-items: center;
 		gap: 12px;
@@ -247,11 +247,14 @@ layout: nothing
 	</div>
 	<div id="dataGrid">
 		<div style="line-height: 1.3;">
+			<h1 class="text-center mb-0 pt-3" style="font-size: 2.75rem;">Limudim</h1>
 			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+				{% for item in site.data.tv.learningShaareTefila %}
 				<div class="list-group-item d-flex justify-content-between">
-					<dt class="langTV lang-en">Talmud Bavli</dt>
-					<dd class="m-0" data-zfReplace="dafBavli"></dd>
+					<dt>{{ item.text.en.full }}</dt>
+					<dd class="m-0" data-zfReplace="{{item.limud}}"></dd>
 				</div>
+				{% endfor %}
 			</dl>
 			<!-- <h1 class="text-center mb-0 pt-3" style="font-size: 1.75rem;">Weekday Schedule</h1>
 			<div class="card" style="font-size: 1.02rem;">
