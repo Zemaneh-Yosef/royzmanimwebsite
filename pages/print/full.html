@@ -18,7 +18,7 @@ layout: nothing
 <link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Noto+Serif+Hebrew:wght@100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
 <style>
 	.tableGrid {
@@ -47,15 +47,7 @@ layout: nothing
 		padding-left: .125em;
 	}
 
-	[data-zyHeader] {
-		text-align: center;
-		line-height: 1;
-	}
 
-	[data-zyHeader]>*:not(.locationSubtitle) {
-		font-family: 'Guttman Mantova-Decor', 'Javar';
-		margin-bottom: 0;
-	}
 
 	.special {
 		display: flex;
@@ -224,6 +216,10 @@ layout: nothing
 	.zyCalFooter > .sides:last-child h5 {
 		font-size: .85rem;
 		margin-bottom: 0;
+	}
+
+	.tableCell:not([data-time-for-shita="special"]) > .flexElemWorkaround:only-child {
+		font-size: 2.75ex;
 	}
 
 	.flexElemWorkaround svg,

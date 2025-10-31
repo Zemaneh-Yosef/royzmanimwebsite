@@ -4,6 +4,7 @@ import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmani
 import { settings } from "../settings/handler.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import { Previewer } from "../../libraries/paged.js"
+import fitty from "../../libraries/fitty.js";
 
 const printParam = new URLSearchParams(window.location.search);
 if (printParam.has('lessContrast')) {
@@ -55,7 +56,7 @@ if (useOhrHachaim || printParam.has('mergeTzet')) {
 	}
 }
 
-const listAllShitot = Array.from(baseTable.querySelectorAll('[data-zyData]')).map(elem => elem.getAttribute('data-zyData'))
+const listAllShitot = Array.from(baseTable.querySelectorAll('[data-zyData]')).map(elem => [elem.getAttribute('data-zyData'), elem.getAttribute('data-round')])
 baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName('tableHeader'))
 	.filter(elem => !elem.hasAttribute('data-zyHeaderContainer'))
 	.map((/** @type {HTMLElement} */elem) => {
@@ -85,19 +86,23 @@ if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isV
 }
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];
-const geoCoordinates = footer.querySelector("[data-geoCoordinates]");
-if (geoCoordinates)
-geoCoordinates
-	.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
-		useOhrHachaim ? ", ↑" + geoLocation.getElevation().toString() : ""
-	})`));
-const tz = footer.querySelector("[data-timeZone]")
-if (tz)
-	tz.appendChild(document.createTextNode(geoLocation.getTimeZone()))
+if (footer) {
+	const geoCoordinates = footer.querySelector("[data-geoCoordinates]");
+	if (geoCoordinates)
+	geoCoordinates
+		.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
+			useOhrHachaim ? ", ↑" + geoLocation.getElevation().toString() : ""
+		})`));
+	const tz = footer.querySelector("[data-timeZone]")
+	if (tz)
+		tz.appendChild(document.createTextNode(geoLocation.getTimeZone()))
 
-const today = Temporal.Now.plainDateISO()
-for (const genDate of footer.getElementsByClassName("genDate"))
-	genDate.appendChild(document.createTextNode([today.year, today.month, today.day].map(num=>num.toString().padStart(2, '0')).join("/")))
+	const today = Temporal.Now.plainDateISO()
+	for (const genDate of footer.getElementsByClassName("genDate"))
+		genDate.appendChild(document.createTextNode([today.year, today.month, today.day].map(num=>num.toString().padStart(2, '0')).join("/")))
+}
+
+const secondSide = document.getElementsByClassName("secondSide")[0];
 
 let plainDateForLoop = Temporal.Now.plainDateISO()
 	.withCalendar(cal)
@@ -112,7 +117,7 @@ for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 
 let expectedReceive = 0;
 let actualReceive = 0;
-/** @type {Record<string, {monthHTML: string; footerHTML: string;}>} */
+/** @type {Record<string, string[]>} */
 let receiveData = {}
 /** @type {import('./print-web-worker.js').singlePageParams[]} */
 const arrayOfFuncParams = [];
@@ -122,7 +127,7 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 		israel: (geoLocation.getLocationName() || "").toLowerCase().includes('israel'),
 		geoCoordinates: glArgs,
 		netz: availableVS,
-		htmlElems: baseTable.outerHTML + footer.outerHTML,
+		htmlElems: baseTable.outerHTML + (footer ? footer.outerHTML : "") + (secondSide ? secondSide.outerHTML : ""),
 		calendar: cal,
 		hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
 		date: plainDateForLoop.with({ month: 1 }).add({ months: mIndex - 1 }).toString(),
@@ -131,32 +136,36 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 		tzetMelakha: settings.customTimes.tzeithIssurMelakha(),
 		timeFormat: settings.timeFormat(),
 		lang: settings.language(),
+		// @ts-ignore
 		allShitot: listAllShitot,
 		month: mIndex,
 		candleTime: settings.customTimes.candleLighting(),
 		shabbatOnly: printParam.has('shabbatOnly'),
-		mergeTzet: printParam.has('mergeTzet') || useOhrHachaim
+		mergeTzet: printParam.has('mergeTzet') || useOhrHachaim,
+		pocket: location.pathname.includes('pocket')
 	})
 }
 
 for (const monthData of arrayOfFuncParams) {
 	const webWorker = new Worker('/assets/js/features/print-web-worker.js', { type: 'module' });
-	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').messageHandler>>} */msg) => {
+	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {
 		actualReceive += 1;
 
 		const respData = await msg.data;
-		receiveData[respData.month] = respData.data
+		receiveData[respData.month] = respData.htmlContent
 		if (actualReceive == expectedReceive) {
 			const sortedObject = Object.fromEntries(Object.keys(receiveData)
 				.sort()
 				.map(key => [key, receiveData[key]]));
 
 			for (const htmlData of Object.values(sortedObject)) {
-				baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.monthHTML);
-				baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.footerHTML);
+				baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.join(''));
 			}
 
-			footer.remove();
+			if (footer)
+				footer.remove();
+			else if (secondSide)
+				secondSide.remove();
 			baseTable.remove();
 
 			await preparePrint();
@@ -170,10 +179,15 @@ for (const monthData of arrayOfFuncParams) {
 }
 
 async function preparePrint() {
+	const importantCardTitleText = document.getElementsByClassName('importantCardTitleText');
+	// @ts-ignore
+	window.fittyElem = fitty(Array.from(importantCardTitleText), { multiLine: true })
+
 	/** @type {HTMLElement} */
 	const finalExplanation = document.querySelector('[data-printFind]');
 	if (!finalExplanation){
-		window.print();
+		if (!location.pathname.includes('pocket'))
+			window.print();
 		return;
 	}
 

@@ -18,7 +18,7 @@ layout: nothing
 <link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Noto+Serif+Hebrew:wght@100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
 <style>
 	.tableGrid {
@@ -47,50 +47,8 @@ layout: nothing
 		padding-left: .125em;
 	}
 
-	[data-zyHeader] {
-		text-align: center;
-		line-height: 1;
-	}
-
-	[data-zyHeader]>*:not(.locationSubtitle) {
-		font-family: 'Guttman Mantova-Decor', 'Javar';
-		margin-bottom: 0;
-	}
-
 	.special {
 		display: flex;
-	}
-
-	.explanationPreface {
-		line-height: 1.25;
-		font-size: .79em;
-		word-break: keep-all;
-	}
-
-	.explanationPreface p,
-	.explanationPreface ol,
-	.explanationPreface ul,
-	.pagedjs_pages p,
-	.pagedjs_pages ol,
-	.pagedjs_pages ul {
-		margin-bottom: .5rem;
-		text-align: justify;
-		text-justify: inter-word;
-	}
-
-	.explanationPreface ol,
-	.explanationPreface ul,
-	.pagedjs_pages ol,
-	.pagedjs_pages ul {
-		padding-left: 10px;
-	}
-
-	.explanationPreface ol li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
-	.explanationPreface ul li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
-	.pagedjs_pages ol li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker,
-	.pagedjs_pages ul li:not(.pagedjs_pages > .pagedjs_page > .pagedjs_sheet > .pagedjs_pagebox > .pagedjs_area > div li[data-split-from]:first-of-type)::marker {
-		font-size: 14px;
-		content: "\2022  ";
 	}
 
 	#differences {
@@ -103,17 +61,9 @@ layout: nothing
 		font-size: .865rem;
 	}
 
-	.explanationPreface h6,
-	.pagedjs_pages h6 {
-		margin-bottom: .125rem;
-	}
-
-	.pagedjs_footnote_inner_content {
-		font-size: .65rem;
-	}
-
 	body {
-		font-family: "Spectral", serif;
+		--bs-body-font-family: "Spectral", "Hadassah Friedlaender", "Noto Emoji", serif;
+		--bs-body-font-weight: 600;
 	}
 
 	.explanationPreface .fakeListItem,
@@ -221,6 +171,10 @@ layout: nothing
 		margin-bottom: 0;
 	}
 
+	.tableCell:not([data-time-for-shita="special"]) > .flexElemWorkaround:only-child {
+		font-size: 2.75ex;
+	}
+
 	.flexElemWorkaround svg,
 	.flexElemWorkaround img {
 		height: 1em;
@@ -326,20 +280,20 @@ layout: nothing
 		<div class="tableHeader" data-zyData="date"></div>
 		{% for item in site.data.print.netaneli-printOut %}
 		{% if item.shitot %}
-		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
+		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyHeaderContainer style="grid-column-end: span 2;">
 			<span class="lang lang-hb">{{ item.names.hb }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% for shita in item.shitot %}
-		<div class="tableHeader" data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
+		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
 			<span class="lang lang-hb">{{ shita.names.hb }}</span>
 			<span class="lang lang-et">{{ shita.names.et }}</span>
 			<span class="lang lang-en">{{ shita.names.en }}</span>
 		</div>
 		{% endfor %}
 		{% else %}
-		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}">
+		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}" {% if item.round %}data-round="{{ item.round }}"{% endif %}>
 			<span class="lang lang-hb">{{ item.names.hb }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
@@ -348,111 +302,6 @@ layout: nothing
 		{% endfor %}
 	</div>
 </main>
-
-<style>
-	@page {
-		size: letter landscape;
-		bleed: 0;
-		margin: 10mm;
-	}
-
-	.pagedjs_pagebox {
-		display: block;
-		height: calc(var(--pagedjs-pagebox-height) - 5mm);
-	}
-
-	.pagedjs_page.pagedjs_right_page {
-		height: calc(var(--pagedjs-height-right) - 5mm);
-	}
-
-	.pagedjs_page.pagedjs_left_page {
-		height: calc(var(--pagedjs-height-left) - 5mm);
-	}
-
-	.pagedjs_right_page .pagedjs_sheet {
-		display: block;
-		height: calc(var(--pagedjs-height-right) - 5mm);
-	}
-
-	.pagedjs_left_page .pagedjs_sheet {
-		display: block;
-		height: calc(var(--pagedjs-height-left) - 5mm);
-	}
-
-	.pagedjs_page:last-child {
-		page-break-after: avoid !important;
-	}
-
-	.pagedjs_pagebox > .pagedjs_area {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.pagedjs_area [data-footnote-call] {
-		display: inline-block;
-		vertical-align: top;
-	    font-size: .6em;
-	}
-</style>
-
-<div style="page-break-before: always;">
-	<div>
-		<div data-printFind>
-			<div class="explanationPreface">
-				<h4 style="text-align: center;">Calendar Explanation</h4>
-				<p style="text-align: center;">This section of the calendar aims to briefly explain every Halachic time for both calculation and concept.<br>For further research, please visit our website, royzmanim.com - we give additional sources from the Talmud onwards.</p>
-				<h5 style="text-align: center; margin-bottom: .125rem;">Daily Halachic Times Explanations</h5>
-				<div class="columnSplit" data-lang-extract>
-					<div class="lang lang-hb">
-						{{ dayExpl | markdownify }}
-						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
-						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
-					</div>
-					<div class="lang lang-et">
-						{{ dayExpl | markdownify }}
-						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
-						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
-					</div>
-					<div class="lang lang-en">
-						{{ dayExpl | markdownify }}
-						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
-						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
-					</div>
-				</div>
-				<h5 style="text-align: center; margin-top: .5rem; margin-bottom: .125rem;">Misc. Zemanim Explanations</h5>
-				<div class="columnSplit" style="--description-columns: 3;" data-lang-extract>
-					<div class="lang lang-hb">{{ miscExpl | markdownify }}</div>
-					<div class="lang lang-et">{{ miscExpl | markdownify }}</div>
-					<div class="lang lang-en">{{ miscExpl | markdownify }}</div>
-				</div>
-				<div class="advert" style="margin-top: .5rem; text-align: center;">
-					See more from...<br>
-					<img src="/assets/images/print/ZY-b&w-banner.png" style="margin-bottom: .5rem; width: 30%;">
-					<div style="color: white;">
-                        <div style="margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 8%; padding: .35rem; text-align: center; font-size: .8em;">
-                            <div style="border-radius: .35rem; background: white;">
-                                <img src="/assets/images/app-store.svg" style="width: 100%">
-                            </div>
-                            App Store
-                        </div>
-                        <div style="margin-left: .35rem; margin-right: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 8%; padding: .35rem; text-align: center; font-size: .8em;">
-                            <div style="border-radius: .35rem; background: white;">
-                                <img src="/assets/images/play-store.svg" style="width: 100%">
-                            </div>
-                            Play Store
-                        </div>
-						<div style="margin-left: .35rem; display: inline-block; border-radius: .5rem; background: black; width: 8%; padding: .35rem; text-align: center; font-size: .8em;">
-                            <div style="border-radius: .35rem; background: white;">
-                                <img src="/assets/images/globe.svg" style="width: 100%; padding: .5rem;">
-                            </div>
-                            royzmanim.com
-                        </div>
-                    </div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
 
 <script>
 if (new URL(window.location.href).searchParams.has('noRT')) {

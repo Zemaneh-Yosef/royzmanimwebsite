@@ -781,6 +781,15 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	/**
+	 * @param {KosherZmanim.Temporal.PlainDate} plainDate
+	 */
+	chainDate(plainDate) {
+		const newCal = this.clone();
+		newCal.setDate(plainDate);
+		return newCal;
+	}
+
+	/**
 	 * @param {import("./ROYZmanim.js").ZemanFunctions} zmanCalc
 	 */
 	birkathHalevanaCheck(zmanCalc) {
