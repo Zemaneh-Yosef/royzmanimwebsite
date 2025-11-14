@@ -5,74 +5,58 @@ layout: nothing
 ---
 
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
-<link href="/assets/fonts/ish-matzliach-font/stylesheet.css" rel="stylesheet" />
-
 <link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
-<link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
+<link href="/assets/css/timer.css" rel="stylesheet" />
 
 <style>
 	#content {
-		width: 100%;
-		height: 100dvh;
+		width: 100vw;
+		height: 100vh;
 		display: grid;
-		background-image: url("/assets/images/shul-wall/ish-matzliach/bg.png");
-		background-size: cover;
-        color: black;
-        font-family: 'TT Commons Pro', var(--bs-body-font-family);
-		font-weight: 600;
+		background-image: url(/assets/images/shul-wall/wp10073984-white-stone-wallpapers.jpg);
+		background-size: contain;
+		font-family: 'Neutro', var(--bs-body-font-family);
 	}
 
 	#content > * {
 		grid-area: 1 / 1;
 	}
 
-	#zyTrapezoid {
-        justify-self: center;
-        align-self: start;
-        width: 65%;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-    }
-
-	#background {
-		--margin: 1.25vw;
-		margin: var(--margin);
-		height: calc(100vh - var(--margin) - var(--margin) - var(--margin));
-		width: calc(100% - var(--margin) - var(--margin));
-        background: white;
+	.blink {
+		animation: blinker 1s step-start infinite;
 	}
 
 	#clock {
-		font-size: 4em;
+		font-size: 5.5em;
 		font-family: "dharma_gothic_e";
-		font-weight: 400;
 	}
 
 	#topBar {
 		text-align: center;
 		display: flex;
 		justify-content: space-evenly;
-		width: 72.5%;
+		width: 55%;
 		justify-self: center;
 		align-self: start;
-		color: #30344F;
+		color: black;
 		z-index: 3;
 		line-height: 1;
-		padding-top: .25rem;
-        padding-left: 1.5rem;
-        padding-bottom: .25rem;
+		height: 12vh;
 		align-items: center;
-		font-size: 1.05rem;
-        background: white;
-
-        border-bottom-left-radius: 3.5rem;
-		border-bottom-right-radius: 3.5rem;
-        border: 1px solid #d8a736;
-        border-top: none;
+		font-size: .8rem;
+		font-weight: 500;
 	}
 
 	#topBar > * {
 		flex: 1 1;
+	}
+
+	@keyframes blinker {
+		50% {
+			opacity: 0;
+		}
 	}
 
 	#topBar svg {
@@ -82,7 +66,7 @@ layout: nothing
 	}
 
 	#topBar svg path {
-		fill: #30344F;
+		fill: black;
 	}
 
 	#quickTimes {
@@ -95,51 +79,69 @@ layout: nothing
 	}
 
 	#bsD {
-        font-family: "Narkisim";
+		font-family: "Narkisim";
 		justify-self: end;
 		line-height: 1;
-		padding-right: 2rem;
-		color: #d8a736;
-		font-size: 2.5rem;
-		padding-top: 1.5rem;
+		padding-right: 1rem;
+		color: black;
+		font-size: 3.5rem;
+		padding-top: .5rem;
 		align-self: start;
 		z-index: 3;
-    }
-
-	#dataGrid {
-		width: calc(100% - 4vw);
-		height: calc(100dvh - 3.25vw - 13dvh); /* bottom-height - top-height */
-		margin-left: 2vw;
-		margin-top: 13dvh;
-		z-index: 5;
-		display: grid;
-		grid-template-columns: 1.5fr 1fr 1.5fr;
-		grid-template-rows: 1fr auto;
-		align-items: center;
-		gap: 12px;
-		font-size: .8rem;
 	}
 
-	#dataGrid .h1,
-	#dataGrid h1 {
-		font-size: 1.25rem;
+	#dataGrid {
+		margin-left: 1vw;
+		margin-right: 1vw;
+		margin-top: 12vh;
+		margin-bottom: 5vh;
+		z-index: 5;
+		display: grid;
+		grid-template-columns: 35% 28% 35%;
+		grid-template-rows: auto 1fr;
+		align-items: center;
+		gap: 16px;
+	}
+
+	#dataGrid > *:not(#megaline):not(#ishMatzliachSlide) {
+		height: 100%;
+		background: rgba(0,0,0,.85);
+		border-top-left-radius: 50% 15%;
+		border-top-right-radius: 50% 15%;
+		padding: 1rem;
+		box-shadow: 0 0 7px 5px black;
+	}
+
+	.carousel-item > img {
+		height: 70vh;
+		object-fit: contain;
 	}
 
 	#gne {
-		height: 11.5dvh;
+		height: 10vh;
 		justify-self: start;
 		align-self: start;
-		margin-top: 1.75rem;
-		margin-left: 1.75rem;
+		margin-top: .5rem;
+		margin-left: 1.5rem;
 		z-index: 3;
-    }
+	}
 
 	.wideView {
 		display: flex;
-		text-align: center;
-		align-self: end;
-		grid-column: 1 / span 3;
-		font-size: .9em;
+		flex-direction: column;
+	}
+
+	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
+		content: "מחר, ";
+		unicode-bidi: isolate;
+	}
+
+	#content[data-current-page="1"] .timeDisplayWide.nextDay::before {
+		content: "Tom., ";
+	}
+
+	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
+		content: "Завтра, ";
 	}
 
 	#content[data-current-page="1"] .langTV:not(.lang-en) {
@@ -154,24 +156,11 @@ layout: nothing
 		display: none;
 	}
 
-	.timeDisplayWide.nextDay::before {
-		content: "(Tomorrow)";
-		font-size: .75em;
-		margin-bottom: -5px;
-		display: block;
-    }
-
-	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
-		content: "(מחר)";
-	}
-
-	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
-		content: "(Завтра)";
-	}
-
 	.wideView > * {
-		flex: 1 1;
-		padding: 8px;
+		width: 100%;
+		display: flex;
+		font-size: .9em;
+		justify-content: space-between;
 	}
 
 	.wideView > *:first-child {
@@ -183,7 +172,7 @@ layout: nothing
 	}
 
 	.wideView > *:not(:last-child) {
-		border-right:1px solid black;
+		border-bottom:1px solid rgba(255,255,255,.5);
 	}
 
 	article > .langTV {
@@ -197,71 +186,210 @@ layout: nothing
 		margin-bottom: .75vw;
 		text-align: center;
 		line-height: 1.2;
-		font-size: .6rem;
-        font-weight: bold;
+		color: black;
 	}
 
-    #dataGrid .card, #dataGrid .list-group-item {
-        border: none;
-    }
-
-	#dataGrid .list-group-item {
+	.hiloulotCard .list-group-item {
 		--bs-list-group-item-padding-y: .25rem;
-		--bs-list-group-border-color: white;
-        --bs-list-group-bg: white;
-        --bs-list-group-color: black;
+		--bs-list-group-border-color: #49505799;
 		--bs-list-group-item-padding-x: 1.25rem;
 	}
 
-    #location {
-        align-self: start;
-        justify-self: center;
-        padding-top: 10.5dvh;
-        text-align: center;
-        line-height: 1;
-        color: #d8a736;
-        font-weight: 500;
-		font-size: 1.2rem;
-    }
+	.hiloulotCard .card-header {
+		--bs-card-cap-padding-x: .75rem;
+	}
 
-	.carousel-item > img {
-		height: 65vh;
-		object-fit: contain;
+	#megaline {
+		grid-column: 1 / span 4;
+		text-align: center;
+		font-size: 1em;
+		margin-left: -1vw;
+		margin-right: -1vw;
+		background-color: white;
+		color: black;
+		padding-top: .5rem;
+		padding-bottom: .5rem;
+	}
+
+	#megalineCont {
+		border-top: 2px dashed black;
+		border-bottom: 2px dashed black;
+	}
+
+	#megalineCont > span {
+		content: " - ";
+		unicode-bidi: isolate;
+	}
+
+	#megalineCont > span:not(:last-child)::after {
+		content: " - "
+	}
+
+	.blurOverlay {
+		height: 12vh;
+		backdrop-filter: blur(8px);
+		width: 100%;
+		align-self: start;
+	}
+
+	dl[data-zfFind="DafYomi"] {
+		font-size: 1.2em;
+		line-height: 1.4;
+	}
+
+	dl[data-zfFind="DafYomi"] > *:not(:last-child) {
+		border-bottom: 1px solid rgba(255,255,255,.5);
+	}
+
+	#dataGrid .list-group-item {
+		--bs-list-group-item-padding-y: .15rem;
+		--bs-list-group-border-color: transparent;
+        --bs-list-group-bg: transparent;
+        --bs-list-group-color: #dee2e6;
+		--bs-list-group-item-padding-x: .5rem;
+		font-size: .8em;
+	}
+
+	.list-group {
+		--bs-list-group-bg: transparent;
+	}
+
+	.card {
+		--bs-card-bg: transparent;
+		border: none;
+	}
+
+	:root {
+		--bs-body-color: white;
+	}
+
+	.schedule-entry-grid {
+		display: grid;
+		grid-template-columns: 1fr auto;
+	}
+
+	.schedule-entry-grid > *:last-child {
+		grid-column: 1 / span 2;
+	}
+
+	#ishMatzliachSlide .card {
+		color: black;
+	}
+
+	#dataGrid #ishMatzliachSlide .list-group-item {
+		--bs-list-group-color: black;
+	}
+
+	#flyerForBusiness {
+		width: 90%;
+	}
+
+	#dataGrid h1 {
+		font-size: 1.2em;
 	}
 </style>
 
-<div id="content" data-current-page="1" data-page-count="3">
-	<div id="bsD">בס“ד</div>
-	<div id="background"></div>
-    <div id="shulBar"></div>
+<div id="content" data-current-page="1" data-page-count="3" data-swap-time="8000">
+	<div id="bsD">בס"ד</div>
+	<img id="gne" src="https://zemaneh-yosef.github.io/extras/beth-aharon.svg" />
+	<div class="blurOverlay"></div>
 	<div id="poweredBy">
-		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l
+		<span class="langTV lang-en">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
+		<span class="langTV lang-hb">הובה עליכם ממאור נעים והלוח זמני יוסף, שהולך על פי שיטת מרן עובדיה זצ"ל</span>
+		<span class="langTV lang-ru">Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.</span>
 	</div>
 	<div id="topBar">
 		<div>
-			<span class="langTV lang-en lang-hb" data-en-date></span><span data-ru-date class="langTV lang-ru"></span>
+			<span data-en-date></span>
 			<hr style="margin: .25rem 0">
 			<span data-hb-date></span>
+			<hr style="margin: .25rem 0">
+			<span data-ru-date></span>
 		</div>
 		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
 		<div id="quickTimes">
-			<div style="text-align: left; width: fit-content">
-				<div style="text-align: center; font-weight: bold; font-size: 1.15em;" data-parasha></div>
+			<div style="text-align: left; width: fit-content; font-size: 1.15em;">
+				<div style="text-align: center; font-weight: bold; font-size: 1.3em;" data-parasha></div>
 				<div data-lightingCandles><i class="bi bi-fire"></i> </div>
 				<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
 			</div>
 		</div>
 	</div>
 	<div id="dataGrid">
-		<div style="line-height: 1.3;">
-			<h1 class="text-center mb-0 pt-3" style="font-size: 1.75rem;">Weekday Schedule</h1>
-			<div class="card" style="font-size: 1.02rem;">
-				<ul class="list-group list-group-flush" id="weekdaySchCard">
-				</ul>
+		<div id="megaline">
+			<div id="megalineCont">
+				<span data-zfFind="BirchatHalevana">
+					Birkat Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
+					<span data-zfFind="starts-tonight"> - Starts tonight</span>
+					<span data-zfFind="ends-tonight"> - Ends tonight</span>
+				</span>
+				<span data-zfReplace="Tachanun">
+					<span data-zfFind="0">
+						<span class="langTV lang-hb">לוח-תחנון יום</span>
+						<span class="langTV lang-en-et">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-en">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-ru">Календарь — День Тахануна</span>
+					</span>
+					<span data-zfFind="1">
+						<span class="langTV lang-hb">תחנון רק בשחרית</span>
+						<span class="langTV lang-en-et">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-en">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-ru">Только Таханун от Шахарит</span>
+					</span>
+					<span data-zfFind="2">
+						<span class="langTV lang-hb">אין תחנון היום</span>
+						<span class="langTV lang-en-et">No Taḥanun</span>
+						<span class="langTV lang-en">No Taḥanun</span>
+						<span class="langTV lang-ru">Нет Тахануна</span>
+					</span>
+					<span data-zfFind="3">צדקתך</span>
+					<span data-zfFind="4">יהי שם</span>
+				</span>
+				<span data-zfReplace="Hallel" style="display: none;"></span>
+				<span data-zfReplace="Ulchaparat" style="display: none;"></span>
+				<span data-zfFind="SeasonalPrayers">
+					<span data-zfReplace="SeasonalPrayers"></span>
+				</span>
 			</div>
-			<h1 class="text-center mb-0 pt-3">Hiloulot of...</h1>
-			<div class="card hiloulotCard">
-				<div class="marquee" style="height: 60px; --length: 27.5s;">
+		</div>
+		<div id="zemanehHayom">
+			<h1 style="text-align: center; margin-bottom: 0;">
+				<span class="langTV lang-hb">זמני היום</span>
+				<span class="langTV lang-ru">Галахические времена</span>
+				<span class="langTV lang-en">Halachic Times</span>
+			</h1>
+			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en ru">
+				{% for item in site.data.tv.simpleTVZman %}
+					<article
+						data-zmanid="{{ item.id }}"
+						{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+						{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+						{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					>
+						<span class="langTV lang-hb">{{ item.names.hb }}</span>
+						<span class="langTV lang-en">{{ item.names.en }}</span>
+						<span class="langTV lang-ru">{{ item.names.ru }}</span>
+						<span class="timeDisplay"></span>
+					</article>
+				{% endfor %}
+			</section>
+		</div>
+		<div id="ishMatzliachSlide">
+			<div class="card mt-3 lang lang-hb hiloulotCard">
+				<div class="card-header"><h2 class="mb-0">הילולות של...</h2></div>
+				<div class="marquee" style="height: 150px;">
+					<ul class="list-group list-group-flush marquee__content" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
+						<li class="list-group-item">אין היום</li>
+					</ul>
+					<ul class="list-group list-group-flush marquee__content" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
+						<li class="list-group-item">אין היום</li>
+					</ul>
+				</div>
+			</div>
+			<div class="card mt-3 lang lang-et hiloulotCard">
+				<div class="card-header"><h2 class="mb-0">Hiloulot of...</h2></div>
+				<div class="marquee" style="height: 150px;">
 					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
 						<li class="list-group-item">There aren't any today</li>
 					</ul>
@@ -270,36 +398,82 @@ layout: nothing
 					</ul>
 				</div>
 			</div>
-		</div>
-		<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
-			<div class="carousel-inner">
+			<div class="card mt-3 lang lang-en hiloulotCard">
+				<div class="card-header"><h2 class="mb-0">Hiloulot of...</h2></div>
+				<div class="marquee" style="height: 150px;">
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+				</div>
+			</div>
+			<div class="marquee marqueeHorizontal" id="flyerForBusiness" style="--length: 45s">
+				<div class="marquee__content"></div>
+				<div aria-hidden="true" class="marquee__content"></div>
 			</div>
 		</div>
-		<div>
-			<h1 class="text-center mb-0" style="font-size: 2rem; line-height: 1;">Shabbat Schedule</h1>
-			<h3 class="text-center" style="font-size: 1rem;" id="makam" data-zfReplace="makamot">🎵Makam </h3>
-			<div class="card" style="line-height: 1.25; font-size: 1.15rem;">
+		<div id="shulScheduling">
+			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .8rem;">
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
+					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
+						{% for fast in site.data.events.fasts %}
+						<h5 data-zfFind="{{ fast.yomTovIndex }}">{{ fast.text.en }}</h5>
+						{% endfor %}
+						<span data-zfFind="oneDayTimes"><b>Fast Times: </b></span>
+						<ul data-zfFind="twoDayTimes">
+							<li><b>Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
+							<li><b>Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
+						</ul>
+					</li>
+					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
+						<div data-zfFind="SefirathHaomer">
+							<div class="lang lang-hb" style="display: block !important;">
+								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
+								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
+								<p class="mb-0">
+									<b>הלילה:</b>
+									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
+									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+								</p>
+							</div>
+							<hr class="my-1" data-zfFind="omerRules">
+						</div>
+						<div data-zfFind="ThreeWeeksHeader">
+							<h5 style="font-size: .9rem; margin-bottom: .1em;">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</h5>
+						</div>
+						<ul style="padding-left: 1.5rem;" class="d-none">
+							{% for minhag in site.data.mourningMinhag %}
+							<li data-zfFind="{{ minhag.topic }}">{{ minhag.text.en }}</li>
+							{% endfor %}
+						</ul>
+					</li>
+					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
+						ברכת החמה!
+					</li>
+					<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
+						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+					</li>
+				</ul>
+			</div>
+			<h1 style="text-align: center;">Weekday Schedule</h1>
+			<div class="card">
+				<ul class="list-group list-group-flush" id="weekdaySchCard">
+				</ul>
+			</div>
+			<h1 style="text-align: center;">Shabbat Schedule</h1>
+			<div class="card">
 				<ul class="list-group list-group-flush" id="shabbatSchCard">
 				</ul>
 			</div>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en ru">
-			{% for item in site.data.tv.simpleTVZman %}
-				<article
-					data-zmanid="{{ item.id }}"
-					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
-					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-				>
-					<span class="langTV lang-hb">{{ item.names.hb }}</span>
-					<span class="langTV lang-en">{{ item.names.en }}</span>
-					<span class="langTV lang-et">{{ item.names.et }}</span>
-					<span class="langTV lang-ru">{{ item.names.ru }}</span>
-					<span class="timeDisplay"></span>
-				</article>
-			{% endfor %}
-		</section>
 	</div>
 </div>
 
@@ -312,7 +486,7 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	const mournersCont = await schedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true);
+	const mournersCont = Object.fromEntries(await schedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true));
 
 	console.log(mournersCont)
 
@@ -320,14 +494,24 @@ layout: nothing
 		.split('\n')
 		.filter(str => str.startsWith('./beth-aharon-portraits/'))
 
+	/*
+	<h5>${}</h5>
+	*/
 	const carousel = document.getElementById('ishMatzliachSlide');
-	carousel.firstElementChild.innerHTML = flyerURLs
-		.map((url, index) =>
-			`<div class="carousel-item ${index == 0 ? "active" : ''}">
-				<img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100">
-				<div class="carousel-caption d-none d-md-block">
-					<h5>${url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."))}</h5>
-				</div>
-			</div>`)
-		.join('');
+	for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
+		marquee.innerHTML = flyerURLs.map(url => {
+			let cardHTML = `<div class="card" style="width: 5rem;">
+			<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" class="card-img-top" />`;
+
+			const name = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
+			if (name in mournersCont["mourners"]) {
+				cardHTML += `<div class="card-body">
+					<h5 class="card-title">${name}</h5>
+					<p class="card-text">${mournersCont[name][url]}</p>
+				</div>`;
+			}
+
+			return cardHTML + "</div>"
+		}).join('');
+	}
 </script>
