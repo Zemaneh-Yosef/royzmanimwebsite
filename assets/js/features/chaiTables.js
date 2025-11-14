@@ -3,6 +3,39 @@
 import "../../libraries/materialComp/materialweb.js"
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 
+const searchRadius = [
+    "0",
+    "0.1",
+    "0.2",
+    "0.3",
+    "0.4",
+    "0.5",
+    "0.6",
+    "0.7",
+    "0.8",
+    "0.9",
+    "1",
+    "1.1",
+    "1.2",
+    "1.3",
+    "1.4",
+    "1.5",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15"
+]
+
 export default class ChaiTables {
 	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
 	constructor(zmanLister) {
@@ -27,7 +60,7 @@ export default class ChaiTables {
 	 * Returns the full chaitables url after everything has been setup. See {@link #selectCountry(ChaiTablesCountries)} and {@link #selectMetropolitanArea(String)}
 	 * @return the full link directly to the chai tables for the chosen neighborhood
 	 *
-	 * @param {Number} searchradius The search radius in kilometers.
+	 * @param {String} searchradius The search radius in kilometers.
 	 * @param {0|1|2|3|4|5} type the type of table you want.
 	 *             0 is visible sunrise,
 	 *             1 is visible sunset,
@@ -55,7 +88,7 @@ export default class ChaiTables {
 			exactcoord: "OFF",
 			types: type,
 			RoundSecond: 1,
-			AddCushion: 0,
+			AddCushion: 2,
 			"24hr": "",
 			typezman: -1,
 			yrheb: jewishCalendar.getJewishYear(),
@@ -75,7 +108,7 @@ export default class ChaiTables {
 			Object.assign(urlParams, {
 				TableType: "Chai",
 				USAcities1: this.indexOfMetroArea,
-				searchradius: this.selectedCountry == "Israel" ? 2 : searchradius,
+				searchradius: searchradius,
 				eroslatitude: this.geoL.getLatitude(),
 				eroslongitude: -this.geoL.getLongitude(),
 				MetroArea: "jerusalem"
@@ -142,13 +175,20 @@ export default class ChaiTables {
 						jDate: loopCal.getDate().toString({ calendarName: "always" }),
 						ctScrapeMonth: zmanTable.rows[0].cells[monthIndex].innerText,
 						ctScrapeDay: parseInt(zmanTable.rows[rowIndex].cells[0].innerText)
-
 					})
 					continue;
 				}
 
 				const [hour, minute, second] = zmanTime.split(":").map(time => parseInt(time))
 				const time = loopCal.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour, minute, second })
+
+				console.log({
+					jDate: loopCal.getDate().toString({ calendarName: "always" }),
+					ctScrapeMonth: zmanTable.rows[0].cells[monthIndex].innerText,
+					ctScrapeDay: parseInt(zmanTable.rows[rowIndex].cells[0].innerText),
+					zmanTime,
+					time: time.toLocaleString()
+				})
 
 				// ensure that we're not adding times from the previous days
 				// unless it's from the beginning of either the jewish or secular month (whichever is earlier)
@@ -170,26 +210,93 @@ export default class ChaiTables {
 			times: []
 		}
 
+		let smallestRadius;
+		/** @type {Record<string, Document>} */
+		const radiusData = {};
+
+		if (this.selectedCountry == "Israel") {
+			smallestRadius = "2";
+		} else if (this.selectedCountry == "USA" && this.indexOfMetroArea == 32) {
+			smallestRadius =
+				(this.zmanLister.geoLocation.getLatitude() == 34.09777065545882
+					&& this.zmanLister.geoLocation.getLongitude() == -118.42699812743257)
+					? "14"
+					: "8";
+		} else {
+			const ctBiggestRadius = this.getChaiTablesLink(searchRadius[searchRadius.length - 1], 0, calendar, 413);
+			const ctBiggestFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctBiggestRadius.toString().replace(/https?:\/\//g, ''));
+			const ctBiggestResponse = await ctBiggestFetch.text()
+			const ctBiggestDoc = (new DOMParser()).parseFromString(ctBiggestResponse, "text/html");
+
+			const inputInject = document.createElement('script')
+			inputInject.id = 'fetchURLInject'
+			inputInject.innerHTML = `// CTScrapeOriginalURL: ${ctBiggestRadius.toString()};`
+			ctBiggestDoc.head.appendChild(inputInject)
+
+			const biggestZmanTable = Array.from(ctBiggestDoc.getElementsByTagName('table'))
+				.find(table=>[14,15].includes(table.rows[0].cells.length));
+
+			if (!biggestZmanTable)
+				return data;
+
+			radiusData[searchRadius[searchRadius.length - 1] + '-' + calendar.getJewishYear()] = ctBiggestDoc;
+
+			for (const radius of searchRadius) {
+				if (radius === searchRadius[searchRadius.length - 1]) {
+					smallestRadius = radius;
+					break;
+				}
+
+				const ctLink = this.getChaiTablesLink(radius, 0, calendar, 413);
+
+				const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
+				const ctResponse = await ctFetch.text()
+				const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
+
+				const zmanTable = Array.from(ctDoc.getElementsByTagName('table'))
+					.find(table=>[14,15].includes(table.rows[0].cells.length));
+
+				if (zmanTable) {
+					smallestRadius = radius;
+					radiusData[radius + '-' + calendar.getJewishYear()] = ctDoc;
+
+					const inputInject = document.createElement('script')
+					inputInject.id = 'fetchURLInject'
+					inputInject.innerHTML = `// CTScrapeOriginalURL: ${ctLink.toString()};`
+					ctDoc.head.appendChild(inputInject)
+
+					break;
+				}
+			}
+		}
+
 		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 2; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
 			if (calendar.getJewishYear() !== yearloop.getJewishYear()) {
 				yearloop.setJewishMonth(KosherZmanim.JewishCalendar.TISHREI);
 				yearloop.setJewishDayOfMonth(1);
 			}
-			const ctLink = this.getChaiTablesLink(8, 0, yearloop, 413);
-			console.log(ctLink.toString())
 
-			const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
-			const ctResponse = await ctFetch.text()
-			const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
+			let ctDoc;
+			if (radiusData[smallestRadius + '-' + yearloop.getJewishYear()]) {
+				ctDoc = radiusData[smallestRadius + '-' + yearloop.getJewishYear()];
+			} else {
+				const ctLink = this.getChaiTablesLink(smallestRadius, 0, yearloop, 413);
 
-			const inputInject = document.createElement('script')
-			inputInject.id = 'fetchURLInject'
-			inputInject.innerHTML = `// CTScrapeOriginalURL: ${ctLink.toString()};`
-			ctDoc.head.appendChild(inputInject)
+				const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
+				const ctResponse = await ctFetch.text()
+				ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
 
-			if (!ctDoc.getElementsByTagName('table').length) {
-				continue;
+				const inputInject = document.createElement('script')
+				inputInject.id = 'fetchURLInject'
+				inputInject.innerHTML = `// CTScrapeOriginalURL: ${ctLink.toString()};`
+				ctDoc.head.appendChild(inputInject)
 			}
+
+			const zmanTable = Array.from(ctDoc.getElementsByTagName('table'))
+				.find(table=>[14,15].includes(table.rows[0].cells.length));
+
+			if (!zmanTable)
+				continue;
 
 			data.times.push(...this.extractTimes(ctDoc, yearloop))
 		}
@@ -232,12 +339,17 @@ export default class ChaiTables {
 			window.requestAnimationFrame(() => submitBtn.focus());
 		}
 
+		// @ts-ignore
+		const dataAlert = this.modal._element.querySelector('.alert');
+
 		const primaryIndex = selectors.find(select => select.id == 'MAIndex');
 		const hideAllForms = () => {
 			if (!submitBtn.hasAttribute('disabled')) {
 				submitBtn.setAttribute('disabled', '');
 				submitBtn.classList.remove("sbmitl");
 			}
+
+			dataAlert.style.setProperty('display', 'none', 'important');
 
 			const previouslySelectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
 			if (previouslySelectedMASel)
@@ -265,8 +377,9 @@ export default class ChaiTables {
 			const ctData = await this.formatInterfacer();
 
 			if (!ctData.times.length) {
-				const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById('ctFailToast'))
-				toastBootstrap.show();
+				dataAlert.style.removeProperty('display');
+				submitBtn.classList.remove("sbmitl");
+				submitBtn.removeAttribute('disabled');
 				return;
 			}
 

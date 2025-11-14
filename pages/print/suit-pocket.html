@@ -1,0 +1,78 @@
+---
+title: Pocket-Print Calendar
+permalink: /print/suit-pocket
+layout: nothing
+---
+
+{% include printcal/layout/pocket.html %}
+
+<style>
+	.tableGrid {
+		font-size: .5em;
+	}
+
+	@page {
+		size: 6.87in 4.25in;
+		bleed: 0;
+		margin: .25in;
+	}
+
+	@page :first {
+		margin: 0;
+	}
+
+	.importantCardTimes.complexTimes {
+		font-size: 15px;
+	}
+
+	.yomKippurTimes .importantCardTimes.complexTimes {
+		font-size: 13px;
+	}
+
+	.importantCardTimes:not(.complexTimes) {
+		font-size: 18px;
+	}
+
+	.rabbenuTamAppend {
+		font-size: .8em;
+	}
+
+	.importantCardContentText {
+		font-size: .8em;
+	}
+
+	.yomKippurTimes .importantCardDates {
+		font-size: 10px;
+	}
+
+	.secondSide:not(.hanukahSplitter):not(.miscTimesSplitter) .importantCard:not(.tallImportantCard) {
+		height: 130px;
+	}
+
+	.secondSide:not(.hanukahSplitter) .importantCard:not(.tallImportantCard) {
+		height: 130px;
+	}
+
+	.secondSide.hanukahSplitter .importantCard:not(.tallImportantCard) {
+		height: 95px;
+	}
+
+	.DateOfHanuka {
+		font-size: .5em;
+	}
+
+	.importantTimes[data-importantItems="2"] .importantCard:not(.tallImportantCard),
+	.importantTimes[data-importantItems="1"] .importantCard:not(.tallImportantCard) {
+		height: 150px;
+	}
+
+	.importantTimes[data-importantItems="4"] .importantCard,
+	.importantTimes[data-importantItems="3"] .importantCard,
+	.importantTimes[data-importantItems="2"] .importantCard {
+		width: 296px;
+	}
+
+	#logo {
+		width: 75%;
+	}
+</style>

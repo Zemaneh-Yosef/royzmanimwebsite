@@ -98,10 +98,25 @@ const yomTovObj = {
 
 const titleElem = document.querySelector('[data-parasha]')
 if (dateHighlight.isYomTov() && dateHighlight.getYomTovIndex() in yomTovObj) {
-	titleElem.innerHTML = yomTovObj[dateHighlight.getYomTovIndex()][preSettings.language()]
+	if (titleElem.hasAttribute('data-prefix')) {
+		titleElem.innerHTML = {
+			"en-ru": `<span class="langTV lang-en">${yomTovObj[dateHighlight.getYomTovIndex()]["en"]}</span>
+			<span class="langTV lang-ru">${yomTovObj[dateHighlight.getYomTovIndex()]["hb"]}</span> - `,
+			"en-et-hb":
+				`<span class="langTV lang-en-et">${yomTovObj[dateHighlight.getYomTovIndex()]["en-et"]}</span>
+				<span class="langTV lang-hb">${yomTovObj[dateHighlight.getYomTovIndex()]["hb"]}</span>`,
+			"en-hb":
+				`<span class="langTV lang-en">${yomTovObj[dateHighlight.getYomTovIndex()]["en"]}</span>
+				<span class="langTV lang-hb">${yomTovObj[dateHighlight.getYomTovIndex()]["hb"]}</span>`,
+			"hb": yomTovObj[dateHighlight.getYomTovIndex()]["hb"]
+		}[titleElem.getAttribute('data-prefix')]
+	} else
+		titleElem.innerHTML = yomTovObj[dateHighlight.getYomTovIndex()][preSettings.language()]
 } else if (titleElem.hasAttribute('data-prefix')) {
 	titleElem.innerHTML = {
-		"en-ru": `<span class="langTV lang-hb">Shabbat ${dateHighlight.isRoshChodesh() ? "R\"Ḥ" : ""} ${dateHighlight.isChanukah() ? "Ḥanuka" : ""}</span>
+		"hb-ru": `<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${dateHighlight.isChanukah() ? "(חנוכה)" : ""}</span>
+		<span class="langTV lang-ru">Шаббат ${dateHighlight.isChanukah() ? "Ханука" : ""} ${jCal.getHebrewParasha().join(" / ")}</span>`,
+		"en-ru": `<span class="langTV lang-en">Shabbat ${dateHighlight.isRoshChodesh() ? "R\"Ḥ" : ""} ${dateHighlight.isChanukah() ? "Ḥanuka" : ""}</span>
 		<span class="langTV lang-ru">Шаббат ${dateHighlight.isChanukah() ? "Ханука" : ""}</span> - `
 			+ jCal.getHebrewParasha().join(" / "),
 		"en-et-hb":

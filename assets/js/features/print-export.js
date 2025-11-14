@@ -180,8 +180,16 @@ for (const monthData of arrayOfFuncParams) {
 
 async function preparePrint() {
 	const importantCardTitleText = document.getElementsByClassName('importantCardTitleText');
-	// @ts-ignore
-	window.fittyElem = fitty(Array.from(importantCardTitleText), { multiLine: true })
+
+	if (importantCardTitleText.length) {
+		const fittyElems = [...importantCardTitleText];
+
+		if (document.getElementById('intTitleLocation'))
+			fittyElems.push(document.getElementById('intTitleLocation'));
+
+		// @ts-ignore
+		window.fittyElem = fitty(fittyElems, { multiLine: true })
+	}
 
 	/** @type {HTMLElement} */
 	const finalExplanation = document.querySelector('[data-printFind]');

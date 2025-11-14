@@ -43,7 +43,8 @@ updateTime();
 
 const jCal = new WebsiteCalendar();
 const enDate = document.querySelector('[data-en-date]');
-enDate.innerHTML = jCal.getDayOfTheWeek().en + ", " + jCal.dateRenderer('en').primary.text;
+if (enDate)
+	enDate.innerHTML = jCal.getDayOfTheWeek().en + ", " + jCal.dateRenderer('en').primary.text;
 const ruDate = document.querySelector('[data-ru-date]');
 if (ruDate)
 	ruDate.innerHTML = jCal.getDate().toLocaleString('ru', { weekday: "long", day: "numeric", month: "long", year: "numeric"});

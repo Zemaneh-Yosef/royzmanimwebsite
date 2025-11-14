@@ -1,14 +1,3 @@
----
-title: Pocket-Print Calendar
-permalink: /print/pocket
-layout: nothing
----
-
-{% capture differences %}{% include printcal/differences.md %}{% endcapture %}
-{% capture dayExpl %}{% include printcal/explanation-day.md %}{% endcapture %}
-{% capture nightRTExpl %}{% include printcal/explanation-night-rt.md %}{% endcapture %}
-{% capture nightNORTExpl %}{% include printcal/explanation-night-nort.md %}{% endcapture %}
-{% capture miscExpl %}{% include printcal/misc.md %}{% endcapture %}
 
 <noscript>
 	<h1>This site requires JavaScript to function</h1>
@@ -27,7 +16,6 @@ layout: nothing
 		text-align: center;
 		line-height: 1.3;
 		page-break-before: always;
-		font-size: .5em;
 	}
 
 	.tableCell {
@@ -95,11 +83,12 @@ layout: nothing
 
 	#cover {
 		height: 100vh;
-		width: 100vw;
+		width: 100%;
 		display: grid;
 		align-items: center;
 		justify-items: center;
 		color: white;
+		page-break-after: always;
 	}
 
 	#title {
@@ -115,7 +104,6 @@ layout: nothing
 	}
 
 	#logo {
-		width: 75%;
 		filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, .8));
 	}
 
@@ -186,6 +174,76 @@ layout: nothing
 	</div>
 </div>
 
+<div style="height:10vh"></div>
+
+<div id="intCover">
+    <div id="branding">
+        <div></div>
+        <div id="intTitle">
+            <img src="/assets/images/print/ZY-b&w-banner.png">
+            <p id="intTitleLocation">Pocket-Print Calendar for <span data-zyLocationText></span></p>
+        </div>
+        <div id="intCredits">By Maor Na'im & Elyahu Jacobi<br>(Full credits on the back cover)</div>
+    </div>
+    <div id="tableOfContents">
+        <ul>
+             <li>About Our Project</li>
+             <li>Approbations & Blessings</li>
+             <li>Bi-Monthly Calendar</li>
+             <li>Fundamentals of the Calendar – Seasonal Minutes</li>
+             <li>Calendar Usage Guide</li>
+             <li>Mobile Application Download</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+#intCover {
+    width: calc(100% - .55in);
+    display: grid;
+    grid-template-columns: 45% 55%;
+    height: calc(100vh - .55in);
+    align-items: center;
+	page-break-before: always;
+}
+
+#branding {
+    height: inherit;
+	text-align: center;
+
+	display: grid;
+	grid-template-rows: 1fr 1fr 1fr;
+	align-items: center;
+
+	width: 2.8in;
+}
+
+#branding img {
+    width: 100%;
+}
+
+#tableOfContents {
+    border-left: 1px solid black;
+	margin-left: 3rem;
+}
+
+#tableOfContents ul {
+	margin-bottom: 1rem;
+	margin-top: 1rem;
+}
+
+#intCredits {
+	font-size: .7rem;
+	font-weight: 500;
+	align-self: end;
+}
+
+#intTitleLocation {
+	font-weight: 800;
+	margin-bottom: 0;
+}
+</style>
+
 <main>
 	<div class="tableGrid" data-zyTemplate>
 		<div class="tableHeader" data-zyData="special"></div>
@@ -215,7 +273,7 @@ layout: nothing
 	</div>
 </main>
 
-<div class="secondSide hanukahSplitter">
+<div class="secondSide hanukahSplitter miscTimesSplitter">
 	<div class="hanukah">
 		<div class="hanukahTitle hebrewTitle">חנוכה</div>
 		<div class="hanukahRow">
@@ -336,16 +394,6 @@ layout: nothing
 </div>
 
 <style>
-	@page {
-		size: 6.87in 4.25in;
-		bleed: 0;
-		margin: .25in;
-	}
-
-	@page :first {
-		margin: 0;
-	}
-
 	.mb-0 {
 		margin-bottom: 0;
 	}
@@ -358,9 +406,14 @@ layout: nothing
 		display: flex;
 	}
 
+	.importantCard hr {
+		margin: .25rem 0;
+	}
+
 	.importantCardTitle {
 		display: grid;
 		height: inherit;
+		width: min-content;
 	}
 
 	.importantCardTitle > * {
@@ -373,37 +426,30 @@ layout: nothing
 		text-align: center;
 		align-content: center;
     	font-size: 40px;
+        padding-block-start: 8px;
+        padding-block-end: 16px;
 		padding-inline-start: 10px;
 		padding-inline-end: 10px;
 		box-sizing: content-box;
 		font-weight: 800;
+		line-height: 1.3;
 	}
 
 	.importantCardTimes {
 		width: fit-content;
 	}
 
-	.importantCardTimes.complexTimes {
-		font-size: 15px;
-	}
-
-	.importantCardTimes:not(.complexTimes) {
-		font-size: 18px;
-	}
-
 	.rabbenuTamAppend {
-		font-size: .8em;
 		font-weight: 400;
-	}
-
-	.importantCardContentText {
-		font-size: .8em;
 	}
 
 	.importantCardTitle img {
 		height: inherit;
 		border-top-left-radius: 1.5rem;
 		border-bottom-left-radius: 1.5rem;
+		width: 100%;
+		object-fit: cover;
+		object-position: right;
 	}
 
 	.importantCardContent {
@@ -414,14 +460,6 @@ layout: nothing
     	align-items: center;
 	}
 
-	.secondSide:not(.hanukahSplitter) .importantCard:not(.tallImportantCard) {
-		height: 115px;
-	}
-
-	.secondSide.hanukahSplitter .importantCard:not(.tallImportantCard) {
-		height: 95px;
-	}
-
 	.tallImportantCard {
 		height: 180px;
 		grid-row: span 2;
@@ -429,13 +467,21 @@ layout: nothing
 
 	.secondSide {
 		page-break-before: always;
-		width: calc(100vw - .55in);
-		height: calc(100vh - .55in);
+		width: calc(100vw - .52in);
+		height: calc(100vh - .52in);
 		display: grid;
+		grid-template-rows: 100%;
+	}
+
+	.secondSide.miscTimesSplitter {
 		grid-template-rows: 80% 20%;
 	}
 
 	.secondSide.hanukahSplitter {
+		grid-template-rows: 17.5% 82.5%;
+	}
+
+	.secondSide.hanukahSplitter.miscTimesSplitter {
 		grid-template-rows: 17.5% 64% 18.5%;
 	}
 
@@ -448,10 +494,6 @@ layout: nothing
 	.secondSide.hanukahSplitter .hanukahRow {
 		display: flex;
 		text-align: center;
-	}
-
-	.DateOfHanuka {
-		font-size: .5em;
 	}
 
 	.hanukaLightTime {
@@ -494,17 +536,6 @@ layout: nothing
 		grid-template-rows: 1fr;
 	}
 
-	.importantTimes[data-importantItems="2"] .importantCard:not(.tallImportantCard),
-	.importantTimes[data-importantItems="1"] .importantCard:not(.tallImportantCard) {
-		height: 150px;
-	}
-
-	.importantTimes[data-importantItems="4"] .importantCard,
-	.importantTimes[data-importantItems="3"] .importantCard,
-	.importantTimes[data-importantItems="2"] .importantCard {
-		width: 296px;
-	}
-
 	.importantTimes[data-importantItems="3"]:not(.tallImportantCardContainer) .importantCard:last-child {
 		grid-column: span 2;
 	}
@@ -533,6 +564,11 @@ layout: nothing
 	.miscTimes h5 {
 		font-size: .85rem;
 		margin-bottom: 0;
+		font-weight: 600;
+	}
+
+	.miscTimes p {
+		line-height: 1.2;
 	}
 </style>
 

@@ -1,10 +1,12 @@
 ---
 - timeGetter: getAlotHashahar
+  round: earlier
   names:
     hb: עלות
     et: עלות
     en: עלות
 - timeGetter: getMisheyakir
+  round: later
   names:
     hb: משיכיר
     et: משיכיר
@@ -15,12 +17,14 @@
         en: הנראה
         et: הנראה
       timeGetter: getNetz
+      round: later
       id: nire
     - names:
         hb: כל השמש
         en: כל השמש
         et: כל השמש
       timeGetter: testSunriseHBWorking
+      round: later
       id: shemesh
   names:
     hb: הנץ
@@ -32,12 +36,14 @@
         en: מג'א
         et: מג'א
       timeGetter: getSofZemanShemaMGA
+      round: earlier
       id: mga
     - names:
         hb: גר'א
         en: גר'א
         et: גר'א
       timeGetter: getSofZemanShemaGRA
+      round: earlier
       id: gra
   names:
     hb: זמן שמע
@@ -53,14 +59,17 @@
         en: שחרית ("מג'א")
         et: שחרית ("מג'א")
       timeGetter: getSofZemanAhilathHametz
+      round: earlier
       id: mga
     - names:
         hb: שמע ("גר'א")
         en: שמע ("גר'א")
         et: שמע ("גר'א")
       timeGetter: getSofZemanBerakhothShema
+      round: earlier
       id: gra
 - timeGetter: getHatzoth
+  round: earlier
   names:
     hb: חצות
     et: חצות
@@ -71,12 +80,14 @@
         en: גדולה
         et: גדולה
       timeGetter: netaneli-minhaGedola
+      round: later
       id: gedolah
     - names:
         hb: קטנה
         en: קטנה
         et: קטנה
       timeGetter: getMinchaKetana
+      round: later
       id: ketanah
   names:
     hb: זמן מנחה
@@ -88,18 +99,21 @@
         en: גר"א
         et: גר"א
       timeGetter: getPlagHaminhaHalachaBrurah
+      round: later
       id: hb
     - names:
         hb: תד"ש
         en: תד"ש
         et: תד"ש
       timeGetter: getPlagHaminhaTT
+      round: later
       id: yy
   names:
     hb: פלג המנחה
     et: פלג המנחה
     en: פלג המנחה
 - timeGetter: getShkiya
+  round: earlier
   names:
     hb: שקיעה
     et: שקיעה
@@ -110,23 +124,27 @@
         en: עיקר הדין
         et: עיקר הדין
       timeGetter: getTzet
+      round: later
       id: regular
     - names:
         hb: לחומרה
         et: לחומרה
         en: לחומרה
       timeGetter: getTzetHumra
+      round: later
       id: humra
   names:
     hb: לילה
     et: לילה
     en: לילה
 - timeGetter: netaneli-candleLighting
+  round: later
   names:
     hb: נרות וצאת מלכה
     et: נרות וצאת מלכה
     en: נרות וצאת מלכה
 - timeGetter: netaneli-rt
+  round: later
   names:
     hb: ר״ת
     et: ר״ת

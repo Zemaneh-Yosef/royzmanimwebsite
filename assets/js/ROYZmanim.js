@@ -184,6 +184,7 @@ class ZemanimMathBase {
 		// @ts-ignore
 		let calc = new (this.constructor)(this.coreZC.getGeoLocation(), this.config);
 		calc.setDate(date);
+		calc.setVisualSunrise(this.vSunrise.preservedInts);
 
 		return calc;
 	}

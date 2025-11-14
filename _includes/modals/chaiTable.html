@@ -6,6 +6,12 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
+				<div class="alert alert-danger d-flex align-items-center" style="display: none !important;" role="alert">
+					<i class="me-2 bi bi-exclamation-triangle-fill"></i>
+					<div style="flex: 1 1;">ChaiTable did not return a location. Please adapt your settings according to your specific location, and try again.
+						<br>(Reach out if you believe it's a bug on our end)
+					</div>
+				</div>
 				<p>Abiding by the times for sunrise recommended by our poskim involves using a specific calendar called לוח בכורי יוסף. The algorithm behind it is on a website called ChaiTables, made by the same author.</p>
 				<p>To get this data, please proceed through our minimal-setup derivative of the main ChaiTables setup, involving selecting your country & metropolitan area (MA for short) you reside in:</p>
 				<md-outlined-select id="MAIndex" required label="Country Selector">

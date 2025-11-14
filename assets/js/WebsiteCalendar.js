@@ -790,6 +790,74 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	/**
+	 * @param {number} jewishYear
+	 * @param {number} jewishMonth
+	 * @param {number} jewishDay
+	 */
+	chainJewishDate(jewishYear, jewishMonth, jewishDay) {
+		const newCal = this.clone();
+		newCal.setJewishDate(jewishYear, jewishMonth, jewishDay);
+		return newCal;
+	}
+
+	/**
+	 * @param {number} yomTovIndex
+	 */
+	chainYomTovIndex(yomTovIndex) {
+		const yomTovObj = {
+			[KosherZmanim.JewishCalendar.PESACH]: { month: KosherZmanim.JewishDate.NISSAN, day: 15 },
+			[KosherZmanim.JewishCalendar.SHAVUOS]: { month: KosherZmanim.JewishDate.SIVAN, day: 6 },
+			[KosherZmanim.JewishCalendar.PURIM]: { month: KosherZmanim.JewishDate[this.isJewishLeapYear() ? 'ADAR_II' : 'ADAR'], day: 14 },
+			[KosherZmanim.JewishCalendar.ROSH_HASHANA]: { month: KosherZmanim.JewishDate.TISHREI, day: 1 },
+			[KosherZmanim.JewishCalendar.SUCCOS]: { month: KosherZmanim.JewishDate.TISHREI, day: 15 },
+			[KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: { month: KosherZmanim.JewishDate.TISHREI, day: 22 },
+			[KosherZmanim.JewishCalendar.SIMCHAS_TORAH]: { month: KosherZmanim.JewishDate.TISHREI, day: 23 },
+			[KosherZmanim.JewishCalendar.CHANUKAH]: { month: KosherZmanim.JewishDate.KISLEV, day: 25 },
+			[KosherZmanim.JewishCalendar.TU_BESHVAT]: { month: KosherZmanim.JewishDate.SHEVAT, day: 15 },
+			[KosherZmanim.JewishCalendar.YOM_HASHOAH]: { month: KosherZmanim.JewishDate.NISSAN, day: 27 },
+			[KosherZmanim.JewishCalendar.YOM_HAZIKARON]: { month: KosherZmanim.JewishDate.IYAR, day: 4 },
+			[KosherZmanim.JewishCalendar.YOM_HAATZMAUT]: { month: KosherZmanim.JewishDate.IYAR, day: 5 },
+			[KosherZmanim.JewishCalendar.YOM_YERUSHALAYIM]: { month: KosherZmanim.JewishDate.IYAR, day: 28 },
+			[KosherZmanim.JewishCalendar.PURIM_KATAN]: { month: KosherZmanim.JewishDate.ADAR, day: 14 },
+			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM_KATAN]: { month: KosherZmanim.JewishDate.ADAR, day: 15 },
+			[KosherZmanim.JewishCalendar.LAG_BAOMER]: { month: KosherZmanim.JewishDate.IYAR, day: 18 },
+			[KosherZmanim.JewishCalendar.SHUSHAN_PURIM]: { month: KosherZmanim.JewishDate[this.isJewishLeapYear() ? 'ADAR_II' : 'ADAR'], day: 15 },
+			[KosherZmanim.JewishCalendar.TISHA_BEAV]: { month: KosherZmanim.JewishDate.AV, day: 9 },
+			[KosherZmanim.JewishCalendar.EREV_PESACH]: { month: KosherZmanim.JewishDate.NISSAN, day: 14 },
+			[KosherZmanim.JewishCalendar.EREV_SHAVUOS]: { month: KosherZmanim.JewishDate.SIVAN, day: 5 },
+			[KosherZmanim.JewishCalendar.EREV_ROSH_HASHANA]: { month: KosherZmanim.JewishDate.ELUL, day: 29 },
+			[KosherZmanim.JewishCalendar.EREV_YOM_KIPPUR]: { month: KosherZmanim.JewishDate.TISHREI, day: 9 },
+			[KosherZmanim.JewishCalendar.EREV_SUCCOS]: { month: KosherZmanim.JewishDate.TISHREI, day: 14 },
+			[KosherZmanim.JewishCalendar.FAST_OF_ESTHER]: { month: KosherZmanim.JewishDate[this.isJewishLeapYear() ? 'ADAR_II' : 'ADAR'], day: 13 },
+			[KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH]: { month: KosherZmanim.JewishDate.TISHREI, day: 3 },
+			[KosherZmanim.JewishCalendar.SEVENTEEN_OF_TAMMUZ]: { month: KosherZmanim.JewishDate.TAMMUZ, day: 17 },
+			[KosherZmanim.JewishCalendar.TENTH_OF_TEVES]: { month: KosherZmanim.JewishDate.TEVES, day: 10 },
+			[KosherZmanim.JewishCalendar.TU_BEAV]: { month: KosherZmanim.JewishDate.AV, day: 15 },
+			[KosherZmanim.JewishCalendar.PESACH_SHENI]: { month: KosherZmanim.JewishDate.IYAR, day: 14 },
+			[KosherZmanim.JewishCalendar.YOM_KIPPUR]: { month: KosherZmanim.JewishDate.TISHREI, day: 10 }
+		}
+
+		if (yomTovIndex in yomTovObj) {
+			const newCal = this.chainJewishDate(
+				this.getJewishYear(),
+				yomTovObj[yomTovIndex].month,
+				yomTovObj[yomTovIndex].day
+			);
+
+			const fasts = [
+				KosherZmanim.JewishCalendar.SEVENTEEN_OF_TAMMUZ,
+				KosherZmanim.JewishCalendar.FAST_OF_GEDALYAH,
+				KosherZmanim.JewishCalendar.TISHA_BEAV
+			];
+			if (fasts.includes(yomTovIndex) && newCal.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
+				newCal.setJewishDayOfMonth(newCal.getJewishDayOfMonth() + 1);
+			}
+
+			return newCal;
+		}
+	}
+
+	/**
 	 * @param {import("./ROYZmanim.js").ZemanFunctions} zmanCalc
 	 */
 	birkathHalevanaCheck(zmanCalc) {
@@ -996,7 +1064,7 @@ export class HebrewNumberFormatter {
 function rangeDates(start, middle, end, inclusive=true) {
 	const acceptedValues = [1];
 	if (inclusive)
-	  acceptedValues.push(0);
-  
+		acceptedValues.push(0);
+
 	return acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(end, middle))
 };
