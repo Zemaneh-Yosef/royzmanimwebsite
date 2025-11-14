@@ -516,7 +516,7 @@ layout: nothing
 
 <script type="module">
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/charm-circle/schedule.ini');
+	await schedule('https://malka-minyanim.royzmanim.com/db/charm-circle.db');
 
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')

@@ -72,7 +72,9 @@ export default async function onlineSchedule(url, silent=false) {
 
 	let autoSchedule = false;
 
-	for (const [tableKey, value] of Object.entries(iniObj)) {
+	const formattedIniObj = Object.entries(iniObj);
+
+	for (const [tableKey, value] of formattedIniObj) {
 		const elemTitle = tableKey.split(" ");
 		const elemId = elemTitle.shift(); // Fixes elemTitle as it gets the id
 
@@ -139,8 +141,12 @@ export default async function onlineSchedule(url, silent=false) {
 				rowGroup.appendChild(descriptionDiv);
 			}
 		}
+
+		delete formattedIniObj[tableKey];
 	}
 
 	if (autoSchedule)
 		await import("./auto-schedule.js").then(({ default: autoSchedule }) => autoSchedule());
+
+	return formattedIniObj
 }
