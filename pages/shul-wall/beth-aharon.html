@@ -97,10 +97,10 @@ layout: nothing
 		margin-bottom: 5vh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 35% 28% 35%;
+		grid-template-columns: 35% 26% 35%;
 		grid-template-rows: auto 1fr;
 		align-items: center;
-		gap: 16px;
+		gap: 12px;
 	}
 
 	#dataGrid > *:not(#megaline):not(#ishMatzliachSlide) {
@@ -246,7 +246,7 @@ layout: nothing
 		--bs-list-group-border-color: transparent;
         --bs-list-group-bg: transparent;
         --bs-list-group-color: #dee2e6;
-		--bs-list-group-item-padding-x: .5rem;
+		--bs-list-group-item-padding-x: 0;
 		font-size: .8em;
 	}
 
@@ -286,6 +286,10 @@ layout: nothing
 
 	#dataGrid h1 {
 		font-size: 1.2em;
+	}
+
+	.schedule-entry-grid hr {
+		margin: .25rem 0;
 	}
 </style>
 
@@ -400,7 +404,7 @@ layout: nothing
 			</div>
 			<div class="card mt-3 lang lang-en hiloulotCard">
 				<div class="card-header"><h2 class="mb-0">Hiloulot of...</h2></div>
-				<div class="marquee" style="height: 150px;">
+				<div class="marquee" style="height: 80px;">
 					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
 						<li class="list-group-item">There aren't any today</li>
 					</ul>
@@ -409,13 +413,13 @@ layout: nothing
 					</ul>
 				</div>
 			</div>
-			<div class="marquee marqueeHorizontal" id="flyerForBusiness" style="--length: 45s">
+			<div class="marquee marqueeHorizontal mt-2" id="flyerForBusiness" style="--length: 45s">
 				<div class="marquee__content"></div>
 				<div aria-hidden="true" class="marquee__content"></div>
 			</div>
 		</div>
 		<div id="shulScheduling">
-			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .8rem;">
+			<div class="card mb-2" style="font-size: .8rem;">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
 					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
@@ -500,14 +504,15 @@ layout: nothing
 	const carousel = document.getElementById('ishMatzliachSlide');
 	for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
 		marquee.innerHTML = flyerURLs.map(url => {
-			let cardHTML = `<div class="card" style="width: 5rem;">
-			<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" class="card-img-top" />`;
-
 			const name = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
+
+			let cardHTML = `<div class="card" style="width: 4rem;">
+			<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" class="card-img-top" alt="${name}" />`;
+
 			if (name in mournersCont["mourners"]) {
-				cardHTML += `<div class="card-body">
-					<h5 class="card-title">${name}</h5>
-					<p class="card-text">${mournersCont[name][url]}</p>
+				cardHTML += `<div class="card-body" style="padding: .1rem;">
+					<h5 class="card-title" style="font-size: .65rem; margin-bottom: 0;">${name}</h5>
+					<p class="card-text" style="font-size: .4rem;">${mournersCont["mourners"][name]}</p>
 				</div>`;
 			}
 
