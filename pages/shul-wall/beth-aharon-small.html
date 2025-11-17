@@ -1,6 +1,6 @@
 ---
 title: Bet Aharon
-permalink: /shul-wall/beth-aharon
+permalink: /shul-wall/beth-aharon-small
 layout: nothing
 ---
 
@@ -45,7 +45,7 @@ layout: nothing
 		line-height: 1;
 		height: 12vh;
 		align-items: center;
-		font-size: 1.15em;
+		font-size: .8rem;
 		font-weight: 500;
 	}
 
@@ -82,10 +82,10 @@ layout: nothing
 		font-family: "Narkisim";
 		justify-self: end;
 		line-height: 1;
-		padding-right: 3rem;
+		padding-right: 1rem;
 		color: black;
-		font-size: 4rem;
-		padding-top: 1.5rem;
+		font-size: 3.5rem;
+		padding-top: .5rem;
 		align-self: start;
 		z-index: 3;
 	}
@@ -110,7 +110,6 @@ layout: nothing
 		border-top-right-radius: 50% 15%;
 		padding: 1rem;
 		box-shadow: 0 0 7px 5px black;
-		padding-top: 2.5rem;
 	}
 
 	.carousel-item > img {
@@ -160,7 +159,7 @@ layout: nothing
 	.wideView > * {
 		width: 100%;
 		display: flex;
-		font-size: 1.5em;
+		font-size: .9em;
 		justify-content: space-between;
 	}
 
@@ -203,7 +202,7 @@ layout: nothing
 	#megaline {
 		grid-column: 1 / span 4;
 		text-align: center;
-		font-size: 1.35em;
+		font-size: 1em;
 		margin-left: -1vw;
 		margin-right: -1vw;
 		background-color: white;
@@ -233,6 +232,11 @@ layout: nothing
 		align-self: start;
 	}
 
+	dl[data-zfFind="DafYomi"] {
+		font-size: 1.2em;
+		line-height: 1.4;
+	}
+
 	dl[data-zfFind="DafYomi"] > *:not(:last-child) {
 		border-bottom: 1px solid rgba(255,255,255,.5);
 	}
@@ -243,7 +247,7 @@ layout: nothing
         --bs-list-group-bg: transparent;
         --bs-list-group-color: #dee2e6;
 		--bs-list-group-item-padding-x: 0;
-		font-size: 1.35em;
+		font-size: .8em;
 	}
 
 	.list-group {
@@ -276,12 +280,20 @@ layout: nothing
 		--bs-list-group-color: black;
 	}
 
+	#flyerForBusiness {
+		width: 90%;
+	}
+
+	#dataGrid h1 {
+		font-size: 1.2em;
+	}
+
 	.schedule-entry-grid hr {
 		margin: .25rem 0;
 	}
 </style>
 
-<div id="content" data-current-page="1" data-page-count="3" data-swap-time="10000">
+<div id="content" data-current-page="1" data-page-count="3" data-swap-time="8000">
 	<div id="bsD">בס"ד</div>
 	<img id="gne" src="https://zemaneh-yosef.github.io/extras/beth-aharon.svg" />
 	<div class="blurOverlay"></div>
@@ -392,7 +404,7 @@ layout: nothing
 			</div>
 			<div class="card mt-3 lang lang-en hiloulotCard">
 				<div class="card-header"><h2 class="mb-0">Hiloulot of...</h2></div>
-				<div class="marquee" style="height: 120px;">
+				<div class="marquee" style="height: 80px;">
 					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
 						<li class="list-group-item">There aren't any today</li>
 					</ul>
@@ -455,20 +467,12 @@ layout: nothing
 					</li>
 				</ul>
 			</div>
-			<h1 style="text-align: center;">
-				<span class="langTV lang-en">Weekday Schedule</span>
-				<span class="langTV lang-hb">לוח יומי</span>
-				<span class="langTV lang-ru">Расписание будних дней</span>
-			</h1>
+			<h1 style="text-align: center;">Weekday Schedule</h1>
 			<div class="card">
 				<ul class="list-group list-group-flush" id="weekdaySchCard">
 				</ul>
 			</div>
-			<h1 style="text-align: center;">
-				<span class="langTV lang-en">Shabbat Schedule</span>
-				<span class="langTV lang-hb">לוח שבת</span>
-				<span class="langTV lang-ru">Расписание Шаббата</span>
-			</h1>
+			<h1 style="text-align: center;">Shabbat Schedule</h1>
 			<div class="card">
 				<ul class="list-group list-group-flush" id="shabbatSchCard">
 				</ul>
@@ -494,18 +498,21 @@ layout: nothing
 		.split('\n')
 		.filter(str => str.startsWith('./beth-aharon-portraits/'))
 
+	/*
+	<h5>${}</h5>
+	*/
 	const carousel = document.getElementById('ishMatzliachSlide');
 	for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
 		marquee.innerHTML = flyerURLs.map(url => {
 			const name = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
 
-			let cardHTML = `<div class="card" style="width: 6rem;">
+			let cardHTML = `<div class="card" style="width: 4rem;">
 			<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" class="card-img-top" alt="${name}" />`;
 
 			if (name in mournersCont["mourners"]) {
 				cardHTML += `<div class="card-body" style="padding: .1rem;">
-					<h5 class="card-title" style="font-size: 1.25rem; margin-bottom: 0;">${name}</h5>
-					<p class="card-text" style="font-size: .8rem;">${mournersCont["mourners"][name]}</p>
+					<h5 class="card-title" style="font-size: .65rem; margin-bottom: 0;">${name}</h5>
+					<p class="card-text" style="font-size: .4rem;">${mournersCont["mourners"][name]}</p>
 				</div>`;
 			}
 

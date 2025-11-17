@@ -63,6 +63,7 @@ switch (window.location.href.split('/').pop()) {
 	case 'charm-circle-chol':
 	case 'charm-circle-schedule-ocol':
 	case 'beth-aharon':
+	case 'beth-aharon-small':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',
