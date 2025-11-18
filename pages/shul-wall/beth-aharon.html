@@ -40,7 +40,7 @@ layout: nothing
 		width: 55%;
 		justify-self: center;
 		align-self: start;
-		color: black;
+		color: white;
 		z-index: 3;
 		line-height: 1;
 		height: 12vh;
@@ -83,7 +83,7 @@ layout: nothing
 		justify-self: end;
 		line-height: 1;
 		padding-right: 3rem;
-		color: black;
+		color: white;
 		font-size: 4rem;
 		padding-top: 1.5rem;
 		align-self: start;
@@ -100,7 +100,8 @@ layout: nothing
 		grid-template-columns: 35% 26% 35%;
 		grid-template-rows: auto 1fr;
 		align-items: center;
-		gap: 12px;
+		column-gap: 12px;
+		row-gap: 1.5rem;
 	}
 
 	#dataGrid > *:not(#megaline):not(#ishMatzliachSlide) {
@@ -206,15 +207,11 @@ layout: nothing
 		font-size: 1.35em;
 		margin-left: -1vw;
 		margin-right: -1vw;
-		background-color: white;
-		color: black;
+		background: url("https://zemaneh-yosef.github.io/extras/Copilot_20251117_181254.png");
+		color: white;
 		padding-top: .5rem;
 		padding-bottom: .5rem;
-	}
-
-	#megalineCont {
-		border-top: 2px dashed black;
-		border-bottom: 2px dashed black;
+		filter: drop-shadow(0px 10px 10px #000080);
 	}
 
 	#megalineCont > span {
@@ -228,13 +225,10 @@ layout: nothing
 
 	.blurOverlay {
 		height: 12vh;
-		backdrop-filter: blur(8px);
+		filter: brightness(60%);
+		background: url("https://zemaneh-yosef.github.io/extras/Copilot_20251117_181254.png");
 		width: 100%;
 		align-self: start;
-	}
-
-	dl[data-zfFind="DafYomi"] > *:not(:last-child) {
-		border-bottom: 1px solid rgba(255,255,255,.5);
 	}
 
 	#dataGrid .list-group-item {
@@ -504,7 +498,7 @@ layout: nothing
 
 			if (name in mournersCont["mourners"]) {
 				cardHTML += `<div class="card-body" style="padding: .1rem;">
-					<h5 class="card-title" style="font-size: 1.25rem; margin-bottom: 0;">${name}</h5>
+					<h5 class="card-title" style="font-size: 1.05rem; margin-bottom: 0;">${name}</h5>
 					<p class="card-text" style="font-size: .8rem;">${mournersCont["mourners"][name]}</p>
 				</div>`;
 			}

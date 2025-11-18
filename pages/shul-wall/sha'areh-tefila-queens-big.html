@@ -20,37 +20,6 @@ layout: nothing
 		grid-area: 1 / 1;
 	}
 
-	/* #zyTrapezoid {
-        justify-self: center;
-        align-self: start;
-        width: 70%;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-    } */
-
-	/* #background {
-		--margin: 1.25vw;
-		margin: var(--margin);
-		height: calc(100vh - var(--margin) - var(--margin) - var(--margin) - var(--margin));
-		width: calc(100% - var(--margin) - var(--margin));
-		border-radius: 1.25rem;
-		filter: brightness(0.4);
-		object-fit: cover;
-	    object-position: top;
-	} */
-
-	/* #shulBar {
-		width:45%;
-		background-color: #2e334a;
-		justify-self: center;
-        align-self: start;
-		font-family: 'Neutro', var(--bs-body-font-family);
-		border-bottom-left-radius: 5rem;
-		border-bottom-right-radius: 5rem;
-		text-align: center;
-		z-index: 2;
-		font-size: 1.15em;
-	} */
-
 	#clock {
 		font-size: 4.75em;
 		font-family: "dharma_gothic_e";
@@ -125,7 +94,7 @@ layout: nothing
 		column-gap: 2vw;
 	}
 
-    #dataGrid > *:not(#megaline):not(.wideView):not(.marquee) {
+    #dataGrid > *:not(.wideView):not(.marquee) {
         background: rgba(0,0,0,.75);
         border-top-left-radius: 50% 15%;
         border-top-right-radius: 50% 15%;
@@ -136,7 +105,7 @@ layout: nothing
 		font-size: 1.55rem;
     }
 
-	#dataGrid > *:not(#megaline):not(.wideView):not(.marquee):not(:nth-child(2)) {
+	#dataGrid > *:not(.wideView):not(.marquee):not(:nth-child(2)) {
 		height: 100%;
 	}
 
@@ -167,6 +136,10 @@ layout: nothing
     }
 
     #content[data-current-page="1"] .timeDisplayWide.nextDay::before {
+        content: "מחר, ";
+    }
+
+	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
         content: "Tom., ";
     }
 
@@ -175,6 +148,10 @@ layout: nothing
 	}
 
 	#content[data-current-page="2"] .langTV:not(.lang-ru) {
+		display: none;
+	}
+
+	#content[data-current-page="3"] .langTV:not(.lang-en) {
 		display: none;
 	}
 
@@ -220,41 +197,6 @@ layout: nothing
 	.hiloulotCard .card-header {
 		--bs-card-cap-padding-x: .75rem;
 	}
-
-    #megaline {
-		grid-column: 1 / span 3;
-		text-align: center;
-		font-size: 1.6em;
-		margin-left: -1vw;
-		margin-right: -1vw;
-		background-color: #f3ebd788;
-		color: black;
-		padding-top: .5rem;
-		padding-bottom: .5rem;
-	}
-
-    #megalineCont {
-        border-top: 4px dashed black;
-        border-bottom: 4px dashed black;
-    }
-
-	#megalineCont > span {
-		content: " - ";
-		unicode-bidi: isolate;
-	}
-
-	#megalineCont > span:not(:last-child)::after {
-		content: " - "
-	}
-
-    dl[data-zfFind="DafYomi"] {
-        font-size: 1.2em;
-        line-height: 1.4;
-    }
-
-    dl[data-zfFind="DafYomi"] > *:not(:last-child) {
-        border-bottom: 1px solid rgba(255,255,255,.5);
-    }
 
 	.list-group-item,
 	.list-group {
@@ -302,14 +244,11 @@ layout: nothing
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <link href="/assets/css/timer.css" rel="stylesheet" />
 
-<div id="content" data-current-page="1" data-page-count="2" data-swap-time="8000">
-	<!-- <div id="bsD">בס"ד</div> -->
+<div id="content" data-current-page="1" data-page-count="3" data-swap-time="8000">
 	<img id="gne" src="/assets/images/shul-wall/shaarehTefilah.svg" />
-	<!-- <img id="background" src="/assets/images/shul-wall/7ef32ef2-d1f0-47a5-8a6e-a6dcc138270a.jpeg" /> -->
-	<!-- <img id="zyTrapezoid" src="/assets/images/shul-wall/rounded-trapezoid.svg" /> -->
-	<!-- <div id="shulBar">R' Abrahamov's shul | This is WIP but...I guess "For the success of <b>Elyahu Jacobi</b>"?</div> -->
 	<div id="poweredBy">
-        <span class="langTV lang-hb">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
+        <span class="langTV lang-en">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
+		<span class="langTV lang-hb">הובה עליכם ממאור נעים והלוח זמני יוסף, שהולך על פי שיטת מרן עובדיה זצ"ל</span>
         <span class="langTV lang-ru">Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.</span>
 	</div>
 	<div id="dataGrid">
@@ -325,7 +264,7 @@ layout: nothing
 			<div id="dateContainer">
 				<div><span data-hb-date></span>
 				<hr style="margin: .25rem 0">
-				<span class="langTV lang-hb" data-en-date></span>
+				<span class="langTV lang-en lang-hb" data-en-date></span>
 				<span class="langTV lang-ru" data-ru-date></span></div>
 			</div>
 			<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
@@ -496,7 +435,7 @@ layout: nothing
 			</div>
 		</div>
 		<div>
-			<h1 style="text-align: center;" data-parasha data-prefix="en-ru"></h1>
+			<h1 style="text-align: center;" data-parasha data-prefix="hb-en-ru"></h1>
 			<div id="quickTimes">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
@@ -512,7 +451,7 @@ layout: nothing
 			<div class="marquee__content"></div>
 			<div aria-hidden="true" class="marquee__content"></div>
 		  </div>
-		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb ru">
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb ru en">
 			{% for item in site.data.tv.simpleTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
@@ -522,6 +461,7 @@ layout: nothing
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
 					<span class="langTV lang-hb">{{ item.names.hb }}</span>
+					<span class="langTV lang-en">{{ item.names.en }}</span>
 					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>
 				</article>
