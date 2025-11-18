@@ -15,7 +15,7 @@ layout: nothing
 		width: 100vw;
 		height: 100vh;
 		display: grid;
-		background-image: url(/assets/images/shul-wall/wp10073984-white-stone-wallpapers.jpg);
+		background-image: url(/assets/images/shul-wall/west-wall-fade.png);
 		background-size: contain;
 		font-family: 'Neutro', var(--bs-body-font-family);
 	}
@@ -97,7 +97,7 @@ layout: nothing
 		margin-bottom: 5vh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 35% 26% 35%;
+		grid-template-columns: 1fr .85fr 1fr;
 		grid-template-rows: auto 1fr;
 		align-items: center;
 		column-gap: 12px;
@@ -111,12 +111,6 @@ layout: nothing
 		border-top-right-radius: 50% 15%;
 		padding: 1rem;
 		box-shadow: 0 0 7px 5px black;
-		padding-top: 2.5rem;
-	}
-
-	.carousel-item > img {
-		height: 70vh;
-		object-fit: contain;
 	}
 
 	#gne {
@@ -161,7 +155,7 @@ layout: nothing
 	.wideView > * {
 		width: 100%;
 		display: flex;
-		font-size: 1.5em;
+		font-size: 1.75em;
 		justify-content: space-between;
 	}
 
@@ -237,7 +231,7 @@ layout: nothing
         --bs-list-group-bg: transparent;
         --bs-list-group-color: #dee2e6;
 		--bs-list-group-item-padding-x: 0;
-		font-size: 1.35em;
+		font-size: 1.8em;
 	}
 
 	.list-group {
@@ -272,6 +266,34 @@ layout: nothing
 
 	.schedule-entry-grid hr {
 		margin: .25rem 0;
+	}
+
+	.flyer-card {
+		flex: 0 0 auto;    /* prevent shrinking/stretching */
+		width: 22rem;      /* fixed card width */
+	}
+
+	#ishMatzliachSlide {
+		width: 100%;
+		overflow: hidden;   /* hide overflow */
+	}
+
+	#flyerForBusiness {
+		display: flex;
+		width: 100%;
+		max-width: 100%;
+		overflow: hidden;
+	}
+
+	.marquee__content {
+		flex-shrink: 0;
+		min-width: 100%;    /* one content block fits viewport */
+	}
+
+	.card-img-top {
+		height: 50vh;
+		object-fit: cover;
+		object-position: top;
 	}
 </style>
 
@@ -338,7 +360,7 @@ layout: nothing
 				</span>
 			</div>
 		</div>
-		<div id="zemanehHayom">
+		<div id="zemanehHayom" style="padding-top: 2.5rem;">
 			<h1 style="text-align: center; margin-bottom: 0;">
 				<span class="langTV lang-hb">זמני היום</span>
 				<span class="langTV lang-ru">Галахические времена</span>
@@ -360,47 +382,6 @@ layout: nothing
 					</article>
 				{% endfor %}
 			</section>
-		</div>
-		<div id="ishMatzliachSlide">
-			<div class="card mt-3 lang lang-hb hiloulotCard">
-				<div class="card-header"><h2 class="mb-0">הילולות של...</h2></div>
-				<div class="marquee" style="height: 150px;">
-					<ul class="list-group list-group-flush marquee__content" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
-						<li class="list-group-item">אין היום</li>
-					</ul>
-					<ul class="list-group list-group-flush marquee__content" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
-						<li class="list-group-item">אין היום</li>
-					</ul>
-				</div>
-			</div>
-			<div class="card mt-3 lang lang-et hiloulotCard">
-				<div class="card-header"><h2 class="mb-0">Hiloulot of...</h2></div>
-				<div class="marquee" style="height: 150px;">
-					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-				</div>
-			</div>
-			<div class="card mt-3 lang lang-en hiloulotCard">
-				<div class="card-header"><h2 class="mb-0">Hiloulot of...</h2></div>
-				<div class="marquee" style="height: 120px;">
-					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
-						<li class="list-group-item">There aren't any today</li>
-					</ul>
-				</div>
-			</div>
-			<div class="marquee marqueeHorizontal mt-2" id="flyerForBusiness" style="--length: 45s">
-				<div class="marquee__content"></div>
-				<div aria-hidden="true" class="marquee__content"></div>
-			</div>
-		</div>
-		<div id="shulScheduling">
 			<div class="card mb-2" style="font-size: .8rem;">
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
@@ -449,7 +430,15 @@ layout: nothing
 					</li>
 				</ul>
 			</div>
-			<h1 style="text-align: center;">
+		</div>
+		<div id="ishMatzliachSlide">
+			<div class="marquee marqueeHorizontal" id="flyerForBusiness" style="--length: 45s; --gap: 1rem;">
+				<div class="marquee__content"></div>
+				<div aria-hidden="true" class="marquee__content"></div>
+			</div>
+		</div>
+		<div id="shulScheduling" style="overflow: hidden; height: 72.5vh; padding-top: 0;">
+			<h1 style="text-align: center; padding-top: 2.5rem;">
 				<span class="langTV lang-en">Weekday Schedule</span>
 				<span class="langTV lang-hb">לוח יומי</span>
 				<span class="langTV lang-ru">Расписание будних дней</span>
@@ -480,30 +469,34 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	const mournersCont = Object.fromEntries(await schedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true));
-
-	console.log(mournersCont)
+	const mournersCont = Object.fromEntries((await schedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true)).filter(Boolean));
 
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
 		.filter(str => str.startsWith('./beth-aharon-portraits/'))
 
-	const carousel = document.getElementById('ishMatzliachSlide');
 	for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
 		marquee.innerHTML = flyerURLs.map(url => {
 			const name = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
 
-			let cardHTML = `<div class="card" style="width: 6rem;">
+			let cardHTML = `<div class="card flyer-card">
 			<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" class="card-img-top" alt="${name}" />`;
 
 			if (name in mournersCont["mourners"]) {
-				cardHTML += `<div class="card-body" style="padding: .1rem;">
-					<h5 class="card-title" style="font-size: 1.05rem; margin-bottom: 0;">${name}</h5>
-					<p class="card-text" style="font-size: .8rem;">${mournersCont["mourners"][name]}</p>
+				cardHTML += `<div class="card-body" style="padding: .1rem; text-align: center; color: black;">
+					<h5 class="card-title" style="font-size: 1.6rem; margin-bottom: 0;">${name}</h5>
+					<p class="card-text" style="font-size: 1.3rem;">${mournersCont["mourners"][name]}</p>
 				</div>`;
 			}
 
 			return cardHTML + "</div>"
 		}).join('');
 	}
+
+	const shulSchedule = document.getElementById('shulScheduling');
+	shulSchedule.innerHTML =
+		`<div class="marquee" style="--length: 45s; --gap: 1rem;">
+			<div class="marquee__content">${shulSchedule.innerHTML}</div>
+			<div aria-hidden="true" class="marquee__content">${shulSchedule.innerHTML}</div>
+		</div>`
 </script>
