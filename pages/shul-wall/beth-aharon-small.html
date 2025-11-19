@@ -102,7 +102,7 @@ layout: nothing
 		grid-template-columns: 1fr .85fr 1fr;
 		grid-template-rows: auto 1fr;
 		align-items: center;
-		column-gap: 12px;
+		column-gap: 28px;
 		row-gap: 1.5rem;
 	}
 
@@ -158,7 +158,7 @@ layout: nothing
 	.wideView > * {
 		width: 100%;
 		display: flex;
-		font-size: .9em;
+		font-size: 1em;
 		justify-content: space-between;
 	}
 
@@ -186,6 +186,7 @@ layout: nothing
 		text-align: center;
 		line-height: 1.2;
 		color: black;
+		font-size: .7em;
 	}
 
 	.hiloulotCard .list-group-item {
@@ -234,7 +235,11 @@ layout: nothing
         --bs-list-group-bg: transparent;
         --bs-list-group-color: #dee2e6;
 		--bs-list-group-item-padding-x: 0;
-		font-size: .8em;
+		font-size: 1.2em;
+	}
+
+	#dataGrid #ishMatzliachSlide .list-group-item {
+		font-size: .9em;
 	}
 
 	.list-group {
@@ -263,12 +268,8 @@ layout: nothing
 		color: black;
 	}
 
-	#dataGrid #ishMatzliachSlide .list-group-item {
-		--bs-list-group-color: black;
-	}
-
 	#dataGrid h1 {
-		font-size: 1.2rem;
+		font-size: 1.4rem;
 		margin-bottom: 0;
 	}
 
@@ -281,7 +282,7 @@ layout: nothing
 		width: 12rem;      /* fixed card width */
 	}
 
-	#ishMatzliachSlide {
+	#ishMatzliachSlide.hasMarquee {
 		width: 100%;
 		overflow: hidden;   /* hide overflow */
 	}
@@ -302,6 +303,37 @@ layout: nothing
 		height: 50vh;
 		object-fit: cover;
 		object-position: top;
+	}
+
+	dl[data-zfFind="DafYomi"] {
+		font-size: .9em;
+		line-height: 1.2;
+	}
+
+	dl[data-zfFind="DafYomi"] > *:not(:last-child):not(:first-child) {
+		border-bottom: 1px solid rgba(255,255,255,.5);
+	}
+
+	dl[data-zfFind="DafYomi"] {
+		background: rgba(0,0,0,.85);
+		border-top-left-radius: 50% 25%;
+		border-top-right-radius: 50% 25%;
+		padding: .5rem;
+		padding-top: 0;
+		padding-bottom: 0;
+		box-shadow: 0 0 7px 5px black;
+		color: white;
+	}
+
+	.hiloulotCard {
+		background: rgba(0,0,0,.85);
+		border-top-left-radius: 50% 15%;
+		border-top-right-radius: 50% 15%;
+		padding: .5rem;
+		padding-top: 0;
+		padding-bottom: 0;
+		box-shadow: 0 0 7px 5px black;
+		color: white;
 	}
 </style>
 
@@ -369,7 +401,7 @@ layout: nothing
 			</div>
 		</div>
 		<div id="zemanehHayom">
-			<h1 style="text-align: center; margin-bottom: 0;">
+			<h1 style="text-align: center; margin-bottom: .75rem;">
 				<span class="langTV lang-hb">זמני היום</span>
 				<span class="langTV lang-ru">Галахические времена</span>
 				<span class="langTV lang-en">Halachic Times</span>
@@ -440,13 +472,56 @@ layout: nothing
 			</div>
 		</div>
 		<div id="ishMatzliachSlide">
-			<div class="marquee marqueeHorizontal" id="flyerForBusiness" style="--length: 45s; --gap: 1rem;">
+			<!-- <div class="marquee marqueeHorizontal" id="flyerForBusiness" style="--length: 45s; --gap: 1rem;">
 				<div class="marquee__content"></div>
 				<div aria-hidden="true" class="marquee__content"></div>
+			</div> -->
+
+			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+				<div style="text-align: center; font-size: 1.4rem">
+					<dt class="langTV lang-hb">לימוד יומי</dt>
+					<dt class="langTV lang-ru">лимуд ёми</dt>
+					<dt class="langTV lang-en">Daily Learning</dt>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="langTV lang-hb">{{ site.data.learning.weekday[0].text.hb.short }}</dt>
+					<dt class="langTV lang-en">{{ site.data.learning.weekday[0].text.et.short }}</dt>
+					<dt class="langTV lang-ru">{{ site.data.learning.weekday[0].text.ru.short }}</dt>
+					<dd class="m-0" data-zfReplace="{{ site.data.learning.weekday[0].limud }}"></dd>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="langTV lang-hb">{{ site.data.learning.weekday[5].text.hb.short }}</dt>
+					<dt class="langTV lang-en">{{ site.data.learning.weekday[5].text.et.short }}</dt>
+					<dt class="langTV lang-ru">{{ site.data.learning.weekday[5].text.ru.short }}</dt>
+					<dd class="m-0" data-zfReplace="{{ site.data.learning.weekday[5].limud }}"></dd>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="langTV lang-hb">{{ site.data.learning.shabbat[0].text.hb.short }}</dt>
+					<dt class="langTV lang-en">{{ site.data.learning.shabbat[0].text.et.short }}</dt>
+					<dt class="langTV lang-ru">{{ site.data.learning.shabbat[0].text.ru.short }}</dt>
+					<dd class="m-0" data-zfReplace="{{ site.data.learning.shabbat[0].limud }}"></dd>
+				</div>
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="langTV lang-hb">{{ site.data.learning.shabbat[1].text.hb.short }}</dt>
+					<dt class="langTV lang-en">{{ site.data.learning.shabbat[1].text.et.short }}</dt>
+					<dt class="langTV lang-ru">{{ site.data.learning.shabbat[1].text.ru.short }}</dt>
+					<dd class="m-0" data-zfReplace="{{ site.data.learning.shabbat[1].limud }}"></dd>
+				</div>
+			</dl>
+			<div class="card mt-4 hiloulotCard">
+				<div class="card-header" style="color: white;"><h2 class="mb-0">Hiloulot of...</h2></div>
+				<div class="marquee" style="height: 150px;">
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+				</div>
 			</div>
 		</div>
-		<div id="shulScheduling" style="overflow: hidden; height: 72.5vh; padding-top: 0;">
-			<h1 style="text-align: center; padding-top: .75rem;">
+		<div id="shulScheduling" style="overflow: hidden; height: 70vh; padding-top: 0;">
+			<h1 style="text-align: center; padding-top: .75rem; margin-bottom: .75rem;">
 				<span class="langTV lang-en">Weekday Schedule</span>
 				<span class="langTV lang-hb">לוח יומי</span>
 				<span class="langTV lang-ru">Расписание будних дней</span>
@@ -455,7 +530,7 @@ layout: nothing
 				<ul class="list-group list-group-flush" id="weekdaySchCard">
 				</ul>
 			</div>
-			<h1 style="text-align: center;">
+			<h1 style="text-align: center; padding-top: .75rem; margin-bottom: .75rem;">
 				<span class="langTV lang-en">Shabbat Schedule</span>
 				<span class="langTV lang-hb">לוח שבת</span>
 				<span class="langTV lang-ru">Расписание Шаббата</span>
@@ -479,7 +554,7 @@ layout: nothing
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
 	const mournersCont = Object.fromEntries((await schedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true)).filter(Boolean));
 
-	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+	/*const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
 		.filter(str => str.startsWith('./beth-aharon-portraits/'))
 
@@ -499,7 +574,7 @@ layout: nothing
 
 			return cardHTML + "</div>"
 		}).join('');
-	}
+	} */
 
 	const shulSchedule = document.getElementById('shulScheduling');
 	shulSchedule.innerHTML =
