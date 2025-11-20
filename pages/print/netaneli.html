@@ -234,6 +234,10 @@ layout: nothing
 	.mb-0 {
 		margin-bottom: 0;
 	}
+
+	.tableHeader[data-zyHeaderContainer] {
+		grid-column-end: span var(--amount);
+	}
 </style>
 
 <div class="zyCalFooter">
@@ -246,7 +250,9 @@ layout: nothing
 		<div class="tableHeader" data-zyData="date"></div>
 		{% for item in site.data.print.netaneli-printOut %}
 		{% if item.shitot %}
-		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyHeaderContainer style="grid-column-end: span 2;">
+		<div class="tableHeader"
+			data-zyHeaderContainer
+			style="--amount: {% for shita in item.shitot %}{{forloop.length}}{% break %}{% endfor %};">
 			<span class="lang lang-hb">{{ item.names.hb }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>

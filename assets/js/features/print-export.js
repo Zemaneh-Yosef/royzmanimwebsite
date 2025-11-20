@@ -71,7 +71,7 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
 
 			return (elem.style.gridRow == '1 / span 2' ? '.8fr' : '.6fr');
 		} else {
-			return (elem.style.gridRow == '1 / span 2' ? '1fr' : '.75fr');
+			return (elem.style.gridRow == '1 / span 2' ? '1fr' : '.85fr');
 		}
 	})
 	.join(" ");

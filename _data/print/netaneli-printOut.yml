@@ -13,12 +13,12 @@
     en: משיכיר
 - shitot:
     - names:
-        hb: הנראה
-        en: הנראה
-        et: הנראה
-      timeGetter: getNetz
+        hb: מישור
+        en: מישור
+        et: מישור
+      timeGetter: forceSeaLevelSunrise
       round: later
-      id: nire
+      id: seaLevel
     - names:
         hb: כל השמש
         en: כל השמש

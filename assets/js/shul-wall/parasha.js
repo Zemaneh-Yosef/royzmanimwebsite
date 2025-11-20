@@ -140,21 +140,30 @@ if (dateHighlight.hasCandleLighting()) {
 	/** @type {Element} */
 	// @ts-ignore
 	const lightCand2 = lightCand.cloneNode(true);
+	let candLight2Time = zDTFromFunc(zmanCalc.chainDate(dateHighlight.getDate())
+	[(dateHighlight.getDayOfWeek() == 6 ? 'getCandleLighting' :
+		dateHighlight.getDayOfWeek() == 7 ? 'getTzetMelakha' : 'getTzetHumra')]());
+
+	if (candLight2Time.second > (dateHighlight.getDayOfWeek() == 6 ? 40 : 20))
+		candLight2Time = candLight2Time.add({ minutes: 1 }).with({ second: 0 });
+
 	lightCand2.innerHTML += `(${dayLoop[dateHighlight.getDayOfWeek()]}. night): ` +
-		zDTFromFunc(zmanCalc.chainDate(dateHighlight.getDate())
-			[(dateHighlight.getDayOfWeek() == 6 ? 'getCandleLighting' :
-				dateHighlight.getDayOfWeek() == 7 ? 'getTzetMelakha' : 'getTzetHumra')]())
-			.toLocaleString(...dtF);
+		candLight2Time.toLocaleString(...dtF);
 	lightCand.insertAdjacentElement('afterend', lightCand2);
 
 	if (dateHighlight.tomorrow().hasCandleLighting()) {
 		/** @type {Element} */
 		// @ts-ignore
 		const lightCand3 = lightCand.cloneNode(true);
+
+		let candLight3Time = zDTFromFunc(zmanCalc.chainDate(dateHighlight.tomorrow().getDate())
+			[(dateHighlight.getDayOfWeek() == 5 ? 'getCandleLighting' : 'getTzetHumra')]());
+
+		if (candLight3Time.second > (dateHighlight.getDayOfWeek() == 5 ? 40 : 20))
+			candLight3Time = candLight3Time.add({ minutes: 1 }).with({ second: 0 });
+
 		lightCand3.innerHTML += `(${dayLoop[dateHighlight.getDayOfWeek() + 1]}. night): ` +
-			zDTFromFunc(zmanCalc.chainDate(dateHighlight.tomorrow().getDate())
-			[(dateHighlight.getDayOfWeek() == 5 ? 'getCandleLighting' : 'getTzetHumra')]())
-			.toLocaleString(...dtF);
+			candLight3Time.toLocaleString(...dtF);
 
 		lightCand2.insertAdjacentElement('afterend', lightCand3);
 	}
@@ -181,19 +190,28 @@ const rabbinic = tzet.getDayOfWeek() !== 6 && tzet.isErevYomTovSheni()
 tzet.forward(5, 1);
 
 const tzetTimes = {
-	ikar: zDTFromFunc(zmanCalc.chainDate(tzet.getDate()).getTzetMelakha()).toLocaleString(...dtF),
-	rt: zmanCalc.chainDate(tzet.getDate()).getTzetRT().toLocaleString(...dtF)
+	ikar: zDTFromFunc(zmanCalc.chainDate(tzet.getDate()).getTzetMelakha()),
+	rt: zmanCalc.chainDate(tzet.getDate()).getTzetRT()
+}
+
+for (const tzetKey of Object.keys(tzetTimes)) {
+	/** @type {keyof typeof tzetTimes} */
+	// @ts-ignore
+	const tzetIndex = tzetKey;
+
+	if (tzetTimes[tzetIndex].second > 20)
+		tzetTimes[tzetIndex] = tzetTimes[tzetIndex].add({ minutes: 1 }).with({ second: 0 });
 }
 
 const tzetElem = document.querySelector('[data-tzetShab]');
 let tzetText;
 if (tzetElem.hasAttribute('data-ikar-text')) {
 	tzetText = (rabbinic
-		? tzetTimes.ikar
-		: tzetTimes.rt + ` (${tzetElem.getAttribute('data-ikar-text')}: ${tzetTimes.ikar})`)
+		? tzetTimes.ikar.toLocaleString(...dtF)
+		: tzetTimes.rt.toLocaleString(...dtF) + ` (${tzetElem.getAttribute('data-ikar-text')}: ${tzetTimes.ikar.toLocaleString(...dtF)})`)
 } else {
-	tzetText = tzetTimes.ikar;
+	tzetText = tzetTimes.ikar.toLocaleString(...dtF);
 	if (!rabbinic && tzetElem.hasAttribute('data-rt-text'))
-		tzetText += ` (${tzetElem.getAttribute('data-rt-text')}: ${tzetTimes.rt})`
+		tzetText += ` (${tzetElem.getAttribute('data-rt-text')}: ${tzetTimes.rt.toLocaleString(...dtF)})`
 }
 tzetElem.appendChild(document.createTextNode(tzetText))

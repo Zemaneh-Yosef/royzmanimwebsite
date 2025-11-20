@@ -218,7 +218,7 @@ layout: nothing
 	}
 </style>
 
-<div id="content" data-current-page="1" data-page-count="2">
+<div id="content" data-current-page="1" data-page-count="4"  data-swap-time="8000">
 	<div id="bsD">בס“ד</div>
 	<img id="gne" src="/assets/images/shul-wall/ish-matzliach/logo.png" />
 	<div id="background"></div>
@@ -296,6 +296,9 @@ layout: nothing
 				</article>
 			{% endfor %}
 		</section>
+		<section id="weatherInsert" class="wideView" data-zfFind="weatherInsert">
+			
+		</section>
 	</div>
 </div>
 
@@ -319,4 +322,10 @@ layout: nothing
 		.map((url, index) =>
 			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
 		.join('');
+
+	/*const weatherData = await (await fetch('https://api.open-meteo.com/v1/forecast?latitude=40.6501&longitude=-73.9496&hourly=temperature_2m,weather_code,is_day&timezone=America%2FNew_York&forecast_days=1&timeformat=unixtime&temperature_unit=fahrenheit')).json();
+	weatherData.hourly.time.forEach((date, index) => {
+		const d = new Date(date);
+		
+	}) */
 </script>

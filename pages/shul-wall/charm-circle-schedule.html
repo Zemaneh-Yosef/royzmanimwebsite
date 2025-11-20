@@ -152,42 +152,7 @@ layout: nothing
 		flex-direction: column;
 	}
 
-	#content[data-current-page="1"] #limudSection,
-	#content[data-current-page="2"] #limudSection {
-		display: none;
-	}
-
-	#content[data-current-page="3"] #zemanehHayom,
-	#content[data-current-page="4"] #zemanehHayom {
-		display: none;
-	}
-
-	#content[data-current-page="1"] #shulShiurim,
-	#content[data-current-page="2"] #shulShiurim {
-		display: none;
-	}
-
-	#content[data-current-page="3"] #shulScheduling,
-	#content[data-current-page="4"] #shulScheduling {
-		display: none;
-	}
-
-	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
-		content: "מחר, ";
-		unicode-bidi: isolate;
-	}
-
-	#content[data-current-page="1"] .timeDisplayWide.nextDay::before {
-		content: "Tom., ";
-	}
-
-	#content[data-current-page="1"] .langTV:not(.lang-en),
-	#content[data-current-page="3"] .langTV:not(.lang-en) {
-		display: none;
-	}
-
-	#content[data-current-page="2"] .langTV:not(.lang-hb),
-	#content[data-current-page="4"] .langTV:not(.lang-hb) {
+	.langTV:not(.lang-en) {
 		display: none;
 	}
 
