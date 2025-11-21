@@ -6,6 +6,7 @@ import { zDTFromFunc } from "./ROYZmanim.js";
 
 /** @typedef {{ hb?: string, en?: string, "en-et"?: string; "ru"?: string; }} langType */
 /** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
+/** @typedef {{ function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }; round: "earlier"|"later"|"exact"}} zmanInfoList */
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
@@ -118,7 +119,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	/**
 	 * @param {boolean} independent
 	 * @param {import("./ROYZmanim.js").ZemanFunctions} zmanCalc
-	 * @param {{ [s: string]: { function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }; round: "earlier"|"later"|"exact"}; }} zmanList
+	 * @param {Record<string, zmanInfoList>} zmanList
 	 * @param {[string | string[], options?: Intl.DateTimeFormatOptions]} dtF
 	 */
 	getZmanimInfo(independent, zmanCalc, zmanList, dtF) {

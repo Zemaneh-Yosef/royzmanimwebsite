@@ -1,10 +1,12 @@
 // @ts-check
 
 import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import WebsiteCalendar from "../WebsiteCalendar.js";
 import { ZemanFunctions, methodNames } from "../ROYZmanim.js";
 import preSettings from "./preSettings.js";
 import { reload } from "./reload.js";
+
+/** @typedef {import("../WebsiteCalendar.js").zmanInfoList} zmanInfoList */
 
 if (!('timers' in window))
 	// @ts-ignore
@@ -16,7 +18,7 @@ const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc(
 const geoL = new GeoLocation(...glArgs);
 
 const dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
-const jCal = new WebsiteLimudCalendar(dateForSet);
+const jCal = new WebsiteCalendar(dateForSet);
 jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
 
 const zmanCalc = new ZemanFunctions(geoL, {
@@ -38,20 +40,39 @@ const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
 const calList = document.querySelector('[data-zfFind="calendarFormatter"]')
 const langList = calList.getAttribute('data-langPull').split(' ')
 
-/** @type {Parameters<typeof jCal.getZmanimInfo>[2]} */
-const zmanimList = Object.fromEntries(Array.from(calList.children)
-	.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), {
-		function: timeSlot.getAttribute('data-timeGetter'),
-		yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
-		luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
-		condition: timeSlot.getAttribute('data-condition'),
-		title: Object.fromEntries(['hb', 'en', 'en-et', 'ru'].map(lang => {
-			if (!timeSlot.querySelector(`span.langTV.lang-${lang}`))
-				return null;
+/**
+ * @param {Element} timeSlot
+ * @returns {[string, zmanInfoList]}
+ */
+function zmanListToFormat (timeSlot) {
+	/** @type {"degrees" | "seasonal"} */
+	//@ts-ignore
+	const luach = timeSlot.getAttribute('data-luachInclusive');
 
-			return [lang, timeSlot.querySelector(`span.langTV.lang-${lang}`).innerHTML];
-		}).filter(Boolean))
-	}])
+	/** @type {"earlier"|"later"|"exact"} */
+	// @ts-ignore
+	const round = timeSlot.getAttribute('data-round');
+
+	return [
+		timeSlot.getAttribute('data-zmanid'),
+		Object.freeze({
+			function: timeSlot.getAttribute('data-timeGetter'),
+			yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
+			luachInclusive: luach,
+			condition: timeSlot.getAttribute('data-condition'),
+			title: Object.fromEntries(['hb', 'en', 'en-et', 'ru'].map(lang => {
+				if (!timeSlot.querySelector(`span.langTV.lang-${lang}`))
+					return null;
+
+				return [lang, timeSlot.querySelector(`span.langTV.lang-${lang}`).innerHTML];
+			}).filter(Boolean)),
+			round,
+		})
+	]
+}
+
+const zmanimList = Object.fromEntries(Array.from(calList.children)
+	.map(timeSlot => zmanListToFormat(timeSlot))
 	.filter(
 		arrayEntry =>
 			arrayEntry[0] !== null

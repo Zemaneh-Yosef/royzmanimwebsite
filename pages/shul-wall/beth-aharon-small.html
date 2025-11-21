@@ -407,9 +407,10 @@ layout: nothing
 				<span class="langTV lang-en">Halachic Times</span>
 			</h1>
 			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en ru">
-				{% for item in site.data.tv.simpleTVZman %}
+				{% for item in site.data.tv.listTVZman %}
 					<article
 						data-zmanid="{{ item.id }}"
+						{% if item.round %}data-round="{{ item.round }}"{% endif %}
 						{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
 						{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
 						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
