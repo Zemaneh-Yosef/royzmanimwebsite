@@ -29,7 +29,7 @@ layout: nothing
 	}
 
 	#clock {
-		font-size: 5.5em;
+		font-size: 5em;
 		font-family: "dharma_gothic_e";
 	}
 
@@ -45,7 +45,7 @@ layout: nothing
 		line-height: 1;
 		height: 12vh;
 		align-items: center;
-		font-size: 1.15em;
+		font-size: .8em;
 		font-weight: 500;
 	}
 
@@ -82,10 +82,10 @@ layout: nothing
 		font-family: "Narkisim";
 		justify-self: end;
 		line-height: 1;
-		padding-right: 3rem;
+		padding-right: 1.5rem;
 		color: black;
 		font-size: 4rem;
-		padding-top: 1.5rem;
+		padding-top: .25rem;
 		align-self: start;
 		z-index: 3;
 	}
@@ -108,9 +108,9 @@ layout: nothing
 		background: rgba(0,0,0,.85);
 		border-top-left-radius: 50% 15%;
 		border-top-right-radius: 50% 15%;
-		padding: 1rem;
+		padding: .5rem;
 		box-shadow: 0 0 7px 5px black;
-		padding-top: 2.5rem;
+		padding-top: 1rem;
 	}
 
 	.carousel-item > img {
@@ -122,8 +122,8 @@ layout: nothing
 		height: 10vh;
 		justify-self: start;
 		align-self: start;
-		margin-top: .5rem;
-		margin-left: 1.5rem;
+		margin-top: .25rem;
+		margin-left: .75rem;
 		z-index: 3;
 	}
 
@@ -174,7 +174,7 @@ layout: nothing
 	.wideView > * {
 		width: 100%;
 		display: flex;
-		font-size: 1.5em;
+		font-size: 1em;
 		justify-content: space-between;
 	}
 
@@ -197,9 +197,9 @@ layout: nothing
 	}
 
 	.hiloulotCard .list-group-item {
-		--bs-list-group-item-padding-y: .25rem;
+		--bs-list-group-item-padding-y: .125rem;
 		--bs-list-group-border-color: #49505799;
-		--bs-list-group-item-padding-x: 1.25rem;
+		--bs-list-group-item-padding-x: 0;
 	}
 
 	.hiloulotCard .card-header {
@@ -209,18 +209,18 @@ layout: nothing
 	#megaline {
 		grid-column: 1 / span 4;
 		text-align: center;
-		font-size: 1.6em;
+		font-size: 1em;
 		margin-left: -1vw;
 		margin-right: -1vw;
 		background-color: white;
 		color: black;
-		padding-top: 1rem;
-		padding-bottom: 1rem;
+		padding-top: .5rem;
+		padding-bottom: .5rem;
 	}
 
 	#megalineCont {
-		border-top: 4px dashed black;
-		border-bottom: 4px dashed black;
+		border-top: 2px dashed black;
+		border-bottom: 2px dashed black;
 	}
 
 	#megalineCont > span {
@@ -249,12 +249,20 @@ layout: nothing
 	}
 
 	#dataGrid .list-group-item {
-		--bs-list-group-item-padding-y: .35rem;
+		--bs-list-group-item-padding-y: .15rem;
 		--bs-list-group-border-color: transparent;
         --bs-list-group-bg: transparent;
         --bs-list-group-color: #dee2e6;
-		--bs-list-group-item-padding-x: .75rem;
-		font-size: 1.35em;
+		--bs-list-group-item-padding-x: 0;
+		font-size: .85em;
+	}
+
+	#dataGrid h1 {
+		text-align: center;
+		margin-bottom: .15em;
+		margin-top: .2em;
+		line-height: 1;
+		font-size: 1.4rem;
 	}
 
 	.list-group {
@@ -280,7 +288,7 @@ layout: nothing
 	}
 </style>
 
-<div id="content" data-current-page="1" data-page-count="4" data-swap-time="8000">
+<div id="content" data-current-page="1" data-page-count="4" data-swap-time="10000">
 	<div id="bsD">בס"ד</div>
 	<img id="gne" src="https://zemaneh-yosef.github.io/extras/charm-circle/logo.png" />
 	<div class="blurOverlay"></div>
@@ -411,7 +419,7 @@ layout: nothing
 					</li>
 				</ul>
 			</div>
-			<h1 style="text-align: center;">
+			<!-- <h1 style="text-align: center;">
 				<span class="langTV lang-hb">לימוד יומי</span>
 				<span class="langTV lang-ru">лимуд ёми</span>
 				<span class="langTV lang-en">Daily Learning</span>
@@ -474,7 +482,7 @@ layout: nothing
 						<li class="list-group-item">There aren't any today</li>
 					</ul>
 				</div>
-			</div>
+			</div> -->
 		</div>
 		<div id="limudSection">
 			<h1 style="text-align: center;">Daily Shiurim</h1>
@@ -486,7 +494,7 @@ layout: nothing
 			<div class="carousel-inner">
 			</div>
 		</div>
-		<div id="shulScheduling">
+		<div id="shulScheduling" style="height: 67.5vh; overflow: hidden;">
 			<h1 style="text-align: center;">Weekday Schedule</h1>
 			<div class="card">
 				<ul class="list-group list-group-flush" id="weekdaySchCard">
@@ -520,6 +528,13 @@ layout: nothing
 		.map((url, index) =>
 			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
 		.join('');
+
+	const shulSchedule = document.getElementById('shulScheduling');
+	shulSchedule.innerHTML =
+		`<div class="marquee" style="--length: 40s; --gap: 1rem;">
+			<div class="marquee__content">${shulSchedule.innerHTML}</div>
+			<div aria-hidden="true" class="marquee__content">${shulSchedule.innerHTML}</div>
+		</div>`
 </script>
 
 <script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
