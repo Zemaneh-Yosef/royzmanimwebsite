@@ -102,7 +102,7 @@ layout: nothing
         box-shadow: 0 0 7px 5px black;
         padding-top: 2.5rem;
 		color: white;
-		font-size: 1.55rem;
+		font-size: 1.8rem;
     }
 
 	#dataGrid > *:not(.wideView):not(.marquee):not(:nth-child(2)) {
@@ -129,6 +129,7 @@ layout: nothing
 		align-self: end;
 		grid-column: 1 / span 3;
 		color: black;
+		font-size: 1.4rem;
 	}
 
     #content[data-current-page="2"] .timeDisplayWide.nextDay::before {
@@ -137,6 +138,7 @@ layout: nothing
 
     #content[data-current-page="1"] .timeDisplayWide.nextDay::before {
         content: "מחר, ";
+		unicode-bidi: isolate;
     }
 
 	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
