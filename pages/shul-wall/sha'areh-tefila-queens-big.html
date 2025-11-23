@@ -68,18 +68,6 @@ layout: nothing
 		text-align: center;
 	}
 
-	#bsD {
-        font-family: "Narkisim";
-		justify-self: end;
-		line-height: 1;
-		padding-right: 3rem;
-		color: black;
-		font-size: 4rem;
-		padding-top: 1.5rem;
-		align-self: start;
-		z-index: 3;
-    }
-
 	#dataGrid {
 		margin-left: 1vw;
         margin-right: 1vw;
@@ -87,7 +75,7 @@ layout: nothing
         margin-bottom: 5vh;
 		z-index: 5;
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-columns: 1fr .75fr 1fr;
 		grid-template-rows: 1fr auto auto;
 		align-items: center;
 		row-gap: 16px;
@@ -102,7 +90,7 @@ layout: nothing
         box-shadow: 0 0 7px 5px black;
         padding-top: 2.5rem;
 		color: white;
-		font-size: 1.8rem;
+		font-size: 2rem;
     }
 
 	#dataGrid > *:not(.wideView):not(.marquee):not(:nth-child(2)) {
@@ -129,20 +117,28 @@ layout: nothing
 		align-self: end;
 		grid-column: 1 / span 3;
 		color: black;
-		font-size: 1.4rem;
+		font-size: 1.6rem;
 	}
 
-    #content[data-current-page="2"] .timeDisplayWide.nextDay::before {
-        content: "завтра, ";
-    }
-
-    #content[data-current-page="1"] .timeDisplayWide.nextDay::before {
-        content: "מחר, ";
-		unicode-bidi: isolate;
-    }
-
 	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
-        content: "Tom., ";
+		content: "(Tomorrow)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
+    }
+
+	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
+		content: "(Завтра)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
+    }
+
+	#content[data-current-page="1"] .timeDisplayWide.nextDay::before {
+		content: "(מחר)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
     }
 
 	#content[data-current-page="1"] .langTV:not(.lang-hb) {

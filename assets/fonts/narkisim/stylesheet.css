@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Narkisim';
+    src: url('Narkisim.woff2') format('woff2'),
+        url('Narkisim.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

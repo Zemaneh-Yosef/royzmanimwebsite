@@ -16,15 +16,15 @@
     hb: משיכיר
     et: Misheyakir
     en: Misheyakir
-    ru: талит и тфилин
+    ru: Мишеякир
 - id: sunriseNoVisual
   timeGetter: getNetz
   round: later
   names:
     hb: הנץ
-    ru: Восход солнца
-    et: HaNetz
+    et: Ha'Netz
     en: Sunrise
+    ru: Восход
 - id: latestShmaMGA
   timeGetter: getSofZemanShemaMGA
   round: earlier
@@ -38,7 +38,7 @@
   round: earlier
   names:
     hb: שמע גר'א
-    ru: шма Гра
+    ru: шма Гр"а
     en: Shema GR"A
     et: Shema GR"A
 - id: SofZmanAchilatChametz
