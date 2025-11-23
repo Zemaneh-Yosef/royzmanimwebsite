@@ -61,6 +61,7 @@ layout: nothing
 		display: grid;
 		justify-content: center;
 		padding-bottom: 1rem;
+		font-size: 1.25em;
 	}
 
 	#quickTimes i {
@@ -79,7 +80,7 @@ layout: nothing
 		grid-template-rows: 1fr auto auto;
 		align-items: center;
 		row-gap: 16px;
-		column-gap: 2vw;
+		column-gap: 1.75vw;
 	}
 
     #dataGrid > *:not(.wideView):not(.marquee) {
@@ -88,10 +89,14 @@ layout: nothing
         border-top-right-radius: 50% 15%;
         padding: 1rem;
         box-shadow: 0 0 7px 5px black;
-        padding-top: 2.5rem;
+        padding-top: 1.75rem;
 		color: white;
 		font-size: 2rem;
     }
+
+	#dataGrid h1 {
+		font-size: 3.25rem;
+	}
 
 	#dataGrid > *:not(.wideView):not(.marquee):not(:nth-child(2)) {
 		height: 100%;
