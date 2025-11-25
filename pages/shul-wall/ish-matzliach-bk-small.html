@@ -142,11 +142,13 @@ layout: nothing
 		font-size: .9em;
 	}
 
-	#content[data-current-page="1"] .langTV.lang-en {
+	#content[data-current-page="1"] .langTV.lang-en,
+	#content[data-current-page="3"] .langTV.lang-en {
 		display: none;
 	}
 
-	#content[data-current-page="2"] .langTV.lang-hb {
+	#content[data-current-page="2"] .langTV.lang-hb,
+	#content[data-current-page="4"] .langTV.lang-hb {
 		display: none;
 	}
 
@@ -280,7 +282,7 @@ layout: nothing
 			</div>
 		</div>
 		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
-			{% for item in site.data.tv.simpleTVZman %}
+			{% for item in site.data.tv.listTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
 					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
