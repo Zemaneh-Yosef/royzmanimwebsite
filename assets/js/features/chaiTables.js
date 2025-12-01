@@ -37,13 +37,15 @@ const searchRadius = [
 ]
 
 export default class ChaiTables {
-	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
+	/** @param {import('../zmanimListUpdater.js').default|{geoLocation: KosherZmanim.GeoLocation; jCal: import('../WebsiteCalendar.js').default}} zmanLister  */
 	constructor(zmanLister) {
 		this.zmanLister = zmanLister;
 		this.geoL = zmanLister.geoLocation;
-		this.modal = new window.bootstrap.Modal(document.getElementById("ctModal"));
 
-		this.initForm();
+		if (document.getElementById("ctModal")) {
+			this.modal = new window.bootstrap.Modal(document.getElementById("ctModal"));
+			this.initForm();
+		}
 	}
 
 	/**
@@ -106,9 +108,9 @@ export default class ChaiTables {
 			});
 		} else {
 			Object.assign(urlParams, {
+				searchradius,
 				TableType: "Chai",
 				USAcities1: this.indexOfMetroArea,
-				searchradius: searchradius,
 				eroslatitude: this.geoL.getLatitude(),
 				eroslongitude: -this.geoL.getLongitude(),
 				MetroArea: "jerusalem"
@@ -182,13 +184,13 @@ export default class ChaiTables {
 				const [hour, minute, second] = zmanTime.split(":").map(time => parseInt(time))
 				const time = loopCal.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour, minute, second })
 
-				console.log({
+				/* console.log({
 					jDate: loopCal.getDate().toString({ calendarName: "always" }),
-					ctScrapeMonth: zmanTable.rows[0].cells[monthIndex].innerText,
+					ctScrapeMonth: zmanTable.rows[0].cells[monthIndex].innerText.trim(),
 					ctScrapeDay: parseInt(zmanTable.rows[rowIndex].cells[0].innerText),
 					zmanTime,
 					time: time.toLocaleString()
-				})
+				}) */
 
 				// ensure that we're not adding times from the previous days
 				// unless it's from the beginning of either the jewish or secular month (whichever is earlier)
@@ -201,13 +203,16 @@ export default class ChaiTables {
 	}
 
 	async formatInterfacer() {
-		const calendar = new KosherZmanim.JewishDate();
+		const calendar = new KosherZmanim.JewishDate(
+			this.zmanLister.jCal.getJewishYear(),
+			this.zmanLister.jCal.getJewishMonth(),
+			this.zmanLister.jCal.getJewishDayOfMonth()
+		);
 
-		/** @type {{lng: number; lat: number; times: number[]}} */
+		/** @type {{url: string; times: number[]}} */
 		const data = {
-			lng: this.geoL.getLongitude(),
-			lat: this.geoL.getLatitude(),
-			times: []
+			times: [],
+			url: ''
 		}
 
 		let smallestRadius;
@@ -270,6 +275,10 @@ export default class ChaiTables {
 			}
 		}
 
+		const urlNoYear = this.getChaiTablesLink(smallestRadius, 0, calendar, 413);
+		urlNoYear.searchParams.delete('cgi_yrheb');
+		data.url = urlNoYear.toString();
+
 		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 2; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
 			if (calendar.getJewishYear() !== yearloop.getJewishYear()) {
 				yearloop.setJewishMonth(KosherZmanim.JewishCalendar.TISHREI);
@@ -301,6 +310,7 @@ export default class ChaiTables {
 			data.times.push(...this.extractTimes(ctDoc, yearloop))
 		}
 
+		data.times.sort();
 		return data;
 	}
 
@@ -373,6 +383,7 @@ export default class ChaiTables {
 			submitBtn.setAttribute('disabled', '')
 			submitBtn.classList.add("sbmitl")
 			const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
+
 			this.setOtherData(selectors[0].value, parseInt(selectedMASel.selectedOptions[0].value));
 			const ctData = await this.formatInterfacer();
 
@@ -387,8 +398,11 @@ export default class ChaiTables {
 			this.modal.hide();
 
 			const prevDate = this.zmanLister.jCal.getDate();
-			this.zmanLister.resetCalendar();
-			this.zmanLister.changeDate(prevDate);
+			if ('resetCalendar' in this.zmanLister)
+				this.zmanLister.resetCalendar();
+
+			if ('changeDate' in this.zmanLister)
+				this.zmanLister.changeDate(prevDate);
 
 			submitBtn.classList.remove("sbmitl");
 		});

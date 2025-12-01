@@ -26,12 +26,26 @@ const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc(
 const geoL = new GeoLocation(...glArgs);
 
 const zmanCalc = new ZemanFunctions(geoL, {
-		elevation: (geoL.getLocationName() || "").toLowerCase().includes('israel'),
-		rtKulah: preSettings.calendarToggle.rtKulah(),
-		candleLighting: preSettings.customTimes.candleLighting(),
-		fixedMil: preSettings.calendarToggle.forceSunSeasonal() || (geoL.getLocationName() || "").toLowerCase().includes('israel'),
-		melakha: preSettings.customTimes.tzeithIssurMelakha()
-	})
+	elevation: (geoL.getLocationName() || "").toLowerCase().includes('israel'),
+	rtKulah: preSettings.calendarToggle.rtKulah(),
+	candleLighting: preSettings.customTimes.candleLighting(),
+	fixedMil: preSettings.calendarToggle.forceSunSeasonal() || (geoL.getLocationName() || "").toLowerCase().includes('israel'),
+	melakha: preSettings.customTimes.tzeithIssurMelakha()
+});
+
+/** @type {number[]} */
+let availableVS = [];
+if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
+	const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
+	if ('url' in ctNetz) {
+		const ctNetzLink = new URL(ctNetz.url);
+
+		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoL.getLatitude().toString()
+		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoL.getLongitude()).toString())
+			availableVS = ctNetz.times
+	}
+}
+zmanCalc.setVisualSunrise(availableVS);
 
 /** @type {HTMLElement} */
 // @ts-ignore
@@ -163,6 +177,18 @@ function rangeDates(start, middle, end, inclusive=true) {
 	const acceptedValues = [1];
 	if (inclusive)
 	  acceptedValues.push(0);
-  
+
 	return acceptedValues.includes(Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(Temporal.ZonedDateTime.compare(end, middle))
 };
+
+/**
+ * @param {string} str
+ */
+function isValidJSON(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}

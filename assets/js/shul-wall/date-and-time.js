@@ -16,7 +16,7 @@ if (!('timers' in window))
 	window.timers = {}
 
 function updateTime() {
-	const curTime = Temporal.Now.zonedDateTimeISO().withTimeZone(preSettings.location.timezone());
+	const curTime = Temporal.Now.zonedDateTimeISO(preSettings.location.timezone());
 	const textHour = (curTime.hour - ((curTime.hour >= 13 && portElem) ? 12 : 0)).toString().padStart(2, '0')
 
 	if (Math.abs(parseInt(hourElem.innerHTML) - parseInt(textHour)) > 1 && !(hourElem.innerHTML == "12" && curTime.hour == 1)) {
@@ -41,7 +41,9 @@ function updateTime() {
 }
 updateTime();
 
-const jCal = new WebsiteCalendar();
+const dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
+const jCal = new WebsiteCalendar(dateForSet);
+
 const enDate = document.querySelector('[data-en-date]');
 if (enDate)
 	enDate.innerHTML = jCal.getDayOfTheWeek().en + ", " + jCal.dateRenderer('en').primary.text;

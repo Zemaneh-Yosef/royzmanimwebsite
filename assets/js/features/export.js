@@ -207,13 +207,7 @@ export default class exportFriendly {
 
 		const { year: isoYear, calendarId: isoCalendar } = zmanLister.jCal.getDate()
 
-		let availableVS = [];
-		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-			const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-			if (ctNetz.lat == zmanLister.geoLocation.getLatitude()
-			&& ctNetz.lng == zmanLister.geoLocation.getLongitude())
-				availableVS = ctNetz.times
-		}
+		let availableVS = zmanLister.zmanCalc.vSunrise.preservedInts;
 
 		/** @type {Parameters<import('./excelPrepare.js')["default"]>} */
 		const excelParams = [
@@ -281,17 +275,5 @@ export default class exportFriendly {
 					await postDataReceive();
 			}
 		}
-	}
-}
-
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-	try {
-		JSON.parse(str);
-		return true;
-	} catch (e) {
-		return false;
 	}
 }

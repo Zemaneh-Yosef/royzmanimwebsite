@@ -30,6 +30,20 @@ const zmanCalc = new ZemanFunctions(geoL, {
 })
 zmanCalc.setDate(dateForSet);
 
+/** @type {number[]} */
+let availableVS = [];
+if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
+	const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
+	if ('url' in ctNetz) {
+		const ctNetzLink = new URL(ctNetz.url);
+
+		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoL.getLatitude().toString()
+		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoL.getLongitude()).toString())
+			availableVS = ctNetz.times
+	}
+}
+zmanCalc.setVisualSunrise(availableVS);
+
 /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
 	hourCycle: preSettings.timeFormat(),
@@ -102,8 +116,9 @@ for (const elem of Array.from(calList.children)) {
 	elem.remove()
 }
 
-const sortedTimes = Object.values(timesDataList).sort((a, b) => Temporal.ZonedDateTime.compare(a.zDTObj, b.zDTObj));
-for (const timeData of sortedTimes) {
+const sortedTimes = Object.entries(timesDataList).sort((a, b) => Temporal.ZonedDateTime.compare(a[1].zDTObj, b[1].zDTObj));
+for (const timeListing of sortedTimes) {
+	const timeData = timeListing[1];
 	const artElem = document.createElement('article');
 
 	const artTitles = langList.map(lang => {
@@ -117,7 +132,7 @@ for (const timeData of sortedTimes) {
 		artElem.appendChild(titleElem);
 
 	const artTime = document.createElement('div');
-	artTime.appendChild(document.createTextNode(timeData.zDTObj.toLocaleString(...dtF)));
+	artTime.appendChild(document.createTextNode(timeData.zDTObj.toLocaleString(...timeData.dtF)));
 	artTime.classList.add('timeDisplayWide')
 	if (Temporal.PlainDate.compare(timeData.zDTObj, dateForSet) == 1)
 		artTime.classList.add("nextDay");
@@ -128,6 +143,7 @@ for (const timeData of sortedTimes) {
 		: row.title.en.startsWith("Shema");
 	if (curTimeIsShema(timeData) && calList.hasAttribute('data-primaryShema')) {
 		const shemaTimes = sortedTimes
+			.map(arrayEntry => arrayEntry[1])
 			.filter(curTimeIsShema)
 			.map(zmanObj => zmanObj.zDTObj.toPlainDate());
 
@@ -139,6 +155,7 @@ for (const timeData of sortedTimes) {
 				titleElem.innerHTML = titleElem.innerHTML.split(" ")[0];
 
 			const secondShemaZmanObj = sortedTimes
+				.map(arrayEntry => arrayEntry[1])
 				.find(zmanObj => zmanObj.title.hb.startsWith("שמע") && zmanObj.function !== calList.getAttribute('data-primaryShema'));
 			const secondShemaElem = document.createElement('div');
 			secondShemaElem.classList.add('secondShemaDispl');
@@ -158,9 +175,9 @@ for (const timeData of sortedTimes) {
 	calList.appendChild(artElem)
 }
 
-let timeForReload = sortedTimes[0].zDTObj;
+let timeForReload = sortedTimes[0][1].zDTObj;
 if (jCal.tomorrow().isChanukah() && ![6, 7].includes(jCal.getDayOfWeek())) {
-	switch (sortedTimes[0].function) {
+	switch (sortedTimes[0][1].function) {
 		case 'getTzet':
 			timeForReload = timeForReload.add({ minutes: 30 });
 			break;
@@ -178,3 +195,15 @@ if (timeForReload)
 		async () => await reload(),
 		Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())
 			.until(timeForReload).total('milliseconds') + 1000)
+
+/**
+ * @param {string} str
+ */
+function isValidJSON(str) {
+	try {
+		JSON.parse(str);
+		return true;
+	} catch (e) {
+		return false;
+	}
+}

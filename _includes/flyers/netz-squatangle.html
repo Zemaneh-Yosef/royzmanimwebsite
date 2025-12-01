@@ -1,0 +1,202 @@
+<style>
+
+.maxWidthContainer {
+  width: clamp(16rem, 90vw, 90rem);
+  font-family: 'Neutro', 'Frank Ruhl Libre';
+  color: #30344F;
+}
+
+#sidebar,
+.navbar {
+  display: none !important;
+}
+
+#flyerContainer {
+  width: 100%;
+  aspect-ratio: 4/3;
+  display: grid;
+  grid-template-columns: 40% 60%;
+  grid-template-rows: 55% 45%;
+
+  align-items: start;
+
+  overflow: hidden;
+}
+
+#leftStyle {
+  grid-column: 1;
+  grid-row: 1;
+
+  text-align: center;
+  font-family: "Guttman Mantova-Decor";
+  color: white;
+  font-size: 3.75rem;
+
+  filter: drop-shadow(0px 5px 4px rgba(0,0,0,.85));
+  z-index: 2;
+}
+
+#leftStyle img {
+  width: 52.5%;
+  filter: brightness(1.35);
+  margin-top: 1rem;
+}
+
+#backgroundImage {
+  grid-column: 1 / span 2;
+  grid-row: 1 / span 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: -1;
+
+  filter: brightness(.95);
+}
+
+#ohrHatoraPhysical {
+  grid-column: 1;
+  grid-row: 2;
+
+  align-self: center;
+}
+
+#ohrHatoraPhysical img {
+  width: 100%;
+}
+
+#downGradient {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent 20%, black 100%);
+  z-index: 5;
+}
+
+#joinUs {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: end;
+  margin-bottom: 1rem;
+
+  color: white;
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+
+  z-index: 6;
+}
+
+#weeklySchedule {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  height: -webkit-fill-available;
+
+  margin: 2rem;
+  padding: 1rem;
+  padding-bottom: 2rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  text-align: center;
+
+  z-index: 6;
+  border-radius: 5rem;
+
+  color: white;
+  background-color: #00000088;
+
+  line-height: 1.3;
+}
+
+#weeklySchedule h1 {
+  margin-bottom: 0;
+  font-weight: 700;
+
+  font-size: 3.5rem;
+  font-family: "Barlow";
+}
+
+#weekNotice {
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+.dayOfWeek {
+  padding-top: 1rem;
+  font-size: 1.6em;
+}
+
+.timeDisplay {
+  font-size: 3rem;
+  font-weight: 600;
+  font-family: "Barlow";
+}
+
+.secondDisplay {
+  font-weight: 400;
+}
+</style>
+
+<div id="flyerContainer">
+  <img src="/assets/images/splash.jpg" id="backgroundImage">
+  <div id="downGradient"></div>
+  <div id="leftStyle">
+    <img src="/assets/images/ohr-hatora-netz/ohr hatora.png"><br>מניין בהנץ החמה
+  </div>
+  <div id="ohrHatoraPhysical">
+    <img src="/assets/images/ohr-hatora-netz/shul_physical.png">
+  </div>
+  <div id="joinUs">
+    Join us! Learning to follow prayer!<br>
+    141-32 73<sup>rd</sup> Ave
+  </div>
+  <div id="weeklySchedule">
+    <h1>Daily Schedule</h1>
+    <p id="weekNotice">Week of November 30<sup>th</sup></p>
+    <table style="width: 100%; text-align: center; line-height: 1.2; font-size: 1.9rem; margin-bottom: 1.6rem;">
+      <thead>
+        <tr>
+          <th style="width: 45%;"></th>
+          <th style="width: 27.5%; font-size: 4rem;">הודו</th>
+          <th style="width: 27.5%; font-size: .8rem;"><div style="font-size: 4rem;">עמידה</div>(Within 30 seconds of this time)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="dayOfWeek">Sunday</div>November 30<sup>th</sup></td>
+          <td class="timeDisplay">6:37</td>
+          <td class="timeDisplay">6:57<span class="secondDisplay">:51</span></td>
+        </tr>
+        <tr>
+          <td><div class="dayOfWeek">Monday</div>December 1<sup>st</sup></td>
+          <td class="timeDisplay">6:38</td>
+          <td class="timeDisplay">6:58<span class="secondDisplay">:50</span></td>
+        </tr>
+        <tr>
+          <td><div class="dayOfWeek">Tuesday</div>December 2<sup>nd</sup></td>
+          <td class="timeDisplay">6:39</td>
+          <td class="timeDisplay">6:59<span class="secondDisplay">:50</span></td>
+        </tr>
+        <tr>
+          <td><div class="dayOfWeek">Wednesday</div>December 3<sup>rd</sup></td>
+          <td class="timeDisplay">6:40</td>
+          <td class="timeDisplay">7:00<span class="secondDisplay">:52</span></td>
+        </tr>
+        <tr>
+          <td><div class="dayOfWeek">Thursday</div>December 4<sup>th</sup></td>
+          <td class="timeDisplay">6:41</td>
+          <td class="timeDisplay">7:01<span class="secondDisplay">:48</span></td>
+        </tr>
+        <tr>
+          <td><div class="dayOfWeek">Friday</div>December 5<sup>th</sup></td>
+          <td class="timeDisplay">6:42</td>
+          <td class="timeDisplay">7:02<span class="secondDisplay">:45</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <span style="font-size: .8em; color: #DDDDDD">
+      Visual Sunrise times generated from ChaiTables (לוח בכורי יוסף), provided via <span style="font-family: 'Guttman Mantova-Decor';">זמני יוסף</span>
+    </span>
+  </div>
+</div>

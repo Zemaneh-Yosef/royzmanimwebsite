@@ -859,7 +859,7 @@ function messageHandler (x) {
 				firstDayYTObj.rabbenuTam = handleRound(zmanCalc.chainDate(hametzDate).getTzetRT(), 'later');
 			}
 
-			firstDayYTObj.hatzotLayla = handleRound(zmanCalc.chainDate(hametzDate).getHatzoth(), 'earlier');
+			let hatzotTime = zmanCalc.chainDate(hametzDate).getSolarMidnight().toPlainTime();
 
 			if (x.data.israel) {
 				const pesahDate = hametzDate.add({ days: 1 });
@@ -887,7 +887,8 @@ function messageHandler (x) {
 					secondDayYTObj.rabbenuTam = handleRound(zmanCalc.chainDate(pesahDate).getTzetRT(), 'later');
 				}
 
-				secondDayYTObj.hatzotLayla = handleRound(zmanCalc.chainDate(pesahDate).getHatzoth(), 'earlier');
+				if (Temporal.PlainTime.compare(hatzotTime, zmanCalc.chainDate(pesahDate).getSolarMidnight().toPlainTime()) == 1)
+					hatzotTime = zmanCalc.chainDate(pesahDate).getSolarMidnight().toPlainTime();
 
 				highlightPesah.datesToZman.set(pesahDate.add({ days: 1 }),
 					pesahDate.add({ days: 1 }).dayOfWeek == 5
@@ -904,6 +905,12 @@ function messageHandler (x) {
 					});
 				}
 			}
+
+			highlightPesah.extra =
+				(x.data.lang == 'hb' ? "תשלים הלל לפני " : "Conclude Hallel before ")
+				+ hatzotTime.toLocaleString(...defaulTF)
+				+ '<br>'
+				+ (x.data.lang == 'hb' ? "ממוסף ואילך, אומרים מוריד הטל וברכנו" : "From Mussaf onwards, we say מוריד הטל and ברכנו");
 
 			highlightZmanim.push(highlightPesah);
 		} else if ([WebsiteLimudCalendar.EREV_YOM_KIPPUR, WebsiteLimudCalendar.YOM_KIPPUR].includes(jCal.getYomTovIndex())) {

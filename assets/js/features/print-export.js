@@ -76,13 +76,18 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
 	})
 	.join(" ");
 
+
 /** @type {number[]} */
 let availableVS = [];
 if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
 	const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-	if (ctNetz.lat == geoLocation.getLatitude()
-	 && ctNetz.lng == geoLocation.getLongitude())
-		availableVS = ctNetz.times
+	if ('url' in ctNetz) {
+		const ctNetzLink = new URL(ctNetz.url);
+
+		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toString()
+		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toString())
+			availableVS = ctNetz.times
+	}
 }
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];

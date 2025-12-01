@@ -62,6 +62,29 @@ switch (window.location.href.split('/').pop()) {
 	case 'cc-yamim-noraim':
 	case 'charm-circle-chol':
 	case 'charm-circle-schedule-ocol':
+		preSetSettings = Object.freeze({
+			seconds: () => false,
+			timeFormat: () => 'h12',
+			language: () => 'en',
+			location: {
+				name: () => "Charm Circle",
+				lat: () => 40.72068460693191,
+				long: () => -73.82563608692345,
+				elevation: () => 0,
+				timezone: () => "America/New_York"
+			},
+			calendarToggle: {
+				rtKulah: () => true,
+				tekufaMidpoint: () => 'hatzoth',
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
+			},
+			customTimes: {
+				candleLighting: () => 20,
+				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.165 })
+			}
+		});
+		break;
 	case 'beth-aharon':
 	case 'beth-aharon-small':
 		preSetSettings = Object.freeze({
@@ -69,9 +92,33 @@ switch (window.location.href.split('/').pop()) {
 			timeFormat: () => 'h12',
 			language: () => 'en',
 			location: {
-				name: () => "מרכז בני עליה",
-				lat: () => 40.724398257899246,
-				long: () => -73.82106240353995,
+				name: () => "Beth Aharon",
+				lat: () => 40.70831303021189,
+				long: () => -73.83357702409961,
+				elevation: () => 0,
+				timezone: () => "America/New_York"
+			},
+			calendarToggle: {
+				rtKulah: () => true,
+				tekufaMidpoint: () => 'hatzoth',
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
+			},
+			customTimes: {
+				candleLighting: () => 20,
+				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.165 })
+			}
+		});
+		break;
+	case 'ahavat-achim':
+		preSetSettings = Object.freeze({
+			seconds: () => false,
+			timeFormat: () => 'h12',
+			language: () => 'en',
+			location: {
+				name: () => "Ahavat Achim",
+				lat: () => 40.721502,
+				long: () => -73.811808,
 				elevation: () => 0,
 				timezone: () => "America/New_York"
 			},
@@ -88,15 +135,14 @@ switch (window.location.href.split('/').pop()) {
 		});
 		break;
 	case 'ohel-michael-adj':
-	case 'ahavat-achim':
 		preSetSettings = Object.freeze({
 			seconds: () => false,
 			timeFormat: () => 'h12',
 			language: () => 'en',
 			location: {
 				name: () => "Ohel Michael",
-				lat: () => 40.721502,
-				long: () => -73.811808,
+				lat: () => 40.72208492546707,
+				long: () => -73.81728435082479,
 				elevation: () => 0,
 				timezone: () => "America/New_York"
 			},
@@ -145,6 +191,29 @@ switch (window.location.href.split('/').pop()) {
 				name: () => "Ateret Marjan",
 				lat: () => 34.164749,
 				long: () => -118.525887,
+				elevation: () => 0,
+				timezone: () => "America/Los_Angeles"
+			},
+			calendarToggle: {
+				rtKulah: () => true,
+				tekufaMidpoint: () => 'hatzoth',
+				tekufaCalc: () => 'shemuel',
+				forceSunSeasonal: () => false,
+			},
+			customTimes: {
+				candleLighting: () => 20,
+				tzeithIssurMelakha: () => ({ minutes: 30, degree: 7.165 })
+			}
+		});
+	case 'mishkan-torah':
+		preSetSettings = Object.freeze({
+			seconds: () => false,
+			timeFormat: () => 'h12',
+			language: () => 'en',
+			location: {
+				name: () => "Ateret Marjan",
+				lat: () => 34.1712077962039,
+				long: () => -118.53573149986414,
 				elevation: () => 0,
 				timezone: () => "America/Los_Angeles"
 			},

@@ -17,7 +17,7 @@
     et: Misheyakir
     en: Misheyakir
     ru: Мишеякир
-- id: sunriseNoVisual
+- id: sunrise
   timeGetter: getNetz
   round: later
   names:
