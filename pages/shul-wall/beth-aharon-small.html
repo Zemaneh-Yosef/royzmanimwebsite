@@ -98,12 +98,27 @@ layout: nothing
 
 	#dataGrid > *:not(#megaline):not(#ishMatzliachSlide) {
 		height: 100%;
-		background: rgba(0,0,0,.85);
 		border-top-left-radius: 50% 15%;
 		border-top-right-radius: 50% 15%;
 		padding: .5rem;
 		padding-top: 1rem;
 		box-shadow: 0 0 7px 5px black;
+		position: relative;
+	}
+
+	#dataGrid > *:not(#megaline):not(#ishMatzliachSlide)::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: url("https://zemaneh-yosef.github.io/extras/Copilot_20251117_181254.png");
+		opacity: 90%;
+		filter: brightness(70%);
+		border-top-left-radius: 50% 15%;
+		border-top-right-radius: 50% 15%;
+		z-index: -1;
 	}
 
 	#gne {
@@ -324,7 +339,6 @@ layout: nothing
 	}
 
 	dl[data-zfFind="DafYomi"] {
-		background: rgba(0,0,0,.85);
 		border-top-left-radius: 50% 25%;
 		border-top-right-radius: 50% 25%;
 		padding: .5rem;
@@ -332,10 +346,25 @@ layout: nothing
 		padding-bottom: 0;
 		box-shadow: 0 0 7px 5px black;
 		color: white;
+		position: relative;
+	}
+
+	dl[data-zfFind="DafYomi"]::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: url("https://zemaneh-yosef.github.io/extras/Copilot_20251117_181254.png");
+		opacity: 90%;
+		filter: brightness(70%);
+		border-top-left-radius: 50% 25%;
+		border-top-right-radius: 50% 25%;
+		z-index: -1;
 	}
 
 	.hiloulotCard {
-		background: rgba(0,0,0,.85);
 		border-top-left-radius: 50% 15%;
 		border-top-right-radius: 50% 15%;
 		padding: .5rem;
@@ -343,6 +372,22 @@ layout: nothing
 		padding-bottom: 0;
 		box-shadow: 0 0 7px 5px black;
 		color: white;
+		position: relative;
+	}
+
+	.hiloulotCard::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: url("https://zemaneh-yosef.github.io/extras/Copilot_20251117_181254.png");
+		opacity: 90%;
+		filter: brightness(70%);
+		border-top-left-radius: 50% 15%;
+		border-top-right-radius: 50% 15%;
+		z-index: -1;
 	}
 </style>
 
@@ -380,9 +425,26 @@ layout: nothing
 		<div id="megaline">
 			<div id="megalineCont">
 				<span data-zfFind="BirchatHalevana">
-					Birkat Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
-					<span data-zfFind="starts-tonight"> - Starts tonight</span>
-					<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					<span class="langTV lang-en">
+						Birkat Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+					<span class="langTV lang-en-et">
+						Birkat Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+					<span class="langTV lang-hb">
+						ברכת הלבנה (עד ליל <span data-zfReplace="date-hb-end"></span>)
+						<span data-zfFind="starts-tonight"> - מתחיל בלילה</span>
+						<span data-zfFind="ends-tonight"> - מסיים בלילה</span>
+					</span>
+					<span class="langTV lang-ru">
+						Биркат Ха-Левана (до ночи <span data-zfReplace="date-ru-end"></span>)
+						<span data-zfFind="starts-tonight"> - Начинается сегодня вечером</span>
+						<span data-zfFind="ends-tonight"> - Заканчивается сегодня вечером</span>
+					</span>
 				</span>
 				<span data-zfReplace="Tachanun">
 					<span data-zfFind="0">
