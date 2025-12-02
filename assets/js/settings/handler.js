@@ -30,11 +30,10 @@ const settings = Object.freeze({
 			return settingsURLOverride("timeFormat");
 
 		let local = this.language() == 'hb' ? 'he' : 'en'
-		const testTime = (new Intl.DateTimeFormat(local, { timeStyle: "short" })).format(new Date().setHours(0,0,0,0));
-		if (testTime.endsWith('AM'))
-			return testTime.startsWith('0') ? 'h11' : 'h12';
-		else
-			return testTime.startsWith('2') ? 'h24' : 'h23'
+		if (navigator.languages.find(lang => lang.startsWith(local)))
+			local = navigator.languages.find(lang => lang.startsWith(local));
+
+		return (new Intl.Locale(local)).hourCycle;
 	},
 	/** @returns {'hb'|'en'|'en-et'} */
 	language: () => {
