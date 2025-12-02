@@ -1,52 +1,52 @@
 ---
 - timeGetter: getAlotHashahar
   names:
-    hb: עלות
+    he: עלות
     et: Alot
     en: Dawn
 - timeGetter: getMisheyakir
   names:
-    hb: משיכיר
+    he: משיכיר
     et: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
   names:
-    hb: הנץ
+    he: הנץ
     et: HaNetz
     en: Sunrise
 - timeGetter: min-shema
   names:
-    hb: זמן שמע
+    he: זמן שמע
     et: Zeman Shema
     en: Latest Shema
 - timeGetter: getSofZemanBerakhothShema
   names:
-    hb: זמן שחרית
+    he: זמן שחרית
     et: Zeman Shaḥarit
     en: Latest Shaḥarit
 - timeGetter: getHatzoth
   names:
-    hb: חצות
+    he: חצות
     et: Ḥatsoth
     en: Midday
 - timeGetter: min-minha
   names:
-    hb: זמן מנחה
+    he: זמן מנחה
     et: Zeman Minḥa
     en: Minḥa Ketana
 - timeGetter: min-pelag
   names:
-    hb: פלג המנחה
+    he: פלג המנחה
     et: Early Arvit<br>("Pelag")
     en: Early Arvit<br>("Pelag")
 - timeGetter: getShkiya
   names:
-    hb: שקיעה
+    he: שקיעה
     et: Sheqi'a
     en: Sunset
 - timeGetter: min-tzet
   names:
-    hb: לילה
+    he: לילה
     et: Night
     en: Nightfall
 - timeGetter: blank

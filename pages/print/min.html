@@ -227,20 +227,20 @@ layout: nothing
 		{% for item in site.data.print.min-printOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
-			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-hb">{{ item.names.he }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% for shita in item.shitot %}
 		<div class="tableHeader" data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
-			<span class="lang lang-hb">{{ shita.names.hb }}</span>
+			<span class="lang lang-hb">{{ shita.names.he }}</span>
 			<span class="lang lang-et">{{ shita.names.et }}</span>
 			<span class="lang lang-en">{{ shita.names.en }}</span>
 		</div>
 		{% endfor %}
 		{% else %}
 		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}">
-			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-hb">{{ item.names.he }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>

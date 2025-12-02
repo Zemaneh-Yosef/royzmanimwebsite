@@ -253,20 +253,20 @@ layout: nothing
 		<div class="tableHeader"
 			data-zyHeaderContainer
 			style="--amount: {% for shita in item.shitot %}{{forloop.length}}{% break %}{% endfor %};">
-			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-hb">{{ item.names.he }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% for shita in item.shitot %}
 		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
-			<span class="lang lang-hb">{{ shita.names.hb }}</span>
+			<span class="lang lang-hb">{{ shita.names.he }}</span>
 			<span class="lang lang-et">{{ shita.names.et }}</span>
 			<span class="lang lang-en">{{ shita.names.en }}</span>
 		</div>
 		{% endfor %}
 		{% else %}
 		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}" {% if item.round %}data-round="{{ item.round }}"{% endif %}>
-			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-hb">{{ item.names.he }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>

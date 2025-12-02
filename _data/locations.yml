@@ -85,7 +85,7 @@ montreal:
 jerusalem:
   name:
     en: Jerusalem
-    hb: ירושלים
+    he: ירושלים
   flag: 🇮🇱
   # Location: Kotel
   lat: 31.776766188649376
@@ -96,7 +96,7 @@ jerusalem:
 haifa:
   name:
     en: Haifa
-    hb: חיפה
+    he: חיפה
   flag: 🇮🇱
   # Location: Yeshiva Mevaser Shalom
   lat: 32.77959008665043
@@ -107,7 +107,7 @@ haifa:
 tel_aviv:
   name:
     en: Tel-Aviv
-    hb: תל-אביב
+    he: תל-אביב
   flag: 🇮🇱
   # Location: Central Chabad of Tel Aviv
   lat: 32.070030475322845
@@ -118,7 +118,7 @@ tel_aviv:
 bet_shemesh:
   name:
     en: Bet Shemesh
-    hb: בית שמש
+    he: בית שמש
   flag: 🇮🇱
   # Location: Netzach Yisrael
   lat: 31.722984873344494

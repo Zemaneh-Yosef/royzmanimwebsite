@@ -277,7 +277,7 @@ layout: nothing
 					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
 						{% for fast in site.data.events.fasts %}
 						<h5 data-zfFind="{{ fast.yomTovIndex }}">
-							<span class="lang lang-hb">{{ fast.text.hb }}</span>
+							<span class="lang lang-hb">{{ fast.text.he }}</span>
 							<span class="lang lang-et">{{ fast.text.et }}</span>
 							<span class="lang lang-en">{{ fast.text.en }}</span>
 						</h5>
@@ -354,7 +354,7 @@ layout: nothing
 							<ul class="marquee__content">
 								{% for minhag in site.data.mourningMinhag %}
 								<li data-zfFind="{{ minhag.topic }}">
-									<span class="lang lang-hb">{{ minhag.text.hb }}</span>
+									<span class="lang lang-hb">{{ minhag.text.he }}</span>
 									<span class="lang lang-et">{{ minhag.text.en }}</span>
 									<span class="lang lang-en">{{ minhag.text.en }}</span>
 								</li>
@@ -363,7 +363,7 @@ layout: nothing
 							<ul class="marquee__content">
 								{% for minhag in site.data.mourningMinhag %}
 								<li aria-hidden="true" data-zfFind="{{ minhag.topic }}">
-									<span class="lang lang-hb">{{ minhag.text.hb }}</span>
+									<span class="lang lang-hb">{{ minhag.text.he }}</span>
 									<span class="lang lang-et">{{ minhag.text.en }}</span>
 									<span class="lang lang-en">{{ minhag.text.en }}</span>
 								</li>
@@ -464,7 +464,7 @@ layout: nothing
 					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
-					<span class="langTV lang-hb">{{ item.names.hb }}</span>
+					<span class="langTV lang-hb">{{ item.names.he }}</span>
 					<span class="langTV lang-en">{{ item.names.en }}</span>
 					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>

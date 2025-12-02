@@ -3,7 +3,7 @@
   timeGetter: getAlotHashahar
   round: earlier
   names:
-    hb: עלות
+    he:  עלות
     et: Alot
     en: Dawn
     ru: Рассвет
@@ -13,7 +13,7 @@
   timeGetter: getMisheyakir
   round: later
   names:
-    hb: משיכיר
+    he:  משיכיר
     et: Misheyakir
     en: Misheyakir
     ru: Мишеякир
@@ -21,7 +21,7 @@
   timeGetter: getNetz
   round: later
   names:
-    hb: הנץ
+    he:  הנץ
     et: Ha'Netz
     en: Sunrise
     ru: Восход
@@ -29,7 +29,7 @@
   timeGetter: getSofZemanShemaMGA
   round: earlier
   names:
-    hb: שמע מג'א
+    he:  שמע מג'א
     ru: Шма МГ"А
     en: Shema MG"A
     et: Shema MG"A
@@ -37,7 +37,7 @@
   timeGetter: getSofZemanShemaGRA
   round: earlier
   names:
-    hb: שמע גר'א
+    he:  שמע גר'א
     ru: шма Гр"а
     en: Shema GR"A
     et: Shema GR"A
@@ -47,7 +47,7 @@
   timeGetter: getSofZemanAhilathHametz
   round: earlier
   names:
-    hb: סוף אכילת חמץ
+    he:  סוף אכילת חמץ
     ru: время для поедания хамеца
     en: Eat Hametz until
     et: Eat Ḥametz until
@@ -57,7 +57,7 @@
   timeGetter: getSofZemanBiurHametz
   round: earlier
   names:
-    hb: סוף ביעור חמץ
+    he:  סוף ביעור חמץ
     ru: время для сжигание хамеца
     en: Dispose Hametz by
     et: Dispose Ḥametz by
@@ -65,7 +65,7 @@
   timeGetter: getSofZemanBerakhothShema
   round: earlier
   names:
-    hb: זמן תפילה
+    he:  זמן תפילה
     ru: Шахарит
     en: Latest prayer
     et: Sof Zeman Tefila
@@ -73,7 +73,7 @@
   timeGetter: getHatzoth
   round: earlier
   names:
-    hb: חצות
+    he:  חצות
     et: Ḥatzot
     en: Midday
     ru: Полдень
@@ -81,7 +81,7 @@
   timeGetter: getMinhaGedolah
   round: later
   names:
-    hb: מנחה מוקדם
+    he:  מנחה מוקדם
     en: Early Mincha
     et: Early Minḥa
     ru: Ранняя Минха
@@ -89,7 +89,7 @@
   timeGetter: getPlagHaminhaHalachaBrurah
   round: later
   names:
-    hb: פלג המנחה
+    he:  פלג המנחה
     en: Plag Hamincha
     et: Pelag HaMinḥa
     ru: Плаг минха
@@ -97,7 +97,7 @@
   timeGetter: getShkiya
   round: earlier
   names:
-    hb: שקיעה
+    he:  שקיעה
     en: Sunset
     et: Sheqi'a
     ru: Закат
@@ -105,7 +105,7 @@
   timeGetter: getTzet
   round: later
   names:
-    hb: לילה
+    he:  לילה
     en: Nightfall
     et: Tzet Ha'Kokhavim
     ru: Ночь
@@ -115,7 +115,7 @@
   timeGetter: getSolarMidnight
   round: later
   names:
-    hb: חצות לילה
+    he:  חצות לילה
     ru: Полдень
     en: Midnight
     et: Ḥatzot Layla

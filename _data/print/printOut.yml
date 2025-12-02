@@ -1,109 +1,109 @@
 ---
 - timeGetter: getAlotHashahar
   names:
-    hb: עלות <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
+    he: עלות <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
     et: Alot <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
     en: Dawn <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
 - timeGetter: getMisheyakir
   names:
-    hb: משיכיר
+    he: משיכיר
     et: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
   names:
-    hb: הנץ
+    he: הנץ
     et: HaNetz
     en: Sunrise
 - shitot:
     - names:
-        hb: מג'א
+        he: מג'א
         en: MG'A
         et: MG'A
       timeGetter: getSofZemanShemaMGA
       id: mga
     - names:
-        hb: גר'א
+        he: גר'א
         en: GR'A
         et: GR'A
       timeGetter: getSofZemanShemaGRA
       id: gra
   names:
-    hb: זמן שמע
+    he: זמן שמע
     et: Zeman Shema
     en: Latest Shema
 - timeGetter: getSofZemanBerakhothShema
   names:
-    hb: זמן שחרית
+    he: זמן שחרית
     et: Zeman Shaḥarit
     en: Latest Shaḥarit
 - timeGetter: getHatzoth
   names:
-    hb: חצות
+    he: חצות
     et: Ḥatsoth
     en: Midday
 - shitot:
     - names:
-        hb: גדולה
+        he: גדולה
         en: Early
         et: Early
       timeGetter: getMinhaGedolah
       id: gedolah
     - names:
-        hb: קטנה
+        he: קטנה
         en: Pref.
         et: Pref.
       timeGetter: getMinchaKetana
       id: ketanah
   names:
-    hb: זמן מנחה
+    he: זמן מנחה
     et: Zeman Minḥa
     en: Minḥa Times
 - shitot:
     - names:
-        hb: ה"ב
+        he: ה"ב
         en: H"B
         et: H"B
       timeGetter: getPlagHaminhaHalachaBrurah
       id: hb
     - names:
-        hb: י"י
+        he: י"י
         en: Y"Y
         et: Y"Y
       timeGetter: getPlagHaminhaYalkutYosef
       id: yy
   names:
-    hb: פלג המנחה
+    he: פלג המנחה
     et: Pelag Ha'Minḥa
     en: Pelag Ha'Minḥa
 - timeGetter: getShkiya
   names:
-    hb: שקיעה
+    he: שקיעה
     et: Sheqi'a
     en: Sunset
 - shitot:
     - names:
-        hb: שיטת מרן
+        he: שיטת מרן
         en: Reg.
         et: Reg.
       timeGetter: getTzet
       id: regular
     - names:
-        hb: לחומרה
+        he: לחומרה
         et: Ḥumra
         en: Strict
       timeGetter: getTzetHumra
       id: humra
   names:
-    hb: לילה <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
+    he: לילה <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
     et: Night <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
     en: Nightfall <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
 - timeGetter: candleLighting
   names:
-    hb: נרות וצאת מלכה
+    he: נרות וצאת מלכה
     et: Candles & Tzet Melakha
     en: Candles & Tzet Melakha
 - timeGetter: getTzetRT
   names:
-    hb: ר״ת
+    he: ר״ת
     et: Rabbenu Tam
     en: Rabbenu Tam
