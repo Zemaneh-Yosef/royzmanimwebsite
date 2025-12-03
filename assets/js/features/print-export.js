@@ -129,11 +129,10 @@ if (locationMapElem) {
 		dragging: false,
 		minZoom: 12,
 		zoomControl: false,
+		attributionControl: false
 	}).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 12);
 
-	leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		attribution: ''
-	}).addTo(locationMap);
+	leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(locationMap);
 }
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];
