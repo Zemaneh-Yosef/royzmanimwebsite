@@ -37,8 +37,8 @@ if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isV
 	if ('url' in ctNetz) {
 		const ctNetzLink = new URL(ctNetz.url);
 
-		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoL.getLatitude().toString()
-		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoL.getLongitude()).toString())
+		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoL.getLatitude().toFixed(6)
+		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoL.getLongitude()).toFixed(6))
 			availableVS = ctNetz.times
 	}
 }

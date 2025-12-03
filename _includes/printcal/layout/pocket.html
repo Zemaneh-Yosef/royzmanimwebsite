@@ -7,6 +7,7 @@
 <link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Emoji:wght@300..700&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
 <style>
@@ -174,7 +175,76 @@
 	</div>
 </div>
 
-<div style="height:10vh"></div>
+<div id="technicalSpecs">
+	<div id="techLeft">
+		<h1>Technical Specifications</h1>
+		<div class="textCont">
+			Algorithm: NOAA
+			<div class="techCredits">(using the KosherJava library by <i>Eliyahu Hershfeld</i>)</div>
+			Visual Sunrise radius: <span data-zyReplace="sunriseRadius"></span>
+			<div class="techCredits">(provided via ChaiTables/לוח בכורי יוסף, by <i>R' Chaim Keller</i>)</div>
+		</div>
+		<div class="textCont">
+			Latitude: <span data-zyReplace="latitude"></span><br>
+			Longitude: <span data-zyReplace="longitude"></span><br>
+			Elevation: <span data-zyReplace="elevation"></span>
+		</div>
+		<div style="margin-top: 1.25rem; display: flex; justify-items: center; justify-content: center;">
+			<div data-zfFind="locationMap" style="width: 150px; aspect-ratio: 1/1; border-radius: 50%;"></div>
+		</div>
+		<div class="textCont" style="text-align: center; margin-bottom: 0;"><div class="techCredits genDate">Generated on </div></div>
+	</div>
+	<div id="qrCodeCont">
+		<div>
+			<img id="qrCodeVisualSunrise" class="qrCode"><br>
+			ChaiTables Visual Sunrise<br>for <span data-zyReplace="zyVSHebYear"></span>
+		</div>
+		<div>
+			<img id="qrCodeDigitalView" class="qrCode"><br>Digital Calendar
+		</div>
+	</div>
+</div>
+
+<style>
+	#technicalSpecs {
+		display: grid;
+		grid-template-columns: 40% 60%;
+		gap: 1rem;
+		align-content: center;
+		align-items: center;
+	}
+
+	#techLeft {
+		padding-right: .5rem;
+		border-right: 1px solid black;
+	}
+
+	#techLeft h1 {
+		font-weight: 800;
+		font-family: "Cinzel";
+		font-size: 1.05rem;
+	}
+
+	#techLeft .textCont {
+		font-size: .75rem;
+		margin-bottom: .5rem;
+	}
+
+	.techCredits {
+		font-size: .75em;
+	}
+
+	.qrCode {
+		width: 175px;
+	}
+
+	#qrCodeCont {
+		display: flex;
+		justify-content: space-around;
+		font-size: .75rem;
+		text-align: center;
+	}
+</style>
 
 <div id="intCover">
     <div id="branding">
@@ -251,20 +321,20 @@
 		{% for item in site.data.print.pocket-printOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyHeaderContainer style="grid-column-end: span 2;">
-			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-hb">{{ item.names.he }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% for shita in item.shitot %}
 		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
-			<span class="lang lang-hb">{{ shita.names.hb }}</span>
+			<span class="lang lang-hb">{{ shita.names.he }}</span>
 			<span class="lang lang-et">{{ shita.names.et }}</span>
 			<span class="lang lang-en">{{ shita.names.en }}</span>
 		</div>
 		{% endfor %}
 		{% else %}
 		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}" {% if item.round %}data-round="{{ item.round }}"{% endif %}>
-			<span class="lang lang-hb">{{ item.names.hb }}</span>
+			<span class="lang lang-hb">{{ item.names.he }}</span>
 			<span class="lang lang-et">{{ item.names.et }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>

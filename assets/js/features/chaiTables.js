@@ -111,8 +111,8 @@ export default class ChaiTables {
 				searchradius,
 				TableType: "Chai",
 				USAcities1: this.indexOfMetroArea,
-				eroslatitude: this.geoL.getLatitude(),
-				eroslongitude: -this.geoL.getLongitude(),
+				eroslatitude: this.geoL.getLatitude().toFixed(6),
+				eroslongitude: -this.geoL.getLongitude().toFixed(6),
 				MetroArea: "jerusalem"
 			});
 		}

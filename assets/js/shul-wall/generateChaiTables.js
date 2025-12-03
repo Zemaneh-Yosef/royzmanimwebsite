@@ -21,8 +21,8 @@ export async function validNetzAssert(selectedCountry, indexOfMetroArea) {
             if ('url' in ctNetz) {
                 const ctNetzLink = new URL(ctNetz.url);
 
-                if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toString()
-                && ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toString())
+                if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
+                && ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
                     if (Temporal.Instant.compare(
                         Temporal.Now.instant(),
                         Temporal.Instant.fromEpochMilliseconds(ctNetz.times[ctNetz.times.length - 1] * 1000)

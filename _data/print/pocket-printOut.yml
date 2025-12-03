@@ -2,112 +2,112 @@
 - timeGetter: getAlotHashahar
   round: earlier
   names:
-    hb: עלות
+    he: עלות
     et: Alot
     en: Dawn
 - timeGetter: getMisheyakir
   round: later
   names:
-    hb: משיכיר
+    he: משיכיר
     et: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
   round: later
   names:
-    hb: הנץ
+    he: הנץ
     et: HaNetz
     en: Sunrise
 - shitot:
     - names:
-        hb: מג'א
+        he: מג'א
         en: MG'A
         et: MG'A
       timeGetter: getSofZemanShemaMGA
       round: earlier
       id: mga
     - names:
-        hb: גר'א
+        he: גר'א
         en: GR'A
         et: GR'A
       timeGetter: getSofZemanShemaGRA
       round: earlier
       id: gra
   names:
-    hb: זמן שמע
+    he: זמן שמע
     et: Zeman Shema
     en: Latest Shema
 - timeGetter: getSofZemanBerakhothShema
   round: earlier
   names:
-    hb: זמן שחרית
+    he: זמן שחרית
     et: Zeman Shaḥarit
     en: Latest Shaḥarit
 - timeGetter: getHatzoth
   round: earlier
   names:
-    hb: חצות
+    he: חצות
     et: Ḥatsoth
     en: Midday
 - shitot:
     - names:
-        hb: גדולה
+        he: גדולה
         en: Early
         et: Early
       timeGetter: getMinhaGedolah
       round: later
       id: gedolah
     - names:
-        hb: קטנה
+        he: קטנה
         en: Pref.
         et: Pref.
       timeGetter: getMinchaKetana
       round: later
       id: ketanah
   names:
-    hb: זמן מנחה
+    he: זמן מנחה
     et: Zeman Minḥa
     en: Minḥa Times
 - shitot:
     - names:
-        hb: ה"ב
+        he: ה"ב
         en: H"B
         et: H"B
       timeGetter: getPlagHaminhaHalachaBrurah
       round: later
       id: hb
     - names:
-        hb: י"י
+        he: י"י
         en: Y"Y
         et: Y"Y
       timeGetter: getPlagHaminhaYalkutYosef
       round: later
       id: yy
   names:
-    hb: פלג המנחה
+    he: פלג המנחה
     et: Pelag Ha'Minḥa
     en: Pelag Ha'Minḥa
 - timeGetter: getShkiya
   round: earlier
   names:
-    hb: שקיעה
+    he: שקיעה
     et: Sheqi'a
     en: Sunset
 - shitot:
     - names:
-        hb: שיטת מרן
+        he: שיטת מרן
         en: Reg.
         et: Reg.
       round: later
       timeGetter: getTzet
       id: regular
     - names:
-        hb: לחומרה
+        he: לחומרה
         et: Ḥumra
         en: Strict
       timeGetter: getTzetHumra
       round: later
       id: humra
   names:
-    hb: לילה
+    he: לילה
     et: Night
     en: Nightfall

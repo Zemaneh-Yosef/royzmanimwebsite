@@ -5,6 +5,8 @@ import { settings } from "../settings/handler.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import { Previewer } from "../../libraries/paged.js"
 import fitty from "../../libraries/fitty.js";
+import QrCode from "../../libraries/qrCode.js";
+import * as leaflet from "../../libraries/leaflet/leaflet.js"
 
 const printParam = new URLSearchParams(window.location.search);
 if (printParam.has('lessContrast')) {
@@ -84,10 +86,54 @@ if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isV
 	if ('url' in ctNetz) {
 		const ctNetzLink = new URL(ctNetz.url);
 
-		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toString()
-		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toString())
+		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
+		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
 			availableVS = ctNetz.times
 	}
+}
+
+let local = settings.language() == 'hb' ? 'he' : 'en'
+if (navigator.languages.find(lang => lang.startsWith(local)))
+	local = navigator.languages.find(lang => lang.startsWith(local));
+
+const vsRadius = document.querySelector('[data-zyReplace="sunriseRadius"]');
+const vsRNumber = (availableVS.length > 0
+	? new Intl.NumberFormat(local, { style: "unit", unit: "kilometer"})
+		.format(parseFloat(new URL(JSON.parse(localStorage.getItem('ctNetz')).url).searchParams.get("cgi_searchradius"))) : "N/A");
+vsRadius.appendChild(document.createTextNode(vsRNumber))
+
+const degreeFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "degree", unitDisplay: "narrow", maximumFractionDigits: 5 });
+const meterFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "meter", maximumFractionDigits: 0 });
+
+if (document.querySelector('[data-zyReplace="latitude"]'))
+	document.querySelector('[data-zyReplace="latitude"]')
+		.appendChild(document.createTextNode(degreeFormatter.format(geoLocation.getLatitude())));
+if (document.querySelector('[data-zyReplace="longitude"]'))
+	document.querySelector('[data-zyReplace="longitude"]')
+		.appendChild(document.createTextNode(degreeFormatter.format(geoLocation.getLongitude())));
+
+const elevation = document.querySelector('[data-zyReplace="elevation"]');
+if (elevation) {
+	elevation.appendChild(document.createTextNode(
+		geoLocation.getElevation() == 0 || !useOhrHachaim
+			? "Disabled"
+			: meterFormatter.format(geoLocation.getElevation())
+	));
+}
+
+
+/** @type {HTMLElement} */
+const locationMapElem = document.querySelector('[data-zfFind="locationMap"]')
+if (locationMapElem) {
+	const locationMap = leaflet.map(locationMapElem, {
+		dragging: false,
+		minZoom: 12,
+		zoomControl: false,
+	}).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 12);
+
+	leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		attribution: ''
+	}).addTo(locationMap);
 }
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];
@@ -95,17 +141,19 @@ if (footer) {
 	const geoCoordinates = footer.querySelector("[data-geoCoordinates]");
 	if (geoCoordinates)
 	geoCoordinates
-		.appendChild(document.createTextNode(`(${geoLocation.getLatitude()}, ${geoLocation.getLongitude()}${
-			useOhrHachaim ? ", ↑" + geoLocation.getElevation().toString() : ""
-		})`));
+		.appendChild(document.createTextNode(`(${[
+			degreeFormatter.format(geoLocation.getLatitude()),
+			degreeFormatter.format(geoLocation.getLongitude()),
+			useOhrHachaim ? "↑" + meterFormatter.format(geoLocation.getElevation()) : ""
+		].filter(Boolean).join(", ")})`));
 	const tz = footer.querySelector("[data-timeZone]")
 	if (tz)
 		tz.appendChild(document.createTextNode(geoLocation.getTimeZone()))
-
-	const today = Temporal.Now.plainDateISO()
-	for (const genDate of footer.getElementsByClassName("genDate"))
-		genDate.appendChild(document.createTextNode([today.year, today.month, today.day].map(num=>num.toString().padStart(2, '0')).join("/")))
 }
+
+const today = Temporal.Now.plainDateISO()
+for (const genDate of document.getElementsByClassName("genDate"))
+	genDate.appendChild(document.createTextNode([today.year, today.month, today.day].map(num=>num.toString().padStart(2, '0')).join("/")))
 
 const secondSide = document.getElementsByClassName("secondSide")[0];
 
@@ -120,6 +168,9 @@ const yearsForDisplay = [...new Set([plainDateForLoop.year, plainDateForLoop.wit
 for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 	locName.appendChild(document.createTextNode(geoLocation.getLocationName() + ` (${yearsForDisplay})`))
 
+/** @type {Record<string, number>} */
+const jewishYears = {};
+
 let expectedReceive = 0;
 let actualReceive = 0;
 /** @type {Record<string, string[]>} */
@@ -127,6 +178,13 @@ let receiveData = {}
 /** @type {import('./print-web-worker.js').singlePageParams[]} */
 const arrayOfFuncParams = [];
 for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.has('shabbatOnly') ? mIndex += 2 : mIndex++)) {
+	const jewishYear = plainDateForLoop.with({ month: 1 }).add({ months: mIndex - 1 }).withCalendar('hebrew').year.toString();
+
+	if (!(jewishYear in jewishYears))
+		jewishYears[jewishYear] = 1;
+	else
+		jewishYears[jewishYear] += 1;
+
 	expectedReceive += 1;
 	arrayOfFuncParams.push({
 		israel: (geoLocation.getLocationName() || "").toLowerCase().includes('israel'),
@@ -194,6 +252,33 @@ async function preparePrint() {
 
 		// @ts-ignore
 		window.fittyElem = fitty(fittyElems, { multiLine: true })
+	}
+
+	// Generate QR Code for ChaiTables
+	// Use the jewishYears object to get the Jewish year with the most months covered in our calendar
+
+	if (availableVS.length) {
+		const qrCodeNetzElem = document.getElementById('qrCodeVisualSunrise');
+		if (qrCodeNetzElem) {
+			const jewishYearForQR = Object.entries(jewishYears).sort((a, b) => b[1] - a[1])[0][0];
+
+			const fixedNetzURL = new URL(JSON.parse(localStorage.getItem('ctNetz')).url);
+			fixedNetzURL.searchParams.set('cgi_yrheb', jewishYearForQR);
+			qrCodeNetzElem.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(fixedNetzURL.toString())));
+
+			document.querySelector('[data-zyReplace="zyVSHebYear"]').innerHTML = jewishYearForQR;
+		}
+	}
+
+	const currentPage = new URL(location.href);
+	currentPage.pathname = '/calendar';
+	currentPage.hostname = 'royzmanim.com';
+	currentPage.port = '';
+	console.log(currentPage.toString());
+
+	const qrCodeDigitalView = document.getElementById('qrCodeDigitalView');
+	if (qrCodeDigitalView) {
+		qrCodeDigitalView.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(currentPage.toString())));
 	}
 
 	/** @type {HTMLElement} */

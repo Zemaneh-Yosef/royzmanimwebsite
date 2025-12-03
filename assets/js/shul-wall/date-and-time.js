@@ -11,33 +11,63 @@ const hourElem = document.querySelector('[data-sw-hour]')
 const minuteElem = document.querySelector('[data-sw-minute]')
 const portElem = document.querySelector('[data-sw-portion]')
 
+let minutePassed = false;
+
 if (!('timers' in window))
 	// @ts-ignore
 	window.timers = {}
 
 function updateTime() {
 	const curTime = Temporal.Now.zonedDateTimeISO(preSettings.location.timezone());
-	const textHour = (curTime.hour - ((curTime.hour >= 13 && portElem) ? 12 : 0)).toString().padStart(2, '0')
 
-	if (Math.abs(parseInt(hourElem.innerHTML) - parseInt(textHour)) > 1 && !(hourElem.innerHTML == "12" && curTime.hour == 1)) {
+	if (minutePassed && curTime.minute == 0 && [0, 12, 24].includes(curTime.hour)) {
 		reload();
+		minutePassed = false;
 		return;
 	}
+
+	let local = preSettings.language() == 'hb' ? 'he' : 'en'
+	if (navigator.languages.find(lang => lang.startsWith(local)))
+		local = navigator.languages.find(lang => lang.startsWith(local));
+
+	let hourCycle = preSettings.timeFormat();
+	if (portElem)
+		/** @type {'h11'|'h12'} */
+		// @ts-ignore
+		hourCycle = hourCycle
+			.replace('h23', 'h11')
+			.replace('h24', 'h12');
+	else
+		/** @type {'h23'|'h24'} */
+		// @ts-ignore
+		hourCycle = hourCycle
+			.replace('h11', 'h23')
+			.replace('h12', 'h24');
+
+	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
+	const dtF = [local, {
+		hourCycle,
+		hour: 'numeric',
+		minute: '2-digit'
+	}];
+
+	const [time, AMPM] = curTime.toLocaleString(...dtF).split(' ');
+	const [hourStr, minuteStr] = time.split(':');
 
 	hourElem.childNodes.forEach(node => node.remove())
 	minuteElem.childNodes.forEach(node => node.remove());
 
-	hourElem.appendChild(document.createTextNode(textHour));
-	minuteElem.appendChild(document.createTextNode(curTime.minute.toString().padStart(2, '0')));
+	hourElem.appendChild(document.createTextNode(hourStr));
+	minuteElem.appendChild(document.createTextNode(minuteStr));
 
 	if (portElem) {
 		portElem.childNodes.forEach(node => node.remove());
-		portElem.appendChild(document.createTextNode(curTime.hour >= 12 ? "PM" : "AM"))
+		portElem.appendChild(document.createTextNode(AMPM))
 	}
 
 	// @ts-ignore
 	window.timers.clockUpdate =
-		setTimeout(() => updateTime(), curTime.until(curTime.add({ minutes: 1 }).with({ second: 0, millisecond: 0 })).total('milliseconds'))
+		setTimeout(() => {minutePassed = true; updateTime()}, curTime.until(curTime.add({ minutes: 1 }).with({ second: 0, millisecond: 0 })).total('milliseconds'))
 }
 updateTime();
 

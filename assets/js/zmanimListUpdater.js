@@ -66,10 +66,10 @@ export default class zmanimListUpdater {
 
 		this.locationMap = leaflet.map(locationMapElem, {
 			dragging: false,
-			minZoom: 16,
+			minZoom: 14,
 			touchZoom: 'center',
 			scrollWheelZoom: 'center'
-		}).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 13);
+		}).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 16);
 		leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 		}).addTo(this.locationMap);
@@ -123,8 +123,8 @@ export default class zmanimListUpdater {
 			if ('url' in ctNetz) {
 				const ctNetzLink = new URL(ctNetz.url);
 
-				if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toString()
-				&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toString())
+				if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
+				&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
 					availableVS = ctNetz.times
 			}
 		}
@@ -248,11 +248,15 @@ export default class zmanimListUpdater {
 		locationModal.addEventListener('shown.bs.modal', this.openLocationModal)
 		locationModal.addEventListener('hidden.bs.modal', this.closeLocationModal);
 
+		let local = settings.language() == 'hb' ? 'he' : 'en'
+		if (navigator.languages.find(lang => lang.startsWith(local)))
+			local = navigator.languages.find(lang => lang.startsWith(local));
+
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-		this.dtF = [settings.language() == 'hb' ? 'he' : 'en', {
+		this.dtF = [local, {
 			hourCycle: settings.timeFormat(),
 			hour: 'numeric',
-            minute: '2-digit'
+			minute: '2-digit'
 		}];
 
 		if (settings.seconds()) {
