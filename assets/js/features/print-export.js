@@ -6,7 +6,9 @@ import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import { Previewer } from "../../libraries/paged.js"
 import fitty from "../../libraries/fitty.js";
 import QrCode from "../../libraries/qrCode.js";
-import * as leaflet from "../../libraries/leaflet/leaflet.js"
+
+import * as ol from "../../libraries/OpenLayers/index.js"
+import StadiaMaps from "https://cdn.skypack.dev/ol/source/StadiaMaps";
 
 const printParam = new URLSearchParams(window.location.search);
 if (printParam.has('lessContrast')) {
@@ -125,14 +127,21 @@ if (elevation) {
 /** @type {HTMLElement} */
 const locationMapElem = document.querySelector('[data-zfFind="locationMap"]')
 if (locationMapElem) {
-	const locationMap = leaflet.map(locationMapElem, {
-		dragging: false,
-		minZoom: 12,
-		zoomControl: false,
-		attributionControl: false
-	}).setView([geoLocation.getLatitude(), geoLocation.getLongitude()], 12);
+	const stadiaSource = new StadiaMaps({
+		layer: 'stamen_terrain',
+		retina: true,
+	});
 
-	leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(locationMap);
+	stadiaSource.setAttributions("");
+	new ol.Map({
+		controls: [],
+		target: locationMapElem,
+		layers: [new ol.layer.Tile({ source: stadiaSource }) ],
+		view: new ol.View({
+			center: ol.proj.fromLonLat([geoLocation.getLongitude(), geoLocation.getLatitude()]),
+			zoom: 11
+		})
+	});
 }
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];
