@@ -173,8 +173,10 @@ const yearsForDisplay = [...new Set([plainDateForLoop.year, plainDateForLoop.wit
 	.map(year => settings.language() == "hb" ? new HebrewNumberFormatter().formatHebrewNumber(year) : year)
 	.join(" - ")
 
+const title = geoLocation.getLocationName() + ` (${yearsForDisplay})`
+document.title = title + " - " + document.title;
 for (const locName of document.querySelectorAll("[data-zyLocationText]"))
-	locName.appendChild(document.createTextNode(geoLocation.getLocationName() + ` (${yearsForDisplay})`))
+	locName.appendChild(document.createTextNode(title))
 
 /** @type {Record<string, number>} */
 const jewishYears = {};
@@ -287,6 +289,26 @@ async function preparePrint() {
 	const qrCodeDigitalView = document.getElementById('qrCodeDigitalView');
 	if (qrCodeDigitalView) {
 		qrCodeDigitalView.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(currentPage.toString())));
+	}
+
+	const fundamentalTable = document.querySelector('[data-zyFind="adjustmentsTable"]');
+	if (fundamentalTable) {
+		if (useOhrHachaim) {
+			fundamentalTable.remove();
+		} else {
+			const { ZemanFunctions } = await import("../ROYZmanim.js");
+			const zmanCalc = new ZemanFunctions(geoLocation, {
+				elevation: arrayOfFuncParams[0].israel,
+				melakha: arrayOfFuncParams[0].tzetMelakha,
+				fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal(),
+				candleLighting: settings.customTimes.candleLighting(),
+				rtKulah: settings.calendarToggle.rtKulah()
+			});
+
+			fundamentalTable.querySelector('[data-zyReplace="dawnTzet"]').innerHTML = zmanCalc.timeRange.equinox.dawn.total("minutes").toFixed(2)
+			fundamentalTable.querySelector('[data-zyReplace="nightfall"]').innerHTML = zmanCalc.timeRange.equinox.nightfall.total("minutes").toFixed(2)
+			fundamentalTable.querySelector('[data-zyReplace="stringentNightfall"]').innerHTML = zmanCalc.timeRange.equinox.stringentNightfall.total("minutes").toFixed(2)
+		}
 	}
 
 	/** @type {HTMLElement} */

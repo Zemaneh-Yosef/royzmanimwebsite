@@ -112,7 +112,7 @@ export default class ChaiTables {
 				TableType: "Chai",
 				USAcities1: this.indexOfMetroArea,
 				eroslatitude: this.geoL.getLatitude().toFixed(6),
-				eroslongitude: -this.geoL.getLongitude().toFixed(6),
+				eroslongitude: (-this.geoL.getLongitude()).toFixed(6),
 				MetroArea: "jerusalem"
 			});
 		}

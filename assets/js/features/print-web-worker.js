@@ -14,6 +14,7 @@ const icons = {
 	candle: '<i class="bi bi-fire"></i>',
 	netz: '<i class="bi bi-sunrise-fill"></i>',
 	wine: '<img src="/assets/images/icons8-wine-bar-64.png">',
+	dispose: '<i class="bi bi-trash-fill" style="float: left; margin-bottom: 2ch; margin-right: .25rem;"></i>',
 	hatzot: '🌕',
 	bedika: '<i class="bi bi-search"></i>'
 }
@@ -845,8 +846,8 @@ function messageHandler (x) {
 
 			highlightPesah.datesToZman.set(hametzDate, {
 				bedikatHametz: handleRound(zmanCalc.chainDate(nightErev).getTzet(), 'later'),
-				sofZemanAhilathHametz: handleRound(zmanCalc.chainDate(hametzDate).getSofZemanAhilathHametz(), 'earlier'),
 				sofZemanBiurHametz: handleRound(zmanCalc.chainDate(hametzDate).getSofZemanBiurHametz(), 'earlier'),
+				sofZemanAhilathHametz: handleRound(zmanCalc.chainDate(hametzDate).getSofZemanAhilathHametz(), 'earlier'),
 				candleLighting: handleRound(zmanCalc.chainDate(hametzDate).getCandleLighting(), 'earlier'),
 			});
 			const firstDayYTObj = highlightPesah.datesToZman.get(hametzDate);
@@ -1253,10 +1254,10 @@ function messageHandler (x) {
 					"שבת "
 						+ (shabbatJCal.isCholHamoed() ? "חול המועד" : jCal.getHebrewParasha()[0])
 						+ (![Parsha.NONE, Parsha.NACHAMU, Parsha.CHAZON, Parsha.SHIRA].includes(shabbatJCal.getSpecialShabbos())
-							? ("<br>(" + jCal.getHebrewParasha()[1] + ")") : "")
+							? ("<div class='specialShabPar'>(" + jCal.getHebrewParasha()[1] + ")</div>") : "")
 
 				if (!highlightZmanim.some(high => high.title === title)) {
-					let extra = "🎵 Makam: " + makamIndex.getTodayMakam(shabbatJCal).makam
+					let extra = '<i class="bi bi-music-note-beamed"></i> Makam: ' + makamIndex.getTodayMakam(shabbatJCal).makam
 						.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
 						.join(" / ");
 
@@ -1270,7 +1271,7 @@ function messageHandler (x) {
 						if (roshHodeshJCal.getJewishDayOfMonth() == 30)
 							dayOfWeek = roshHodeshJCal.getDayOfTheWeek().en + " / " + dayOfWeek;
 
-						extra += " <br> 🌙 New month "
+						extra += "<br> <i class='bi bi-moon-fill'></i> New month "
 							+ shabbatJCal.chainDate(shabbatJCal.getDate().add({ weeks: 2 })).formatJewishMonth().en
 							+ " on " + dayOfWeek;
 					}
@@ -1889,6 +1890,14 @@ function messageHandler (x) {
 
 							timesBox.lastElementChild.appendChild(rtElem);
 							continue;
+						} else if (zmanName == 'sofZemanAhilathHametz') {
+							const ahilaElement = document.createElement("div");
+							ahilaElement.innerHTML = "(Eat before " + zmanTime.toLocaleString(...defaulTF) + ")";
+							ahilaElement.classList.add('rabbenuTamAppend');
+
+							timesBox.lastElementChild.appendChild(ahilaElement);
+							timesBox.appendChild(document.createElement("hr"))
+							continue;
 						}
 
 						const zmanRow = document.createElement("div");
@@ -1900,11 +1909,9 @@ function messageHandler (x) {
 								zmanRow.innerHTML += icons.candle + " ";
 							}
 						} else if (zmanName == 'tzetMelakha') {
-							zmanRow.innerHTML += icons.havdalah + " ";
-						} else if (zmanName == 'sofZemanAhilathHametz') {
-							zmanRow.innerHTML += "Finish eating Ḥametz by ";
+							zmanRow.innerHTML += icons.havdalah;
 						} else if (zmanName == 'sofZemanBiurHametz') {
-							zmanRow.innerHTML += "Dispose Ḥametz by ";
+							zmanRow.innerHTML += icons.dispose + " Dispose Ḥametz by ";
 						} else if (zmanName == "fastStarts") {
 							zmanRow.innerHTML += "Fast starts: ";
 						} else if (zmanName == "fastEnds") {
@@ -1933,10 +1940,6 @@ function messageHandler (x) {
 
 						zmanRow.innerHTML += zmanTime.toLocaleString(...bottomTF);
 						timesBox.appendChild(zmanRow);
-
-						if (zmanName == 'sofZemanBiurHametz') {
-							timesBox.appendChild(document.createElement("hr"));
-						}
 					}
 
 					if ("ytI" in highlight

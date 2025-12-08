@@ -4,11 +4,13 @@
 	<p>However, you are free to look at descriptions</p>
 </noscript>
 
+{% capture expl %}{% include printcal/pocket/fundamental-text.md %}{% endcapture %}
+
 <link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/libraries/OpenLayers/ol.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="/assets/libraries/OpenLayers/ol.css" />
-<link href="https://fonts.googleapis.com/css2?family=Noto+Emoji:wght@300..700&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
 <style>
 	.tableGrid {
@@ -158,6 +160,27 @@
 		font-size: 1.25em;
 		font-weight: 700;
 	}
+
+	#localeNumbers {
+		display: grid;
+		grid-template-columns: 60% 40%;
+		column-gap: 6px;
+		font-size: 12px;
+		line-height: 1.4;
+		margin-bottom: 1rem;
+	}
+
+	#localeNumbers > *:first-child {
+		text-align: center;
+		font-weight: 800;
+		grid-column: span 2;
+		font-size: 1.2em;
+	}
+
+	#localeNumbers > *:nth-child(even) {
+		text-align: right;
+		font-weight: 700;
+	}
 </style>
 
 <div id="cover">
@@ -169,8 +192,8 @@
 	<img src="/assets/images/splash.jpg" id="bgCover" />
 	<div id="credits">
 		<p>
-			<span data-zfFind="luachAmudehHoraah">Inspired</span><span data-zfFind="luachOhrHachaim">Expanded</span>
-			from the <b>Ohr Hachaim</b> calendar<br>by <b>Maran Rabbenu Ovadia Yosef zt"l</b>
+			<span data-zfFind="luachAmudehHoraah">Inspired by</span><span data-zfFind="luachOhrHachaim">Expanded from</span>
+			the <b>Ohr Hachaim</b> calendar<br>by <b>Maran Rabbenu Ovadia Yosef zt"l</b>
 		</p>
 	</div>
 </div>
@@ -184,6 +207,20 @@
 			<div class="techCredits">(using the KosherJava library by <i>Eliyahu Hershfeld</i>)</div>
 			Visual Sunrise radius: <span data-zyReplace="sunriseRadius"></span>
 			<div class="techCredits">(provided via ChaiTables/לוח בכורי יוסף, by <i>R' Chaim Keller</i>)</div>
+		</div>
+		<!-- 				<td data-zyReplace="dawnTzet"></td>
+				<td data-zyReplace="nightfall"></td>
+				<td data-zyReplace="stringentNightfall"></td>-->
+		<div id="localeNumbers" data-zyFind="adjustmentsTable">
+			<div>Calculated Lengths</div>
+			<div>Dawn</div>
+			<div data-zyReplace="dawnTzet"></div>
+			<div>Candle Lighting</div>
+			<div>20</div>
+			<div>Nightfall</div>
+			<div data-zyReplace="nightfall"></div>
+			<div>Stringent Nightfall</div>
+			<div data-zyReplace="stringentNightfall"></div>
 		</div>
 		<div style="display: grid; grid-template-columns: auto 140px; gap: 6px; align-items: center;">
 			<div data-zfFind="locationMap" style="aspect-ratio: 1/1; height: fit-content;"></div>
@@ -214,7 +251,7 @@
 <style>
 	#technicalSpecs {
 		display: grid;
-		grid-template-columns: 40% 60%;
+		grid-template-columns: 250px 1fr;
 		gap: 1rem;
 		align-content: center;
 		align-items: center;
@@ -223,7 +260,6 @@
 	#techLeft {
 		padding-right: .5rem;
 		border-right: 1px solid black;
-		width: 250px;
 	}
 
 	#techLeft h1 {
@@ -280,7 +316,7 @@
 #intCover {
     width: calc(100% - .55in);
     display: grid;
-    grid-template-columns: 45% 55%;
+    grid-template-columns: 2.8in 1fr;
     height: calc(100vh - .55in);
     align-items: center;
 	page-break-before: always;
@@ -501,7 +537,7 @@
 
 	.importantCardTitleText {
 		writing-mode: sideways-lr;
-		font-family: "Guttman Mantova", "Cinzel", "Spectral", serif;
+		font-family: "Guttman Mantova", "Cinzel", var(--bs-body-font-family);
 		text-align: center;
 		align-content: center;
     	font-size: 40px;
@@ -516,10 +552,6 @@
 
 	.importantCardTimes {
 		width: fit-content;
-	}
-
-	.importantCardContentText {
-		font-family: "Spectral", "Hadassah Friedlaender", "Noto Emoji", serif;
 	}
 
 	.rabbenuTamAppend {
@@ -653,6 +685,68 @@
 	.miscTimes p {
 		line-height: 1.2;
 	}
+
+	.specialShabPar {
+		font-weight: 500;
+		font-size: .8em;
+		font-family: "SBL Hebrew";
+		line-height: 1;
+	}
 </style>
+
+<!-- <div id="fundamental">
+	<h1>Fundamentals of the Calendar – Seasonal Minutes</h1>
+	<div class="notice">
+		For sources from the Talmud onwards, please visit our website, <b>royzmanim.com</b>.<br>
+		Throughout these explanations, Hebrew text will be used for any references in prayer. Otherwise, Hebrew titles will be transliterated and italicized.
+	</div>
+	<div style="columns: 3;">
+		{{ expl | markdownify }}
+	</div>
+	<table data-zyFind="adjustmentsTable">
+		<thead>
+			<tr>
+				<th>Dawn/Rabbenu Tam's Nightfall</th>
+				<th>Nightfall</th>
+				<th>Stringent Nightfall</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td data-zyReplace="dawnTzet"></td>
+				<td data-zyReplace="nightfall"></td>
+				<td data-zyReplace="stringentNightfall"></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<style>
+	#fundamental {
+		page-break-before: always;
+	}
+
+	#fundamental h1 {
+		text-align: center;
+		font-weight: 800;
+		margin-bottom: 0;
+		font-size: 18pt;
+	}
+
+	#fundamental .notice {
+		text-align: center;
+		font-size: 6pt;
+		margin-bottom: 1rem;
+		font-weight: 500;
+	}
+
+	#fundamental p {
+		text-align: justify;
+		margin-top: 0;
+		margin-bottom: .75rem;
+		line-height: 1.2;
+		font-size: 7pt;
+	}
+</style> -->
 
 <script src="/assets/js/features/print-export.js" type="module"></script>

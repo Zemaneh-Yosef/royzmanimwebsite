@@ -13,7 +13,6 @@ layout: landing
 				<li class="nav-item"><a class="nav-link" href="#services">About</a></li>
 				<li class="nav-item"><a class="nav-link" href="#portfolio">Download</a></li>
 				<li class="nav-item"><a class="nav-link" href="#socialMedia">Social Media</a></li>
-				<li class="nav-item"><a class="nav-link" href="#about">Testimony</a></li>
 			</ul>
 		</div>
 		<ul class="navbar-nav ms-auto py-4 py-lg-0 d-none d-lg-flex">
@@ -153,16 +152,34 @@ layout: landing
 <section class="page-section" id="services">
 	<div class="container">
 		<div class="grid">
-			<div class="g-col-12 g-col-lg-8">
+			<div class="g-col-12 g-col-lg-5" style="align-content: center;"><img src="/assets/og-roy-haskama.png" style="width: 100%;"></div>
+			<div class="g-col-12 g-col-lg-7" style="grid-row-end: span 2;">
 				<h1 class="text-center">About זמני יוסף</h1>
-				<p>We are the platform to use whenever and wherever you'd need Halachic Times (Zemanim) according to <strong>Hakham Ovadia Yosef zt'l</strong>, following his practices represented in his <strong>Ohr Hachaim</strong> calendar from Eretz Yisrael. Outside Israel, our algorithm follow's the rules outlined by the Minḥat Kohen (as quoted by R David Yosef, approved by R Yitzḥak Yosef) to comply with the astronomical differences while sticking to seasonal minutes.</p>
+				<div style="text-align: center;"><video controls
+					style="width: 75%;"
+					preload="metadata"
+					poster="https://zemaneh-yosef.github.io/.github/resize-thumbnail.png"
+				>
+					<source src="https://zemaneh-yosef.github.io/.github/trailer.mp4" type="video/mp4" />
+				</video></div>
+				<p>We are the platform to use whenever and wherever you'd need Halachic Times (Zemanim) according to the Sepharadic tradition, as represented by <strong>Hakham Ovadia Yosef zt'l</strong> and his sons (<strong>R’ Yitzḥak Yosef</strong> & <strong>R’ David Yosef</strong>). Our reach extends to mobile applications, websites, shul screens, and more – anywhere to accompany your Halachic needs, as you perform any time-bound commandment.</p>
+				<p>Spread around their Sefarim are individual rulings for times when relevant to their commandments (such as <em>Ḥazon ‘Ovadia</em>, <em>Yalkut Yosef</em> & <em>Halacha Berura</em>) & halachic responsa’s (<em>Yabi’a ‘Omer</em> & <em>Yeḥave Da’ath</em>). However, the guidelines for reading the various Talmudical sources are outlined explicitly in <em>Halikhoth ‘Olam</em>, representing the tradition of using seasonal minutes across all earlier Sepharadic authorities (<em>Minḥat Kohen</em> & <em>Peri Ḥadash</em>). The application of these rulings is exemplified in the Ohr Ha’Chaim calendar (developed by <strong>Rabbi Shlomo Benizri</strong> & <strong>Rabbi Asher Darshan</strong>, with a continuous consultation of Hakham Ovadia himself). This calendar has garnered the approval of Hakham Ovadia (pictured on the left) and consistent recommendations from HaRav Yitzḥak Yosef, proving to be a reliable source of practical Zemanim that reflects the precedent set by our authorities.</p>
+				<p>Our foundation starts with that calendar, expanding beyond its borders of Eretz Yisrael. Doing so with astronomical accuracy meant re-examining the rulings from their sources and adjusting the numbers (for the seasonal minutes) as they are applied. This specification is explicitly outlined by R' David Yosef (in <em>Kuntress Ki Ba Ha'Shemesh</em>), with approval in the execution by <a href="/assets/haskamah-rishon-letzion.pdf">R' Yitzḥak Yosef</a>.</p>
 				<ul>
-					<li>Available through apps, print-out calendars, digital exports, TV schedules for shuls & our website (you're on here right now)!</li>
 					<li>Expanded implementations possible through our <a href="https://github.com/Zemaneh-Yosef">open-source codebase</a>. Implementations available in JavaScript, Java & Swift</li>
 					<li><i>Sugya</i> descriptions for every time, with sources and possible trivia</li>
 				</ul>
+				<p>(Other Haskamot include <a href="/assets/haskamah-he.pdf">HaRav Leeor Dahan</a> [authority behind the number adjustments for outside Eretz Yisrael], <a href="/assets/haskamah-en.pdf">HaRav Meir Gavriel Elbaz</a> [translator of HalachaYomit], Rabbi Eli Mansour [Beki'im BaHalacha; watch video above to see testimonial] & <a href="/assets/RBH_Recommendation_Final.pdf">Rabbi Eliyahu Ben Hayyim</a> [Head of the Mashadi community in Great Neck, NY])</p>
 			</div>
-			<div class="g-col-12 g-col-lg-4" style="align-content: center;">{% include bootstrap/carousel.html carouselItems=site.data.tv.carousel %}</div>
+			<div class="g-col-12 g-col-lg-5" style="align-content: center;">
+				<div class="m3carcontainer">
+					<div class="item item1"></div>
+					<div class="item item2"></div>
+					<div class="item item3"></div>
+					<div class="item item4"></div>
+					<div class="item item5"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 </section>
@@ -255,47 +272,6 @@ layout: landing
 		</div>
 	</div>
 </section>
-<!-- About-->
-<section class="page-section" id="about">
-	<div class="container">
-		<h2 class="text-center section-heading">Testimonials</h2>
-		<div class="grid">
-			<div class="g-col-12 g-col-lg-4">
-				<div class="card h-100">
-					<div class="card-body">
-						<h5 class="card-title">Kehilat Avodat Hashem (R' Leeor Dahan) - Queens</h5>
-						<p class="card-text">והנני מביע	הסכמתי השלימה ללוח הנזכר דכל מי שישתמש בו יהא בטוח בלבו שעושה כשורה וכהלכה וכל מן דין סמוכו לנאלהלכה ולמעשה.</p>
-					</div>
-					<div class="card-footer">
-						<small class="text-body-secondary"><a href="/assets/haskamah-he.pdf">Full Haskama</a></small>
-					</div>
-				</div>
-			</div>
-			<div class="g-col-12 g-col-lg-4">
-				<div class="card h-100">
-					<div class="card-body">
-						<h5 class="card-title">Congregation Ohel Simcha (R' Meir Gavriel Elbaz) - Queens</h5>
-						<p class="card-text">...this app will certainly be an invaluable tool for Sepharadic Jews everywhere to perform Hashem's Mitzvot with alacrity and according to the rich traditions of their Poskim.</p>
-					</div>
-					<div class="card-footer">
-						<small class="text-body-secondary"><a href="/assets/haskamah-en.pdf">Full Haskama</a></small>
-					</div>
-				</div>
-			</div>
-			<div class="g-col-12 g-col-lg-4">
-				<div class="card h-100">
-					<div class="card-body">
-						<h5 class="card-title">Edmond J. Safra Synagogue (R' Eli Mansour) - Brooklyn</h5>
-						<p class="card-text">...it's called זמני יוסף, it's a very good app for those who want to follow חכם עובדיה...we use it in our Netz minyan.</p>
-					</div>
-					<div class="card-footer">
-						<small class="text-body-secondary"><a href="https://itorah.com/l/v28958s137">Full lecture</a> (minute 26:42)</small>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
 
 <script src="/assets/js/landing.js"></script>
 
@@ -307,3 +283,88 @@ layout: landing
 <script src="/assets/js/location.js" type="module"></script>
 <link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
 <script src="/assets/libraries/materialComp/materialweb.js" type="module"></script>
+
+<style>
+	.m3carcontainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin: 0 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+}
+
+.item {
+  flex: 0 0 auto;
+  border-radius: 2.5rem;
+  transition: flex .5s cubic-bezier(0.4, 0, 0.2, 1), transform .5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow .5s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: left;
+  margin: 0 0.4rem;
+  min-height: 150px;
+  scroll-snap-align: start;
+}
+
+.item:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.item1 {
+  background-image: url('/assets/haskamot/rav-yitzhak-yosef.png');
+}
+
+.item2 {
+  background-image: url('/assets/haskamot/rav-elbaz.png');
+}
+
+.item3 {
+  background-image: url('/assets/haskamot/rav-mansour.png');
+}
+
+.item4 {
+  background-image: url('/assets/haskamot/rav-dahan.png');
+}
+
+.item5 {
+  background-image: url('/assets/haskamot/rav-eliyahu-ben-hayyim.png');
+}
+
+.item.clicked {
+  flex: 2;
+  z-index: 1;
+}
+
+.item:not(.clicked) {
+  flex: 1;
+  margin: 0 0.4rem;
+}
+</style>
+
+<script>
+	const items = document.querySelectorAll('.m3carcontainer .item');
+
+items.forEach((item) => {
+  item.addEventListener('click', () => {
+    items.forEach((otherItem) => {
+      if (otherItem !== item) {
+        otherItem.classList.remove('clicked');
+      }
+    });
+    item.classList.toggle('clicked');
+    updateParallax(); // Add this line to update the parallax effect when an item is clicked
+  });
+});
+
+function updateParallax() {
+  const container = document.getElementsByClassName('m3carcontainer');
+  const scrollPosition = container.scrollLeft;
+
+  for (const item of items.children) {
+    const backgroundPosition = scrollPosition * 0.5;
+    item.style.backgroundPositionX = `${backgroundPosition}px`;
+  }
+}
+</script>
