@@ -163,9 +163,9 @@
 
 	#localeNumbers {
 		display: grid;
-		grid-template-columns: 60% 40%;
+		grid-template-columns: 55% 45%;
 		column-gap: 6px;
-		font-size: 12px;
+		font-size: 10px;
 		line-height: 1.4;
 		margin-bottom: 1rem;
 	}
@@ -203,14 +203,11 @@
 		<h1>Technical Specifications</h1>
 		<div class="textCont" style="text-align: center;"><div class="techCredits genDate">Calendar was generated on </div></div>
 		<div class="textCont">
-			Algorithm: NOAA
-			<div class="techCredits">(using the KosherJava library by <i>Eliyahu Hershfeld</i>)</div>
+			<!-- Algorithm: NOAA
+			<div class="techCredits">(using the KosherJava library by <i>Eliyahu Hershfeld</i>)</div> -->
 			Visual Sunrise radius: <span data-zyReplace="sunriseRadius"></span>
 			<div class="techCredits">(provided via ChaiTables/לוח בכורי יוסף, by <i>R' Chaim Keller</i>)</div>
 		</div>
-		<!-- 				<td data-zyReplace="dawnTzet"></td>
-				<td data-zyReplace="nightfall"></td>
-				<td data-zyReplace="stringentNightfall"></td>-->
 		<div id="localeNumbers" data-zyFind="adjustmentsTable">
 			<div>Calculated Lengths</div>
 			<div>Dawn</div>
@@ -221,6 +218,8 @@
 			<div data-zyReplace="nightfall"></div>
 			<div>Stringent Nightfall</div>
 			<div data-zyReplace="stringentNightfall"></div>
+			<div style="border-top: 1px solid black;">Tzet Melakha (Shabbat/YT)</div>
+			<div data-zyReplace="tzetShabbat" style="border-top: 1px solid black;"></div>
 		</div>
 		<div style="display: grid; grid-template-columns: auto 140px; gap: 6px; align-items: center;">
 			<div data-zfFind="locationMap" style="aspect-ratio: 1/1; height: fit-content;"></div>

@@ -155,16 +155,16 @@ function messageHandler (x) {
 		},
 		[KosherZmanim.JewishCalendar.LAG_BAOMER]: {
 			hb: "לג בעומר",
-			en: "Lag Baomer",
-			"en-et": "Lag Baomer"
+			en: "Lag Ba'Omer",
+			"en-et": "Lag Ba'Omer"
 		},
 		[KosherZmanim.JewishCalendar.TU_BEAV]: {
-			"he": 'ט"ו באב',
+			hb: 'ט"ו באב',
 			en: "Tu Be'av",
 			"en-et": "Tu Be'av"
 		},
 		[KosherZmanim.JewishCalendar.TU_BESHVAT]: {
-			"he": 'ט"ו בשבת',
+			hb: 'ט"ו בשבת',
 			en: "Tu Bishvath",
 			"en-et": "Tu Bishvath"
 		},
@@ -1527,20 +1527,20 @@ function messageHandler (x) {
 				[WebsiteLimudCalendar.ADAR_II]: {
 					"hb": "אין אומרים תחנון בפורים",
 					"en": "No Taḥanun said on "
-						+ purim.formatFancyDate() + ` (Purim) & `
-						+ purim.tomorrow().formatFancyDate() + ` (Shushan Purim)`,
+						+ purim.formatFancyDate() + ` (${yomTovObj[purim.getYomTovIndex()].en}) & `
+						+ purim.tomorrow().formatFancyDate() + ` (${yomTovObj[purim.tomorrow().getYomTovIndex()].en})`,
 					"en-et": "No Taḥanun said on "
-						+ purim.formatFancyDate() + ` (Purim) & `
-						+ purim.tomorrow().formatFancyDate() + ` (Shushan Purim)`,
+						+ purim.formatFancyDate() + ` (${yomTovObj[purim.getYomTovIndex()].en}) & `
+						+ purim.tomorrow().formatFancyDate() + ` (${yomTovObj[purim.tomorrow().getYomTovIndex()].en})`,
 				},
 				[WebsiteLimudCalendar.IYAR]: {
 					"hb": "אין אומרים תחנון בפסח שני ולג בעומר",
 					"en": "No Taḥanun said on "
-						+ pesahSheni.formatFancyDate() + ` (Pesah Sheni) & `
-						+ lagBaomer.formatFancyDate() + ` (Lag Ba'Omer)`,
+						+ pesahSheni.formatFancyDate() + ` (${yomTovObj[pesahSheni.getYomTovIndex()].en}) & `
+						+ lagBaomer.formatFancyDate() + ` (${yomTovObj[lagBaomer.getYomTovIndex()].en})`,
 					"en-et": "No Taḥanun said on"
-						+ pesahSheni.formatFancyDate() + ` (Pesah Sheni) & `
-						+ lagBaomer.formatFancyDate() + ` (Lag Ba'Omer)`,
+						+ pesahSheni.formatFancyDate() + ` (${yomTovObj[pesahSheni.getYomTovIndex()].en}) & `
+						+ lagBaomer.formatFancyDate() + ` (${yomTovObj[lagBaomer.getYomTovIndex()].en})`,
 				},
 				[WebsiteLimudCalendar.SIVAN]: {
 					"hb": "אין אומרים תחנון מראש חודש עד י״ב בסיון)",
