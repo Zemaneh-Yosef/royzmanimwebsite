@@ -340,6 +340,11 @@ class ZemanFunctions extends ZemanimMathBase {
 		return this.plagHaminchaCore(this.timeRange.current.nightfall);
 	}
 
+	getPlagHaminhaMaamarMordechi() {
+		return this.timeRange.current.nightfall
+			.subtract(this.fixedToSeasonal(Temporal.Duration.from({ hours: 1, minutes: 15 }), this.timeRange.current.dawn.until(this.timeRange.current.nightfall)));
+	}
+
 	getCandleLighting() {
 		return this.timeRange.current.sunset.subtract({ minutes: this.config.candleLighting })
 	}

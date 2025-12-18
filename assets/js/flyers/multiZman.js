@@ -199,7 +199,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 
 		for (let i = 0; i <= 7; i++) {
 			const buildObj = {
-				plagHamincha: calc.getPlagHaminhaHalachaBrurah()
+				plagHamincha: calc.getPlagHaminhaMaamarMordechi()
 			};
 
 			if (jCal.getDate().dayOfWeek == 5)
@@ -241,6 +241,8 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			for (const [timeName, timeValue] of Object.entries(timeObj)) {
 				if (timeName == 'plagHamincha')
 					continue;
+				else if (timeName == 'candleLighting' || timeName == 'tzetShabbat')
+					relevantDay.classList.add(timeName == 'candleLighting' ? 'candleLighting' : 'havdala');
 
 				relevantDay.appendChild(document.createTextNode(timeValue.toLocaleString(...timeFormatAttr)));
 			}

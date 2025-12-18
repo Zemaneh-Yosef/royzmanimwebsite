@@ -219,15 +219,23 @@ export default class ChaiTables {
 		/** @type {Record<string, Document>} */
 		const radiusData = {};
 
-		if (this.selectedCountry == "Israel") {
-			smallestRadius = "2";
-		} else if (this.selectedCountry == "USA" && this.indexOfMetroArea == 32) {
-			smallestRadius =
-				(this.zmanLister.geoLocation.getLatitude() == 34.09777065545882
-					&& this.zmanLister.geoLocation.getLongitude() == -118.42699812743257)
-					? "14"
-					: "8";
-		} else {
+		const forceAlternativeRadius = [
+			{key: ["Israel", null], value: "2"},
+			{key: ["USA", 32], value: (this.zmanLister.geoLocation.getLatitude() == 34.09777065545882
+				&& this.zmanLister.geoLocation.getLongitude() == -118.42699812743257)
+				? "14"
+				: "8"
+			}
+		]
+
+		const findForceAlternativeRadius = forceAlternativeRadius.find(item =>
+			item.key[0] == this.selectedCountry
+			&& (item.key[1] === null || item.key[1] == this.indexOfMetroArea)
+		);
+
+		if (findForceAlternativeRadius)
+			smallestRadius = findForceAlternativeRadius.value;
+		else {
 			const ctBiggestRadius = this.getChaiTablesLink(searchRadius[searchRadius.length - 1], 0, calendar, 413);
 			const ctBiggestFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctBiggestRadius.toString().replace(/https?:\/\//g, ''));
 			const ctBiggestResponse = await ctBiggestFetch.text()

@@ -146,7 +146,7 @@ export default async function onlineSchedule(url, silent=false) {
 			if (!element.hasAttribute("data-keep"))
 				element.remove();
 
-		const regex = new RegExp(`(we|sh)\\|(${methodNames.filter(str => str.startsWith('get')).join("|")})\\|(\\+|-)(\\d{2}):(\\d{2})(r(?:05|10|15|30)|e)`);
+		const regex = new RegExp(`(we|sh|eSh|nWe)\\|(${methodNames.filter(str => str.startsWith('get')).join("|")})\\|(\\+|-)(\\d{2}):(\\d{2})(r(?:05|10|15|30)|e)`);
 
 		/** @type {[string, string][]} */
 		const table = Object.entries(value);
