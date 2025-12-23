@@ -98,6 +98,6 @@ if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supported
             }
         }
     }
-    
+
     handleLanguage();
 }

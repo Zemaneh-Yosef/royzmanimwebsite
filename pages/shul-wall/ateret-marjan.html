@@ -309,8 +309,8 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
-	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/ateret-marjan/schedule.ini');
+	import schedule from '/assets/js/shul-wall/excelScheduleOnline.js';
+	await schedule('https://docs.google.com/spreadsheets/d/102b9M_rgEN9DFkSFVD6KGIeCD8Zb04PUt1X08hYwgzQ/export?format=xlsx');
 
 	/* const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')

@@ -4,6 +4,7 @@ permalink: /shul-wall/mishkan-torah
 layout: nothing
 ---
 
+<link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
 <link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
 
 <style>
@@ -15,26 +16,12 @@ layout: nothing
 		width: 100%;
 		height: 100dvh;
 		display: grid;
-		background-image: url("/assets/images/shul-wall/877577.jpg");
-        background-size: cover;
-		background-position-y: bottom;
+		background: white;
 		font-family: 'Neutro', var(--bs-body-font-family);
 	}
 
 	#content > * {
 		grid-area: 1 / 1;
-	}
-
-	#trapezoid {
-		border-top: 147px solid #555;
-		border-left: 50px solid transparent;
-		border-right: 50px solid transparent;
-		height: 0;
-		width: 275px;
-
-		justify-self: center;
-        align-self: start;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 	}
 
 	#clock {
@@ -72,17 +59,17 @@ layout: nothing
 		z-index: 5;
 		display: grid;
 		grid-template-columns: 1.25fr 1fr 1.25fr;
-		grid-template-rows: 1fr auto auto;
+		grid-template-rows: 1fr 1fr auto auto;
 		column-gap: 10px;
+		row-gap: 5px;
 	}
 
 	#gne {
-		height: 12.5dvh;
+		width: 25vw;
 		justify-self: center;
-		align-self: start;
-		margin-top: .5rem;
-		z-index: 3;
-		border-radius: 25%;
+		align-self: center;
+		z-index: 1;
+		opacity: 50%;
 	}
 
 	.wideView {
@@ -90,10 +77,6 @@ layout: nothing
 		text-align: center;
 		align-self: end;
 		grid-column: 1 / span 3;
-	}
-
-	.wideView.needsResize {
-		font-size: .175em;
 	}
 
 	#content[data-current-page="1"] .langTV:not(.lang-hb) {
@@ -106,32 +89,16 @@ layout: nothing
 
 	.wideView > * {
 		flex: 1 1;
-		padding: 8px;
+		width: 125px;
 	}
 
-	.wideView.needsResize > * {
-		padding: 5px;
-	}
-
-	.wideView > *:first-child {
-		padding-left: 0;
-	}
-
-	.wideView > *:last-child {
-		padding-right: 0;
-	}
-
-	.wideView > *:not(:last-child) {
+	.wideView > * {
 		border-right:1px solid black;
 	}
 
-	article > .langTV:nth-child(1), article > .langTV:nth-child(2) {
+	article > .langTV {
 		padding-bottom: .5rem;
 		font-weight: bold;
-	}
-
-	.secondShemaDispl {
-		font-size: .8em;
 	}
 
 	#poweredBy {
@@ -157,7 +124,7 @@ layout: nothing
 		--bs-list-group-item-padding-y: 0.25rem;
 		--bs-list-group-border-color: #49505755;
 		--bs-list-group-item-padding-x: .35rem;
-		--bs-list-group-color: black;
+		--bs-list-group-color: white;
 	}
 
 	#dataGrid h2 {
@@ -173,6 +140,42 @@ layout: nothing
 
 	#dataGrid > *:not(:nth-child(2)):not(#megaline) {
 		font-size: 0.75em;
+	}
+
+	#dataGrid > *:not(:nth-child(2)):not(:last-child):not(#megaline):not(#ishMatzliachSlide) {
+		height: 100%;
+		padding: .5rem;
+		padding-top: 1rem;
+		position: relative;
+		color: white;
+	}
+
+	#dataGrid > *:not(:nth-child(2)):not(:last-child):not(#megaline):not(#ishMatzliachSlide)::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 50%;
+		height: 100%;
+		background: black;
+		opacity: 90%;
+		border-top-left-radius: 40%;
+		border-top-right-radius: 20% 10%;
+		z-index: -1;
+	}
+
+	#dataGrid > *:not(:nth-child(2)):not(:last-child):not(#megaline):not(#ishMatzliachSlide)::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: 50%;
+		height: 100%;
+		background: black;
+		opacity: 90%;
+		border-top-left-radius: 20% 10%;
+		border-top-right-radius: 40%;
+		z-index: -1;
 	}
 
 	#dataGrid .card .list-group-item {
@@ -210,7 +213,7 @@ layout: nothing
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <div id="content" data-current-page="1" data-page-count="2">
-	<img id="gne" src="/assets/images/shul-wall/ohel-michael-logo.jpg" />
+	<img id="gne" src="/assets/images/shul-wall/Mishkan-Torah-Logo.png" />
 	<div id="trapezoid"></div>
 	<div id="poweredBy">
 		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l
@@ -222,13 +225,8 @@ layout: nothing
 				<ul class="list-group list-group-flush" id="sedarim">
 				</ul>
 			</div>
-			<h2>Weekday Shiurim</h2>
-			<div class="card">
-				<ul class="list-group list-group-flush" id="shiurim">
-				</ul>
-			</div>
 		</div>
-		<div style="padding-top: 4.5rem;">
+		<div style="grid-row-end: span 2;">
 			<div data-en-date class="langTV lang-en text-center"></div>
 			<div data-hb-date class="langTV lang-hb text-center"></div>
 			<hr style="margin: .15rem 0; width: 78%; margin-left: auto; margin-right: auto;">
@@ -286,13 +284,6 @@ layout: nothing
 			<h2 style="text-align: center;" data-parasha data-prefix="en-hb"></h2>
 			<div class="centerLeftgrid">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
-					<div data-zfReplace="Haftara"><img src="/assets/images/shabbat-abstract/megila-icon.png" style="height: 1.5ch; vertical-align: inherit;"> Haftara: </div>
-					<div data-zfReplace="makamot"><span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>Makam </div>
-				</div>
-			</div>
-			<hr style="margin: .15rem 0">
-			<div class="centerLeftgrid">
-				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
 					<div data-tzetShab data-ikar-text='LOTL'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
 				</div>
@@ -300,6 +291,15 @@ layout: nothing
 			<div class="card">
 				<ul class="list-group list-group-flush" id="shabbat"></ul>
 			</div>
+		</div>
+		<div style="line-height: 1.3;">
+			<h2>Weekday Shiurim</h2>
+			<div class="card">
+				<ul class="list-group list-group-flush" id="shiurim" style="display: none;">
+				</ul>
+			</div>
+		</div>
+		<div style="line-height: 1.3;">
 			<h2>Weekday Tefilot</h2>
 			<div class="card">
 				<ul class="list-group list-group-flush" id="weekday">
@@ -340,24 +340,60 @@ layout: nothing
 				<span data-zfReplace="SeasonalPrayers"></span>
 			</span>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en" data-primaryShema="getSofZemanShemaMGA">
-			{% for item in site.data.tv.listTVZman %}
+		<div class="marquee marqueeHorizontal" id="flyerForBusiness" style="grid-column: 1 / span 3; --length: 45s">
+			<section class="wideView marquee__content" data-zfFind="calendarFormatter" data-langPull="hb en">
 				<article
-					data-zmanid="{{ item.id }}"
-                    {% if item.round %}data-round="{{ item.round }}"{% endif %}
-					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
-					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					data-zmanid="customDawn"
+					data-round="later"
+					data-timeGetter="customDawn"
 				>
-					<span class="langTV lang-hb">{{ item.names.he }}</span>
-					<span class="langTV lang-en">{{ item.names.en }}</span>
-					<span class="langTV lang-et">{{ item.names.et }}</span>
-					<span class="langTV lang-ru">{{ item.names.ru }}</span>
+					<span class="langTV lang-hb">עלות (חומרה)</span>
+					<span class="langTV lang-en">Stringent Dawn</span>
+					<span class="langTV lang-et">Stringent Dawn</span>
+					<span class="langTV lang-ru"></span>
 					<span class="timeDisplay"></span>
 				</article>
-			{% endfor %}
-		</section>
+				{% for item in site.data.tv.listTVZman %}
+					<article
+						data-zmanid="{{ item.id }}"
+						{% if item.round %}data-round="{{ item.round }}"{% endif %}
+						{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+						{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+						{% if item.attributes.condition and item.id != "alot" %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					>
+						<span class="langTV lang-hb">{{ item.names.he }}</span>
+						<span class="langTV lang-en">{{ item.names.en }}</span>
+						<span class="langTV lang-et">{{ item.names.et }}</span>
+						<span class="langTV lang-ru">{{ item.names.ru }}</span>
+						<span class="timeDisplay"></span>
+					</article>
+				{% endfor %}
+				<article
+					data-zmanid="minhaKetana"
+					data-round="later"
+					data-timeGetter="getMinchaKetana"
+				>
+					<span class="langTV lang-hb">מנחה קטנה</span>
+					<span class="langTV lang-en">Mincha Ketana</span>
+					<span class="langTV lang-et">Mincha Ketana</span>
+					<span class="langTV lang-ru"></span>
+					<span class="timeDisplay"></span>
+				</article>
+				<article
+					data-zmanid="rt"
+					data-round="later"
+					data-timeGetter="getTzetRT"
+				>
+					<span class="langTV lang-hb">רבינו תם</span>
+					<span class="langTV lang-en">Rabbenu Tam</span>
+					<span class="langTV lang-et">Rabbenu Tam</span>
+					<span class="langTV lang-ru"></span>
+					<span class="timeDisplay"></span>
+				</article>
+			</section>
+			<section aria-hidden="true" class="wideView marquee__content"></section>
+		</div>
 	</div>
 </div>
 
@@ -372,4 +408,8 @@ layout: nothing
 	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
 
 	await schedule('https://zemaneh-yosef.github.io/extras/yonah-schedule.ini');
+	for (const child of document.getElementsByClassName('marquee__content')[0].children) {
+		const newChild = child.cloneNode(true);
+		child.parentElement.nextElementSibling.appendChild(newChild);
+	}
 </script>
