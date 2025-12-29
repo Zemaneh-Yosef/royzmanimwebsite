@@ -1,13 +1,7 @@
 // @ts-check
-import preSettings from "./preSettings.js";
-import WebsiteCalendar from "../WebsiteCalendar.js";
 import ChaiTables from "../features/chaiTables.js";
-import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-
-/** @type {[string, number, number, number, string]} */
-// @ts-ignore
-const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
-const geoLocation = new GeoLocation(...glArgs);
+import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { geoLocation, jCal } from "./base.js";
 
 /**
  * @param {string} selectedCountry
@@ -43,10 +37,6 @@ export async function validNetzAssert(selectedCountry, indexOfMetroArea) {
  * @param {number} indexOfMetroArea
  */
 export async function scrapeChaiTables(selectedCountry, indexOfMetroArea) {
-
-    const dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
-    const jCal = new WebsiteCalendar(dateForSet);
-
     const chaiTableExtracter = new ChaiTables({ geoLocation, jCal });
     chaiTableExtracter.setOtherData(selectedCountry, indexOfMetroArea);
 

@@ -1,204 +1,134 @@
 // @ts-check
-import { parse } from "../../libraries/ini.js";
-import { methodNames } from "../ROYZmanim.js";
+import './zman-schedule.js'
 
-/** @type {Record<string, Partial<{ ru: string; et: string; en: string; hb: string; }>>} */
-const localizedIndividual = {
-	"selihot": {
-		hb: "סליחות",
-		en: "Selichot",
-		et: "Seliḥot",
-		ru: "Селихот"
-	},
-	"shacharit": {
-		hb: "שחרית",
-		en: "Shacharit",
-		et: "Shaḥarit",
-		ru: "Шахарит"
-	},
-	"mincha": {
-		hb: "מנחה",
-		en: "Mincha",
-		et: "Minḥa",
-		ru: "Минха"
-	},
-	"minchaArvit": {
-		hb: "מנחה וערבית",
-		en: "Mincha & Arvit",
-		et: "Minḥa & Arvit",
-		ru: "Минха и Арвит"
-	},
-	"arvit": {
-		hb: "ערבית",
-		en: "Arvit",
-		et: "Arvit",
-		ru: "Арвит"
-	},
+import { scheduleSettings } from "./base.js";
+import { parse as parseIni } from "../../libraries/ini.js";
+import * as xlsx from "../../libraries/xlsx.mjs";
 
-	"seudatShlishitMincha": {
-		hb: "מנחה + סעודת שלישית",
-		en: "Mincha + Seudat Shelishit",
-		et: "Minḥa + Seudat Shelishit",
-		ru: "Минха + Сеудат Шелишит"
-	},
-	"hachnasatShabbat": {
-		hb: "הכנסת שבת<br>(מנחה, קבלת שבת וערבית)",
-		en: "Hakhnasat Shabbat<br>(Mincha, Kabbalat Shabbat & Arvit)",
-		et: "Hakhnasat Shabbat<br>(Minḥa, Kabbalat Shabbat & Arvit)",
-		ru: "Встреча Шаббата<br>(Минха, Каббалат Шаббат и Арвит)"
-	},
+/** @param {string | URL | Request} url */
+export async function loadIniSchedule(url, silent=false) {
+	const iniText = await (await fetch(url)).text();
+	const iniObj = parseIni(iniText);
 
-	"earlyMincha": {
-		hb: "מנחה מוקדמת",
-		en: "Early Mincha",
-		et: "Early Minḥa",
-		ru: "Ранняя Минха"
-	},
-
-	"afternoonShiur": {
-		hb: "שיעור אחר הצהריים",
-		en: "Afternoon Shiur",
-		et: "Afternoon Shiur",
-		ru: "Послеполуденный Шиур"
-	},
-	"morningShiur": {
-		hb: "שיעור בוקר",
-		en: "Morning Shiur",
-		et: "Morning Shiur",
-		ru: "Утренний Шиур"
-	},
-
-	"mainShaharit": {
-		hb: "שחרית ראשית",
-		en: "Main Shacharit",
-		et: "Main Shaḥarit",
-		ru: "Основной Шахарит"
-	},
-	"youthShaharit": {
-		hb: "שחרית לנערים",
-		en: "Youth Shacharit",
-		et: "Youth Shaḥarit",
-		ru: "Шахарит для молодежи"
-	},
-
-	"selichot1": {
-		hb: "סליחות ראשונות",
-		en: "1st Selichot",
-		et: "1st Seliḥot",
-		ru: "1-й Селихот"
-	},
-	"shacharit1": {
-		hb: "שחרית ראשונה",
-		en: "1st Shacharit",
-		et: "1st Shaḥarit",
-		ru: "1-й Шахарит"
-	},
-	"selichot2": {
-		hb: "סליחות שניות",
-		en: "2nd Selichot",
-		et: "2nd Seliḥot",
-		ru: "2-й Селихот"
-	},
-	"shacharit2": {
-		hb: "שחרית שנייה",
-		en: "2nd Shacharit",
-		et: "2nd Shaḥarit",
-		ru: "2-й Шахарит"
-	}
+	return await loadSchedule(iniObj, silent);
 }
 
-/** @param {string} url */
-export default async function onlineSchedule(url, silent=false) {
-	const iniText = await (await fetch(url)).text();
-	const iniObj = parse(iniText);
+/** @param {string | URL | Request} url */
+export async function loadJsonSchedule(url, silent=false) {
+	const jsonText = await (await fetch(url)).json();
+	return await loadSchedule(jsonText, silent);
+}
 
-	let autoSchedule = false;
+/**
+ * @param {string | URL | Request} url
+ */
+export async function loadExcelSchedule(url, silent=false) {
+	const iniText = await (await fetch(url)).arrayBuffer();
+	const workbook = xlsx.read(iniText, { type: "array" });
 
-	const formattedIniObj = Object.entries(iniObj);
+	return await loadSchedule(mapSheetColumns(workbook.Sheets), silent);
+}
 
-	for (const formattedIniIndex in formattedIniObj) {
-		const [tableKey, value] = formattedIniObj[formattedIniIndex];
+/**
+ * @param {Record<string, string | Record<string, string>>} data
+ */
+export async function loadSchedule(data, silentFail = false) {
+    /** @type {Record<string, any>} */
+    const unprocessedEntries = {};
 
-		const elemTitle = tableKey.split(" ");
-		const elemId = elemTitle.shift(); // Fixes elemTitle as it gets the id
+    for (const [sectionKey, value] of Object.entries(data)) {
 
-		if (!document.getElementById(elemId)) {
-			if (!silent)
-				throw new Error(`Table with id ${tableKey} (simple: ${elemId}) not found`);
-
+		if (typeof value == "string" || typeof value == "number") {
+			document.getElementById(sectionKey).innerHTML = String(value);
+			continue;
+		} else if (Array.isArray(value)) {
+			unprocessedEntries[sectionKey] = value;
 			continue;
 		}
 
-		if (typeof value == "string") {
-			document.getElementById(elemId).innerHTML = value;
-			continue;
-		}
+        // 1. Split section key
+        const parts = sectionKey.split(" ");
+        const elemId = parts.shift();          // "shabbat"
+        const titleOverride = parts.join(" "); // "Schedule"
 
-		if (elemTitle.length) {
-			let titleElem = document.getElementById(elemId).parentElement.previousElementSibling;
-			if (titleElem.hasAttribute('data-zfreplace'))
-				titleElem = titleElem.previousElementSibling;
+        const elem = document.getElementById(elemId);
 
-			titleElem.innerHTML = elemTitle.join(" ")
-		}
+        if (!elem) {
+            if (!silentFail) {
+                console.warn(`Element with id "${elemId}" (from section [${sectionKey}]) not found`);
+            }
+            unprocessedEntries[sectionKey] = value;
+            continue;
+        }
 
-		for (const element of document.querySelectorAll(`#${elemId} li`))
-			if (!element.hasAttribute("data-keep"))
-				element.remove();
+        // 2. Update header above the element
+        if (titleOverride.length) {
+            const card = elem.closest(".card");
+            let headerElem = card ? card.previousElementSibling : null;
 
-		const regex = new RegExp(`(we|sh|eSh|nWe)\\|(${methodNames.filter(str => str.startsWith('get')).join("|")})\\|(\\+|-)(\\d{2}):(\\d{2})(r(?:05|10|15|30)|e)`);
+            if (headerElem && headerElem.hasAttribute("data-zfreplace")) {
+                headerElem = headerElem.previousElementSibling;
+            }
 
-		/** @type {[string, string][]} */
-		const table = Object.entries(value);
-		for (const [rowTitle, rowTime] of table) {
-			const fullWidthDescription = rowTitle.startsWith('fullWidthDescription');
-			const rowTitleKey = fullWidthDescription ? rowTitle.split('|')[1] : rowTitle;
-			let localizedName = rowTitleKey;
-			if (rowTitleKey.startsWith('preFormatTitle-') && localizedIndividual[rowTitleKey.replace('preFormatTitle-', '')]) {
-				localizedName =
-					Object.entries(localizedIndividual[rowTitleKey.replace('preFormatTitle-', '')])
-						.map(([lang, text]) => `<span class="langTV lang-${lang}">
-							<b>${text.split('<br>')[0]}</b>
-							${text.includes('<br>') ? '<br>' + text.split('<br>')[1] : ''}
-						</span>`).join("");
+            if (headerElem && headerElem.tagName === "H1") {
+                headerElem.innerHTML = titleOverride;
+            }
+        }
+
+        // 3. Pass data to the custom element
+        if ("data" in elem) {
+            // @ts-ignore
+            elem.data = value;
+            continue;
+        }
+
+        // 4. If it's not a custom element, it's an error now
+        console.error(`Element #${elemId} is not a <zman-schedule>. Migration required.`);
+    }
+
+    return unprocessedEntries;
+}
+
+
+/**
+ * Convert any sheet-like object containing A# / B# column pairs
+ * into a simple { key: value } mapping, using each entry's "w" field.
+ *
+ * @param {Object} sheetData - The full input object containing one or more sheets.
+ * @returns {Record<string, Record<string, string>>} A new object where each sheet is mapped to { title: time }.
+ */
+function mapSheetColumns(sheetData) {
+	/** @type {Record<string, Record<string, string>>} */
+	const output = {};
+
+	for (const [sheetName, sheet] of Object.entries(sheetData)) {
+		/** @type {Record<string, string>} */
+		const mapped = {};
+
+		for (const [key, cell] of Object.entries(sheet)) {
+			if (key.startsWith("A")) {
+				const index = key.slice(1);
+				const title = cell?.w;
+				const time = sheet[`B${index}`]?.w;
+
+				if (title && time) {
+					mapped[title] = time;
+				}
 			}
-
-			const rowGroup = document.createElement("li");
-			rowGroup.classList.add("list-group-item", (fullWidthDescription ? 'schedule-entry-grid' : "d-flex"), "justify-content-between", "align-items-center");
-
-			const nameDiv = document.createElement("div");
-			nameDiv.innerHTML = localizedName;
-			rowGroup.appendChild(nameDiv);
-
-			const timeDiv = document.createElement("div");
-			if (regex.test(rowTime)) {
-				autoSchedule = true;
-				const matchers = rowTime.match(regex);
-				timeDiv.setAttribute("data-autoschedule-type", matchers[1]);
-				timeDiv.setAttribute("data-autoschedule-function", matchers[2]);
-				timeDiv.setAttribute("data-autoschedule-plusorminus", matchers[3]);
-				timeDiv.setAttribute("data-autoschedule-hours", matchers[4]);
-				timeDiv.setAttribute("data-autoschedule-minutes", matchers[5]);
-				timeDiv.setAttribute('data-autoschedule-round', matchers[6]);
-			} else
-				timeDiv.innerHTML = rowTime;
-			rowGroup.appendChild(timeDiv);
-
-			document.getElementById(elemId).appendChild(rowGroup);
-
-			if (fullWidthDescription) {
-				const descriptionDiv = document.createElement("div");
-				descriptionDiv.innerHTML = rowTitle.split('|')[2]
-				rowGroup.appendChild(descriptionDiv);
-			}
 		}
 
-		// Delete the key from the ini object so we know it's been processed
-		delete formattedIniObj[formattedIniIndex];
+		output[sheetName] = mapped;
 	}
 
-	if (autoSchedule)
-		await import("./auto-schedule.js").then(({ default: autoSchedule }) => autoSchedule());
+	return output;
+}
 
-	return formattedIniObj
+if ("schedule" in scheduleSettings && scheduleSettings.schedule !== "manual") {
+	if (scheduleSettings.schedule.type === "ini") {
+		await loadIniSchedule(scheduleSettings.schedule.url);
+	} else if (scheduleSettings.schedule.type === "json") {
+		await loadJsonSchedule(scheduleSettings.schedule.url);
+	} else if (scheduleSettings.schedule.type === "excel") {
+		await loadExcelSchedule(scheduleSettings.schedule.url);
+	}
 }

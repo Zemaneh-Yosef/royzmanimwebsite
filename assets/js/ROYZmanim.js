@@ -4,7 +4,7 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { MathUtils, Temporal } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import TekufahCalculator from "./tekufot.js";
 
-/** @typedef {{minutes: number; degree: number}} melakhaTzet */
+/** @typedef {{minutes: number; degree?: number}} melakhaTzet */
 
 /**
  * @param {string | Temporal.Duration | KosherZmanim.Temporal.DurationLike} a
@@ -386,7 +386,7 @@ class ZemanFunctions extends ZemanimMathBase {
 			return this.getTzetHumra();
 		}
 
-		if (this.config.fixedMil) {
+		if (this.config.fixedMil || (!Array.isArray(humraConf) && humraConf.degree == null)) {
 			let humraObj = Array.isArray(humraConf) ? humraConf.sort((humraObjA, humraObjB) => humraObjB.minutes - humraObjA.minutes)[0] : humraConf;
 			return { time: this.timeRange.current.sunset.add({ minutes: humraObj.minutes }), minutes: humraObj.minutes };
 		}

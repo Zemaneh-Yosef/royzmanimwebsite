@@ -349,32 +349,67 @@
 	}
 </style>
 
+<!-- <div id="intCover">
+	<div>
+		<div style="text-align: center; font-size: .65rem;">
+			<b style="text-decoration: underline;">The Bensimhon Family Edition</b><br>
+			In honor of Yaffa, Nissim, Moshe, & Yehudah Bensimhon<br><br>
+			Refuah Shelema Ezra ben Alice Ester<br>
+			Hatzlacha for Maor Moshe ben Maya<br><br>
+		</div>
+		<div id="sponsorCompany">
+			<img src="/assets/print-cal-sponsor/nybvc.svg" id="sponsorLogo">
+			<div>
+				<b>NY Building Violation Consulting</b><br>
+				<i class="bi bi-telephone-fill"></i> +1 (347) 280-9372<br>
+				<i class="bi bi-envelope-at-fill"></i> info@nybvc.com
+			</div>
+		</div>
+	</div>
+    <div id="branding">
+        <div id="intTitle" style="align-self: start;">
+            <img src="/assets/images/print/ZY-b&w-banner.png">
+            <p id="titleLocation">Portable-Print Calendar for <span data-zyLocationText></span></p>
+        </div>
+		<div id="tableOfContents">
+			<ul>
+				 <li>About Our Project</li>
+				 <li>Approbations & Blessings</li>
+				 <li>Bi-Monthly Calendar</li>
+				 <li>Fundamentals of the Calendar – Seasonal Minutes</li>
+				 <li>Calendar Usage Guide</li>
+				 <li>Mobile Application Download</li>
+			</ul>
+		</div>
+        <div id="intCredits">By Maor Na'im & Elyahu Jacobi<br>(Full credits on the back cover)</div>
+    </div>
+</div> -->
+
 <div id="intCover">
     <div id="branding">
-        <div></div>
+		<div></div>
         <div id="intTitle">
             <img src="/assets/images/print/ZY-b&w-banner.png">
             <p id="intTitleLocation">Portable-Print Calendar for <span data-zyLocationText></span></p>
         </div>
         <div id="intCredits">By Maor Na'im & Elyahu Jacobi<br>(Full credits on the back cover)</div>
     </div>
-    <div id="tableOfContents">
-        <ul>
-             <li>About Our Project</li>
-             <li>Approbations & Blessings</li>
-             <li>Bi-Monthly Calendar</li>
-             <li>Fundamentals of the Calendar – Seasonal Minutes</li>
-             <li>Calendar Usage Guide</li>
-             <li>Mobile Application Download</li>
-        </ul>
-    </div>
+	<div id="tableOfContents">
+		<ul>
+			 <li>About Our Project</li>
+			 <li>Approbations & Blessings</li>
+			 <li>Bi-Monthly Calendar</li>
+			 <li>Fundamentals of the Calendar – Seasonal Minutes</li>
+			 <li>Calendar Usage Guide</li>
+			 <li>Mobile Application Download</li>
+		</ul>
+	</div>
 </div>
 
 <style>
 #intCover {
-    width: calc(100% - .55in);
     display: grid;
-    grid-template-columns: 2.8in 1fr;
+    grid-template-columns: 250px 1fr;
     height: calc(100vh - .55in);
     align-items: center;
 	page-break-before: always;
@@ -387,8 +422,6 @@
 	display: grid;
 	grid-template-rows: 1fr 1fr 1fr;
 	align-items: center;
-
-	width: 2.8in;
 }
 
 #branding img {
@@ -397,12 +430,17 @@
 
 #tableOfContents {
     border-left: 1px solid black;
-	margin-left: 3rem;
+	/* margin-left: 3rem; */
+	width: fit-content;
+	justify-self: center;
+	font-size: .9rem;
+	text-align: left;
 }
 
 #tableOfContents ul {
-	margin-bottom: 1rem;
-	margin-top: 1rem;
+	/*margin-bottom: 1rem;
+	margin-top: 1rem; */
+	margin-bottom: 0;
 }
 
 #intCredits {

@@ -89,7 +89,7 @@ layout: nothing
 		z-index: 5;
 		display: grid;
 		grid-template-columns: 1fr 1.35fr 1fr;
-		grid-template-rows: 1fr;
+		grid-template-rows: auto 1fr;
 		align-items: end;
 		gap: 1.75vw;
 	}
@@ -101,13 +101,6 @@ layout: nothing
 		border-top-right-radius: 50% 15%;
 		padding: .5rem;
 		box-shadow: 0 0 7px 5px black;
-		padding-top: 1.5rem;
-	}
-
-	#dataGrid .templeBGSurround {
-		height: 77.5%;
-		display: grid;
-		align-content: center;
 		padding-top: 1.5rem;
 	}
 
@@ -187,32 +180,6 @@ layout: nothing
 		--bs-card-cap-padding-x: .75rem;
 	}
 
-	#megaline {
-		grid-column: 1 / span 4;
-		text-align: center;
-		font-size: 1.6em;
-		margin-left: -1vw;
-		margin-right: -1vw;
-		background-color: white;
-		color: black;
-		padding-top: 1rem;
-		padding-bottom: 1rem;
-	}
-
-	#megalineCont {
-		border-top: 4px dashed black;
-		border-bottom: 4px dashed black;
-	}
-
-	#megalineCont > span {
-		content: " - ";
-		unicode-bidi: isolate;
-	}
-
-	#megalineCont > span:not(:last-child)::after {
-		content: " - "
-	}
-
 	.blurOverlay {
 		height: 12vh;
 		backdrop-filter: blur(8px);
@@ -252,10 +219,8 @@ layout: nothing
 	}
 
 	#physicalLocation {
-		width: 17.5%;
-		justify-self: end;
-		margin-right: 8rem;
-		margin-top: 2rem;
+		width: 75%;
+		justify-self: center;
 	}
 
 	#dailWeekdayCard .list-group-item > *:first-child,
@@ -274,29 +239,15 @@ layout: nothing
 </style>
 
 <div id="content">
-	<img id="gne" src="https://zemaneh-yosef.github.io/extras/charm-circle/logo.png" />
-	<img id="physicalLocation" src="https://zemaneh-yosef.github.io/extras/charm-circle/shul-physical.jpg">
 	<div id="dataGrid">
-		<div id="dailWeekday" class="templeBG templeBGSurround">
-			<h1 style="text-align: center;">Daily Shiurim</h1>
-			<div class="card">
-				<ul class="list-group list-group-flush" id="dailWeekdayCard"></ul>
-			</div>
-		</div>
-		<div id="shulScheduling" class="templeBG">
+		<img id="gne" src="https://zemaneh-yosef.github.io/extras/charm-circle/logo.png" />
+		<div id="shulScheduling" class="templeBG" style="grid-row-end: span 2;">
 			<h1 style="    text-align: center;
 			font-size: 5rem;
 			margin-bottom: 0;
 			font-family: 'Frank Ruhl Libre';
 			font-weight: 800;
 			line-height: 1;" data-parasha data-prefix="hb"></h1>
-			<!-- <div class="centerLeftgrid">
-				<div style="text-align: left; width: fit-content; line-height: 1;">
-					<div data-zfReplace="Haftara"><img src="/assets/images/shabbat-abstract/megila-icon.png" style="height: 1.5ch; vertical-align: inherit;"> Haftara: </div>
-					<div data-zfReplace="makamot"><span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>Makam </div>
-				</div>
-			</div>
-			<hr style="margin: .15rem 0"> -->
 			<div class="centerLeftgrid">
 				<div style="text-align: left; width: fit-content; line-height: 1; font-size: 1.6rem; font-weight: 600;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
@@ -304,28 +255,35 @@ layout: nothing
 				</div>
 			</div>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shabbatSchCard" style="font-size: 1.25rem;">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="shabbatSchCard" style="font-size: 1.25rem;">
+				</zman-schedule>
 			</div>
 			<h1 style="text-align: center;">Weekday Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="weekdaySchCard" style="font-size: 1.25rem;">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="weekdaySchCard" style="font-size: 1.25rem;">
+				</zman-schedule>
 			</div>
 		</div>
-		<div id="shulShiurim" class="templeBG templeBGSurround">
+		<img id="physicalLocation" src="https://zemaneh-yosef.github.io/extras/charm-circle/shul-physical.jpg">
+		<div id="dailWeekday" class="templeBG">
+			<h1 style="text-align: center;">Daily Shiurim</h1>
+			<div class="card">
+				<zman-schedule class="list-group list-group-flush" id="dailWeekdayCard"></zman-schedule>
+			</div>
+		</div>
+		<div id="shulShiurim" class="templeBG">
 			<h1 style="text-align: center;">Weekday Shiurim</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="speWeekdayCard"></ul>
+				<zman-schedule class="list-group list-group-flush" id="speWeekdayCard"></zman-schedule>
 			</div>
 		</div>
 	</div>
 </div>
 
+<script id="zy-scheduleScreen-config" type="application/json">
+	{{ site.data.tv.config.charm-circle | jsonify }}
+</script>
 <script type="module">
-	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	await schedule('https://malka-minyanim.royzmanim.com/db/charm-circle.db');
-
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
 		.filter(str => str.startsWith('./charm-circle/flyer/'))
@@ -336,7 +294,7 @@ layout: nothing
 			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
 		.join('');
 </script>
-
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
 <script type="module" src="/assets/js/shul-wall/times.js"></script>

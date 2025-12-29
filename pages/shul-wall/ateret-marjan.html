@@ -27,13 +27,6 @@ layout: nothing
 		grid-area: 1 / 1;
 	}
 
-	#zyTrapezoid {
-        justify-self: center;
-        align-self: start;
-        width: 65%;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-    }
-
 	#background {
 		--margin: 1.25vw;
 		margin: var(--margin);
@@ -131,7 +124,7 @@ layout: nothing
 	}
 
 	#gne {
-		height: 11.5dvh;
+		height: 15dvh;
 		justify-self: start;
 		align-self: start;
 		margin-top: 1.75rem;
@@ -144,12 +137,17 @@ layout: nothing
 		text-align: center;
 		align-self: end;
 		grid-column: 1 / span 3;
-		font-size: 1.45em;
+		font-size: 1.65em;
 	}
 
 	.wideView > * {
 		flex: 1 1;
-		padding: 8px;
+		padding: 6px;
+		padding-top: 0;
+
+		display: flex;
+		justify-content: space-between;
+		flex-direction: column;
 	}
 
 	.wideView > *:first-child {
@@ -165,8 +163,8 @@ layout: nothing
 	}
 
 	article > .langTV {
-		height: calc(100% - 1em - 8px);
 		font-weight: bold;
+		margin-bottom: .25rem;
 	}
 
 	#poweredBy {
@@ -257,14 +255,9 @@ layout: nothing
 				</div>
 				{% endfor %}
 			</dl>
-			<!-- <h1 class="text-center mb-0 pt-3" style="font-size: 1.75rem;">Weekday Schedule</h1>
-			<div class="card" style="font-size: 1.02rem;">
-				<ul class="list-group list-group-flush" id="weekday">
-				</ul>
-			</div> -->
 			<h1 class="text-center mb-0 pt-3" style="font-size: 2.75rem;">Hiloulot of...</h1>
 			<div class="card hiloulotCard">
-				<div class="marquee" style="height: 100px; --length: 27.5s;">
+				<div class="marquee" style="height: 175px; --length: 27.5s;">
 					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
 						<li class="list-group-item">There aren't any today</li>
 					</ul>
@@ -274,13 +267,16 @@ layout: nothing
 				</div>
 			</div>
 		</div>
-		<div></div>
+		<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
+			<div class="carousel-inner">
+			</div>
+		</div>
 		<div>
 			<h1 class="text-center mb-0" style="font-size: 4rem; line-height: 1;">Shabbat Schedule</h1>
 			<h3 class="text-center" style="font-size: 2rem;" id="makam" data-zfReplace="makamot">🎵Makam </h3>
 			<div class="card" style="line-height: 1.25;">
-				<ul class="list-group list-group-flush" id="youth">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="youth">
+				</zman-schedule>
 			</div>
 		</div>
 		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="en">
@@ -301,6 +297,34 @@ layout: nothing
 	</div>
 </div>
 
+<script id="zy-scheduleScreen-config" type="application/json">
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "Ateret Marjan",
+			"lat": 34.164749,
+			"long": -118.525887,
+			"elevation": 0,
+			"timezone": "America/Los_Angeles"
+		},
+		"calendarToggle": {
+			"rtKulah": true,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 20,
+			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+		},
+		"schedule": {
+			"url": "https://docs.google.com/spreadsheets/d/102b9M_rgEN9DFkSFVD6KGIeCD8Zb04PUt1X08hYwgzQ/export?format=xlsx",
+			"type": "excel"
+		}
+	}
+</script>
 <script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
@@ -308,17 +332,15 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/limud.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
 <script type="module">
-	import schedule from '/assets/js/shul-wall/excelScheduleOnline.js';
-	await schedule('https://docs.google.com/spreadsheets/d/102b9M_rgEN9DFkSFVD6KGIeCD8Zb04PUt1X08hYwgzQ/export?format=xlsx');
-
-	/* const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
-		.filter(str => str.startsWith('./ish-matzliach-events/'))
+		.filter(str => str.startsWith('./ateret-marjan/events/'))
 
 	const carousel = document.getElementById('ishMatzliachSlide');
 	carousel.firstElementChild.innerHTML = flyerURLs
 		.map((url, index) =>
 			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
-		.join(''); */
+		.join('');
 </script>

@@ -1,62 +1,20 @@
 // @ts-check
 
-import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import WebsiteCalendar from "../WebsiteCalendar.js";
-import { ZemanFunctions, methodNames } from "../ROYZmanim.js";
-import preSettings from "./preSettings.js";
+import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { methodNames } from "../ROYZmanim.js";
 import { reload } from "./reload.js";
-
-/** @typedef {import("../WebsiteCalendar.js").zmanInfoList} zmanInfoList */
+import { currentZDT, jCal, zmanCalc, dtF } from "./base.js";
 
 if (!('timers' in window))
 	// @ts-ignore
 	window.timers = {}
-
-/** @type {[string, number, number, number, string]} */
-// @ts-ignore
-const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
-const geoL = new GeoLocation(...glArgs);
-
-const dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
-const jCal = new WebsiteCalendar(dateForSet);
-jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
-
-const zmanCalc = new ZemanFunctions(geoL, {
-	elevation: jCal.getInIsrael(),
-	fixedMil: preSettings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael(),
-	rtKulah: preSettings.calendarToggle.rtKulah(),
-	candleLighting: preSettings.customTimes.candleLighting(),
-	melakha: preSettings.customTimes.tzeithIssurMelakha(),
-})
-zmanCalc.setDate(dateForSet);
-
-/** @type {number[]} */
-let availableVS = [];
-if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-	const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-	if ('url' in ctNetz) {
-		const ctNetzLink = new URL(ctNetz.url);
-
-		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoL.getLatitude().toFixed(6)
-		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoL.getLongitude()).toFixed(6))
-			availableVS = ctNetz.times
-	}
-}
-zmanCalc.setVisualSunrise(availableVS);
-
-/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
-	hourCycle: preSettings.timeFormat(),
-	hour: 'numeric',
-	minute: '2-digit'
-}];
 
 const calList = document.querySelector('[data-zfFind="calendarFormatter"]')
 const langList = calList.getAttribute('data-langPull').split(' ')
 
 /**
  * @param {Element} timeSlot
- * @returns {[string, zmanInfoList]}
+ * @returns {[string, import('../WebsiteCalendar.js').zmanInfoList]}
  */
 function zmanListToFormat (timeSlot) {
 	/** @type {"degrees" | "seasonal"} */
@@ -103,14 +61,14 @@ for (let index = 0; index < 3; index++) {
 	for (const [yTimeName, yTimeData] of Object.entries(jCal.getZmanimInfo(true, zmanCalc, zmanimList, dtF))) {
 		if (yTimeData.zDTObj &&
 			yTimeData.display == 1
-			&& Temporal.ZonedDateTime.compare(yTimeData.zDTObj, Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())) == 1
+			&& Temporal.ZonedDateTime.compare(yTimeData.zDTObj, currentZDT) == 1
 			&& !(yTimeName in timesDataList))
 			timesDataList[yTimeName] = yTimeData;
 	}
 
 	jCal.setDate(jCal.getDate().add({ days: 1 }));
 }
-jCal.back();
+jCal.setDate(currentZDT.toPlainDate());
 
 for (const elem of Array.from(calList.children)) {
 	elem.remove()
@@ -134,7 +92,7 @@ for (const timeListing of sortedTimes) {
 	const artTime = document.createElement('div');
 	artTime.appendChild(document.createTextNode(timeData.zDTObj.toLocaleString(...timeData.dtF)));
 	artTime.classList.add('timeDisplayWide')
-	if (Temporal.PlainDate.compare(timeData.zDTObj, dateForSet) == 1)
+	if (Temporal.PlainDate.compare(timeData.zDTObj, currentZDT.toPlainDate()) == 1)
 		artTime.classList.add("nextDay");
 
 	artElem.appendChild(artTime);
@@ -193,8 +151,7 @@ if (timeForReload)
 	// @ts-ignore
 	window.timers.zmanReload = setTimeout(
 		async () => await reload(),
-		Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())
-			.until(timeForReload).total('milliseconds') + 1000)
+		currentZDT.until(timeForReload).total('milliseconds') + 1000)
 
 /**
  * @param {string} str

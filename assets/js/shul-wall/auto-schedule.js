@@ -1,23 +1,19 @@
 // @ts-check
 
-import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteCalendar from '../WebsiteCalendar.js';
-import { zDTFromFunc, ZemanFunctions } from '../ROYZmanim.js';
-import preSettings from './preSettings.js';
+import { zDTFromFunc } from '../ROYZmanim.js';
+import { jCal, zmanCalc, dtF } from "./base.js";
 
-export default async function autoSchedule() {
-	/** @type {[string, number, number, number, string]} */
-	// @ts-ignore
-	const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
-	const geoL = new GeoLocation(...glArgs);
-
+/**
+ * @param {NodeListOf<HTMLElement>} nodes
+ */
+export default async function autoSchedule(nodes) {
 	/** @type {{shabbat: WebsiteCalendar; yomChol: WebsiteCalendar; erevShabbat: WebsiteCalendar; nextWeek: WebsiteCalendar}} */
 	// @ts-ignore
 	const jCalDates = {
-		shabbat: new WebsiteCalendar(Temporal.Now.plainDateISO(preSettings.location.timezone())).shabbat()
+		shabbat: jCal.shabbat()
 	}
-	jCalDates.shabbat.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
-
 	jCalDates.yomChol = jCalDates.shabbat.clone();
 	jCalDates.yomChol.setDate(jCalDates.shabbat.getDate().subtract({ days: 6 }))
 
@@ -27,45 +23,75 @@ export default async function autoSchedule() {
 	jCalDates.nextWeek = jCalDates.shabbat.clone();
 	jCalDates.nextWeek.setDate(jCalDates.shabbat.getDate().add({ days: 1 }));
 
-	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-	const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
-		hourCycle: preSettings.timeFormat(),
-		hour: 'numeric',
-		minute: '2-digit'
-	}];
-
-	const zmanCalc = new ZemanFunctions(geoL, {
-		elevation: jCalDates.shabbat.getInIsrael(),
-		rtKulah: preSettings.calendarToggle.rtKulah(),
-		candleLighting: preSettings.customTimes.candleLighting(),
-		fixedMil: preSettings.calendarToggle.forceSunSeasonal() || jCalDates.shabbat.getInIsrael(),
-		melakha: preSettings.customTimes.tzeithIssurMelakha()
-	})
-
 	const mapJCalTypeToDate = {
 		'sh': jCalDates.shabbat,
 		'we': jCalDates.yomChol,
 		'eSh': jCalDates.erevShabbat,
 		'nWe': jCalDates.nextWeek
 	}
-	for (const autoSchedule of document.querySelectorAll('[data-autoschedule-type]')) {
+	for (const el of nodes) {
+		const type = el.dataset.autoscheduleType;
+		const method = el.dataset.autoscheduleFunction;
+		const sign = el.dataset.autoschedulePlusorminus;
+		const hours = parseInt(el.dataset.autoscheduleHours);
+		const minutes = parseInt(el.dataset.autoscheduleMinutes);
+
 		/** @type {WebsiteCalendar} */
 		// @ts-ignore
-		const jCal = mapJCalTypeToDate[autoSchedule.getAttribute('data-autoschedule-type')];
+		const jCal = mapJCalTypeToDate[type];
 		zmanCalc.setDate(jCal.getDate());
 
 		// @ts-ignore
-		let autoScheduleTime = zDTFromFunc(zmanCalc[autoSchedule.getAttribute('data-autoschedule-function')]())
-			[(autoSchedule.getAttribute('data-autoschedule-plusorminus') == '+' ? 'add' : 'subtract')]({
-				hours: parseInt(autoSchedule.getAttribute('data-autoschedule-hours')),
-				minutes: parseInt(autoSchedule.getAttribute('data-autoschedule-minutes'))
+		let autoScheduleTime = zDTFromFunc(zmanCalc[method]())
+			[(sign == '+' ? 'add' : 'subtract')]({
+				hours,
+				minutes
 			})
 
-		if (autoSchedule.getAttribute('data-autoschedule-round') !== 'e') {
-			const roundTime = parseInt(autoSchedule.getAttribute('data-autoschedule-round').split('r')[1]);
-			autoScheduleTime = autoScheduleTime.with({ minute: Math.floor(autoScheduleTime.minute / roundTime) * roundTime });
+		if (el.dataset.autoscheduleRoundinterval) {
+			autoScheduleTime = roundDateTime(autoScheduleTime, parseInt(el.dataset.autoscheduleRoundinterval), el.dataset.autoscheduleRoundmode);
 		}
 
-		autoSchedule.innerHTML = autoScheduleTime.toLocaleString(...dtF);
+		el.innerHTML = autoScheduleTime.toLocaleString(...dtF);
 	}
+}
+
+/**
+ * @param {Temporal.ZonedDateTime} dt
+ * @param {number} interval
+ * @param {string} mode
+ */
+function roundDateTime(dt, interval, mode) {
+    const minute = dt.minute;
+    const ratio = minute / interval;
+
+    let rounded;
+
+    switch (mode) {
+        case "rl": // round later (up)
+            rounded = Math.ceil(ratio) * interval;
+            break;
+
+        case "rc": // round closer
+		case "rn": // round nearest
+            rounded = Math.round(ratio) * interval;
+            break;
+
+        case "re":
+        default: // round earlier (down)
+            rounded = Math.floor(ratio) * interval;
+            break;
+    }
+
+    // --- FIX: handle hour rollover safely ---
+    // Convert to total minutes since start of hour
+    const totalMinutes = dt.hour * 60 + rounded;
+
+    const newHour = Math.floor(totalMinutes / 60);
+    const newMinute = totalMinutes % 60;
+
+    // Temporal.with() cannot set hour > 23, so we use add()
+    const hourDelta = newHour - dt.hour;
+
+    return dt.add({ hours: hourDelta }).with({ minute: newMinute });
 }

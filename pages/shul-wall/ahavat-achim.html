@@ -40,7 +40,7 @@ layout: nothing
 		box-shadow: -6px 0px 5px 0px rgba(0,0,0,0.75);
 		-webkit-box-shadow: -6px 0px 5px 0px rgba(0,0,0,0.75);
 		-moz-box-shadow: -6px 0px 5px 0px rgba(0,0,0,0.75);
-		
+
 		z-index: 3;
 	}
 
@@ -338,6 +338,30 @@ layout: nothing
 	</div>
 </div>
 
+<script id="zy-scheduleScreen-config" type="application/json">
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "Ahavat Achim",
+			"lat": 40.721502,
+			"long": -73.811808,
+			"elevation": 0,
+			"timezone": "America/New_York"
+		},
+		"calendarToggle": {
+			"rtKulah": true,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 20,
+			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+		}
+	}
+</script>
 <script type="module">
 	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';
 	validNetzAssert('USA', 41);

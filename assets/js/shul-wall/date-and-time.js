@@ -1,11 +1,9 @@
 // @ts-check
 
 import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import WebsiteCalendar from "../WebsiteCalendar.js";
+import { scheduleSettings, jCal } from "./base.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { reload } from "./reload.js";
-
-import preSettings from "./preSettings.js";
 
 const hourElem = document.querySelector('[data-sw-hour]')
 const minuteElem = document.querySelector('[data-sw-minute]')
@@ -18,7 +16,7 @@ if (!('timers' in window))
 	window.timers = {}
 
 function updateTime() {
-	const curTime = Temporal.Now.zonedDateTimeISO(preSettings.location.timezone());
+	const curTime = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone);
 
 	if (minutePassed && curTime.minute == 0 && [0, 12, 24].includes(curTime.hour)) {
 		reload();
@@ -26,11 +24,11 @@ function updateTime() {
 		return;
 	}
 
-	let local = preSettings.language() == 'hb' ? 'he' : 'en'
+	let local = scheduleSettings.language == 'hb' ? 'he' : 'en'
 	if (navigator.languages.find(lang => lang.startsWith(local)))
 		local = navigator.languages.find(lang => lang.startsWith(local));
 
-	let hourCycle = preSettings.timeFormat();
+	let hourCycle = scheduleSettings.timeFormat;
 	if (portElem)
 		/** @type {'h11'|'h12'} */
 		// @ts-ignore
@@ -70,9 +68,6 @@ function updateTime() {
 		setTimeout(() => {minutePassed = true; updateTime()}, curTime.until(curTime.add({ minutes: 1 }).with({ second: 0, millisecond: 0 })).total('milliseconds'))
 }
 updateTime();
-
-const dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
-const jCal = new WebsiteCalendar(dateForSet);
 
 const enDate = document.querySelector('[data-en-date]');
 if (enDate)

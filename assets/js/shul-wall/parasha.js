@@ -1,46 +1,16 @@
 // @ts-check
 
-import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
-import preSettings from "./preSettings.js";
+import { zDTFromFunc } from "../ROYZmanim.js";
+import { scheduleSettings, jCal, dtF, zmanCalc } from "./base.js";
 
-/** @type {[string, number, number, number, string]} */
-// @ts-ignore
-const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
-const geoL = new GeoLocation(...glArgs);
-
-let dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
-if (dateForSet.year < 2025)
-	dateForSet = dateForSet.with({ year: 2025, month: 4, day: 12 });
-
-const jCal = new WebsiteLimudCalendar(dateForSet);
-jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
-
-let dateHighlight = jCal.shabbat();
-for (; !jCal.getDate().equals(dateHighlight.getDate()); jCal.forward(5, 1)) {
-	if (jCal.isAssurBemelacha()) {
-		dateHighlight = jCal.clone();
+let melakhaJCal = jCal.shabbat();
+for (const loopJCal = jCal.clone(); !loopJCal.getDate().equals(melakhaJCal.getDate()); loopJCal.forward(5, 1)) {
+	if (loopJCal.isAssurBemelacha()) {
+		melakhaJCal = loopJCal.clone();
 		break;
 	}
 }
-jCal.setDate(dateForSet);
-
-const zmanCalc = new ZemanFunctions(geoL, {
-	elevation: jCal.getInIsrael(),
-	rtKulah: preSettings.calendarToggle.rtKulah(),
-	candleLighting: preSettings.customTimes.candleLighting(),
-	fixedMil: preSettings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael(),
-	melakha: preSettings.customTimes.tzeithIssurMelakha()
-})
-zmanCalc.setDate(dateForSet);
-
-/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
-	hourCycle: preSettings.timeFormat(),
-	hour: 'numeric',
-	minute: '2-digit'
-}];
 
 const yomTovObj = {
 	// Holidays
@@ -97,88 +67,88 @@ const yomTovObj = {
 }
 
 const titleElem = document.querySelector('[data-parasha]')
-if (dateHighlight.isYomTov() && dateHighlight.getYomTovIndex() in yomTovObj) {
+if (melakhaJCal.isYomTov() && melakhaJCal.getYomTovIndex() in yomTovObj) {
 	if (titleElem.hasAttribute('data-prefix')) {
 		titleElem.innerHTML = {
-			"en-ru": `<span class="langTV lang-en">${yomTovObj[dateHighlight.getYomTovIndex()]["en"]}</span>
-			<span class="langTV lang-ru">${yomTovObj[dateHighlight.getYomTovIndex()]["hb"]}</span> - `,
+			"en-ru": `<span class="langTV lang-en">${yomTovObj[melakhaJCal.getYomTovIndex()]["en"]}</span>
+			<span class="langTV lang-ru">${yomTovObj[melakhaJCal.getYomTovIndex()]["hb"]}</span> - `,
 			"en-et-hb":
-				`<span class="langTV lang-en-et">${yomTovObj[dateHighlight.getYomTovIndex()]["en-et"]}</span>
-				<span class="langTV lang-hb">${yomTovObj[dateHighlight.getYomTovIndex()]["hb"]}</span>`,
+				`<span class="langTV lang-en-et">${yomTovObj[melakhaJCal.getYomTovIndex()]["en-et"]}</span>
+				<span class="langTV lang-hb">${yomTovObj[melakhaJCal.getYomTovIndex()]["hb"]}</span>`,
 			"en-hb":
-				`<span class="langTV lang-en">${yomTovObj[dateHighlight.getYomTovIndex()]["en"]}</span>
-				<span class="langTV lang-hb">${yomTovObj[dateHighlight.getYomTovIndex()]["hb"]}</span>`,
-			"hb": yomTovObj[dateHighlight.getYomTovIndex()]["hb"]
+				`<span class="langTV lang-en">${yomTovObj[melakhaJCal.getYomTovIndex()]["en"]}</span>
+				<span class="langTV lang-hb">${yomTovObj[melakhaJCal.getYomTovIndex()]["hb"]}</span>`,
+			"hb": yomTovObj[melakhaJCal.getYomTovIndex()]["hb"]
 		}[titleElem.getAttribute('data-prefix')]
 	} else
-		titleElem.innerHTML = yomTovObj[dateHighlight.getYomTovIndex()][preSettings.language()]
+		titleElem.innerHTML = yomTovObj[melakhaJCal.getYomTovIndex()][scheduleSettings.language]
 } else if (titleElem.hasAttribute('data-prefix')) {
 	titleElem.innerHTML = {
-		"hb-ru": `<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${dateHighlight.isChanukah() ? "(חנוכה)" : ""}</span>
-		<span class="langTV lang-ru">Шаббат ${dateHighlight.isChanukah() ? "Ханука" : ""} ${jCal.getHebrewParasha().join(" / ")}</span>`,
-		"en-ru": `<span class="langTV lang-en">Shabbat ${dateHighlight.isRoshChodesh() ? "R\"Ḥ" : ""} ${dateHighlight.isChanukah() ? "Ḥanuka" : ""}</span>
-		<span class="langTV lang-ru">Шаббат ${dateHighlight.isChanukah() ? "Ханука" : ""}</span> - `
+		"hb-ru": `<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>
+		<span class="langTV lang-ru">Шаббат ${melakhaJCal.isChanukah() ? "Ханука" : ""} ${jCal.getHebrewParasha().join(" / ")}</span>`,
+		"en-ru": `<span class="langTV lang-en">Shabbat ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Ḥanuka" : ""}</span>
+		<span class="langTV lang-ru">Шаббат ${melakhaJCal.isChanukah() ? "Ханука" : ""}</span> - `
 			+ jCal.getHebrewParasha().join(" / "),
 		"hb-en-ru": `
-			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${dateHighlight.isChanukah() ? "(חנוכה)" : ""}</span>
-			<span class="langTV lang-en">Shabbat ${dateHighlight.isRoshChodesh() ? "R\"Ḥ" : ""} ${dateHighlight.isChanukah() ? "Chanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
-			<span class="langTV lang-ru">Шаббат ${dateHighlight.isChanukah() ? "Ханука" : ""} ${jCal.getHebrewParasha().join(" / ")}</span>`,
+			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>
+			<span class="langTV lang-en">Shabbat ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Chanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
+			<span class="langTV lang-ru">Шаббат ${melakhaJCal.isChanukah() ? "Ханука" : ""} ${jCal.getHebrewParasha().join(" / ")}</span>`,
 		"en-et-hb":
-			`<span class="langTV lang-en-et">Shabbath ${dateHighlight.isRoshChodesh() ? "R\"Ḥ" : ""} ${dateHighlight.isChanukah() ? "Ḥanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
-			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${dateHighlight.isChanukah() ? "(חנוכה)" : ""}</span>`,
+			`<span class="langTV lang-en-et">Shabbath ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Ḥanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
+			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>`,
 		"en-hb":
-			`<span class="langTV lang-en">Shabbat ${dateHighlight.isRoshChodesh() ? "R\"Ḥ" : ""} ${dateHighlight.isChanukah() ? "Chanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
-			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${dateHighlight.isChanukah() ? "(חנוכה)" : ""}</span>`,
-		"hb": `שבת ${jCal.getHebrewParasha().join(" / ")} ${dateHighlight.isChanukah() ? "(חנוכה)" : ""}`
+			`<span class="langTV lang-en">Shabbat ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Chanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
+			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>`,
+		"hb": `שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}`
 	}[titleElem.getAttribute('data-prefix')]
 } else
-	titleElem.innerHTML = jCal.getHebrewParasha().join(" / ") + (dateHighlight.isChanukah() ? " (חנוכה)" : "");
+	titleElem.innerHTML = jCal.getHebrewParasha().join(" / ") + (melakhaJCal.isChanukah() ? " (חנוכה)" : "");
 
 const lightCand = document.querySelector('[data-lightingCandles]');
-if (dateHighlight.hasCandleLighting()) {
+if (melakhaJCal.hasCandleLighting()) {
 	const dayLoop = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 	/** @type {Element} */
 	// @ts-ignore
 	const lightCand2 = lightCand.cloneNode(true);
-	let candLight2Time = zDTFromFunc(zmanCalc.chainDate(dateHighlight.getDate())
-	[(dateHighlight.getDayOfWeek() == 6 ? 'getCandleLighting' :
-		dateHighlight.getDayOfWeek() == 7 ? 'getTzetMelakha' : 'getTzetHumra')]());
+	let candLight2Time = zDTFromFunc(zmanCalc.chainDate(melakhaJCal.getDate())
+	[(melakhaJCal.getDayOfWeek() == 6 ? 'getCandleLighting' :
+		melakhaJCal.getDayOfWeek() == 7 ? 'getTzetMelakha' : 'getTzetHumra')]());
 
-	if (candLight2Time.second > (dateHighlight.getDayOfWeek() == 6 ? 40 : 20))
+	if (candLight2Time.second > (melakhaJCal.getDayOfWeek() == 6 ? 40 : 20))
 		candLight2Time = candLight2Time.add({ minutes: 1 }).with({ second: 0 });
 
-	lightCand2.innerHTML += `(${dayLoop[dateHighlight.getDayOfWeek()]}. night): ` +
+	lightCand2.innerHTML += `(${dayLoop[melakhaJCal.getDayOfWeek()]}. night): ` +
 		candLight2Time.toLocaleString(...dtF);
 	lightCand.insertAdjacentElement('afterend', lightCand2);
 
-	if (dateHighlight.tomorrow().hasCandleLighting()) {
+	if (melakhaJCal.tomorrow().hasCandleLighting()) {
 		/** @type {Element} */
 		// @ts-ignore
 		const lightCand3 = lightCand.cloneNode(true);
 
-		let candLight3Time = zDTFromFunc(zmanCalc.chainDate(dateHighlight.tomorrow().getDate())
-			[(dateHighlight.getDayOfWeek() == 5 ? 'getCandleLighting' : 'getTzetHumra')]());
+		let candLight3Time = zDTFromFunc(zmanCalc.chainDate(melakhaJCal.tomorrow().getDate())
+			[(melakhaJCal.getDayOfWeek() == 5 ? 'getCandleLighting' : 'getTzetHumra')]());
 
-		if (candLight3Time.second > (dateHighlight.getDayOfWeek() == 5 ? 40 : 20))
+		if (candLight3Time.second > (melakhaJCal.getDayOfWeek() == 5 ? 40 : 20))
 			candLight3Time = candLight3Time.add({ minutes: 1 }).with({ second: 0 });
 
-		lightCand3.innerHTML += `(${dayLoop[dateHighlight.getDayOfWeek() + 1]}. night): ` +
+		lightCand3.innerHTML += `(${dayLoop[melakhaJCal.getDayOfWeek() + 1]}. night): ` +
 			candLight3Time.toLocaleString(...dtF);
 
 		lightCand2.insertAdjacentElement('afterend', lightCand3);
 	}
 
-	lightCand.innerHTML += `(${dayLoop[dateHighlight.getDayOfWeek() - 1]}. night): `;
+	lightCand.innerHTML += `(${dayLoop[melakhaJCal.getDayOfWeek() - 1]}. night): `;
 }
 
-const jCalErev = dateHighlight.clone();
+const jCalErev = melakhaJCal.clone();
 jCalErev.back();
 lightCand.innerHTML += zDTFromFunc(zmanCalc.chainDate(jCalErev.getDate())
 	[((jCalErev.getDayOfWeek() == 6 || !jCalErev.isAssurBemelacha()) ? 'getCandleLighting' :
 		jCalErev.getDayOfWeek() == 7 ? 'getTzetMelakha' : 'getTzetHumra')]())
 	.toLocaleString(...dtF);
 
-const tzet = dateHighlight.clone();
+const tzet = melakhaJCal.clone();
 do {
 	tzet.forward(5, 1)
 } while (tzet.isAssurBemelacha())

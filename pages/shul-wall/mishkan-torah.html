@@ -222,8 +222,8 @@ layout: nothing
 		<div style="line-height: 1.3;">
 			<h2>Official Sedarim</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="sedarim">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="sedarim">
+				</zman-schedule>
 			</div>
 		</div>
 		<div style="grid-row-end: span 2;">
@@ -285,25 +285,25 @@ layout: nothing
 			<div class="centerLeftgrid">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
-					<div data-tzetShab data-ikar-text='LOTL'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
+					<div data-tzetShab><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
 				</div>
 			</div>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shabbat"></ul>
+				<zman-schedule class="list-group list-group-flush" id="shabbat"></zman-schedule>
 			</div>
 		</div>
 		<div style="line-height: 1.3;">
 			<h2>Weekday Shiurim</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shiurim" style="display: none;">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="shiurim" style="display: none;">
+				</zman-schedule>
 			</div>
 		</div>
 		<div style="line-height: 1.3;">
 			<h2>Weekday Tefilot</h2>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="weekday">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="weekday">
+				</zman-schedule>
 			</div>
 		</div>
 		<div id="megaline">
@@ -397,6 +397,30 @@ layout: nothing
 	</div>
 </div>
 
+<script id="zy-scheduleScreen-config" type="application/json">
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "Mishkan Torah",
+			"lat": 34.1712077962039,
+			"long": -118.53573149986414,
+			"elevation": 0,
+			"timezone": "America/Los_Angeles"
+		},
+		"calendarToggle": {
+			"rtKulah": true,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 20,
+			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+		}
+	}
+</script>
 <script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
@@ -405,9 +429,9 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/limud.js"></script>
 <script type="module">
-	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
+	import {loadIniSchedule} from '/assets/js/shul-wall/scheduleOnline.js';
 
-	await schedule('https://zemaneh-yosef.github.io/extras/yonah-schedule.ini');
+	await loadIniSchedule('https://zemaneh-yosef.github.io/extras/yonah-schedule.ini');
 	for (const child of document.getElementsByClassName('marquee__content')[0].children) {
 		const newChild = child.cloneNode(true);
 		child.parentElement.nextElementSibling.appendChild(newChild);

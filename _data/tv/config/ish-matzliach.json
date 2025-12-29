@@ -1,0 +1,26 @@
+{
+    "seconds": false,
+    "timeFormat": "h12",
+    "language": "en",
+    "location": {
+        "name": "Ish Matzliach",
+        "lat": 40.62058957431101,
+        "long": -73.95592847316078,
+        "elevation": 0,
+        "timezone": "America/New_York"
+    },
+    "calendarToggle": {
+        "rtKulah": true,
+        "tekufaMidpoint": "hatzoth",
+        "tekufaCalc": "shemuel",
+        "forceSunSeasonal": false
+    },
+    "customTimes": {
+        "candleLighting": 20,
+        "tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+    },
+    "schedule": {
+        "url": "https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/ish-matzliach.ini",
+        "type": "ini"
+    }
+}

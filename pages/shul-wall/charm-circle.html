@@ -430,7 +430,7 @@ layout: nothing
 		<div id="limudSection">
 			<h1 style="text-align: center;">Daily Shiurim</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="dailWeekdayCard"></ul>
+				<zman-schedule class="list-group list-group-flush" id="dailWeekdayCard"></zman-schedule>
 			</div>
 		</div>
 		<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
@@ -440,28 +440,26 @@ layout: nothing
 		<div id="shulScheduling" style="height: 67.5vh; overflow: hidden;">
 			<h1 style="text-align: center;">Weekday Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="weekdaySchCard">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="weekdaySchCard"></zman-schedule>
 			</div>
 			<h1 style="text-align: center;">Shabbat Schedule</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shabbatSchCard">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="shabbatSchCard"></zman-schedule>
 			</div>
 		</div>
 		<div id="shulShiurim">
 			<h1 style="text-align: center;">Weekday Shiurim</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="speWeekdayCard"></ul>
+				<zman-schedule class="list-group list-group-flush" id="speWeekdayCard"></zman-schedule>
 			</div>
 		</div>
 	</div>
 </div>
 
+<script id="zy-scheduleScreen-config" type="application/json">
+	{{ site.data.tv.config.charm-circle | jsonify }}
+</script>
 <script type="module">
-	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	await schedule('https://malka-minyanim.royzmanim.com/db/charm-circle.db');
-
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
 		.filter(str => str.startsWith('./charm-circle/flyer/'))
@@ -484,6 +482,7 @@ layout: nothing
 	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';
 	validNetzAssert('USA', 41);
 </script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
 <script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>

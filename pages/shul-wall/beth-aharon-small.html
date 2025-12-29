@@ -47,8 +47,13 @@ layout: nothing
 		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
 	}
 
-	#topBar > * {
+	#topBar > *:not(:nth-child(2)) {
 		flex: 1 1;
+	}
+
+	#topBar > *:nth-child(2) {
+		padding-left: 20px;
+		padding-right: 20px;
 	}
 
 	#topBar svg {
@@ -557,8 +562,8 @@ layout: nothing
 				<span class="langTV lang-ru">Расписание будних дней</span>
 			</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="weekdaySchCard">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="weekdaySchCard">
+				</zman-schedule>
 			</div>
 			<h1 style="text-align: center; padding-top: .75rem; margin-bottom: .75rem;">
 				<span class="langTV lang-en">Shabbat Schedule</span>
@@ -566,13 +571,37 @@ layout: nothing
 				<span class="langTV lang-ru">Расписание Шаббата</span>
 			</h1>
 			<div class="card">
-				<ul class="list-group list-group-flush" id="shabbatSchCard">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="shabbatSchCard">
+				</zman-schedule>
 			</div>
 		</div>
 	</div>
 </div>
 
+<script id="zy-scheduleScreen-config" type="application/json">
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "Beth Aharon",
+			"lat": 40.70831303021189,
+			"long": -73.83357702409961,
+			"elevation": 0,
+			"timezone": "America/New_York"
+		},
+		"calendarToggle": {
+			"rtKulah": true,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 20,
+			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+		}
+	}
+</script>
 <script type="module">
 	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';
 	validNetzAssert('USA', 41);
@@ -585,8 +614,8 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
-	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	const mournersCont = Object.fromEntries((await schedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true)).filter(Boolean));
+	import {loadIniSchedule} from '/assets/js/shul-wall/scheduleOnline.js';
+	const mournersCont = Object.fromEntries(Object.entries(await loadIniSchedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true)).filter(Boolean));
 
 	/*const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')

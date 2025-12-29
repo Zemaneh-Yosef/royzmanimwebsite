@@ -1,35 +1,8 @@
 // @ts-check
 
-import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { Temporal, JewishDate } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import { ZemanFunctions } from "../ROYZmanim.js";
-import preSettings from "./preSettings.js";
-
-/** @type {[string, number, number, number, string]} */
-// @ts-ignore
-const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
-const geoL = new KosherZmanim.GeoLocation(...glArgs);
-
-const dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
-const jCal = new WebsiteLimudCalendar(dateForSet);
-jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
-
-const zmanCalc = new ZemanFunctions(geoL, {
-	elevation: jCal.getInIsrael(),
-	rtKulah: preSettings.calendarToggle.rtKulah(),
-	candleLighting: preSettings.customTimes.candleLighting(),
-	fixedMil: preSettings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael(),
-	melakha: preSettings.customTimes.tzeithIssurMelakha()
-})
-zmanCalc.setDate(dateForSet);
-
-/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-const dtF = [preSettings.language() == 'hb' ? 'he' : 'en', {
-	hourCycle: preSettings.timeFormat(),
-	hour: 'numeric',
-	minute: '2-digit'
-}];
+import { scheduleSettings, geoLocation, jCal, zmanCalc, dtF } from "./base.js";
 
 /** @param {HTMLElement} [fastContainer] */
 function renderFastIndex(fastContainer) {
@@ -74,7 +47,7 @@ function renderFastIndex(fastContainer) {
 		oneDay: fastContainer.querySelector('[data-zfFind="oneDayTimes"]')
 	};
 
-	if ([KosherZmanim.JewishCalendar.TISHA_BEAV, KosherZmanim.JewishCalendar.YOM_KIPPUR].includes(fastJCal.getYomTovIndex())) {
+	if ([WebsiteLimudCalendar.TISHA_BEAV, WebsiteLimudCalendar.YOM_KIPPUR].includes(fastJCal.getYomTovIndex())) {
 		timeList.oneDay.style.display = "none";
 		timeList.multiDay.style.removeProperty("display");
 
@@ -86,7 +59,7 @@ function renderFastIndex(fastContainer) {
 
 		const erevCalc = zmanCalc.chainDate(fastJCal.getDate().subtract({ days: 1 }));
 		const timeOnErev =
-			(fastJCal.getYomTovIndex() == KosherZmanim.JewishCalendar.YOM_KIPPUR ? erevCalc.getCandleLighting() : erevCalc.getShkiya())
+			(fastJCal.getYomTovIndex() == WebsiteLimudCalendar.YOM_KIPPUR ? erevCalc.getCandleLighting() : erevCalc.getShkiya())
 		erevTzom.appendChild(document.createTextNode(timeOnErev.toLocaleString(...dtF)));
 
 		const yomTzom = timeList.multiDay.lastElementChild;
@@ -181,7 +154,7 @@ function writeMourningPeriod(mourningDiv) {
 
 			([nineDaysText, threeWeeksText]).flat()
 				.forEach((elem) => elem.style.display = "none")
-		} else if (jCal.getJewishMonth() == KosherZmanim.JewishCalendar.AV) {
+		} else if (jCal.getJewishMonth() == WebsiteLimudCalendar.AV) {
 			nineDaysText.forEach((elem) => elem.style.removeProperty("display"));
 
 			([weekOfText, threeWeeksText]).flat()
@@ -300,7 +273,7 @@ function renderSeasonalRules(tefilahRuleContainer) {
 	/** @type {import('../WebsiteCalendar.js').default} */
 	let calForRules = jCal;
 	if (jCal.getDate().equals(Temporal.Now.plainDateISO())
-		&& Temporal.ZonedDateTime.compare(zmanCalc.getTzet(), Temporal.Now.zonedDateTimeISO(geoL.getTimeZone())) < 1) {
+		&& Temporal.ZonedDateTime.compare(zmanCalc.getTzet(), Temporal.Now.zonedDateTimeISO(geoLocation.getTimeZone())) < 1) {
 		calForRules = jCal.tomorrow();
 	}
 	const seasonalRules = [
@@ -320,7 +293,7 @@ document.querySelectorAll('[data-zfReplace="Tachanun"]').forEach(
 
 		tachanun.style.removeProperty("display");
 		let tachanunId = jCal.tefilahRules().tachanun;
-		if (jCal.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
+		if (jCal.getDayOfWeek() == 7) {
 			tachanunId = Math.min(tachanunId + 3, 4)
 		}
 
@@ -349,14 +322,14 @@ document.querySelectorAll('[data-zfReplace="Hallel"]').forEach(
 	}
 )
 
-const tekufaDate = zmanCalc.nextTekufa(preSettings.calendarToggle.tekufaMidpoint() !== "hatzoth");
-if (jCal.getDate().toZonedDateTime(geoL.getTimeZone()).until(tekufaDate).total('days') < 1) {
+const tekufaDate = zmanCalc.nextTekufa(scheduleSettings.calendarToggle.tekufaMidpoint !== "hatzoth");
+if (jCal.getDate().toZonedDateTime(geoLocation.getTimeZone()).until(tekufaDate).total('days') < 1) {
 	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 	const tekufaTF = [dtF[0], { ...dtF[1] }]
 	delete tekufaTF[1].second
 
 	const nextTekufaJDate = [1, 4, 7, 10]
-		.map(month => new KosherZmanim.JewishDate(jCal.getJewishYear(), month, 15))
+		.map(month => new JewishDate(jCal.getJewishYear(), month, 15))
 		.sort((jDateA, jDateB) => {
 			const durationA = jCal.getDate().until(jDateA.getDate())
 			const durationB = jCal.getDate().until(jDateB.getDate())

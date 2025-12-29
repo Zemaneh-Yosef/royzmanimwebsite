@@ -380,15 +380,16 @@ layout: nothing
 	</div>
 </div>
 
+<script id="zy-scheduleScreen-config" type="application/json">
+	{{ site.data.tv.config.charm-circle | jsonify }}
+</script>
 <script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/times.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
 <script type="module">
-	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/ateret-marjan/schedule.ini', true);
-
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
 		.filter(str => str.startsWith('./charm-circle/flyer/'))

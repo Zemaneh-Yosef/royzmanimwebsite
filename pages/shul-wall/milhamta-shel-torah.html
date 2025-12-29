@@ -1,0 +1,642 @@
+---
+title: Milhamta Shel Torah
+permalink: /shul-wall/milhamta-shel-torah
+layout: nothing
+---
+
+<link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
+<link href="/assets/fonts/narkisim/stylesheet.css" rel="stylesheet" />
+<link href="/assets/fonts/sbl/stylesheet.css" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+<style>
+	:root {
+		--bs-body-color: #000000 !important;
+	}
+	#content {
+		width: 100%;
+		height: 100dvh;
+		display: grid;
+		background-image: linear-gradient(45deg, hsl(19, 32%, 5%) 0%, hsl(19, 32%, 15%) 100%);
+        background-size: cover;
+
+		font-family: 'Open Sans', var(--bs-body-font-family);
+		font-optical-sizing: auto;
+		font-style: normal;
+		font-variation-settings: "wdth" 100;
+	}
+
+	#content > * {
+		grid-area: 1 / 1;
+	}
+
+	#background {
+		--margin: .75vw;
+		margin: var(--margin);
+		height: calc(100vh - var(--margin) - var(--margin) - var(--margin) - var(--margin));
+		width: calc(100% - var(--margin) - var(--margin));
+		border-radius: 1.25rem;
+		object-fit: cover;
+	    object-position: center;
+	}
+
+	#background_overlay {
+		--margin: .75vw;
+		margin: var(--margin);
+		height: calc(100vh - var(--margin) - var(--margin) - var(--margin) - var(--margin));
+		width: calc(100% - var(--margin) - var(--margin));
+		border-radius: 1.25rem;
+
+		background: rgba(255, 255, 255, 0.6);
+	}
+
+	#shulBar {
+		width: 55%;
+		background-color: #2e334a;
+		justify-self: center;
+		align-self: start;
+		border-bottom-left-radius: 5rem;
+		border-bottom-right-radius: 5rem;
+		text-align: center;
+		z-index: 2;
+		font-size: .8em;
+	}
+
+	#clock {
+		font-size: 4em;
+		font-family: "dharma_gothic_e";
+	}
+
+	#topBar {
+		text-align: center;
+		display: flex;
+		justify-content: space-evenly;
+		width: 70%;
+		justify-self: center;
+		align-self: start;
+		z-index: 3;
+		line-height: 1;
+		align-items: center;
+		font-size: 1em;
+	}
+
+	#topBar > *:not(:nth-child(2)) {
+		flex: 1 1;
+	}
+
+	#topBar > *:nth-child(2) {
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+
+	#topBar svg {
+		height: 1em;
+		width: 1em;
+		vertical-align: bottom;
+	}
+
+	#topBar svg path {
+		fill: #30344F;
+	}
+
+	#quickTimes {
+		display: grid; justify-content: center;
+	}
+
+	#quickTimes i {
+		width: 1em;
+		text-align: center;
+	}
+
+	#bsD {
+        font-family: "Narkisim";
+		justify-self: end;
+		line-height: 1;
+		padding-right: 1.25rem;
+		font-size: 3.5rem;
+		padding-top: 1rem;
+		align-self: start;
+		z-index: 3;
+    }
+
+	#dataGrid {
+		width: calc(100% - 1.5vw);
+		margin-left: .75vw;
+		padding-left: 1vw;
+		padding-right: 1vw;
+		margin-bottom: 4vh;
+		padding-bottom: 1vh;
+		align-self: end;
+		z-index: 5;
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-template-rows: auto auto;
+		align-items: center;
+		gap: 4px;
+		font-size: .8rem;
+		background: rgba(235, 222, 212, .9);
+		border-bottom-right-radius: 1.25rem;
+		border-bottom-left-radius: 1.25rem;
+	}
+
+	#dataGrid .h1,
+	#dataGrid h1 {
+		font-size: 1.25rem;
+	}
+
+	#gne {
+		height: 13dvh;
+		justify-self: start;
+		align-self: start;
+		margin-top: .75rem;
+		margin-left: 1.5rem;
+		z-index: 3;
+    }
+
+	.wideView {
+		display: flex;
+		text-align: center;
+		align-self: end;
+		font-size: .85rem;
+	}
+
+	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
+		content: "(Tomorrow)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
+    }
+
+	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
+		content: "(Завтра)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
+    }
+
+	#content[data-current-page="1"] .timeDisplayWide.nextDay::before {
+		content: "(מחר)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
+    }
+
+	#content[data-current-page="1"] .langTV:not(.lang-hb) {
+		display: none;
+	}
+
+	#content[data-current-page="2"] .langTV:not(.lang-ru) {
+		display: none;
+	}
+
+	#content[data-current-page="3"] .langTV:not(.lang-en) {
+		display: none;
+	}
+
+	.wideView > * {
+		flex: 1 1;
+		padding: 6px;
+		padding-top: 0;
+
+		display: flex;
+		justify-content: space-between;
+		flex-direction: column;
+	}
+
+	.wideView > *:first-child {
+		padding-left: 0;
+	}
+
+	.wideView > *:last-child {
+		padding-right: 0;
+	}
+
+	.wideView > *:not(:last-child) {
+		border-right:1px solid black;
+	}
+
+	article > .langTV {
+		font-weight: bold;
+		margin-bottom: .25rem;
+	}
+
+	#poweredBy {
+		justify-self: center;
+		align-self: end;
+		margin-bottom: .75vw;
+		text-align: center;
+		line-height: 1.2;
+		font-size: .6em;
+		color: #dee2e6;
+	}
+
+	.hiloulotCard .list-group-item {
+		--bs-list-group-item-padding-y: .25rem;
+		--bs-list-group-border-color: #49505799;
+		--bs-list-group-item-padding-x: 1.25rem;
+	}
+
+	.hiloulotCard .card-header {
+		--bs-card-cap-padding-x: .75rem;
+	}
+
+	.timeDisplayWide.nextDay::before {
+        content: "(Tomorrow)";
+		font-size: .75em;
+		margin-bottom: -5px;
+		display: block;
+    }
+
+	#zyTrapezoid {
+		justify-self: center;
+		align-self: start;
+		width: 75%;
+		border-top: 65px solid #ebded5;
+		border-left: 40px solid transparent;
+		border-right: 40px solid transparent;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		height: 0;
+	}
+
+	[data-parasha] {
+		text-align: center;
+		font-weight: bold;
+		font-size: 1.15em;
+		font-family: "sbl_hebrewregular", var(--bs-body-font-family);
+	}
+
+	#megaline {
+		text-align: center;
+		font-size: 1.2em;
+		color: black;
+	}
+
+	#megalineCont > span {
+		content: " - ";
+		unicode-bidi: isolate;
+	}
+
+	#megalineCont > span:not(:last-child)::after {
+		content: " - "
+	}
+
+	#shabbatContainer {
+		width: 35%;
+		justify-self: start;
+		align-self: center;
+		margin-bottom: 5rem;
+	}
+
+	#shabbatTitle {
+		font-family: "Jimmy Script";
+		margin-left: 1.25rem;
+		font-size: 2.5em;
+		text-shadow: 0px 0px 6px #FFF;
+		margin-bottom: 0;
+		line-height: 1;
+	}
+
+	#shabbatTable {
+		display: grid;
+		grid-template-columns: 65% 35%;
+		row-gap: 1px;
+
+		background: linear-gradient(to right, #c2b19c 0%, #c2b19c 65%, #ebded4 65.1%, #ebded4 100%);
+
+		border-top-right-radius: .5rem;
+		border-bottom-right-radius: .5rem;
+	}
+
+	#shabbatTable .zmanName {
+		font-weight: bold;
+		padding-left: 1rem;
+	}
+
+	#shabbatTable .zmanName:not(:nth-last-child(2)) {
+		border-bottom: 1px solid white;
+	}
+
+	#shabbatTable .zmanTime {
+		text-align: right;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+
+		padding-right: .5rem;
+	}
+
+	#shabbatTable .zmanTime:not(:nth-last-child(1)) {
+		border-bottom: 1px solid white;
+	}
+
+	#shabbatTable .zmanTime::before {
+		content: var(--text);
+	}
+
+	#weekdayContainer {
+		width: 35%;
+		justify-self: end;
+		align-self: center;
+		margin-bottom: 5rem;
+	}
+
+	#weekdayTitle, #sponsorTitle {
+		font-family: "Jimmy Script";
+		margin-left: .5rem;
+		font-size: 2.5em;
+		text-shadow: 0px 0px 6px #FFF;
+		margin-bottom: 0;
+		line-height: 1;
+	}
+
+	#sponsorTitle {
+		margin-top: 1rem;
+	}
+
+	#weekdayTable {
+		display: grid;
+		grid-template-columns: 65% 35%;
+		row-gap: 1px;
+
+		background: linear-gradient(to right, #c2b19c 0%, #c2b19c 65%, #ebded4 65.1%, #ebded4 100%);
+
+		border-top-left-radius: .5rem;
+		border-bottom-left-radius: .5rem;
+	}
+
+	#weekdayTable .zmanName {
+		font-weight: bold;
+		padding-left: .5rem;
+	}
+
+	#weekdayTable .zmanName:not(:nth-last-child(2)) {
+		border-bottom: 1px solid white;
+	}
+
+	#weekdayTable .zmanTime {
+		text-align: right;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+
+		padding-right: 1rem;
+	}
+
+	#weekdayTable .zmanTime:not(:nth-last-child(1)) {
+		border-bottom: 1px solid white;
+	}
+
+	#weekdayTable .zmanTime:not(.noBeforeElem)::before {
+		content: var(--text);
+		white-space: pre-wrap;
+	}
+
+	#sponsorTable {
+		display: flex;
+		flex-direction: column;
+		background: #c2b19c;
+		border-top-left-radius: .5rem;
+		border-bottom-left-radius: .5rem;
+
+		font-weight: bold;
+	}
+
+	#sponsorTable > div {
+		flex: 1 1;
+		padding-left: .5rem;
+	}
+
+	#sponsorTable > div:not(:nth-last-child(1)) {
+		border-bottom: 1px solid white;
+	}
+</style>
+
+<link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<link rel="stylesheet" href="/assets/css/dark.css" media="screen and (prefers-color-scheme: dark)">
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+<link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
+<link href="/assets/css/marquee.css" rel="stylesheet" />
+<div id="content" data-current-page="1" data-page-count="2">
+	<div id="bsD">בס"ד</div>
+	<img id="gne" src="/assets/images/shul-wall/milhamta-shel-torah.png" />
+	<img id="background" src="/assets/images/shul-wall/milhamta-shel-torah.jpg" />
+	<div id="background_overlay"></div>
+	<div id="zyTrapezoid"></div>
+	<div id="poweredBy">
+		Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l
+	</div>
+	<div id="topBar">
+		<div>
+			<span data-en-date></span>
+			<hr style="margin: .25rem 0">
+			<span data-hb-date></span>
+		</div>
+		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
+		<div id="quickTimes">
+			<div style="text-align: left; width: fit-content">
+				<div data-parasha></div>
+				<div data-lightingCandles><i class="bi bi-fire"></i> </div>
+				<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
+			</div>
+		</div>
+	</div>
+	<div id="shabbatContainer">
+		<h4 id="shabbatTitle">Shabbat Schedule</h4>
+		<zman-schedule-table id="shabbatTable"></zman-schedule-table>
+	</div>
+	<div id="weekdayContainer">
+		<h4 id="weekdayTitle">Weekday Schedule</h4>
+		<zman-schedule-table id="weekdayTable"></zman-schedule-table>
+
+		<h4 id="sponsorTitle">Sponsors</h4>
+		<div id="sponsorTable">
+			<div>Baruch Abramov</div>
+			<div>NightScript</div>
+		</div>
+	</div>
+	<div id="dataGrid">
+		<div id="megaline">
+			<div id="megalineCont">
+				<span data-zfFind="BirchatHalevana">
+					<span class="langTV lang-en">
+						Birkat Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+					<span class="langTV lang-en-et">
+						Birkat Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+					<span class="langTV lang-hb">
+						ברכת הלבנה (עד ליל <span data-zfReplace="date-hb-end"></span>)
+						<span data-zfFind="starts-tonight"> - מתחיל בלילה</span>
+						<span data-zfFind="ends-tonight"> - מסיים בלילה</span>
+					</span>
+					<span class="langTV lang-ru">
+						Биркат Ха-Левана (до ночи <span data-zfReplace="date-ru-end"></span>)
+						<span data-zfFind="starts-tonight"> - Начинается сегодня вечером</span>
+						<span data-zfFind="ends-tonight"> - Заканчивается сегодня вечером</span>
+					</span>
+				</span>
+				<span data-zfReplace="Tachanun">
+					<span data-zfFind="0">
+						<span class="langTV lang-hb">לוח-תחנון יום</span>
+						<span class="langTV lang-en-et">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-en">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-ru">Календарь — День Тахануна</span>
+					</span>
+					<span data-zfFind="1">
+						<span class="langTV lang-hb">תחנון רק בשחרית</span>
+						<span class="langTV lang-en-et">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-en">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-ru">Только Таханун от Шахарит</span>
+					</span>
+					<span data-zfFind="2">
+						<span class="langTV lang-hb">אין תחנון היום</span>
+						<span class="langTV lang-en-et">No Taḥanun</span>
+						<span class="langTV lang-en">No Taḥanun</span>
+						<span class="langTV lang-ru">Нет Тахануна</span>
+					</span>
+					<span data-zfFind="3">צדקתך</span>
+					<span data-zfFind="4">יהי שם</span>
+				</span>
+				<span data-zfReplace="Hallel" style="display: none;"></span>
+				<span data-zfReplace="Ulchaparat" style="display: none;"></span>
+				<span data-zfFind="SeasonalPrayers">
+					<span data-zfReplace="SeasonalPrayers"></span>
+				</span>
+			</div>
+		</div>
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en ru">
+			{% for item in site.data.tv.listTVZman %}
+				<article
+					data-zmanid="{{ item.id }}"
+					{% if item.round %}data-round="{{ item.round }}"{% endif %}
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+				>
+					<span class="langTV lang-hb">{{ item.names.he }}</span>
+					<span class="langTV lang-en">{{ item.names.en }}</span>
+					<span class="langTV lang-et">{{ item.names.et }}</span>
+					<span class="langTV lang-ru">{{ item.names.ru }}</span>
+					<span class="timeDisplay"></span>
+				</article>
+			{% endfor %}
+		</section>
+	</div>
+</div>
+
+<script type="module">
+	import ZmanSchedule from "/assets/js/shul-wall/zman-schedule.js";
+
+	class ZmanScheduleTable extends ZmanSchedule {
+
+		render() {
+			if (!this._data) return;
+
+			// Clear existing content except data-keep
+			for (const child of this.children) {
+				if (!child.hasAttribute("data-keep")) child.remove();
+			}
+
+			const frag = document.createDocumentFragment();
+
+			for (const [rowTitle, rowTime] of Object.entries(this._data)) {
+				const fullWidth = rowTitle.startsWith("fullWidthDescription");
+
+				// -------------------------------
+				//  Title block
+				// -------------------------------
+				const nameDiv = document.createElement("div");
+				nameDiv.classList.add("zmanName");
+				nameDiv.innerHTML = this.renderTitle(rowTitle, fullWidth);
+
+				// -------------------------------
+				//  Time block
+				// -------------------------------
+				const timeDiv = document.createElement("div");
+				timeDiv.classList.add("zmanTime");
+
+				if (typeof rowTime === "string" && this.isAutoSchedule(rowTime)) {
+					const inner = document.createElement("div");
+					this.applyAutoScheduleAttributes(inner, rowTime);
+					timeDiv.appendChild(inner);
+				} else if (Array.isArray(rowTime)) {
+					// Multiple times (e.g., Korbanot + Hodu)
+					for (const t of rowTime) {
+						const inner = document.createElement("div");
+						inner.innerHTML = t;
+						timeDiv.appendChild(inner);
+					}
+				} else {
+					const inner = document.createElement("div");
+					inner.innerHTML = rowTime;
+					timeDiv.appendChild(inner);
+				}
+
+				frag.appendChild(nameDiv);
+				frag.appendChild(timeDiv);
+
+				// -------------------------------
+				//  Full-width description
+				// -------------------------------
+				if (fullWidth) {
+					const desc = document.createElement("div");
+					desc.classList.add("zmanDescription");
+					desc.innerHTML = rowTitle.split("|")[2];
+					frag.appendChild(desc);
+				}
+			}
+
+			this.appendChild(frag);
+
+			this.runAutoSchedule();
+		}
+	}
+
+	customElements.define("zman-schedule-table", ZmanScheduleTable);
+	export default ZmanScheduleTable;
+
+</script>
+<script id="zy-scheduleScreen-config" type="application/json">
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "Milhamta Shel Torah",
+			"lat": 40.725289845974835,
+			"long": -73.81769215608621,
+			"elevation": 0,
+			"timezone": "America/New_York"
+		},
+		"calendarToggle": {
+			"rtKulah": true,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 20,
+			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+		},
+		"schedule": {
+			"url": "https://docs.google.com/spreadsheets/d/1z4YkE7Gti9Qee3iEqUeTRYa9HLQsu2PJSdNvAY9TY8M/export?format=xlsx",
+			"type": "excel"
+		}
+	}
+</script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
+<script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
+<script type="module" src="/assets/js/shul-wall/reset.js"></script>
+<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
+<script type="module" src="/assets/js/shul-wall/times.js"></script>
+<script type="module" src="/assets/js/shul-wall/limud.js"></script>
+<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>

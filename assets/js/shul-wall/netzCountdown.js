@@ -3,9 +3,9 @@
 /** @import {gsap as tsGsap} from 'gsap' */
 import { gsap as jsGsap } from "../../libraries/gsap.js";
 
-import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import { zDTFromFunc, ZemanFunctions } from "../ROYZmanim.js";
-import preSettings from "./preSettings.js";
+import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { zDTFromFunc } from "../ROYZmanim.js";
+import { scheduleSettings, zmanCalc } from "./base.js";
 
 if (!('timers' in window))
     // @ts-ignore
@@ -20,33 +20,6 @@ gsap.defaults({
 	duration: 1
 });
 
-/** @type {[string, number, number, number, string]} */
-// @ts-ignore
-const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
-const geoL = new GeoLocation(...glArgs);
-
-const zmanCalc = new ZemanFunctions(geoL, {
-	elevation: (geoL.getLocationName() || "").toLowerCase().includes('israel'),
-	rtKulah: preSettings.calendarToggle.rtKulah(),
-	candleLighting: preSettings.customTimes.candleLighting(),
-	fixedMil: preSettings.calendarToggle.forceSunSeasonal() || (geoL.getLocationName() || "").toLowerCase().includes('israel'),
-	melakha: preSettings.customTimes.tzeithIssurMelakha()
-});
-
-/** @type {number[]} */
-let availableVS = [];
-if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-	const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-	if ('url' in ctNetz) {
-		const ctNetzLink = new URL(ctNetz.url);
-
-		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoL.getLatitude().toFixed(6)
-		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoL.getLongitude()).toFixed(6))
-			availableVS = ctNetz.times
-	}
-}
-zmanCalc.setVisualSunrise(availableVS);
-
 /** @type {HTMLElement} */
 // @ts-ignore
 const timerEl = document.getElementsByClassName('timer--clock')[0];
@@ -56,7 +29,7 @@ class CountDown {
 	/**
 	 * @param {Element} timerElem
 	 */
-	constructor(timerElem, timezoneOrigin = preSettings.location.timezone()) {
+	constructor(timerElem, timezoneOrigin = scheduleSettings.location.timezone) {
 		this.countDownElems = [
 			timerElem.firstElementChild,
 			timerElem.lastElementChild
@@ -130,27 +103,27 @@ class CountDown {
 const counter = new CountDown(timerEl);
 if (hebDate.month == hebDate.monthsInYear || (hebDate.month == 1 && hebDate.day >= 2 && hebDate.day < 10)) {
 	if (zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight().dayOfYear
-		== Temporal.Now.plainDateISO(preSettings.location.timezone()).dayOfYear
+		== Temporal.Now.plainDateISO(scheduleSettings.location.timezone).dayOfYear
 		&& Temporal.ZonedDateTime.compare(
-			Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()),
+			Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
 			zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight())
 		< 1
 		&& hebDate.dayOfWeek !== 6) {
 		requestAnimationFrame(() => counter.updateTimer(zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight()))
-	} else if (zmanCalc.getSolarMidnight().dayOfYear == Temporal.Now.plainDateISO(preSettings.location.timezone()).dayOfYear
+	} else if (zmanCalc.getSolarMidnight().dayOfYear == Temporal.Now.plainDateISO(scheduleSettings.location.timezone).dayOfYear
 		&& Temporal.ZonedDateTime.compare(
-			Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()),
+			Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
 			zmanCalc.getSolarMidnight())
 		< 1
 		&& hebDate.dayOfWeek !== 5) {
 		if (Temporal.ZonedDateTime.compare(
-			Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()),
+			Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
 			zmanCalc.getSolarMidnight().subtract({ minutes: 15 })
 		) == 1) {
 			// @ts-ignore
 			window.timers.hatzotLaylah = setTimeout(() => {
 				requestAnimationFrame(() => counter.updateTimer(zmanCalc.getSolarMidnight()))
-			}, Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()).until(zmanCalc.getSolarMidnight().subtract({ minutes: 15 })).total('milliseconds'))
+			}, Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(zmanCalc.getSolarMidnight().subtract({ minutes: 15 })).total('milliseconds'))
 		} else {
 			requestAnimationFrame(() => counter.updateTimer(zmanCalc.getSolarMidnight()))
 		}
@@ -158,9 +131,9 @@ if (hebDate.month == hebDate.monthsInYear || (hebDate.month == 1 && hebDate.day 
 }
 
 const netz = zDTFromFunc(zmanCalc.getNetz())
-if (rangeDates(zmanCalc.getMisheyakir(), Temporal.Now.zonedDateTimeISO(preSettings.location.timezone()), netz)) {
+if (rangeDates(zmanCalc.getMisheyakir(), Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone), netz)) {
 	const launchCountdown = () => requestAnimationFrame(() => counter.updateTimer(netz))
-	const untilCountdown = Temporal.Now.zonedDateTimeISO(preSettings.location.timezone())
+	const untilCountdown = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone)
 		.until(netz.subtract({ minutes: 101 }))
 		.total('milliseconds');
 
@@ -180,15 +153,3 @@ function rangeDates(start, middle, end, inclusive=true) {
 
 	return acceptedValues.includes(Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(Temporal.ZonedDateTime.compare(end, middle))
 };
-
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-    try {
-        JSON.parse(str);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}

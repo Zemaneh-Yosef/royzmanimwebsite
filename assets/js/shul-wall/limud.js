@@ -1,31 +1,15 @@
 // @ts-check
 
+import { jCal } from "./base.js";
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import LimudCalendar from "../WebsiteLimudCalendar.js";
-import preSettings from "./preSettings.js";
-
-const Temporal = KosherZmanim.Temporal;
-
-/** @type {[string, number, number, number, string]} */
-// @ts-ignore
-const glArgs = Object.values(preSettings.location).map(numberFunc => numberFunc())
-const geoL = new KosherZmanim.GeoLocation(...glArgs);
-
-let dateForSet = Temporal.Now.plainDateISO(preSettings.location.timezone());
-if (dateForSet.year < 2025)
-	dateForSet = dateForSet.with({ year: 2025, month: 4, day: 12 });
-
-const jCal = new LimudCalendar(dateForSet);
-jCal.setInIsrael((geoL.getLocationName() || "").toLowerCase().includes('israel'))
 
 let melakhaJCal = jCal.shabbat();
-for (; !jCal.getDate().equals(melakhaJCal.getDate()); jCal.forward(5, 1)) {
-	if (jCal.isAssurBemelacha()) {
-		melakhaJCal = jCal.clone();
+for (const loopJCal = jCal.clone(); !loopJCal.getDate().equals(melakhaJCal.getDate()); loopJCal.forward(5, 1)) {
+	if (loopJCal.isAssurBemelacha()) {
+		melakhaJCal = loopJCal.clone();
 		break;
 	}
 }
-jCal.setDate(dateForSet);
 
 for (const [key, value] of Object.entries(jCal.getAllLearning()))
 	if (document.querySelector(`[data-zfReplace="${key}"]`) instanceof HTMLElement)

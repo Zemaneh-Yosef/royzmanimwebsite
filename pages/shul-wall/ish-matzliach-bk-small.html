@@ -27,13 +27,6 @@ layout: nothing
 		grid-area: 1 / 1;
 	}
 
-	#zyTrapezoid {
-        justify-self: center;
-        align-self: start;
-        width: 65%;
-        filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-    }
-
 	#background {
 		--margin: 1.25vw;
 		margin: var(--margin);
@@ -52,14 +45,14 @@ layout: nothing
 		text-align: center;
 		display: flex;
 		justify-content: space-evenly;
-		width: 72.5%;
+		width: 75%;
 		justify-self: center;
 		align-self: start;
 		color: #30344F;
 		z-index: 3;
 		line-height: 1;
 		padding-top: .25rem;
-        padding-left: 1.5rem;
+        padding-left: 1rem;
         padding-bottom: .25rem;
 		align-items: center;
 		font-size: 1.05rem;
@@ -71,8 +64,13 @@ layout: nothing
         border-top: none;
 	}
 
-	#topBar > * {
+	#topBar > *:not(:nth-child(2)) {
 		flex: 1 1;
+	}
+
+	#topBar > *:nth-child(2) {
+		padding-left: 20px;
+		padding-right: 20px;
 	}
 
 	#topBar svg {
@@ -154,7 +152,12 @@ layout: nothing
 
 	.wideView > * {
 		flex: 1 1;
-		padding: 8px;
+		padding: 6px;
+		padding-top: 0;
+
+		display: flex;
+		justify-content: space-between;
+		flex-direction: column;
 	}
 
 	.wideView > *:first-child {
@@ -170,8 +173,8 @@ layout: nothing
 	}
 
 	article > .langTV {
-		height: calc(100% - 1em - 8px);
 		font-weight: bold;
+		margin-bottom: .25rem;
 	}
 
 	#poweredBy {
@@ -254,8 +257,7 @@ layout: nothing
 			</dl>
 			<h1 class="text-center mb-0 pt-3" style="font-size: 1.75rem;">Weekday Schedule</h1>
 			<div class="card" style="font-size: 1.02rem;">
-				<ul class="list-group list-group-flush" id="weekday">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="weekday"></zman-schedule>
 			</div>
 			<h1 class="text-center mb-0 pt-3">Hiloulot of...</h1>
 			<div class="card hiloulotCard">
@@ -277,8 +279,7 @@ layout: nothing
 			<h1 class="text-center mb-0" style="font-size: 2rem; line-height: 1;">Shabbat Schedule</h1>
 			<h3 class="text-center" style="font-size: 1rem;" id="makam" data-zfReplace="makamot">🎵Makam </h3>
 			<div class="card" style="line-height: 1.25; font-size: 1.15rem;">
-				<ul class="list-group list-group-flush" id="shabbat">
-				</ul>
+				<zman-schedule class="list-group list-group-flush" id="shabbat"></zman-schedule>
 			</div>
 		</div>
 		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
@@ -304,10 +305,14 @@ layout: nothing
 	</div>
 </div>
 
+<script id="zy-scheduleScreen-config" type="application/json">
+	{{ site.data.tv.config.ish-matzliach | jsonify }}
+</script>
 <script type="module">
 	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';
 	validNetzAssert('USA', 41);
 </script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
 <script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
@@ -316,9 +321,6 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
-	import schedule from '/assets/js/shul-wall/scheduleOnline.js';
-	await schedule('https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/ish-matzliach.ini');
-
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
 		.filter(str => str.startsWith('./ish-matzliach-events/'))
