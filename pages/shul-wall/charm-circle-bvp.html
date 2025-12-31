@@ -1,0 +1,492 @@
+---
+title: ChCi Queens
+permalink: /shul-wall/charm-circle-bvp
+layout: nothing
+---
+
+<link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+<link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
+<link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
+<link href="/assets/css/timer.css" rel="stylesheet" />
+<link href="/assets/fonts/narkisim/stylesheet.css" rel="stylesheet" />
+
+<style>
+	#content {
+		width: 100vw;
+		height: 100vh;
+		display: grid;
+		background-image: url(/assets/images/shul-wall/wp10073984-white-stone-wallpapers.jpg);
+		background-size: contain;
+		font-family: 'Neutro', var(--bs-body-font-family);
+	}
+
+	#content > * {
+		grid-area: 1 / 1;
+	}
+
+	.blink {
+		animation: blinker 1s step-start infinite;
+	}
+
+	#clock {
+		font-size: 5em;
+		font-family: "dharma_gothic_e";
+	}
+
+	#topBar {
+		text-align: center;
+		display: flex;
+		justify-content: space-evenly;
+		width: 55%;
+		justify-self: center;
+		align-self: start;
+		color: black;
+		z-index: 3;
+		line-height: 1;
+		height: 12vh;
+		align-items: center;
+		font-size: .8em;
+		font-weight: 500;
+	}
+
+	#topBar > * {
+		flex: 1 1;
+	}
+
+	@keyframes blinker {
+		50% {
+			opacity: 0;
+		}
+	}
+
+	#topBar svg {
+		height: 1em;
+		width: 1em;
+		vertical-align: bottom;
+	}
+
+	#topBar svg path {
+		fill: black;
+	}
+
+	#quickTimes {
+		display: grid; justify-content: center;
+	}
+
+	#quickTimes i {
+		width: 1em;
+		text-align: center;
+	}
+
+	#bsD {
+		font-family: "Narkisim";
+		justify-self: end;
+		line-height: 1;
+		padding-right: 1.5rem;
+		color: black;
+		font-size: 4rem;
+		padding-top: .25rem;
+		align-self: start;
+		z-index: 3;
+	}
+
+	#dataGrid {
+		margin-left: 1vw;
+		margin-right: 1vw;
+		margin-top: 12vh;
+		margin-bottom: 5vh;
+		z-index: 5;
+		display: grid;
+		grid-template-columns: 1fr .95fr 1fr;
+		grid-template-rows: auto 1fr;
+		align-items: center;
+		gap: 16px;
+	}
+
+	#dataGrid > *:not(#megaline):not(#ishMatzliachSlide) {
+		height: 100%;
+		background: rgba(0,0,0,.85);
+		border-top-left-radius: 50% 15%;
+		border-top-right-radius: 50% 15%;
+		padding: .5rem;
+		box-shadow: 0 0 7px 5px black;
+		padding-top: 1rem;
+	}
+
+	.carousel-item > img {
+		height: 70vh;
+		object-fit: contain;
+	}
+
+	#gne {
+		height: 10vh;
+		justify-self: start;
+		align-self: start;
+		margin-top: .25rem;
+		margin-left: .75rem;
+		z-index: 3;
+	}
+
+	.wideView {
+		display: flex;
+		flex-direction: column;
+	}
+
+	#content[data-current-page="1"] #limudSection,
+	#content[data-current-page="2"] #limudSection {
+		display: none;
+	}
+
+	#content[data-current-page="3"] #zemanehHayom,
+	#content[data-current-page="4"] #zemanehHayom {
+		display: none;
+	}
+
+	#content[data-current-page="1"] #shulShiurim,
+	#content[data-current-page="2"] #shulShiurim {
+		display: none;
+	}
+
+	#content[data-current-page="3"] #shulScheduling,
+	#content[data-current-page="4"] #shulScheduling {
+		display: none;
+	}
+
+	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
+		content: "מחר, ";
+		unicode-bidi: isolate;
+	}
+
+	#content[data-current-page="1"] .timeDisplayWide.nextDay::before {
+		content: "Tom., ";
+	}
+
+	#content[data-current-page="1"] .langTV:not(.lang-en),
+	#content[data-current-page="3"] .langTV:not(.lang-en) {
+		display: none;
+	}
+
+	#content[data-current-page="2"] .langTV:not(.lang-hb),
+	#content[data-current-page="4"] .langTV:not(.lang-hb) {
+		display: none;
+	}
+
+	.wideView > * {
+		width: 100%;
+		display: flex;
+		font-size: 1em;
+		justify-content: space-between;
+	}
+
+	.wideView > *:not(:last-child) {
+		border-bottom:1px solid rgba(255,255,255,.5);
+	}
+
+	article > .langTV {
+		height: calc(100% - 1em - 8px);
+		font-weight: bold;
+	}
+
+	#poweredBy {
+		justify-self: center;
+		align-self: end;
+		margin-bottom: .25vw;
+		text-align: center;
+		line-height: 1.2;
+		color: black;
+		font-size: .8rem;
+	}
+
+	.hiloulotCard .list-group-item {
+		--bs-list-group-item-padding-y: .125rem;
+		--bs-list-group-border-color: #49505799;
+		--bs-list-group-item-padding-x: 0;
+	}
+
+	.hiloulotCard .card-header {
+		--bs-card-cap-padding-x: .75rem;
+	}
+
+	#megaline {
+		grid-column: 1 / span 4;
+		text-align: center;
+		font-size: 1em;
+		margin-left: -1vw;
+		margin-right: -1vw;
+		background-color: white;
+		color: black;
+		padding-top: .5rem;
+		padding-bottom: .5rem;
+	}
+
+	#megalineCont {
+		border-top: 2px dashed black;
+		border-bottom: 2px dashed black;
+	}
+
+	#megalineCont > span {
+		content: " - ";
+		unicode-bidi: isolate;
+	}
+
+	#megalineCont > span:not(:last-child)::after {
+		content: " - "
+	}
+
+	.blurOverlay {
+		height: 12vh;
+		backdrop-filter: blur(8px);
+		width: 100%;
+		align-self: start;
+	}
+
+	dl[data-zfFind="DafYomi"] {
+		font-size: 1.2em;
+		line-height: 1.4;
+	}
+
+	dl[data-zfFind="DafYomi"] > *:not(:last-child) {
+		border-bottom: 1px solid rgba(255,255,255,.5);
+	}
+
+	#dataGrid .list-group-item {
+		--bs-list-group-item-padding-y: .15rem;
+		--bs-list-group-border-color: transparent;
+        --bs-list-group-bg: transparent;
+        --bs-list-group-color: #dee2e6;
+		--bs-list-group-item-padding-x: 0;
+		font-size: .875em;
+	}
+
+	#dataGrid h1 {
+		text-align: center;
+		margin-bottom: .15em;
+		margin-top: .2em;
+		line-height: 1;
+		font-size: 1.4rem;
+	}
+
+	.list-group {
+		--bs-list-group-bg: transparent;
+	}
+
+	.card {
+		--bs-card-bg: transparent;
+		border: none;
+	}
+
+	:root {
+		--bs-body-color: white;
+	}
+
+	.schedule-entry-grid {
+		display: grid;
+		grid-template-columns: 1fr auto;
+	}
+
+	.schedule-entry-grid > *:last-child {
+		grid-column: 1 / span 2;
+	}
+
+	.schedule-entry-grid hr {
+		margin: .5rem 0;
+	}
+</style>
+
+<div id="content" data-current-page="1" data-page-count="4" data-swap-time="10000">
+	<div id="bsD">בס"ד</div>
+	<img id="gne" src="https://zemaneh-yosef.github.io/extras/charm-circle/logo.png" />
+	<div class="blurOverlay"></div>
+	<div id="poweredBy">
+		<span class="langTV lang-en">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
+		<span class="langTV lang-hb">הובה עליכם ממאור נעים והלוח זמני יוסף, שהולך על פי שיטת מרן עובדיה זצ"ל</span>
+		<span class="langTV lang-ru">Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.</span>
+	</div>
+	<div id="topBar">
+		<div>
+			<span data-en-date></span>
+			<hr style="margin: .25rem 0">
+			<span data-hb-date></span>
+		</div>
+		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
+		<div id="quickTimes">
+			<div style="text-align: left; width: fit-content; font-size: 1.15em;">
+				<div style="text-align: center; font-weight: bold; font-size: 1.3em;" data-parasha></div>
+				<div data-lightingCandles><i class="bi bi-fire"></i> </div>
+				<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
+			</div>
+		</div>
+	</div>
+	<div id="dataGrid">
+		<div id="megaline">
+			<div id="megalineCont">
+				<span data-zfFind="BirchatHalevana">
+					Birkat Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
+					<span data-zfFind="starts-tonight"> - Starts tonight</span>
+					<span data-zfFind="ends-tonight"> - Ends tonight</span>
+				</span>
+				<span data-zfReplace="Tachanun">
+					<span data-zfFind="0">
+						<span class="langTV lang-hb">לוח-תחנון יום</span>
+						<span class="langTV lang-en-et">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-en">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-ru">Календарь — День Тахануна</span>
+					</span>
+					<span data-zfFind="1">
+						<span class="langTV lang-hb">תחנון רק בשחרית</span>
+						<span class="langTV lang-en-et">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-en">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-ru">Только Таханун от Шахарит</span>
+					</span>
+					<span data-zfFind="2">
+						<span class="langTV lang-hb">אין תחנון היום</span>
+						<span class="langTV lang-en-et">No Taḥanun</span>
+						<span class="langTV lang-en">No Taḥanun</span>
+						<span class="langTV lang-ru">Нет Тахануна</span>
+					</span>
+					<span data-zfFind="3">צדקתך</span>
+					<span data-zfFind="4">יהי שם</span>
+				</span>
+				<span data-zfReplace="Hallel" style="display: none;"></span>
+				<span data-zfReplace="Ulchaparat" style="display: none;"></span>
+				<span data-zfFind="SeasonalPrayers">
+					<span data-zfReplace="SeasonalPrayers"></span>
+				</span>
+			</div>
+		</div>
+		<div id="zemanehHayom">
+			<h1 style="text-align: center; margin-bottom: 0;">
+				<span class="langTV lang-hb">זמני היום</span>
+				<span class="langTV lang-ru">Галахические времена</span>
+				<span class="langTV lang-en">Halachic Times</span>
+			</h1>
+			{% include clockCountdown.html %}
+			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
+				{% for item in site.data.tv.listTVZman %}
+					<article
+						data-zmanid="{{ item.id }}"
+						{% if item.round %}data-round="{{ item.round }}"{% endif %}
+						{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+						{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+						{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					>
+						<span class="langTV lang-hb">{{ item.names.he }}</span>
+						<span class="langTV lang-en">{{ item.names.en }}</span>
+						<span class="timeDisplay"></span>
+					</article>
+				{% endfor %}
+			</section>
+			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .8rem;">
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
+					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
+						{% for fast in site.data.events.fasts %}
+						<h5 data-zfFind="{{ fast.yomTovIndex }}">{{ fast.text.en }}</h5>
+						{% endfor %}
+						<span data-zfFind="oneDayTimes"><b>Fast Times: </b></span>
+						<ul data-zfFind="twoDayTimes">
+							<li><b>Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
+							<li><b>Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
+						</ul>
+					</li>
+					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
+						<div data-zfFind="SefirathHaomer">
+							<div class="lang lang-hb" style="display: block !important;">
+								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
+								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
+								<p class="mb-0">
+									<b>הלילה:</b>
+									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
+									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+								</p>
+							</div>
+							<hr class="my-1" data-zfFind="omerRules">
+						</div>
+						<div data-zfFind="ThreeWeeksHeader">
+							<h5 style="font-size: .9rem; margin-bottom: .1em;">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</h5>
+						</div>
+						<ul style="padding-left: 1.5rem;" class="d-none">
+							{% for minhag in site.data.mourningMinhag %}
+							<li data-zfFind="{{ minhag.topic }}">{{ minhag.text.en }}</li>
+							{% endfor %}
+						</ul>
+					</li>
+					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
+						ברכת החמה!
+					</li>
+					<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
+						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div id="limudSection">
+			<h1 style="text-align: center;">Daily Shiurim</h1>
+			<div class="card">
+				<zman-schedule class="list-group list-group-flush" id="dailWeekdayCard"></zman-schedule>
+			</div>
+		</div>
+		<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
+			<div class="carousel-inner">
+			</div>
+		</div>
+		<div id="shulScheduling" style="height: 67.5vh; overflow: hidden;">
+			<h1 style="text-align: center;">Weekday Schedule</h1>
+			<div class="card">
+				<zman-schedule class="list-group list-group-flush" id="weekdaySchCard"></zman-schedule>
+			</div>
+			<h1 style="text-align: center;">Shabbat Schedule</h1>
+			<div class="card">
+				<zman-schedule class="list-group list-group-flush" id="shabbatSchCard"></zman-schedule>
+			</div>
+		</div>
+		<div id="shulShiurim">
+			<h1 style="text-align: center;">Weekday Shiurim</h1>
+			<div class="card">
+				<zman-schedule class="list-group list-group-flush" id="speWeekdayCard"></zman-schedule>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script id="zy-scheduleScreen-config" type="application/json">
+	{{ site.data.tv.config.charm-circle | jsonify }}
+</script>
+<script type="module">
+	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';
+	validNetzAssert('USA', 41);
+</script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
+<script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
+<script type="module" src="/assets/js/shul-wall/reset.js"></script>
+<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
+<script type="module" src="/assets/js/shul-wall/times.js"></script>
+<script type="module" src="/assets/js/shul-wall/limud.js"></script>
+<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
+<script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
+<script type="module">
+	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+		.split('\n')
+		.filter(str => str.startsWith('./charm-circle/flyer/'))
+
+	const carousel = document.getElementById('ishMatzliachSlide');
+	carousel.firstElementChild.innerHTML = flyerURLs
+		.map((url, index) =>
+			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+		.join('');
+
+	const shulSchedule = document.getElementById('shulScheduling');
+	shulSchedule.innerHTML =
+		`<div class="marquee" style="--length: 40s; --gap: 1rem;">
+			<div class="marquee__content">${shulSchedule.innerHTML}</div>
+			<div aria-hidden="true" class="marquee__content">${shulSchedule.innerHTML}</div>
+		</div>`
+</script>
