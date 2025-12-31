@@ -178,10 +178,10 @@ let tzetText;
 if (tzetElem.hasAttribute('data-ikar-text')) {
 	tzetText = (rabbinic
 		? tzetTimes.ikar.toLocaleString(...dtF)
-		: tzetTimes.rt.toLocaleString(...dtF) + ` (${tzetElem.getAttribute('data-ikar-text')}: ${tzetTimes.ikar.toLocaleString(...dtF)})`)
+		: tzetTimes.rt.toLocaleString(...dtF) + ` <span class="altTzetMelakhaTime">(${tzetElem.getAttribute('data-ikar-text')}: ${tzetTimes.ikar.toLocaleString(...dtF)})</span>`)
 } else {
 	tzetText = tzetTimes.ikar.toLocaleString(...dtF);
 	if (!rabbinic && tzetElem.hasAttribute('data-rt-text'))
-		tzetText += ` (${tzetElem.getAttribute('data-rt-text')}: ${tzetTimes.rt.toLocaleString(...dtF)})`
+		tzetText += ` <span class="altTzetMelakhaTime">(${tzetElem.getAttribute('data-rt-text')}: ${tzetTimes.rt.toLocaleString(...dtF)})</span>`
 }
-tzetElem.appendChild(document.createTextNode(tzetText))
+tzetElem.innerHTML += tzetText

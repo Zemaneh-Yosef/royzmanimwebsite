@@ -6,9 +6,6 @@ layout: nothing
 
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
-<link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
-<link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
-<link href="/assets/css/timer.css" rel="stylesheet" />
 
 <style>
 	#content {
@@ -22,41 +19,6 @@ layout: nothing
 
 	#content > * {
 		grid-area: 1 / 1;
-	}
-
-	.blink {
-		animation: blinker 1s step-start infinite;
-	}
-
-	#clock {
-		font-size: 5.5em;
-		font-family: "dharma_gothic_e";
-	}
-
-	#topBar {
-		text-align: center;
-		display: flex;
-		justify-content: space-evenly;
-		width: 55%;
-		justify-self: center;
-		align-self: start;
-		color: black;
-		z-index: 3;
-		line-height: 1;
-		height: 12vh;
-		align-items: center;
-		font-size: 1.15em;
-		font-weight: 500;
-	}
-
-	#topBar > * {
-		flex: 1 1;
-	}
-
-	@keyframes blinker {
-		50% {
-			opacity: 0;
-		}
 	}
 
 	.centerLeftgrid svg {
