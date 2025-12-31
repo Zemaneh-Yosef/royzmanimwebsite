@@ -123,12 +123,14 @@ function mapSheetColumns(sheetData) {
 	return output;
 }
 
-if ("schedule" in scheduleSettings && scheduleSettings.schedule !== "manual") {
-	if (scheduleSettings.schedule.type === "ini") {
-		await loadIniSchedule(scheduleSettings.schedule.url);
-	} else if (scheduleSettings.schedule.type === "json") {
-		await loadJsonSchedule(scheduleSettings.schedule.url);
-	} else if (scheduleSettings.schedule.type === "excel") {
-		await loadExcelSchedule(scheduleSettings.schedule.url);
+(async () => {
+	if ("schedule" in scheduleSettings && scheduleSettings.schedule !== "manual") {
+		if (scheduleSettings.schedule.type === "ini") {
+			await loadIniSchedule(scheduleSettings.schedule.url);
+		} else if (scheduleSettings.schedule.type === "json") {
+			await loadJsonSchedule(scheduleSettings.schedule.url);
+		} else if (scheduleSettings.schedule.type === "excel") {
+			await loadExcelSchedule(scheduleSettings.schedule.url);
+		}
 	}
-}
+})();

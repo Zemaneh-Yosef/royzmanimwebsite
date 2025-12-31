@@ -615,6 +615,8 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
 	import {loadIniSchedule} from '/assets/js/shul-wall/scheduleOnline.js';
+	import marqueeDuplicate from '/assets/js/shul-wall/marquee_duplicate.js';
+
 	const mournersCont = Object.fromEntries(Object.entries(await loadIniSchedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true)).filter(Boolean));
 
 	/*const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
@@ -639,10 +641,5 @@ layout: nothing
 		}).join('');
 	} */
 
-	const shulSchedule = document.getElementById('shulScheduling');
-	shulSchedule.innerHTML =
-		`<div class="marquee" style="--length: 45s; --gap: 1rem;">
-			<div class="marquee__content">${shulSchedule.innerHTML}</div>
-			<div aria-hidden="true" class="marquee__content">${shulSchedule.innerHTML}</div>
-		</div>`
+	marqueeDuplicate(document.getElementById("shulScheduling"), { length: "35s", gap: "1rem" });
 </script>

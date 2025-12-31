@@ -206,7 +206,7 @@ layout: nothing
 	}
 
 	#megaline {
-		grid-column: 1 / span 4;
+		grid-column: 1 / span 3;
 		text-align: center;
 		font-size: 1em;
 		margin-left: -1vw;
@@ -302,7 +302,7 @@ layout: nothing
 	}
 </style>
 
-<div id="content" data-current-page="1" data-page-count="4" data-swap-time="10000">
+<div id="content" data-current-page="1" data-page-count="4" data-swap-time="12000">
 	<div id="bsD">בס"ד</div>
 	<img id="gne" src="/assets/images/shul-wall/charm-circle-logo.png" />
 	<div class="blurOverlay"></div>
@@ -445,7 +445,7 @@ layout: nothing
 			<div class="carousel-inner">
 			</div>
 		</div>
-		<div id="shulScheduling" style="height: 67.5vh; overflow: hidden;">
+		<div id="shulScheduling" style="height: 68.5vh; overflow: hidden;">
 			<h1 style="text-align: center;">Weekday Schedule</h1>
 			<div class="card">
 				<zman-schedule class="list-group list-group-flush" id="weekdaySchCard"></zman-schedule>
@@ -481,6 +481,8 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
 <script type="module">
+	import marqueeDuplicate from '/assets/js/shul-wall/marquee_duplicate.js';
+
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
 		.filter(str => str.startsWith('./charm-circle/flyer/'))
@@ -491,10 +493,5 @@ layout: nothing
 			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
 		.join('');
 
-	const shulSchedule = document.getElementById('shulScheduling');
-	shulSchedule.innerHTML =
-		`<div class="marquee" style="--length: 40s; --gap: 1rem;">
-			<div class="marquee__content">${shulSchedule.innerHTML}</div>
-			<div aria-hidden="true" class="marquee__content">${shulSchedule.innerHTML}</div>
-		</div>`
+	marqueeDuplicate(document.getElementById("shulScheduling"), { length: "35s", gap: "1rem" });
 </script>
