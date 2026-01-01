@@ -28,6 +28,7 @@ import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
     schedule?: "manual" | {
         url: string;
         type: "excel" | "ini" | "json";
+        forUpcoming?: boolean;
     }
 }} ScheduleSettings */
 

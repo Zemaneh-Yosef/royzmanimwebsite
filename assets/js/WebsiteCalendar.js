@@ -334,7 +334,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return calculatedZmanim;
 	}
 
-	getYomTov() {
+	getYomTov(language='english-translated') {
 		const yomTovObj = {
 			// Holidays
 			[KosherZmanim.JewishCalendar.PESACH]: {
@@ -440,7 +440,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		if (!yomTovObj[this.getYomTovIndex()])
 			return null;
 
-		return yomTovObj[this.getYomTovIndex()]["english-translated"] || yomTovObj[this.getYomTovIndex()]["english"];
+		return yomTovObj[this.getYomTovIndex()][language] || yomTovObj[this.getYomTovIndex()]["english"];
 	}
 
 	listOfSpecialDays() {

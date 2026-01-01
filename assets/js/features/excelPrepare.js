@@ -15,7 +15,7 @@ import WebsiteCalendar from "../WebsiteCalendar.js";
  * @param {boolean} isTimelyView
  * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; netzTimes: number[] }} funcSettings
  */
-export default function spreadSheetExport (plainDateParams, geoLocationData, config, isIsrael, zmanList, isTimelyView, funcSettings) {
+export default function spreadSheetExport(plainDateParams, geoLocationData, config, isIsrael, zmanList, isTimelyView, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
 	const geoLocation = new GeoLocation(...geoLocationData);
 
@@ -38,17 +38,23 @@ export default function spreadSheetExport (plainDateParams, geoLocationData, con
 			.filter(entry => entry[1].display == 1)
 			.map(entry => [
 				entry[0],
-				{t: "d", v: new Date(entry[1].zDTObj.epochMilliseconds),
-				f: formatTime(entry[1].zDTObj), z:
-					"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
-					+ ":mm" + ('second' in entry[1].dtF[1] ? ":ss" : "")
-					+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")}
+				{
+					t: "d", v: new Date(entry[1].zDTObj.epochMilliseconds),
+					f: formatTime(entry[1].zDTObj), z:
+						"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
+						+ ":mm" + ('second' in entry[1].dtF[1] ? ":ss" : "")
+						+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")
+				}
 			])
 
+		const isoDate = new Date(`${jCal.getDate().year}-${String(jCal.getDate().month).padStart(2, "0")}-${String(jCal.getDate().day).padStart(2, "0")}`);
+
 		const row = Object.fromEntries(
-			[['DATE', {t: "s", v: "date", f: `=DATE(${jCal.getDate().year}, ${jCal.getDate().month}, ${jCal.getDate().day})`, z: "yyyy-mm-dd"}]]
-			// @ts-ignore
-			.concat(dailyZmanim)
+			[
+				['DATE', { t: "d", v: isoDate, f: `=DATE(${jCal.getDate().year}, ${jCal.getDate().month}, ${jCal.getDate().day})`, z: "yyyy-mm-dd" }],
+			]
+				// @ts-ignore
+				.concat(dailyZmanim)
 		);
 
 		events.push(row);
@@ -60,10 +66,12 @@ export default function spreadSheetExport (plainDateParams, geoLocationData, con
 	for (const vNetzDay of vNetz) {
 		const netzDay = events.find((event) => event.DATE.f == `=DATE(${vNetzDay.year}, ${vNetzDay.month}, ${vNetzDay.day})`);
 		if (netzDay && 'sunrise' in netzDay && Math.abs(netzDay.sunrise.v - vNetzDay.epochMilliseconds) < 1000 * 60 * 7)
-			netzDay.sunrise = { t: "d", v: new Date(vNetzDay.epochMilliseconds), f: formatTime(vNetzDay), z:
-				"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
-				+ ":mm:ss"
-				+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")}
+			netzDay.sunrise = {
+				t: "d", v: new Date(vNetzDay.epochMilliseconds), f: formatTime(vNetzDay), z:
+					"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
+					+ ":mm:ss"
+					+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")
+			}
 
 	}
 

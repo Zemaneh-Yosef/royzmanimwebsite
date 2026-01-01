@@ -243,7 +243,33 @@ layout: nothing
 </div>
 
 <script id="zy-scheduleScreen-config" type="application/json">
-	{{ site.data.tv.config.charm-circle | jsonify }}
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "Charm Circle",
+			"lat": 40.72068460693191,
+			"long": -73.82563608692345,
+			"elevation": 0,
+			"timezone": "America/New_York"
+		},
+		"calendarToggle": {
+			"rtKulah": true,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 20,
+			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+		},
+		"schedule": {
+			"url": "https://malka-minyanim.royzmanim.com/db/charm-circle.db",
+			"type": "ini",
+			"forUpcoming": true
+		}
+	}
 </script>
 <script type="module">
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())

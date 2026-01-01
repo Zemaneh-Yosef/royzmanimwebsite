@@ -3,13 +3,13 @@
 import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteCalendar from '../WebsiteCalendar.js';
 import { zDTFromFunc } from '../ROYZmanim.js';
-import { jCal, zmanCalc, dtF } from "./base.js";
+import { jCal, zmanCalc, dtF, scheduleSettings } from "./base.js";
 
 /**
  * @param {NodeListOf<HTMLElement>} nodes
  */
 export default async function autoSchedule(nodes) {
-	/** @type {{shabbat: WebsiteCalendar; yomChol: WebsiteCalendar; erevShabbat: WebsiteCalendar; nextWeek: WebsiteCalendar}} */
+	/** @type {{shabbat: WebsiteCalendar; yomChol: WebsiteCalendar; erevShabbat: WebsiteCalendar; nextWeek: WebsiteCalendar; upcomingYomChol: WebsiteCalendar}} */
 	// @ts-ignore
 	const jCalDates = {
 		shabbat: jCal.shabbat()
@@ -23,11 +23,17 @@ export default async function autoSchedule(nodes) {
 	jCalDates.nextWeek = jCalDates.shabbat.clone();
 	jCalDates.nextWeek.setDate(jCalDates.shabbat.getDate().add({ days: 1 }));
 
+	if (jCal.hasCandleLighting() || jCal.isAssurBemelacha() || (scheduleSettings.schedule && typeof scheduleSettings.schedule != "string" && scheduleSettings.schedule.forUpcoming))
+		jCalDates.upcomingYomChol = jCalDates.nextWeek;
+	else
+		jCalDates.upcomingYomChol = jCalDates.yomChol;
+
 	const mapJCalTypeToDate = {
 		'sh': jCalDates.shabbat,
 		'we': jCalDates.yomChol,
 		'eSh': jCalDates.erevShabbat,
-		'nWe': jCalDates.nextWeek
+		'nWe': jCalDates.nextWeek,
+		"uCh": jCalDates.upcomingYomChol
 	}
 	for (const el of nodes) {
 		const type = el.dataset.autoscheduleType;
@@ -73,9 +79,25 @@ function roundDateTime(dt, interval, mode) {
             break;
 
         case "rc": // round closer
-		case "rn": // round nearest
             rounded = Math.round(ratio) * interval;
             break;
+
+		case "rx": {
+			const lower = Math.floor(ratio) * interval;
+			const upper = Math.ceil(ratio) * interval;
+
+			const diffLower = Math.abs(minute - lower);
+			const diffUpper = Math.abs(upper - minute);
+
+			if (diffLower === 1) {
+				rounded = lower;
+			} else if (diffUpper === 1) {
+				rounded = upper;
+			} else {
+				rounded = minute; // leave unchanged
+			}
+			break;
+		}
 
         case "re":
         default: // round earlier (down)
@@ -83,14 +105,11 @@ function roundDateTime(dt, interval, mode) {
             break;
     }
 
-    // --- FIX: handle hour rollover safely ---
-    // Convert to total minutes since start of hour
     const totalMinutes = dt.hour * 60 + rounded;
 
     const newHour = Math.floor(totalMinutes / 60);
     const newMinute = totalMinutes % 60;
 
-    // Temporal.with() cannot set hour > 23, so we use add()
     const hourDelta = newHour - dt.hour;
 
     return dt.add({ hours: hourDelta }).with({ minute: newMinute });

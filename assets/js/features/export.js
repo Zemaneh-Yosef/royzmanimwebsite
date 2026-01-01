@@ -242,13 +242,18 @@ export default class exportFriendly {
 
 			const tableData = [...new Set(workerData.flat().map(field => JSON.stringify(field)))]
 				.map(field => JSON.parse(field))
-				.sort((a, b) => new Date(Object.values(a)[1].v).getTime() - new Date(Object.values(b)[1].v).getTime())
+				.sort((a, b) => {
+					const aDate = new Date(a.DATE.v).getTime();
+					const bDate = new Date(b.DATE.v).getTime();
+					return aDate - bDate;
+				});
 
 			const { utils, writeFile } = (await import('../../libraries/xlsx.mjs'));
 			const ws = utils.json_to_sheet([headerRow].concat(tableData), { skipHeader: true });
 			const wb = utils.book_new();
 			utils.book_append_sheet(wb, ws, "People");
 			writeFile(wb, title + ".xlsx");
+
 			this.midDownload = false;
 		}
 

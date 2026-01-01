@@ -110,14 +110,14 @@ const localizedIndividual = {
 
 const intervalTokens = ["05", "10", "15", "30"];
 const methodPattern = methodNames.filter(m => m.startsWith("get")).join("|");
-const typePattern = ["we", "sh", "eSh", "nWe"].join("|");
+const typePattern = ["we", "sh", "eSh", "nWe", "uCh"].join("|");
 
 const regex = new RegExp(
 	`^(?<type>${typePattern})\\|` +
 	`(?<method>${methodPattern})\\|` +
 	`(?<sign>[+-])` +
 	`(?<hours>\\d{2}):(?<minutes>\\d{2})` +
-	`(?<mode>re|rl|rc|ex)(?<interval>${intervalTokens.join("|")})?$`
+	`(?<mode>re|rl|rc|rx|ex)(?<interval>${intervalTokens.join("|")})?$`
 );
 
 class ZmanSchedule extends HTMLElement {

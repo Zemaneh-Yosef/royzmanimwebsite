@@ -1,6 +1,6 @@
 // @ts-check
 
-import { Parsha, TehilimYomi, MishnaYomi } from "../libraries/kosherZmanim/kosher-zmanim.js"
+import { Parsha, TehilimYomi, MishnaYomi, Temporal } from "../libraries/kosherZmanim/kosher-zmanim.js"
 import WebsiteCalendar, { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 export default
 class WebsiteLimudCalendar extends WebsiteCalendar {
@@ -86,7 +86,7 @@ class WebsiteLimudCalendar extends WebsiteCalendar {
 	}
 
 	getAllLearning() {
-		/** @type {Record<string, string>} */
+		/** @type {Record<"dafBavli"|"DafYerushalmi"|"ccYomi"|"TehilimShvui"|"TehilimHodshi"|"MishnaYomi", string>} */
 		const learning = {};
 		const hNum = new HebrewNumberFormatter();
 
@@ -113,6 +113,53 @@ class WebsiteLimudCalendar extends WebsiteCalendar {
 		learning.TehilimHodshi = TehilimYomi.byDayOfMonth(this).map(met => met.toString()).join(' - ');
 
 		learning.MishnaYomi = MishnaYomi.getMishnaForDate(this, true) || "N/A";
+
+		return learning;
+	}
+
+	getWeeklyLearning() {
+		/** @type {Record<"dafBavliWeek", string>} */
+		const learning = {};
+		const hNum = new HebrewNumberFormatter();
+
+		// --- WEEKLY DAF YOMI RANGE ---
+		const today = this.getDate(); // Temporal.PlainDate
+		const dayOfWeek = today.dayOfWeek; // 1=Monday ... 7=Sunday (ISO)
+
+		// Convert ISO to Jewish week: Sunday=1 ... Shabbat=7
+		const offsetToSunday = (dayOfWeek === 7 ? 0 : dayOfWeek); 
+		const sunday = today.subtract({ days: offsetToSunday });
+		const shabbat = sunday.add({ days: 6 });
+
+		/** @param {Temporal.PlainDate} date */
+		const getDafForDate = (date) => {
+			const calc = this.clone(); // or however you recompute for a different date
+			calc.setDate(date);
+			return calc.getDafYomiBavli();
+		};
+
+		const dafStart = getDafForDate(sunday);
+		const dafEnd = getDafForDate(shabbat);
+
+		const masechtaStart = dafStart.getMasechta();
+		const masechtaEnd = dafEnd.getMasechta();
+
+		const dafStartNum = hNum.formatHebrewNumber(dafStart.getDaf());
+		const dafEndNum = hNum.formatHebrewNumber(dafEnd.getDaf());
+
+		let weeklyString;
+
+		if (masechtaStart === masechtaEnd) {
+			// Same masechta all week
+			weeklyString =
+				`${masechtaStart} ${dafStartNum} – ${dafEndNum}`;
+		} else {
+			// Masechta changes mid‑week
+			weeklyString =
+				`${masechtaStart} ${dafStartNum} → ${masechtaEnd} ${dafEndNum}`;
+		}
+
+		learning.dafBavliWeek = weeklyString;
 
 		return learning;
 	}
