@@ -3,7 +3,7 @@ import './zman-schedule.js'
 
 import { scheduleSettings } from "./base.js";
 import { parse as parseIni } from "../../libraries/ini.js";
-import * as xlsx from "../../libraries/xlsx.mjs";
+import * as xlsx from "../../libraries/xlsx.js";
 
 /** @param {string | URL | Request} url */
 export async function loadIniSchedule(url, silent=false) {
@@ -94,7 +94,7 @@ export async function loadSchedule(data, silentFail = false) {
  * Convert any sheet-like object containing A# / B# column pairs
  * into a simple { key: value } mapping, using each entry's "w" field.
  *
- * @param {Object} sheetData - The full input object containing one or more sheets.
+ * @param {xlsx.WorkSheet} sheetData - The full input object containing one or more sheets.
  * @returns {Record<string, Record<string, string>>} A new object where each sheet is mapped to { title: time }.
  */
 function mapSheetColumns(sheetData) {

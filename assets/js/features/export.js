@@ -227,7 +227,7 @@ export default class exportFriendly {
 			}
 		]
 
-		/** @type {Parameters<import('../../libraries/xlsx.mjs')["utils"]["json_to_sheet"]>[1][]} */
+		/** @type {Parameters<import('../../libraries/xlsx.js')["utils"]["json_to_sheet"]>[1][]} */
 		let workerData = [];
 		let giveData = [];
 
@@ -248,7 +248,7 @@ export default class exportFriendly {
 					return aDate - bDate;
 				});
 
-			const { utils, writeFile } = (await import('../../libraries/xlsx.mjs'));
+			const { utils, writeFile } = (await import('../../libraries/xlsx.js'));
 			const ws = utils.json_to_sheet([headerRow].concat(tableData), { skipHeader: true });
 			const wb = utils.book_new();
 			utils.book_append_sheet(wb, ws, "People");

@@ -27,26 +27,6 @@ layout: nothing
 		text-align: center;
 	}
 
-	#topBar {
-		text-align: center;
-		display: flex;
-		justify-content: space-evenly;
-		width: 60%;
-		justify-self: center;
-		align-self: start;
-		color: black;
-		z-index: 3;
-		line-height: 1;
-		height: 12vh;
-		align-items: center;
-		font-size: 1.15em;
-		font-weight: 500;
-	}
-
-	#topBar > * {
-		flex: 1 1;
-	}
-
 	#quickTimes svg {
 		height: 1em;
 		width: 1em;
@@ -84,14 +64,14 @@ layout: nothing
 	}
 
     #dataGrid > *:not(.wideView):not(.marquee) {
-        background: rgba(0,0,0,.75);
-        border-top-left-radius: 50% 15%;
-        border-top-right-radius: 50% 15%;
+        background: rgba(0,0,0,.85);
+        border-top-left-radius: 50% 20%;
+        border-top-right-radius: 50% 20%;
         padding: 1rem;
         box-shadow: 0 0 7px 5px black;
-        padding-top: 1.75rem;
+        padding-top: 2.25rem;
 		color: white;
-		font-size: 2rem;
+		font-size: 1.8rem;
     }
 
 	#dataGrid h1 {
@@ -102,10 +82,20 @@ layout: nothing
 		height: 100%;
 	}
 
+	#dataGrid .card {
+		--bs-card-bg: transparent;
+		border: none;
+	}
+
 	#dataGrid > *:not(#limudSection) .list-group-item {
 		--bs-list-group-item-padding-y: .25rem;
 		--bs-list-group-border-color: #49505799;
 		--bs-list-group-item-padding-x: .5rem;
+		--bs-list-group-bg: transparent;
+	}
+
+	zman-schedule.list-group {
+		--bs-list-group-bg: transparent;
 	}
 
 	#gne {
@@ -122,7 +112,10 @@ layout: nothing
 		align-self: end;
 		grid-column: 1 / span 3;
 		color: black;
-		font-size: 1.6rem;
+		font-size: 1.55rem;
+
+		backdrop-filter: grayscale(1) brightness(1.5) blur(2.5px);
+		border-radius: 1rem;
 	}
 
 	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
@@ -196,25 +189,13 @@ layout: nothing
 		border-radius: 3rem;
 	}
 
-	.hiloulotCard .list-group-item {
-		--bs-list-group-item-padding-y: .125rem;
-		--bs-list-group-border-color: #49505799;
-		--bs-list-group-item-padding-x: .75rem;
-	}
-
-	.hiloulotCard .card-header {
-		--bs-card-cap-padding-x: .75rem;
-	}
-
 	.list-group-item,
 	.list-group {
-		--bs-list-group-bg: #212529;
 		--bs-list-group-color: white;
 		--bs-list-group-border-color: var(--bs-border-color);
 	}
 
 	:root {
-        --bs-body-bg: #1A1D2A !important;
 		--bs-heading-color: white !important;
     }
 
@@ -244,6 +225,10 @@ layout: nothing
 
 	.marquee__content > img {
 		height: 15vh;
+	}
+
+	.altTzetMelakhaTime {
+		font-size: 0.75em;
 	}
 </style>
 
@@ -502,8 +487,8 @@ layout: nothing
 			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
 		},
 		"schedule": {
-			"url": "https://zemaneh-yosef.github.io/extras/shaare-tefila.ini",
-			"type": "ini"
+			"url": "https://docs.google.com/spreadsheets/d/1mJSDbVJhpWVFDvuxivuUh4hMgT6COpeNyd_naN195r8/export?format=xlsx",
+			"type": "excel"
 		}
 	}
 </script>
