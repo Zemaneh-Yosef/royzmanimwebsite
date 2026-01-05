@@ -1,0 +1,101 @@
+- title: אלעד
+  lat: 32.0523
+  lng: 34.9512
+  elevation: 60
+  timezone: "Asia/Jerusalem"
+
+- title: אשדוד
+  lat: 31.7921
+  lng: 34.6497
+  elevation: 27
+  timezone: "Asia/Jerusalem"
+
+- title: באר שבע
+  lat: 31.2518
+  lng: 34.7913
+  elevation: 280
+  timezone: "Asia/Jerusalem"
+
+- title: בית שמש
+  lat: 31.7456
+  lng: 34.9866
+  elevation: 280
+  timezone: "Asia/Jerusalem"
+
+- title: ביתר עילית
+  lat: 31.6970
+  lng: 35.1156
+  elevation: 760
+  timezone: "Asia/Jerusalem"
+
+- title: בני ברק
+  lat: 32.0807
+  lng: 34.8338
+  elevation: 51
+  timezone: "Asia/Jerusalem"
+
+- title: גבעת זאב
+  lat: 31.8615
+  lng: 35.1686
+  elevation: 770
+  timezone: "Asia/Jerusalem"
+
+- title: חיפה
+  lat: 32.8184
+  lng: 34.9885
+  elevation: 40
+  timezone: "Asia/Jerusalem"
+
+- title: טבריה
+  lat: 32.7922
+  lng: 35.5312
+  elevation: 0 #previously negative
+  timezone: "Asia/Jerusalem"
+
+- title: ירושלים
+  lat: 31.7690
+  lng: 35.2163
+  elevation: 786
+  timezone: "Asia/Jerusalem"
+
+- title: מודיעין
+  lat: 31.8983
+  lng: 35.0105
+  elevation: 245
+  timezone: "Asia/Jerusalem"
+
+- title: מירון
+  lat: 32.9820
+  lng: 35.4403
+  elevation: 750
+  timezone: "Asia/Jerusalem"
+
+- title: נתיבות
+  lat: 31.4231
+  lng: 34.5891
+  elevation: 153
+  timezone: "Asia/Jerusalem"
+
+- title: עמנואל
+  lat: 32.1619
+  lng: 35.1372
+  elevation: 430
+  timezone: "Asia/Jerusalem"
+
+- title: צפת
+  lat: 32.9647
+  lng: 35.4960
+  elevation: 850
+  timezone: "Asia/Jerusalem"
+
+- title: קרית יערים
+  lat: 31.8033
+  lng: 35.1000
+  elevation: 820
+  timezone: "Asia/Jerusalem"
+
+- title: תל אביב
+  lat: 32.0809
+  lng: 34.7806
+  elevation: 15
+  timezone: "Asia/Jerusalem"

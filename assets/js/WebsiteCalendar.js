@@ -16,7 +16,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			english: this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"}),
 			hebrew: [
 				hNum.formatHebrewNumber(this.getJewishDayOfMonth()),
-				monthForLocale('he-u-ca-hebrew', 'long', 'hebrew', this.getDate().year)[this.getDate().withCalendar('hebrew').month] + ',',
+				this.formatJewishMonth().he + ',',
 				hNum.formatHebrewNumber(this.getJewishYear()),
 			].join(' ')
 		}
@@ -440,6 +440,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		if (!yomTovObj[this.getYomTovIndex()])
 			return null;
 
+		// @ts-ignore
 		return yomTovObj[this.getYomTovIndex()][language] || yomTovObj[this.getYomTovIndex()]["english"];
 	}
 

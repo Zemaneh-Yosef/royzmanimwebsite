@@ -271,17 +271,6 @@ layout: nothing
 		}
 	}
 </script>
-<script type="module">
-	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
-		.split('\n')
-		.filter(str => str.startsWith('./charm-circle/flyer/'))
-
-	const carousel = document.getElementById('ishMatzliachSlide');
-	carousel.firstElementChild.innerHTML = flyerURLs
-		.map((url, index) =>
-			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
-		.join('');
-</script>
 <script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
