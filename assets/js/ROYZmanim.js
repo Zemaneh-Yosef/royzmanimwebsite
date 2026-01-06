@@ -240,6 +240,10 @@ class ZemanFunctions extends ZemanimMathBase {
 			.subtract({ nanoseconds: Math.trunc(alotDuration.total("nanoseconds") * percentageForMisheyakir) })
 	}
 
+	getEarlyMisheyakir() {
+		return this.getMisheyakir(5.5/6);
+	}
+
 	getNetz() {
 		if (this.vSunrise.zoneDT.length) {
 			const todayVS = this.vSunrise.zoneDT[this.vSunrise.indexDates.indexOf(this.vSunrise.indexDates.find(vs => vs.equals(this.coreZC.getDate())))];

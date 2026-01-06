@@ -164,6 +164,257 @@ layout: nothing_forceHB
 	.ring-offset-background {
 		--tw-ring-offset-color: hsl(var(--background))
 	}
+
+	.bg-\[--color-bg\] {
+		background-color: var(--color-bg)
+	}
+
+	.bg-accent {
+		background-color: hsl(var(--accent))
+	}
+
+	.bg-background {
+		background-color: hsl(var(--background))
+	}
+
+	.bg-black\/80 {
+		background-color: #000c
+	}
+
+	.bg-blue-500 {
+		--tw-bg-opacity: 1;
+		background-color: rgb(59 130 246 / var(--tw-bg-opacity, 1))
+	}
+
+	.bg-border {
+		background-color: hsl(var(--border))
+	}
+
+	.bg-card {
+		background-color: hsl(var(--card))
+	}
+
+	.bg-destructive {
+		background-color: hsl(var(--destructive))
+	}
+
+	.bg-foreground {
+		background-color: hsl(var(--foreground))
+	}
+
+	.bg-gray-100 {
+		--tw-bg-opacity: 1;
+		background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1))
+	}
+
+	.bg-gray-200 {
+		--tw-bg-opacity: 1;
+		background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1))
+	}
+
+	.bg-gray-50 {
+		--tw-bg-opacity: 1;
+		background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1))
+	}
+
+	.bg-muted {
+		background-color: hsl(var(--muted))
+	}
+
+	.bg-muted\/50 {
+		background-color: hsl(var(--muted) / .5)
+	}
+
+	.bg-popover {
+		background-color: hsl(var(--popover))
+	}
+
+	.bg-primary {
+		background-color: hsl(var(--primary))
+	}
+
+	.bg-secondary {
+		background-color: hsl(var(--secondary))
+	}
+
+	.bg-sidebar {
+		background-color: hsl(var(--sidebar-background))
+	}
+
+	.bg-sidebar-border {
+		background-color: hsl(var(--sidebar-border))
+	}
+
+	.bg-transparent {
+		background-color: transparent
+	}
+
+	.bg-white {
+		--tw-bg-opacity: 1;
+		background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1))
+	}
+
+	.bg-yellow-50 {
+		--tw-bg-opacity: 1;
+		background-color: rgb(254 252 232 / var(--tw-bg-opacity, 1))
+	}
+
+	.rounded {
+		border-radius: .25rem
+	}
+
+	.rounded-\[12px\] {
+		border-radius: 12px
+	}
+
+	.rounded-\[16px\] {
+		border-radius: 16px
+	}
+
+	.rounded-\[2px\] {
+		border-radius: 2px
+	}
+
+	.rounded-\[inherit\] {
+		border-radius: inherit
+	}
+
+	.rounded-full {
+		border-radius: 9999px
+	}
+
+	.rounded-lg {
+		border-radius: var(--radius)
+	}
+
+	.rounded-md {
+		border-radius: calc(var(--radius) - 2px)
+	}
+
+	.rounded-sm {
+		border-radius: calc(var(--radius) - 4px)
+	}
+
+	.rounded-xl {
+		border-radius: .75rem
+	}
+
+	.rounded-t-\[10px\] {
+		border-top-left-radius: 10px;
+		border-top-right-radius: 10px
+	}
+
+	.rounded-tl-sm {
+		border-top-left-radius: calc(var(--radius) - 4px)
+	}
+
+	.hover\:shadow-md:hover {
+		--tw-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);
+		--tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)
+	}
+
+	.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-duration: .15s
+}
+
+.transition-colors {
+    transition-property: color,background-color,border-color,text-decoration-color,fill,stroke;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-duration: .15s
+}
+
+.transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-duration: .15s
+}
+
+.transition-shadow {
+    transition-property: box-shadow;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-duration: .15s
+}
+
+.transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-duration: .15s
+}
+
+.duration-1000 {
+    transition-duration: 1s
+}
+
+.duration-200 {
+    transition-duration: .2s
+}
+
+.ease-in-out {
+    transition-timing-function: cubic-bezier(.4,0,.2,1)
+}
+
+.ease-linear {
+    transition-timing-function: linear
+}
+
+@keyframes enter {
+    0% {
+        opacity: var(--tw-enter-opacity, 1);
+        transform: translate3d(var(--tw-enter-translate-x, 0),var(--tw-enter-translate-y, 0),0) scale3d(var(--tw-enter-scale, 1),var(--tw-enter-scale, 1),var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0))
+    }
+}
+
+@keyframes exit {
+    to {
+        opacity: var(--tw-exit-opacity, 1);
+        transform: translate3d(var(--tw-exit-translate-x, 0),var(--tw-exit-translate-y, 0),0) scale3d(var(--tw-exit-scale, 1),var(--tw-exit-scale, 1),var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0))
+    }
+}
+
+.animate-in {
+    animation-name: enter;
+    animation-duration: .15s;
+    --tw-enter-opacity: initial;
+    --tw-enter-scale: initial;
+    --tw-enter-rotate: initial;
+    --tw-enter-translate-x: initial;
+    --tw-enter-translate-y: initial
+}
+
+.fade-in-0 {
+    --tw-enter-opacity: 0
+}
+
+.fade-in-80 {
+    --tw-enter-opacity: .8
+}
+
+.zoom-in-95 {
+    --tw-enter-scale: .95
+}
+
+.duration-1000 {
+    animation-duration: 1s
+}
+
+.duration-200 {
+    animation-duration: .2s
+}
+
+.ease-in-out {
+    animation-timing-function: cubic-bezier(.4,0,.2,1)
+}
+
+.ease-linear {
+    animation-timing-function: linear
+}
+
+.timeDisplay > *:last-child {
+	font-weight: bold;
+}
 </style>
 
 <style>
@@ -206,7 +457,7 @@ layout: nothing_forceHB
 	}
 
 	.day-box .gregorian {
-	  font-weight: 600;
+	  font-weight: bold;
 	  font-size: 1.1rem;
 	}
 
@@ -289,32 +540,62 @@ layout: nothing_forceHB
 			</div>
 			<button type="button" class="btn btn-light" data-zyWeek="1"><span class="material-symbols-outlined">arrow_back</span></button>
 		</section>
-		<div id="wideGrid" class="maxWidthContainer">
-			<div id="zmanim">
-				<div class="accordian loading" data-zfFind="calendarFormatter">
-					{% for item in site.data.hazon-yosef.zmanList %}
-					<div data-zmanid="{{ item.id }}"
-						{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
-						{% if item.round %}data-round="{{ item.round }}" {% endif %}
-						{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}" {% endif %}
-						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}" {% endif %}
-						{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-						{% if
-							item.attributes.luachInclusive
-						 or item.attributes.yomTovInclusive
-						 or	item.attributes.condition %}style="display: none;" {% endif %}>
+		<section class="w-100 bg-gray-50 rounded-xl p-4 p-lg-3">
+			<div class="grid pb-4 mb-4" style="--bs-columns: 6; border-bottom: 1px solid black;" data-zfFind="calendarFormatter">
+				{% for item in site.data.hazon-yosef.zmanList.core %}
+				<div class="g-col-2 g-col-lg-1 card bg-white rounded-[12px] shadow-sm hover:shadow-md transition-shadow duration-200 text-center border border-gray-100"
+					data-zmanid="{{ item.id }}"
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.round %}data-round="{{ item.round }}" {% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}" {% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}" {% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					{% if
+						item.attributes.luachInclusive
+						or item.attributes.yomTovInclusive
+						or	item.attributes.condition %}style="display: none;" {% endif %}>
+					<div class="card-body">
+						<img src="/assets/images/hazon-yosef/{{ item.icon }}.svg" alt="{{ item.name | escape }}" class="mb-2"
+							style="width: 32px; height: 32px;">
 						<div class="zmanTitleText">
 							{{ item.name }}
 						</div>
-							<span class="timeDisplay">
-								<div class="upNextText" style="display: none;">הבא...</div>
-								<div></div>
-							</span>
+						<span class="timeDisplay">
+							<div class="upNextText" style="display: none;">הבא...</div>
+							<div></div>
+						</span>
 					</div>
-					{% endfor %}
 				</div>
+				{% endfor %}
 			</div>
-		</div>
+			<div class="grid" style="--bs-columns: 6;" data-zfFind="calendarFormatter">
+				{% for item in site.data.hazon-yosef.zmanList.calculations %}
+				<div class="g-col-3 g-col-lg-2 card bg-white rounded-[12px] shadow-sm hover:shadow-md transition-shadow duration-200 text-center border border-gray-100"
+					data-zmanid="{{ item.id }}"
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.round %}data-round="{{ item.round }}" {% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}" {% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}" {% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					{% if
+						item.attributes.luachInclusive
+						or item.attributes.yomTovInclusive
+						or	item.attributes.condition %}style="display: none;" {% endif %}>
+					<div class="card-body">
+						<img src="/assets/images/hazon-yosef/sun.svg" alt="{{ item.name | escape }}" class="mb-2"
+							style="width: 32px; height: 32px;">
+						<div class="zmanTitleText">
+							{{ item.name }}
+						</div>
+						<span class="timeDisplay">
+							<div class="upNextText" style="display: none;">הבא...</div>
+							<div></div>
+						</span>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</section>
 	</main>
 </div>
 

@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import {Temporal} from "../libraries/kosherZmanim/kosher-zmanim.js";
+import { Temporal } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
@@ -9,7 +9,29 @@ import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 
 export default class zmanimListUpdater {
 	constructor() {
-		this.jCal = new WebsiteLimudCalendar();
+		/** @type {HTMLSelectElement} */
+		// @ts-ignore
+		const matLocSelect = document.getElementById("locationSelector");
+
+		const locationGeoList = Array.from(matLocSelect.options).map(option => {
+			const geoLData = JSON.parse(option.value)
+			return new KosherZmanim.GeoLocation(
+				option.text,
+				geoLData.lat,
+				geoLData.lng,
+				geoLData.elevation,
+				geoLData.timezone
+			);
+		});
+		matLocSelect.addEventListener('change', (chngEvnt) => {
+			let sameDayEnsure = this.jCal.getDate().equals(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
+			this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
+
+			if (sameDayEnsure)
+				this.changeDate(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
+		});
+
+		this.jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
 		this.jCal.setUseModernHolidays(true);
 
 		this.weekPlainDate = getStartOfWeek();
@@ -24,25 +46,30 @@ export default class zmanimListUpdater {
 		this.countdownToNextDay = null;
 
 		/** @type {Parameters<typeof this.jCal.getZmanimInfo>[2]} */
-		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
-			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), Object.freeze({
-				function: timeSlot.getAttribute('data-timeGetter'),
-				yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
-				luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
-				condition: timeSlot.getAttribute('data-condition'),
-				round: timeSlot.getAttribute('data-round'),
-				title: {
-					'hb': timeSlot.querySelector('.zmanTitleText').innerHTML,
-					'en': "",
-					'en-et': ""
-				}
-			})])
-			.filter(
-				arrayEntry =>
-					arrayEntry[0] !== null
-					// @ts-ignore
-				&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
-			));
+		this.zmanimList = {};
+
+		// Switch this to a loop that will query _all_ calendarFormatter instances
+		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]')) {
+			Object.assign(this.zmanimList, Object.fromEntries(Array.from(calendarContainer.children)
+				.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), Object.freeze({
+					function: timeSlot.getAttribute('data-timeGetter'),
+					yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
+					luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
+					condition: timeSlot.getAttribute('data-condition'),
+					round: timeSlot.getAttribute('data-round'),
+					title: {
+						'hb': timeSlot.querySelector('.zmanTitleText').innerHTML,
+						'en': "",
+						'en-et': ""
+					}
+				})])
+				.filter(
+					arrayEntry =>
+						arrayEntry[0] !== null
+						// @ts-ignore
+						&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
+				)));
+		}
 
 		for (const weekButtonElem of document.querySelectorAll('[data-zyWeek]')) {
 			weekButtonElem.addEventListener('click', (event) => {
@@ -59,24 +86,6 @@ export default class zmanimListUpdater {
 				this.updateWeekListing();
 			});
 		}
-
-		/** @type {HTMLSelectElement} */
-		// @ts-ignore
-		const matLocSelect = document.getElementById("locationSelector");
-
-		const locationGeoList = Array.from(matLocSelect.options).map(option => {
-			const geoLData = JSON.parse(option.value)
-			return new KosherZmanim.GeoLocation(
-				option.text,
-				geoLData.lat,
-				geoLData.lng,
-				geoLData.elevation,
-				geoLData.timezone
-			);
-		});
-		matLocSelect.addEventListener('change', (chngEvnt) => {
-			this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
-		});
 
 		this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
 	}
@@ -96,7 +105,7 @@ export default class zmanimListUpdater {
 				const ctNetzLink = new URL(ctNetz.url);
 
 				if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
-				&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
+					&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
 					availableVS = ctNetz.times
 			}
 		}
@@ -142,7 +151,7 @@ export default class zmanimListUpdater {
 		this.changeDate(this.jCal.getDate());
 	}
 
-	updateWeekListing(date=this.weekPlainDate) {
+	updateWeekListing(date = this.weekPlainDate) {
 		const hNum = new HebrewNumberFormatter();
 		const weekContainer = document.getElementsByClassName('week-strip')[0];
 
@@ -175,7 +184,7 @@ export default class zmanimListUpdater {
 	 * @param {Temporal.PlainDate} date
 	 * @param {boolean} internal
 	 */
-	changeDate(date, internal=false) {
+	changeDate(date, internal = false) {
 		this.zmanCalc.setDate(date)
 		this.jCal.setDate(date);
 
@@ -200,8 +209,8 @@ export default class zmanimListUpdater {
 	async renderParashaBar() {
 		let parashaText = this.jCal.getHebrewParasha().join(" - ");
 		if (parashaText == "No Parasha this week"
-		 && [5,6].includes(this.jCal.getDate().dayOfWeek)
-		 && [KosherZmanim.JewishCalendar.NISSAN, KosherZmanim.JewishCalendar.TISHREI].includes(this.jCal.getJewishMonth()))
+			&& [5, 6].includes(this.jCal.getDate().dayOfWeek)
+			&& [KosherZmanim.JewishCalendar.NISSAN, KosherZmanim.JewishCalendar.TISHREI].includes(this.jCal.getJewishMonth()))
 			parashaText = "חול המועד " + (this.jCal.getDate().withCalendar("hebrew").month == 1 ? "סוכות" : "פסח")
 		else
 			parashaText = "פרשת " + parashaText;
@@ -228,7 +237,7 @@ export default class zmanimListUpdater {
 		/**
 		 * @param {Element} contElem
 		 */
-		function hideErev(contElem, inverse=false) {
+		function hideErev(contElem, inverse = false) {
 			const cond = (inverse ? !todayFast : todayFast)
 			contElem.querySelectorAll('[data-zfFind="erevTzom"]')
 				.forEach(elem => {
@@ -444,7 +453,7 @@ export default class zmanimListUpdater {
 				/** @type {HTMLElement} */
 				// @ts-ignore
 				const upNextElem = timeDisplay.firstElementChild;
-				if (this.isNextUpcomingZman(zmanInfo[zmanId].zDTObj)) {
+				if (this.isNextUpcomingZman(zmanInfo[zmanId].zDTObj) || (zmanId == 'hatzoth' && this.isNextUpcomingZman(this.zmanCalc.getSolarMidnight()))) {
 					upNextElem.style.removeProperty("display")
 				} else {
 					upNextElem.style.display = "none";
@@ -464,15 +473,6 @@ export default class zmanimListUpdater {
 			}
 			calendarContainer.classList.remove("loading")
 		}
-
-		for (let dafContainer of document.querySelectorAll('[data-zfFind="DafYomi"]')) {
-			if (!(dafContainer instanceof HTMLElement))
-				continue;
-
-			for (const [key, value] of Object.entries(this.jCal.getAllLearning()))
-				if (dafContainer.querySelector(`[data-zfReplace="${key}"]`) instanceof HTMLElement)
-					dafContainer.querySelector(`[data-zfReplace="${key}"]`).innerHTML = value;
-		}
 	}
 
 	setNextUpcomingZman() {
@@ -482,7 +482,8 @@ export default class zmanimListUpdater {
 
 		for (const days of [0, 1]) {
 			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).add({ days }), true);
-			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false,this.zmanCalc,this.zmanimList, this.dtF)).filter(obj => obj.display == 1).map(time => time.zDTObj));
+			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF)).filter(obj => obj.display == 1).map(time => time.zDTObj));
+			zmanim.push(this.zmanCalc.getSolarMidnight());
 		}
 
 		this.changeDate(currentSelectedDate, true); //reset the date to the current date
@@ -490,7 +491,7 @@ export default class zmanimListUpdater {
 		this.nextUpcomingZman = zmanim.find(zman => KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(zman).total({ unit: "milliseconds" }) > 0)
 
 		setTimeout(
-			() => {this.setNextUpcomingZman(); this.updateZmanimList()},
+			() => { this.setNextUpcomingZman(); this.updateZmanimList() },
 			KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(this.nextUpcomingZman).total({ unit: "milliseconds" })
 		);
 	}
@@ -514,15 +515,15 @@ window.KosherZmanim = KosherZmanim;
  * @param {string} str
  */
 function isValidJSON(str) {
-    try {
-        JSON.parse(str);
-        return true;
-    } catch (e) {
-        return false;
-    }
+	try {
+		JSON.parse(str);
+		return true;
+	} catch (e) {
+		return false;
+	}
 }
 
 function getStartOfWeek(date = Temporal.Now.plainDateISO()) {
-  const dayIndex = date.dayOfWeek % 7; // Sunday = 0
-  return date.subtract({ days: dayIndex });
+	const dayIndex = date.dayOfWeek % 7; // Sunday = 0
+	return date.subtract({ days: dayIndex });
 }

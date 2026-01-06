@@ -1,69 +1,74 @@
 ---
-- id: alot
-  timeGetter: getAlotHashahar
-  name: עלות השחר
-  round: earlier
-- id: earliestTefilin
-  timeGetter: getMisheyakir
-  name: טלית ותפילין
-  round: later
-- id: sunrise
-  timeGetter: getNetz
-  name: הנץ (משור)
-  round: later
-- id: latestShmaMGA
-  timeGetter: getSofZemanShemaMGA
-  name: סוף זמן שמע מג'א
-  round: earlier
-- id: latestShmaGRA
-  timeGetter: getSofZemanShemaGRA
-  name: סוף זמן שמע גר'א
-  round: earlier
-- id: SofZmanAchilatChametz
-  attributes:
-    yomTovInclusive: EREV_PESACH
-  timeGetter: getSofZemanAhilathHametz
-  name: סוף זמן אכילת חמץ
-  round: earlier
-- id: SofZmanBiurChametz
-  attributes:
-    yomTovInclusive: EREV_PESACH
-  timeGetter: getSofZemanBiurHametz
-  name: סוף זמן ביעור חמץ
-  round: earlier
-- id: latestBrachotShmaGRA
-  timeGetter: getSofZemanBerakhothShema
-  name: סוף זמן ברכות שמע
-  round: earlier
-- id: hatzoth
-  timeGetter: getHatzoth
-  name: חצות
-  round: earlier
-- id: minhaGedola
-  timeGetter: getMinhaGedolah
-  name: מנחה גדולה
-  round: later
-- id: minhaKetana
-  timeGetter: getMinchaKetana
-  name: מנחה קטנה
-  round: later
-- id: plagHaminhaYY
-  timeGetter: getPlagHaminhaYalkutYosef
-  name: פלג המנחה
-  round: later
-- id: sunset
-  timeGetter: getShkiya
-  name: שקיעה
-  round: earlier
-- id: tzeit
-  timeGetter: getTzet
-  name: צאת הכוכבים
-  round: later
-- id: rt
-  timeGetter: getTzetRT
-  name: ר"ת
-  round: later
-- id: chatzotLayla
-  timeGetter: getSolarMidnight
-  name: חצות לילה
-  round: later
+core:
+  - id: alot
+    icon: early-morning
+    timeGetter: getAlotHashahar
+    name: עלות השחר
+    round: earlier
+  - id: sunrise
+    icon: sunrise
+    timeGetter: getNetz
+    name: הנץ (משור)
+    round: later
+  - id: hatzoth
+    icon: sun
+    timeGetter: getHatzoth
+    name: חצות
+    round: earlier
+  - id: sunset
+    icon: sunset
+    timeGetter: getShkiya
+    name: שקיעה
+    round: earlier
+  - id: tzeit
+    icon: night
+    timeGetter: getTzet
+    name: צאת הכוכבים
+    round: later
+  - id: rt
+    icon: night
+    timeGetter: getTzetRT
+    name: ר"ת
+    round: later
+calculations:
+  - id: latestShmaMGA
+    timeGetter: getSofZemanShemaMGA
+    name: סוף זמן שמע מג'א
+    round: earlier
+  - id: latestShmaGRA
+    timeGetter: getSofZemanShemaGRA
+    name: סוף זמן שמע גר'א
+    round: earlier
+  - id: latestBrachotShmaGRA
+    timeGetter: getSofZemanBerakhothShema
+    name: סוף זמן ברכות שמע
+    round: earlier
+  - id: minhaGedola
+    timeGetter: getMinhaGedolah
+    name: מנחה גדולה
+    round: later
+  - id: minhaKetana
+    timeGetter: getMinchaKetana
+    name: מנחה קטנה
+    round: later
+  - id: plagHaminhaYY
+    timeGetter: getPlagHaminhaYalkutYosef
+    name: פלג המנחה
+    round: later
+poalim:
+  - id: korbanot
+    timeGetter: customDawn
+    name: קרבנות
+    round: later
+  - id: barukhSheamar
+    timeGetter: getAlotHashahar
+    name: ברוך שאמר
+    round: earlier
+  - id: talitTefillinIkarHaDin
+    timeGetter: getEarlyMisheyakir
+    name: משיכיר (עיקר הדין)
+    round: later
+  - id: talitTefillinPreferable
+    timeGetter: getMisheyakir
+    name: משיכיר (עדיף)
+    round: later
