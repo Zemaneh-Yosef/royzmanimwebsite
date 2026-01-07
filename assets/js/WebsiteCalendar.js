@@ -6,7 +6,7 @@ import { zDTFromFunc } from "./ROYZmanim.js";
 
 /** @typedef {{ hb?: string, en?: string, "en-et"?: string; "ru"?: string; }} langType */
 /** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
-/** @typedef {{ function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }; round: "earlier"|"later"|"exact"}} zmanInfoList */
+/** @typedef {{ function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }; round: "earlier"|"later"|"exact"; ignoreNextUpcoming?: boolean}} zmanInfoList */
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
@@ -123,11 +123,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 * @param {[string | string[], options?: Intl.DateTimeFormatOptions]} dtF
 	 */
 	getZmanimInfo(independent, zmanCalc, zmanList, dtF) {
-		/** @type {Record<string, zmanData>} */
+		/** @type {Record<string, zmanData & {ignoreNextUpcoming?: boolean; }>} */
 		const calculatedZmanim = {}
 
 		for (const [zmanId, zmanInfo] of Object.entries(zmanList)) {
-			/** @type {zmanData & {funcRet?: KosherZmanim.Temporal.ZonedDateTime | ({time: KosherZmanim.Temporal.ZonedDateTime; } & ({isVisual: boolean;} | { degree: number; minutes: number;}))}} */
+			/** @type {zmanData & {ignoreNextUpcoming?: boolean; funcRet?: KosherZmanim.Temporal.ZonedDateTime | ({time: KosherZmanim.Temporal.ZonedDateTime; } & ({isVisual: boolean;} | { degree: number; minutes: number;}))}} */
 			const calculatedZman = {
 				function: zmanInfo.function,
 				display: 1,
@@ -145,6 +145,9 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				calculatedZman.title['en-et'] = zmanInfo.title['en-et']
 				calculatedZman.title.ru = zmanInfo.title.ru
 			}
+
+			if (zmanInfo.ignoreNextUpcoming)
+				calculatedZman.ignoreNextUpcoming = true;
 
 			if (zmanInfo.yomTovInclusive) {
 				// @ts-ignore

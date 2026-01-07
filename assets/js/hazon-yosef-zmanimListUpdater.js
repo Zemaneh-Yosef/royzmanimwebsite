@@ -61,7 +61,8 @@ export default class zmanimListUpdater {
 						'hb': timeSlot.querySelector('.zmanTitleText').innerHTML,
 						'en': "",
 						'en-et': ""
-					}
+					},
+					ignoreNextUpcoming: timeSlot.hasAttribute('data-ignoreNextUpcoming')
 				})])
 				.filter(
 					arrayEntry =>
@@ -450,13 +451,15 @@ export default class zmanimListUpdater {
 					continue;
 				}
 
-				/** @type {HTMLElement} */
-				// @ts-ignore
-				const upNextElem = timeDisplay.firstElementChild;
-				if (this.isNextUpcomingZman(zmanInfo[zmanId].zDTObj) || (zmanId == 'hatzoth' && this.isNextUpcomingZman(this.zmanCalc.getSolarMidnight()))) {
-					upNextElem.style.removeProperty("display")
-				} else {
-					upNextElem.style.display = "none";
+				if (!zmanInfo[zmanId].ignoreNextUpcoming) {
+					/** @type {HTMLElement} */
+					// @ts-ignore
+					const upNextElem = timeDisplay.firstElementChild;
+					if (this.isNextUpcomingZman(zmanInfo[zmanId].zDTObj) || (zmanId == 'hatzoth' && this.isNextUpcomingZman(this.zmanCalc.getSolarMidnight()))) {
+						upNextElem.style.removeProperty("display")
+					} else {
+						upNextElem.style.display = "none";
+					}
 				}
 
 				timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].zDTObj.toLocaleString(...zmanInfo[zmanId].dtF)
