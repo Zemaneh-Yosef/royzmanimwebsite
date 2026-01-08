@@ -337,8 +337,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return calculatedZmanim;
 	}
 
-	getYomTov(language='english-translated') {
-		const yomTovObj = {
+	getYomTovObject() {
+		return {
 			// Holidays
 			[KosherZmanim.JewishCalendar.PESACH]: {
 				hebrew: "פסח",
@@ -417,7 +417,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": "שושן פורים",
 				"english": "Shushan Purim"
 			},
-
+	
 			// Modern-Day Celebrations
 			[KosherZmanim.JewishCalendar.YOM_HASHOAH]: {
 				hebrew: "יום השועה",
@@ -439,8 +439,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"english-translated": "Yom Yerushalayim",
 				"english": "Jerusalem Day"
 			},
-		}
-		if (!yomTovObj[this.getYomTovIndex()])
+		};
+	}
+
+	getYomTov(language='english-translated') {
+		if (!this.getYomTovObject()[this.getYomTovIndex()])
 			return null;
 
 		// @ts-ignore
@@ -809,7 +812,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 * @param {number} yomTovIndex
 	 */
 	chainYomTovIndex(yomTovIndex) {
-		const yomTovObj = {
+		const yomTovDateObj = {
 			[KosherZmanim.JewishCalendar.PESACH]: { month: KosherZmanim.JewishDate.NISSAN, day: 15 },
 			[KosherZmanim.JewishCalendar.SHAVUOS]: { month: KosherZmanim.JewishDate.SIVAN, day: 6 },
 			[KosherZmanim.JewishCalendar.PURIM]: { month: KosherZmanim.JewishDate[this.isJewishLeapYear() ? 'ADAR_II' : 'ADAR'], day: 14 },
@@ -842,11 +845,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			[KosherZmanim.JewishCalendar.YOM_KIPPUR]: { month: KosherZmanim.JewishDate.TISHREI, day: 10 }
 		}
 
-		if (yomTovIndex in yomTovObj) {
+		if (yomTovIndex in yomTovDateObj) {
 			const newCal = this.chainJewishDate(
 				this.getJewishYear(),
-				yomTovObj[yomTovIndex].month,
-				yomTovObj[yomTovIndex].day
+				yomTovDateObj[yomTovIndex].month,
+				yomTovDateObj[yomTovIndex].day
 			);
 
 			const fasts = [

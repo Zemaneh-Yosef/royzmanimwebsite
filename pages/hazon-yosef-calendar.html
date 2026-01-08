@@ -14,6 +14,7 @@ layout: nothing_forceHB
 <style>
 	:root {
 		--bs-body-bg: rgb(243 244 246 / 1);
+		--bs-gap: 1rem;
 
 		--md-outlined-select-text-field-outline-color: #888;
 		--md-outlined-select-text-field-container-shape: 5rem;
@@ -26,6 +27,9 @@ layout: nothing_forceHB
 		--md-menu-item-bottom-space: 4px;
 		--md-menu-item-one-line-container-height: 1.5rem;
 		--md-menu-item-label-text-font: var(--bs-body-font-family);
+
+		--tw-ring-offset-shadow: 0 0 #0000;
+		--tw-ring-shadow: 0 0 #0000;
 	}
 
 	.text-gray-400 {
@@ -123,7 +127,7 @@ layout: nothing_forceHB
 	.shadow-sm {
 		--tw-shadow: 0 1px 2px 0 rgb(0 0 0 / .05);
 		--tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
-		box-shadow: var (--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
 	}
 
 	.shadow-xl {
@@ -311,7 +315,7 @@ layout: nothing_forceHB
 	.hover\:shadow-md:hover {
 		--tw-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);
 		--tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
-		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
+		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
 	}
 
 	.transition-all {
@@ -420,6 +424,62 @@ layout: nothing_forceHB
 		--bs-card-bg: white;
 		--bs-list-group-bg: white;
 	}
+
+	.border-black {
+    --tw-border-opacity: 1;
+    border-color: rgb(0 0 0 / var(--tw-border-opacity, 1))
+}
+
+.border-border\/50 {
+    border-color: hsl(var(--border) / .5)
+}
+
+.border-destructive {
+    border-color: hsl(var(--destructive))
+}
+
+.border-destructive\/50 {
+    border-color: hsl(var(--destructive) / .5)
+}
+
+.border-gray-100 {
+    --tw-border-opacity: 1;
+    --bs-border-color: rgb(243 244 246 / var(--tw-border-opacity, 1))
+}
+
+.border-gray-200 {
+    --tw-border-opacity: 1;
+    border-color: rgb(229 231 235 / var(--tw-border-opacity, 1))
+}
+
+.border-input {
+    border-color: hsl(var(--input))
+}
+
+.border-primary {
+    border-color: hsl(var(--primary))
+}
+
+.border-sidebar-border {
+    border-color: hsl(var(--sidebar-border))
+}
+
+.border-transparent {
+    border-color: transparent
+}
+
+.border-yellow-200 {
+    --tw-border-opacity: 1;
+    border-color: rgb(254 240 138 / var(--tw-border-opacity, 1))
+}
+
+.border-l-transparent {
+    border-left-color: transparent
+}
+
+.border-t-transparent {
+    border-top-color: transparent
+}
 </style>
 
 <style>
@@ -496,6 +556,7 @@ layout: nothing_forceHB
 				</md-select-option>
 				{% endfor %}
 			</md-outlined-select>
+			<script src="/assets/libraries/materialComp/materialweb.js"></script>
 		</section>
 		<section class="d-flex" style="gap: 1rem; align-items: center; justify-content: center; margin-bottom: 1rem;">
 			<button type="button" class="btn btn-light" data-zyWeek="-1"><span
@@ -545,6 +606,9 @@ layout: nothing_forceHB
 			</div>
 			<button type="button" class="btn btn-light" data-zyWeek="1"><span
 					class="material-symbols-outlined">arrow_back</span></button>
+		</section>
+		<section class="d-flex justify-content-lg-between flex-column" id="weekSpecial">
+
 		</section>
 		<section class="w-100 bg-gray-50 rounded-xl p-4 p-lg-3">
 			<div class="grid pb-4 mb-4" style="--bs-columns: 6; border-bottom: 1px solid black;"
@@ -631,5 +695,4 @@ layout: nothing_forceHB
 	</main>
 </div>
 
-<script src="/assets/libraries/materialComp/materialweb.js"></script>
 <script src="/assets/js/hazon-yosef-zmanimListUpdater.js" type="module"></script>
