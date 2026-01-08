@@ -203,34 +203,104 @@ export default class zmanimListUpdater {
 			for (const child of Array.from(weekSpecialElem.children)) {
 				weekSpecialElem.removeChild(child);
 			}
+
 			for (const highlightZman of this.weekImportantZmanim) {
+				// Make a container element for all the sub elements
+				const containerElem = document.createElement("div");
+
 				const titleElem = document.createElement("h1");
-				titleElem.innerHTML = highlightZman.title;
-				weekSpecialElem.appendChild(titleElem);
+				titleElem.classList.add("text-center");
+				titleElem.innerHTML = !('title' in highlightZman) ? this.jCal.getYomTovObject()[highlightZman.ytI]["hebrew"] : highlightZman.title;
+				containerElem.appendChild(titleElem);
+
+				const datesElem = document.createElement('h6');
+				datesElem.classList.add("text-center");
+				const datesList = [...highlightZman.datesToZman.keys()].sort(Temporal.PlainDate.compare);
+
+				if (datesList.length == 1)
+					datesElem.innerHTML =
+						hNum.formatHebrewNumber(datesList[0].withCalendar("hebrew").day)
+						+ " "
+						+ datesList[0].toLocaleString("he-IL-u-ca-hebrew", { month: "long" });
+				else {
+					datesElem.innerHTML =
+						hNum.formatHebrewNumber(datesList[0].withCalendar("hebrew").day)
+						+ " "
+						+ datesList[0].toLocaleString("he-IL-u-ca-hebrew", { month: "long" })
+						+ " - "
+						+ hNum.formatHebrewNumber(datesList[datesList.length - 1].withCalendar("hebrew").day)
+						+ " "
+						+ datesList[datesList.length - 1].toLocaleString("he-IL-u-ca-hebrew", { month: "long" })
+				}
+
+				containerElem.appendChild(datesElem);
 
 				const zmanListElem = document.createElement("ul");
-				for (const [zmanDate, zmanTimes] of highlightZman.datesToZman.entries()) {
-					const dateHeaderElem = document.createElement("h2");
-					dateHeaderElem.innerHTML = zmanDate.toLocaleString("he-IL-u-ca-hebrew", {
-						day: "numeric",
-						month: "long",
-						year: "numeric"
-					});
-					weekSpecialElem.appendChild(dateHeaderElem);
+				const multipleCandleLightings = [...highlightZman.datesToZman.values()]
+					.filter(zmanMap => 'candleLighting' in zmanMap)
+					.length > 1;
+				let candleLightIndex = 1;
 
-					for (const [zmanKey, zmanTime] of Object.entries(zmanTimes)) {
+				for (const zmanTimes of highlightZman.datesToZman.values()) {
+					const zmanEntries = Object.entries(zmanTimes);
+					zmanEntries.forEach(([zmanKey, zmanTime], index) => {
+						if (zmanKey == 'rabbenuTam' && zmanEntries[index - 1] && zmanEntries[index - 1][0] == 'candleLighting') {
+							// Append to previous candle lighting entry as its own span element
+							const prevZmanItem = zmanListElem.lastElementChild;
+
+							const rtAdendumSpan = document.createElement("span");
+							rtAdendumSpan.innerHTML = ` (ר"ת: ${zmanTime.toLocaleString(...this.dtF)})`;
+
+							prevZmanItem.appendChild(rtAdendumSpan);
+							return;
+						}
+
 						const zmanItemElem = document.createElement("li");
-						zmanItemElem.innerHTML = `${zmanKey}: ${zmanTime.toLocaleString(...this.dtF)}`;
+
+						if (zmanKey == 'candleLighting') {
+							if (multipleCandleLightings) {
+								zmanItemElem.innerHTML += "הדלקת נרות (" + hNum.formatHebrewNumber(candleLightIndex++) + " ליל): ";
+							} else {
+								zmanItemElem.innerHTML += "הדלקת נרות: ";
+							}
+						} else if (zmanKey == 'tzetMelakha') {
+							zmanItemElem.innerHTML += "צאת מלאכה: ";
+						} else if (zmanKey == 'sofZemanBiurHametz') {
+							zmanItemElem.innerHTML += "סוף זמן ביעור חמץ עד: ";
+						} else if (zmanKey == "fastStarts") {
+							zmanItemElem.innerHTML += "תחילת הצום: ";
+						} else if (zmanKey == "fastEnds") {
+							zmanItemElem.innerHTML += "סיום הצום: ";
+						} else if (zmanKey == "musaf") {
+							zmanItemElem.innerHTML += "תחילת מוסף לפני: ";
+						} else if (zmanKey == "birkatKohanim") {
+							zmanItemElem.innerHTML += "סיום ברכת כהנים לפני: ";
+						} else if (zmanKey == "mikva") {
+							zmanItemElem.innerHTML += "טבילה במקוה לאחר: ";
+						} else if (zmanKey == 'netz') {
+							zmanItemElem.innerHTML += "הנץ החמה: ";
+						} else if (zmanKey == 'bedikatHametz') {
+							zmanItemElem.innerHTML += "בדיקת חמץ בליל " + zmanTime.toLocaleString('he-IL', { weekday: 'short' }) + ": ";
+						} else if (zmanKey == 'hatzotLayla') {
+							zmanItemElem.innerHTML += "חצות הלילה: ";
+						} else if (zmanKey == 'rabbenuTam') {
+							zmanItemElem.innerHTML += "רבינו תם: ";
+						} else {
+							zmanItemElem.innerHTML += zmanKey + ": ";
+						}
+						zmanItemElem.innerHTML = `<b>${zmanItemElem.innerHTML}</b>` + zmanTime.toLocaleString(...this.dtF);
 						zmanListElem.appendChild(zmanItemElem);
-					}
+					})
 				}
-				weekSpecialElem.appendChild(zmanListElem);
+				containerElem.appendChild(zmanListElem);
 
 				if (highlightZman.extra) {
 					const extraElem = document.createElement("p");
 					extraElem.innerHTML = highlightZman.extra;
-					weekSpecialElem.appendChild(extraElem);
+					containerElem.appendChild(extraElem);
 				}
+
+				weekSpecialElem.appendChild(containerElem);
 			}
 
 			this.startZman = start;
@@ -283,206 +353,9 @@ export default class zmanimListUpdater {
 			jewishYear.innerHTML = this.jCal.formatJewishYear().hebrew;
 	}
 
-	/** @param {HTMLElement} [fastContainer] */
-	renderFastIndex(fastContainer) {
-		const todayFast = this.jCal.isTaanis() || this.jCal.isTaanisBechoros();
-		if (!todayFast && !this.jCal.tomorrow().isTaanis() && !this.jCal.tomorrow().isTaanisBechoros()) {
-			fastContainer.style.display = "none";
-			return;
-		}
-		fastContainer.style.removeProperty("display");
-
-		/**
-		 * @param {Element} contElem
-		 */
-		function hideErev(contElem, inverse = false) {
-			const cond = (inverse ? !todayFast : todayFast)
-			contElem.querySelectorAll('[data-zfFind="erevTzom"]')
-				.forEach(elem => {
-					if (!(elem instanceof HTMLElement))
-						return;
-
-					if (cond)
-						elem.style.display = "none";
-					else
-						elem.style.removeProperty("display");
-				});
-		}
-
-		const fastJCal = todayFast ? this.jCal : this.jCal.tomorrow();
-		const fastCalc = this.zmanCalc.chainDate(fastJCal.getDate());
-		const nameElements = [...fastContainer.getElementsByTagName("h5")];
-		nameElements.forEach(element => element.style.display = "none");
-
-		const ourFast = nameElements.find(fastElm =>
-			fastElm.getAttribute("data-zfFind") == (fastJCal.isTaanisBechoros() ? 0 : fastJCal.getYomTovIndex()).toString()
-		);
-		hideErev(ourFast);
-		ourFast.style.removeProperty("display");
-
-		/** @type {Record<'multiDay' | 'oneDay', HTMLElement>} */
-		const timeList = {
-			multiDay: fastContainer.querySelector('[data-zfFind="twoDayTimes"]'),
-			oneDay: fastContainer.querySelector('[data-zfFind="oneDayTimes"]')
-		};
-
-		if ([KosherZmanim.JewishCalendar.TISHA_BEAV, KosherZmanim.JewishCalendar.YOM_KIPPUR].includes(fastJCal.getYomTovIndex())) {
-			timeList.oneDay.style.display = "none";
-			timeList.multiDay.style.removeProperty("display");
-
-			const erevTzom = timeList.multiDay.firstElementChild;
-			hideErev(erevTzom);
-			if (erevTzom.lastChild.nodeType == Node.TEXT_NODE)
-				erevTzom.lastChild.remove();
-
-			const erevCalc = this.zmanCalc.chainDate(fastJCal.getDate().subtract({ days: 1 }));
-			const timeOnErev =
-				(fastJCal.getYomTovIndex() == KosherZmanim.JewishCalendar.YOM_KIPPUR ? erevCalc.getCandleLighting() : erevCalc.getShkiya())
-			erevTzom.appendChild(document.createTextNode(timeOnErev.toLocaleString(...this.dtF)));
-
-			const yomTzom = timeList.multiDay.lastElementChild;
-			hideErev(yomTzom, true);
-			if (yomTzom.lastChild.nodeType == Node.TEXT_NODE)
-				yomTzom.lastChild.remove();
-
-			if (this.jCal.isYomKippur()) {
-				yomTzom.appendChild(document.createTextNode(
-					zDTFromFunc(fastCalc.getTzetMelakha()).toLocaleString(...this.dtF) + ` (R"T: ${fastCalc.getTzetRT().toLocaleString(...this.dtF)})`
-				));
-			} else {
-				yomTzom.appendChild(document.createTextNode(fastCalc.getTzetHumra().toLocaleString(...this.dtF)))
-			}
-		} else {
-			timeList.multiDay.style.display = "none";
-			timeList.oneDay.style.removeProperty("display")
-			if (timeList.oneDay.lastChild.nodeType == Node.TEXT_NODE)
-				timeList.oneDay.lastChild.remove();
-
-			timeList.oneDay.appendChild(document.createTextNode(
-				fastCalc.getAlotHashahar().toLocaleString(...this.dtF) + ' - ' + fastCalc.getTzetHumra().toLocaleString(...this.dtF)
-			))
-		}
-	}
-
 	updateZmanimList() {
 		this.updateWeekListing();
 		this.renderParashaBar();
-
-		/*for (const fastContainer of document.querySelectorAll('[data-zfFind="FastDays"]'))
-			if (fastContainer instanceof HTMLElement)
-				this.renderFastIndex(fastContainer) */
-
-		/*const specialDayText = this.jCal.listOfSpecialDays().join(" / ");
-		if (this.lastData.specialDay !== specialDayText) {
-			this.lastData.specialDay = specialDayText;
-			for (const specialDay of document.querySelectorAll('[data-zfReplace="SpecialDay"]')) {
-				if (!(specialDay instanceof HTMLElement))
-					continue;
-
-				if (!specialDayText) {
-					specialDay.style.display = "none";
-				} else {
-					specialDay.style.removeProperty("display");
-					specialDay.innerHTML = specialDayText;
-				}
-			}
-		} */
-
-		/*document.querySelectorAll('[data-zfFind="Chamah"]').forEach(
-			(/**@type {HTMLElement} /chamah) => {
-				if (this.jCal.isBirkasHachamah()) {
-					chamah.style.removeProperty("display");
-				} else {
-					chamah.style.display = "none";
-				}
-			}
-		)*/
-
-		/*document.querySelectorAll('[data-zfFind="BirchatHalevana"]').forEach(
-			(/**@type {HTMLElement} /birchatHalevana) => {
-				const birLev = this.jCal.birkathHalevanaCheck(this.zmanCalc);
-				if (!birLev.current) {
-					birchatHalevana.style.display = "none";
-					return;
-				}
-
-				birchatHalevana.style.removeProperty("display");
-				birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]').innerHTML =
-					birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'})
-
-				if (birLev.data.start.dayOfYear == this.jCal.getDate().dayOfYear) {
-					birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
-						//@ts-ignore
-						startsToday => startsToday.style.removeProperty("display")
-					)
-				} else {
-					birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
-						//@ts-ignore
-						startsToday => startsToday.style.display = "none"
-					)
-				}
-
-				if (birLev.data.end.dayOfYear == this.jCal.getDate().dayOfYear) {
-					birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
-						//@ts-ignore
-						endsToday => endsToday.style.removeProperty("display")
-					)
-				} else {
-					birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
-						//@ts-ignore
-						endsToday => endsToday.style.display = "none"
-					)
-				}
-			}
-		) */
-
-		/*const nextTekufa = this.zmanCalc.nextTekufa(settings.calendarToggle.tekufaMidpoint() !== "hatzoth").round('minute')
-		const tekufaRange = ['add', 'subtract']
-			.map((/** @type {'add' | 'subtract'} / act) => nextTekufa[act]({ minutes: 30 }))
-		if (new Set(tekufaRange.map(range=>range.toPlainDate())).keys().some(tekTime => tekTime.equals(this.jCal.getDate()))) {
-			/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} /
-			const tekufaTF = [this.dtF[0], { ...this.dtF[1] }]
-			delete tekufaTF[1].second
-
-			const nextTekufaJDate = [1, 4, 7, 10]
-				.map(month => new KosherZmanim.JewishDate(this.jCal.getJewishYear(), month, 15))
-				.sort((jDateA, jDateB) => {
-					const durationA = this.jCal.getDate().until(jDateA.getDate())
-					const durationB = this.jCal.getDate().until(jDateB.getDate())
-
-					return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
-				})[0]
-
-			/** @type {{en: string; he: string}} /
-			// @ts-ignore
-			const nextTekufotNames = ['en', 'he']
-				.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
-				.reduce(function (obj, [key, val]) {
-					//@ts-ignore
-					obj[key] = val
-					return obj
-				}, {})
-
-			for (let tekufa of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
-				if (!(tekufa instanceof HTMLElement))
-					continue;
-
-				tekufa.style.removeProperty("display");
-
-				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaTime"]'))
-					.forEach(element => element.innerHTML = nextTekufa.toLocaleString(...tekufaTF));
-				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaFastTime"]'))
-					.forEach(element => element.innerHTML = tekufaRange.map(time => time.toLocaleString(...tekufaTF)).join('-'));
-
-				Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
-					.forEach(element => element.innerHTML = nextTekufotNames.en);
-				tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
-			}
-		} else {
-			document.querySelectorAll('[data-zfFind="Tekufa"]').forEach(
-				(/**@type {HTMLElement} / tekufa) => tekufa.style.display = "none"
-			)
-		} */
 
 		const zmanInfo = this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF);
 		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]')) {
@@ -537,10 +410,16 @@ export default class zmanimListUpdater {
 
 	/** @param {highlightedZman[]} highlightZmanim  */
 	generateDayImportantZmanim(highlightZmanim) {
-		const taanitYomTovNames = {
+		const tzomYomTovNames = {
 			[WebsiteLimudCalendar.TISHA_BEAV]: "תשעה באב",
 			[WebsiteLimudCalendar.SEVENTEEN_OF_TAMMUZ]: ("שבעה עשר בתמוז"),
-			[WebsiteLimudCalendar.TENTH_OF_TEVES]: ("עשרה בטבת"),
+			[WebsiteLimudCalendar.TENTH_OF_TEVES]: "עשרה בטבת",
+			[WebsiteLimudCalendar.FAST_OF_GEDALYAH]: "גדליה",
+		}
+
+		const taanitYomTovNames = {
+			[WebsiteLimudCalendar.FAST_OF_ESTHER]: "תענית אסתר",
+			[WebsiteLimudCalendar.YOM_KIPPUR]: "יום כיפור",
 		}
 
 		if (this.jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH) {
@@ -641,9 +520,9 @@ export default class zmanimListUpdater {
 		} else if (this.jCal.isTaanis() && !this.jCal.isYomKippur()) {
 				highlightZmanim.push({
 					ytI: this.jCal.getYomTovIndex(),
-					title: (this.jCal.getYomTovIndex() in this.jCal.getYomTovObject()
-						? this.jCal.getYomTovObject()[this.jCal.getYomTovIndex()].hebrew
-						: taanitYomTovNames[this.jCal.getYomTovIndex()]),
+					title: (this.jCal.getYomTovIndex() in taanitYomTovNames
+						? taanitYomTovNames[this.jCal.getYomTovIndex()]
+						: "צום " + tzomYomTovNames[this.jCal.getYomTovIndex()]),
 					datesToZman: new Map(
 						this.jCal.getJewishMonth() == WebsiteLimudCalendar.AV
 							? [[this.jCal.getDate().subtract({ days: 1 }), {
@@ -967,14 +846,14 @@ export default class zmanimListUpdater {
 						roshHodeshJCal.setDate(roshHodeshJCal.getDate().add({ weeks: 2 }));
 						roshHodeshJCal.setJewishDayOfMonth(1);
 
-						let dayOfWeek = roshHodeshJCal.getDayOfTheWeek().en;
+						let dayOfWeek = roshHodeshJCal.getDayOfTheWeek().hb;
 						roshHodeshJCal.setDate(roshHodeshJCal.getDate().subtract({ days: 1 }));
 						if (roshHodeshJCal.getJewishDayOfMonth() == 30)
-							dayOfWeek = roshHodeshJCal.getDayOfTheWeek().en + " / " + dayOfWeek;
+							dayOfWeek = roshHodeshJCal.getDayOfTheWeek().hb + " / " + dayOfWeek;
 
-						extra += "<br> <i class='bi bi-moon-fill'></i> New month "
-							+ shabbatJCal.chainDate(shabbatJCal.getDate().add({ weeks: 2 })).formatJewishMonth().en
-							+ " on " + dayOfWeek;
+						extra += "<i class='bi bi-moon-fill'></i> מברכים חודש "
+							+ shabbatJCal.chainDate(shabbatJCal.getDate().add({ weeks: 2 })).formatJewishMonth().he
+							+ " ב" + dayOfWeek;
 					}
 
 					highlightZmanim.push({
