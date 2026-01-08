@@ -842,7 +842,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			[KosherZmanim.JewishCalendar.TENTH_OF_TEVES]: { month: KosherZmanim.JewishDate.TEVES, day: 10 },
 			[KosherZmanim.JewishCalendar.TU_BEAV]: { month: KosherZmanim.JewishDate.AV, day: 15 },
 			[KosherZmanim.JewishCalendar.PESACH_SHENI]: { month: KosherZmanim.JewishDate.IYAR, day: 14 },
-			[KosherZmanim.JewishCalendar.YOM_KIPPUR]: { month: KosherZmanim.JewishDate.TISHREI, day: 10 }
+			[KosherZmanim.JewishCalendar.YOM_KIPPUR]: { month: KosherZmanim.JewishDate.TISHREI, day: 10 },
+			[KosherZmanim.JewishCalendar.HOSHANA_RABBA]: { month: KosherZmanim.JewishDate.TISHREI, day: 21 }
 		}
 
 		if (yomTovIndex in yomTovDateObj) {
