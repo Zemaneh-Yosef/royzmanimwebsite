@@ -487,8 +487,8 @@ layout: nothing
 			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
 		},
 		"schedule": {
-			"url": "https://docs.google.com/spreadsheets/d/1mJSDbVJhpWVFDvuxivuUh4hMgT6COpeNyd_naN195r8/export?format=xlsx",
-			"type": "excel"
+			"url": "https://zemaneh-yosef.github.io/extras/shaare-tefila.ini",
+			"type": "ini"
 		}
 	}
 </script>
@@ -509,12 +509,12 @@ layout: nothing
 
 	const dayCal = new WebsiteCalendar();
 	if (!dayCal.hasCandleLighting() && !dayCal.isAssurBemelacha()) {
-		const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+		(async () => {const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 			.split('\n')
 			.filter(str => str.startsWith('./shaare-tefila-marquee/'))
 
 		for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
 			marquee.innerHTML = flyerURLs.map(url => `<img src="${url.replace('.', 'https://zemaneh-yosef.github.io/extras')}" />`).join('');
-		}
+		}})();
 	}
 </script>

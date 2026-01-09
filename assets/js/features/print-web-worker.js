@@ -80,7 +80,7 @@ function messageHandler (x) {
 	let plainDate = Temporal.PlainDate.from(x.data.date)
 	let plainDateForceCal = plainDate.withCalendar("iso8601");
 	const jCal = new WebsiteLimudCalendar();
-	jCal.setDate(plainDate)
+	jCal.setDate(plainDateForceCal)
 	jCal.setInIsrael(x.data.israel);
 
 	const zmanCalc = new ZemanFunctions(geoLocation, {
@@ -835,12 +835,13 @@ function messageHandler (x) {
 	let highlightZmanim = [];
 
 	function populateHighlightZmanim() {
-		if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH) {
-			const hametzDate = plainDateForceCal;
+		if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH || (jCal.getYomTovIndex() == WebsiteLimudCalendar.PESACH && jCal.getJewishDayOfMonth() < 18 && x.data.pocket)) {
+			const hametzDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.EREV_PESACH).getDate();
+
 			/** @type {highlightedZman} */
 			const highlightPesah = {ytI: WebsiteLimudCalendar.PESACH, datesToZman: new Map()};
 
-			let nightErev = plainDateForceCal.subtract({ days: 1 });
+			let nightErev = hametzDate.subtract({ days: 1 });
 			if (hametzDate.dayOfWeek == 6)
 				nightErev = nightErev.subtract({ days: 1 });
 
@@ -916,62 +917,69 @@ function messageHandler (x) {
 			highlightZmanim.push(highlightPesah);
 		} else if ([WebsiteLimudCalendar.EREV_YOM_KIPPUR, WebsiteLimudCalendar.YOM_KIPPUR].includes(jCal.getYomTovIndex())) {
 			if (!highlightZmanim.some(hz => 'ytI' in hz && hz.ytI === WebsiteLimudCalendar.YOM_KIPPUR)) {
-				const ykJcal = jCal.chainYomTovIndex(WebsiteLimudCalendar.YOM_KIPPUR);
+				const ykDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.YOM_KIPPUR).getDate();
 
 				highlightZmanim.push({
 					ytI: WebsiteLimudCalendar.YOM_KIPPUR,
-					datesToZman: new Map([[ykJcal.getDate().subtract({ days: 1 }), {
-						mikva: handleRound(zmanCalc.chainDate(ykJcal.getDate().subtract({ days: 1 })).getSofZemanBiurHametz(), 'later'),
-						candleLighting: handleRound(zmanCalc.chainDate(ykJcal.getDate().subtract({ days: 1 })).getCandleLighting(), 'earlier'),
-					}], [plainDateForceCal.add({ days: 1 }), {
-						musaf: handleRound(zmanCalc.chainDate(ykJcal.getDate()).getHatzoth(), 'earlier'),
-						birkatKohanim: handleRound(zmanCalc.chainDate(ykJcal.getDate()).getTzet(), 'earlier'),
+					datesToZman: new Map([[ykDate.subtract({ days: 1 }), {
+						mikva: handleRound(zmanCalc.chainDate(ykDate.subtract({ days: 1 })).getSofZemanBiurHametz(), 'later'),
+						candleLighting: handleRound(zmanCalc.chainDate(ykDate.subtract({ days: 1 })).getCandleLighting(), 'earlier'),
+					}], [ykDate, {
+						musaf: handleRound(zmanCalc.chainDate(ykDate).getHatzoth(), 'earlier'),
+						birkatKohanim: handleRound(zmanCalc.chainDate(ykDate).getTzet(), 'earlier'),
 
-						tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(ykJcal.getDate()).getTzetMelakha()), 'earlier'),
-						rabbenuTam: handleRound(zmanCalc.chainDate(ykJcal.getDate()).getTzetRT(), 'later')
+						tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(ykDate).getTzetMelakha()), 'earlier'),
+						rabbenuTam: handleRound(zmanCalc.chainDate(ykDate).getTzetRT(), 'later')
 					}]])
 				});
 			}
 		} else if (x.data.pocket) {
-			if (jCal.isTaanis() && !jCal.isYomKippur()) {
+			if (jCal.isTaanis() && !jCal.isYomKippur() || (jCal.tomorrow().isTaanis() && !jCal.tomorrow().isYomKippur())) {
+				const taanitCal = (jCal.isTaanis() ? jCal : jCal.tomorrow())
+				const taanitDay = taanitCal.getDate();
+
 				highlightZmanim.push({
-					ytI: jCal.getYomTovIndex(),
-					title: (jCal.getYomTovIndex() in yomTovObj
-						? yomTovObj[jCal.getYomTovIndex()][x.data.lang]
-						: taanitYomTovNames[jCal.getYomTovIndex()]),
+					ytI: taanitCal.getYomTovIndex(),
+					title: (taanitCal.getYomTovIndex() in yomTovObj
+						? yomTovObj[taanitCal.getYomTovIndex()][x.data.lang]
+						: taanitYomTovNames[taanitCal.getYomTovIndex()]),
 					datesToZman: new Map(
 						jCal.getJewishMonth() == WebsiteLimudCalendar.AV
-							? [[plainDateForceCal.subtract({ days: 1 }), {
-								fastStarts: handleRound(zmanCalc.chainDate(jCal.getDate().subtract({ days: 1 })).getShkiya(), 'earlier')
-							}], [plainDateForceCal, {
-								fastEnds: handleRound(zmanCalc.getTzetHumra(), 'later')
+							? [[taanitDay.subtract({ days: 1 }), {
+								fastStarts: handleRound(zmanCalc.chainDate(taanitDay.subtract({ days: 1 })).getShkiya(), 'earlier')
+							}], [taanitDay, {
+								fastEnds: handleRound(zmanCalc.chainDate(taanitDay).getTzetHumra(), 'later')
 							}]]
-							: [[plainDateForceCal, {
-								fastStarts: handleRound(zmanCalc.getAlotHashahar(), 'earlier'),
-								fastEnds: handleRound(zmanCalc.getTzetHumra(), 'later')
+							: [[taanitDay, {
+								fastStarts: handleRound(zmanCalc.chainDate(taanitDay).getAlotHashahar(), 'earlier'),
+								fastEnds: handleRound(zmanCalc.chainDate(taanitDay).getTzetHumra(), 'later')
 							}]]
 					)
 				});
-			} else if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_SHAVUOS) {
+			} else if ([WebsiteLimudCalendar.EREV_SHAVUOS, WebsiteLimudCalendar.SHAVUOS].includes(jCal.getYomTovIndex())
+				|| jCal.getDayOfWeek() == 7 && jCal.chainDate(jCal.getDate().subtract({ days: 1 })).getYomTovIndex() == WebsiteLimudCalendar.SHAVUOS) {
+
+				const erevDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.EREV_SHAVUOS).getDate();
+
 				/** @type {highlightedZman} */
 				const shavuotObj = {
 					ytI: WebsiteLimudCalendar.SHAVUOS,
-					datesToZman: new Map([[plainDateForceCal, {candleLighting: handleRound(zmanCalc.chainDate(plainDateForceCal).getCandleLighting(), 'earlier')}]])
+					datesToZman: new Map([[erevDate, {candleLighting: handleRound(zmanCalc.chainDate(erevDate).getCandleLighting(), 'earlier')}]])
 				};
 
-				if (jCal.getDayOfWeek() == 6) {
+				if (erevDate.dayOfWeek == 5) {
 					shavuotObj.title = "שבת " + jCal.getHebrewParasha()[0] + "<br>+ " + yomTovObj[WebsiteLimudCalendar.SHAVUOS][x.data.lang]
 					shavuotObj.datesToZman.set(
-						plainDateForceCal.subtract({ days: 1 }),
+						erevDate.subtract({ days: 1 }),
 						{
-							candleLighting: handleRound(zmanCalc.chainDate(plainDateForceCal.subtract({ days: 1 })).getCandleLighting(), 'earlier')
+							candleLighting: handleRound(zmanCalc.chainDate(erevDate.subtract({ days: 1 })).getCandleLighting(), 'earlier')
 						}
 					);
-					shavuotObj.datesToZman.get(plainDateForceCal).candleLighting = handleRound(zDTFromFunc(zmanCalc.chainDate(plainDateForceCal).getTzetMelakha()), 'later');
-					shavuotObj.datesToZman.get(plainDateForceCal).rabbenuTam = handleRound(zmanCalc.chainDate(plainDateForceCal).getTzetRT(), 'later');
+					shavuotObj.datesToZman.get(erevDate).candleLighting = handleRound(zDTFromFunc(zmanCalc.chainDate(erevDate).getTzetMelakha()), 'later');
+					shavuotObj.datesToZman.get(erevDate).rabbenuTam = handleRound(zmanCalc.chainDate(erevDate).getTzetRT(), 'later');
 				}
 
-				const shavuotDate = plainDateForceCal.add({ days: 1 });
+				const shavuotDate = erevDate.add({ days: 1 });
 
 				const shavuotNetz = zmanCalc.chainDate(shavuotDate).getNetz();
 				const shavuotNetzFormat = handleRound(zDTFromFunc(shavuotNetz), shavuotNetz instanceof Temporal.ZonedDateTime ? 'later' : 'noRound')
@@ -1035,16 +1043,19 @@ function messageHandler (x) {
 				}
 
 				highlightZmanim.push(shavuotObj);
-			} else if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_ROSH_HASHANA) {
-				const roshHashanaDate = plainDateForceCal.add({ days: 1 });
+			} else if ([WebsiteLimudCalendar.EREV_ROSH_HASHANA, WebsiteLimudCalendar.ROSH_HASHANA].includes(jCal.getYomTovIndex())) {
+				const erevRoshHashanaDate = jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_ROSH_HASHANA
+					? jCal.getDate()
+					: jCal.chainJewishDate(jCal.getJewishYear() - 1, WebsiteLimudCalendar.ELUL, 29).getDate();
+				const roshHashanaDate = erevRoshHashanaDate.add({ days: 1 });
 
 				/** @type {highlightedZman} */
 				const roshHashanaObj = {
 					ytI: WebsiteLimudCalendar.ROSH_HASHANA,
 					datesToZman: new Map([
-						[plainDateForceCal, {
-							mikva: handleRound(zmanCalc.getSofZemanBiurHametz(), 'later'),
-							candleLighting: handleRound(zmanCalc.getCandleLighting(), 'earlier')
+						[erevRoshHashanaDate, {
+							mikva: handleRound(zmanCalc.chainDate(erevRoshHashanaDate).getSofZemanBiurHametz(), 'later'),
+							candleLighting: handleRound(zmanCalc.chainDate(erevRoshHashanaDate).getCandleLighting(), 'earlier')
 						}],
 						[roshHashanaDate, {
 							candleLighting: handleRound(zmanCalc.chainDate(roshHashanaDate).getTzetHumra(), 'later')
@@ -1052,40 +1063,41 @@ function messageHandler (x) {
 					])
 				};
 
-				if (plainDateForceCal.dayOfWeek == 3) {
+				if (erevRoshHashanaDate.dayOfWeek == 3) {
 					roshHashanaObj.title = yomTovObj[WebsiteLimudCalendar.ROSH_HASHANA] + "<br>שבת שובה" + jCal.getHebrewParasha()[0];
-					roshHashanaObj.datesToZman.set(plainDateForceCal.add({ days: 2 }), {
-						candleLighting: handleRound(zmanCalc.chainDate(plainDateForceCal.add({ days: 2 })).getCandleLighting(), 'earlier')
+					roshHashanaObj.datesToZman.set(erevRoshHashanaDate.add({ days: 2 }), {
+						candleLighting: handleRound(zmanCalc.chainDate(erevRoshHashanaDate.add({ days: 2 })).getCandleLighting(), 'earlier')
 					})
-					roshHashanaObj.datesToZman.set(plainDateForceCal.add({ days: 3 }), {
-						tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(plainDateForceCal.add({ days: 3 })).getTzetMelakha()), 'later'),
-						rabbenuTam: handleRound(zmanCalc.chainDate(plainDateForceCal.add({ days: 3 })).getTzetRT(), 'later')
+					roshHashanaObj.datesToZman.set(erevRoshHashanaDate.add({ days: 3 }), {
+						tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(erevRoshHashanaDate.add({ days: 3 })).getTzetMelakha()), 'later'),
+						rabbenuTam: handleRound(zmanCalc.chainDate(erevRoshHashanaDate.add({ days: 3 })).getTzetRT(), 'later')
 					})
 				} else {
-					if (plainDateForceCal.dayOfWeek == 5) {
+					if (erevRoshHashanaDate.dayOfWeek == 5) {
 						const shabbatObj = roshHashanaObj.datesToZman.get(roshHashanaDate);
 						shabbatObj.candleLighting = handleRound(zDTFromFunc(zmanCalc.chainDate(roshHashanaDate).getTzetMelakha()), 'later');
 						shabbatObj.rabbenuTam = handleRound(zmanCalc.chainDate(roshHashanaDate).getTzetRT(), 'later');
 					}
 
-					roshHashanaObj.datesToZman.set(plainDateForceCal.add({ days: 2 }), {
-						tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(plainDateForceCal.add({ days: 2 })).getTzetMelakha()), 'later')
-						//rabbenuTam: zmanCalc.chainDate(plainDateForceCal.add({ days: 2 })).getTzetRT()
+					roshHashanaObj.datesToZman.set(erevRoshHashanaDate.add({ days: 2 }), {
+						tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(erevRoshHashanaDate.add({ days: 2 })).getTzetMelakha()), 'later')
+						//rabbenuTam: zmanCalc.chainDate(erevRoshHashanaDate.add({ days: 2 })).getTzetRT()
 					});
 				}
 
 				highlightZmanim.push(roshHashanaObj);
-			} else if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_SUCCOS) {
-				const sukkothDate = plainDateForceCal.add({ days: 1 });
+			} else if ([WebsiteLimudCalendar.EREV_SUCCOS, WebsiteLimudCalendar.SUCCOS].includes(jCal.getYomTovIndex())) {
+				const erevDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.EREV_SUCCOS).getDate();
 
 				/** @type {highlightedZman} */
 				const sukkothObj = {
 					ytI: WebsiteLimudCalendar.SUCCOS,
-					datesToZman: new Map([[plainDateForceCal, {
-						candleLighting: handleRound(zmanCalc.getCandleLighting(), 'earlier')
+					datesToZman: new Map([[erevDate, {
+						candleLighting: handleRound(zmanCalc.chainDate(erevDate).getCandleLighting(), 'earlier')
 					}]])
 				};
 
+				const sukkothDate = erevDate.add({ days: 1 });
 				if (jCal.getInIsrael()) {
 					sukkothObj.datesToZman.set(sukkothDate, {
 						tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(sukkothDate).getTzetMelakha()), 'later'),
@@ -1126,16 +1138,17 @@ function messageHandler (x) {
 				WebsiteLimudCalendar.SIMCHAS_TORAH
 			].includes(jCal.getYomTovIndex())) {
 				if (!highlightZmanim.some(hz => 'ytI' in hz && hz.ytI === WebsiteLimudCalendar.SHEMINI_ATZERES)) {
-					const sheminiDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.SHEMINI_ATZERES).getDate();
+					const erevDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.HOSHANA_RABBA).getDate();
 
 					/** @type {highlightedZman} */
 					const sheminiObj = {
 						ytI: WebsiteLimudCalendar.SHEMINI_ATZERES,
-						datesToZman: new Map([[plainDateForceCal, {
-							candleLighting: handleRound(zmanCalc.getCandleLighting(), 'earlier')
+						datesToZman: new Map([[erevDate, {
+							candleLighting: handleRound(zmanCalc.chainDate(erevDate).getCandleLighting(), 'earlier')
 						}]])
 					};
 
+					const sheminiDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.SHEMINI_ATZERES).getDate();
 					if (jCal.getInIsrael()) {
 						sheminiObj.datesToZman.set(sheminiDate, {
 							tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(sheminiDate).getTzetMelakha()), 'later'),
@@ -1171,20 +1184,22 @@ function messageHandler (x) {
 
 					highlightZmanim.push(sheminiObj);
 				}
-			} else if (jCal.isErevYomTov() && jCal.isCholHamoedPesach()) {
+			} else if ((jCal.isErevYomTov() && jCal.isCholHamoedPesach()) || (jCal.getYomTovIndex() == WebsiteLimudCalendar.PESACH && jCal.getJewishDayOfMonth() > 18)) {
 				// Handle second day Yom Tov. We find Erev Yom Tov of Pesach by checking for the last day of Chol Hamoed Pesach
+				const erevDate = jCal.chainJewishDate(jCal.getJewishYear(), WebsiteLimudCalendar.NISSAN, 20).getDate();
+
 				/** @type {highlightedZman} */
 				const pesahObj = {
 					ytI: WebsiteLimudCalendar.PESACH,
 					title: yomTovObj[WebsiteLimudCalendar.PESACH][x.data.lang]
 						+ "<br>("
 						+ (x.data.lang == 'hb' ? "אחרון" : "Last Days") + ")",
-					datesToZman: new Map([[plainDateForceCal, {
-						candleLighting: handleRound(zmanCalc.getCandleLighting(), 'earlier')
+					datesToZman: new Map([[erevDate, {
+						candleLighting: handleRound(zmanCalc.chainDate(erevDate).getCandleLighting(), 'earlier')
 					}]])
 				};
 
-				const yomTovDate = plainDateForceCal.add({ days: 1 });
+				const yomTovDate = erevDate.add({ days: 1 });
 				if (jCal.getInIsrael()) {
 					if (yomTovDate.dayOfWeek == 5) {
 						pesahObj.title = yomTovObj[WebsiteLimudCalendar.PESACH][x.data.lang]
@@ -1280,10 +1295,10 @@ function messageHandler (x) {
 						title,
 						extra,
 						datesToZman: new Map([[shabbatJCal.getDate().subtract({ days: 1 }), {
-							candleLighting: handleRound(zmanCalc.chainDate(jCal.shabbat().getDate().subtract({days: 1})).getCandleLighting(), 'earlier')
+							candleLighting: handleRound(zmanCalc.chainDate(shabbatJCal.getDate().subtract({days: 1})).getCandleLighting(), 'earlier')
 						}], [shabbatJCal.getDate(), {
-							tzetMelakha: handleRound(zDTFromFunc(zmanCalc.getTzetMelakha()), 'later'),
-							rabbenuTam: handleRound(zmanCalc.getTzetRT(), 'later')
+							tzetMelakha: handleRound(zDTFromFunc(zmanCalc.chainDate(shabbatJCal.getDate()).getTzetMelakha()), 'later'),
+							rabbenuTam: handleRound(zmanCalc.chainDate(shabbatJCal.getDate()).getTzetRT(), 'later')
 						}]])
 					});
 				}
@@ -1865,15 +1880,12 @@ function messageHandler (x) {
 				const dateRange = [...highlight.datesToZman.keys()].sort(Temporal.PlainDate.compare);
 				const dateElem = highlightCard.getElementsByClassName("importantCardDates")[0];
 				if (dateRange.length == 1) {
-					jCal.setDate(dateRange[0]);
-					dateElem.innerHTML = jCal.formatFancyDate('short');
+					dateElem.innerHTML = jCal.chainDate(dateRange[0]).formatFancyDate('short');
 				} else {
 					let dateText = "";
-					jCal.setDate(dateRange[0]);
-					dateText += jCal.formatFancyDate('short');
+					dateText += jCal.chainDate(dateRange[0]).formatFancyDate('short');
 					dateText += " - ";
-					jCal.setDate(dateRange[dateRange.length - 1]);
-					dateText += jCal.formatFancyDate('short');
+					dateText += jCal.chainDate(dateRange[dateRange.length - 1]).formatFancyDate('short');
 					dateElem.innerHTML = dateText;
 				}
 
