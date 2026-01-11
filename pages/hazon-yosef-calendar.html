@@ -416,70 +416,72 @@ layout: nothing_forceHB
 		animation-timing-function: linear
 	}
 
-	.timeDisplay:not(.noBold)>*:last-child, #poalimZmanimCard .zmanTitleText {
+	.timeDisplay:not(.noBold)>*:last-child,
+	#poalimZmanimCard .zmanTitleText {
 		font-weight: bold;
 	}
 
-	#poalimZmanimCard, #poalimZmanimCard .list-group {
+	#poalimZmanimCard,
+	#poalimZmanimCard .list-group {
 		--bs-card-bg: white;
 		--bs-list-group-bg: white;
 	}
 
 	.border-black {
-    --tw-border-opacity: 1;
-    border-color: rgb(0 0 0 / var(--tw-border-opacity, 1))
-}
+		--tw-border-opacity: 1;
+		border-color: rgb(0 0 0 / var(--tw-border-opacity, 1))
+	}
 
-.border-border\/50 {
-    border-color: hsl(var(--border) / .5)
-}
+	.border-border\/50 {
+		border-color: hsl(var(--border) / .5)
+	}
 
-.border-destructive {
-    border-color: hsl(var(--destructive))
-}
+	.border-destructive {
+		border-color: hsl(var(--destructive))
+	}
 
-.border-destructive\/50 {
-    border-color: hsl(var(--destructive) / .5)
-}
+	.border-destructive\/50 {
+		border-color: hsl(var(--destructive) / .5)
+	}
 
-.border-gray-100 {
-    --tw-border-opacity: 1;
-    --bs-border-color: rgb(243 244 246 / var(--tw-border-opacity, 1))
-}
+	.border-gray-100 {
+		--tw-border-opacity: 1;
+		--bs-border-color: rgb(243 244 246 / var(--tw-border-opacity, 1))
+	}
 
-.border-gray-200 {
-    --tw-border-opacity: 1;
-    border-color: rgb(229 231 235 / var(--tw-border-opacity, 1))
-}
+	.border-gray-200 {
+		--tw-border-opacity: 1;
+		border-color: rgb(229 231 235 / var(--tw-border-opacity, 1))
+	}
 
-.border-input {
-    border-color: hsl(var(--input))
-}
+	.border-input {
+		border-color: hsl(var(--input))
+	}
 
-.border-primary {
-    border-color: hsl(var(--primary))
-}
+	.border-primary {
+		border-color: hsl(var(--primary))
+	}
 
-.border-sidebar-border {
-    border-color: hsl(var(--sidebar-border))
-}
+	.border-sidebar-border {
+		border-color: hsl(var(--sidebar-border))
+	}
 
-.border-transparent {
-    border-color: transparent
-}
+	.border-transparent {
+		border-color: transparent
+	}
 
-.border-yellow-200 {
-    --tw-border-opacity: 1;
-    border-color: rgb(254 240 138 / var(--tw-border-opacity, 1))
-}
+	.border-yellow-200 {
+		--tw-border-opacity: 1;
+		border-color: rgb(254 240 138 / var(--tw-border-opacity, 1))
+	}
 
-.border-l-transparent {
-    border-left-color: transparent
-}
+	.border-l-transparent {
+		border-left-color: transparent
+	}
 
-.border-t-transparent {
-    border-top-color: transparent
-}
+	.border-t-transparent {
+		border-top-color: transparent
+	}
 </style>
 
 <style>
@@ -549,15 +551,24 @@ layout: nothing_forceHB
 		<section class="text-start">
 			<md-outlined-select id="locationSelector" class="mb-4">
 				<span slot="leading-icon" class="material-symbols-outlined">location_on</span>
-				{% for loc in site.data.hazon-yosef.locationList %}
+				{% for area in site.data.hazon-yosef.locationList %}
+				<md-select-option disabled>
+					<div slot="headline" style="font-weight:600; opacity:0.7; padding:6px 0;">
+						{{ area.title }}
+					</div>
+				</md-select-option>
+				{% for loc in area.data %}
 				<md-select-option {% if loc.title=="ירושלים" %}selected{% endif %}
 					value='{"lat": {{ loc.lat }}, "lng": {{ loc.lng }}, "elevation": {{ loc.elevation }}, "timezone": "{{ loc.timezone }}" }'>
 					<div slot="headline">{{ loc.title }}</div>
 				</md-select-option>
 				{% endfor %}
+				{% endfor %}
 			</md-outlined-select>
+
 			<script src="/assets/libraries/materialComp/materialweb.js"></script>
 		</section>
+
 		<section class="d-flex" style="gap: 1rem; align-items: center; justify-content: center; margin-bottom: 1rem;">
 			<button type="button" class="btn btn-light" data-zyWeek="-1"><span
 					class="material-symbols-outlined">arrow_forward</span></button>
@@ -667,25 +678,27 @@ layout: nothing_forceHB
 				{% endfor %}
 			</div>
 
-			<div class="d-flex justify-content-lg-between flex-column flex-lg-row p-3 rounded-xl align-items-center bg-gray-200 text-gray-800">
-				<div class="text-center mb-3 mb-lg-0" style="font-weight: bold; font-size: 3.65rem; line-height: 1.3;">מניין<br>פועלים</div>
+			<div
+				class="d-flex justify-content-lg-between flex-column flex-lg-row p-3 rounded-xl align-items-center bg-gray-200 text-gray-800">
+				<div class="text-center mb-3 mb-lg-0" style="font-weight: bold; font-size: 3.65rem; line-height: 1.3;">
+					מניין<br>פועלים</div>
 				<div class="card" style="width: fit-content;" id="poalimZmanimCard">
 					<ul class="list-group list-group-flush pe-0" data-zfFind="calendarFormatter">
 						{% for item in site.data.hazon-yosef.zmanList.poalim %}
 						<li class="list-group-item d-flex justify-content-between align-items-center"
-							data-zmanid="{{ item.id }}"
-							{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
-							{% if item.round %}data-round="{{ item.round }}"{% endif %}
-							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
-							{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
-							{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
-							data-ignoreNextUpcoming
-							{% if
-								item.attributes.luachInclusive
-							or item.attributes.yomTovInclusive
-							or item.attributes.condition %}style="display: none;"{% endif %}>
+							data-zmanid="{{ item.id }}" {% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"
+							{% endif %} {% if item.round %}data-round="{{ item.round }}" {% endif %} {% if
+							item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"
+							{% endif %} {% if item.attributes.yomTovInclusive
+							%}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}" {% endif %} {% if
+							item.attributes.condition %}data-condition="{{ item.attributes.condition }}" {% endif %}
+							data-ignoreNextUpcoming {% if item.attributes.luachInclusive or
+							item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;" {%
+							endif %}>
 							<div class="zmanTitleText me-5">{{ item.name }}</div>
-							<span class="timeDisplay noBold"><div></div></span>
+							<span class="timeDisplay noBold">
+								<div></div>
+							</span>
 						</li>
 						{% endfor %}
 					</ul>
@@ -693,6 +706,12 @@ layout: nothing_forceHB
 			</div>
 		</section>
 	</main>
+</div>
+
+<div class="text-center">
+	הוצג על‑ידי
+	<a href="https://moreshet-maran.com/" target="_blank" rel="noopener noreferrer"><img src="/assets/images/hazon-yosef/MoreshetMaran.png" style="height: 1.75ch;"></a>,
+	מופעל על‑ידי <a href="/"><img src="/assets/images/hazon-yosef/zemaneh-yosef-title.svg" style="height: 1.75ch;"></a>
 </div>
 
 <script src="/assets/js/hazon-yosef-zmanimListUpdater.js" type="module"></script>
