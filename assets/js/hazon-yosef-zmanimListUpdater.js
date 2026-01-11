@@ -15,6 +15,9 @@ export default class zmanimListUpdater {
 		const matLocSelect = document.getElementById("locationSelector");
 
 		const locationGeoList = Array.from(matLocSelect.options).map(option => {
+			if (option.disabled)
+				return null;
+
 			const geoLData = JSON.parse(option.value)
 			return new KosherZmanim.GeoLocation(
 				option.text,
@@ -24,6 +27,10 @@ export default class zmanimListUpdater {
 				geoLData.timezone
 			);
 		});
+
+		this.jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
+		this.jCal.setUseModernHolidays(true);
+
 		matLocSelect.addEventListener('change', (chngEvnt) => {
 			let sameDayEnsure = this.jCal.getDate().equals(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
 			this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
@@ -32,9 +39,7 @@ export default class zmanimListUpdater {
 				this.changeDate(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
 		});
 
-		this.jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
-		this.jCal.setUseModernHolidays(true);
-
+		//this.weekPlainDate = getStartOfWeek(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
 		this.weekPlainDate = getStartOfWeek();
 
 		/** @type {null|Temporal.ZonedDateTime} */
@@ -164,14 +169,31 @@ export default class zmanimListUpdater {
 
 			dateElem.setAttribute('data-zyDate', date.toString());
 
-			dateElem.getElementsByClassName("gregorian")[0].innerHTML = date.toLocaleString("he-IL", {
+			const gregDate = dateElem.getElementsByClassName("gregorian")[0];
+			gregDate.innerHTML = "";
+			gregDate.appendChild(document.createTextNode(date.toLocaleString("he-IL", {
 				day: "numeric",
 				month: "numeric"
-			});
+			})));
 
-			dateElem.getElementsByClassName("hebrew-date")[0].innerHTML =
+			if (date.year !== Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).year) {
+				gregDate.appendChild(document.createElement("br"));
+				gregDate.appendChild(document.createTextNode("(" + date.toLocaleString("he-IL", {
+					year: "numeric"
+				}) + ")"));
+			}
+
+			const hebDateElem = dateElem.getElementsByClassName("hebrew-date")[0];
+			hebDateElem.innerHTML =
 				hNum.formatHebrewNumber(date.withCalendar("hebrew").day) + " " +
 				date.toLocaleString("he-IL-u-ca-hebrew", { month: "long" });
+
+			if (date.withCalendar("hebrew").year != Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).withCalendar("hebrew").year) {
+				hebDateElem.appendChild(document.createElement("br"));
+				hebDateElem.appendChild(document.createTextNode("(" + date.toLocaleString("he-IL-u-ca-hebrew", {
+					year: "numeric"
+				}) + ")"));
+			}
 
 			if (date.equals(this.jCal.getDate())) {
 				dateElem.classList.add("current");
@@ -307,7 +329,7 @@ export default class zmanimListUpdater {
 			this.updateWeekListing();
 			this.updateZmanimList();
 			this.updateSpecialZmanim();
-			if (date.equals(Temporal.Now.plainDateISO())) {
+			if (date.equals(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()))) {
 				const tomorrow = Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
 					.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 })
 				this.timeoutToChangeDate = setTimeout(
@@ -506,28 +528,6 @@ export default class zmanimListUpdater {
 					}]])
 				});
 			}
-		} else if (this.jCal.isTaanis() && !this.jCal.isYomKippur() || (this.jCal.tomorrow().isTaanis() && !this.jCal.tomorrow().isYomKippur())) {
-			const taanitCal = (this.jCal.isTaanis() ? this.jCal : this.jCal.tomorrow());
-			const taanitDay = taanitCal.getDate();
-
-			highlightZmanim.push({
-				ytI: taanitCal.getYomTovIndex(),
-				title: (taanitCal.getYomTovIndex() in taanitYomTovNames
-					? taanitYomTovNames[taanitCal.getYomTovIndex()]
-					: "צום " + tzomYomTovNames[taanitCal.getYomTovIndex()]),
-				datesToZman: new Map(
-					this.jCal.getJewishMonth() == WebsiteLimudCalendar.AV
-						? [[taanitDay.subtract({ days: 1 }), {
-							fastStarts: handleRound(this.zmanCalc.chainDate(taanitDay.subtract({ days: 1 })).getShkiya(), 'earlier')
-						}], [taanitDay, {
-							fastEnds: handleRound(this.zmanCalc.chainDate(taanitDay).getTzetHumra(), 'later')
-						}]]
-						: [[taanitDay, {
-							fastStarts: handleRound(this.zmanCalc.chainDate(taanitDay).getAlotHashahar(), 'earlier'),
-							fastEnds: handleRound(this.zmanCalc.chainDate(taanitDay).getTzetHumra(), 'later')
-						}]]
-					)
-			});
 		} else if ([WebsiteLimudCalendar.EREV_SHAVUOS, WebsiteLimudCalendar.SHAVUOS].includes(this.jCal.getYomTovIndex())
 			|| this.jCal.getDayOfWeek() == 7 && this.jCal.chainDate(this.jCal.getDate().subtract({ days: 1 })).getYomTovIndex() == WebsiteLimudCalendar.SHAVUOS) {
 			const erevDate = this.jCal.chainYomTovIndex(WebsiteLimudCalendar.EREV_SHAVUOS).getDate();
@@ -830,7 +830,33 @@ export default class zmanimListUpdater {
 			}
 
 			highlightZmanim.push(pesahObj);
-		} else if
+		}
+
+		if (this.jCal.isTaanis() && !this.jCal.isYomKippur() || (this.jCal.tomorrow().isTaanis() && !this.jCal.tomorrow().isYomKippur())) {
+			const taanitCal = (this.jCal.isTaanis() ? this.jCal : this.jCal.tomorrow());
+			const taanitDay = taanitCal.getDate();
+
+			highlightZmanim.push({
+				ytI: taanitCal.getYomTovIndex(),
+				title: (taanitCal.getYomTovIndex() in taanitYomTovNames
+					? taanitYomTovNames[taanitCal.getYomTovIndex()]
+					: "צום " + tzomYomTovNames[taanitCal.getYomTovIndex()]),
+				datesToZman: new Map(
+					this.jCal.getJewishMonth() == WebsiteLimudCalendar.AV
+						? [[taanitDay.subtract({ days: 1 }), {
+							fastStarts: handleRound(this.zmanCalc.chainDate(taanitDay.subtract({ days: 1 })).getShkiya(), 'earlier')
+						}], [taanitDay, {
+							fastEnds: handleRound(this.zmanCalc.chainDate(taanitDay).getTzetHumra(), 'later')
+						}]]
+						: [[taanitDay, {
+							fastStarts: handleRound(this.zmanCalc.chainDate(taanitDay).getAlotHashahar(), 'earlier'),
+							fastEnds: handleRound(this.zmanCalc.chainDate(taanitDay).getTzetHumra(), 'later')
+						}]]
+					)
+			});
+		}
+
+		if
 			((this.jCal.getDayOfWeek() === 7 && !this.jCal.isYomTovAssurBemelacha() && !this.jCal.isErevYomTov() && !this.jCal.chainDate(this.jCal.getDate().subtract({ days: 1 })).isYomTovAssurBemelacha())
 			|| this.jCal.getDayOfWeek() === 6 && !this.jCal.isYomTovAssurBemelacha() && !this.jCal.tomorrow().isErevYomTov() && !this.jCal.tomorrow().isYomTovAssurBemelacha()) {
 			const shabbatJCal = this.jCal.shabbat();

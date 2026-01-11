@@ -1,101 +1,194 @@
-- title: אלעד
-  lat: 32.0523
-  lng: 34.9512
-  elevation: 60
-  timezone: "Asia/Jerusalem"
+- title: ארץ ישראל
+  data:
+  - title: אלעד
+    lat: 32.0523
+    lng: 34.9512
+    elevation: 60
+    timezone: "Asia/Jerusalem"
 
-- title: אשדוד
-  lat: 31.7921
-  lng: 34.6497
-  elevation: 27
-  timezone: "Asia/Jerusalem"
+  - title: אשדוד
+    lat: 31.7921
+    lng: 34.6497
+    elevation: 27
+    timezone: "Asia/Jerusalem"
 
-- title: באר שבע
-  lat: 31.2518
-  lng: 34.7913
-  elevation: 280
-  timezone: "Asia/Jerusalem"
+  - title: באר שבע
+    lat: 31.2518
+    lng: 34.7913
+    elevation: 280
+    timezone: "Asia/Jerusalem"
 
-- title: בית שמש
-  lat: 31.7456
-  lng: 34.9866
-  elevation: 280
-  timezone: "Asia/Jerusalem"
+  - title: בית שמש
+    lat: 31.7456
+    lng: 34.9866
+    elevation: 280
+    timezone: "Asia/Jerusalem"
 
-- title: ביתר עילית
-  lat: 31.6970
-  lng: 35.1156
-  elevation: 760
-  timezone: "Asia/Jerusalem"
+  - title: ביתר עילית
+    lat: 31.6970
+    lng: 35.1156
+    elevation: 760
+    timezone: "Asia/Jerusalem"
 
-- title: בני ברק
-  lat: 32.0807
-  lng: 34.8338
-  elevation: 51
-  timezone: "Asia/Jerusalem"
+  - title: בני ברק
+    lat: 32.0807
+    lng: 34.8338
+    elevation: 51
+    timezone: "Asia/Jerusalem"
 
-- title: גבעת זאב
-  lat: 31.8615
-  lng: 35.1686
-  elevation: 770
-  timezone: "Asia/Jerusalem"
+  - title: גבעת זאב
+    lat: 31.8615
+    lng: 35.1686
+    elevation: 770
+    timezone: "Asia/Jerusalem"
 
-- title: חיפה
-  lat: 32.8184
-  lng: 34.9885
-  elevation: 40
-  timezone: "Asia/Jerusalem"
+  - title: חיפה
+    lat: 32.8184
+    lng: 34.9885
+    elevation: 40
+    timezone: "Asia/Jerusalem"
 
-- title: טבריה
-  lat: 32.7922
-  lng: 35.5312
-  elevation: 0 #previously negative
-  timezone: "Asia/Jerusalem"
+  - title: טבריה
+    lat: 32.7922
+    lng: 35.5312
+    elevation: 0 #previously negative
+    timezone: "Asia/Jerusalem"
 
-- title: ירושלים
-  lat: 31.7690
-  lng: 35.2163
-  elevation: 786
-  timezone: "Asia/Jerusalem"
+  - title: ירושלים
+    lat: 31.7690
+    lng: 35.2163
+    elevation: 786
+    timezone: "Asia/Jerusalem"
 
-- title: מודיעין
-  lat: 31.8983
-  lng: 35.0105
-  elevation: 245
-  timezone: "Asia/Jerusalem"
+  - title: מודיעין
+    lat: 31.8983
+    lng: 35.0105
+    elevation: 245
+    timezone: "Asia/Jerusalem"
 
-- title: מירון
-  lat: 32.9820
-  lng: 35.4403
-  elevation: 750
-  timezone: "Asia/Jerusalem"
+  - title: מירון
+    lat: 32.9820
+    lng: 35.4403
+    elevation: 750
+    timezone: "Asia/Jerusalem"
 
-- title: נתיבות
-  lat: 31.4231
-  lng: 34.5891
-  elevation: 153
-  timezone: "Asia/Jerusalem"
+  - title: נתיבות
+    lat: 31.4231
+    lng: 34.5891
+    elevation: 153
+    timezone: "Asia/Jerusalem"
 
-- title: עמנואל
-  lat: 32.1619
-  lng: 35.1372
-  elevation: 430
-  timezone: "Asia/Jerusalem"
+  - title: עמנואל
+    lat: 32.1619
+    lng: 35.1372
+    elevation: 430
+    timezone: "Asia/Jerusalem"
 
-- title: צפת
-  lat: 32.9647
-  lng: 35.4960
-  elevation: 850
-  timezone: "Asia/Jerusalem"
+  - title: צפת
+    lat: 32.9647
+    lng: 35.4960
+    elevation: 850
+    timezone: "Asia/Jerusalem"
 
-- title: קרית יערים
-  lat: 31.8033
-  lng: 35.1000
-  elevation: 820
-  timezone: "Asia/Jerusalem"
+  - title: קרית יערים
+    lat: 31.8033
+    lng: 35.1000
+    elevation: 820
+    timezone: "Asia/Jerusalem"
 
-- title: תל אביב
-  lat: 32.0809
-  lng: 34.7806
-  elevation: 15
-  timezone: "Asia/Jerusalem"
+  - title: תל אביב
+    lat: 32.0809
+    lng: 34.7806
+    elevation: 15
+    timezone: "Asia/Jerusalem"
+- title: ארצות הברית
+  data:
+    - title: דאלס
+      lat: 32.77627
+      lng: -96.79686
+      elevation: 131
+      timezone: "America/Chicago"
+
+    - title: דיל (Deal)
+      lat: 40.249701
+      lng: -73.997458
+      elevation: 3
+      timezone: "America/New_York"
+
+    - title: היילנד פארק
+      lat: 40.49594
+      lng: -74.42432
+      elevation: 33
+      timezone: "America/New_York"
+
+    - title: יוסטון
+      lat: 29.76328
+      lng: -95.36327
+      elevation: 32
+      timezone: "America/Chicago"
+
+    - title: לוס אנג'לס
+      lat: 34.05223
+      lng: -118.24368
+      elevation: 96
+      timezone: "America/Los_Angeles"
+
+    - title: לאס וגאס
+      lat: 36.175
+      lng: -115.137
+      elevation: 610
+      timezone: "America/Los_Angeles"
+
+    - title: לייקווד
+      lat: 40.097768
+      lng: -74.217776
+      elevation: 15
+      timezone: "America/New_York"
+
+    - title: מיאמי
+      lat: 25.77427
+      lng: -80.19366
+      elevation: 2
+      timezone: "America/New_York"
+
+    - title: מונסי
+      lat: 41.11121
+      lng: -74.06848
+      elevation: 167
+      timezone: "America/New_York"
+
+    - title: ניו יורק סיטי
+      lat: 40.71427
+      lng: -74.00597
+      elevation: 57
+      timezone: "America/New_York"
+
+    - title: פילדלפיה
+      lat: 39.95238
+      lng: -75.16362
+      elevation: 12
+      timezone: "America/New_York"
+
+    - title: פסאיק
+      lat: 40.8567662
+      lng: -74.1284764
+      elevation: 33
+      timezone: "America/New_York"
+
+    - title: סן דייגו
+      lat: 32.71533
+      lng: -117.15726
+      elevation: 31
+      timezone: "America/Los_Angeles"
+
+    - title: סיאטל
+      lat: 47.60621
+      lng: -122.33207
+      elevation: 56
+      timezone: "America/Los_Angeles"
+
+    - title: גרייט נק (Great Neck)
+      lat: 40.8006567
+      lng: -73.7284647
+      elevation: 34
+      timezone: "America/New_York"
