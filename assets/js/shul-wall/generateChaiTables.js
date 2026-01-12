@@ -5,7 +5,7 @@ import { geoLocation, jCal } from "./base.js";
 
 /**
  * @param {string} selectedCountry
- * @param {number} indexOfMetroArea
+ * @param {string} indexOfMetroArea
  */
 export async function validNetzAssert(selectedCountry, indexOfMetroArea) {
     if (typeof localStorage !== "undefined") {
@@ -34,7 +34,7 @@ export async function validNetzAssert(selectedCountry, indexOfMetroArea) {
 
 /**
  * @param {string} selectedCountry
- * @param {number} indexOfMetroArea
+ * @param {string} indexOfMetroArea
  */
 export async function scrapeChaiTables(selectedCountry, indexOfMetroArea) {
     const chaiTableExtracter = new ChaiTables({ geoLocation, jCal });

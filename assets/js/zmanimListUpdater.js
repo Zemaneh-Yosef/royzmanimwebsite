@@ -126,6 +126,11 @@ export default class zmanimListUpdater {
 				if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
 				&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
 					availableVS = ctNetz.times
+				else if (ctNetzLink.searchParams.get('cgi_country') == 'Eretz_Yisroel'
+					  && ctNetzLink.searchParams.get('cgi_TableType') == 'BY'
+					  && capitalizeFirstLetter(geoLocation.getLocationName().toLowerCase())
+					  	.startsWith(capitalizeFirstLetter(ctNetzLink.searchParams.get('cgi_MetroArea'))))
+					availableVS = ctNetz.times
 			}
 		}
 
@@ -1136,4 +1141,11 @@ function isValidJSON(str) {
     } catch (e) {
         return false;
     }
+}
+
+/**
+ * @param {string} val
+ */
+function capitalizeFirstLetter(val) {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }

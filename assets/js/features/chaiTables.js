@@ -50,7 +50,7 @@ export default class ChaiTables {
 
 	/**
 	 * @param {String} selectedCountry
-	 * @param {Number} indexOfMetroArea
+	 * @param {String} indexOfMetroArea
 	 */
 	setOtherData(selectedCountry, indexOfMetroArea) {
 		this.selectedCountry = selectedCountry;
@@ -100,6 +100,14 @@ export default class ChaiTables {
 			AllowShaving: "OFF"
 		};
 
+		// Location parameters
+		// Used by the ChaiTables website only outside "Eretz_Yisroel"
+		// Kept even on "Eretz_Yisroel"'s search params to determine if the location matches
+		Object.assign(urlParams, {
+			eroslatitude: this.geoL.getLatitude().toFixed(6),
+			eroslongitude: (-this.geoL.getLongitude()).toFixed(6)
+		});
+
 		if (this.selectedCountry == "Eretz_Yisroel") {
 			Object.assign(urlParams, {
 				'TableType': "BY",
@@ -110,11 +118,12 @@ export default class ChaiTables {
 			Object.assign(urlParams, {
 				searchradius,
 				TableType: "Chai",
-				USAcities1: this.indexOfMetroArea,
-				eroslatitude: this.geoL.getLatitude().toFixed(6),
-				eroslongitude: (-this.geoL.getLongitude()).toFixed(6),
-				MetroArea: "jerusalem"
+				USAcities1: this.indexOfMetroArea
 			});
+		}
+
+		if (searchradius == "forceHB") {
+			urlParams.Language = "Hebrew";
 		}
 
 		const url = new URL("http://chaitables.com/cgi-bin/ChaiTables.cgi/")
@@ -202,7 +211,7 @@ export default class ChaiTables {
 		return times;
 	}
 
-	async formatInterfacer() {
+	async formatInterfacer(loopAmount = 2) {
 		const calendar = new KosherZmanim.JewishDate(
 			this.zmanLister.jCal.getJewishYear(),
 			this.zmanLister.jCal.getJewishMonth(),
@@ -226,7 +235,8 @@ export default class ChaiTables {
 					&& this.zmanLister.geoLocation.getLongitude() == -118.42699812743257)
 					? "14"
 					: "8"
-			}
+			},
+			{ key: ["Eretz_Yisroel", null], value: isHebrewSpacesUnderscores(this.indexOfMetroArea) ? "forceHB" : "2" }
 		]
 
 		const findForceAlternativeRadius = forceAlternativeRadius.find(item =>
@@ -288,7 +298,7 @@ export default class ChaiTables {
 		urlNoYear.searchParams.delete('cgi_yrheb');
 		data.url = urlNoYear.toString();
 
-		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + 2; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
+		for (const yearloop = calendar.clone(); yearloop.getJewishYear() !== calendar.getJewishYear() + loopAmount; yearloop.setJewishYear(yearloop.getJewishYear() + 1)) {
 			if (calendar.getJewishYear() !== yearloop.getJewishYear()) {
 				yearloop.setJewishMonth(KosherZmanim.JewishCalendar.TISHREI);
 				yearloop.setJewishDayOfMonth(1);
@@ -495,7 +505,7 @@ export default class ChaiTables {
 
 			this.setOtherData(
 				selectors[0].value,
-				parseInt(selectedMASel.selectedOptions[0].value)
+				selectedMASel.selectedOptions[0].value
 			);
 
 			const ctData = await this.formatInterfacer();
@@ -577,4 +587,21 @@ function sortOptionsByAvailability(selector) {
 /** @param {HTMLSelectElement} selector */
 function getEnabledOptions(selector) {
     return Array.from(selector.options).filter(opt => !opt.disabled && opt.value !== "");
+}
+
+/**
+ * Checks if a string contains only Hebrew letters, spaces, or underscores.
+ * Hebrew Unicode range: \u0590-\u05FF
+ * 
+ * @param {string} str - The string to validate.
+ * @returns {boolean} - True if valid, false otherwise.
+ */
+function isHebrewSpacesUnderscores(str) {
+    if (typeof str !== "string") return false; // Input validation
+
+    // ^ start, $ end, + one or more, * zero or more
+    // \u0590-\u05FF covers Hebrew block
+    const pattern = /^(?=.*[\u0590-\u05FF])[\u0590-\u05FF _]+$/;
+
+    return pattern.test(str);
 }

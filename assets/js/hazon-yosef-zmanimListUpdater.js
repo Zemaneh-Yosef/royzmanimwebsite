@@ -6,6 +6,8 @@ import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 
+const allChaiTablesData = {};
+
 /** @typedef {{ datesToZman: Map<Temporal.PlainDate, Record<string, Temporal.ZonedDateTime>>; extra?: string } & ({ytI: number; title?: string} | { title: string })} highlightedZman */
 
 export default class zmanimListUpdater {
@@ -20,7 +22,7 @@ export default class zmanimListUpdater {
 
 			const geoLData = JSON.parse(option.value)
 			return new KosherZmanim.GeoLocation(
-				option.text,
+				option.textContent,
 				geoLData.lat,
 				geoLData.lng,
 				geoLData.elevation,
@@ -112,15 +114,8 @@ export default class zmanimListUpdater {
 
 		/** @type {number[]} */
 		let availableVS = [];
-		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-			const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-			if ('url' in ctNetz) {
-				const ctNetzLink = new URL(ctNetz.url);
-
-				if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
-					&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
-					availableVS = ctNetz.times
-			}
+		if (this.geoLocation.getLocationName() in allChaiTablesData) {
+			availableVS = allChaiTablesData[this.geoLocation.getLocationName()];
 		}
 
 		this.jCal.setInIsrael(geoLocation.getTimeZone() == 'Asia/Jerusalem');
@@ -155,6 +150,15 @@ export default class zmanimListUpdater {
 
 		this.setNextUpcomingZman();
 		this.changeDate(this.jCal.getDate());
+		if (!availableVS.length)
+			this.getCurLocaleNetz()
+				.then(() => this.resetCalendar())
+	}
+
+	async getCurLocaleNetz() {
+		const fetchedDate = await (await fetch(`/assets/hazon-yosef-data/${this.geoLocation.getLocationName().replaceAll(" ", "_")}.json`)).json()
+		allChaiTablesData[this.geoLocation.getLocationName()] = fetchedDate.times;
+		console.log(fetchedDate)
 	}
 
 	updateWeekListing(date = this.weekPlainDate) {

@@ -10,6 +10,7 @@ import QrCode from "../../libraries/qrCode.js";
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 
 import * as ol from "../../libraries/OpenLayers/index.js"
+// @ts-ignore
 import StadiaMaps from "https://cdn.skypack.dev/ol/source/StadiaMaps";
 
 const printParam = new URLSearchParams(window.location.search);
@@ -82,7 +83,6 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
 	})
 	.join(" ");
 
-
 /** @type {number[]} */
 let availableVS = [];
 if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
@@ -92,6 +92,11 @@ if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isV
 
 		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
 		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
+			availableVS = ctNetz.times
+		else if (ctNetzLink.searchParams.get('cgi_country') == 'Eretz_Yisroel'
+			  && ctNetzLink.searchParams.get('cgi_TableType') == 'BY'
+			  && capitalizeFirstLetter(geoLocation.getLocationName().toLowerCase())
+				  .startsWith(capitalizeFirstLetter(ctNetzLink.searchParams.get('cgi_MetroArea'))))
 			availableVS = ctNetz.times
 	}
 }
@@ -621,4 +626,11 @@ function isValidJSON(str) {
 
 async function sleep() {
     return new Promise(requestAnimationFrame);
+}
+
+/**
+ * @param {string} val
+ */
+function capitalizeFirstLetter(val) {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }
