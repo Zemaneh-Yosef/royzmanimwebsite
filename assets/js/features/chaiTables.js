@@ -4,36 +4,36 @@ import "../../libraries/materialComp/materialweb.js"
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 
 const searchRadius = [
-    "0",
-    "0.1",
-    "0.2",
-    "0.3",
-    "0.4",
-    "0.5",
-    "0.6",
-    "0.7",
-    "0.8",
-    "0.9",
-    "1",
-    "1.1",
-    "1.2",
-    "1.3",
-    "1.4",
-    "1.5",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-    "15"
+	"0",
+	"0.1",
+	"0.2",
+	"0.3",
+	"0.4",
+	"0.5",
+	"0.6",
+	"0.7",
+	"0.8",
+	"0.9",
+	"1",
+	"1.1",
+	"1.2",
+	"1.3",
+	"1.4",
+	"1.5",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+	"10",
+	"11",
+	"12",
+	"13",
+	"14",
+	"15"
 ]
 
 export default class ChaiTables {
@@ -134,12 +134,12 @@ export default class ChaiTables {
 	 * @param {Document} domParsed
 	 * @param {KosherZmanim.JewishDate} jDate
 	 */
-	extractTimes (domParsed, jDate) {
+	extractTimes(domParsed, jDate) {
 		const loopCal = jDate.clone();
 		const times = [];
 
 		const zmanTable = Array.from(domParsed.getElementsByTagName('table'))
-			.find(table=>[14,15].includes(table.rows[0].cells.length));
+			.find(table => [14, 15].includes(table.rows[0].cells.length));
 
 		if (!zmanTable)
 			throw Error("No zman table found: " + domParsed.getElementById('fetchURLInject').innerHTML);
@@ -220,11 +220,12 @@ export default class ChaiTables {
 		const radiusData = {};
 
 		const forceAlternativeRadius = [
-			{key: ["Israel", null], value: "2"},
-			{key: ["USA", 32], value: (this.zmanLister.geoLocation.getLatitude() == 34.09777065545882
-				&& this.zmanLister.geoLocation.getLongitude() == -118.42699812743257)
-				? "14"
-				: "8"
+			{ key: ["Israel", null], value: "2" },
+			{
+				key: ["USA", 32], value: (this.zmanLister.geoLocation.getLatitude() == 34.09777065545882
+					&& this.zmanLister.geoLocation.getLongitude() == -118.42699812743257)
+					? "14"
+					: "8"
 			}
 		]
 
@@ -247,7 +248,7 @@ export default class ChaiTables {
 			ctBiggestDoc.head.appendChild(inputInject)
 
 			const biggestZmanTable = Array.from(ctBiggestDoc.getElementsByTagName('table'))
-				.find(table=>[14,15].includes(table.rows[0].cells.length));
+				.find(table => [14, 15].includes(table.rows[0].cells.length));
 
 			if (!biggestZmanTable)
 				return data;
@@ -267,7 +268,7 @@ export default class ChaiTables {
 				const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
 
 				const zmanTable = Array.from(ctDoc.getElementsByTagName('table'))
-					.find(table=>[14,15].includes(table.rows[0].cells.length));
+					.find(table => [14, 15].includes(table.rows[0].cells.length));
 
 				if (zmanTable) {
 					smallestRadius = radius;
@@ -310,7 +311,7 @@ export default class ChaiTables {
 			}
 
 			const zmanTable = Array.from(ctDoc.getElementsByTagName('table'))
-				.find(table=>[14,15].includes(table.rows[0].cells.length));
+				.find(table => [14, 15].includes(table.rows[0].cells.length));
 
 			if (!zmanTable)
 				continue;
@@ -324,33 +325,14 @@ export default class ChaiTables {
 
 	initForm() {
 		const submitBtn = document.getElementById('gctnd');
+		/** @type {HTMLInputElement} */
+		// @ts-ignore
+		const bboxToggle = document.getElementById("enableBBox");
 
 		const selectors = Array.from(document.getElementsByTagName("md-outlined-select"))
-			.map((/** @type {HTMLSelectElement} */elem) => elem);
+		.map((/** @type {HTMLSelectElement} */elem) => elem);
 
-		for (const selector of selectors) {
-			// @ts-ignore
-			selector.reset();
-
-			/* for (const option of Array.from(selector.options).slice(1)) {
-				if (option.disabled)
-					option.disabled = false;
-
-				const bounds = JSON.parse(option.getAttribute('data-bounds'));
-				if (Array.isArray(bounds)) {
-					if (bounds.length == 1 && bounds[0].n == 0)
-						continue;
-
-					console.log(option.value, bounds, this.geoL.getLatitude(), this.geoL.getLongitude())
-					option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), bounds);;
-				} else {
-					if (bounds.n == 0)
-						continue;
-
-					option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), [bounds]);
-				}
-			} */
-		}
+		bboxToggle.addEventListener("change", () => { this.initForm(); }); // reinitialize modal with new filtering state
 
 		const MASubFormEvent = () => {
 			submitBtn.removeAttribute('disabled');
@@ -361,6 +343,17 @@ export default class ChaiTables {
 		const dataAlert = this.modal._element.querySelector('.alert');
 
 		const primaryIndex = selectors.find(select => select.id == 'MAIndex');
+
+		/** @type {HTMLSelectElement} */
+		// @ts-ignore
+		const usaStateSel = document.getElementById('USAStateSelector');
+
+		/** @type {HTMLSelectElement} */
+		// @ts-ignore
+		const usaMetroSel = document.getElementById('USAMetroSelector');
+
+		const allUSAMetroOptions = Array.from(usaMetroSel.options).slice(1); // skip blank
+
 		const hideAllForms = () => {
 			if (!submitBtn.hasAttribute('disabled')) {
 				submitBtn.setAttribute('disabled', '');
@@ -369,30 +362,142 @@ export default class ChaiTables {
 
 			dataAlert.style.setProperty('display', 'none', 'important');
 
-			const previouslySelectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
+			const previouslySelectedMASel = selectors.find(selector =>
+				selector.id.endsWith('MetroArea') && selector.style.display !== 'none'
+			);
 			if (previouslySelectedMASel)
-				previouslySelectedMASel.removeEventListener('change', MASubFormEvent)
+				previouslySelectedMASel.removeEventListener('change', MASubFormEvent);
 
-			selectors.filter(selector => selector.id.endsWith('MetroArea')).forEach(selector=>selector.style.display = 'none')
-		}
+			// Hide all non-USA metro selectors
+			selectors
+				.filter(selector => selector.id.endsWith('MetroArea'))
+				.forEach(selector => selector.style.display = 'none');
+
+			// Hide USA selectors
+			usaStateSel.style.display = 'none';
+			usaMetroSel.style.display = 'none';
+		};
 
 		hideAllForms();
-		primaryIndex.addEventListener('change', (/** @type {Event & { target: HTMLSelectElement }} */chngEvnt) => {
+
+		// USA state → metro handler
+		const onStateChange = () => {
+			const state = usaStateSel.value;
+
+			// Reset metro selector
+			// @ts-ignore
+			usaMetroSel.reset();
+
+			// Hide all metros
+			allUSAMetroOptions.forEach(opt => opt.style.display = "none");
+
+			// Show only metros for this state
+			allUSAMetroOptions
+				.filter(opt => opt.dataset.state === state)
+				.forEach(opt => opt.style.display = "");
+
+			usaMetroSel.style.removeProperty("display");
+			usaMetroSel.addEventListener("change", MASubFormEvent);
+			usaMetroSel.shadowRoot.getElementById("field").click();
+		};
+
+		/** @param {Event & { target: HTMLSelectElement }} chngEvnt */
+		const primaryIndexChange = (chngEvnt) => {
 			hideAllForms();
 
-			const highlightedSelector = selectors.find(select => select.id == chngEvnt.target.value + "MetroArea");
+			const country = chngEvnt.target.value;
+			this.selectedCountry = country;
+
+			if (country === "USA") {
+				// Reset USA selectors
+				// @ts-ignore
+				usaStateSel.reset();
+				// @ts-ignore
+				usaMetroSel.reset();
+				allUSAMetroOptions.forEach(opt => opt.style.display = "none");
+
+				usaStateSel.style.removeProperty("display");
+
+				usaStateSel.shadowRoot.getElementById("field").click();
+
+				// Prevent duplicate listeners
+				usaStateSel.removeEventListener("change", onStateChange);
+				usaStateSel.addEventListener("change", onStateChange);
+
+				return;
+			}
+
+			// Non-USA behavior
+			const highlightedSelector = selectors.find(select =>
+				select.id == country + "MetroArea"
+			);
+
 			highlightedSelector.style.removeProperty('display');
-			highlightedSelector.addEventListener('change', MASubFormEvent)
-			//window.requestAnimationFrame(() => highlightedSelector.focus())
-			highlightedSelector.shadowRoot.getElementById("field").click()
-		})
+			highlightedSelector.addEventListener('change', MASubFormEvent);
+			highlightedSelector.shadowRoot.getElementById("field").click();
+		}
+
+		for (const selector of selectors) {
+			// @ts-ignore
+			selector.reset();
+
+			for (const option of Array.from(selector.options).slice(1)) {
+				if (option.disabled)
+					option.disabled = false;
+
+				if (bboxToggle.checked && !selector.id.endsWith("StateSelector")) {
+					const bounds = JSON.parse(option.getAttribute('data-bounds'));
+					if (Array.isArray(bounds)) {
+						if (bounds.length == 1 && bounds[0].n == 0)
+							continue;
+
+						console.log(option.value, bounds, this.geoL.getLatitude(), this.geoL.getLongitude())
+						option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), bounds);;
+					} else {
+						if (bounds.n == 0)
+							continue;
+
+						option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), [bounds]);
+					}
+				}
+			}
+
+			sortOptionsByAvailability(selector);
+			const enabled = getEnabledOptions(selector);
+
+			if (bboxToggle.checked && enabled.length === 1) {
+				selector.value = enabled[0].value;
+
+				// Trigger your existing change handler
+				if (selector.id == 'MAIndex') {
+					// @ts-ignore
+					primaryIndexChange({ target: selector });
+				}
+			}
+
+		}
+
+		primaryIndex.addEventListener('change', primaryIndexChange);
 
 		submitBtn.addEventListener('click', async () => {
-			submitBtn.setAttribute('disabled', '')
-			submitBtn.classList.add("sbmitl")
-			const selectedMASel = selectors.find(selector => selector.id.endsWith('MetroArea') && selector.style.display !== 'none');
+			submitBtn.setAttribute('disabled', '');
+			submitBtn.classList.add("sbmitl");
 
-			this.setOtherData(selectors[0].value, parseInt(selectedMASel.selectedOptions[0].value));
+			let selectedMASel;
+
+			if (this.selectedCountry === "USA") {
+				selectedMASel = usaMetroSel;
+			} else {
+				selectedMASel = selectors.find(selector =>
+					selector.id.endsWith("MetroArea") && selector.style.display !== "none"
+				);
+			}
+
+			this.setOtherData(
+				selectors[0].value,
+				parseInt(selectedMASel.selectedOptions[0].value)
+			);
+
 			const ctData = await this.formatInterfacer();
 
 			if (!ctData.times.length) {
@@ -415,6 +520,7 @@ export default class ChaiTables {
 			submitBtn.classList.remove("sbmitl");
 		});
 	}
+
 }
 
 /**
@@ -423,29 +529,52 @@ export default class ChaiTables {
  * @param {{ n: number; s: number; e: number; w: number; }[]} bounds
  */
 function isInsideBoundingBox(lat, long, bounds) {
-    return bounds.some(b => {
-        // Convert all values to floats with fixed precision
-        const north = Number(parseFloat(`${b.n}`).toFixed(10));
-        const south = Number(parseFloat(`${b.s}`).toFixed(10));
-        const east = Number(parseFloat(`${b.e}`).toFixed(10));
-        const west = Number(parseFloat(`${b.w}`).toFixed(10));
-        const fixedLat = Number(parseFloat(`${lat}`).toFixed(10));
-        const fixedLong = Number(parseFloat(`${long}`).toFixed(10));
+	return bounds.some(b => {
+		// Convert all values to floats with fixed precision
+		const north = Number(parseFloat(`${b.n}`).toFixed(10));
+		const south = Number(parseFloat(`${b.s}`).toFixed(10));
+		const east = Number(parseFloat(`${b.e}`).toFixed(10));
+		const west = Number(parseFloat(`${b.w}`).toFixed(10));
+		const fixedLat = Number(parseFloat(`${lat}`).toFixed(10));
+		const fixedLong = Number(parseFloat(`${long}`).toFixed(10));
 
-        // Normalize latitude to handle crossing the poles
-        const normalizedLat = (fixedLat + 90) % 180 - 90;
+		// Normalize latitude to handle crossing the poles
+		const normalizedLat = (fixedLat + 90) % 180 - 90;
 
-        // Handle cases where longitude wraps around
-        if (west > east) {
-            return (
-                north > normalizedLat && south < normalizedLat &&
-                (fixedLong > west || fixedLong < east)
-            );
-        } else {
-            return (
-                north > normalizedLat && south < normalizedLat &&
-                west < fixedLong && east > fixedLong
-            );
-        }
-    });
+		// Handle cases where longitude wraps around
+		if (west > east) {
+			return (
+				north > normalizedLat && south < normalizedLat &&
+				(fixedLong > west || fixedLong < east)
+			);
+		} else {
+			return (
+				north > normalizedLat && south < normalizedLat &&
+				west < fixedLong && east > fixedLong
+			);
+		}
+	});
+}
+
+/** @param {HTMLSelectElement} selector */
+function sortOptionsByAvailability(selector) {
+    const options = Array.from(selector.options).slice(1); // skip blank
+
+    const available = [];
+    const unavailable = [];
+
+    for (const opt of options) {
+        if (opt.disabled) unavailable.push(opt);
+        else available.push(opt);
+    }
+
+    // Re-append in sorted order
+    for (const opt of [...available, ...unavailable]) {
+        selector.appendChild(opt);
+    }
+}
+
+/** @param {HTMLSelectElement} selector */
+function getEnabledOptions(selector) {
+    return Array.from(selector.options).filter(opt => !opt.disabled && opt.value !== "");
 }

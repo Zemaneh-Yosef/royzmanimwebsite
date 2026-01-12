@@ -6,38 +6,82 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<div class="alert alert-danger d-flex align-items-center" style="display: none !important;" role="alert">
+				<div class="alert alert-danger d-flex align-items-center" style="display: none !important;"
+					role="alert">
 					<i class="me-2 bi bi-exclamation-triangle-fill"></i>
-					<div style="flex: 1 1;">ChaiTable did not return a location. Please adapt your settings according to your specific location, and try again.
+					<div style="flex: 1 1;">ChaiTable did not return a location. Please adapt your settings according to
+						your specific location, and try again.
 						<br>(Reach out if you believe it's a bug on our end)
 					</div>
 				</div>
-				<p>Abiding by the times for sunrise recommended by our poskim involves using a specific calendar called לוח בכורי יוסף. The algorithm behind it is on a website called ChaiTables, made by the same author.</p>
-				<p>To get this data, please proceed through our minimal-setup derivative of the main ChaiTables setup, involving selecting your country & metropolitan area (MA for short) you reside in:</p>
+				<p>Abiding by the times for sunrise recommended by our poskim involves using a specific calendar called
+					לוח בכורי יוסף. The algorithm behind it is on a website called ChaiTables, made by the same author.
+				</p>
+				<p>To get this data, please proceed through our minimal-setup derivative of the main ChaiTables setup,
+					involving selecting your country & metropolitan area (MA for short) you reside in:</p>
 				<md-outlined-select id="MAIndex" required label="Country Selector">
 					<md-select-option selected aria-label="blank"></md-select-option>
 					{% for location in site.data.chaiTable %}
 					<md-select-option value="{{location.info.value}}"
-					data-bounds='[{% for bound in location.bounds %}{"n":{{bound.n}}, "s":{{bound.s}}, "e":{{bound.e}}, "w":{{bound.w}}}{% if forloop.last == false %},{% endif %}{% endfor %}]'>
+						data-bounds='[{% for bound in location.bounds %}{"n":{{bound.n}}, "s":{{bound.s}}, "e":{{bound.e}}, "w":{{bound.w}}}{% if forloop.last == false %},{% endif %}{% endfor %}]'>
 						<div slot="headline">{{ location.info.title }}</div>
 					</md-select-option>
 					{% endfor %}
 				</md-outlined-select>
+
 				{% for location in site.data.chaiTable %}
+				{% if location.info.stateSeparate %}
+				<md-outlined-select id="{{location.info.value}}StateSelector" label="State" style="display:none">
+					<md-select-option selected aria-label="blank"></md-select-option>
+
+					{% assign seen_states = "" %}
+					{% for mA in location.metroAreas %}
+					{% assign parts = mA.name | split: "_area_" %}
+					{% assign state = parts[1] %}
+
+					{% unless seen_states contains state %}
+					<md-select-option value="{{ state }}">
+						<div slot="headline">{{ state }}</div>
+					</md-select-option>
+					{% assign seen_states = seen_states | append: "," | append: state %}
+					{% endunless %}
+					{% endfor %}
+				</md-outlined-select>
+				<md-outlined-select id="{{location.info.value}}MetroSelector" label="Metro Area" style="display:none">
+					<md-select-option selected aria-label="blank"></md-select-option>
+
+					{% for mA in location.metroAreas %}
+					{% assign parts = mA.name | split: "_area_" %}
+					{% assign state = parts[1] %}
+					<md-select-option value="{{ forloop.index }}" data-state="{{ state }}"
+						data-bounds='{"n":{{mA.bounds.n}},"s":{{mA.bounds.s}},"e":{{mA.bounds.e}},"w":{{mA.bounds.w}}}'
+						style="display:none">
+						<div slot="headline">{{ parts[0] }}</div>
+					</md-select-option>
+					{% endfor %}
+				</md-outlined-select>
+				{% else %}
 				<md-outlined-select id="{{location.info.value}}MetroArea" label="MA of {{ location.info.title }}">
 					<md-select-option selected aria-label="blank"></md-select-option>
 					{% for mA in location.metroAreas %}
 					<md-select-option value="{{forloop.index}}"
-					data-bounds='{"n":{{mA.bounds.n}}, "s":{{mA.bounds.s}}, "e":{{mA.bounds.e}}, "w":{{mA.bounds.w}}}'>
+						data-bounds='{"n":{{mA.bounds.n}},"s":{{mA.bounds.s}},"e":{{mA.bounds.e}},"w":{{mA.bounds.w}}}'>
 						<div slot="headline">{{ mA.name | replace: "_", " " }}</div>
 					</md-select-option>
 					{% endfor %}
 				</md-outlined-select>
-				{%endfor%}
-    		</div>
+				{% endif %}
+				{% endfor %}
+				<div class="form-check my-3">
+					<input class="form-check-input" type="checkbox" checked value="" id="enableBBox">
+					<label class="form-check-label" for="enableBBox">
+					  Restrict metro areas based on my location
+					</label>
+				</div>
+			</div>
 			<div class="modal-footer">
 				<button type="button" disabled class="btn btn-primary" id="gctnd">Get ChaiTables Netz Data</button>
 			</div>
-    	</div>
-    </div>
+		</div>
+	</div>
 </div>

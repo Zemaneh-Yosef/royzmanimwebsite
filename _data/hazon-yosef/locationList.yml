@@ -187,6 +187,12 @@
       elevation: 56
       timezone: "America/Los_Angeles"
 
+    - title: שיקגו
+      lat: 41.85003
+      lng: -87.65005
+      elevation: 179
+      timezone: "America/Chicago"
+
     - title: גרייט נק (Great Neck)
       lat: 40.8006567
       lng: -73.7284647

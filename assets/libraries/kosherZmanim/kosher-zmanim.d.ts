@@ -2125,7 +2125,6 @@ declare namespace TimeZone {
      * @param {number} millisSinceEpoch
      */
     function getOffset(timeZoneId: string, millisSinceEpoch: number): number;
-    function inDaylightTime(zonedDateTime: Temporal.ZonedDateTime): boolean;
 }
 /**
  * java.util.Calendar
@@ -3467,8 +3466,6 @@ declare class DafYomiYerushalmi extends Daf {
     getMasechta(): string;
 }
 
-type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] extends N ? Acc[number] : Enumerate<N, [...Acc, Acc['length']]>;
-type Range<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>;
 /**
  * List of <em>parshiyos</em> or special <em>Shabasos</em>. {@link #NONE} indicates a week without a <em>parsha</em>, while the enum for
  * the <em>parsha</em> of {@link #VZOS_HABERACHA} exists for consistency, but is not currently used. The special <em>Shabasos</em> of
@@ -3542,26 +3539,36 @@ declare enum Parsha {
     ACHREI_MOS_KEDOSHIM = 57,
     /** The double <em>parsha</em> of Behar &amp; Bechukosai */
     BEHAR_BECHUKOSAI = 58,
+    /** The double <em>parsha</em> of Qorah & Huqat */
+    KORACH_CHUKAS = 59,
     /** The double <em>parsha</em> of Chukas &amp; Balak */
-    CHUKAS_BALAK = 59,
+    CHUKAS_BALAK = 60,
     /** The double <em>parsha</em> of Matos &amp; Masei */
-    MATOS_MASEI = 60,
+    MATOS_MASEI = 61,
     /** The double <em>parsha</em> of Nitzavim &amp; Vayelech */
-    NITZAVIM_VAYEILECH = 61,
+    NITZAVIM_VAYEILECH = 62,
     /** The special <em>parsha</em> of Shekalim */
-    SHKALIM = 62,
+    SHKALIM = 63,
     /** The special <em>parsha</em> of Zachor */
-    ZACHOR = 63,
+    ZACHOR = 64,
     /** The special <em>parsha</em> of Para */
-    PARA = 64,
+    PARA = 65,
     /** The special <em>parsha</em> of Hachodesh */
-    HACHODESH = 65,
-    SHUVA = 66,
-    SHIRA = 67,
-    HAGADOL = 68,
-    CHAZON = 69,
-    NACHAMU = 70
+    HACHODESH = 66,
+    SHUVA = 67,
+    SHIRA = 68,
+    HAGADOL = 69,
+    CHAZON = 70,
+    NACHAMU = 71
 }
+declare abstract class ParshaMap {
+    static parshaMap: typeof Parsha;
+    abstract parshalist: Parsha[][];
+    abstract getParsha(date: Temporal.PlainDate, israel: boolean): Parsha;
+}
+
+type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] extends N ? Acc[number] : Enumerate<N, [...Acc, Acc['length']]>;
+type Range<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>;
 /**
  * The JewishCalendar extends the JewishDate class and adds calendar methods.
  *
@@ -3697,10 +3704,7 @@ declare class JewishCalendar extends JewishDate {
      * @see #setUseModernHolidays(boolean)
      */
     private useModernHolidays;
-    /**
-     * An array of <em>parshiyos</em> in the 17 possible combinations.
-     */
-    static readonly parshalist: Parsha[][];
+    private parshaCalendar;
     /**
      * Is this calendar set to return modern Israeli national holidays. By default this value is false. The holidays
        * are {@link #YOM_HASHOAH <em>Yom HaShoah</em>}, {@link #YOM_HAZIKARON <em>Yom Hazikaron</em>}, {@link
@@ -3773,6 +3777,8 @@ declare class JewishCalendar extends JewishDate {
     constructor(date: Date);
     constructor(date: Temporal.PlainDate);
     constructor();
+    getParshaCalendar(): ParshaMap;
+    setParshaCalendar(parshaCalendar: ParshaMap): void;
     /**
      * Sets whether to use Israel holiday scheme or not. Default is false.
      *
@@ -3815,13 +3821,6 @@ declare class JewishCalendar extends JewishDate {
        * @return true for a day that <em>Birkas Hachamah</em> is recited.
      */
     isBirkasHachamah(): boolean;
-    /**
-     * Return the type of year for <em>parsha</em> calculations. The algorithm follows the
-       * <a href="http://hebrewbooks.org/pdfpager.aspx?req=14268&amp;st=&amp;pgnum=222">Luach Arba'ah Shearim</a> in the Tur Ohr Hachaim.
-       * @return the type of year for <em>parsha</em> calculations.
-     * @todo Use constants in this class.
-     */
-    private getParshaYearType;
     /**
      * Returns this week's {@link Parsha} if it is Shabbos.
      * returns Parsha.NONE if a weekday or if there is no parsha that week (for example Yomtov is on Shabbos)
@@ -4841,7 +4840,7 @@ declare class WeeklyHaftarahReading {
  */
 type Unpacked<T> = T extends (infer U)[] ? U : T;
 declare const entries: ("ADES: 24793" | "GABRIEL A SHREM 1964 SUHV" | "TABBUSH Ms NLI 8*7622, Aleppo" | "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" | "TEBELE Pre1888" | "ELIE SHAUL COHEN FROM AINTAB, ~1880" | "YAAQOB ABADI-PARSIYA" | "YISHAQ YEQAR ARGENTINA" | "Dibre Shelomo S KASSIN Pre1915" | "Knis Betesh Geniza List, Aleppo" | "ABRAHAM DWECK Pre1920" | "IDELSOHN Pre1923" | "S SAGIR Laniado" | "M H Elias, SHIR HADASH, Jerusalem, 1930" | "ASHEAR list" | "ASHEAR NOTES 1936-1940" | "ABRAHAM E SHREM ~1945" | "Argentina 1947 & Ezra Mishanieh" | "Shire Zimra H S ABOUD Jerusalem, 1950" | "D KASSIN/ ISAAC CAIN; RODFE SEDEQ; MEXICO" | "YOSEF YEHEZKEL Jerusalem 1975" | "Ish Massliah \"Abia Renanot\" Tunisians" | "Shaare Zimra YANANI Buenos Aires, 01" | "BOZO, Ades, Shir Ushbaha 2005" | "Yishaq Yeranen Halabi" | "MOSHE AMASH (Shami)" | "EZRA MASLATON TARAB (Shami)" | "ABRAHAM SHAMRICHA (Shami)" | "Victor Afya, Istanbul List" | "Izak Alaluf, Izmir List" | "Hallel VeZimrah, Salonika, 1928" | "Hallel VeZimrah, Greece List, 1926" | "SASSOON #647 Aleppo, 1850" | "Eliahou Yaaqob DWECK-KESAR")[];
-declare enum makam {
+declare enum Makam {
     HOSENI = 0,
     HIJAZ = 1,
     HIJAZ_KAR = 2,
@@ -4889,16 +4888,16 @@ declare enum makam {
     SUZNIQ = 44,
     BAYATI = 45
 }
-type getMaqamReturnType = Partial<Record<Unpacked<typeof entries>, (makam | string)[]>>;
+type getMaqamReturnType = Partial<Record<Unpacked<typeof entries>, (Makam | string)[]>>;
 declare class WeeklyMakamReading {
     hierarchy: (Unpacked<typeof entries> | "MAJORITY")[];
     constructor(hierarchy?: (Unpacked<typeof entries> | "MAJORITY")[]);
     getTodayMakam(jCal: JewishCalendar): {
         title: "MAJORITY";
-        makam: (string | makam)[];
+        makam: (string | Makam)[];
     } | {
         title: "ADES: 24793" | "GABRIEL A SHREM 1964 SUHV" | "TABBUSH Ms NLI 8*7622, Aleppo" | "R COHEN \"SHIR USHBAHA\" Jerusalem, 1905" | "TEBELE Pre1888" | "ELIE SHAUL COHEN FROM AINTAB, ~1880" | "YAAQOB ABADI-PARSIYA" | "YISHAQ YEQAR ARGENTINA" | "Dibre Shelomo S KASSIN Pre1915" | "Knis Betesh Geniza List, Aleppo" | "ABRAHAM DWECK Pre1920" | "IDELSOHN Pre1923" | "S SAGIR Laniado" | "M H Elias, SHIR HADASH, Jerusalem, 1930" | "ASHEAR list" | "ASHEAR NOTES 1936-1940" | "ABRAHAM E SHREM ~1945" | "Argentina 1947 & Ezra Mishanieh" | "Shire Zimra H S ABOUD Jerusalem, 1950" | "D KASSIN/ ISAAC CAIN; RODFE SEDEQ; MEXICO" | "YOSEF YEHEZKEL Jerusalem 1975" | "Ish Massliah \"Abia Renanot\" Tunisians" | "Shaare Zimra YANANI Buenos Aires, 01" | "BOZO, Ades, Shir Ushbaha 2005" | "Yishaq Yeranen Halabi" | "MOSHE AMASH (Shami)" | "EZRA MASLATON TARAB (Shami)" | "ABRAHAM SHAMRICHA (Shami)" | "Victor Afya, Istanbul List" | "Izak Alaluf, Izmir List" | "Hallel VeZimrah, Salonika, 1928" | "Hallel VeZimrah, Greece List, 1926" | "SASSOON #647 Aleppo, 1850" | "Eliahou Yaaqob DWECK-KESAR";
-        makam: (string | makam)[] | undefined;
+        makam: (string | Makam)[] | undefined;
     } | undefined;
     /**
      * This method returns a string that contains the weekly Makam. The {@link JewishCalendar}
@@ -4948,4 +4947,4 @@ declare const temporalExtended: {
     rangeDates: typeof rangeDates;
 };
 
-export { AstronomicalCalendar, Calendar, ChafetzChayimYomiCalculator, DafBavliYomi, DafYomiYerushalmi, GeoLocation, WeeklyHaftarahReading as Haftara, HiloulahYomiCalculator, IntegerUtils, JewishCalendar, JewishDate, Long_MIN_VALUE, WeeklyMakamReading as Makam, MathUtils, MishnaYomi, NOAACalculator, type Options, Parsha, StringUtils, TefilaRules, TehilimYomi, Time, TimeZone, Utils, YerushalmiYomiCalculator, YomiCalculator, ZmanimCalendar, getZmanimJson, padZeros, temporalExtended };
+export { AstronomicalCalendar, Calendar, ChafetzChayimYomiCalculator, DafBavliYomi, DafYomiYerushalmi, GeoLocation, WeeklyHaftarahReading as Haftara, HiloulahYomiCalculator, IntegerUtils, JewishCalendar, JewishDate, Long_MIN_VALUE, WeeklyMakamReading as Makam, MathUtils, MishnaYomi, NOAACalculator, type Options, Parsha, ParshaMap, StringUtils, TefilaRules, TehilimYomi, Time, TimeZone, Utils, YerushalmiYomiCalculator, YomiCalculator, ZmanimCalendar, getZmanimJson, padZeros, temporalExtended };

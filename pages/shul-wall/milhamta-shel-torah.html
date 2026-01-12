@@ -412,6 +412,19 @@ layout: nothing
 	#sponsorTable > div:not(:nth-last-child(1)) {
 		border-bottom: 1px solid white;
 	}
+
+	#ishMatzliachSlide {
+		height: 56vh;
+		width: 25vw;
+		justify-self: center;
+		align-self: center;
+		margin-bottom: 3.5rem;
+	}
+
+	.carousel-item > img {
+		height: 56vh;
+		object-fit: contain;
+	}
 </style>
 
 <link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
@@ -419,7 +432,7 @@ layout: nothing
 <link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
 <link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
 <link href="/assets/css/marquee.css" rel="stylesheet" />
-<div id="content" data-current-page="1" data-page-count="2">
+<div id="content" data-current-page="1" data-page-count="3">
 	<div id="bsD">בס"ד</div>
 	<img id="gne" src="/assets/images/shul-wall/milhamta-shel-torah.png" />
 	<img id="background" src="/assets/images/shul-wall/milhamta-shel-torah.jpg" />
@@ -455,6 +468,11 @@ layout: nothing
 		<div id="sponsorTable">
 			<div>Baruch Abramov</div>
 			<div>NightScript</div>
+		</div>
+	</div>
+	<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
+		<div class="carousel-inner">
+			<div class="carousel-item active"><img src="/assets/images/shul-wall/milhamta-test.png" class="d-block w-100"></div>
 		</div>
 	</div>
 	<div id="dataGrid">

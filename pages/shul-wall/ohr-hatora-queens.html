@@ -1,0 +1,437 @@
+---
+title: Ohr HaTora Queens
+permalink: /shul-wall/ohr-hatora-queens
+layout: nothing
+---
+
+<link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+<link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
+
+<style>
+	#content {
+		width: 100vw;
+		height: 100vh;
+		display: grid;
+		background-image: url(/assets/images/shul-wall/grapevine_pattern_ohr_hatorah_2.png);
+		background-size: contain;
+		font-family: 'Neutro', var(--bs-body-font-family);
+	}
+
+	#content > * {
+		grid-area: 1 / 1;
+	}
+
+	.centerLeftgrid svg {
+		height: 1em;
+		width: 1em;
+		vertical-align: bottom;
+	}
+
+	.centerLeftgrid svg path {
+		fill: white;
+	}
+
+	.centerLeftgrid {
+		display: grid;
+		justify-content: center;
+		padding-bottom: .5rem;
+		font-size: 2.5em;
+		line-height: 1;
+		font-weight: 600;
+	}
+
+	.centerLeftgrid i {
+		width: 1em;
+		text-align: center;
+	}
+
+	#dataGrid {
+		margin-left: 1vw;
+		margin-right: 1vw;
+		margin-top: 2vh;
+		z-index: 5;
+		display: grid;
+
+		grid-template-areas:
+			"logo building bsd"
+			"zmanim building weekday";
+		grid-template-columns: 1fr 1.5fr 1fr;
+		grid-template-rows: auto 1fr;
+		align-items: center;
+		gap: 1.75vw;
+	}
+
+	#dataGrid .templeBG {
+		height: 100%;
+		background: rgba(33, 31, 32, .9);
+		border-top-left-radius: 50% 15%;
+		border-top-right-radius: 50% 15%;
+		padding: 1rem;
+		box-shadow: 0 0 7px 5px rgba(33, 31, 32, .9);
+		padding-top: 3rem;
+	}
+
+	.schedule-entry-grid {
+		display: grid;
+		grid-template-columns: 1fr auto;
+	}
+
+	.schedule-entry-grid > *:last-child {
+		grid-column: 1 / span 2;
+		line-height: 1.3;
+	}
+
+	#gne {
+		width: 100%;
+		z-index: 3;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		grid-area: "logo";
+	}
+
+	.wideView {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.wideView > * {
+		width: 100%;
+		display: flex;
+		font-size: 2em;
+		justify-content: space-between;
+	}
+
+	.wideView > *:first-child {
+		padding-left: 0;
+	}
+
+	.wideView > *:last-child {
+		padding-right: 0;
+	}
+
+	.wideView > *:not(:last-child) {
+		border-bottom:1px solid rgba(255,255,255,.5);
+	}
+
+	article > .langTV {
+		height: calc(100% - 1em - 8px);
+		font-weight: bold;
+	}
+
+	#poweredBy {
+		justify-self: center;
+		align-self: end;
+		padding-bottom: 2vh;
+		text-align: center;
+		line-height: 1.2;
+		color: white;
+		width: 100%;
+		padding-top: 2vh;
+		background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.5) 25%, rgba(0,0,0,1) 100%);
+		z-index: 20;
+	}
+
+	#dataGrid .list-group-item {
+		--bs-list-group-item-padding-y: .35rem;
+		--bs-list-group-border-color: transparent;
+        --bs-list-group-bg: transparent;
+        --bs-list-group-color: #dee2e6;
+		--bs-list-group-item-padding-x: .75rem;
+		font-size: 2.3em;
+	}
+
+	.list-group {
+		--bs-list-group-bg: transparent;
+	}
+
+	.card {
+		--bs-card-bg: transparent;
+		border: none;
+	}
+
+	:root {
+		--bs-body-color: white;
+	}
+
+	#physicalLocation {
+		width: 75%;
+		justify-self: center;
+	}
+
+	#dailZmanim {
+		grid-area: zmanim;
+	}
+
+	#bsD {
+		grid-area: bsd;
+		font-family: "Narkisim";
+		line-height: 1;
+		padding-right: 1.5rem;
+		font-size: 8rem;
+		z-index: 3;
+		text-align: right;
+
+		color: transparent;
+		background: linear-gradient(69deg, #4f3e26 37%, #725b37 50%, #4f3e26 62%);
+		background-clip: text;
+
+		width: min-content;
+		justify-self: end;
+
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+	}
+
+	#weekday {
+		grid-area: weekday;
+	}
+
+	#shulScheduling {
+		grid-area: building;
+		background: #b99f6e;
+		border: 5px groove #72603b;
+		border-bottom: none;
+		align-self: end;
+	}
+
+	#dates {
+		font-size: 3em;
+		text-align: center;
+		line-height: 1.6;
+		font-weight: 800;
+		color: transparent;
+		background: linear-gradient(69deg, #4f3e26 37%, #725b37 50%, #4f3e26 62%);
+		background-clip: text;
+	}
+
+	#clock {
+		font-size: 8em;
+		text-align: center;
+		line-height: .8;
+		font-weight: 800;
+		color: transparent;
+		background: linear-gradient(69deg, #4f3e26 37%, #725b37 50%, #4f3e26 62%);
+		background-clip: text;
+	}
+
+	.blink,
+	#dates sup {
+		color: #4f3e26;
+	}
+
+	#boardContentCont {
+		padding-left: .5vw;
+		padding-right: 1vw;
+		padding-top: 2.5vh;
+
+		display: flex;
+	}
+
+	#boardContent {
+		background: rgb(33, 31, 32);
+		padding: 1rem;
+		color: white;
+		flex: 1 1;
+		padding-bottom: 6vh;
+	}
+
+	#boardContentCont::after {
+		content: "";
+		width: 25px;
+		background: white;
+		margin-left: 20px;
+	}
+
+	hr {
+		margin: .25rem 0;
+	}
+
+	.altTzetMelakhaTime {
+		font-size: 0.75em;
+	}
+
+	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
+		content: "מחר, ";
+		unicode-bidi: isolate;
+	}
+
+	#content[data-current-page="1"] .timeDisplayWide.nextDay::before {
+		content: "Tom., ";
+	}
+
+	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
+		content: "Завтра, ";
+	}
+
+	#content[data-current-page="1"] .langTV:not(.lang-en) {
+		display: none;
+	}
+
+	#content[data-current-page="2"] .langTV:not(.lang-hb) {
+		display: none;
+	}
+
+	#content[data-current-page="3"] .langTV:not(.lang-ru) {
+		display: none;
+	}
+
+	#dataGrid h3 {
+		font-size: 3.5rem;
+	}
+</style>
+
+<div id="content" data-current-page="1" data-page-count="3" data-swap-time="10000">
+	<div id="dataGrid">
+		<img id="gne" src="/assets/images/shul-wall/ohr-hatora.png" />
+		<div id="shulScheduling">
+			<div id="dates">
+				<div class="langTV lang-en" data-en-date></div>
+				<div class="langTV lang-hb" data-hb-date></div>
+				<div class="langTV lang-ru" data-ru-date></div>
+			</div>
+			<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
+			<div id="boardContentCont">
+				<div id="boardContent">
+					<h1 style="    text-align: center;
+					font-size: 7rem;
+					margin-bottom: 0;
+					font-family: 'Frank Ruhl Libre';
+					font-weight: 800;
+					line-height: 1;" data-parasha data-prefix="hb"></h1>
+					<div class="centerLeftgrid">
+						<div style="text-align: left; width: fit-content;">
+							<div data-lightingCandles><i class="bi bi-fire"></i> </div>
+							<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
+						</div>
+					</div>
+					<div class="card">
+						<zman-schedule class="list-group list-group-flush" id="shabbatSch">
+						</zman-schedule>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="bsD">בס"ד</div>
+		<div id="dailZmanim" class="templeBG">
+			<h3 style="text-align: center; margin-bottom: 0;">
+				<span class="langTV lang-hb">זמני היום</span>
+				<span class="langTV lang-ru">Галахические времена</span>
+				<span class="langTV lang-en">Halachic Times</span>
+			</h3>
+			{% include clockCountdown.html %}
+			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en ru">
+				{% for item in site.data.tv.listTVZman %}
+					<article
+						data-zmanid="{{ item.id }}"
+						{% if item.round %}data-round="{{ item.round }}"{% endif %}
+						{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+						{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+						{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					>
+						<span class="langTV lang-hb">{{ item.names.he }}</span>
+						<span class="langTV lang-en">{{ item.names.en }}</span>
+						<span class="langTV lang-ru">{{ item.names.ru }}</span>
+						<span class="timeDisplay"></span>
+					</article>
+				{% endfor %}
+			</section>
+			<div class="card mb-2 mt-2 mt-lg-0" style="font-size: .8rem;">
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
+					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
+						{% for fast in site.data.events.fasts %}
+						<h5 data-zfFind="{{ fast.yomTovIndex }}">{{ fast.text.en }}</h5>
+						{% endfor %}
+						<span data-zfFind="oneDayTimes"><b>Fast Times: </b></span>
+						<ul data-zfFind="twoDayTimes">
+							<li><b>Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
+							<li><b>Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b></li>
+						</ul>
+					</li>
+					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
+						<div data-zfFind="SefirathHaomer">
+							<div class="lang lang-hb" style="display: block !important;">
+								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
+								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
+								<p class="mb-0">
+									<b>הלילה:</b>
+									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
+									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+								</p>
+							</div>
+							<hr class="my-1" data-zfFind="omerRules">
+						</div>
+						<div data-zfFind="ThreeWeeksHeader">
+							<h5 style="font-size: .9rem; margin-bottom: .1em;">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</h5>
+						</div>
+						<ul style="padding-left: 1.5rem;" class="d-none">
+							{% for minhag in site.data.mourningMinhag %}
+							<li data-zfFind="{{ minhag.topic }}">{{ minhag.text.en }}</li>
+							{% endfor %}
+						</ul>
+					</li>
+					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
+						ברכת החמה!
+					</li>
+					<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
+						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div id="weekday" class="templeBG">
+			<h3 style="text-align: center;">Weekday Schedule</h3>
+			<div class="card">
+				<zman-schedule class="list-group list-group-flush" id="weekdaySch"></zman-schedule>
+			</div>
+		</div>
+	</div>
+	<div id="poweredBy">
+		<span class="langTV lang-en">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
+		<span class="langTV lang-hb">הובה עליכם ממאור נעים והלוח זמני יוסף, שהולך על פי שיטת מרן עובדיה זצ"ל</span>
+		<span class="langTV lang-ru">Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.</span>
+	</div>
+</div>
+
+<script id="zy-scheduleScreen-config" type="application/json">
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "Charm Circle",
+			"lat": 40.72068460693191,
+			"long": -73.82563608692345,
+			"elevation": 0,
+			"timezone": "America/New_York"
+		},
+		"calendarToggle": {
+			"rtKulah": true,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 20,
+			"tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+		},
+		"schedule": {
+			"url": "https://docs.google.com/spreadsheets/d/1Ck5pt1qecigNGqdxCvEWYAYk_p5sMKl2FmMrMkdXxj4/export?format=xlsx",
+			"type": "excel"
+		}
+	}
+</script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
+<script type="module" src="/assets/js/shul-wall/reset.js"></script>
+<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
+<script type="module" src="/assets/js/shul-wall/times.js"></script>
+<script type="module" src="/assets/js/shul-wall/limud.js"></script>
+<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
+<script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
+<script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
