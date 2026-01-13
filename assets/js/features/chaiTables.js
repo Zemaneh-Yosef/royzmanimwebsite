@@ -1,6 +1,5 @@
 //@ts-check
 
-import "../../libraries/materialComp/materialweb.js"
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 
 const searchRadius = [
@@ -417,6 +416,7 @@ export default class ChaiTables {
 
 			const country = chngEvnt.target.value;
 			this.selectedCountry = country;
+			console.log("Selected country:", chngEvnt.target);
 
 			if (country === "USA") {
 				// Reset USA selectors
@@ -476,7 +476,8 @@ export default class ChaiTables {
 			const enabled = getEnabledOptions(selector);
 
 			if (bboxToggle.checked && enabled.length === 1) {
-				selector.value = enabled[0].value;
+				// @ts-ignore
+				selector.select(enabled[0].value);
 
 				// Trigger your existing change handler
 				if (selector.id == 'MAIndex') {

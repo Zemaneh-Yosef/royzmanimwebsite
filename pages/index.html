@@ -78,9 +78,8 @@ layout: landing
 						</div>
 						<i class="bi bi-x-circle-fill" style="display: none" aria-hidden="true"></i>
 					</span>
-					<input list="locationNames" autocomplete="off" type="search" id="Main" class="form-control form-control-lg" style="z-index: 2" />
-					<datalist id="locationNames"></datalist>
-					<label class="form-label" for="form1">Insert coordinates/location name/ZIP code (English only)</label>
+					<input autocomplete="off" type="search" id="Main" class="form-control form-control-lg" style="z-index: 2" />
+					<label class="form-label" for="form1">Insert coordinates/location name/ZIP code</label>
 					<button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;">
 						<i class="bi bi-pin-map"></i>
 					</button>
@@ -88,6 +87,7 @@ layout: landing
 				<button type="button" data-mdb-ripple-init class="btn btn-success mb-2 d-lg-none" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-bottom: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7); border-bottom-left-radius: .25rem; border-bottom-right-radius: .25rem;">
 					<i class="bi bi-pin-map"></i> Use my device location
 				</button>
+				<md-menu id="locationMenu" anchor="Main" positioning="popover"> <md-list id="locationList"></md-list> </md-menu>
 				<span class="lang lang-hb"><b>כתב ויתור</b>: התוצאות של סרגל חיפוש זה מבוססות על אתר אינטרנט של צד שלישי, ואינן מובטחות להתאים למה שאתה מחפש. אם אינך בטוח לגבי התוצאות, אנא השתמש בלחצן המיקום הידני.</span>
 				<span class="lang lang-et"><b>Disclaimer</b>: The results of this search bar are based on a 3<sup>rd</sup> party website and are not guaranteed to match what you are looking for. If you are not sure about the results, please use the manual location button.</span>
 				<span class="lang lang-en"><b>Disclaimer</b>: The results of this search bar are based on a 3<sup>rd</sup> party website and are not guaranteed to match what you are looking for. If you are not sure about the results, please use the manual location button.</span>
@@ -280,9 +280,9 @@ layout: landing
 {% include toasts/failToast.html toastId="inaccessibleToast" errorText="Location inaccessible. Please try again!" %}
 {% include toasts/failToast.html toastId="zipToast" errorText="Multiple ZIP codes coordinates detected. Please use Location Name instead." %}
 
+<script src="/assets/libraries/materialComp/materialweb.js"></script>
 <script src="/assets/js/location.js" type="module"></script>
 <link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
-<script src="/assets/libraries/materialComp/materialweb.js" type="module"></script>
 
 <style>
 	.m3carcontainer {

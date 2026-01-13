@@ -1,35 +1,36 @@
 // @ts-check
 
 /** @typedef {{geonames?: {
-            "adminCode1": string,
-            "lng": string,
-            "geonameId": number,
-            "toponymName": string,
-            "countryId": string,
-            "fcl": string,
-            "population": number,
-            "countryCode": string,
-            "name": string,
-            "fclName": string,
-            "adminCodes1": Record<string, string>,
-            "countryName": string,
-            "fcodeName": string,
-            "adminName1": string,
-            "lat": string,
-            "fcode": string
-        }[], postalcodes?: {
-            "adminCode2": string,
-            "adminCode1": string,
-            "adminName2": string,
-            "lng": number,
-            "countryCode": string,
-            "postalcode": string,
-            "adminName1": string,
-            "placeName": string,
-            "lat": number
-        }[]}} geoNamesResponse */
+			"adminCode1": string,
+			"lng": string,
+			"geonameId": number,
+			"toponymName": string,
+			"countryId": string,
+			"fcl": string,
+			"population": number,
+			"countryCode": string,
+			"name": string,
+			"fclName": string,
+			"adminCodes1": Record<string, string>,
+			"countryName": string,
+			"fcodeName": string,
+			"adminName1": string,
+			"lat": string,
+			"fcode": string
+		}[], postalcodes?: {
+			"adminCode2": string,
+			"adminCode1": string,
+			"adminName2": string,
+			"lng": number,
+			"countryCode": string,
+			"postalcode": string,
+			"adminName1": string,
+			"placeName": string,
+			"lat": number
+		}[]}} geoNamesResponse */
 
 import * as leaflet from "../libraries/leaflet/leaflet.js"
+import { settings } from "./settings/handler.js";
 /** @type {ReturnType<leaflet["map"]>} */
 let leafletInit;
 
@@ -114,6 +115,22 @@ const geoNameTitleGenerator = (geoName) =>
 let pool;
 const delay = (/** @type {Number} */ms) => new Promise(res => setTimeout(res, ms));
 
+const menu = document.getElementById("locationMenu");
+const list = document.getElementById("locationList");
+
+function clearSuggestions() {
+    list.innerHTML = "";
+	// @ts-ignore
+    menu.close();
+}
+
+function showSuggestions() {
+	// @ts-ignore
+    if (list.children.length > 0) menu.show();
+	// @ts-ignore
+    else menu.close();
+}
+
 /** @param {KeyboardEvent|MouseEvent} event */
 async function updateList(event) {
 	elements.searchBar.classList.remove("is-warning")
@@ -142,13 +159,13 @@ async function updateList(event) {
 	}
 
 	if (q.startsWith("(") && q.endsWith(")") && q.split('').filter(x => x == ',').length == 1 && q.split(',').length == 2
-	 && q.replace('(', '').replace(')', '').replaceAll(' ', '').split(',').every(val => !isNaN(val) && !isNaN(parseFloat(val)))) {
+		&& q.replace('(', '').replace(')', '').replaceAll(' ', '').split(',').every(val => !isNaN(val) && !isNaN(parseFloat(val)))) {
 		if (elements.manual.container.classList.contains('d-none')) {
 			elements.manual.container.classList.remove('d-none');
 			requestAnimationFrame(() => elements.manual[navigator.onLine ? 'map' : 'timezoneSelect'].scrollIntoView());
 		}
 
-		const [lat, lng] = q.replace('(', '').replace(')', '').split(',').map(num=>parseFloat(num))
+		const [lat, lng] = q.replace('(', '').replace(')', '').split(',').map(num => parseFloat(num))
 		if (!leafletInit) {
 			leafletInit = leaflet.map(elements.manual.map, {
 				dragging: false,
@@ -200,106 +217,133 @@ async function updateList(event) {
 			elements.icons.container.style.paddingLeft = '.5rem';
 			elements.icons.container.style.paddingRight = '.5rem';
 		}
-	
+
 		try {
-			let locationName = true;
-			let params = new URLSearchParams({ q, maxRows: maxRows.toString(), 'username': 'Elyahu41' });
+			let q = elements.searchBar.value.trim();
+
+			/** @param {URLSearchParams} params */
+			const addLangIfHebrew = params => {
+				console.log(detectLanguageIntent(q));
+				if (detectLanguageIntent(q) == "english") return;
+				if (detectLanguageIntent(q) == "neutral" && settings.language() != "hb") return;
+
+				params.set("lang", "he");
+			};
+
 			/** @type {geoNamesResponse} */
-			let data = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString());
-			if (!data.geonames.length && q.includes(',')) {
-				params.delete('q');
-				params.set('q', q.split(',')[0]);
-				/** @type {geoNamesResponse} */
-				const newData = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString())
-				const match = newData.geonames.find(geoName => geoNameTitleGenerator(geoName) == q)
-				if (match)
-					data.geonames = [match]
+			let data;
+			let locationName = true;
+
+			// Search while specifically limiting it to name
+			{
+				const params = new URLSearchParams({
+					q,
+					maxRows: maxRows.toString(),
+					username: "Elyahu41",
+				});
+				addLangIfHebrew(params);
+
+				data = await getJSON("https://secure.geonames.org/searchJSON?" + params.toString());
 			}
-			if (!data.geonames.length) {
+
+			//
+			// 2) SECOND ATTEMPT: postalCodeLookupJSON?postalcode=
+			//
+			if (!data.geonames?.length) {
 				locationName = false;
-	
-				params.delete('maxRows');
-				params.delete('q');
-				params.set('postalcode', q);
-				data = await getJSON("https://secure.geonames.org/postalCodeLookupJSON?" + params.toString())
+
+				const params = new URLSearchParams({
+					postalcode: q,
+					username: "Elyahu41"
+				});
+
+				data = await getJSON("https://secure.geonames.org/postalCodeLookupJSON?" + params.toString());
 			}
-	
-			if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
-				let geoName;
-				let errorAlert = false;
-				if (!locationName) {
-					errorAlert = data.postalcodes.length >= 2;
-					geoName = data.postalcodes[0];
-				} else {
-					geoName = data.geonames.find(entry => geoNameTitleGenerator(entry).toLowerCase().includes(q.toLowerCase()))
-					if (!geoName)
-						geoName = data.geonames.find(entry => entry.name.toLowerCase() == q.toLowerCase());
-					if (!geoName)
-						geoName = data.geonames.find(entry => entry.name.toLowerCase().includes(q.toLowerCase()))
-					if (!geoName && q.includes(',')) {
-						geoName = data.geonames.find(entry => entry.name.toLowerCase() == q.split(',')[0].toLowerCase());
-						if (!geoName)
-							geoName = data.geonames.find(entry => entry.name.toLowerCase().includes(q.split(',')[0].toLowerCase()))
-					}
 
-					if (!geoName)
-						geoName = data.geonames[0]
+			// AUTOCOMPLETE MODE (not Enter key)
+			if (!((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)) {
+				clearSuggestions();
 
-					errorAlert =
-						!data.geonames.find(geoName =>
-							geoNameTitleGenerator(geoName).toLowerCase().includes(q.toLowerCase())
-							|| geoNameTitleGenerator(geoName).toLowerCase().includes(q.toLowerCase().split(',')[0])
-						) && data.geonames.length >= 2
+				for (const geoName of data[locationName ? "geonames" : "postalcodes"] || []) {
+					const item = document.createElement("md-list-item");
+					item.innerHTML = `<div slot="headline">${geoNameTitleGenerator(geoName)}</div>`;
+
+					item.addEventListener("click", () => {
+						elements.searchBar.value = geoNameTitleGenerator(geoName);
+						clearSuggestions();
+						// Trigger Enter-mode logic manually
+						updateList(new MouseEvent("click"));
+					});
+
+					list.appendChild(item);
 				}
 
-				if (!geoName || errorAlert) {
-					console.log(geoName, data);
-	
-					elements.searchBar.disabled = false;
-					elements.icons.error.style.removeProperty("display");
-					elements.icons.search.style.display = "none";
-					elements.icons.loading.style.display = "none"
+				showSuggestions();
+				return;
+			}
 
-					elements.icons.container.style.paddingLeft = '1rem';
-					elements.icons.container.style.paddingRight = '1rem';
-	
-					if ('bootstrap' in window) {
-						// @ts-ignore
-						const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(document.getElementById(errorAlert ? 'zipToast' : 'inaccessibleToast'))
-						toastBootstrap.show()
-					}
-					return;
-				}
+			// ENTER KEY MODE (selecting a result)
+			let geoName;
+			let errorAlert = false;
 
-				geoLocation.lat = parseFloat((typeof geoName.lat == "string" ? parseFloat(geoName.lat) : geoName.lat).toFixed(5)),
-				geoLocation.long = parseFloat((typeof geoName.lng == "string" ? parseFloat(geoName.lng) : geoName.lng).toFixed(5))
-
-				if (!geoLocation.elevation)
-					geoLocation.elevation = await getAverageElevation(geoLocation.lat, geoLocation.long);
-
-				await setLocation(
-					('name' in geoName ? geoName.name : geoName.placeName),
-					geoName.adminName1 || geoName.adminCode1,
-					('countryName' in geoName ? geoName.countryName : geoName.countryCode),
-					geoLocation.lat, geoLocation.long
-				);
-
-				openCalendarWithLocationInfo();
+			if (!locationName) {
+				// ZIP mode
+				errorAlert = data.postalcodes.length >= 2;
+				geoName = data.postalcodes[0];
 			} else {
-				const list = document.getElementById("locationNames");
-				while (list.firstElementChild)
-					list.firstElementChild.remove()
+				// Name mode
+				geoName =
+					data.geonames.find(entry => geoNameTitleGenerator(entry).toLowerCase().includes(q.toLowerCase())) ||
+					data.geonames.find(entry => entry.name.toLowerCase() === q.toLowerCase()) ||
+					data.geonames.find(entry => entry.name.toLowerCase().includes(q.toLowerCase())) ||
+					(q.includes(",") &&
+						(data.geonames.find(entry => entry.name.toLowerCase() === q.split(",")[0].toLowerCase()) ||
+							data.geonames.find(entry => entry.name.toLowerCase().includes(q.split(",")[0].toLowerCase())))) ||
+					data.geonames[0];
 
-				for (const geoName of (locationName ? data.geonames : data.postalcodes)) {
-					const option = document.createElement("option");
-					option.setAttribute("value", geoNameTitleGenerator(geoName))
-	
-					list.append(option)
-				}
+				errorAlert =
+					!data.geonames.find(geoName =>
+						geoNameTitleGenerator(geoName).toLowerCase().includes(q.toLowerCase()) ||
+						geoNameTitleGenerator(geoName).toLowerCase().includes(q.toLowerCase().split(",")[0])
+					) && data.geonames.length >= 2;
 			}
+
+			if (!geoName || errorAlert) {
+				elements.searchBar.disabled = false;
+				elements.icons.error.style.removeProperty("display");
+				elements.icons.search.style.display = "none";
+				elements.icons.loading.style.display = "none";
+				elements.icons.container.style.paddingLeft = "1rem";
+				elements.icons.container.style.paddingRight = "1rem";
+
+				if ("bootstrap" in window) {
+					const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(
+						document.getElementById(errorAlert ? "zipToast" : "inaccessibleToast")
+					);
+					toastBootstrap.show();
+				}
+				return;
+			}
+
+			// Set coordinates
+			geoLocation.lat = parseFloat((typeof geoName.lat == "string" ? parseFloat(geoName.lat) : geoName.lat).toFixed(5));
+			geoLocation.long = parseFloat((typeof geoName.lng == "string" ? parseFloat(geoName.lng) : geoName.lng).toFixed(5));
+
+			if (!geoLocation.elevation)
+				geoLocation.elevation = await getAverageElevation(geoLocation.lat, geoLocation.long);
+
+			await setLocation(
+				"name" in geoName ? geoName.name : geoName.placeName,
+				geoName.adminName1 || geoName.adminCode1,
+				"countryName" in geoName ? geoName.countryName : geoName.countryCode,
+				geoLocation.lat,
+				geoLocation.long
+			);
+
+			openCalendarWithLocationInfo();
+
 		} catch (e) {
 			console.error(e);
-			// Do not crash the program - it just means that they cannot look for a location by name, so just don't offer that feature
 		}
 	}
 }
@@ -370,8 +414,8 @@ async function setLocation(name, admin, country, latitude, longitude) {
  * @param {PositionOptions} options
  */
 function getCoordinates(options) {
-	return new Promise(function(resolve, reject) {
-	  navigator.geolocation.getCurrentPosition(resolve, reject, options);
+	return new Promise(function (resolve, reject) {
+		navigator.geolocation.getCurrentPosition(resolve, reject, options);
 	});
 }
 
@@ -390,7 +434,7 @@ function getLocation() {
 	elements.icons.container.style.paddingLeft = '.5rem';
 	elements.icons.container.style.paddingRight = '.5rem';
 
-	getCoordinates({maximumAge:60000, timeout:9000, enableHighAccuracy:true})
+	getCoordinates({ maximumAge: 60000, timeout: 9000, enableHighAccuracy: true })
 		.then(pos => setLatLong(pos))
 		.then(() => openCalendarWithLocationInfo())
 		.catch((e) => {
@@ -410,7 +454,7 @@ function getLocation() {
 /**
  * @param {Omit<GeolocationPosition, 'coords'|'toJSON'> & { coords: Partial<GeolocationCoordinates>}} position 
  */
-async function setLatLong (position, manual=false) {
+async function setLatLong(position, manual = false) {
 	let location;
 	if (!geoLocation.locationName || !geoLocation.timeZone) {
 		try {
@@ -466,7 +510,7 @@ async function setLatLong (position, manual=false) {
 function showError(error) {
 	const errorObjectBuilder = {
 		[error.PERMISSION_DENIED]: "User denied the request for Geolocation. Please allow location access in your browser settings."
-		+ '<img src="/assets/images/chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />',
+			+ '<img src="/assets/images/chrome-location-prompt.png" alt="chrome-location-prompt" style="display: block; margin-left: auto; margin-right: auto; width: 100%" id="loading" />',
 		[error.POSITION_UNAVAILABLE]: "Location information is unavailable.",
 		[error.TIMEOUT]: "The request to get user location timed out.",
 		// @ts-ignore
@@ -481,7 +525,7 @@ function showError(error) {
  * @param {number} lat
  * @param {number} long  
  */
-async function getAverageElevation (lat, long) {
+async function getAverageElevation(lat, long) {
 	//we make 3 JSON requests to get the elevation data from the 3 different sources on geonames.org and we average the results
 	//whichever is the last one to return will be the one to sum up and divide by the number of elevations to get the average
 
@@ -507,7 +551,7 @@ async function getAverageElevation (lat, long) {
 		try {
 			const data2 = await getJSON("https://secure.geonames.org/astergdemJSON?" + params.toString());
 			return data2.astergdem;
-		} catch(e) {
+		} catch (e) {
 			console.error("Error with astergdemJSON elevation request");
 			console.error(e);
 		}
@@ -518,14 +562,14 @@ async function getAverageElevation (lat, long) {
 		try {
 			const data3 = await getJSON("https://secure.geonames.org/gtopo30JSON?" + params.toString());
 			return data3.gtopo30;
-		} catch(e) {
+		} catch (e) {
 			console.error("Error with gtopo30JSON elevation request");
 			console.error(e);
 		}
 	}
 
 	const elevations = (await Promise.all([astergdem(), srtm3(), gtopo30()])).filter(Boolean).filter(num => num > 0)
-	const equation = parseFloat((elevations.length ? elevations.reduce( ( p, c ) => p + c, 0 ) / elevations.length : 0).toFixed(2));
+	const equation = parseFloat((elevations.length ? elevations.reduce((p, c) => p + c, 0) / elevations.length : 0).toFixed(2));
 
 	return Math.max(equation, 0);
 }
@@ -553,7 +597,7 @@ const networkStatus = {
 	offline: () => { elements.error.offline.style.removeProperty("display") }
 }
 
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", function () {
 	if (urlParams.get('modalShow') == 'tekufa') {
 		// @ts-ignore
 		window.bootstrap.Modal.getOrCreateInstance(document.getElementById("tekufaModal")).show()
@@ -591,3 +635,18 @@ Intl.supportedValuesOf("timeZone")
 
 // @ts-ignore
 window.elements = elements;
+
+/** 
+ * @param {string} str
+ */
+function detectLanguageIntent(str) {
+    const hasHebrew = /[\u0590-\u05FF]/.test(str);
+    const hasEnglish = /[A-Za-z]/.test(str);
+
+    if (hasHebrew && !hasEnglish) return "hebrew";
+    if (hasEnglish && !hasHebrew) return "english";
+
+    // If it contains neither Hebrew nor English letters:
+    // numbers, punctuation, ZIP codes, coordinates, etc.
+    return "neutral";
+}
