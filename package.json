@@ -10,6 +10,7 @@
 		"uniffi-bindgen-react-native": "0.29.3-1"
 	},
 	"dependencies": {
+		"@material/web": "^2.4.1",
 		"ics": "^3.8.1",
 		"temporal-polyfill": "^0.3.0"
 	}
