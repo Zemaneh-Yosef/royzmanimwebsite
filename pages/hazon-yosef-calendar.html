@@ -9,8 +9,11 @@ layout: nothing_forceHB
 </noscript>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-<link href="/assets/libraries/bootstrap/css/bootstrap-no-color-media.rtl.min.css" rel="stylesheet"
-	crossorigin="anonymous">
+<link href="/assets/libraries/bootstrap/css/bootstrap-no-color-media.rtl.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
+<link href="/assets/libraries/mdbootstrap/out-rtl.css" rel="stylesheet" crossorigin="anonymous"/>
+<link href="/assets/css/locationSearch.css" rel="stylesheet" />
+
 <style>
 	:root {
 		--bs-body-bg: rgb(243 244 246 / 1);
@@ -474,14 +477,6 @@ layout: nothing_forceHB
 		--tw-border-opacity: 1;
 		border-color: rgb(254 240 138 / var(--tw-border-opacity, 1))
 	}
-
-	.border-l-transparent {
-		border-left-color: transparent
-	}
-
-	.border-t-transparent {
-		border-top-color: transparent
-	}
 </style>
 
 <style>
@@ -549,7 +544,10 @@ layout: nothing_forceHB
 			<p class="ms-1 text-gray-600">(ע"פ שיטת מרן רבינו עובדיה יוסף זיע"א)</p>
 		</section>
 		<section class="text-start">
-			<md-outlined-select id="locationSelector" class="mb-4">
+			<button type="button" class="btn btn-light" style="border-radius: 50%; --bs-btn-padding-x: 0.68rem;" data-bs-toggle="modal" data-bs-target="#custLocationModal">
+				<span class="material-symbols-outlined" style="line-height: 1.4;">add_circle</span>
+			</button>
+			<md-outlined-select id="locationSelector" class="mb-4" label="Location">
 				<span slot="leading-icon" class="material-symbols-outlined">location_on</span>
 				{% for area in site.data.hazon-yosef.locationList %}
 				<md-select-option disabled>
@@ -714,4 +712,76 @@ layout: nothing_forceHB
 	מופעל על‑ידי <a href="/"><img src="/assets/images/hazon-yosef/zemaneh-yosef-title.svg" style="height: 1.75ch;"></a>
 </div>
 
+<div class="modal fade" id="custLocationModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-center">חפש את המיקום שלך!</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				{% capture hebrewWelcomeText %}{% include homepage/hebrew.md %}{% endcapture %}
+				<span>{{ hebrewWelcomeText | markdownify }}</span>
+				<div id="manualHelp" class="container pb-3 d-none">
+					<div id="leafletMap" style="aspect-ratio: 16 / 9; margin-bottom: .5rem;"></div>
+					<div id="manualContainer">
+						<md-outlined-select id="tz" label="אזור זמן">
+							<md-select-option selected aria-label="blank"></md-select-option>
+						</md-outlined-select>
+						<div class="input-group input-group-lg form-outline" data-mdb-input-init>
+							<input type="text" id="cityInput" class="form-control" />
+							<label class="form-label" for="cityInput">שם המקום</label>
+						</div>
+						<div class="input-group input-group-lg form-outline" data-mdb-input-init>
+							<input type="number" id="elevationInput" class="form-control" />
+							<label class="form-label" for="elevationInput">גובה</label>
+						</div>
+					</div>
+				</div>
+				<p class="border" id="error" style="display: none">
+					<!--Hidden until shown-->
+				</p>
+				<div id="offlineText" style="display: none;">Seems like you're disconnected from the internet! Searching by location name/ZIP code requires an internet connection, but you can insert your coordinates manually.</div>
+				<div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough characters. Please try again with a minimum of three characters</div>
+				<div class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
+					<span class="input-group-text" id="inputGroup-sizing-lg">
+						<i class="bi bi-search" aria-hidden="true" id="searchIcon"></i>
+						<div class="spinner-border" style="display: none;" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+						<i class="bi bi-x-circle-fill" style="display: none" aria-hidden="true"></i>
+					</span>
+					<input autocomplete="off" type="search" id="Main" class="form-control form-control-lg" style="z-index: 2" />
+					<label class="form-label" for="form1">הכנס קואורדינטות/שם מיקום/מיקוד</label>
+					<button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;">
+						<i class="bi bi-pin-map"></i>
+					</button>
+				</div>
+				<button type="button" data-mdb-ripple-init class="btn btn-success mb-2 d-lg-none" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-bottom: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7); border-bottom-left-radius: .25rem; border-bottom-right-radius: .25rem;">
+					<i class="bi bi-pin-map"></i> השתמש במיקום הנוכחי שלי
+				</button>
+				<md-menu id="locationMenu" anchor="Main" positioning="popover"> <md-list id="locationList"></md-list> </md-menu>
+				<b>כתב ויתור</b>: התוצאות של סרגל חיפוש זה מבוססות על אתר אינטרנט של צד שלישי, ואינן מובטחות להתאים למה שאתה מחפש. אם אינך בטוח לגבי התוצאות, אנא השתמש בלחצן המיקום הידני.
+			</div>
+		</div>
+	</div>
+</div>
+
 <script src="/assets/js/hazon-yosef-zmanimListUpdater.js" type="module"></script>
+<script src="/assets/js/hazon-yosef-location.js" type="module"></script>
+<script type="module">
+	import { Input, initMDB } from "/assets/libraries/mdbootstrap/mdb.js"
+	initMDB(Input);
+
+	document.getElementById("custLocationModal").addEventListener('shown.bs.modal', function () {
+		Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
+			new Input(formOutline).update();
+
+			const formLabels = [...formOutline.getElementsByTagName('label')].filter(label => label.classList.contains('form-label'));
+			for (const formLabel of formLabels) {
+				formLabel.style.marginRight = formLabel.style.marginLeft;
+				formLabel.style.marginLeft = (0).toString();
+			}
+		});
+	});
+</script>

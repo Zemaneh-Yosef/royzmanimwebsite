@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
-import { Input } from "../../libraries/mdbootstrap/mdb.esm.js"
+import { Input } from "../../libraries/mdbootstrap/mdb.js"
 const urlParams = new URLSearchParams(window.location.search);
 
 /** @param {string} param */

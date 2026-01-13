@@ -1,5 +1,5 @@
 import { handleLanguage, settings } from "./handler.js";
-import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.esm.js"
+import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.js"
 
 document.addEventListener("DOMContentLoaded", () => {
     handleLanguage();

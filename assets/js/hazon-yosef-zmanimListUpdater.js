@@ -6,15 +6,63 @@ import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 
+/** @type {Record<string, number[]>} */
 const allChaiTablesData = {};
 
 /** @typedef {{ datesToZman: Map<Temporal.PlainDate, Record<string, Temporal.ZonedDateTime>>; extra?: string } & ({ytI: number; title?: string} | { title: string })} highlightedZman */
 
 export default class zmanimListUpdater {
 	constructor() {
-		/** @type {HTMLSelectElement} */
+		/** @type {import('@material/web/select/outlined-select.js').MdOutlinedSelect} */
 		// @ts-ignore
 		const matLocSelect = document.getElementById("locationSelector");
+
+		if (isValidJSON(localStorage.getItem('hycal-customLocation'))) {
+			/** @type {import('@material/web/select/select-option.js').MdSelectOption} */
+			const header = document.createElement("md-select-option");
+			header.disabled = true;
+
+			const headerDiv = document.createElement("div");
+			headerDiv.setAttribute("slot", "headline");
+			headerDiv.style.fontWeight = "600";
+			headerDiv.style.opacity = "0.7";
+			headerDiv.style.padding = "6px 0";
+			headerDiv.appendChild(document.createTextNode("מיקום מותאם אישית"));
+			header.appendChild(headerDiv);
+			matLocSelect.appendChild(header);
+
+			for (const customOption of JSON.parse(localStorage.getItem('hycal-customLocation'))) {
+				/** @type {import('@material/web/select/select-option.js').MdSelectOption} */
+				const optionElem = document.createElement("md-select-option");
+
+				optionElem.setAttribute('value', JSON.stringify({
+					lat: customOption.lat,
+					lng: customOption.lng,
+					elevation: customOption.elevation,
+					timezone: customOption.timeZone
+				}));
+
+				const optionDiv = document.createElement("div");
+				optionDiv.setAttribute("slot", "headline");
+				optionDiv.appendChild(document.createTextNode(customOption.name));
+
+				optionElem.displayText = customOption.name;
+
+				optionElem.appendChild(optionDiv);
+				matLocSelect.appendChild(optionElem);
+			}
+		}
+
+		matLocSelect.requestUpdate();
+
+		if (localStorage.getItem('hycal-selectedLocation')) {
+			const selectedOption = [...matLocSelect.options].find(option => option.textContent == localStorage.getItem('hycal-selectedLocation'));
+			if (selectedOption) {
+				matLocSelect.select(selectedOption.value);
+			}
+		}
+
+		matLocSelect.requestUpdate();
 
 		const locationGeoList = Array.from(matLocSelect.options).map(option => {
 			if (option.disabled)
@@ -36,6 +84,7 @@ export default class zmanimListUpdater {
 		matLocSelect.addEventListener('change', (chngEvnt) => {
 			let sameDayEnsure = this.jCal.getDate().equals(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
 			this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
+			localStorage.setItem('hycal-selectedLocation', matLocSelect.options[matLocSelect.selectedIndex].textContent);
 
 			if (sameDayEnsure)
 				this.changeDate(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
@@ -150,7 +199,25 @@ export default class zmanimListUpdater {
 
 		this.setNextUpcomingZman();
 		this.changeDate(this.jCal.getDate());
-		if (!availableVS.length)
+		if (!availableVS.length && [
+			"אלעד",
+			"אשדוד",
+			"באר שבע",
+			"בית שמש",
+			"ביתר עילית",
+			"בני ברק",
+			"גבעת זאב",
+			"חיפה",
+			"טבריה",
+			"ירושלים",
+			"מודיעין",
+			"מירון",
+			"נתיבות",
+			"עמנואל",
+			"צפת",
+			"קרית יערים",
+			"תל אביב"
+		].includes(this.geoLocation.getLocationName()))
 			this.getCurLocaleNetz()
 				.then(() => this.resetCalendar())
 	}
@@ -942,6 +1009,7 @@ window.KosherZmanim = KosherZmanim;
  * @param {string} str
  */
 function isValidJSON(str) {
+	if (!str) return false;
 	try {
 		JSON.parse(str);
 		return true;

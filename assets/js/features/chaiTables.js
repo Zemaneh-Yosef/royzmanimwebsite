@@ -338,8 +338,8 @@ export default class ChaiTables {
 		// @ts-ignore
 		const bboxToggle = document.getElementById("enableBBox");
 
+		/** @type {import('@material/web/select/outlined-select.js').MdOutlinedSelect[]} */
 		const selectors = Array.from(document.getElementsByTagName("md-outlined-select"))
-		.map((/** @type {HTMLSelectElement} */elem) => elem);
 
 		bboxToggle.addEventListener("change", () => { this.initForm(); }); // reinitialize modal with new filtering state
 
@@ -353,11 +353,11 @@ export default class ChaiTables {
 
 		const primaryIndex = selectors.find(select => select.id == 'MAIndex');
 
-		/** @type {HTMLSelectElement} */
+		/** @type {import('@material/web/select/outlined-select.js').MdOutlinedSelect} */
 		// @ts-ignore
 		const usaStateSel = document.getElementById('USAStateSelector');
 
-		/** @type {HTMLSelectElement} */
+		/** @type {import('@material/web/select/outlined-select.js').MdOutlinedSelect} */
 		// @ts-ignore
 		const usaMetroSel = document.getElementById('USAMetroSelector');
 
@@ -394,7 +394,6 @@ export default class ChaiTables {
 			const state = usaStateSel.value;
 
 			// Reset metro selector
-			// @ts-ignore
 			usaMetroSel.reset();
 
 			// Hide all metros
@@ -420,9 +419,7 @@ export default class ChaiTables {
 
 			if (country === "USA") {
 				// Reset USA selectors
-				// @ts-ignore
 				usaStateSel.reset();
-				// @ts-ignore
 				usaMetroSel.reset();
 				allUSAMetroOptions.forEach(opt => opt.style.display = "none");
 
@@ -448,7 +445,6 @@ export default class ChaiTables {
 		}
 
 		for (const selector of selectors) {
-			// @ts-ignore
 			selector.reset();
 
 			for (const option of Array.from(selector.options).slice(1)) {
@@ -476,7 +472,6 @@ export default class ChaiTables {
 			const enabled = getEnabledOptions(selector);
 
 			if (bboxToggle.checked && enabled.length === 1) {
-				// @ts-ignore
 				selector.select(enabled[0].value);
 
 				// Trigger your existing change handler
@@ -567,7 +562,7 @@ function isInsideBoundingBox(lat, long, bounds) {
 	});
 }
 
-/** @param {HTMLSelectElement} selector */
+/** @param {import('@material/web/select/outlined-select.js').MdOutlinedSelect} selector */
 function sortOptionsByAvailability(selector) {
     const options = Array.from(selector.options).slice(1); // skip blank
 
@@ -585,7 +580,7 @@ function sortOptionsByAvailability(selector) {
     }
 }
 
-/** @param {HTMLSelectElement} selector */
+/** @param {import('@material/web/select/outlined-select.js').MdOutlinedSelect} selector */
 function getEnabledOptions(selector) {
     return Array.from(selector.options).filter(opt => !opt.disabled && opt.value !== "");
 }

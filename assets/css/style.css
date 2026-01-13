@@ -190,57 +190,10 @@ body {
 	}
 }
 
-.form-outline .form-control~.form-label {
-	will-change: transform, color;
-	-webkit-transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
-					transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
-	z-index: 2;
-	transform: translateY(-.125rem);
-}
-
 .handleSvg svg {
 	width: 1em;
 	height: 1em;
 	vertical-align: unset;
-}
-
-.form-outline .form-control.is-warning~.form-notch div,
-.form-outline .form-control.is-warning:focus~.form-notch div {
-	border-color: rgb(var(--bs-warning-rgb));
-}
-
-.form-outline .form-control.is-warning:focus~.form-notch .form-notch-leading {
-	box-shadow: -1px 0 rgb(var(--bs-warning-rgb)), 0 1px rgb(var(--bs-warning-rgb)), 0 -1px rgb(var(--bs-warning-rgb));
-}
-
-.form-outline .form-control.is-warning:focus~.form-notch .form-notch-middle {
-	box-shadow: 0 1px rgb(var(--bs-warning-rgb));
-}
-
-.form-outline .form-control.is-warning:focus~.form-notch .form-notch-trailing {
-	box-shadow: 1px 0 rgb(var(--bs-warning-rgb)), 0 -1px rgb(var(--bs-warning-rgb)), 0 1px rgb(var(--bs-warning-rgb));
-}
-
-.form-outline .form-control.is-warning~.form-label {
-		color: rgb(var(--bs-warning-rgb));
-}
-
-#manualLocationButton {
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: .25rem;
-	border-top-right-radius: .25rem;
-}
-
-:dir(rtl) #manualLocationButton {
-	border-top-left-radius: .25rem;
-	border-bottom-left-radius: .25rem;
-	border-bottom-right-radius: 0;
-	border-top-right-radius: 0;
-}
-
-.input-group-lg>.btn, .input-group-lg>.form-control, .input-group-lg>.form-select, .input-group-lg>.input-group-text {
-	border-radius: .25rem;
 }
 
 li[data-zfFind="FastDays"] h5 {
