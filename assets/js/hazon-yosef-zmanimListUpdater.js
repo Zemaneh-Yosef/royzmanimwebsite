@@ -53,16 +53,12 @@ export default class zmanimListUpdater {
 			}
 		}
 
-		matLocSelect.requestUpdate();
-
 		if (localStorage.getItem('hycal-selectedLocation')) {
 			const selectedOption = [...matLocSelect.options].find(option => option.textContent == localStorage.getItem('hycal-selectedLocation'));
 			if (selectedOption) {
 				matLocSelect.select(selectedOption.value);
 			}
 		}
-
-		matLocSelect.requestUpdate();
 
 		const locationGeoList = Array.from(matLocSelect.options).map(option => {
 			if (option.disabled)
