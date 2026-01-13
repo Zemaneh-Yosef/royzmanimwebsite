@@ -44,7 +44,7 @@ calculations:
     name: סוף זמן ברכות שמע
     round: earlier
   - id: minhaGedola
-    timeGetter: getMinhaGedolah
+    timeGetter: getMinhaGedolahIkar
     name: מנחה גדולה
     round: later
   - id: minhaKetana

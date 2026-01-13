@@ -314,6 +314,10 @@ class ZemanFunctions extends ZemanimMathBase {
 		].sort(durationSort)[0]);
 	}
 
+	getMinhaGedolahIkar() {
+		return this.timeRange.current.hatzoth.add(this.fixedToSeasonal(Temporal.Duration.from({ minutes: 30 })))
+	}
+
 	/**
 	 * A generic method for calculating <em>mincha ketana</em>, (the preferred time to recite the mincha prayers in
 	 * the opinion of the <em><a href="https://en.wikipedia.org/wiki/Maimonides">Rambam</a></em> and others) that is
