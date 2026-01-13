@@ -315,7 +315,8 @@ class ZemanFunctions extends ZemanimMathBase {
 	}
 
 	getMinhaGedolahIkar() {
-		return this.timeRange.current.hatzoth.add(this.fixedToSeasonal(Temporal.Duration.from({ minutes: 30 })))
+		return this.timeRange.current.sunrise
+			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 6, minutes: 30 })));
 	}
 
 	/**
