@@ -158,6 +158,14 @@ export default class zmanimListUpdater {
 		}
 		shareIcon.addEventListener('click', shareFunction);
 
+		const embedButton = document.getElementById("embedPage");
+		embedButton.addEventListener('click', async () => {
+			const embedText = `<iframe src="${window.location.href}" width="100%" height="600" frameborder="0"></iframe>`;
+			await navigator.clipboard.writeText(embedText);
+
+			alert("קוד הטמעה הועתק ללוח");
+		});
+
 		this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
 	}
 
