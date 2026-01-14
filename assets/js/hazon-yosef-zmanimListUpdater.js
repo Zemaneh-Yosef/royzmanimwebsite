@@ -20,6 +20,7 @@ export default class zmanimListUpdater {
 		/** @type {import('@material/web/select/outlined-select.js').MdOutlinedSelect} */
 		// @ts-ignore
 		const matLocSelect = document.getElementById("locationSelector");
+		this.lastPreCustomIndex = matLocSelect.options.length - 1;
 
 		if (isValidJSON(localStorage.getItem('hycal-customLocation'))) {
 			/** @type {import('@material/web/select/select-option.js').MdSelectOption} */
@@ -164,6 +165,10 @@ export default class zmanimListUpdater {
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	resetCalendar(geoLocation = this.geoLocation) {
+		/** @type {import('@material/web/select/outlined-select.js').MdOutlinedSelect} */
+		// @ts-ignore
+		const matLocSelect = document.getElementById("locationSelector");
+
 		/** @type {highlightedZman[]} */
 		this.weekImportantZmanim = [];
 
@@ -180,7 +185,7 @@ export default class zmanimListUpdater {
 			url: window.location.href
 		};
 
-		if ('canShare' in navigator && navigator.canShare(this.shareData)) {
+		if ('canShare' in navigator && navigator.canShare(this.shareData) && matLocSelect.selectedIndex <= this.lastPreCustomIndex) {
 			shareIcon.style.removeProperty('display');
 		} else {
 			shareIcon.style.display = 'none';
