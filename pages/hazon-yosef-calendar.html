@@ -543,11 +543,11 @@ layout: nothing_forceHB
 			<h1>זמני היום - <span data-zfReplace="Parasha"></span> <span data-zfReplace="jewishYear"></span></h1>
 			<p class="ms-1 text-gray-600">(ע"פ שיטת מרן רבינו עובדיה יוסף זיע"א)</p>
 		</section>
-		<section class="text-start">
+		<section class="d-flex mb-4" style="gap: .5rem; align-items: center;">
 			<button type="button" class="btn btn-light" style="border-radius: 50%; --bs-btn-padding-x: 0.68rem;" data-bs-toggle="modal" data-bs-target="#custLocationModal">
 				<span class="material-symbols-outlined" style="line-height: 1.4;">add_circle</span>
 			</button>
-			<md-outlined-select id="locationSelector" class="mb-4" label="Location">
+			<md-outlined-select id="locationSelector">
 				<span slot="leading-icon" class="material-symbols-outlined">location_on</span>
 				{% for area in site.data.hazon-yosef.locationList %}
 				<md-select-option disabled>
@@ -563,6 +563,7 @@ layout: nothing_forceHB
 				{% endfor %}
 				{% endfor %}
 			</md-outlined-select>
+			<span class="material-symbols-outlined" id="shareIcon" style="cursor: pointer;" title="שתף קישור למיקום זה">share</span>
 
 			<script src="/assets/libraries/materialComp/materialweb.js"></script>
 		</section>

@@ -6,6 +6,10 @@ import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 
+const urlParams = new URLSearchParams(window.location.search);
+/** @param {string} param */
+const settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
+
 /** @type {Record<string, number[]>} */
 const allChaiTablesData = {};
 
@@ -53,8 +57,8 @@ export default class zmanimListUpdater {
 			}
 		}
 
-		if (localStorage.getItem('hycal-selectedLocation')) {
-			const selectedOption = [...matLocSelect.options].find(option => option.textContent == localStorage.getItem('hycal-selectedLocation'));
+		if (settingsURLOverride('hycal-selectedLocation')) {
+			const selectedOption = [...matLocSelect.options].find(option => option.textContent.trim() == settingsURLOverride('hycal-selectedLocation'));
 			if (selectedOption) {
 				matLocSelect.select(selectedOption.value);
 			}
@@ -66,7 +70,7 @@ export default class zmanimListUpdater {
 
 			const geoLData = JSON.parse(option.value)
 			return new KosherZmanim.GeoLocation(
-				option.textContent,
+				option.textContent.trim(),
 				geoLData.lat,
 				geoLData.lng,
 				geoLData.elevation,
@@ -80,7 +84,8 @@ export default class zmanimListUpdater {
 		matLocSelect.addEventListener('change', (chngEvnt) => {
 			let sameDayEnsure = this.jCal.getDate().equals(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
 			this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
-			localStorage.setItem('hycal-selectedLocation', matLocSelect.options[matLocSelect.selectedIndex].textContent);
+			localStorage.setItem('hycal-selectedLocation', matLocSelect.options[matLocSelect.selectedIndex].textContent.trim());
+			updateURLParameters({ "hycal-selectedLocation": matLocSelect.options[matLocSelect.selectedIndex].textContent.trim() });
 
 			if (sameDayEnsure)
 				this.changeDate(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
@@ -141,6 +146,17 @@ export default class zmanimListUpdater {
 			});
 		}
 
+		const shareIcon = document.getElementById("shareIcon");
+		const shareFunction = async () => {
+			try {
+				if ('share' in navigator)
+					await navigator.share(this.shareData);
+			} catch (e) {
+				console.error(e);
+			}
+		}
+		shareIcon.addEventListener('click', shareFunction);
+
 		this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
 	}
 
@@ -156,6 +172,19 @@ export default class zmanimListUpdater {
 
 		this.timeoutToChangeDate = null;
 		this.geoLocation = geoLocation;
+
+		const shareIcon = document.getElementById("shareIcon");
+		this.shareData = {
+			title: "זמנים ל" + geoLocation.getLocationName(),
+			text: 'כל הזמנים לפי שיטת הראש"ל הרב יצחק יוסף רק על זמני יוסף',
+			url: window.location.href
+		};
+
+		if ('canShare' in navigator && navigator.canShare(this.shareData)) {
+			shareIcon.style.removeProperty('display');
+		} else {
+			shareIcon.style.display = 'none';
+		}
 
 		/** @type {number[]} */
 		let availableVS = [];
@@ -221,7 +250,6 @@ export default class zmanimListUpdater {
 	async getCurLocaleNetz() {
 		const fetchedDate = await (await fetch(`/assets/hazon-yosef-data/${this.geoLocation.getLocationName().replaceAll(" ", "_")}.json`)).json()
 		allChaiTablesData[this.geoLocation.getLocationName()] = fetchedDate.times;
-		console.log(fetchedDate)
 	}
 
 	updateWeekListing(date = this.weekPlainDate) {
@@ -502,7 +530,7 @@ export default class zmanimListUpdater {
 		if (this.jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH || (this.jCal.getYomTovIndex() == WebsiteLimudCalendar.PESACH && this.jCal.getJewishDayOfMonth() < 18)) {
 			const hametzDate = this.jCal.chainYomTovIndex(WebsiteLimudCalendar.EREV_PESACH).getDate();
 			/** @type {highlightedZman} */
-			const highlightPesah = {ytI: WebsiteLimudCalendar.PESACH, datesToZman: new Map()};
+			const highlightPesah = { ytI: WebsiteLimudCalendar.PESACH, datesToZman: new Map() };
 
 			let nightErev = hametzDate.subtract({ days: 1 });
 			if (hametzDate.dayOfWeek == 6)
@@ -518,7 +546,7 @@ export default class zmanimListUpdater {
 
 			if (hametzDate.dayOfWeek == 6) {
 				highlightPesah.title = 'שבת ' + this.jCal.getHebrewParasha()[0] + ' (הגדול)<br>+ פסח';
-				highlightPesah.datesToZman.set(hametzDate.subtract({ days: 1 }), { candleLighting: handleRound(this.zmanCalc.chainDate(hametzDate.subtract({ days: 1 })).getCandleLighting(), 'earlier')  });
+				highlightPesah.datesToZman.set(hametzDate.subtract({ days: 1 }), { candleLighting: handleRound(this.zmanCalc.chainDate(hametzDate.subtract({ days: 1 })).getCandleLighting(), 'earlier') });
 
 				firstDayYTObj.candleLighting = handleRound(zDTFromFunc(this.zmanCalc.chainDate(hametzDate).getTzetMelakha()), 'later');
 				firstDayYTObj.rabbenuTam = handleRound(this.zmanCalc.chainDate(hametzDate).getTzetRT(), 'later');
@@ -602,7 +630,7 @@ export default class zmanimListUpdater {
 			/** @type {highlightedZman} */
 			const shavuotObj = {
 				ytI: WebsiteLimudCalendar.SHAVUOS,
-				datesToZman: new Map([[erevDate, {candleLighting: handleRound(this.zmanCalc.chainDate(erevDate).getCandleLighting(), 'earlier')}]])
+				datesToZman: new Map([[erevDate, { candleLighting: handleRound(this.zmanCalc.chainDate(erevDate).getCandleLighting(), 'earlier') }]])
 			};
 
 			if (erevDate.dayOfWeek == 5) {
@@ -628,7 +656,7 @@ export default class zmanimListUpdater {
 						{
 							netz: shavuotNetzFormat,
 							candleLighting: handleRound(this.zmanCalc.chainDate(shavuotDate).getCandleLighting(), 'earlier')
-						} :	{
+						} : {
 							netz: shavuotNetzFormat,
 							tzetMelakha: handleRound(zDTFromFunc(this.zmanCalc.chainDate(shavuotDate).getTzetMelakha()), 'later'),
 							rabbenuTam: handleRound(this.zmanCalc.chainDate(shavuotDate).getTzetRT(), 'later')
@@ -919,7 +947,7 @@ export default class zmanimListUpdater {
 							fastStarts: handleRound(this.zmanCalc.chainDate(taanitDay).getAlotHashahar(), 'earlier'),
 							fastEnds: handleRound(this.zmanCalc.chainDate(taanitDay).getTzetHumra(), 'later')
 						}]]
-					)
+				)
 			});
 		}
 
@@ -929,9 +957,9 @@ export default class zmanimListUpdater {
 			const shabbatJCal = this.jCal.shabbat();
 			const title =
 				"שבת "
-					+ (shabbatJCal.isCholHamoed() ? "חול המועד" : this.jCal.getHebrewParasha()[0])
-					+ (![Parsha.NONE, Parsha.NACHAMU, Parsha.CHAZON, Parsha.SHIRA].includes(shabbatJCal.getSpecialShabbos())
-						? ("<div class='specialShabPar'>(" + this.jCal.getHebrewParasha()[1] + ")</div>") : "")
+				+ (shabbatJCal.isCholHamoed() ? "חול המועד" : this.jCal.getHebrewParasha()[0])
+				+ (![Parsha.NONE, Parsha.NACHAMU, Parsha.CHAZON, Parsha.SHIRA].includes(shabbatJCal.getSpecialShabbos())
+					? ("<div class='specialShabPar'>(" + this.jCal.getHebrewParasha()[1] + ")</div>") : "")
 
 			if (!highlightZmanim.some(high => high.title === title)) {
 				let extra = "";
@@ -955,7 +983,7 @@ export default class zmanimListUpdater {
 					title,
 					extra,
 					datesToZman: new Map([[shabbatJCal.getDate().subtract({ days: 1 }), {
-						candleLighting: handleRound(this.zmanCalc.chainDate(shabbatJCal.getDate().subtract({days: 1})).getCandleLighting(), 'earlier')
+						candleLighting: handleRound(this.zmanCalc.chainDate(shabbatJCal.getDate().subtract({ days: 1 })).getCandleLighting(), 'earlier')
 					}], [shabbatJCal.getDate(), {
 						tzetMelakha: handleRound(zDTFromFunc(this.zmanCalc.chainDate(shabbatJCal.getDate()).getTzetMelakha()), 'later'),
 						rabbenuTam: handleRound(this.zmanCalc.chainDate(shabbatJCal.getDate()).getTzetRT(), 'later')
@@ -1031,4 +1059,23 @@ function handleRound(zDT, round) {
 		return zDT.add({ minutes: 1 }).with({ second: 0 });
 	else
 		return zDT.with({ second: 0 });
+}
+
+// Function to update URL parameters
+/** @param {Record<string, string>} newParams */
+function updateURLParameters(newParams) {
+	// Update parameters (e.g., set "price" to selected value)
+	for (const [key, value] of Object.entries(newParams)) {
+		if (value) {
+			urlParams.set(key, value); // Add/update parameter
+		} else {
+			urlParams.delete(key); // Remove if value is empty
+		}
+	};
+
+	// Build new URL
+	const newUrl = urlParams.toString() ? `?${urlParams.toString()}` : window.location.pathname;
+
+	// 4. Update URL with pushState (adds new history entry)
+	history.pushState({ params: newParams }, '', newUrl);
 }
