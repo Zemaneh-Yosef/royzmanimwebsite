@@ -12,47 +12,35 @@ layout: nothing_forceHB
 <link href="/assets/libraries/bootstrap/css/bootstrap-no-color-media.rtl.min.css" rel="stylesheet">
 <link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
 <link href="/assets/libraries/mdbootstrap/out-rtl.css" rel="stylesheet" crossorigin="anonymous"/>
+<link rel="stylesheet" href="/assets/fonts/polin/stylesheet.css">
 <link href="/assets/css/locationSearch.css" rel="stylesheet" />
 
 <style>
 	:root {
+		--bs-body-font-family: "Polin", var(--bs-font-sans-serif);
+
 		--bs-body-bg: rgb(243 244 246 / 1);
-		--bs-gap: 1rem;
+		--bs-gap: .8rem;
 
 		--md-outlined-select-text-field-outline-color: #888;
 		--md-outlined-select-text-field-container-shape: 5rem;
 		--md-outlined-select-text-field-input-text-color: black;
-		--md-outlined-select-text-field-input-text-font: var(--bs-body-font-family);
+		--md-outlined-select-text-field-input-text-font: "Polin", var(--bs-body-font-family);
 		--md-outlined-field-top-space: 8px;
 		--md-outlined-field-bottom-space: 8px;
 
 		--md-menu-item-top-space: 4px;
 		--md-menu-item-bottom-space: 4px;
 		--md-menu-item-one-line-container-height: 1.5rem;
-		--md-menu-item-label-text-font: var(--bs-body-font-family);
+		--md-menu-item-label-text-font: "Polin", var(--bs-body-font-family);
 
 		--tw-ring-offset-shadow: 0 0 #0000;
 		--tw-ring-shadow: 0 0 #0000;
 	}
 
-	.text-gray-400 {
-		--tw-text-opacity: 1;
-		color: rgb(156 163 175 / var(--tw-text-opacity, 1))
-	}
-
-	.text-gray-500 {
-		--tw-text-opacity: 1;
-		color: rgb(107 114 128 / var(--tw-text-opacity, 1))
-	}
-
 	.text-gray-600 {
 		--tw-text-opacity: 1;
 		color: rgb(75 85 99 / var(--tw-text-opacity, 1))
-	}
-
-	.text-gray-700 {
-		--tw-text-opacity: 1;
-		color: rgb(55 65 81 / var(--tw-text-opacity, 1))
 	}
 
 	.text-gray-800 {
@@ -75,24 +63,9 @@ layout: nothing_forceHB
 		line-height: 1.25rem
 	}
 
-	.text-xl {
-		font-size: 1.25rem;
-		line-height: 1.75rem
-	}
-
-	.text-2xl {
-		font-size: 1.5rem;
-		line-height: 2rem
-	}
-
 	.text-3xl {
 		font-size: 1.875rem;
 		line-height: 2.25rem
-	}
-
-	.text-4xl {
-		font-size: 2.25rem;
-		line-height: 2.5rem
 	}
 
 	.font-bold {
@@ -109,21 +82,9 @@ layout: nothing_forceHB
 		width: fit-content;
 	}
 
-	.shadow-lg {
-		--tw-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1);
-		--tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
-		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
-	}
-
 	.shadow-md {
 		--tw-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);
 		--tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
-		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
-	}
-
-	.shadow-none {
-		--tw-shadow: 0 0 #0000;
-		--tw-shadow-colored: 0 0 #0000;
 		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
 	}
 
@@ -139,33 +100,8 @@ layout: nothing_forceHB
 		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
 	}
 
-	.outline-none {
-		outline: 2px solid transparent;
-		outline-offset: 2px
-	}
-
 	.outline {
 		outline-style: solid
-	}
-
-	.ring-0 {
-		--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-		--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-		box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)
-	}
-
-	.ring-2 {
-		--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-		--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-		box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)
-	}
-
-	.ring-ring {
-		--tw-ring-color: hsl(var(--ring))
-	}
-
-	.ring-sidebar-ring {
-		--tw-ring-color: hsl(var(--sidebar-ring))
 	}
 
 	.ring-offset-background {
@@ -176,42 +112,12 @@ layout: nothing_forceHB
 		background-color: var(--color-bg)
 	}
 
-	.bg-accent {
-		background-color: hsl(var(--accent))
-	}
-
 	.bg-background {
 		background-color: hsl(var(--background))
 	}
 
 	.bg-black\/80 {
 		background-color: #000c
-	}
-
-	.bg-blue-500 {
-		--tw-bg-opacity: 1;
-		background-color: rgb(59 130 246 / var(--tw-bg-opacity, 1))
-	}
-
-	.bg-border {
-		background-color: hsl(var(--border))
-	}
-
-	.bg-card {
-		background-color: hsl(var(--card))
-	}
-
-	.bg-destructive {
-		background-color: hsl(var(--destructive))
-	}
-
-	.bg-foreground {
-		background-color: hsl(var(--foreground))
-	}
-
-	.bg-gray-100 {
-		--tw-bg-opacity: 1;
-		background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1))
 	}
 
 	.bg-gray-200 {
@@ -224,46 +130,9 @@ layout: nothing_forceHB
 		background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1))
 	}
 
-	.bg-muted {
-		background-color: hsl(var(--muted))
-	}
-
-	.bg-muted\/50 {
-		background-color: hsl(var(--muted) / .5)
-	}
-
-	.bg-popover {
-		background-color: hsl(var(--popover))
-	}
-
-	.bg-primary {
-		background-color: hsl(var(--primary))
-	}
-
-	.bg-secondary {
-		background-color: hsl(var(--secondary))
-	}
-
-	.bg-sidebar {
-		background-color: hsl(var(--sidebar-background))
-	}
-
-	.bg-sidebar-border {
-		background-color: hsl(var(--sidebar-border))
-	}
-
-	.bg-transparent {
-		background-color: transparent
-	}
-
 	.bg-white {
 		--tw-bg-opacity: 1;
 		background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1))
-	}
-
-	.bg-yellow-50 {
-		--tw-bg-opacity: 1;
-		background-color: rgb(254 252 232 / var(--tw-bg-opacity, 1))
 	}
 
 	.rounded {
@@ -286,22 +155,6 @@ layout: nothing_forceHB
 		border-radius: inherit
 	}
 
-	.rounded-full {
-		border-radius: 9999px
-	}
-
-	.rounded-lg {
-		border-radius: var(--radius)
-	}
-
-	.rounded-md {
-		border-radius: calc(var(--radius) - 2px)
-	}
-
-	.rounded-sm {
-		border-radius: calc(var(--radius) - 4px)
-	}
-
 	.rounded-xl {
 		border-radius: .75rem
 	}
@@ -311,52 +164,16 @@ layout: nothing_forceHB
 		border-top-right-radius: 10px
 	}
 
-	.rounded-tl-sm {
-		border-top-left-radius: calc(var(--radius) - 4px)
-	}
-
 	.hover\:shadow-md:hover {
 		--tw-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);
 		--tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
 		box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
 	}
 
-	.transition-all {
-		transition-property: all;
-		transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-		transition-duration: .15s
-	}
-
-	.transition-colors {
-		transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-		transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-		transition-duration: .15s
-	}
-
-	.transition-opacity {
-		transition-property: opacity;
-		transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-		transition-duration: .15s
-	}
-
 	.transition-shadow {
 		transition-property: box-shadow;
 		transition-timing-function: cubic-bezier(.4, 0, .2, 1);
 		transition-duration: .15s
-	}
-
-	.transition-transform {
-		transition-property: transform;
-		transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-		transition-duration: .15s
-	}
-
-	.duration-1000 {
-		transition-duration: 1s
-	}
-
-	.duration-200 {
-		transition-duration: .2s
 	}
 
 	.ease-in-out {
@@ -379,32 +196,6 @@ layout: nothing_forceHB
 			opacity: var(--tw-exit-opacity, 1);
 			transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0))
 		}
-	}
-
-	.animate-in {
-		animation-name: enter;
-		animation-duration: .15s;
-		--tw-enter-opacity: initial;
-		--tw-enter-scale: initial;
-		--tw-enter-rotate: initial;
-		--tw-enter-translate-x: initial;
-		--tw-enter-translate-y: initial
-	}
-
-	.fade-in-0 {
-		--tw-enter-opacity: 0
-	}
-
-	.fade-in-80 {
-		--tw-enter-opacity: .8
-	}
-
-	.zoom-in-95 {
-		--tw-enter-scale: .95
-	}
-
-	.duration-1000 {
-		animation-duration: 1s
 	}
 
 	.duration-200 {
@@ -430,21 +221,8 @@ layout: nothing_forceHB
 		--bs-list-group-bg: white;
 	}
 
-	.border-black {
-		--tw-border-opacity: 1;
-		border-color: rgb(0 0 0 / var(--tw-border-opacity, 1))
-	}
-
 	.border-border\/50 {
 		border-color: hsl(var(--border) / .5)
-	}
-
-	.border-destructive {
-		border-color: hsl(var(--destructive))
-	}
-
-	.border-destructive\/50 {
-		border-color: hsl(var(--destructive) / .5)
 	}
 
 	.border-gray-100 {
@@ -452,30 +230,13 @@ layout: nothing_forceHB
 		--bs-border-color: rgb(243 244 246 / var(--tw-border-opacity, 1))
 	}
 
-	.border-gray-200 {
-		--tw-border-opacity: 1;
-		border-color: rgb(229 231 235 / var(--tw-border-opacity, 1))
+	.card {
+		--bs-card-spacer-y: .8rem;
+		--bs-card-spacer-x: .8rem;
 	}
 
-	.border-input {
-		border-color: hsl(var(--input))
-	}
-
-	.border-primary {
-		border-color: hsl(var(--primary))
-	}
-
-	.border-sidebar-border {
-		border-color: hsl(var(--sidebar-border))
-	}
-
-	.border-transparent {
-		border-color: transparent
-	}
-
-	.border-yellow-200 {
-		--tw-border-opacity: 1;
-		border-color: rgb(254 240 138 / var(--tw-border-opacity, 1))
+	#parashaTitle {
+		font-weight: 700;
 	}
 </style>
 
@@ -540,7 +301,7 @@ layout: nothing_forceHB
 	</header>
 	<main class="p-3 p-md-4">
 		<section class="me-4 text-center">
-			<h1>זמני היום - <span data-zfReplace="Parasha"></span> <span data-zfReplace="jewishYear"></span></h1>
+			<h1 id="parashaTitle">זמני היום - <span data-zfReplace="Parasha"></span> <span data-zfReplace="jewishYear"></span></h1>
 			<p class="ms-1 text-gray-600">(ע"פ שיטת מרן רבינו עובדיה יוסף זיע"א)</p>
 		</section>
 		<section class="d-flex mb-4" style="gap: .5rem; align-items: center;">

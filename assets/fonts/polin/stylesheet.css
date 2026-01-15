@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'Polin';
+    font-style: normal;
+    font-weight: normal;
+    font-display: auto;
+    src: url('./Polin-Regular.woff2') format('woff2'), url('./Polin-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Polin';
+    font-style: normal;
+    font-weight: bold;
+    font-display: auto;
+    src: url('./Polin-Bold.woff2') format('woff2'), url('./Polin-Bold.woff') format('woff');
+}
