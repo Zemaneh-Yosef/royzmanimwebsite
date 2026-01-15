@@ -447,7 +447,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			return null;
 
 		// @ts-ignore
-		return yomTovObj[this.getYomTovIndex()][language] || yomTovObj[this.getYomTovIndex()]["english"];
+		return this.getYomTovObject()[this.getYomTovIndex()][language] || this.getYomTovObject()[this.getYomTovIndex()]["english"];
 	}
 
 	listOfSpecialDays() {
