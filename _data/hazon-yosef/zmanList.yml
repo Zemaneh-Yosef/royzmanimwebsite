@@ -66,9 +66,9 @@ poalim:
     round: earlier
   - id: talitTefillinIkarHaDin
     timeGetter: getEarlyMisheyakir
-    name: משיכיר (עיקר הדין)
+    name: משיכיר (בדיעבד)
     round: later
   - id: talitTefillinPreferable
     timeGetter: getMisheyakir
-    name: משיכיר (עדיף)
+    name: משיכיר (לכתחילה)
     round: later

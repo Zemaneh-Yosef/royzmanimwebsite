@@ -464,6 +464,10 @@ async function setLatLong(position, manual = false) {
 				'username': 'Elyahu41',
 				'style': 'FULL'
 			});
+
+			if (settings.language() == 'hb') {
+				params.set("lang", "he");
+			}
 			const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
 			location = data.geonames[0]; // TODO: If there are other False positives
 
