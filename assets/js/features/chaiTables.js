@@ -415,7 +415,6 @@ export default class ChaiTables {
 
 			const country = chngEvnt.target.value;
 			this.selectedCountry = country;
-			console.log("Selected country:", chngEvnt.target);
 
 			if (country === "USA") {
 				// Reset USA selectors
@@ -457,7 +456,6 @@ export default class ChaiTables {
 						if (bounds.length == 1 && bounds[0].n == 0)
 							continue;
 
-						console.log(option.value, bounds, this.geoL.getLatitude(), this.geoL.getLongitude())
 						option.disabled = !isInsideBoundingBox(this.geoL.getLatitude(), this.geoL.getLongitude(), bounds);;
 					} else {
 						if (bounds.n == 0)
