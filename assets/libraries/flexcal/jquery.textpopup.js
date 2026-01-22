@@ -1,4 +1,6 @@
-﻿// textpopup and hebrew keyboard widgets
+﻿// @ts-check
+
+// textpopup and hebrew keyboard widgets
 // Version: 2.2.3
 // dependencies: jQuery UI
 // Copyright (c) 2015 Daniel Wachsstock
@@ -24,142 +26,171 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-(function($){
+(function ($) {
 	$.widget('bililite.textpopup', {
-		_init: function(){
+		_init: function () {
 			var self = this;
-			if (this.options.box) this.options.hideOnOutsideClick = false; // never auto-hide for inline boxes
+
+			if (this.options.box) this.options.hideOnOutsideClick = false;
+
 			this._hideOnOutsideClick(this.options.hideOnOutsideClick);
-			//this._hideOnEscape(this.options.hideOnOutsideClick);
-			// if options.position is an object suitable for passing to $.fn.position (field 'my' is defined) then use it; otherwise use the string shortcuts
-			this._position = {
-				of: this.element.closest('.card'), // the input element that flexcal was called on
-				collision: 'flipfit',
-				using: function(to) { $(this).stop(true, false).animate(to, 200) } // animate the repositioning	
-			};
-			// turn the duration into an array to be used with Function.apply
-			this._duration = Array.isArray(this.options.duration) ? this.options.duration : [this.options.duration];
+
+			// trigger element setup
 			var trigger = this.options.trigger;
-			if (trigger == 'self'){
-				trigger = this.element;
-			}
+			if (trigger == 'self') trigger = this.element;
+
 			if (this._triggerElement)
 				$(trigger).off('.textpopup');
-			if (trigger){
+
+			if (trigger) {
 				this._triggerElement = $(trigger);
-				this._triggerElement.filter(":focusable").bind('focus.textpopup', self.show.bind(self));
-				this._triggerElement.filter(":not(:focusable)").bind('click.textpopup', self.show.bind(self));
+				this._triggerElement
+					.filter(":focusable")
+					.on('focus.textpopup', self.show.bind(self));
+
+				this._triggerElement
+					.filter(":not(:focusable)")
+					.on('click.textpopup', self.show.bind(self));
 			}
-			// bug inducing note: this._trigger is the function, this._triggerElement is the element
 		},
-		position: function(){
-			if (this.options.box) return; // don't change position for inline boxes
-			var display = this._box().css('display');
-			this._box().css({display: 'block', visibility: 'hidden'}).
-				position(this._position).
-				css({display: display, visibility: 'visible'});
+
+		// CSS‑transition‑friendly positioning
+		position: function () {
+			if (this.options.box) return;
+
+			const box = this._box()[0];
+			const anchor = this.element.closest('.card')[0];
+
+			const rect = anchor.getBoundingClientRect();
+			const x = rect.left + window.scrollX;
+			const y = rect.bottom + window.scrollY;
+
+			// CSS transitions animate left/top smoothly
+			box.style.left = x + 'px';
+			box.style.top = y + 'px';
 		},
-		show: function(){
-			var self = this, box = self._box().attr('tabindex', 0);
-			if (box.is(':visible, :animated')) return;
-			self.position();
-			self.options.show.apply(box, this._duration);
-			box.queue(function(){
-				self._trigger('shown');
-				box.dequeue()
+
+		show: function () {
+			const $box = this._box().attr('tabindex', 0);
+
+			if ($box.hasClass('visible')) return;
+
+			// Must be visible for CSS transitions to work
+			$box.css('display', 'block');
+
+			this.position();
+
+			// Trigger CSS fade/slide
+			requestAnimationFrame(() => {
+				$box.addClass('visible');
 			});
+
+			this._trigger('shown');
 		},
-		hide: function(){
-			// having a hidden box with a tabindex bothers the browser to no end
-			var self = this, box = self._box().removeAttr('tabindex');
-			if (box.is(':hidden')) return;
-			self.options.hide.apply(box, this._duration);
-			box.queue(function(){self._trigger('hidden'); box.dequeue()});
+
+		hide: function () {
+			const $box = this._box().removeAttr('tabindex');
+
+			if (!$box.hasClass('visible')) return;
+
+			// Start fade-out
+			$box.removeClass('visible');
+
+			// After transition, hide it
+			$box.one('transitionend', () => {
+				if (!$box.hasClass('visible')) {
+					$box.css('display', 'none');
+				}
+			});
+
+			this._trigger('hidden');
 		},
-		_box: function(){
-			// lazy create
+
+		_box: function () {
 			return this.theBox || this._createBox();
 		},
-		widget: function(){
-			// for compatibility with the widget factory
+
+		widget: function () {
 			return this._box();
 		},
-		_createBox: function(){
+
+		_createBox: function () {
 			var self = this;
 			let box;
-			if (this.options.box)
-				box = $(this.options.box)
-			else {
-				const boxElem = document.createElement("div");
-				boxElem.style.position = "absolute"
-				boxElem.style.display = "none";
 
-				document.body.appendChild(boxElem)
-				box = $(boxElem)
+			if (this.options.box) {
+				box = $(this.options.box);
+			} else {
+				const boxElem = document.createElement("div");
+				boxElem.style.position = "absolute";
+				boxElem.style.display = "none";
+				document.body.appendChild(boxElem);
+				box = $(boxElem);
 			}
 
-			box.addClass(this.options['class']).
-				on("keydown", function(e) {
-					if (e.keyCode == $.ui.keyCode.ESCAPE) {
+			box
+				.addClass(this.options['class'])
+				.on("keydown", function (e) {
+					if (e.key === "Escape") {
 						self.element.trigger("focus");
 						if (self.options.hideOnOutsideClick) self.hide();
 					}
 				});
+
 			this.theBox = box;
 			box.data('textpopup', this);
+
 			this._fill(box);
 			this._trigger('create', 0, box);
+
 			return box;
 		},
-		_fill: function(box){
-			// virtual method to put something in the box
+
+		_fill: function (box) {
+			// virtual method
 		},
-		// hides the box for any click outside it. fails for clicks in textboxes, since the click does not bubble up to the body
-		_hideOnOutsideClick: function(flag){
+
+		_hideOnOutsideClick: function (flag) {
 			var self = this;
-			this._hider = this._hider || function(e){ if(!self._isClickInside(e)) self.hide(); };
-			if (flag){
+			this._hider = this._hider || function (e) {
+				if (!self._isClickInside(e)) self.hide();
+			};
+
+			if (flag) {
 				document.body.addEventListener("click", this._hider);
 			} else {
 				document.body.removeEventListener("click", this._hider);
 			}
 		},
-		/*_hideOnEscape: function(flag) {
-			var self=this;
-			this._hiderEsc = this._hiderEsc || function(e){ if (e.keyCode == $.ui.keyCode.ESCAPE) {
-				if (this._triggerElement) {
-					this._triggerElement.blur()
-				}
-				self.hide();
-			}}
-			if (flag){
-				document.body.addEventListener("keyup", this._hiderEsc);
-			} else {
-				document.body.removeEventListener("keyup", this._hiderEsc);
-			}
-		}, */
-		destroy: function() {
+
+		destroy: function () {
 			if (!this.options.box) this._box().remove();
-			if (this._triggerElement) this._triggerElement.unbind ('.textpopup');
+			if (this._triggerElement) this._triggerElement.off('.textpopup');
 			$('body').off('.textpopup');
 			this.theBox = undefined;
 		},
-		_setOption: function(key, value) {
+
+		_setOption: function (key, value) {
 			this._super(key, value);
-			if (key == 'trigger' || 'hideOnOutsideClick' || 'position' || 'duration') this._init;
 			if (key == 'class') this._box().attr('class', value);
 		},
-		// returns true if the event e is a click inside the box , the original element or the triggering elements
+
 		_isClickInside: function(e){
-			var keepers = $([]).add(this._triggerElement).add(this._box()).add(this.element);
-			for (var elem = e.target; elem; elem = elem.parentNode) if (keepers.index(elem) > -1) return true;
-			return false;
+			const box = this._box()[0];
+			const trigger = this._triggerElement ? this._triggerElement[0] : null;
+			const input = this.element[0];
+		
+			return (
+				box.contains(e.target) ||
+				(trigger && trigger.contains(e.target)) ||
+				input.contains(e.target)
+			);
 		},
+
 		options: {
 			box: undefined,
-			show: $.fn.show,
-			hide: $.fn.hide,
-			duration: 'slow',
+			show: function () { this.style.display = 'block'; },
+			hide: function () { this.style.display = 'none'; },
 			hideOnOutsideClick: true,
 			trigger: 'self',
 			'class': 'ui-textpopup-box'

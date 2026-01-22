@@ -85,3 +85,24 @@
 	left: 1px;
 	right: auto;
 }
+
+.ui-textpopup-box {
+	position: absolute;
+	display: none;
+	opacity: 0;
+	transform: translateY(-4px);
+	transition:
+	  opacity 200ms ease,
+	  transform 200ms ease,
+	  left 200ms ease,
+	  top 200ms ease;
+	pointer-events: none;
+  }
+  
+  .ui-textpopup-box.visible {
+	display: block;
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+  }
+  
