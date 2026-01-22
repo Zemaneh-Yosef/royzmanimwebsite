@@ -260,14 +260,35 @@ const buttonFuncs = {
 		 **************/
 		/** @param {JQuery<HTMLElement>} cal */
 		_adjustHTML: function(cal){
-			cal.attr ('dir', this._l10n.isRTL ? 'rtl' : 'ltr');
-			cal.find('a').removeClass('ui-state-focus').filter('.commit[rel="'+formatISO(this.options.current)+'"]').addClass('ui-state-focus');
-			var val = this.parse(this.element.val());
-			cal.find('a').removeClass('ui-state-active').filter('.commit[rel="'+formatISO(val)+'"]').addClass('ui-state-active');
-			cal.find('a').removeClass('ui-state-highlight').filter('.commit[rel="'+formatISO(new Date)+'"]').addClass('ui-state-highlight');
+			const calHTML = cal.get(0);
+
+			calHTML.setAttribute('dir', this._l10n.isRTL ? 'rtl' : 'ltr');
+			for (const dates of calHTML.getElementsByTagName('a')) {
+				dates.classList.remove('ui-state-focus');
+				if (dates.classList.contains('commit') && dates.getAttribute('rel') === formatISO(this.options.current)) {
+					dates.classList.add('ui-state-focus');
+				}
+
+				const val = this.parse(this.element.val());
+				dates.classList.remove('ui-state-active');
+				if (dates.classList.contains('commit') && dates.getAttribute('rel') === formatISO(val)) {
+					dates.classList.add('ui-state-active');
+				}
+
+				dates.classList.remove('ui-state-highlight');
+				if (dates.classList.contains('commit') && dates.getAttribute('rel') === formatISO(new Date())) {
+					dates.classList.add('ui-state-highlight');
+				}
+			}
 			cal.find('a:not([href])')['ui-clickable']();
-			cal.find('a.go').removeClass('ui-state-default') // ui-datepicker has its own styling
-				.each(function(){ this.title = $(this).text().trim() }); // when we use image replacement for the prev/next buttons, leave the text as a tooltip title
+
+			for (const go of calHTML.getElementsByClassName('go')) {
+				if (go.nodeName !== 'A') continue;
+				go.classList.remove('ui-state-default');
+
+				go.setAttribute('title', go.textContent.trim());
+				go.innerHTML = `<span></span><span class="visually-hidden">${go.textContent.trim()}</span>`;
+			}
 
 			// allow for using the Bootstrap icon font
 			const prevButton = cal.find('a.ui-datepicker-prev').get(0);

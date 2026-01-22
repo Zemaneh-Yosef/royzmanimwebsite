@@ -1,12 +1,12 @@
 {
 	"devDependencies": {
 		"@types/bootstrap": "^5.2.10",
-		"@types/jquery": "^3.5.32",
+		"@types/jquery": "^3.5.33",
 		"@types/jqueryui": "^1.12.24",
-		"@types/leaflet": "^1.9.17",
-		"@types/luxon": "^3.4.0",
-		"gsap": "^3.12.7",
-		"linkedom": "^0.18.9",
+		"@types/leaflet": "^1.9.21",
+		"@types/luxon": "^3.7.1",
+		"gsap": "^3.14.2",
+		"linkedom": "^0.18.12",
 		"uniffi-bindgen-react-native": "0.29.3-1"
 	},
 	"dependencies": {
