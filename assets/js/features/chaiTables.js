@@ -247,7 +247,7 @@ export default class ChaiTables {
 			smallestRadius = findForceAlternativeRadius.value;
 		else {
 			const ctBiggestRadius = this.getChaiTablesLink(searchRadius[searchRadius.length - 1], 0, calendar, 413);
-			const ctBiggestFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctBiggestRadius.toString().replace(/https?:\/\//g, ''));
+			const ctBiggestFetch = await fetch('https://hanetz.royzmanim.com/' + ctBiggestRadius.toString().replace(/https?:\/\//g, ''));
 			const ctBiggestResponse = await ctBiggestFetch.text()
 			const ctBiggestDoc = (new DOMParser()).parseFromString(ctBiggestResponse, "text/html");
 
@@ -272,7 +272,7 @@ export default class ChaiTables {
 
 				const ctLink = this.getChaiTablesLink(radius, 0, calendar, 413);
 
-				const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
+				const ctFetch = await fetch('https://hanetz.royzmanim.com/' + ctLink.toString().replace(/https?:\/\//g, ''));
 				const ctResponse = await ctFetch.text()
 				const ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
 
@@ -309,7 +309,7 @@ export default class ChaiTables {
 			} else {
 				const ctLink = this.getChaiTablesLink(smallestRadius, 0, yearloop, 413);
 
-				const ctFetch = await fetch('https://ctscrape.torahquickie.xyz/' + ctLink.toString().replace(/https?:\/\//g, ''));
+				const ctFetch = await fetch('https://hanetz.royzmanim.com/' + ctLink.toString().replace(/https?:\/\//g, ''));
 				const ctResponse = await ctFetch.text()
 				ctDoc = (new DOMParser()).parseFromString(ctResponse, "text/html");
 
