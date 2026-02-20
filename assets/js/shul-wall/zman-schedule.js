@@ -121,82 +121,82 @@ const regex = new RegExp(
 );
 
 class ZmanSchedule extends HTMLElement {
-    constructor() {
-        super();
+	constructor() {
+		super();
 		/** @type {Record<string, string>} */
-        this._data = null;
-    }
+		this._data = null;
+	}
 
-    set data(value) {
-        this._data = value;
-        this.render();
-    }
+	set data(value) {
+		this._data = value;
+		this.render();
+	}
 
-    get data() {
-        return this._data;
-    }
+	get data() {
+		return this._data;
+	}
 
-    connectedCallback() {
-        if (this._data) this.render();
-    }
+	connectedCallback() {
+		if (this._data) this.render();
+	}
 
-    render() {
-        if (!this._data) return;
+	render() {
+		if (!this._data) return;
 
-        // Clear existing content except data-keep
-        for (const li of this.querySelectorAll("li")) {
-            if (!li.hasAttribute("data-keep")) li.remove();
-        }
+		// Clear existing content except data-keep
+		for (const li of this.querySelectorAll("li")) {
+			if (!li.hasAttribute("data-keep")) li.remove();
+		}
 
-        const frag = document.createDocumentFragment();
+		const frag = document.createDocumentFragment();
 
-        for (const [rowTitle, rowTime] of Object.entries(this._data)) {
-            const fullWidth = rowTitle.startsWith("fullWidthDescription");
+		for (const [rowTitle, rowTime] of Object.entries(this._data)) {
+			const fullWidth = rowTitle.startsWith("fullWidthDescription");
 
-            const li = document.createElement("li");
-            li.classList.add(
-                "list-group-item",
-                fullWidth ? "schedule-entry-grid" : "d-flex",
-                "justify-content-between",
-                "align-items-center"
-            );
+			const li = document.createElement("li");
+			li.classList.add(
+				"list-group-item",
+				fullWidth ? "schedule-entry-grid" : "d-flex",
+				"justify-content-between",
+				"align-items-center"
+			);
 
-            // -------------------------------
-            //  Title Rendering
-            // -------------------------------
-            const titleDiv = document.createElement("div");
-            titleDiv.innerHTML = this.renderTitle(rowTitle, fullWidth);
-            li.appendChild(titleDiv);
+			// -------------------------------
+			//  Title Rendering
+			// -------------------------------
+			const titleDiv = document.createElement("div");
+			titleDiv.innerHTML = this.renderTitle(rowTitle, fullWidth);
+			li.appendChild(titleDiv);
 
-            // -------------------------------
-            //  Time Rendering
-            // -------------------------------
-            const timeDiv = document.createElement("div");
+			// -------------------------------
+			//  Time Rendering
+			// -------------------------------
+			const timeDiv = document.createElement("div");
 
-            if (typeof rowTime === "string" && this.isAutoSchedule(rowTime)) {
-                this.applyAutoScheduleAttributes(timeDiv, rowTime);
-            } else {
-                timeDiv.innerHTML = rowTime;
-            }
+			if (typeof rowTime === "string" && this.isAutoSchedule(rowTime)) {
+				this.applyAutoScheduleAttributes(timeDiv, rowTime);
+			} else {
+				timeDiv.innerHTML = rowTime;
+			}
 
-            li.appendChild(timeDiv);
+			li.appendChild(timeDiv);
 
-            // -------------------------------
-            //  Full-width description
-            // -------------------------------
-            if (fullWidth) {
-                const desc = document.createElement("div");
-                desc.innerHTML = rowTitle.split("|")[2];
-                li.appendChild(desc);
-            }
+			// -------------------------------
+			//  Full-width description
+			// -------------------------------
+			if (fullWidth) {
+				const desc = document.createElement("div");
+				desc.innerHTML = rowTitle.split("|")[2];
+				li.appendChild(desc);
+			}
 
-            frag.appendChild(li);
-        }
+			frag.appendChild(li);
+		}
 
-        this.appendChild(frag);
+		this.appendChild(frag);
 
-        this.runAutoSchedule();
-    }
+		this.runAutoSchedule();
+	}
 
 	/**
 	 * @param {string} rowTime
@@ -205,73 +205,70 @@ class ZmanSchedule extends HTMLElement {
 		return regex.test(rowTime);
 	}
 
-    // -------------------------------
-    //  Title Rendering Logic
-    // -------------------------------
-    /**
+	/**
+	 * Title Rendering Logic
 	 * @param {string} rowTitle
 	 * @param {boolean} fullWidth
 	 */
-    renderTitle(rowTitle, fullWidth) {
-        if (fullWidth) {
-            rowTitle = rowTitle.split("|")[1];
-        }
+	renderTitle(rowTitle, fullWidth) {
+		if (fullWidth) {
+			rowTitle = rowTitle.split("|")[1];
+		}
 
-        if (!rowTitle.startsWith("preFormatTitle-"))
+		if (!rowTitle.startsWith("preFormatTitle-"))
 			return rowTitle;
 
 		const [key, suffix] = rowTitle.replace("preFormatTitle-", "").split(" ");
 
-        const localized = localizedIndividual[key];
-        if (!localized) return rowTitle;
+		const localized = localizedIndividual[key];
+		if (!localized) return rowTitle;
 
-        // Build multilingual spans wrapped in <b>
-        const spans = Object.entries(localized)
-            .map(([lang, text]) =>
-                `<span class="langTV lang-${lang}"><b>${text}</b></span>`
-            )
-            .join("");
+		// Build multilingual spans wrapped in <b>
+		const spans = Object.entries(localized)
+			.map(([lang, text]) =>
+				`<span class="langTV lang-${lang}"><b>${text}</b></span>`
+			)
+			.join("");
 
-        return `${spans}${suffix || ""}`;
-    }
+		return `${spans}${suffix || ""}`;
+	}
 
-    // -------------------------------
-    //  Autoschedule Metadata
-    // -------------------------------
-    /**
+	/**
+	 * Autoschedule Metadata Applier
 	 * @param {HTMLDivElement} elem
 	 * @param {string} expr
 	 */
-    applyAutoScheduleAttributes(elem, expr) {
-        const { groups } = expr.match(regex);
+	applyAutoScheduleAttributes(elem, expr) {
+		const { groups } = expr.match(regex);
 
-        elem.dataset.autoscheduleType = groups.type;
-        elem.dataset.autoscheduleFunction = groups.method;
-        elem.dataset.autoschedulePlusorminus = groups.sign;
-        elem.dataset.autoscheduleHours = groups.hours;
-        elem.dataset.autoscheduleMinutes = groups.minutes;
+		elem.dataset.autoscheduleType = groups.type;
+		elem.dataset.autoscheduleFunction = groups.method;
+		elem.dataset.autoschedulePlusorminus = groups.sign;
+		elem.dataset.autoscheduleHours = groups.hours;
+		elem.dataset.autoscheduleMinutes = groups.minutes;
 
-        if (groups.interval) {
-            elem.dataset.autoscheduleRoundinterval = groups.interval;
-            elem.dataset.autoscheduleRoundmode = groups.mode;
-        } else {
-            elem.dataset.autoscheduleRoundmode = groups.mode;
-        }
-    }
+		if (groups.interval) {
+			elem.dataset.autoscheduleRoundinterval = groups.interval;
+			elem.dataset.autoscheduleRoundmode = groups.mode;
+		} else {
+			elem.dataset.autoscheduleRoundmode = groups.mode;
+		}
+	}
 
-    // -------------------------------
-    //  Autoschedule Runner
-    // -------------------------------
-    async runAutoSchedule() {
-        const autos = this.querySelectorAll("[data-autoschedule-type]");
-        if (!autos.length) {
+	// -------------------------------
+	//  Autoschedule Runner
+	// -------------------------------
+	async runAutoSchedule() {
+		const autos = this.querySelectorAll("[data-autoschedule-type]");
+		if (!autos.length) {
 			console.log(`ZmanSchedule ${this.id}: No autoschedule entries found.`);
 			return;
 		}
 
-        autoSchedule(autos);
-    }
+		autoSchedule(autos);
+	}
 }
 
 customElements.define("zman-schedule", ZmanSchedule);
 export default ZmanSchedule;
+export { localizedIndividual };

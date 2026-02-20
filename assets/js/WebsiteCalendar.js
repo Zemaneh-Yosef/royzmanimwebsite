@@ -104,16 +104,14 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	shabbat() {
-		const nextJewishCalendar = this.clone();
+		const next = this.clone();
+		const dow = next.getDate().dayOfWeek; // 0=Sunday ... 6=Shabbat
 
-		for (let index = 0; index < 7; index++) {
-			if (nextJewishCalendar.getDate().dayOfWeek == 6)
-				break;
+		// Days until next Shabbat (including today if already Shabbat)
+		const delta = (6 - dow + 7) % 7;
 
-			nextJewishCalendar.setDate(nextJewishCalendar.getDate().add({ days: 1 }));
-		}
-
-		return nextJewishCalendar
+		next.setDate(next.getDate().add({ days: delta }));
+		return next;
 	}
 
 	/**

@@ -96,6 +96,7 @@ class ZemanimMathBase {
 
 		const originalDate = this.coreZC.getDate();
 		this.coreZC.setDate(originalDate.with({ month: 3, day: 17 }));
+
 		const seasonalHourDegree = this.coreZC.getPercentOfShaahZmanisFromDegrees(degree, sunset);
 		this.coreZC.setDate(originalDate);
 
@@ -482,6 +483,10 @@ class ZemanFunctions extends ZemanimMathBase {
 		const refraction = this.coreZC.getAstronomicalCalculator().getRefraction();
 
 		return this.coreZC.getSunriseOffsetByDegrees(zenith - solarRadius + refraction); // proper adjustment
+	}
+
+	getAsiTzet () {
+		return this.coreZC.getSunsetOffsetByDegrees(18 + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH);
 	}
 }
 
