@@ -20,7 +20,13 @@ class ZemanimMathBase {
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 * @param {{ elevation: boolean | undefined; fixedMil: boolean; rtKulah: boolean; melakha: melakhaTzet|melakhaTzet[]; candleLighting: number; }} config
 	 */
-	constructor(geoLocation, config={ elevation: undefined, fixedMil: false, rtKulah: true, melakha: {minutes: 30, degree: 7.165}, candleLighting: 20 }) {
+	constructor(geoLocation, config={
+		elevation: undefined,
+		fixedMil: false,
+		rtKulah: true,
+		melakha: {minutes: 30, degree: 7.165},
+		candleLighting: 20
+	}) {
 		this.config = config;
 
 		/** @type {{indexDates:Temporal.PlainDate[];zoneDT:Temporal.ZonedDateTime[];preservedInts:number[]}} */
@@ -143,9 +149,23 @@ class ZemanimMathBase {
 
 		this.timeRange.current.hatzoth = this.coreZC.getSunTransit();
 
-		this.timeRange.current.dawn = this.timeRange.current.sunrise.subtract(this.fixedToSeasonal(this.timeRange.equinox.dawn));
+		const dawnMinTimeRange = maxDuration(
+			this.fixedToSeasonal(this.timeRange.equinox.dawn),
+			this.config.fixedMil
+				? this.fixedToSeasonal(this.timeRange.equinox.dawn)
+				: this.timeRange.current.sunrise.since(this.coreZC.getSunriseOffsetByDegrees(98.5))
+		);
+
+		const tzetMinTimeRange = maxDuration(
+			this.fixedToSeasonal(this.timeRange.equinox.TzetHakokhavim),
+			this.config.fixedMil
+				? this.fixedToSeasonal(this.timeRange.equinox.TzetHakokhavim)
+				: this.timeRange.current.sunrise.since(this.coreZC.getSunsetOffsetByDegrees(98.5))
+		);
+
+		this.timeRange.current.dawn = this.timeRange.current.sunrise.subtract(dawnMinTimeRange);
 		this.timeRange.current.nightfall = this.timeRange.current.sunset.add(this.fixedToSeasonal(this.timeRange.equinox.nightfall));
-		this.timeRange.current.tzethakokhavim = this.timeRange.current.sunset.add(this.fixedToSeasonal(this.timeRange.equinox.TzetHakokhavim));
+		this.timeRange.current.tzethakokhavim = this.timeRange.current.sunset.add(tzetMinTimeRange);
 
 		this.timeRange.current.ranges.mga = this.timeRange.current.dawn.until(this.timeRange.current.tzethakokhavim);
 	}
@@ -490,6 +510,21 @@ class ZemanFunctions extends ZemanimMathBase {
 	}
 }
 
+class DebugZemanFunctions extends ZemanFunctions {
+	logDawn() {
+		/** @type {KosherZmanim.NOAACalculator} */
+		// @ts-ignore
+		const astCalc = this.coreZC.getAstronomicalCalculator()
+
+		console.log(`Alot of ${dropHundredths(this.timeRange.equinox.dawn.total("minutes"))} zemaniyot minutes, in ${this.coreZC.getGeoLocation().getLocationName()}`
+			+ ` on ${this.coreZC.getDate().toString()}, the day with ${dropHundredths(this.timeRange.current.ranges.gra.total("hours"))} hours [GR"A]`
+			+ ` and ${dropHundredths(this.timeRange.current.ranges.mga.total("hours"))} hours [MG"A]: `
+			+ `${dropHundredths(this.timeRange.current.dawn.until(this.timeRange.current.sunrise).total('minutes'))} minutes post-zemaniyot adjustments`
+			+ ` (${this.timeRange.current.dawn.toPlainTime().toLocaleString()}-${this.timeRange.current.sunrise.toPlainTime().toLocaleString()})`
+			+ `, which is at ${dropHundredths(astCalc.getSolarElevation(this.timeRange.current.dawn.toPlainDateTime(), this.coreZC.getGeoLocation()))} degrees`)
+	}
+}
+
 /**
  * @param {{ [x: string]: any; }} toCheck
  */
@@ -539,3 +574,19 @@ export {
 	methodNames,
 	zDTFromFunc
 };
+
+/**
+ * @param {number} num
+ */
+function dropHundredths(num) {
+	const factor = Math.pow(10, 2); // keep 2 decimal places
+	return Math.floor(num * factor) / factor;
+}
+
+/**
+ * @param {Temporal.Duration} a
+ * @param {Temporal.Duration} b
+ */
+function maxDuration(a, b) {
+  return a.total("nanoseconds") >= b.total("nanoseconds") ? a : b;
+}

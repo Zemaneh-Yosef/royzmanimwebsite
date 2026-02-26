@@ -13,6 +13,13 @@ baltimore:
   timezone: America/New_York
   humra: 0
   timeFormat: h12
+toronto:
+  name: Toronto, ON
+  lat: 43.804755
+  lng: -79.437653
+  timezone: America/New_York
+  humra: 0
+  timeFormat: h24
 pomona:
   name: Pomona, NY
   # Shul: Sepharadic Kehila of Pomona
@@ -64,6 +71,14 @@ miami:
   doubleLocation: True
   humra: 0
   timeFormat: h12
+denver:
+  name: Denver, CO
+  lat: 39.62367870916972
+  lng: -104.87644759207676
+  timezone: America/Denver
+  doubleLocation: True
+  humra: 0
+  timeFormat: h12
 boca_raton:
   name: Boca Raton, FL
   #flag: https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg
@@ -83,16 +98,14 @@ montreal:
   humra: 0
   timeFormat: h24
 jerusalem:
-  name:
-    en: Jerusalem
-    he: ירושלים
-  flag: 🇮🇱
+  name: Jerusalem, IL
   # Location: Kotel
   lat: 31.776766188649376
   lng: 35.23450233337062
   timezone: Asia/Jerusalem
   elevation: 788
   humra: 0
+  timeFormat: h24
 haifa:
   name:
     en: Haifa
@@ -126,3 +139,17 @@ bet_shemesh:
   timezone: Asia/Jerusalem
   elevation: 275
   humra: 0
+swish_alps: # Asi is amazing
+  name: Switzerland Alps
+  lat: 46.559172
+  lng: 8.561407
+  timezone: Europe/Zurich
+  humra: 0
+  timeFormat: h24
+london:
+  name: London, UK
+  lat: 51.507351
+  lng: -0.127758
+  timezone: Europe/London
+  humra: 0
+  timeFormat: h24

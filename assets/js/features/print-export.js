@@ -219,6 +219,38 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 	})
 }
 
+const fundamentalTable = document.querySelector('[data-zyFind="adjustmentsTable"]');
+if (fundamentalTable) {
+	if (useOhrHachaim) {
+		fundamentalTable.remove();
+	} else {
+		const zmanCalc = new ZemanFunctions(geoLocation, {
+			elevation: arrayOfFuncParams[0].israel,
+			melakha: arrayOfFuncParams[0].tzetMelakha,
+			fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal(),
+			candleLighting: settings.customTimes.candleLighting(),
+			rtKulah: settings.calendarToggle.rtKulah()
+		});
+
+		const winterSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 12 }))
+		const summerSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 6 }))
+		const equinox = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 20, month: 3 }))
+
+		fundamentalTable.querySelector('[data-zyReplace="dawnTzet"]').innerHTML = zmanCalc.timeRange.equinox.dawn.total("minutes").toFixed(2)
+		fundamentalTable.querySelector('[data-zyReplace="nightfall"]').innerHTML = zmanCalc.timeRange.equinox.nightfall.total("minutes").toFixed(2)
+		fundamentalTable.querySelector('[data-zyReplace="stringentNightfall"]').innerHTML = zmanCalc.timeRange.equinox.stringentNightfall.total("minutes").toFixed(2)
+		fundamentalTable.querySelector('[data-zyReplace="tzetShabbat"]').innerHTML = [
+			equinox.getShkiya().until(zDTFromFunc(equinox.getTzetMelakha())).total("minutes"),
+			winterSolstice.getShkiya().until(zDTFromFunc(winterSolstice.getTzetMelakha())).total("minutes"),
+			summerSolstice.getShkiya().until(zDTFromFunc(summerSolstice.getTzetMelakha())).total("minutes")
+		].map((minutes, index) =>
+			'~' + (new Intl.NumberFormat(local, { style: "unit", unit: "minute", maximumFractionDigits: 0 }))
+				.format(minutes)
+			+ " "
+			+ ["(Spring/Fall)", "(Winter)", "(Summer)"][index]).join("<br>")
+	}
+}
+
 for (const monthData of arrayOfFuncParams) {
 	const webWorker = new Worker('/assets/js/features/print-web-worker.js', { type: 'module' });
 	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {
@@ -380,38 +412,6 @@ async function preparePrint() {
 	const qrCodeDigitalView = document.getElementById('qrCodeDigitalView');
 	if (qrCodeDigitalView) {
 		qrCodeDigitalView.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(currentPage.toString())));
-	}
-
-	const fundamentalTable = document.querySelector('[data-zyFind="adjustmentsTable"]');
-	if (fundamentalTable) {
-		if (useOhrHachaim) {
-			fundamentalTable.remove();
-		} else {
-			const zmanCalc = new ZemanFunctions(geoLocation, {
-				elevation: arrayOfFuncParams[0].israel,
-				melakha: arrayOfFuncParams[0].tzetMelakha,
-				fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal(),
-				candleLighting: settings.customTimes.candleLighting(),
-				rtKulah: settings.calendarToggle.rtKulah()
-			});
-
-			const winterSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 12 }))
-			const summerSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 6 }))
-			const equinox = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 20, month: 3 }))
-
-			fundamentalTable.querySelector('[data-zyReplace="dawnTzet"]').innerHTML = zmanCalc.timeRange.equinox.dawn.total("minutes").toFixed(2)
-			fundamentalTable.querySelector('[data-zyReplace="nightfall"]').innerHTML = zmanCalc.timeRange.equinox.nightfall.total("minutes").toFixed(2)
-			fundamentalTable.querySelector('[data-zyReplace="stringentNightfall"]').innerHTML = zmanCalc.timeRange.equinox.stringentNightfall.total("minutes").toFixed(2)
-			fundamentalTable.querySelector('[data-zyReplace="tzetShabbat"]').innerHTML = [
-				equinox.getShkiya().until(zDTFromFunc(equinox.getTzetMelakha())).total("minutes"),
-				winterSolstice.getShkiya().until(zDTFromFunc(winterSolstice.getTzetMelakha())).total("minutes"),
-				summerSolstice.getShkiya().until(zDTFromFunc(summerSolstice.getTzetMelakha())).total("minutes")
-			].map((minutes, index) =>
-				'~' + (new Intl.NumberFormat(local, { style: "unit", unit: "minute", maximumFractionDigits: 0 }))
-					.format(minutes)
-				+ " "
-				+ ["(Spring/Fall)", "(Winter)", "(Summer)"][index]).join("<br>")
-		}
 	}
 
 	/** @type {HTMLElement} */
