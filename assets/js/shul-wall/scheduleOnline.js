@@ -3,36 +3,56 @@ import './zman-schedule.js'
 
 import { scheduleSettings } from "./base.js";
 import { parse as parseIni } from "../../libraries/ini.js";
+import { parse as parseToml } from "../../libraries/toml.mjs";
 import * as xlsx from "../../libraries/xlsx.js";
 
-/** @param {string | URL | Request} url */
-export async function loadIniSchedule(url, silent=false) {
+/**
+ * @param {string | URL | Request} url
+ * @param {"return"|"comma"|"newline"} arrayBehavior
+ */
+export async function loadIniSchedule(url, silent=false, arrayBehavior="return") {
 	const iniText = await (await fetch(url)).text();
 	const iniObj = parseIni(iniText);
 
-	return await loadSchedule(iniObj, silent);
+	return await loadSchedule(iniObj, silent, arrayBehavior);
 }
 
-/** @param {string | URL | Request} url */
-export async function loadJsonSchedule(url, silent=false) {
+/**
+ * @param {string | URL | Request} url
+ * @param {"return"|"comma"|"newline"} arrayBehavior
+ */
+export async function loadTomlSchedule(url, silent=false, arrayBehavior="return") {
+	const tomlText = await (await fetch(url)).text();
+	const tomlObj = parseToml(tomlText);
+
+	return await loadSchedule(tomlObj, silent, );
+}
+
+/**
+ * @param {string | URL | Request} url
+ * @param {"return"|"comma"|"newline"} arrayBehavior
+ */
+export async function loadJsonSchedule(url, silent=false, arrayBehavior="return") {
 	const jsonText = await (await fetch(url)).json();
 	return await loadSchedule(jsonText, silent);
 }
 
 /**
  * @param {string | URL | Request} url
+ * @param {"return"|"comma"|"newline"} arrayBehavior
  */
-export async function loadExcelSchedule(url, silent=false) {
+export async function loadExcelSchedule(url, silent=false, arrayBehavior="return") {
 	const iniText = await (await fetch(url)).arrayBuffer();
 	const workbook = xlsx.read(iniText, { type: "array" });
 
-	return await loadSchedule(mapSheetColumns(workbook.Sheets), silent);
+	return await loadSchedule(mapSheetColumns(workbook.Sheets), silent, arrayBehavior);
 }
 
 /**
- * @param {Record<string, string | Record<string, string>>} data
+ * @param {Record<string, string | Record<string, string> | string[]>} data
+ * @param {"return"|"comma"|"newline"} arrayBehavior
  */
-export async function loadSchedule(data, silentFail = false) {
+export async function loadSchedule(data, silentFail = false, arrayBehavior="return") {
     /** @type {Record<string, any>} */
     const unprocessedEntries = {};
 
@@ -42,7 +62,18 @@ export async function loadSchedule(data, silentFail = false) {
 			document.getElementById(sectionKey).innerHTML = String(value);
 			continue;
 		} else if (Array.isArray(value)) {
-			unprocessedEntries[sectionKey] = value;
+			switch (arrayBehavior) {
+				case 'comma':
+					document.getElementById(sectionKey).innerHTML = value.join(", ");
+					break;
+				case 'newline':
+					document.getElementById(sectionKey).innerHTML = value.join("<br>")
+					break;
+				case 'return':
+				default:
+					unprocessedEntries[sectionKey] = value;
+					break;
+			}
 			continue;
 		}
 
@@ -95,42 +126,51 @@ export async function loadSchedule(data, silentFail = false) {
  * into a simple { key: value } mapping, using each entry's "w" field.
  *
  * @param {xlsx.WorkSheet} sheetData - The full input object containing one or more sheets.
- * @returns {Record<string, Record<string, string>>} A new object where each sheet is mapped to { title: time }.
+ * @returns {Record<string, Record<string, string>|string[]>} A new object where each sheet is mapped to { title: time }.
  */
 function mapSheetColumns(sheetData) {
-	/** @type {Record<string, Record<string, string>>} */
-	const output = {};
+    /** @type {Record<string, Record<string, string> | string[]>} */
+    const output = {};
 
-	for (const [sheetName, sheet] of Object.entries(sheetData)) {
+    for (const [sheetName, sheet] of Object.entries(sheetData)) {
+        const titles = [];
 		/** @type {Record<string, string>} */
-		const mapped = {};
+        const pairs = {};
 
-		for (const [key, cell] of Object.entries(sheet)) {
-			if (key.startsWith("A")) {
-				const index = key.slice(1);
-				const title = cell?.w;
-				const time = sheet[`B${index}`]?.w;
+        for (const [key, cell] of Object.entries(sheet)) {
+            if (!key.startsWith("A")) continue;
 
-				if (title && time) {
-					mapped[title] = time;
-				}
-			}
-		}
+            const index = key.slice(1);
+            const title = cell?.w;
+            const time = sheet[`B${index}`]?.w;
 
-		output[sheetName] = mapped;
-	}
+            if (!title) continue;
 
-	return output;
+            if (time) {
+                pairs[title] = time;
+            } else {
+                titles.push(title);
+            }
+        }
+
+        // If ANY B-values existed, use the map; otherwise use the array
+        output[sheetName] = Object.keys(pairs).length > 0 ? pairs : titles;
+    }
+
+    return output;
 }
+
 
 (async () => {
 	if ("schedule" in scheduleSettings && scheduleSettings.schedule !== "manual") {
 		if (scheduleSettings.schedule.type === "ini") {
-			await loadIniSchedule(scheduleSettings.schedule.url);
+			await loadIniSchedule(scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
 		} else if (scheduleSettings.schedule.type === "json") {
-			await loadJsonSchedule(scheduleSettings.schedule.url);
+			await loadJsonSchedule(scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
 		} else if (scheduleSettings.schedule.type === "excel") {
-			await loadExcelSchedule(scheduleSettings.schedule.url);
+			await loadExcelSchedule(scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
+		} else if (scheduleSettings.schedule.type === "toml") {
+			await loadTomlSchedule(scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
 		}
 	}
 })();

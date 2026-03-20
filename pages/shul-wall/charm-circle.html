@@ -490,7 +490,7 @@ layout: nothing
 	const carousel = document.getElementById('ishMatzliachSlide');
 	carousel.firstElementChild.innerHTML = flyerURLs
 		.map((url, index) =>
-			`<div class="carousel-item ${index == 0 ? "active" : ''}"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+			`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="15000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
 		.join('');
 
 	marqueeDuplicate(document.getElementById("shulScheduling"), { length: "35s", gap: "1rem" });

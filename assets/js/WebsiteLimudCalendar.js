@@ -64,6 +64,7 @@ class WebsiteLimudCalendar extends WebsiteCalendar {
 		[Parsha.TAZRIA_METZORA]: '\u05EA\u05D6\u05E8\u05D9\u05E2 \u05DE\u05E6\u05E8\u05E2',
 		[Parsha.ACHREI_MOS_KEDOSHIM]: '\u05D0\u05D7\u05E8\u05D9 \u05DE\u05D5\u05EA \u05E7\u05D3\u05D5\u05E9\u05D9\u05DD',
 		[Parsha.BEHAR_BECHUKOSAI]: '\u05D1\u05D4\u05E8 \u05D1\u05D7\u05E7\u05EA\u05D9',
+		[Parsha.KORACH_CHUKAS]: '\u05E7\u05E8\u05D7 \u05D7\u05D5\u05E7\u05EA',
 		[Parsha.CHUKAS_BALAK]: '\u05D7\u05D5\u05E7\u05EA \u05D1\u05DC\u05E7',
 		[Parsha.MATOS_MASEI]: '\u05DE\u05D8\u05D5\u05EA \u05DE\u05E1\u05E2\u05D9',
 		[Parsha.NITZAVIM_VAYEILECH]: '\u05E0\u05E6\u05D1\u05D9\u05DD \u05D5\u05D9\u05DC\u05DA',
@@ -127,7 +128,7 @@ class WebsiteLimudCalendar extends WebsiteCalendar {
 		const dayOfWeek = today.dayOfWeek; // 1=Monday ... 7=Sunday (ISO)
 
 		// Convert ISO to Jewish week: Sunday=1 ... Shabbat=7
-		const offsetToSunday = (dayOfWeek === 7 ? 0 : dayOfWeek); 
+		const offsetToSunday = (dayOfWeek === 7 ? 0 : dayOfWeek);
 		const sunday = today.subtract({ days: offsetToSunday });
 		const shabbat = sunday.add({ days: 6 });
 

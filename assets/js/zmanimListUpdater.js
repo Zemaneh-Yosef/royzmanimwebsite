@@ -169,7 +169,7 @@ export default class zmanimListUpdater {
 			}
 		}
 
-		this.jCal.setInIsrael(locationTitles.modal.toLowerCase().includes('israel'));
+		this.jCal.setInIsrael(['israel', 'ישראל'].some(isrName => locationTitles.modal.toLowerCase().includes(isrName)));
 		document.querySelectorAll('[data-zfReplace="LocationName"]')
 			.forEach(locationNameElem => {
 				while (locationNameElem.firstChild)

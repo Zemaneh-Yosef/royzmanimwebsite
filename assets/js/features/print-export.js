@@ -34,7 +34,7 @@ if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new GeoLocation(...glArgs);
 
-const useOhrHachaim = (geoLocation.getLocationName() || "").toLowerCase().includes('israel') || settings.calendarToggle.forceSunSeasonal()
+const useOhrHachaim = ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)) || settings.calendarToggle.forceSunSeasonal()
 const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')].filter(elem => elem instanceof HTMLElement);
 const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')].filter(elem => elem instanceof HTMLElement);
 if (useOhrHachaim) {
@@ -83,22 +83,22 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
 	})
 	.join(" ");
 
+
+const ctNetzRaw = localStorage.getItem('ctNetz');
+const ctNetz = ctNetzRaw && isValidJSON(ctNetzRaw) ? JSON.parse(ctNetzRaw) : {};
+const ctNetzURL = ctNetz?.url ? new URL(ctNetz.url) : null;
+
 /** @type {number[]} */
 let availableVS = [];
-if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-	const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-	if ('url' in ctNetz) {
-		const ctNetzLink = new URL(ctNetz.url);
-
-		if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
-		&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
-			availableVS = ctNetz.times
-		else if (ctNetzLink.searchParams.get('cgi_country') == 'Eretz_Yisroel'
-			  && ctNetzLink.searchParams.get('cgi_TableType') == 'BY'
-			  && capitalizeFirstLetter(geoLocation.getLocationName().toLowerCase())
-				  .startsWith(capitalizeFirstLetter(ctNetzLink.searchParams.get('cgi_MetroArea'))))
-			availableVS = ctNetz.times
-	}
+if (ctNetzURL) {
+	if (ctNetzURL.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
+	&& ctNetzURL.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
+		availableVS = ctNetz.times
+	else if (ctNetzURL.searchParams.get('cgi_country') == 'Eretz_Yisroel'
+			&& ctNetzURL.searchParams.get('cgi_TableType') == 'BY'
+			&& capitalizeFirstLetter(geoLocation.getLocationName().toLowerCase())
+				.startsWith(capitalizeFirstLetter(ctNetzURL.searchParams.get('cgi_MetroArea'))))
+		availableVS = ctNetz.times
 }
 
 let local = settings.language() == 'hb' ? 'he' : 'en'
@@ -197,7 +197,7 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 
 	expectedReceive += 1;
 	arrayOfFuncParams.push({
-		israel: (geoLocation.getLocationName() || "").toLowerCase().includes('israel'),
+		israel: ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)),
 		geoCoordinates: glArgs,
 		netz: availableVS,
 		htmlElems: baseTable.outerHTML + (footer ? footer.outerHTML : "") + (secondSide ? secondSide.outerHTML : ""),
@@ -304,9 +304,15 @@ async function preparePrint() {
 		if (availableVS.length == 0) {
 			vsTable.remove();
 		} else {
-			const vsRNumber = new Intl.NumberFormat(local, { style: "unit", unit: "kilometer"})
-				.format(parseFloat(new URL(JSON.parse(localStorage.getItem('ctNetz')).url).searchParams.get("cgi_searchradius")));
-			vsTable.querySelector('[data-zyReplace="sunriseRadius"]').innerHTML = vsRNumber;
+			const radiusElem = vsTable.querySelector('[data-zyReplace="sunriseRadius"]')
+			if (!ctNetzURL.searchParams.has("cgi_searchradius")) {
+				radiusElem.previousElementSibling.remove()
+				radiusElem.remove()
+			} else {
+				const vsRNumber = new Intl.NumberFormat(local, { style: "unit", unit: "kilometer"})
+					.format(parseFloat(ctNetzURL.searchParams.get("cgi_searchradius")));
+				radiusElem.innerHTML = vsRNumber;
+			}
 
 			const earliestCalendarDay = Temporal.PlainDate.from(arrayOfFuncParams[0].date);
 			const latestCalendarDay = Temporal.PlainDate.from(arrayOfFuncParams[arrayOfFuncParams.length - 1].date).add({ months: 1 }).subtract({ days: 1 });
@@ -331,61 +337,39 @@ async function preparePrint() {
 			});
 
 			/** @type {{
-			 * earliest: {duration: Temporal.Duration; date: Temporal.PlainDate}
-			 * latest: {duration: Temporal.Duration; date: Temporal.PlainDate}}} */
+			 * earliest: {msDiff: number; date: Temporal.PlainDate}
+			 * latest: {msDiff: number; date: Temporal.PlainDate}}} */
 			let diffs = {
-				earliest: {
-					duration: Temporal.Duration.from({ minutes: 0 }),
-					date: null
-				},
-				latest: {
-					duration: Temporal.Duration.from({ minutes: 0 }),
-					date: null
-				}
-			}
+				earliest: { msDiff: 0, date: null },
+				latest:   { msDiff: 0, date: null }
+			};
 
 			for (const vsDate of filteredVSDates) {
 				zmanCalc.setDate(vsDate.toPlainDate());
 				const sunriseTime = zDTFromFunc(zmanCalc.getNetz());
-
-				const diff = vsDate.since(sunriseTime); // negative = early, positive = late
 				const msDiff = vsDate.epochMilliseconds - sunriseTime.epochMilliseconds;
 
-				if (msDiff < 0) { // EARLIEST (most negative)
-					if (Math.abs(msDiff) > diffs.earliest.duration.total("millisecond")) {
-						diffs.earliest.duration = diff.negated(); // store as positive duration
-						diffs.earliest.date = vsDate.toPlainDate();
-					}
-				} else if (msDiff > 0) { // LATEST (most positive)
-					if (msDiff > diffs.latest.duration.total("millisecond")) {
-						diffs.latest.duration = diff;
-						diffs.latest.date = vsDate.toPlainDate();
-					}
+				if (msDiff < 0 && (diffs.earliest.date === null || msDiff < diffs.earliest.msDiff)) {
+					diffs.earliest = { msDiff, date: vsDate.toPlainDate() };
+				} else if (msDiff > 0 && (diffs.latest.date === null || msDiff > diffs.latest.msDiff)) {
+					diffs.latest = { msDiff, date: vsDate.toPlainDate() };
 				}
 			}
 
-			if (diffs.earliest.duration.total("minutes") == 0) {
+			if (diffs.earliest.date == null) {
 				vsTable.querySelector('[data-zyReplace="earliestOffset"]').innerHTML = "N/A";
 			} else {
-				// @ts-ignore
-				const earliestDiffStringArr = diffs.earliest.duration.toLocaleString(local, { minute: "short", second: "short" }).split(",").map(str => str.trim());
-				const earliestDiffString = earliestDiffStringArr[0] + ", " + earliestDiffStringArr[1];
-				vsTable.querySelector('[data-zyReplace="earliestOffset"]').innerHTML = earliestDiffString
-					+ "<div style='font-size: .8em;'>("
-					+ diffs.earliest.date.toString()
-					+ ")</div>";
+				const dur = Temporal.Duration.from({ milliseconds: Math.abs(diffs.earliest.msDiff) }).round({ smallestUnit: "second" });
+				vsTable.querySelector('[data-zyReplace="earliestOffset"]').innerHTML =
+					formatDuration(dur) + `<div style='font-size:.8em;'>(${diffs.earliest.date})</div>`;
 			}
 
-			if (diffs.latest.duration.total("minutes") == 0) {
+			if (diffs.latest.date == null) {
 				vsTable.querySelector('[data-zyReplace="latestOffset"]').innerHTML = "N/A";
 			} else {
-				// @ts-ignore
-				const latestDiffStringArr = diffs.latest.duration.toLocaleString(local, { minute: "short", second: "short" }).split(",").map(str => str.trim());
-				const latestDiffString = latestDiffStringArr[0] + ", " + latestDiffStringArr[1];
-				vsTable.querySelector('[data-zyReplace="latestOffset"]').innerHTML = latestDiffString
-					+ "<div style='font-size: .8em;'>("
-					+ diffs.latest.date.toString()
-					+ ")</div>";
+				const dur = Temporal.Duration.from({ milliseconds: Math.abs(diffs.latest.msDiff) }).round({ smallestUnit: "second" });
+				vsTable.querySelector('[data-zyReplace="latestOffset"]').innerHTML =
+					formatDuration(dur) + `<div style='font-size:.8em;'>(${diffs.latest.date})</div>`;
 			}
 		}
 	}
@@ -633,4 +617,19 @@ async function sleep() {
  */
 function capitalizeFirstLetter(val) {
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+}
+
+/** @param {Temporal.Duration} duration */
+function formatDuration(duration) {
+    const totalSeconds = Math.round(duration.total("seconds"));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    // Use Intl.DurationFormat when available, fallback otherwise
+	// @ts-ignore
+    if (typeof Intl.DurationFormat !== "undefined") {
+		// @ts-ignore
+        return new Intl.DurationFormat(local, { minute: "short", second: "short" })
+            .format({ minutes, seconds });
+    }
+    return `${minutes}m ${seconds}s`; // safe fallback
 }

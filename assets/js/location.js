@@ -579,7 +579,7 @@ async function getAverageElevation(lat, long) {
 }
 
 function openCalendarWithLocationInfo() {
-	if (!geoLocation.locationName.toLowerCase().includes('israel')) {
+	if (!['israel', 'ישראל'].some(isrName => geoLocation.locationName.toLowerCase().includes(isrName))) {
 		localStorage.setItem("hourCalculators", "degrees");
 		localStorage.setItem("rtKulah", "true");
 		localStorage.setItem("tzeitTaanitHumra", "false");

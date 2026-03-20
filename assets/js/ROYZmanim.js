@@ -570,6 +570,7 @@ const zDTFromFunc = (funcRet) =>
 	(funcRet instanceof Temporal.ZonedDateTime ? funcRet : funcRet.time)
 
 export {
+	ZemanimMathBase,
 	ZemanFunctions,
 	methodNames,
 	zDTFromFunc

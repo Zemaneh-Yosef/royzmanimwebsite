@@ -44,7 +44,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 	/** @param {"long" | "short" | "narrow"} [length='long']  */
 	formatFancyDate(length='long', ordinal=true) {
-		return `${daysForLocale('en', length)[this.getDate().dayOfWeek]}, ${monthForLocale('en', length)[this.getDate().month]} ${ordinal ? getOrdinal(this.getDate().day, true) : this.getDate().day}`.trim()
+		return `${daysForLocale('en', length)[this.getDate().dayOfWeek]}, ${this.getDate().toLocaleString('en', { month: 'long' })} ${ordinal ? getOrdinal(this.getDate().day, true) : this.getDate().day}`.trim()
 	}
 
 	/**
@@ -52,11 +52,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	 */
 	dateRenderer(lang) {
 		const en = {
-			text: `${monthForLocale('en')[this.getDate().month]} ${getOrdinal(this.getDate().day, true)}, ${this.getDate().year}`,
+			text: `${this.getDate().toLocaleString('en', { month: 'long' })} ${getOrdinal(this.getDate().day, true)}, ${this.getDate().year}`,
 			dir: 'ltr'
 		}
 		const fr = {
-			text: `${monthForLocale('fr')[this.getDate().month]} ${getFrenchOrdinal(this.getDate().day, false)}, ${this.getDate().year}`,
+			text: `${this.getDate().toLocaleString('fr', { month: 'long' })} ${getFrenchOrdinal(this.getDate().day, false)}, ${this.getDate().year}`,
 			dir: 'ltr'
 		}
 		const et = {

@@ -27,8 +27,9 @@ import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
     },
     schedule?: "manual" | {
         url: string;
-        type: "excel" | "ini" | "json";
+        type: "excel" | "ini" | "json" | "toml";
         forUpcoming?: boolean;
+        arrayBehavior: "return"|"newline"|"comma"
     }
 }} ScheduleSettings */
 
@@ -43,7 +44,7 @@ const geoLocation = new GeoLocation(...glArgs);
 const currentZDT = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone);
 
 const jCal = new WebsiteLimudCalendar(currentZDT.toPlainDate());
-jCal.setInIsrael((geoLocation.getLocationName() || "").toLowerCase().includes('israel'))
+jCal.setInIsrael(['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)))
 
 const zmanCalc = new ZemanFunctions(geoLocation, {
 	elevation: jCal.getInIsrael(),

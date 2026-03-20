@@ -233,7 +233,10 @@ export default class ChaiTables {
 				key: ["USA", 32], value: (this.zmanLister.geoLocation.getLatitude() == 34.09777065545882
 					&& this.zmanLister.geoLocation.getLongitude() == -118.42699812743257)
 					? "14"
-					: "8"
+					: "8",
+			},
+			{
+				key: ["USA", 4], value: "8"
 			},
 			{ key: ["Eretz_Yisroel", null], value: isHebrewSpacesUnderscores(this.indexOfMetroArea) ? "forceHB" : "2" }
 		]
