@@ -2381,29 +2381,9 @@ declare class NOAACalculator extends AstronomicalCalculator {
      * @return hour angle of sunrise in radians
      */
     private static getSunHourAngle;
-    /**Add commentMore actions
-     * @see com.kosherjava.zmanim.util.AstronomicalCalculator#getSolarElevation(Calendar, GeoLocation)
-     */
-    /**Add commentMore actions
-     * @see com.kosherjava.zmanim.util.AstronomicalCalculator#getSolarAzimuth(Calendar, GeoLocation)
-     */
-    /**
-     * Return the <a href="https://en.wikipedia.org/wiki/Celestial_coordinate_system">Solar Elevation</a> or
-     * <a href="https://en.wikipedia.org/wiki/Celestial_coordinate_system">Solar Azimuth</a> at the given location
-     * and time. Can be negative if the sun is below the horizon. Elevation is based on sea-level and is not
-     * adjusted for altitude.
-     *
-     * @param date
-     *            time of calculation
-     * @param geoLocation
-     *            The location for calculating the elevation or azimuth.
-     * @param isAzimuth
-     *            true for azimuth, false for elevation
-     * @return solar elevation or azimuth in degrees.
-     *
-     * @see #getSolarElevation(Calendar, GeoLocation)
-     * @see #getSolarAzimuth(Calendar, GeoLocation)
-     */
+    getSolarElevation(dateTime: Temporal.PlainDateTime, geoLocation: GeoLocation): number;
+    getSolarAzimuth(dateTime: Temporal.PlainDateTime, geoLocation: GeoLocation): number;
+    private getSolarElevationAzimuth;
     getUTCNoon(calendar: Temporal.PlainDate, geoLocation: GeoLocation): number;
     /**
      * Return the <a href="https://en.wikipedia.org/wiki/Universal_Coordinated_Time">Universal Coordinated Time</a>

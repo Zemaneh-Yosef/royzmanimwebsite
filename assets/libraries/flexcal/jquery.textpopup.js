@@ -26,8 +26,31 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
+/**
+ * @typedef {object} TextPopupWidget
+ * @property {JQuery} element
+ * @property {JQuery} [theBox]
+ * @property {JQuery} [_triggerElement]
+ * @property {(e:MouseEvent)=>void} [_hider]
+ * @property {object} options
+ * @property {HTMLElement|string|undefined} options.box
+ * @property {boolean} options.hideOnOutsideClick
+ * @property {string|HTMLElement|JQuery} options.trigger
+ * @property {string} options.class
+ * @property {(box:JQuery)=>void} _fill
+ * @property {()=>JQuery} _box
+ * @property {(flag:boolean)=>void} _hideOnOutsideClick
+ * @property {(e:MouseEvent)=>boolean} _isClickInside
+ * @property {()=>void} position
+ * @property {()=>void} show
+ * @property {()=>void} hide
+ * @property {(key:string, value:any)=>void} _setOption
+ * @property {()=>void} destroy
+ */
+
 (function ($) {
 	$.widget('bililite.textpopup', {
+		/** @this {TextPopupWidget} */
 		_init: function () {
 			var self = this;
 
@@ -36,8 +59,8 @@
 			this._hideOnOutsideClick(this.options.hideOnOutsideClick);
 
 			// trigger element setup
-			var trigger = this.options.trigger;
-			if (trigger == 'self') trigger = this.element;
+			/** @type {JQuery<HTMLElement>} */
+			var trigger = (typeof this.options.trigger == "string" ? this.element : $(this.options.trigger));
 
 			if (this._triggerElement)
 				$(trigger).off('.textpopup');
@@ -55,6 +78,7 @@
 		},
 
 		// CSS‑transition‑friendly positioning
+		/** @this {TextPopupWidget} */
 		position: function () {
 			if (this.options.box) return;
 
@@ -70,6 +94,7 @@
 			box.style.top = y + 'px';
 		},
 
+		/** @this {TextPopupWidget} */
 		show: function () {
 			const $box = this._box().attr('tabindex', 0);
 
@@ -88,6 +113,7 @@
 			this._trigger('shown');
 		},
 
+		/** @this {TextPopupWidget} */
 		hide: function () {
 			const $box = this._box().removeAttr('tabindex');
 
@@ -106,20 +132,23 @@
 			this._trigger('hidden');
 		},
 
+		/** @this {TextPopupWidget} */
 		_box: function () {
 			return this.theBox || this._createBox();
 		},
 
+		/** @this {TextPopupWidget} */
 		widget: function () {
 			return this._box();
 		},
 
+		/** @this {TextPopupWidget} */
 		_createBox: function () {
 			var self = this;
 			let box;
 
 			if (this.options.box) {
-				box = $(this.options.box);
+				box = $(typeof this.options.box == 'string' ? document.querySelector(this.options.box) : this.options.box);
 			} else {
 				const boxElem = document.createElement("div");
 				boxElem.style.position = "absolute";
@@ -150,9 +179,10 @@
 			// virtual method
 		},
 
-		_hideOnOutsideClick: function (flag) {
+		/** @this {TextPopupWidget} */
+		_hideOnOutsideClick: function (/** @type {boolean} */ flag) {
 			var self = this;
-			this._hider = this._hider || function (e) {
+			this._hider = this._hider || function (/** @type {MouseEvent} */e) {
 				if (!self._isClickInside(e)) self.hide();
 			};
 
@@ -163,6 +193,7 @@
 			}
 		},
 
+		/** @this {TextPopupWidget} */
 		destroy: function () {
 			if (!this.options.box) this._box().remove();
 			if (this._triggerElement) this._triggerElement.off('.textpopup');
@@ -170,16 +201,18 @@
 			this.theBox = undefined;
 		},
 
+		/** @this {TextPopupWidget} */
 		_setOption: function (key, value) {
 			this._super(key, value);
 			if (key == 'class') this._box().attr('class', value);
 		},
 
+		/** @this {TextPopupWidget} */
 		_isClickInside: function(e){
 			const box = this._box()[0];
 			const trigger = this._triggerElement ? this._triggerElement[0] : null;
 			const input = this.element[0];
-		
+
 			return (
 				box.contains(e.target) ||
 				(trigger && trigger.contains(e.target)) ||
