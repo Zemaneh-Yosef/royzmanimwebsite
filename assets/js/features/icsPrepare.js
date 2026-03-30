@@ -193,7 +193,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 		if (!jCal.isCholHamoed() && jCal.tomorrow().isCholHamoed()) {
 			let endHolHamoed = jCal.tomorrow();
 			let holHamoedDay = 1;
-			let dateList = [getOrdinal(1, false) + " day: " + jCal.formatFancyDate('long', false)]
+			let dateList = [getOrdinal(1, false) + " day: " + jCal.formatFancyDate({ ordinal: false, monthLength: "long", dayLength: "long" })]
 			do {
 				endHolHamoed = endHolHamoed.tomorrow();
 				holHamoedDay++;

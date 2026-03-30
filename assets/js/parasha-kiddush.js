@@ -8,8 +8,8 @@ const containerElem = document.getElementById('kiddushRows');
 function generateRows() {
     // @ts-ignore
     const yearType = jCal.getParshaYearType();
-    for (let parsha of WebsiteLimudCalendar.parshalist[yearType]) {
-        if (parsha == WebsiteLimudCalendar.parshalist[yearType][0]) {
+    for (let parsha of jCal.getParshaCalendar().parshalist[yearType]) {
+        if (parsha == jCal.getParshaCalendar().parshalist[yearType][0]) {
             continue;
         }
 
@@ -17,7 +17,7 @@ function generateRows() {
             jCal.setDate(jCal.getDate().add({ days: 1}));
         }
 
-        containerElem.insertAdjacentHTML('beforeend', jCal.formatFancyDate());
+        containerElem.insertAdjacentHTML('beforeend', jCal.formatFancyDate().en);
         containerElem.appendChild(document.createTextNode(' - '));
         containerElem.appendChild(document.createTextNode(WebsiteLimudCalendar.hebrewParshaMap[parsha]));
         containerElem.appendChild(document.createTextNode(' - '));

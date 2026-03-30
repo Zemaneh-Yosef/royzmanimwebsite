@@ -75,10 +75,10 @@ chaiTable: true
 					<div id="dateBox">
 						<h6 data-zfReplace="Day" style="margin-bottom: .125rem;"></h6>
 						<h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
-						<div class="d-flex" style="flex-direction: row; align-items: center; gap: .5rem; justify-content: center;">
-							<h5 data-zfReplace="secondaryDate" class="d-inline-block m-0"></h5>
-							<input type="button" value="&#xF1FD;" id="inDateBoxCalBtn" class="bi btn btn-primary d-none d-md-block">
-							<h5 data-zfReplace="otherDate" class="d-inline-block m-0"></h5>
+						<div id="nonPrimaryDateRow">
+							<h5 data-zfReplace="secondaryDate"></h5>
+							<input type="button" value="&#xF1FD;" id="inDateBoxCalBtn" class="bi btn btn-primary d-none d-md-block lang lang-en lang-en-et">
+							<h5 data-zfReplace="otherDate" class="lang lang-en lang-en-et"></h5>
 						</div>
 					</div>
 					<button data-dateAlter="1" style="grid-column: 3;">
@@ -86,7 +86,7 @@ chaiTable: true
 						<span class="lang lang-et"><i class="bi bi-arrow-right"></i></span>
 						<span class="lang lang-en"><i class="bi bi-arrow-right"></i></span>
 					</button>
-					<input type="button" value="&#xF1FD; Select a date" class="bi inputRow d-md-none btn btn-primary">
+					<input type="button" value="&#xF1FD; Select a date" style="font-family: bootstrap-icons, var(--bs-body-font-family) !important;" class="bi inputRow d-md-en-et-none d-md-en-none btn btn-primary">
 				</li>
 			</ul>
 		</div>

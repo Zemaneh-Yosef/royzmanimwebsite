@@ -444,7 +444,7 @@ async function messageHandler (x) {
 					case 'en':
 						// @ts-ignore
 						primaryDate.innerHTML =
-							x.data.shabbatOnly ? jCal.formatFancyDate('short', false) : (
+							x.data.shabbatOnly ? jCal.formatFancyDate({ dayLength: "short", monthLength: "short", ordinal: false }).en : (
 							jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " +
 							jCal.getDate().toLocaleString('en', { day: 'numeric' }))
 						;

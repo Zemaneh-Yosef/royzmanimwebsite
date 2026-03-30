@@ -358,7 +358,7 @@ export default class zmanimListUpdater {
 
 	async clipboardCopy() {
 		const copyText = this.geoLocation.getLocationName() + "\n\n"
-		+ this.jCal.formatFancyDate(undefined, false) + ", " + this.jCal.getDate().year
+		+ this.jCal.formatFancyDate({ monthLength: 'long', dayLength: 'long', ordinal: false }).en + ", " + this.jCal.getDate().year
 		+ "\n" + this.jCal.formatJewishFullDate().hebrew + "\n\n"
 		+ Object.values(this.jCal.getZmanimInfo(true, this.zmanCalc, this.zmanimList, this.dtF))
 		.filter(entry => entry.display == 1)

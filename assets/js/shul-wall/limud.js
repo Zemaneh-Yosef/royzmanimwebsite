@@ -21,6 +21,12 @@ if (haftaraBar) {
 	haftaraBar.innerHTML += `<b>${haftara.text}</b> (${haftara.source})`
 }
 
+const haftaraBarNoSource = document.querySelector('[data-zfReplace="HaftaraNoSource"]')
+if (haftaraBarNoSource) {
+	const haftara = KosherZmanim.Haftara.getThisWeeksHaftarah(melakhaJCal)
+	haftaraBarNoSource.innerHTML += `<b>${haftara.text}</b>`
+}
+
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
 await hiloulahIndex.init();
 

@@ -3,7 +3,7 @@ permalink: /
 layout: landing
 ---
 
-<nav class="navbar navbar-expand-lg fixed-top p-2 p-lg-3  border-bottom border-body" id="mainNav">
+<nav class="navbar navbar-expand-lg fixed-top p-2 p-lg-3" id="mainNav">
 	<div class="container maxWidthHeader">
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
@@ -47,11 +47,11 @@ layout: landing
 				<h5 class="modal-title text-center">Search for your location! | חפש את המיקום שלך!</h5>
 			</div>
 			<div class="modal-body">
-				{% capture hebrewWelcomeText %}{% include homepage/hebrew.md %}{% endcapture %}
-				{% capture englishWelcomeText %}{% include homepage/english.md %}{% endcapture %}
-				<span class="lang lang-hb">{{ hebrewWelcomeText | markdownify }}</span>
-				<span class="lang lang-et">{{ englishWelcomeText | markdownify }}</span>
-				<span class="lang lang-en">{{ englishWelcomeText | markdownify }}</span>
+				{% capture hebrewLocationText %}{% include location-find/hebrew.md %}{% endcapture %}
+				{% capture englishLocationText %}{% include location-find/english.md %}{% endcapture %}
+				<span class="lang lang-hb">{{ hebrewLocationText | markdownify }}</span>
+				<span class="lang lang-et">{{ englishLocationText | markdownify }}</span>
+				<span class="lang lang-en">{{ englishLocationText | markdownify }}</span>
 				<div id="manualHelp" class="container pb-3 d-none">
 					<div id="leafletMap" style="aspect-ratio: 16 / 9; margin-bottom: .5rem;"></div>
 					<div id="manualContainer">
@@ -152,42 +152,37 @@ layout: landing
 </div>
 
 <!-- Services-->
-<section class="page-section" id="services">
-	<div class="container">
-		<div class="grid">
-			<div class="g-col-12 g-col-lg-5" style="align-content: center;"><img src="/assets/og-roy-haskama.png" style="width: 100%;"></div>
-			<div class="g-col-12 g-col-lg-7" style="grid-row-end: span 2;">
-				<h1 class="text-center">About זמני יוסף</h1>
-				<div style="text-align: center;"><video controls
-					style="width: 75%;"
-					preload="metadata"
-					poster="https://zemaneh-yosef.github.io/.github/resize-thumbnail.png"
-				>
-					<source src="https://zemaneh-yosef.github.io/.github/trailer.mp4" type="video/mp4" />
-				</video></div>
-				<p>We are the platform to use whenever and wherever you'd need Halachic Times (Zemanim) according to the Sepharadic tradition, as represented by <strong>Hakham Ovadia Yosef zt'l</strong> and his sons (<strong>R’ Yitzḥak Yosef</strong> & <strong>R’ David Yosef</strong>). Our reach extends to mobile applications, websites, shul screens, and more – anywhere to accompany your Halachic needs, as you perform any time-bound commandment.</p>
-				<p>Spread around their Sefarim are individual rulings for times when relevant to their commandments (such as <em>Ḥazon ‘Ovadia</em>, <em>Yalkut Yosef</em> & <em>Halacha Berura</em>) & halachic responsa’s (<em>Yabi’a ‘Omer</em> & <em>Yeḥave Da’ath</em>). However, the guidelines for reading the various Talmudical sources are outlined explicitly in <em>Halikhoth ‘Olam</em>, representing the tradition of using seasonal minutes across all earlier Sepharadic authorities (<em>Minḥat Kohen</em> & <em>Peri Ḥadash</em>). The application of these rulings is exemplified in the Ohr Ha’Chaim calendar (developed by <strong>Rabbi Shlomo Benizri</strong> & <strong>Rabbi Asher Darshan</strong>, with a continuous consultation of Hakham Ovadia himself). This calendar has garnered the approval of Hakham Ovadia (pictured on the left) and consistent recommendations from HaRav Yitzḥak Yosef, proving to be a reliable source of practical Zemanim that reflects the precedent set by our authorities.</p>
-				<p>Our foundation starts with that calendar, expanding beyond its borders of Eretz Yisrael. Doing so with astronomical accuracy meant re-examining the rulings from their sources and adjusting the numbers (for the seasonal minutes) as they are applied. This specification is explicitly outlined by R' David Yosef (in <em>Kuntress Ki Ba Ha'Shemesh</em>), with approval in the execution by <a href="/assets/haskamah-rishon-letzion.pdf">R' Yitzḥak Yosef</a>.</p>
-				<ul>
-					<li>Expanded implementations possible through our <a href="https://github.com/Zemaneh-Yosef">open-source codebase</a>. Implementations available in JavaScript, Java & Swift</li>
-					<li><i>Sugya</i> descriptions for every time, with sources and possible trivia</li>
-				</ul>
-				<p>(Other Haskamot include <a href="/assets/haskamah-he.pdf">HaRav Leeor Dahan</a> [authority behind the number adjustments for outside Eretz Yisrael], <a href="/assets/haskamah-en.pdf">HaRav Meir Gavriel Elbaz</a> [translator of HalachaYomit], Rabbi Eli Mansour [Beki'im BaHalacha; watch video above to see testimonial] & <a href="/assets/RBH_Recommendation_Final.pdf">Rabbi Eliyahu Ben Hayyim</a> [Head of the Mashadi community in Great Neck, NY])</p>
-			</div>
-			<div class="g-col-12 g-col-lg-5" style="align-content: center;">
-				<div class="m3carcontainer">
-					<div class="item item1"></div>
-					<div class="item item2"></div>
-					<div class="item item3"></div>
-					<div class="item item4"></div>
-					<div class="item item5"></div>
-				</div>
+<section class="container" id="services">
+	<div class="grid">
+		<div class="g-col-12 g-col-lg-5" style="align-content: center;"><img src="/assets/og-roy-haskama.png" style="width: 100%;"></div>
+		<div class="g-col-12 g-col-lg-7" style="grid-row-end: span 2;">
+			<h1 class="text-center">About זמני יוסף</h1>
+			<div style="text-align: center;"><video controls
+				style="width: 75%;"
+				preload="metadata"
+				poster="https://zemaneh-yosef.github.io/.github/resize-thumbnail.png"
+			>
+				<source src="https://zemaneh-yosef.github.io/.github/trailer.mp4" type="video/mp4" />
+			</video></div>
+			{% capture englishAboutText %}{% include about/english.md %}{% endcapture %}
+			{% capture hebrewAboutText %}{% include about/hebrew.md %}{% endcapture %}
+			<div class="lang lang-hb">{{ hebrewAboutText | markdownify }}</div>
+			<div class="lang lang-et">{{ englishAboutText | markdownify }}</div>
+			<div class="lang lang-en">{{ englishAboutText | markdownify }}</div>
+		</div>
+		<div class="g-col-12 g-col-lg-5" style="align-content: center;">
+			<div class="m3carcontainer">
+				<div class="item item1"></div>
+				<div class="item item2"></div>
+				<div class="item item3"></div>
+				<div class="item item4"></div>
+				<div class="item item5"></div>
 			</div>
 		</div>
 	</div>
 </section>
 <!-- Portfolio Grid-->
-<section class="py-3" id="portfolio">
+<section class="my-5" id="portfolio">
 	<div class="container">
 		<div class="grid">
 			<div class="g-col-12 g-col-lg-8">

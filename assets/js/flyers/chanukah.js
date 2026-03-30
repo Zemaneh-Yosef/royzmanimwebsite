@@ -53,20 +53,20 @@ for (let i = 0; i <= 7; i++) {
 	};
 
 	if (jCal.getDate().dayOfWeek == 5)
-		timeSchedule[jCal.formatFancyDate()] = {
+		timeSchedule[jCal.formatFancyDate().en] = {
 			...buildObj,
 			candleLighting: calc.getCandleLighting(),
 			msg: '(Light Chanukah Candles before Shabbat Candles)'
 		}
 	else if (jCal.getDate().dayOfWeek == 6)
-		timeSchedule[jCal.formatFancyDate()] = {
+		timeSchedule[jCal.formatFancyDate().en] = {
 			...buildObj,
 			tzetShabbat: zDTFromFunc(calc.getTzetMelakha()),
 			rt: calc.getTzetRT(),
 			msg: '(At home, make Havdalah before lighting Chanukah Candles)'
 		}
 	else {
-		timeSchedule[jCal.formatFancyDate()] = buildObj;
+		timeSchedule[jCal.formatFancyDate().en] = buildObj;
 		for (const shita of shitot) {
 			/** @type {KosherZmanim.Temporal.ZonedDateTime} */
 			// @ts-ignore
@@ -76,7 +76,7 @@ for (let i = 0; i <= 7; i++) {
 				time = time.add({ minutes: 1 }).with({second: 0});
 
 			// @ts-ignore
-			timeSchedule[jCal.formatFancyDate()][shita] = time;
+			timeSchedule[jCal.formatFancyDate().en][shita] = time;
 		}
 	}
 

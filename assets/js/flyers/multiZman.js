@@ -288,9 +288,9 @@ for (const d8Displ of document.querySelectorAll(['', 'Formal', 'Y', 'SY', 'S'].m
 	} else if (dateRender.endsWith('s')) {
 		d8Displ.innerHTML = `${daysForLocale('en')[d8jCal.getDate().dayOfWeek]}, ${monthForLocale('en', 'short')[d8jCal.getDate().month]}. ${getOrdinal(d8jCal.getDate().day, true)}`;
 	} else if (dateRender.endsWith('y'))
-		d8Displ.innerHTML = d8jCal.formatFancyDate() + (", " + d8jCal.getGregorianYear());
+		d8Displ.innerHTML = d8jCal.formatFancyDate().en + (", " + d8jCal.getGregorianYear());
 	else
-		d8Displ.innerHTML = d8jCal.formatFancyDate();
+		d8Displ.innerHTML = d8jCal.formatFancyDate().en;
 }
 
 for (const yearDisplay of document.querySelectorAll('[data-yearRender]')) {

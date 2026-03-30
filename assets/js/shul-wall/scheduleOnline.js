@@ -163,14 +163,11 @@ function mapSheetColumns(sheetData) {
 
 (async () => {
 	if ("schedule" in scheduleSettings && scheduleSettings.schedule !== "manual") {
-		if (scheduleSettings.schedule.type === "ini") {
-			await loadIniSchedule(scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
-		} else if (scheduleSettings.schedule.type === "json") {
-			await loadJsonSchedule(scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
-		} else if (scheduleSettings.schedule.type === "excel") {
-			await loadExcelSchedule(scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
-		} else if (scheduleSettings.schedule.type === "toml") {
-			await loadTomlSchedule(scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
-		}
+        ({
+            "ini": loadIniSchedule,
+            "json": loadJsonSchedule,
+            "excel": loadExcelSchedule,
+            "toml": loadTomlSchedule,
+        })[scheduleSettings.schedule.type](scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
 	}
 })();

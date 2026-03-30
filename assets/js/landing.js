@@ -18,7 +18,6 @@ function onIntersection(entries, opts){
         if (entry.intersectionRatio == 1) {
             navBarElem.classList.remove('navbar-landing-shrink')
             navBarElem.classList.add('navbar-landing-expand')
-            navBarElem.setAttribute('data-bs-theme', 'light')
             logo.classList.remove('stepO', 'stepTw', 'stepTh', 'stepF')
 
             return;
@@ -26,7 +25,6 @@ function onIntersection(entries, opts){
 
         navBarElem.classList.add('navbar-landing-shrink')
         navBarElem.classList.remove('navbar-landing-expand')
-        navBarElem.removeAttribute('data-bs-theme')
 
         if (entry.intersectionRatio <= .1) {
             logo.classList.add('stepF')

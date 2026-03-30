@@ -10,3 +10,12 @@
     font-style: normal;
 
 }
+
+@font-face {
+    font-family: 'sbl_hebrewlimitregular';
+    src: url('sbl_hbrw-webfont.woff2') format('woff2'),
+         url('sbl_hbrw-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    unicode-range: U+0590-05FF, U+FB1D-FB4F; /* Hebrew block + presentation forms */
+}

@@ -187,7 +187,9 @@
 	<div id="title">
 		<img src="/assets/images/logo.png" id="logo" />
 		<br><div data-zyLocationText></div>
-		Halachic times according to Sepharadic tradition
+		<span class="lang lang-hb">זמנים הלכתיים לפי המסורת הספרדית</span>
+		<span class="lang lang-en">Halachic times according to Sepharadic tradition</span>
+		<span class="lang lang-et">Halachic times according to Sepharadic tradition</span>
 	</div>
 	<img src="/assets/images/splash.jpg" id="bgCover" />
 	<div id="credits">
@@ -390,7 +392,9 @@
 		<div></div>
         <div id="intTitle">
             <img src="/assets/images/print/ZY-b&w-banner.png">
-            <p id="intTitleLocation">Portable-Print Calendar for <span data-zyLocationText></span></p>
+            <p id="intTitleLocation">
+				<span class="lang lang-hb">לוח נייד ל</span><span class="lang lang-et">Portable Print calendar for </span><span class="lang lang-et">Portable Print calendar for </span><span data-zyLocationText></span>
+			</p>
         </div>
         <div id="intCredits">By Maor Na'im & Elyahu Jacobi<br>(Full credits on the back cover)</div>
     </div>
@@ -533,7 +537,7 @@
 	<div class="importantTimes" data-importantItems="6">
 		<div class="importantCard">
 			<div class="importantCardTitle">
-				<img src="/assets/images/print/triangle-pattern.svg">
+				<img src="/assets/images/print/triangle-pattern.svg" class="flipImageRTL">
 				<div class="importantCardTitleText"></div>
 			</div>
 			<div class="importantCardContent">
@@ -544,7 +548,7 @@
 		</div>
 		<div class="importantCard">
 			<div class="importantCardTitle">
-				<img src="/assets/images/print/triangle-pattern.svg">
+				<img src="/assets/images/print/triangle-pattern.svg" class="flipImageRTL">
 				<div class="importantCardTitleText"></div>
 			</div>
 			<div class="importantCardContent">
@@ -555,7 +559,7 @@
 		</div>
 		<div class="importantCard">
 			<div class="importantCardTitle">
-				<img src="/assets/images/print/triangle-pattern.svg">
+				<img src="/assets/images/print/triangle-pattern.svg" class="flipImageRTL">
 				<div class="importantCardTitleText"></div>
 			</div>
 			<div class="importantCardContent">
@@ -566,7 +570,7 @@
 		</div>
 		<div class="importantCard">
 			<div class="importantCardTitle">
-				<img src="/assets/images/print/triangle-pattern.svg">
+				<img src="/assets/images/print/triangle-pattern.svg" class="flipImageRTL">
 				<div class="importantCardTitleText"></div>
 			</div>
 			<div class="importantCardContent">
@@ -577,7 +581,7 @@
 		</div>
 		<div class="importantCard">
 			<div class="importantCardTitle">
-				<img src="/assets/images/print/triangle-pattern.svg">
+				<img src="/assets/images/print/triangle-pattern.svg" class="flipImageRTL">
 				<div class="importantCardTitleText"></div>
 				<div class="importantCardTitleText"></div>
 			</div>
@@ -589,7 +593,7 @@
 		</div>
 		<div class="importantCard">
 			<div class="importantCardTitle">
-				<img src="/assets/images/print/triangle-pattern.svg">
+				<img src="/assets/images/print/triangle-pattern.svg" class="flipImageRTL">
 				<div class="importantCardTitleText"></div>
 			</div>
 			<div class="importantCardContent">
@@ -785,8 +789,18 @@
 	.specialShabPar {
 		font-weight: 500;
 		font-size: .8em;
-		font-family: "SBL Hebrew";
+		font-family: "sbl_hebrewregular";
 		line-height: 1;
+	}
+</style>
+
+<style>
+	:dir(rtl) .flipImageRTL {
+		transform: rotateY(180deg);
+	}
+
+	:dir(rtl) .importantCardTitleText {
+    	writing-mode: sideways-rl;
 	}
 </style>
 

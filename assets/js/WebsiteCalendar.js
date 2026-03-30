@@ -3,6 +3,7 @@
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js"
 import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js";
 import { zDTFromFunc } from "./ROYZmanim.js";
+import n2wordsOrdinal from './misc/n2wordsOrdinal.js';
 
 /** @typedef {{ hb?: string, en?: string, "en-et"?: string; "ru"?: string; }} langType */
 /** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
@@ -42,9 +43,29 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			}, {})
 	}
 
-	/** @param {"long" | "short" | "narrow"} [length='long']  */
-	formatFancyDate(length='long', ordinal=true) {
-		return `${daysForLocale('en', length)[this.getDate().dayOfWeek]}, ${this.getDate().toLocaleString('en', { month: 'long' })} ${ordinal ? getOrdinal(this.getDate().day, true) : this.getDate().day}`.trim()
+	/**
+	 * @param {KosherZmanim.Temporal.ZonedDateTime|KosherZmanim.Temporal.PlainDate} date
+	 * @param {{ dayLength: "short" | "long" | "narrow"; monthLength: "short" | "long" | "narrow"; ordinal: boolean; }} [config]
+	 */
+	static formatFancyDate(date, config = {
+		dayLength: 'long',
+		monthLength: 'long',
+		ordinal: true
+	}) {
+		const hebCal = date.withCalendar('hebrew');
+		const hNum = new HebrewNumberFormatter();
+		return {
+			en: `${daysForLocale('en', config.dayLength)[date.dayOfWeek]}, ${date.toLocaleString('en', { month: config.monthLength })} ${config.ordinal ? getOrdinal(date.day, true) : date.day}`.trim(),
+			"en-et": `${daysForLocale('en')[hebCal.dayOfWeek]}, ${date.toLocaleString('en-u-ca-hebrew', { month: config.monthLength })} ${config.ordinal ? getOrdinal(hebCal.day, true) : hebCal.day}`.trim(),
+			hb: `${n2hebDateOrdinal(date.dayOfWeek)}, ${hNum.formatHebrewNumber(hebCal.day)} ${hebCal.toLocaleString('he-u-ca-hebrew', { month: 'long' })}`
+		}
+	}
+
+	/**
+	 * @param {{ dayLength: "short" | "long" | "narrow"; monthLength: "short" | "long" | "narrow"; ordinal: boolean; }} [config]
+	 */
+	formatFancyDate(config) {
+		return WebsiteCalendar.formatFancyDate(this.getDate(), config)
 	}
 
 	/**
@@ -1075,3 +1096,12 @@ function rangeDates(start, middle, end, inclusive=true) {
 
 	return acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(end, middle))
 };
+
+/**
+ * @param {number} dayOfWeek
+ * @param {boolean} prefixForShabbat
+ */
+function n2hebDateOrdinal(dayOfWeek, prefixForShabbat=false) {
+	const numResult = (dayOfWeek + 1) % 7;
+	return (numResult == 0 ? (prefixForShabbat ? "ה" : "") + "שבת" : n2wordsOrdinal[numResult])
+}

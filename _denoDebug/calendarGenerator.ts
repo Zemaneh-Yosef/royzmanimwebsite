@@ -81,7 +81,7 @@ class DegreeMinutes extends ZemanimMathBase {
 	}
 	getAlotHashahar() {
 		const deg = this.coreZC.getSunriseOffsetByDegrees(106.04)
-		return deg || this.coreZC.getSolarMidnight()
+		return deg || this.chainDate(this.coreZC.getDate().subtract({ days: 1 })).coreZC.getSolarMidnight()
 	}
 
 	getTzet() {
@@ -121,7 +121,7 @@ for (const calendarClass of calendarClasses) {
 					"duration": cal.timeRange.current.sunrise.since(cal.getAlotHashahar())
 						.total("minute")
 						.toFixed(2),
-					"degree": astCalc.getSolarElevation(cal.timeRange.current.dawn.toPlainDateTime(), locale)
+					"degree": astCalc.getSolarElevation(cal.getAlotHashahar().toPlainDateTime(), locale)
 						.toFixed(2)
 				},
 				"nightfall": {
@@ -140,3 +140,21 @@ for (const calendarClass of calendarClasses) {
 }
 
 console.log(resultData)
+const output = Object.fromEntries(
+    [...resultData.entries()].map(([className, localeMap]) => [
+        className,
+        Object.fromEntries(
+            [...localeMap.entries()].map(([locale, dateMap]) => [
+                locale.getLocationName(),
+                Object.fromEntries(
+                    [...dateMap.entries()].map(([date, data]) => [
+                        date.toString(),
+                        data
+                    ])
+                )
+            ])
+        )
+    ])
+);
+
+await Deno.writeTextFile('zmanim_results.json', JSON.stringify(output, null, 2));

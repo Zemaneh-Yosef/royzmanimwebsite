@@ -1,0 +1,92 @@
+preHatzot:
+  - id: alot
+    icon: dawn
+    timeGetter: getAlotHashahar
+    names:
+      he: עלות השחר
+      et: Alot Ha'Shaḥar
+      en: Dawn
+    round: earlier
+  - id: misheyakir
+    icon: misheyakir
+    timeGetter: getMisheyakir
+    names:
+      he: משיכיר
+      et: Misheyakir
+      en: Misheyakir
+    round: later
+  - id: sunrise
+    icon: sunrise
+    timeGetter: getNetz
+    names:
+      he: הנץ (משור)
+      et: HaNetz (Mishor)
+      en: Sunrise (Sea Level)
+    round: later
+  - id: latestShmaMGA
+    timeGetter: getSofZemanShemaMGA
+    names:
+      he: זמן שמע מג'א
+      en: Latest Shema (MG"A)
+      et: Latest Shema (MG"A)
+    round: earlier
+  - id: latestShmaGRA
+    timeGetter: getSofZemanShemaGRA
+    names:
+      he: זמן שמע גר'א
+      en: Latest Shema (GR"A)
+      et: Latest Shema (GR"A)
+    round: earlier
+  - id: latestBrachotShmaGRA
+    timeGetter: getSofZemanBerakhothShema
+    names:
+      he: זמן ברכות שמע
+      en: Latest Berakhot Shema
+      et: Latest Berakhot Shema
+    round: earlier
+postHatzot:
+  - id: minhaGedola
+    timeGetter: getMinhaGedolahIkar
+    names:
+      he: מנחה גדולה
+      en: Early Mincha
+      et: Minḥa Gedola
+    round: later
+  - id: minhaKetana
+    timeGetter: getMinchaKetana
+    names:
+      he: מנחה קטנה
+      en: Mincha Ketana
+      et: Minḥa Ketana
+    round: later
+  - id: plagHaminhaYY
+    timeGetter: getPlagHaminhaYalkutYosef
+    names:
+      he: פלג המנחה
+      en: Pelag Ha'Mincha
+      et: Pelag Ha'Minḥa
+    round: later
+  - id: sunset
+    icon: sunset
+    timeGetter: getShkiya
+    names:
+      he: שקיעה
+      en: Sunset
+      et: Sheq'a
+    round: earlier
+  - id: tzeit
+    icon: nightfall
+    timeGetter: getTzet
+    names:
+      he: צאת הכוכבים
+      en: Nightfall
+      et: Tzet Ha'Kokhavim
+    round: later
+  - id: rtNoRename
+    icon: rabbenuTam
+    timeGetter: getTzetRT
+    names:
+      he: רבינו תם
+      en: Rabbenu Tam
+      et: Rabbenu Tam
+    round: later

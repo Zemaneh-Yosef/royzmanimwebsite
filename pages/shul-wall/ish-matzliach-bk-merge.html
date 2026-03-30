@@ -1,0 +1,536 @@
+---
+title: Ish Matzliach, BK
+permalink: /shul-wall/ish-matzliach-bk-merge
+layout: nothing
+---
+
+<link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
+<link href="/assets/fonts/ish-matzliach-font/stylesheet.css" rel="stylesheet" />
+<link href="/assets/fonts/sbl/stylesheet.css" rel="stylesheet">
+
+<link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
+<link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
+
+<style>
+	#content {
+		width: 100%;
+		height: 100dvh;
+		display: grid;
+		background-image: url("/assets/images/shul-wall/ish-matzliach/bg.png");
+		background-size: cover;
+		color: black;
+		--bs-body-font-family: 'TT Commons Pro', var(--bs-font-sans-serif);
+		font-family: var(--bs-body-font-family);
+		font-weight: 600;
+	}
+
+	#content > * {
+		grid-area: 1 / 1;
+	}
+
+	#clock {
+		font-size: 5em;
+		font-family: "dharma_gothic_e";
+		font-weight: 400;
+
+		line-height: .8;
+		margin-top: 1rem;
+	}
+
+	#topBar {
+		width: max-content;
+		text-align: center;
+		align-self: start;
+		justify-self: center;
+		color: #30344F;
+		z-index: 3;
+		line-height: 1;
+		padding: .65rem 1.5rem .15rem;
+		align-items: center;
+		font-size: 1.65rem;
+		background: white;
+
+		border-bottom-left-radius: 3.5rem;
+		border-bottom-right-radius: 3.5rem;
+		border: 2px solid #d8a736;
+		border-top: none;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+	}
+
+	#topBar > * {
+		flex: 1 1;
+	}
+
+	#havdalaElem svg {
+		height: 1.75ch;
+		width: 1.75ch;
+		vertical-align: sub;
+	}
+
+	#havdalaElem svg path {
+		fill: #30344F;
+	}
+
+	#quickTimes {
+		display: grid; justify-content: center;
+	}
+
+	#quickTimes i {
+		width: 1em;
+		text-align: center;
+	}
+
+	#dataGrid {
+		height: 92vh;
+		width: calc(100% - 2vw);
+
+		justify-self: center;
+		align-self: end;
+		margin-bottom: 1.25vh;
+
+		background: white;
+		padding: 2vh 1.5vw;
+
+		display: grid;
+		grid-template-columns: 1.5fr 1fr 1.5fr;
+		grid-template-rows: 1fr;
+		align-items: center;
+		gap: 1.75rem;
+		font-size: .8rem;
+
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+	}
+
+	#dataGrid > *:not(.wideView):not(:nth-child(2)) {
+		font-size: 2.15rem;
+	}
+
+	.wideView {
+		display: flex;
+		text-align: center;
+		align-self: end;
+		grid-column: 1 / span 3;
+		font-size: 1.45em;
+	}
+
+	#content[data-current-page="1"] .langTV:not(.lang-en) {
+		display: none;
+	}
+
+	#content[data-current-page="2"] .langTV:not(.lang-hb) {
+		display: none;
+	}
+
+	.wideView > * {
+		flex: 1 1;
+		padding: 6px;
+		padding-top: 0;
+
+		display: flex;
+		justify-content: space-between;
+		flex-direction: column;
+	}
+
+	.wideView > *:first-child {
+		padding-left: 0;
+	}
+
+	.wideView > *:last-child {
+		padding-right: 0;
+	}
+
+	.wideView > *:not(:last-child) {
+		border-right:1px solid black;
+	}
+
+	article > .langTV {
+		font-weight: bold;
+		margin-bottom: .25rem;
+	}
+
+	#poweredBy {
+		justify-self: center;
+		align-self: end;
+		margin-bottom: .75vw;
+		text-align: center;
+		line-height: 1.2;
+		font-size: .95rem;
+		font-weight: bold;
+	}
+
+	#dataGrid .card, #dataGrid .list-group-item {
+		--bs-card-color: black;
+		border: none;
+	}
+
+	#dataGrid .list-group-item {
+		--bs-list-group-item-padding-y: .25rem;
+		--bs-list-group-border-color: white;
+		--bs-list-group-bg: white;
+		--bs-list-group-color: black;
+		--bs-list-group-item-padding-x: 0;
+	}
+
+	.list-group {
+		--bs-list-group-bg: transparent;
+	}
+
+	.card {
+		--bs-card-bg: transparent;
+	}
+
+	.timeDisplay {
+		font-size: .9em;
+	}
+
+	.carousel-item > img {
+		height: 75vh;
+		object-fit: contain;
+	}
+
+	#ishMatzliachSlide {
+		margin-top: 8rem;
+	}
+
+	#location {
+		align-self: start;
+		justify-self: start;
+		margin-left: 1.25vw;
+		padding-top: 2.25dvh;
+		text-align: center;
+		line-height: 1;
+		font-weight: 700;
+		color: #30344F;
+		font-size: 1.25rem;
+	}
+
+	#bsD {
+		align-self: start;
+		justify-self: end;
+		margin-right: 1.25vw;
+		padding-top: 2.25dvh;
+		text-align: center;
+		line-height: 1;
+		font-weight: 700;
+		color: #30344F;
+		font-size: 1.5rem;
+
+		filter: drop-shadow(0px 5px 4px white);
+	}
+
+	.zmanTitleText {
+		line-height: 1;
+		font-size: .7em;
+	}
+
+	#dataGrid .hiloulotCard .list-group-item {
+		line-height: 1;
+		--bs-list-group-item-padding-y: .75rem;
+	}
+
+	[data-zfFind="calendarFormatter"] .card {
+		--bs-border-color: #d8a736;
+		line-height: 1.3;
+		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.2));
+	}
+
+	[data-parasha] {
+		font-size: 3.75rem;
+		line-height: 1;
+		font-family: "sbl_hebrewlimitregular", var(--bs-body-font-family);
+	}
+</style>
+
+<style>
+	:root {
+		--bs-gap: .8rem;
+
+		--tw-ring-offset-shadow: 0 0 #0000;
+		--tw-ring-shadow: 0 0 #0000;
+	}
+
+	.text-gray-600 {
+		--tw-text-opacity: 1;
+		color: rgb(75 85 99 / var(--tw-text-opacity, 1))
+	}
+
+	.text-gray-800 {
+		--tw-text-opacity: 1;
+		color: rgb(31 41 55 / var(--tw-text-opacity, 1))
+	}
+
+	.text-gray-900 {
+		--tw-text-opacity: 1;
+		color: rgb(17 24 39 / var(--tw-text-opacity, 1))
+	}
+
+	.text-lg {
+		font-size: 1.125rem;
+		line-height: 1.75rem
+	}
+
+	.text-sm {
+		font-size: .875rem;
+		line-height: 1.25rem
+	}
+
+	.text-3xl {
+		font-size: 1.875rem;
+		line-height: 2.25rem
+	}
+
+	.font-bold {
+		font-weight: 700
+	}
+
+	.outline {
+		outline-style: solid
+	}
+
+	.ring-offset-background {
+		--tw-ring-offset-color: hsl(var(--background))
+	}
+
+	.rounded {
+		border-radius: .25rem
+	}
+
+	.rounded-\[12px\] {
+		border-radius: 12px
+	}
+
+	.rounded-\[16px\] {
+		border-radius: 16px
+	}
+
+	.rounded-\[2px\] {
+		border-radius: 2px
+	}
+
+	.rounded-\[inherit\] {
+		border-radius: inherit
+	}
+
+	.rounded-xl {
+		border-radius: .75rem
+	}
+
+	.rounded-t-\[10px\] {
+		border-top-left-radius: 10px;
+		border-top-right-radius: 10px
+	}
+
+	.card {
+		--bs-card-spacer-y: .8rem;
+		--bs-card-spacer-x: .8rem;
+	}
+</style>
+
+<div id="content" data-current-page="1" data-page-count="2">
+	<div id="background"></div>
+	<div id="location">Donated by Benjamin Kalimi. Programmed using זמני יוסף (by Maor Na'im)</div>
+	<div id="bsD">
+		1694 Ocean Ave., Brooklyn NY
+        <span style="font-size: .8em; font-weight: 500;">(Young Israel Midwood Bottom Level)</span>
+	</div>
+	<div id="topBar">
+		<div data-en-date class="langTV lang-en text-center"></div>
+		<div data-hb-date class="langTV lang-hb text-center"></div>
+		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
+		<img src="/assets/images/shul-wall/ish-matzliach/heb_text_two.png" style="height: 1.75ch;">
+		<img src="/assets/images/shul-wall/ish-matzliach/emblem.png" style="height:4ch">
+		<img src="/assets/images/shul-wall/ish-matzliach/heb_text_one.png" style="height: 1.75ch;">
+	</div>
+	<div id="dataGrid">
+		<div>
+			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="langTV lang-hb">תלמוד בבלי</dt>
+					<dt class="langTV lang-en">Talmud Bavli</dt>
+					<dd class="m-0" data-zfReplace="dafBavli"></dd>
+				</div>
+			</dl>
+			<h1 data-zfFind="whichZemanimDay" style="font-size: 1.25rem;"></h1>
+			<div class="grid mb-3" style="--bs-columns: 3;" dir="rtl" data-zfFind="calendarFormatter">
+				{% for item in site.data.tv.zmanGridHY.preHatzot %}
+				<div class="g-col-1 card bg-white rounded-[12px] duration-200 text-center border border-gray-100"
+					data-zmanid="{{ item.id }}"
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.round %}data-round="{{ item.round }}"{% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					{% if
+						item.attributes.luachInclusive
+					 or item.attributes.yomTovInclusive
+					 or item.attributes.condition %}style="display: none;"{% endif %}>
+					<div class="card-body">
+						{% if item.icon %} <img src="/assets/images/icons/{{ item.icon }}.png" alt="{{ item.name | escape }}"
+							style="width: 32px; height: 32px;"> {% endif %}
+						<div class="zmanTitleText">
+							<span class="langTV lang-hb">{{ item.names.he }}</span>
+							<span class="langTV lang-en">{{ item.names.en }}</span>
+							<span class="langTV lang-et">{{ item.names.et }}</span>
+						</div>
+						<span class="timeDisplay" dir="ltr">
+							<div class="upNextText" style="display: none;">הבא...</div>
+							<div></div>
+						</span>
+					</div>
+				</div>
+				{% endfor %}
+				<div style="grid-column: 1 / span 3;" class="card bg-white rounded-[12px] shadow-xl transition-shadow duration-200 text-center border border-gray-100"
+					data-zmanid="hatzot"
+					data-timeGetter="getHatzoth"
+					data-round="earlier"
+					data-ampm="false">
+					<div class="card-body">
+						<div class="zmanTitleText">
+							<span class="langTV lang-hb">חצות</span>
+							<span class="langTV lang-en">Midday/Midnight</span>
+							<span class="langTV lang-et">Midday/Midnight</span>
+						</div>
+						<span class="timeDisplay" dir="ltr">
+							<div class="upNextText" style="display: none;">הבא...</div>
+							<div></div>
+						</span>
+					</div>
+				</div>
+				{% for item in site.data.tv.zmanGridHY.postHatzot %}
+				<div class="g-col-1 card bg-white rounded-[12px] shadow-xl transition-shadow duration-200 text-center border border-gray-100"
+					data-zmanid="{{ item.id }}"
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.round %}data-round="{{ item.round }}"{% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+					{% if
+						item.attributes.luachInclusive
+					 or item.attributes.yomTovInclusive
+					 or item.attributes.condition %}style="display: none;"{% endif %}>
+					<div class="card-body">
+						{% if item.icon %} <img src="/assets/images/icons/{{ item.icon }}.png" alt="{{ item.name | escape }}"
+							style="width: 32px; height: 32px;"> {% endif %}
+						<div class="zmanTitleText">
+							<span class="langTV lang-hb">{{ item.names.he }}</span>
+							<span class="langTV lang-en">{{ item.names.en }}</span>
+							<span class="langTV lang-et">{{ item.names.et }}</span>
+						</div>
+						<span class="timeDisplay" dir="ltr">
+							<div class="upNextText" style="display: none;">הבא...</div>
+							<div></div>
+						</span>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+			<h1 class="text-center mb-0 pt-3" style="font-size: 2.75rem;">Hiloulot of...</h1>
+			<div class="card hiloulotCard">
+				<div class="marquee" style="height: 150px;">
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+					<ul class="list-group list-group-flush marquee__content" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
+			<div class="carousel-inner">
+			</div>
+		</div>
+		<div>
+			<h1 class="text-center" data-parasha data-prefix="en-hb"></h1>
+			<h3 class="text-center" style="font-size: 2rem;">
+				<span data-zfReplace="Haftara"><img src="/assets/images/shabbat-abstract/megila-icon.png" style="filter: invert(); height: 1.5ch; vertical-align: inherit;"> Haftara: </span>
+				<span id="makam" data-zfReplace="makamot">🎵Makam </span>
+			</h3>
+			<div class="list-group list-group-flush lh-sm">
+				<div class="list-group-item d-flex justify-content-between" id="havdalaElem">
+					<div data-lightingCandles data-onlyRegShab data-timeInsert="insertAdjacent">
+						<i class="bi bi-fire"></i>
+						<span class="langTV lang-hb">הדלקת נרות</span>
+						<span class="langTV lang-en">Candle Lighting</span>
+					</div>
+				</div>
+			</div>
+			<div class="card" style="line-height: 1.25;">
+				<zman-schedule class="list-group list-group-flush" id="shabbat">
+				</zman-schedule>
+			</div>
+			<div class="list-group list-group-flush lh-sm">
+				<div class="list-group-item d-flex justify-content-between" id="havdalaElem">
+					<div class="langTV lang-hb">
+						<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg><b>צאת מלכה</b>
+						<div style="font-size: .75em;"><span style="unicode-bidi: isolate;">ר"ת</span>: <span data-autoschedule-type="sUM" data-autoschedule-function="getTzetRT" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></span></div>
+					</div>
+					<div class="langTV lang-en">
+						<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg><b>Tzet Melakha</b>
+						<div style="font-size: .75em;">R"T: <span data-autoschedule-type="sUM" data-autoschedule-function="getTzetRT" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></span></div>
+					</div>
+					<dd class="m-0" data-autoschedule-type="sUM" data-autoschedule-function="getTzetMelakha" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></dd>
+				</div>
+			</div>
+			<hr>
+			<h1 class="text-center mb-0" style="font-size: 3.75rem; line-height: 1;">Weekday Schedule</h1>
+			<div class="card">
+				<zman-schedule class="list-group list-group-flush" id="weekday">
+				</zman-schedule>
+			</div>
+		</div>
+		<!-- <section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
+			{% for item in site.data.tv.listTVZman %}
+				<article
+					data-zmanid="{{ item.id }}"
+					{% if item.round %}data-round="{{ item.round }}"{% endif %}
+					{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+				>
+					<span class="langTV lang-hb">{{ item.names.he }}</span>
+					<span class="langTV lang-en">{{ item.names.en }}</span>
+					<span class="langTV lang-et">{{ item.names.et }}</span>
+					<span class="langTV lang-ru">{{ item.names.ru }}</span>
+					<span class="timeDisplay"></span>
+				</article>
+			{% endfor %}
+		</section> -->
+	</div>
+</div>
+
+<script id="zy-scheduleScreen-config" type="application/json">
+	{{ site.data.tv.config.ish-matzliach | jsonify }}
+</script>
+<script type="module">
+	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';
+	validNetzAssert('USA', "41");
+</script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
+<script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
+<script type="module" src="/assets/js/shul-wall/reset.js"></script>
+<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
+<script type="module" src="/assets/js/shul-wall/zemanim/daySpotlight.js"></script>
+<script type="module" src="/assets/js/shul-wall/limud.js"></script>
+<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
+<script type="module">
+	import autoSchedule from "/assets/js/shul-wall/auto-schedule.js";
+
+	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+		.split('\n')
+		.filter(str => str.startsWith('./ish-matzliach-events/'))
+
+	const carousel = document.getElementById('ishMatzliachSlide');
+	carousel.firstElementChild.innerHTML = flyerURLs
+		.map((url, index) =>
+			`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="10000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+		.join('');
+
+	const autos = document.querySelectorAll("[data-autoschedule-type]");
+	if (autos.length) {
+		autoSchedule(autos);
+	}
+</script>

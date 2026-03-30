@@ -122,4 +122,4 @@ for (const locationTitleElem of elems) {
 const lastDayYT = dayB4ErevPesach.add({ days: (anyIsrael ? 2 : 3) });
 const lastDayYTjCal = new WebsiteLimudCalendar(lastDayYT);
 document.getElementById("dateElement").innerHTML =
-	jCal.formatFancyDate() + " - " + lastDayYTjCal.formatFancyDate() + ", " + dayB4ErevPesach.year;
+	jCal.formatFancyDate().en + " - " + lastDayYTjCal.formatFancyDate().en + ", " + dayB4ErevPesach.year;

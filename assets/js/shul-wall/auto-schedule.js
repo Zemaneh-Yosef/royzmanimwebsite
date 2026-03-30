@@ -9,7 +9,7 @@ import { jCal, zmanCalc, dtF, scheduleSettings } from "./base.js";
  * @param {NodeListOf<HTMLElement>} nodes
  */
 export default async function autoSchedule(nodes) {
-	/** @type {{shabbat: WebsiteCalendar; yomChol: WebsiteCalendar; erevShabbat: WebsiteCalendar; nextWeek: WebsiteCalendar; upcomingYomChol: WebsiteCalendar}} */
+	/** @type {{shabbat: WebsiteCalendar; sofUpomingMelakha: WebsiteCalendar; yomChol: WebsiteCalendar; erevShabbat: WebsiteCalendar; nextWeek: WebsiteCalendar; upcomingYomChol: WebsiteCalendar}} */
 	// @ts-ignore
 	const jCalDates = {
 		shabbat: jCal.shabbat()
@@ -23,6 +23,14 @@ export default async function autoSchedule(nodes) {
 	jCalDates.nextWeek = jCalDates.shabbat.clone();
 	jCalDates.nextWeek.setDate(jCalDates.shabbat.getDate().add({ days: 1 }));
 
+	jCalDates.sofUpomingMelakha = jCalDates.shabbat.clone();
+	for (const loopJCal = jCal.clone(); !loopJCal.getDate().equals(jCalDates.sofUpomingMelakha.getDate()); loopJCal.forward(5, 1)) {
+		if (loopJCal.isAssurBemelacha() && !loopJCal.tomorrow().isAssurBemelacha()) {
+			jCalDates.sofUpomingMelakha = loopJCal.clone();
+			break;
+		}
+	}
+
 	if (jCal.hasCandleLighting() || jCal.isAssurBemelacha() || (scheduleSettings.schedule && typeof scheduleSettings.schedule != "string" && scheduleSettings.schedule.forUpcoming))
 		jCalDates.upcomingYomChol = jCalDates.nextWeek;
 	else
@@ -33,7 +41,8 @@ export default async function autoSchedule(nodes) {
 		'we': jCalDates.yomChol,
 		'eSh': jCalDates.erevShabbat,
 		'nWe': jCalDates.nextWeek,
-		"uCh": jCalDates.upcomingYomChol
+		"uCh": jCalDates.upcomingYomChol,
+		'sUM': jCalDates.sofUpomingMelakha
 	}
 	for (const el of nodes) {
 		const type = el.dataset.autoscheduleType;

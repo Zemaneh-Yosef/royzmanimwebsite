@@ -60,15 +60,20 @@
 	transform: rotate(90deg);
 }
 
+:dir(rtl) .accordian details[open]:not(.noContent) > summary .accordianText:before {
+    transform: rotate(-90deg);
+}
+
 .accordian details:not(.noContent) > summary .accordianText:before {
 	content: "";
 	border-width: 0.4rem;
 	border-style: solid;
-	border-color: transparent transparent transparent var(--bs-list-group-color);
+	border-block-color: transparent transparent;
+	border-inline-color: var(--bs-list-group-color) transparent;
 	transform: rotate(0);
-	transform-origin: left center;
+	transform-origin: inline-start center;
 	transition: 0.25s transform ease;
-	margin-right: 0.25rem;
+	margin-inline-end: 0.25rem;
 	display: inline-block;
 }
 
@@ -82,24 +87,8 @@
 }
 
 .accordian details.noContent > summary .accordianText {
-	margin-left: 1.25rem;
+	margin-inline-start: 1.25rem;
 	display: inline-block;
-}
-
-body[dir=rtl] details:not(.noContent) .accordian summary .accordianText:before {
-	border-color: transparent var(--bs-list-group-color) transparent transparent;
-	margin-right: 0;
-	margin-left: 0.25rem;
-	transform-origin: right center;
-}
-
-body[dir=rtl] details.noContent .accordian summary .accordianText {
-	margin-left: 0;
-	margin-right: 0.65rem;
-}
-
-body[dir=rtl] .accordian details[open]:not(.noContent) > summary .accordianText:before {
-	transform: rotate(-90deg) translateX(3px) translateY(-3px);
 }
 
 .accordian details::details-content {

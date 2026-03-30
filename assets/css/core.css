@@ -1,11 +1,25 @@
 body.lang-hb .lang:not(.lang-hb) {
-    display: none;
+    display: none !important;
 }
 
 body.lang-en-et .lang:not(.lang-et) {
-    display: none;
+    display: none !important;
 }
 
 body.lang-en .lang:not(.lang-en) {
-    display: none;
+    display: none !important;
+}
+
+@media (min-width: 768px) {
+    body.lang-hb .d-md-hb-none {
+        display: none !important;
+    }
+
+    body.lang-en .d-md-en-none {
+        display: none !important;
+    }
+
+    body.lang-en-et .d-md-en-et-none {
+        display: none !important;
+    }
 }
