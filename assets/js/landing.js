@@ -35,10 +35,16 @@ document.querySelectorAll('#navbarResponsive .nav-link').forEach(link => {
 navBarCollapse.addEventListener('show.bs.collapse', () => {
     logo.style.width = '30vw';
     logo.style.top   = '.5em';
+    navBarElem.classList.add('navbar-landing-shrink');
+    navBarElem.classList.remove('navbar-landing-expand');
 });
 navBarCollapse.addEventListener('hide.bs.collapse', () => {
     logo.style.removeProperty('width');
     logo.style.removeProperty('top');
+    if (window.scrollY <= 80) {
+        navBarElem.classList.remove('navbar-landing-shrink');
+        navBarElem.classList.add('navbar-landing-expand');
+    }
 });
 
 if (document.readyState === 'loading') {
