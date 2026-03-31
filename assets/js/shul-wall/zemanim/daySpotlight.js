@@ -22,11 +22,12 @@ export default class zmanimListUpdater {
 				luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
 				condition: timeSlot.getAttribute('data-condition'),
 				round: timeSlot.getAttribute('data-round'),
-				title: {
-					'hb': timeSlot.querySelector('span.langTV.lang-hb').innerHTML,
-					'en': timeSlot.querySelector('span.langTV.lang-en').innerHTML,
-					'en-et': timeSlot.querySelector('span.langTV.lang-et').innerHTML
-				}
+				title: Object.fromEntries(['hb', 'en', 'en-et', 'ru'].map(lang => {
+					if (!timeSlot.querySelector(`span.langTV.lang-${lang}`))
+						return null;
+
+					return [lang, timeSlot.querySelector(`span.langTV.lang-${lang}`).innerHTML];
+				}).filter(Boolean))
 			})])
 			.filter(
 				arrayEntry =>
