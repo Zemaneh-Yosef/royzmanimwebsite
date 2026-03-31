@@ -6,10 +6,23 @@ img#heroImage {
     min-height: 27.5vh;
     object-fit: cover;
     object-position: bottom;
-    -webkit-mask-image:-webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 75%, rgba(0,0,0,0));
+    mask-image: linear-gradient(to bottom, black 75%, transparent);
     z-index: -1;
     aspect-ratio: 1622 / 882;
+}
+
+@keyframes logoShrink {
+    from {
+        width: 65vw;
+        top: 5.5em;
+    }
+    40% {
+        top: 0.5em;
+    }
+    to {
+        width: 18em;
+        top: 0.5em;
+    }
 }
 
 img#logo {
@@ -17,60 +30,54 @@ img#logo {
     left: 50%;
     transform: translateX(-50%);
     z-index: 1500;
-    transition: all 0.3s;
-    filter: drop-shadow(0px 2px 6px rgba(0,0,0, .8));
+    filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.8));
     object-fit: contain;
+
+    /* Modern browsers */
+    animation: logoShrink linear both;
+    animation-timeline: scroll();
+    animation-range: 0px 400px;
+
+    /* Safari fallback */
+    width: calc(65vw - (65vw - 12em) * var(--scroll-ratio, 0));
+    top: calc(5.5em - 5em * var(--scroll-ratio, 0));
 }
 
-#logo:not(.stepO):not(.stepTw):not(.stepTh):not(.stepF) {
-    width: 65vw;
-    top: 5.5em;
-}
-
-#logo.stepO {
-    width: 42.5vw;
-    top: 1.5em;
-}
-
-#logo.stepTw {
-    width: 32.5vw;
-    top: .75em;
-}
-
-#logo.stepTh {
-    width: 22vw;
-    top: .75em;
-}
-
-#logo.stepF {
-    height: 3.5em;
-    top: .5em;
+@supports (animation-timeline: scroll()) {
+    img#logo {
+        width: unset;
+        top: unset;
+    }
 }
 
 #fakeLogo {
-    width: 65vw; aspect-ratio: 2000/461; margin-bottom: 5rem;
+    width: 65vw;
+    aspect-ratio: 2000 / 461;
+    margin-bottom: 6rem;
 }
 
 .maxWidthHeader {
-	margin-left: auto;
-	margin-right: auto;
-	width: clamp(16rem, 90vw, 92.5rem);
-	max-width: unset;
-	padding: unset;
+    margin-left: auto;
+    margin-right: auto;
+    width: clamp(16rem, 90vw, 92.5rem);
+    max-width: unset;
+    padding: unset;
 }
 
 @media (max-width: 991.98px) {
-    #logo:not(.stepO):not(.stepTw):not(.stepTh):not(.stepF) {
-        width: 85vw;
+    @keyframes logoShrink {
+        from {
+            width: 85vw;
+            top: 5.5em;
+        }
+        to {
+            width: 10em;
+            top: 0.5em;
+        }
     }
 
-    #logo.stepTw, #logo.stepTh {
-        width: 42.5vw;
-        top: .5em;
-    }
-
-    #logo.stepF {
-        height: 2.75em;
+    img#logo {
+        width: calc(85vw - (85vw - 10em) * var(--scroll-ratio, 0));
     }
 
     #fakeLogo {
@@ -80,11 +87,9 @@ img#logo {
 
 #subtitle {
     font-weight: 600;
-    font-family: Neutro;
-    color: black;
-    -webkit-text-fill-color: white; /* Will override color (regardless of order) */
-    -webkit-text-stroke-width: .5px;
-    -webkit-text-stroke-color: black;
+    font-family: 'Polin', var(--bs-body-font-family);
+    letter-spacing: 1px;
+    color: white;
     filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
 }
 

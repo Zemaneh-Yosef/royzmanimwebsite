@@ -5,9 +5,10 @@ layout: landing
 
 <nav class="navbar navbar-expand-lg fixed-top p-2 p-lg-3" id="mainNav">
 	<div class="container maxWidthHeader">
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
+			aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
-		  </button>
+		</button>
 		<div class="collapse navbar-collapse" id="navbarResponsive">
 			<ul class="navbar-nav me-auto py-4 py-lg-0">
 				<li class="nav-item"><a class="nav-link" href="#services">About</a></li>
@@ -31,8 +32,14 @@ layout: landing
 	<div class="container text-center">
 		<div id="fakeLogo"></div>
 		<div>
-			<h2 id="subtitle">Worldwide Halachic Times according to our Sepharadic Tradition.</h2>
-			<a class="btn btn-primary btn-xl" data-mdb-ripple-init href="#getStarted">Get Started!</a>
+			<h2 id="subtitle">
+				<span class="lang lang-en lang-et">
+					Worldwide Halachic Times<br>
+					according to our Sepharadic Tradition.
+				</span>
+				<span class="lang lang-hb">את כל זמני הלכתי, בכול העולם - על פי מרן זצ"ל</span>
+			</h2>
+			<a class="btn btn-primary btn-xl mt-3" data-mdb-ripple-init href="#getStarted">Get Started!</a>
 		</div>
 	</div>
 </header>
@@ -71,8 +78,11 @@ layout: landing
 				<p class="border" id="error" style="display: none">
 					<!--Hidden until shown-->
 				</p>
-				<div id="offlineText" style="display: none;">Seems like you're disconnected from the internet! Searching by location name/ZIP code requires an internet connection, but you can insert your coordinates manually.</div>
-				<div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough characters. Please try again with a minimum of three characters</div>
+				<div id="offlineText" style="display: none;">Seems like you're disconnected from the internet! Searching
+					by location name/ZIP code requires an internet connection, but you can insert your coordinates
+					manually.</div>
+				<div id="notEnoughChar" style="display: none; color: var(--bs-warning-text-emphasis);">Not enough
+					characters. Please try again with a minimum of three characters</div>
 				<div class="input-group input-group-lg form-outline mb-0 mb-lg-2" data-mdb-input-init>
 					<span class="input-group-text" id="inputGroup-sizing-lg">
 						<i class="bi bi-search" aria-hidden="true" id="searchIcon"></i>
@@ -81,19 +91,29 @@ layout: landing
 						</div>
 						<i class="bi bi-x-circle-fill" style="display: none" aria-hidden="true"></i>
 					</span>
-					<input autocomplete="off" type="search" id="Main" class="form-control form-control-lg" style="z-index: 2" />
+					<input autocomplete="off" type="search" id="Main" class="form-control form-control-lg"
+						style="z-index: 2" />
 					<label class="form-label" for="form1">Insert coordinates/location name/ZIP code</label>
-					<button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block" style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;">
+					<button type="button" data-mdb-ripple-init class="btn btn-success d-none d-lg-block"
+						style="border-top-right-radius: .25rem; border-bottom-right-radius: .25rem;">
 						<i class="bi bi-pin-map"></i>
 					</button>
 				</div>
-				<button type="button" data-mdb-ripple-init class="btn btn-success mb-2 d-lg-none" style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-bottom: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7); border-bottom-left-radius: .25rem; border-bottom-right-radius: .25rem;">
+				<button type="button" data-mdb-ripple-init class="btn btn-success mb-2 d-lg-none"
+					style="width: 100%; margin-left: -1px; border-radius: 0; border-left: 1px solid hsla(0,0%,100%,.7); border-bottom: 1px solid hsla(0,0%,100%,.7); border-right: 1px solid hsla(0,0%,100%,.7); border-bottom-left-radius: .25rem; border-bottom-right-radius: .25rem;">
 					<i class="bi bi-pin-map"></i> Use my device location
 				</button>
-				<md-menu id="locationMenu" anchor="Main" positioning="popover"> <md-list id="locationList"></md-list> </md-menu>
-				<span class="lang lang-hb"><b>כתב ויתור</b>: התוצאות של סרגל חיפוש זה מבוססות על אתר אינטרנט של צד שלישי, ואינן מובטחות להתאים למה שאתה מחפש. אם אינך בטוח לגבי התוצאות, אנא השתמש בלחצן המיקום הידני.</span>
-				<span class="lang lang-et"><b>Disclaimer</b>: The results of this search bar are based on a 3<sup>rd</sup> party website and are not guaranteed to match what you are looking for. If you are not sure about the results, please use the manual location button.</span>
-				<span class="lang lang-en"><b>Disclaimer</b>: The results of this search bar are based on a 3<sup>rd</sup> party website and are not guaranteed to match what you are looking for. If you are not sure about the results, please use the manual location button.</span>
+				<md-menu id="locationMenu" anchor="Main" positioning="popover"> <md-list id="locationList"></md-list>
+				</md-menu>
+				<span class="lang lang-hb"><b>כתב ויתור</b>: התוצאות של סרגל חיפוש זה מבוססות על אתר אינטרנט של צד
+					שלישי, ואינן מובטחות להתאים למה שאתה מחפש. אם אינך בטוח לגבי התוצאות, אנא השתמש בלחצן המיקום
+					הידני.</span>
+				<span class="lang lang-et"><b>Disclaimer</b>: The results of this search bar are based on a
+					3<sup>rd</sup> party website and are not guaranteed to match what you are looking for. If you are
+					not sure about the results, please use the manual location button.</span>
+				<span class="lang lang-en"><b>Disclaimer</b>: The results of this search bar are based on a
+					3<sup>rd</sup> party website and are not guaranteed to match what you are looking for. If you are
+					not sure about the results, please use the manual location button.</span>
 			</div>
 		</div>
 	</div>
@@ -120,25 +140,33 @@ layout: landing
 					{{ tekufaEng | markdownify }}
 					<hr>
 					You can use <b>Zemaneh Yosef</b> to learn more about the Tekufot & other Zemanim information!
-					Exit this modal to use the website version, or download our iOS and Android app on their respective stores.
+					Exit this modal to use the website version, or download our iOS and Android app on their respective
+					stores.
 				</span>
 				<span class="lang lang-en">
 					{{ tekufaEng | markdownify }}
 					<hr>
 					You can use <b>Zemaneh Yosef</b> to learn more about the Tekufot & other Zemanim information!
-					Exit this modal to use the website version, or download our iOS and Android app on their respective stores.
+					Exit this modal to use the website version, or download our iOS and Android app on their respective
+					stores.
 				</span>
 				<div style="text-align: center;">
-					<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" style="width: 25%;" loading="lazy"></a>
-					<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 25%;" loading="lazy"></a><br>
+					<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img
+							src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+							style="width: 25%;" loading="lazy"></a>
+					<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img
+							src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 25%;"
+							loading="lazy"></a><br>
 					<div class="d-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
-						<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="display: block; border-radius: .5rem; background: black; width: 25%; padding: .5rem;">
+						<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"
+							style="display: block; border-radius: .5rem; background: black; width: 25%; padding: .5rem;">
 							<div style="border-radius: .5rem; background: white;">
 								<img src="/assets/images/app-store.svg" style="width: 100%" loading="lazy">
 							</div>
 							App Store
 						</a>
-						<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="display: block; border-radius: .5rem; background: black; width: 25%; padding: .5rem;">
+						<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"
+							style="display: block; border-radius: .5rem; background: black; width: 25%; padding: .5rem;">
 							<div style="border-radius: .5rem; background: white;">
 								<img src="/assets/images/play-store.svg" style="width: 100%" loading="lazy">
 							</div>
@@ -154,16 +182,14 @@ layout: landing
 <!-- Services-->
 <section class="container" id="services">
 	<div class="grid">
-		<div class="g-col-12 g-col-lg-5" style="align-content: center;"><img src="/assets/og-roy-haskama.png" style="width: 100%;"></div>
+		<div class="g-col-12 g-col-lg-5" style="align-content: center;"><img src="/assets/og-roy-haskama.png"
+				style="width: 100%;"></div>
 		<div class="g-col-12 g-col-lg-7" style="grid-row-end: span 2;">
 			<h1 class="text-center">About זמני יוסף</h1>
-			<div style="text-align: center;"><video controls
-				style="width: 75%;"
-				preload="metadata"
-				poster="https://zemaneh-yosef.github.io/.github/resize-thumbnail.png"
-			>
-				<source src="https://zemaneh-yosef.github.io/.github/trailer.mp4" type="video/mp4" />
-			</video></div>
+			<div style="text-align: center;"><video controls style="width: 75%;" preload="metadata"
+					poster="https://zemaneh-yosef.github.io/.github/resize-thumbnail.png">
+					<source src="https://zemaneh-yosef.github.io/.github/trailer.mp4" type="video/mp4" />
+				</video></div>
 			{% capture englishAboutText %}{% include about/english.md %}{% endcapture %}
 			{% capture hebrewAboutText %}{% include about/hebrew.md %}{% endcapture %}
 			<div class="lang lang-hb">{{ hebrewAboutText | markdownify }}</div>
@@ -195,16 +221,22 @@ layout: landing
 					<li>Home-Screen Widgets</li>
 				</ul>
 				<div style="text-align: center;">
-					<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" style="width: 30%;" loading="lazy"></a>
-					<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 30%;" loading="lazy"></a><br>
+					<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"><img
+							src="/assets/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+							style="width: 30%;" loading="lazy"></a>
+					<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"><img
+							src="/assets/images/google-play-store-8-1-73-apk.png" style="width: 30%;"
+							loading="lazy"></a><br>
 					<div class="d-none d-lg-flex justify-content-center mt-1" style="gap: 1rem; color: white;">
-						<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987" style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
+						<a href="https://apps.apple.com/app/rabbi-ovadiah-yosef-calendar/id6448838987"
+							style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
 							<div style="border-radius: .5rem; background: white;">
 								<img src="/assets/images/app-store.svg" style="width: 100%" loading="lazy">
 							</div>
 							App Store
 						</a>
-						<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar" style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
+						<a href="https://play.google.com/store/apps/details?id=com.EJ.ROvadiahYosefCalendar"
+							style="display: block; border-radius: .5rem; background: black; width: 30%; padding: .5rem;">
 							<div style="border-radius: .5rem; background: white;">
 								<img src="/assets/images/play-store.svg" style="width: 100%" loading="lazy">
 							</div>
@@ -224,7 +256,8 @@ layout: landing
 		<div class="grid">
 			<div class="g-col-12 g-col-lg-8">
 				<h1 class="text-center">Zemanim Images for the community</h1>
-				<p>Own a community somewhere in the world and want to have Zemanim to send out weekly on social media? We will generate images for you weekly/before every YT to send out to the community at large!</p>
+				<p>Own a community somewhere in the world and want to have Zemanim to send out weekly on social media?
+					We will generate images for you weekly/before every YT to send out to the community at large!</p>
 				<ul>
 					<li>Shabbat Zemanim Flyer: 10 USD</li>
 					<li>Yom Tov Zemanim Flyer: 25 USD</li>
@@ -234,47 +267,60 @@ layout: landing
 				<p>Communities already partnered for these flyers include:</p>
 				<ul>
 					<li><a href="https://chat.whatsapp.com/IAdb7js5Hdl0MYkrc8OhIj">Great Neck, NY, USA</a></li>
-					<li><a href="https://chat.whatsapp.com/Dh2FgfkJrlI7Cwf9eF1mIA">Rabbi Elbaz' Shiurim</a> (multi-location)</li>
-					<li><a href="https://chat.whatsapp.com/H9xGEouy02VLCanxrPTSOw">Daily Halacha with Rabbi Yaakov Rahimi</a> (multi-location)</li>
-					<li><a href="https://www.shulspace.org/kehillat-sephardim-of-pomona">Kehillat Sephardim of Pomona, NY, USA (Rabbi Gavriel Shimunov)</a></li>
+					<li><a href="https://chat.whatsapp.com/Dh2FgfkJrlI7Cwf9eF1mIA">Rabbi Elbaz' Shiurim</a>
+						(multi-location)</li>
+					<li><a href="https://chat.whatsapp.com/H9xGEouy02VLCanxrPTSOw">Daily Halacha with Rabbi Yaakov
+							Rahimi</a> (multi-location)</li>
+					<li><a href="https://www.shulspace.org/kehillat-sephardim-of-pomona">Kehillat Sephardim of Pomona,
+							NY, USA (Rabbi Gavriel Shimunov)</a></li>
 				</ul>
 			</div>
 			<div class="g-col-12 g-col-lg-4" style="align-content: center;">
 				<div id="akGraphics" class="carousel slide">
 					<div class="carousel-indicators">
-					  <button type="button" data-bs-target="#akGraphics" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Demo of AK-Graphics Rosh Hashana"></button>
-					  <button type="button" data-bs-target="#akGraphics" data-bs-slide-to="1" aria-label="Demo of AK-Graphics Shabbat"></button>
-					  <button type="button" data-bs-target="#akGraphics" data-bs-slide-to="2" aria-label="Demo of AK-Graphics Sukkot"></button>
+						<button type="button" data-bs-target="#akGraphics" data-bs-slide-to="0" class="active"
+							aria-current="true" aria-label="Demo of AK-Graphics Rosh Hashana"></button>
+						<button type="button" data-bs-target="#akGraphics" data-bs-slide-to="1"
+							aria-label="Demo of AK-Graphics Shabbat"></button>
+						<button type="button" data-bs-target="#akGraphics" data-bs-slide-to="2"
+							aria-label="Demo of AK-Graphics Sukkot"></button>
 					</div>
 					<div class="carousel-inner">
-					  <div class="carousel-item active">
-						<img src="/assets/images/landing/akgraphics-rh.jpeg" class="d-block w-100" alt="Demo of AK-Graphics Rosh Hashana">
-					  </div>
-					  <div class="carousel-item">
-						<img src="/assets/images/landing/akgraphics-shabbat.jpeg" class="d-block w-100" alt="Demo of AK-Graphics Shabbat">
-					  </div>
-					  <div class="carousel-item">
-						<img src="/assets/images/landing/akgraphics-sukkot.jpeg" class="d-block w-100" alt="Demo of AK-Graphics Sukkot">
-					  </div>
+						<div class="carousel-item active">
+							<img src="/assets/images/landing/akgraphics-rh.jpeg" class="d-block w-100"
+								alt="Demo of AK-Graphics Rosh Hashana">
+						</div>
+						<div class="carousel-item">
+							<img src="/assets/images/landing/akgraphics-shabbat.jpeg" class="d-block w-100"
+								alt="Demo of AK-Graphics Shabbat">
+						</div>
+						<div class="carousel-item">
+							<img src="/assets/images/landing/akgraphics-sukkot.jpeg" class="d-block w-100"
+								alt="Demo of AK-Graphics Sukkot">
+						</div>
 					</div>
-					<button class="carousel-control-prev" type="button" data-bs-target="#akGraphics" data-bs-slide="prev">
-					  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-					  <span class="visually-hidden">Previous</span>
+					<button class="carousel-control-prev" type="button" data-bs-target="#akGraphics"
+						data-bs-slide="prev">
+						<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+						<span class="visually-hidden">Previous</span>
 					</button>
-					<button class="carousel-control-next" type="button" data-bs-target="#akGraphics" data-bs-slide="next">
-					  <span class="carousel-control-next-icon" aria-hidden="true"></span>
-					  <span class="visually-hidden">Next</span>
+					<button class="carousel-control-next" type="button" data-bs-target="#akGraphics"
+						data-bs-slide="next">
+						<span class="carousel-control-next-icon" aria-hidden="true"></span>
+						<span class="visually-hidden">Next</span>
 					</button>
-				  </div>
+				</div>
 			</div>
 		</div>
 	</div>
 </section>
 
-<p class="py-2 text-center">Made by Elyahu Jacobi, Maor Na'im <a href="" data-bs-toggle="modal" data-bs-target="#creditModal">& co.</a></p>
+<p class="py-2 text-center">Made by Elyahu Jacobi, Maor Na'im <a href="" data-bs-toggle="modal"
+		data-bs-target="#creditModal">& co.</a></p>
 
 {% include toasts/failToast.html toastId="inaccessibleToast" errorText="Location inaccessible. Please try again!" %}
-{% include toasts/failToast.html toastId="zipToast" errorText="Multiple ZIP codes coordinates detected. Please use Location Name instead." %}
+{% include toasts/failToast.html toastId="zipToast" errorText="Multiple ZIP codes coordinates detected. Please use
+Location Name instead." %}
 
 <script src="/assets/libraries/materialComp/materialweb.js"></script>
 <script src="/assets/js/location.js" type="module"></script>
@@ -282,85 +328,85 @@ layout: landing
 
 <style>
 	.m3carcontainer {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  margin: 0 auto;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-}
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		margin: 0 auto;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x mandatory;
+	}
 
-.item {
-  flex: 0 0 auto;
-  border-radius: 2.5rem;
-  transition: flex .5s cubic-bezier(0.4, 0, 0.2, 1), transform .5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow .5s cubic-bezier(0.4, 0, 0.2, 1);
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: left;
-  margin: 0 0.4rem;
-  min-height: 150px;
-  scroll-snap-align: start;
-}
+	.item {
+		flex: 0 0 auto;
+		border-radius: 2.5rem;
+		transition: flex .5s cubic-bezier(0.4, 0, 0.2, 1), transform .5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow .5s cubic-bezier(0.4, 0, 0.2, 1);
+		background-color: transparent;
+		background-repeat: no-repeat;
+		background-size: cover;
+		background-position: left;
+		margin: 0 0.4rem;
+		min-height: 150px;
+		scroll-snap-align: start;
+	}
 
-.item:hover {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
+	.item:hover {
+		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+	}
 
-.item1 {
-  background-image: url('/assets/haskamot/rav-yitzhak-yosef.png');
-}
+	.item1 {
+		background-image: url('/assets/haskamot/rav-yitzhak-yosef.png');
+	}
 
-.item2 {
-  background-image: url('/assets/haskamot/rav-elbaz.png');
-}
+	.item2 {
+		background-image: url('/assets/haskamot/rav-elbaz.png');
+	}
 
-.item3 {
-  background-image: url('/assets/haskamot/rav-mansour.png');
-}
+	.item3 {
+		background-image: url('/assets/haskamot/rav-mansour.png');
+	}
 
-.item4 {
-  background-image: url('/assets/haskamot/rav-dahan.png');
-}
+	.item4 {
+		background-image: url('/assets/haskamot/rav-dahan.png');
+	}
 
-.item5 {
-  background-image: url('/assets/haskamot/rav-eliyahu-ben-hayyim.png');
-}
+	.item5 {
+		background-image: url('/assets/haskamot/rav-eliyahu-ben-hayyim.png');
+	}
 
-.item.clicked {
-  flex: 2;
-  z-index: 1;
-}
+	.item.clicked {
+		flex: 2;
+		z-index: 1;
+	}
 
-.item:not(.clicked) {
-  flex: 1;
-  margin: 0 0.4rem;
-}
+	.item:not(.clicked) {
+		flex: 1;
+		margin: 0 0.4rem;
+	}
 </style>
 
 <script>
 	const items = document.querySelectorAll('.m3carcontainer .item');
 
-items.forEach((item) => {
-  item.addEventListener('click', () => {
-    items.forEach((otherItem) => {
-      if (otherItem !== item) {
-        otherItem.classList.remove('clicked');
-      }
-    });
-    item.classList.toggle('clicked');
-    updateParallax(); // Add this line to update the parallax effect when an item is clicked
-  });
-});
+	items.forEach((item) => {
+		item.addEventListener('click', () => {
+			items.forEach((otherItem) => {
+				if (otherItem !== item) {
+					otherItem.classList.remove('clicked');
+				}
+			});
+			item.classList.toggle('clicked');
+			updateParallax(); // Add this line to update the parallax effect when an item is clicked
+		});
+	});
 
-function updateParallax() {
-  const container = document.getElementsByClassName('m3carcontainer');
-  const scrollPosition = container.scrollLeft;
+	function updateParallax() {
+		const container = document.getElementsByClassName('m3carcontainer');
+		const scrollPosition = container.scrollLeft;
 
-  for (const item of items.children) {
-    const backgroundPosition = scrollPosition * 0.5;
-    item.style.backgroundPositionX = `${backgroundPosition}px`;
-  }
-}
+		for (const item of items.children) {
+			const backgroundPosition = scrollPosition * 0.5;
+			item.style.backgroundPositionX = `${backgroundPosition}px`;
+		}
+	}
 </script>
