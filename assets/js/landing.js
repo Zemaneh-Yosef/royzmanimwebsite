@@ -15,11 +15,16 @@ if (!supportsScrollTimeline) {
 }
 
 // Navbar shrink/expand on scroll
-window.addEventListener('scroll', () => {
+function updateNavbar() {
     const scrolled = window.scrollY > 80;
     navBarElem?.classList.toggle('navbar-landing-shrink', scrolled);
     navBarElem?.classList.toggle('navbar-landing-expand', !scrolled);
-}, { passive: true });
+}
+
+window.addEventListener('scroll', updateNavbar, { passive: true });
+
+// Run once on load to set correct initial state
+updateNavbar();
 
 // Collapse navbar on mobile nav-link click
 const navbarToggler = document.querySelector('.navbar-toggler');
