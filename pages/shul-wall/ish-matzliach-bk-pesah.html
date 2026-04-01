@@ -1,6 +1,6 @@
 ---
 title: Ish Matzliach, BK
-permalink: /shul-wall/ish-matzliach-bk-merge
+permalink: /shul-wall/ish-matzliach-bk-pesah
 layout: nothing
 ---
 
@@ -433,12 +433,6 @@ layout: nothing
 					<dd class="m-0" data-autoschedule-type="sUM" data-autoschedule-function="getTzetMelakha" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></dd>
 				</div>
 			</div>
-			<hr>
-			<h1 class="text-center mb-0" style="font-size: 3.75rem; line-height: 1;">Weekday Schedule</h1>
-			<div class="card">
-				<zman-schedule class="list-group list-group-flush" id="weekday">
-				</zman-schedule>
-			</div>
 		</div>
 		<!-- <section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
 			{% for item in site.data.tv.listTVZman %}
@@ -462,7 +456,32 @@ layout: nothing
 </div>
 
 <script id="zy-scheduleScreen-config" type="application/json">
-	{{ site.data.tv.config.ish-matzliach | jsonify }}
+{
+    "seconds": false,
+    "timeFormat": "h12",
+    "language": "en",
+    "location": {
+        "name": "Ish Matzliach",
+        "lat": 40.62058957431101,
+        "long": -73.95592847316078,
+        "elevation": 0,
+        "timezone": "America/New_York"
+    },
+    "calendarToggle": {
+        "rtKulah": true,
+        "tekufaMidpoint": "hatzoth",
+        "tekufaCalc": "shemuel",
+        "forceSunSeasonal": false
+    },
+    "customTimes": {
+        "candleLighting": 20,
+        "tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
+    },
+    "schedule": {
+        "url": "https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/ish-matzliach-pesah.ini",
+        "type": "ini"
+    }
+}
 </script>
 <script type="module">
 	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';
