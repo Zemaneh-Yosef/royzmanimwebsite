@@ -25,7 +25,7 @@ export async function loadTomlSchedule(url, silent=false, arrayBehavior="return"
 	const tomlText = await (await fetch(url)).text();
 	const tomlObj = parseToml(tomlText);
 
-	return await loadSchedule(tomlObj, silent, );
+	return await loadSchedule(tomlObj, silent, arrayBehavior);
 }
 
 /**
@@ -34,7 +34,7 @@ export async function loadTomlSchedule(url, silent=false, arrayBehavior="return"
  */
 export async function loadJsonSchedule(url, silent=false, arrayBehavior="return") {
 	const jsonText = await (await fetch(url)).json();
-	return await loadSchedule(jsonText, silent);
+	return await loadSchedule(jsonText, silent, arrayBehavior);
 }
 
 /**
