@@ -208,11 +208,11 @@ export default class zmanimListUpdater {
 		this.jCal.setInIsrael(geoLocation.getTimeZone() == 'Asia/Jerusalem');
 
 		this.zmanCalc = new ZemanFunctions(geoLocation, {
-			elevation: this.jCal.getInIsrael(),
-			fixedMil: this.jCal.getInIsrael(),
+			elevation: true,
+			fixedMil: true,
 			rtKulah: !this.jCal.getInIsrael(),
 			candleLighting: 20,
-			melakha: { minutes: 30, degree: 7.14 }
+			melakha: (this.jCal.getInIsrael() ? { minutes: 30, degree: null } : { minutes: null, degree: 7.165 })
 		})
 		this.zmanCalc.setVisualSunrise(availableVS);
 

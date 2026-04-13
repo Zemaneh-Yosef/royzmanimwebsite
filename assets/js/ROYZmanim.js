@@ -395,19 +395,28 @@ class ZemanFunctions extends ZemanimMathBase {
 		);
 	}
 
-	/* The philosophy behind Tzet Shabbat is as such:
-	 * The passed value will be both the public facing response & the highly technical one
-	 * If the expectation is that you could just minus X amount of minutes to get sunset, that's clearly public facing;
-	 * thus use the public facing (aka stringent value)
-	 * When you're using degrees, it's clear that you're being different week-to-week, and thus leave room for more technical math
-	 * Thus, although we will not default to the most technical time, we will factor it in when we want to be more public-facing
-	 * In our case, we have four options to handle the multiple Zemanim:
-	 * PRETTY - The stricter time is the one that's meant to be there, but if there is time between the two is divisable by 5, use that time instead
-	 * LENIENT - Either the degree or the fixed minute as a cap-off for the degree.
-	 * Each object has both fixed minutes and its degree-equivalent - thus, you'll instead use the "strictest" fixed minute and the lenient degree
-	 * STRINGENT - The degree is meant to increase, not decrease from the stringent fixed value - find the strictest fixed, lenient degree and adjust
-	 * This functionality goes unused anywhere that shows sunset - nevertheless, for flyers, we default to pretty
-	 * The app implements "lenient", stringent remains unused by our flyers but used elsewhere
+	/* This function will always be a stringency on top of what the letter of the law is (Stringent Nightfall). To explain the default web usage:
+	 * In our Ohr HaChaim mode in Israel, they present the letter-of-the-law as 20 fixed/seasonal, so 30 fixed covers that
+	 * In our Amudeh Hora'ah mode anywhere, we rule the letter of the law is 5.2 degrees (20 minutes of Israel), so 7.165 (30 minutes of Israel) is the stringency used
+	 * This will always be before Hatzot HaLayla.
+	 *
+	 * Disregarding the cases that we completely revert back to the letter of the law (like the default was outright removed or we can't calculate it)
+	 * the point of this function is that we can accept stringencies, either in the form of fixed minutes or degrees.
+	 * For singular stringencies, you could either do a fixed amount of minutes after sunset
+	 * (examples: 30 minutes, since that's more than 27; 42 because that's a full 25 hours after an 18-minute candle lighting)
+	 *
+	 * Uniquely, we allow multiple stringencies to be inserted too; of course, one time will be returned (perhaps with its metadata so you know how we got there)
+	 * What do we do with BOTH? We calculate which one is more suitable based on the "multiHandle" parameters. Sometimes a stringency is too stringent for the context
+	 * One example is for a flyer: It's easier to remember a number that ends with either a five or zero, so multi handler could be set to "pretty".
+	 * Alternatively, maybe you have someone that wants to be as stringent as possible - you load up all the stringencies with that configuration
+	 * Maybe you want the complete opposite, so you do the same above.
+	 *
+	 * We ignore interopability between degrees and fixed minutes, so choose one and stick to it.
+	 * When both are provided, the fixedMil config will determine which one to pick between them.
+	 *
+	 * Zemaneh YosefTM uses: Default web/app uses the fixedMil for 30/7.165, while providing both
+	 * Hazon Yosef: fixedMil is always true, so for outside Eretz Yisrael, we omit minutes.
+	 * Flyers use the stringency of 27 minutes as the "do not compromise point" and the 30 minutes is only used when the rounded of PRETTY would be later than it
 	 */
 	/** @param {"PRETTY"|"LENIENT"|"STRINGENT"} [multiHandle="PRETTY"] */
 	/** @returns {Temporal.ZonedDateTime|{time:Temporal.ZonedDateTime; minutes?: number; degree?: number;}} */
@@ -416,7 +425,8 @@ class ZemanFunctions extends ZemanimMathBase {
 			return this.getTzetHumra();
 		}
 
-		if (this.config.fixedMil || (!Array.isArray(humraConf) && humraConf.degree == null)) {
+		if ((this.config.fixedMil && ((!Array.isArray(humraConf) && humraConf.minutes !== null) || (Array.isArray(humraConf) && humraConf.some(conf => conf.minutes !== null))))
+		 || (!this.config.fixedMil && ((!Array.isArray(humraConf) && humraConf.degree == null) || (Array.isArray(humraConf) && humraConf.every(conf => conf.degree == null))))) {
 			let humraObj = Array.isArray(humraConf) ? humraConf.sort((humraObjA, humraObjB) => humraObjB.minutes - humraObjA.minutes)[0] : humraConf;
 			return { time: this.timeRange.current.sunset.add({ minutes: humraObj.minutes }), minutes: humraObj.minutes };
 		}
