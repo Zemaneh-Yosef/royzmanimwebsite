@@ -9,9 +9,7 @@ import QrCode from "../../libraries/qrCode.js";
 
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 
-import * as ol from "../../libraries/OpenLayers/index.js"
-// @ts-ignore
-import StadiaMaps from "https://cdn.skypack.dev/ol/source/StadiaMaps";
+import * as ol from "../../libraries/OpenLayers/ol.js"
 
 const printParam = new URLSearchParams(window.location.search);
 if (printParam.has('lessContrast')) {
@@ -128,7 +126,7 @@ if (elevation) {
 /** @type {HTMLElement} */
 const locationMapElem = document.querySelector('[data-zfFind="locationMap"]')
 if (locationMapElem) {
-	const stadiaSource = new StadiaMaps({
+	const stadiaSource = new ol.StadiaMaps({
 		layer: 'stamen_terrain',
 		retina: true,
 	});
@@ -138,7 +136,7 @@ if (locationMapElem) {
 		target: locationMapElem,
 		layers: [new ol.layer.Tile({ source: stadiaSource }) ],
 		view: new ol.View({
-			center: ol.proj.fromLonLat([geoLocation.getLongitude(), geoLocation.getLatitude()]),
+			center: ol.fromLonLat([geoLocation.getLongitude(), geoLocation.getLatitude()]),
 			zoom: 11
 		})
 	});
