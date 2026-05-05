@@ -5,7 +5,7 @@ import { zDTFromFunc, ZemanFunctions } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 
-const jCal = new WebsiteLimudCalendar(KosherZmanim.Temporal.Now.plainDateISO());
+const jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
 
 if (new URLSearchParams(window.location.search).has('sefiraDay')) {
@@ -14,6 +14,8 @@ if (new URLSearchParams(window.location.search).has('sefiraDay')) {
 }
 
 for (const dateRender of document.querySelectorAll("[data-zfDateRender]")) {
+	/** @type {'en'|'hb'} */
+	// @ts-ignore
 	const lang = dateRender.getAttribute('data-zfDateRender');
 	dateRender.innerHTML += (lang !== "hb" ? jCal.getDayOfTheWeek()[lang] + ", " : "") + jCal.dateRenderer(lang).primary.text
 }

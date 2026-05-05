@@ -181,8 +181,9 @@ if (tzetElem) {
 	const rabbinic = tzet.getDayOfWeek() !== 6 && tzet.isErevYomTovSheni()
 	tzet.forward(5, 1);
 
+	console.log(zmanCalc.config.melakha)
 	const tzetTimes = {
-		ikar: zDTFromFunc(zmanCalc.chainDate(tzet.getDate()).getTzetMelakha()),
+		ikar: zDTFromFunc(zmanCalc.chainDate(tzet.getDate()).getTzetMelakha(undefined, tzetElem.getAttribute('data-multiHandle') || "PRETTY")),
 		rt: zmanCalc.chainDate(tzet.getDate()).getTzetRT()
 	}
 

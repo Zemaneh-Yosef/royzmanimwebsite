@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import { Parsha, Temporal } from "../libraries/kosherZmanim/kosher-zmanim.js";
+import { Parsha } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
@@ -1007,28 +1007,28 @@ export default class zmanimListUpdater {
 	}
 
 	setNextUpcomingZman() {
-		/** @type {KosherZmanim.Temporal.ZonedDateTime[]} */
+		/** @type {Temporal.ZonedDateTime[]} */
 		const zmanim = [];
 		const currentSelectedDate = this.zmanCalc.coreZC.getDate();
 
 		for (const days of [0, 1]) {
-			this.changeDate(KosherZmanim.Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).add({ days }), true);
+			this.changeDate(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).add({ days }), true);
 			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF)).filter(obj => obj.display == 1).map(time => time.zDTObj));
 			zmanim.push(this.zmanCalc.getSolarMidnight());
 		}
 
 		this.changeDate(currentSelectedDate, true); //reset the date to the current date
-		zmanim.sort(KosherZmanim.Temporal.ZonedDateTime.compare);
-		this.nextUpcomingZman = zmanim.find(zman => KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(zman).total({ unit: "milliseconds" }) > 0)
+		zmanim.sort(Temporal.ZonedDateTime.compare);
+		this.nextUpcomingZman = zmanim.find(zman => Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(zman).total({ unit: "milliseconds" }) > 0)
 
 		setTimeout(
 			() => { this.setNextUpcomingZman(); this.updateZmanimList() },
-			KosherZmanim.Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(this.nextUpcomingZman).total({ unit: "milliseconds" })
+			Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(this.nextUpcomingZman).total({ unit: "milliseconds" })
 		);
 	}
 
 	/**
-	 * @param {KosherZmanim.Temporal.ZonedDateTime} zman
+	 * @param {Temporal.ZonedDateTime} zman
 	 */
 	isNextUpcomingZman(zman) {
 		return !(this.nextUpcomingZman == null || !(zman.equals(this.nextUpcomingZman)))

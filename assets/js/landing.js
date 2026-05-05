@@ -10,7 +10,7 @@ const supportsScrollTimeline = CSS.supports('animation-timeline', 'scroll()');
 if (!supportsScrollTimeline) {
     window.addEventListener('scroll', () => {
         const ratio = Math.min(window.scrollY / 400, 1);
-        document.documentElement.style.setProperty('--scroll-ratio', ratio);
+        document.documentElement.style.setProperty('--scroll-ratio', ratio.toString());
     }, { passive: true });
 }
 

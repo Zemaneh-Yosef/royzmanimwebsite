@@ -1,6 +1,5 @@
 // @ts-check
 
-import { Temporal } from "../../../libraries/kosherZmanim/kosher-zmanim.js";
 import { methodNames } from "../../ROYZmanim.js";
 import { reload } from "../reload.js";
 import { currentZDT, jCal, zmanCalc, dtF } from "../base.js";

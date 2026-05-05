@@ -1,6 +1,5 @@
 // @ts-check
 
-import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { scheduleSettings, jCal } from "./base.js";
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { reload } from "./reload.js";

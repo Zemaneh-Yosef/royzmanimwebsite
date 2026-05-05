@@ -57,23 +57,39 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior="retu
     const unprocessedEntries = {};
 
     for (const [sectionKey, value] of Object.entries(data)) {
-
+        const elemForSimpID = document.getElementById(sectionKey);
 		if (typeof value == "string" || typeof value == "number") {
-			document.getElementById(sectionKey).innerHTML = String(value);
-			continue;
+            if (!elemForSimpID) {
+                if (silentFail) {
+                    console.warn(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`);
+                } else {
+                    throw new Error(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`)
+                }
+            } else {
+			    document.getElementById(sectionKey).innerHTML = String(value);
+            }
+            continue;
 		} else if (Array.isArray(value)) {
-			switch (arrayBehavior) {
-				case 'comma':
-					document.getElementById(sectionKey).innerHTML = value.join(", ");
-					break;
-				case 'newline':
-					document.getElementById(sectionKey).innerHTML = value.join("<br>")
-					break;
-				case 'return':
-				default:
-					unprocessedEntries[sectionKey] = value;
-					break;
-			}
+            if (!elemForSimpID) {
+                if (silentFail) {
+                    console.warn(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`);
+                } else {
+                    throw new Error(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`)
+                }
+            } else {
+                switch (arrayBehavior) {
+                    case 'comma':
+                        document.getElementById(sectionKey).innerHTML = value.join(", ");
+                        break;
+                    case 'newline':
+                        document.getElementById(sectionKey).innerHTML = value.join("<br>")
+                        break;
+                    case 'return':
+                    default:
+                        unprocessedEntries[sectionKey] = value;
+                        break;
+                }
+            }
 			continue;
 		}
 
@@ -85,8 +101,10 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior="retu
         const elem = document.getElementById(elemId);
 
         if (!elem) {
-            if (!silentFail) {
+            if (silentFail) {
                 console.warn(`Element with id "${elemId}" (from section [${sectionKey}]) not found`);
+            } else {
+                throw new Error(`Element with id "${elemId}" (from section [${sectionKey}]) not found`)
             }
             unprocessedEntries[sectionKey] = value;
             continue;

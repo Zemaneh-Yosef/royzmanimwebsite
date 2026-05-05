@@ -187,7 +187,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 
 		document.getElementById('location').innerHTML = settings.location.name();
 
-		/** @type {({ plagHamincha: KosherZmanim.Temporal.ZonedDateTime; } & ({ msg?: string; candleLighting: KosherZmanim.Temporal.ZonedDateTime } | { msg?: string; tzetShabbat: KosherZmanim.Temporal.ZonedDateTime; rt: KosherZmanim.Temporal.ZonedDateTime } | Record<string, KosherZmanim.Temporal.ZonedDateTime>))[]} */
+		/** @type {({ plagHamincha: Temporal.ZonedDateTime; } & ({ msg?: string; candleLighting: Temporal.ZonedDateTime } | { msg?: string; tzetShabbat: Temporal.ZonedDateTime; rt: Temporal.ZonedDateTime } | Record<string, Temporal.ZonedDateTime>))[]} */
 		const timeSchedule = [];
 
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
@@ -213,10 +213,10 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 					tzetShabbat: zDTFromFunc(calc.getTzetMelakha())
 				})
 			else {
-				/** @type {typeof buildObj & Record<string, KosherZmanim.Temporal.ZonedDateTime>} */
+				/** @type {typeof buildObj & Record<string, Temporal.ZonedDateTime>} */
 				const ourObj = {...buildObj};
 				for (const shita of ['getTzet']) {
-					/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+					/** @type {Temporal.ZonedDateTime} */
 					// @ts-ignore
 					let time = calc[shita]();
 
@@ -343,17 +343,17 @@ for (const elem of elems) {
 				editElem = editElem.nextElementSibling
 			} while (!editElem.classList.contains('timeshow'))
 
-			/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+			/** @type {Temporal.ZonedDateTime} */
 			// @ts-ignore
 			let time = zDTFromFunc(currentCalc[timeFunc]())
 
 			if (document.getElementById('gridElement').getAttribute('data-flyerType') == 'shovavim') {
 				// @ts-ignore
-				const action = (KosherZmanim.Temporal.ZonedDateTime.compare(currentCalc[shita](), plag) == 1 ? 'add' : 'subtract')
+				const action = (Temporal.ZonedDateTime.compare(currentCalc[shita](), plag) == 1 ? 'add' : 'subtract')
 				const times = [];
 				for (let extremeDay = 0; extremeDay < 6; extremeDay++) {
 					const extremeCalc = currentCalc.chainDate(currentCalc.coreZC.getDate().add({ days: extremeDay }));
-					/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+					/** @type {Temporal.ZonedDateTime} */
 					// @ts-ignore
 					let extremeTime = extremeCalc[shita]();
 					if (elem.hasAttribute('data-humra')) {
@@ -363,11 +363,11 @@ for (const elem of elems) {
 					times.push(extremeTime)
 				}
 
-				time = times.sort(KosherZmanim.Temporal.ZonedDateTime.compare)[action == 'subtract' ? 0 : times.length - 1]
+				time = times.sort(Temporal.ZonedDateTime.compare)[action == 'subtract' ? 0 : times.length - 1]
 			} else {
 				const LeKhumra = shitotOptions.length >= 2 ?
 					shitotDay !== shitotOptions[0] :
-					KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1
+					Temporal.ZonedDateTime.compare(time, plag) == 1
 
 				if (elem.hasAttribute('data-humra') && (!editElem.hasAttribute('data-humra') || editElem.getAttribute('data-humra') !== "false"))
 					time = time[LeKhumra ? 'add' : 'subtract']({minutes: parseInt(elem.getAttribute('data-humra'))});
@@ -388,13 +388,13 @@ for (const elem of elems) {
 					continue;
 
 				const methodName = methodNames.find(name => name.toLowerCase() == functionName.toLowerCase());
-				/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+				/** @type {Temporal.ZonedDateTime} */
 				// @ts-ignore
 				let subTime = currentCalc[methodName]();
 
 				const LeKhumra = shitotOptions.length >= 2 ?
 					shitotDay !== shitotOptions[0] :
-					KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1
+					Temporal.ZonedDateTime.compare(time, plag) == 1
 
 				if (elem.hasAttribute('data-humra') && (!editElem.hasAttribute('data-humra') || editElem.getAttribute('data-humra') !== "false"))
 					subTime = subTime[LeKhumra ? 'add' : 'subtract']({minutes: parseInt(elem.getAttribute('data-humra'))});
@@ -454,14 +454,14 @@ for (const elem of elems) {
 						baseEditElem = baseEditElem.nextElementSibling;
 
 						const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map((calc, index) => {
-							/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+							/** @type {Temporal.ZonedDateTime} */
 							// @ts-ignore
 							let time = calc[timeFunc]()
 
 							if ((index == 0 ? elem : baseLocation).hasAttribute('data-humra')) {
 								const LeKhumra = shitotOptions.length >= 2 ?
 									parseInt(shitotDay.replace(backday ? 'data-functions-backday-' : 'data-functions-frontday-', '')) == 0 :
-									KosherZmanim.Temporal.ZonedDateTime.compare(time, plag) == 1;
+									Temporal.ZonedDateTime.compare(time, plag) == 1;
 								time = time[LeKhumra ? 'add' : 'subtract']({
 									minutes: parseInt((index == 0 ? elem : baseLocation).getAttribute('data-humra'))
 								});
@@ -543,10 +543,10 @@ for (const haftara of document.querySelectorAll('[data-haftara]')) {
 }
 
 /**
- * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} a
- * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} b
+ * @param {string | Temporal.ZonedDateTime | Temporal.ZonedDateTimeLike} a
+ * @param {string | Temporal.ZonedDateTime | Temporal.ZonedDateTimeLike} b
  */
 function rZTDsort(a,b) {
-	const pSort = KosherZmanim.Temporal.ZonedDateTime.compare(a, b);
+	const pSort = Temporal.ZonedDateTime.compare(a, b);
 	return pSort * -1;
 }

@@ -1,10 +1,13 @@
 // @ts-check
 
 import { ZemanFunctions } from "../ROYZmanim.js";
-import { Temporal, GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
 
 /** @typedef {T[keyof T]} ValueOf<T> */
+/**
+ * @typedef {{ DATE: import("../../libraries/xlsx.js").CellObject } & Record<string, import("../../libraries/xlsx.js").CellObject>} SpreadsheetRow
+ */
 
 /**
  * @param {ConstructorParameters<typeof Temporal.PlainDate>} plainDateParams
@@ -32,6 +35,7 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 	/** @param {Temporal.ZonedDateTime} time */
 	const formatTime = (time) => '=TIME(' + [time.hour, time.minute, time.second].join(', ') + ')'
 
+	/** @type {SpreadsheetRow[]} */
 	const events = [];
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
 		const dailyZmanim = Object.entries(jCal.getZmanimInfo(true, calc, zmanList, [null, funcSettings.seconds ? {second: '2-digit'} : {}]))

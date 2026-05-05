@@ -30,7 +30,7 @@ if (haftaraBarNoSource) {
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
 await hiloulahIndex.init();
 
-const leilouNishmat = hiloulahIndex.getHiloulah(jCal)
+const leilouNishmat = await hiloulahIndex.getHiloulah(jCal)
 for (let leilouNishmatList of document.querySelectorAll('[data-zfFind="hiloulah"]')) {
 	while (leilouNishmatList.firstElementChild) {
 		leilouNishmatList.firstElementChild.remove()

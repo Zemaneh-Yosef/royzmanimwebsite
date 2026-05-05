@@ -1,6 +1,5 @@
 // @ts-check
 
-import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteCalendar from '../WebsiteCalendar.js';
 import { zDTFromFunc } from '../ROYZmanim.js';
 import { jCal, zmanCalc, dtF, scheduleSettings } from "./base.js";

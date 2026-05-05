@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from '../../libraries/kosherZmanim/kosher-zmanim.js';
-import { Temporal, Parsha } from '../../libraries/kosherZmanim/kosher-zmanim.js';
+import { Parsha } from '../../libraries/kosherZmanim/kosher-zmanim.js';
 import WebsiteLimudCalendar from '../WebsiteLimudCalendar.js';
 import { parseHTML } from '../../libraries/linkedom/linkedom.js'
 import { HebrewNumberFormatter, daysForLocale, getOrdinal, monthForLocale } from '../WebsiteCalendar.js';

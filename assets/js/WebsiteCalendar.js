@@ -6,7 +6,7 @@ import { zDTFromFunc } from "./ROYZmanim.js";
 import n2wordsOrdinal from './misc/n2wordsOrdinal.js';
 
 /** @typedef {{ hb?: string, en?: string, "en-et"?: string; "ru"?: string; }} langType */
-/** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: KosherZmanim.Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
+/** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
 /** @typedef {{ function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }; round: "earlier"|"later"|"exact"; ignoreNextUpcoming?: boolean}} zmanInfoList */
 
 export default
@@ -44,7 +44,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	/**
-	 * @param {KosherZmanim.Temporal.ZonedDateTime|KosherZmanim.Temporal.PlainDate} date
+	 * @param {Temporal.ZonedDateTime|Temporal.PlainDate} date
 	 * @param {{ dayLength: "short" | "long" | "narrow"; monthLength: "short" | "long" | "narrow"; ordinal: boolean; }} [config]
 	 */
 	static formatFancyDate(date, config = {
@@ -146,7 +146,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const calculatedZmanim = {}
 
 		for (const [zmanId, zmanInfo] of Object.entries(zmanList)) {
-			/** @type {zmanData & {ignoreNextUpcoming?: boolean; funcRet?: KosherZmanim.Temporal.ZonedDateTime | ({time: KosherZmanim.Temporal.ZonedDateTime; } & ({isVisual: boolean;} | { degree: number; minutes: number;}))}} */
+			/** @type {zmanData & {ignoreNextUpcoming?: boolean; funcRet?: Temporal.ZonedDateTime | ({time: Temporal.ZonedDateTime; } & ({isVisual: boolean;} | { degree: number; minutes: number;}))}} */
 			const calculatedZman = {
 				function: zmanInfo.function,
 				display: 1,
@@ -197,7 +197,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					calculatedZman.title['en-et'] = 'HaNetz';
 					calculatedZman.title.en = 'Sunrise';
 
-					if (calculatedZman.funcRet instanceof KosherZmanim.Temporal.ZonedDateTime) {
+					if (calculatedZman.funcRet instanceof Temporal.ZonedDateTime) {
 						calculatedZman.title.hb += ' (משור)';
 						calculatedZman.title['en-et'] += ' (Mishor)';
 						calculatedZman.title.en += ' (Sea Level)';
@@ -245,7 +245,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						calculatedZman.title.ru = `Конец Праздника`;
 					}
 
-					if (!(calculatedZman.funcRet instanceof KosherZmanim.Temporal.ZonedDateTime) && !("isVisual" in calculatedZman.funcRet)) {
+					if (!(calculatedZman.funcRet instanceof Temporal.ZonedDateTime) && !("isVisual" in calculatedZman.funcRet)) {
 						/** @type {string[]} */
 						const elements = [];
 
@@ -293,7 +293,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					}
 					break;
 				case 'rt':
-					if (KosherZmanim.Temporal.ZonedDateTime.compare(calculatedZman.zDTObj, zmanCalc.timeRange.current.tzethakokhavim) == 0) {
+					if (Temporal.ZonedDateTime.compare(calculatedZman.zDTObj, zmanCalc.timeRange.current.tzethakokhavim) == 0) {
 						calculatedZman.title.hb = 'ר"ת (זמנית)';
 						calculatedZman.title['en-et'] = "Rabbenu Tam (Zemanit)";
 						calculatedZman.title.en = "Rabbenu Tam (Seasonal)";
@@ -808,7 +808,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	/**
-	 * @param {KosherZmanim.Temporal.PlainDate} plainDate
+	 * @param {Temporal.PlainDate} plainDate
 	 */
 	chainDate(plainDate) {
 		const newCal = this.clone();
@@ -953,7 +953,7 @@ export function getFrenchOrdinal (n, htmlSup=false) {
  * @param {"short" | "long" | "narrow"} [weekday]
  */
 export function daysForLocale(localeName, weekday = 'long', calendar = 'iso8601') {
-	const baseDate = KosherZmanim.Temporal.PlainDate.from({ year: 2024, month: 1, day: 1 }).withCalendar(calendar);
+	const baseDate = Temporal.PlainDate.from({ year: 2024, month: 1, day: 1 }).withCalendar(calendar);
 	const dayLocale = [...Array(baseDate.daysInWeek).keys()]
 		.map((day) => baseDate.with({ day: day + 1 }).toLocaleString(localeName, { weekday }));
 
@@ -966,7 +966,7 @@ export function daysForLocale(localeName, weekday = 'long', calendar = 'iso8601'
  * @param {"short" | "long" | "narrow" | "numeric" | "2-digit"} [month] 
  */
 export function monthForLocale(localeName, month = 'long', calendar = 'iso8601', year=2024) {
-	const baseDate = KosherZmanim.Temporal.PlainDate.from({ year, month: 1, day: 1 }).withCalendar(calendar);
+	const baseDate = Temporal.PlainDate.from({ year, month: 1, day: 1 }).withCalendar(calendar);
 	const monthLocale = [...Array(baseDate.monthsInYear).keys()]
 		.map((monthNum) => baseDate.with({ month: monthNum + 1 }).toLocaleString(localeName, { month }));
 
@@ -1085,16 +1085,16 @@ export class HebrewNumberFormatter {
 }
 
 /**
- * @param {KosherZmanim.Temporal.ZonedDateTime} start
- * @param {KosherZmanim.Temporal.ZonedDateTime} middle
- * @param {KosherZmanim.Temporal.ZonedDateTime} end
+ * @param {Temporal.ZonedDateTime} start
+ * @param {Temporal.ZonedDateTime} middle
+ * @param {Temporal.ZonedDateTime} end
  */
 function rangeDates(start, middle, end, inclusive=true) {
 	const acceptedValues = [1];
 	if (inclusive)
 		acceptedValues.push(0);
 
-	return acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(KosherZmanim.Temporal.ZonedDateTime.compare(end, middle))
+	return acceptedValues.includes(Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(Temporal.ZonedDateTime.compare(end, middle))
 };
 
 /**

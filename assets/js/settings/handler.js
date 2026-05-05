@@ -120,7 +120,7 @@ const settings = Object.freeze({
 				const geoLocation = new KosherZmanim.GeoLocation("R Ovadia's house", 31.7898742, 35.1771491, 776, "UTC")
 
 				const aCalendar = new KosherZmanim.AstronomicalCalendar(geoLocation);
-				aCalendar.setDate(KosherZmanim.Temporal.Now.plainDateISO().with({ month: 3, day: 20 }))
+				aCalendar.setDate(Temporal.Now.plainDateISO().with({ month: 3, day: 20 }))
 				const degree = aCalendar.getSunsetSolarDipFromOffset({minutes: parseInt(settingsURLOverride("tzeithIMmin")) });
 
 				localStorage.setItem("tzeithIMdeg", degree.toString())

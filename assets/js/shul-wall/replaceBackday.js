@@ -1,7 +1,6 @@
 // @ts-check
 
 import { jCal } from "./base.js";
-import { daysForLocale, monthForLocale, getOrdinal } from "../WebsiteCalendar.js";
 
 for (const d8Displ of document.querySelectorAll(['', 'Formal', 'Y', 'SY', 'S', 'JewishFormal'].map(format => `[data-dateRender${format}-backday], [data-dateRenderShabbat${format}-backday]`).join(', '))) {
     if (!(d8Displ instanceof HTMLElement))

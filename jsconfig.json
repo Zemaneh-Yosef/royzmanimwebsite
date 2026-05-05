@@ -5,8 +5,7 @@
         "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "noImplicitThis": false,
         "strictNullChecks": false,
-        "noImplicitAny": true,
-        "moduleResolution": "node"
+        "noImplicitAny": true
     },
     "exclude": ["_site"],
     "typeAcquisition": {

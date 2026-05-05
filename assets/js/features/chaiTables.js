@@ -82,7 +82,7 @@ export default class ChaiTables {
 			USAcities2: 0,
 			eroshgt: 0.0,
 			geotz:
-				KosherZmanim.Temporal.Duration.from({
+				Temporal.Duration.from({
 					nanoseconds: KosherZmanim.TimeZone.getRawOffset(this.geoL.getTimeZone())
 				}).total('hour'),
 			DST: "ON",
@@ -154,7 +154,7 @@ export default class ChaiTables {
 
 		let compareDate = jDate.getDate().toZonedDateTime(this.geoL.getTimeZone()).with({ hour: 0, minute: 0, second: 0 });
 		compareDate = [compareDate.with({ day: 1 }), compareDate.withCalendar('hebrew').with({ day: 1 })]
-			.sort(KosherZmanim.Temporal.ZonedDateTime.compare)[0]
+			.sort(Temporal.ZonedDateTime.compare)[0]
 
 		for (let rowIndexString of Object.keys(zmanTable.rows)) {
 			let rowIndex = parseInt(rowIndexString);
@@ -202,7 +202,7 @@ export default class ChaiTables {
 
 				// ensure that we're not adding times from the previous days
 				// unless it's from the beginning of either the jewish or secular month (whichever is earlier)
-				if (KosherZmanim.Temporal.ZonedDateTime.compare(time, compareDate) == 1)
+				if (Temporal.ZonedDateTime.compare(time, compareDate) == 1)
 					times.push(time.epochMilliseconds / 1000)
 			}
 		}

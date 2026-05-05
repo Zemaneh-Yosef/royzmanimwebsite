@@ -2,7 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions } from "../ROYZmanim.js";
-import WebsiteLimudCalendar, { HebrewNumberFormatter } from "../WebsiteCalendar.js"
+import WebsiteLimudCalendar from "../WebsiteCalendar.js"
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
 if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
@@ -72,7 +72,7 @@ for (const locationTitleElem of elems) {
 
 	const adjustedTimes = Object.fromEntries(Object.entries(times)
 		.map(([zmanName, zmanDetails]) => {
-			/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+			/** @type {Temporal.ZonedDateTime} */
 			// @ts-ignore
 			let time = currentCalc.chainDate(zmanDetails.date)[zmanDetails.method]()
 			if (locationTitleElem.hasAttribute('data-humra'))

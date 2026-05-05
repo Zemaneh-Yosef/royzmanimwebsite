@@ -1,10 +1,9 @@
 // @ts-check
 
 import * as KosherZmanim from "../../../libraries/kosherZmanim/kosher-zmanim.js";
-import {Temporal} from "../../../libraries/kosherZmanim/kosher-zmanim.js";
-import { methodNames, zDTFromFunc } from "../../ROYZmanim.js";
+import { methodNames } from "../../ROYZmanim.js";
 import { reload } from "../reload.js";
-import { currentZDT, jCal, zmanCalc, dtF, scheduleSettings } from "../base.js";
+import { jCal, zmanCalc, dtF, scheduleSettings } from "../base.js";
 
 export default class zmanimListUpdater {
 	constructor() {
@@ -47,7 +46,7 @@ export default class zmanimListUpdater {
 	}
 
     setNextUpcomingZman() {
-        /** @type {KosherZmanim.Temporal.ZonedDateTime[]} */
+        /** @type {Temporal.ZonedDateTime[]} */
         const zmanim = [];
         const currentSelectedDate = zmanCalc.coreZC.getDate();
 
@@ -61,7 +60,7 @@ export default class zmanimListUpdater {
         }
 
         this.changeDate(currentSelectedDate, true); //reset the date to the current date
-        zmanim.sort(KosherZmanim.Temporal.ZonedDateTime.compare);
+        zmanim.sort(Temporal.ZonedDateTime.compare);
         this.nextUpcomingZman = zmanim.find(zman => Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(zman).total({ unit: "milliseconds" }) > 0)
 
         setTimeout(() => {
@@ -157,7 +156,7 @@ export default class zmanimListUpdater {
 	}
 
 	/**
-	 * @param {KosherZmanim.Temporal.ZonedDateTime} zman
+	 * @param {Temporal.ZonedDateTime} zman
 	 */
 	isNextUpcomingZman(zman) {
 		return !(this.nextUpcomingZman == null || !(zman.equals(this.nextUpcomingZman)))

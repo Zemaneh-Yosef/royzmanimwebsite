@@ -1,6 +1,5 @@
 // @ts-check
 import ChaiTables from "../features/chaiTables.js";
-import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { geoLocation, jCal } from "./base.js";
 
 /**

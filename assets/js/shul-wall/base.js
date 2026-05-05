@@ -1,6 +1,6 @@
 // @ts-check
 
-import { GeoLocation, Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 

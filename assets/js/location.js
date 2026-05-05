@@ -613,8 +613,8 @@ document.addEventListener("DOMContentLoaded", function () {
 window.addEventListener('online', () => networkStatus.online());
 window.addEventListener('offline', () => networkStatus.offline());
 
-document.querySelectorAll('button > i.bi-pin-map')
-	.forEach((/** @type {HTMLElement} */ i) => i.parentElement.addEventListener('click', () => getLocation()));
+queryAllElements('button > i.bi-pin-map')
+	.forEach((i) => i.parentElement.addEventListener('click', () => getLocation()));
 
 document.getElementById('searchIcon').addEventListener('click', updateList);
 document.getElementById('Main').addEventListener('keyup', updateList);
@@ -653,4 +653,15 @@ function detectLanguageIntent(str) {
     // If it contains neither Hebrew nor English letters:
     // numbers, punctuation, ZIP codes, coordinates, etc.
     return "neutral";
+}
+
+/**
+ * @template {HTMLElement} [T=HTMLElement]
+ * @param {string} selector
+ * @returns {Array<T>}
+ */
+function queryAllElements(selector) {
+	/** @type {NodeListOf<T>} */
+    const allNodes = (document.querySelectorAll(selector))
+	return [...allNodes].filter(node => node instanceof HTMLElement)
 }

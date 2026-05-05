@@ -3,7 +3,6 @@
 /** @import {gsap as tsGsap} from 'gsap' */
 import { gsap as jsGsap } from "../../libraries/gsap.js";
 
-import { Temporal } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { zDTFromFunc } from "../ROYZmanim.js";
 import { scheduleSettings, zmanCalc } from "./base.js";
 

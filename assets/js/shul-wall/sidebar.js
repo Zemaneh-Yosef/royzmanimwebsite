@@ -1,6 +1,6 @@
 // @ts-check
 
-import { Temporal, JewishDate } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { JewishDate } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { scheduleSettings, geoLocation, jCal, zmanCalc, dtF } from "./base.js";
 
@@ -169,7 +169,10 @@ function writeMourningPeriod(mourningDiv) {
 
 	for (const [key, value] of Object.entries(jCal.mourningHalachot())) {
 		mourningDiv.querySelectorAll(`[data-zfFind="${key}"]`)
-			.forEach((/** @type {HTMLElement} */ halachaIndex) => {
+			.forEach((halachaIndex) => {
+				if (!(halachaIndex instanceof HTMLElement))
+					return;
+
 				if (value)
 					halachaIndex.style.removeProperty("display")
 				else
@@ -178,15 +181,11 @@ function writeMourningPeriod(mourningDiv) {
 	}
 }
 
-for (const fastContainer of document.querySelectorAll('[data-zfFind="FastDays"]'))
-	if (fastContainer instanceof HTMLElement)
-		renderFastIndex(fastContainer)
+for (const fastContainer of queryAllElements('[data-zfFind="FastDays"]'))
+	renderFastIndex(fastContainer)
 
 const specialDayText = jCal.listOfSpecialDays().join(" / ");
-for (const specialDay of document.querySelectorAll('[data-zfReplace="SpecialDay"]')) {
-	if (!(specialDay instanceof HTMLElement))
-		continue;
-
+for (const specialDay of queryAllElements('[data-zfReplace="SpecialDay"]')) {
 	if (!specialDayText) {
 		specialDay.style.display = "none";
 	} else {
@@ -195,78 +194,71 @@ for (const specialDay of document.querySelectorAll('[data-zfReplace="SpecialDay"
 	}
 }
 
-for (const mourningDiv of document.querySelectorAll('[data-zfFind="MourningPeriod"]')) {
-	if (mourningDiv instanceof HTMLElement)
-		writeMourningPeriod(mourningDiv);
+for (const mourningDiv of queryAllElements('[data-zfFind="MourningPeriod"]')) {
+	writeMourningPeriod(mourningDiv);
 }
 
-document.querySelectorAll('[data-zfReplace="Ulchaparat"]').forEach(
-	(/**@type {HTMLElement} */ulchaparat) => {
-		if (jCal.isRoshChodesh()) {
-			ulchaparat.style.removeProperty("display");
-			ulchaparat.innerHTML = (jCal.tefilahRules().amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
-		} else {
-			ulchaparat.style.display = "none";
-		}
+queryAllElements('[data-zfReplace="Ulchaparat"]').forEach((ulchaparat) => {
+	if (jCal.isRoshChodesh()) {
+		ulchaparat.style.removeProperty("display");
+		ulchaparat.innerHTML = (jCal.tefilahRules().amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
+	} else {
+		ulchaparat.style.display = "none";
 	}
-)
+})
 
-document.querySelectorAll('[data-zfFind="Chamah"]').forEach(
-	(/**@type {HTMLElement} */chamah) => {
-		if (jCal.isBirkasHachamah()) {
-			chamah.style.removeProperty("display");
-		} else {
-			chamah.style.display = "none";
-		}
+queryAllElements('[data-zfFind="Chamah"]').forEach((chamah) => {
+	if (jCal.isBirkasHachamah()) {
+		chamah.style.removeProperty("display");
+	} else {
+		chamah.style.display = "none";
 	}
-)
+})
 
-document.querySelectorAll('[data-zfFind="BirchatHalevana"]').forEach(
-	(/**@type {HTMLElement} */birchatHalevana) => {
-		const birLev = jCal.birkathHalevanaCheck(zmanCalc);
-		if (!birLev.current) {
-			birchatHalevana.style.display = "none";
-			return;
-		}
+queryAllElements('[data-zfFind="BirchatHalevana"]').forEach((birchatHalevana) => {
+	const birLev = jCal.birkathHalevanaCheck(zmanCalc);
+	if (!birLev.current) {
+		birchatHalevana.style.display = "none";
+		return;
+	}
 
-		birchatHalevana.style.removeProperty("display");
-		birchatHalevana.querySelectorAll('[data-zfReplace="date-en-end"]').forEach(
-			endDate => endDate.innerHTML = birLev.data.end.toLocaleString("en", {day: 'numeric', month: 'short'})
+	birchatHalevana.style.removeProperty("display");
+	birchatHalevana.querySelectorAll('[data-zfReplace="date-en-end"]').forEach(
+		endDate => endDate.innerHTML = birLev.data.end.toLocaleString("en", {day: 'numeric', month: 'short'})
+	)
+
+	const bhHeb = birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]')
+	if (bhHeb)
+		bhHeb.innerHTML = birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'})
+
+	const bhRus = birchatHalevana.querySelector('[data-zfReplace="date-ru-end"]')
+	if (bhRus)
+		bhRus.innerHTML = birLev.data.end.toLocaleString("ru", {day: 'numeric', month: 'short'})
+
+	if (birLev.data.start.dayOfYear == jCal.getDate().dayOfYear) {
+		birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
+			//@ts-ignore
+			startsToday => startsToday.style.removeProperty("display")
 		)
-
-		const bhHeb = birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]')
-		if (bhHeb)
-			bhHeb.innerHTML = birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'})
-
-		const bhRus = birchatHalevana.querySelector('[data-zfReplace="date-ru-end"]')
-		if (bhRus)
-			bhRus.innerHTML = birLev.data.end.toLocaleString("ru", {day: 'numeric', month: 'short'})
-
-		if (birLev.data.start.dayOfYear == jCal.getDate().dayOfYear) {
-			birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
-				//@ts-ignore
-				startsToday => startsToday.style.removeProperty("display")
-			)
-		} else {
-			birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
-				//@ts-ignore
-				startsToday => startsToday.style.display = "none"
-			)
-		}
-
-		if (birLev.data.end.dayOfYear == jCal.getDate().dayOfYear) {
-			birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
-				//@ts-ignore
-				endsToday => endsToday.style.removeProperty("display")
-			)
-		} else {
-			birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
-				//@ts-ignore
-				endsToday => endsToday.style.display = "none"
-			)
-		}
+	} else {
+		birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
+			//@ts-ignore
+			startsToday => startsToday.style.display = "none"
+		)
 	}
-)
+
+	if (birLev.data.end.dayOfYear == jCal.getDate().dayOfYear) {
+		birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
+			//@ts-ignore
+			endsToday => endsToday.style.removeProperty("display")
+		)
+	} else {
+		birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
+			//@ts-ignore
+			endsToday => endsToday.style.display = "none"
+		)
+	}
+})
 
 /** @param {HTMLElement} [tefilahRuleContainer] */
 function renderSeasonalRules(tefilahRuleContainer) {
@@ -284,43 +276,39 @@ function renderSeasonalRules(tefilahRuleContainer) {
 	tefilahRuleContainer.querySelector('[data-zfReplace="SeasonalPrayers"]').innerHTML = seasonalRules.filter(Boolean).join(" / ");
 }
 
-document.querySelectorAll('[data-zfReplace="Tachanun"]').forEach(
-	(/**@type {HTMLElement} */tachanun) => {
-		if (jCal.isYomTovAssurBemelacha()) {
-			tachanun.style.display = "none";
-			return;
-		}
+queryAllElements('[data-zfReplace="Tachanun"]').forEach((tachanun) => {
+	if (jCal.isYomTovAssurBemelacha()) {
+		tachanun.style.display = "none";
+		return;
+	}
 
-		tachanun.style.removeProperty("display");
-		let tachanunId = jCal.tefilahRules().tachanun;
-		if (jCal.getDayOfWeek() == 7) {
-			tachanunId = Math.min(tachanunId + 3, 4)
-		}
+	tachanun.style.removeProperty("display");
+	let tachanunId = jCal.tefilahRules().tachanun;
+	if (jCal.getDayOfWeek() == 7) {
+		tachanunId = Math.min(tachanunId + 3, 4)
+	}
 
-		for (const tachanunDiv of tachanun.children) {
-			if (!(tachanunDiv instanceof HTMLElement))
-				continue;
+	for (const tachanunDiv of tachanun.children) {
+		if (!(tachanunDiv instanceof HTMLElement))
+			continue;
 
-			if (tachanunDiv.getAttribute("data-zfFind") == tachanunId.toString()) {
-				tachanunDiv.style.removeProperty("display");
-			} else {
-				tachanunDiv.style.display = "none";
-			}
+		if (tachanunDiv.getAttribute("data-zfFind") == tachanunId.toString()) {
+			tachanunDiv.style.removeProperty("display");
+		} else {
+			tachanunDiv.style.display = "none";
 		}
 	}
-)
+})
 
 const hallelText = jCal.tefilahRules().hallel;
-document.querySelectorAll('[data-zfReplace="Hallel"]').forEach(
-	(/**@type {HTMLElement} */hallel) => {
-		if (!hallelText) {
-			hallel.style.display = "none";
-		} else {
-			hallel.style.removeProperty("display");
-			hallel.innerHTML = hallelText == 2 ? "הלל שלם (עם ברכה)" : "חצי הלל (בלי ברכה)";
-		}
+queryAllElements('[data-zfReplace="Hallel"]').forEach((hallel) => {
+	if (!hallelText) {
+		hallel.style.display = "none";
+	} else {
+		hallel.style.removeProperty("display");
+		hallel.innerHTML = hallelText == 2 ? "הלל שלם (עם ברכה)" : "חצי הלל (בלי ברכה)";
 	}
-)
+})
 
 const tekufaDate = zmanCalc.nextTekufa(scheduleSettings.calendarToggle.tekufaMidpoint !== "hatzoth");
 if (jCal.getDate().toZonedDateTime(geoLocation.getTimeZone()).until(tekufaDate).total('days') < 1) {
@@ -368,12 +356,21 @@ if (jCal.getDate().toZonedDateTime(geoLocation.getTimeZone()).until(tekufaDate).
 		tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
 	}
 } else {
-	document.querySelectorAll('[data-zfFind="Tekufa"]').forEach(
-		(/**@type {HTMLElement} */ tekufa) => tekufa.style.display = "none"
-	)
+	queryAllElements('[data-zfFind="Tekufa"]').forEach((tekufa) => tekufa.style.display = "none")
 }
 
 for (let seasonalRuleContainer of document.querySelectorAll('[data-zfFind="SeasonalPrayers"]')) {
 	if (seasonalRuleContainer instanceof HTMLElement)
 		renderSeasonalRules(seasonalRuleContainer);
+}
+
+/**
+ * @template {HTMLElement} [T=HTMLElement]
+ * @param {string} selector
+ * @returns {Array<T>}
+ */
+function queryAllElements(selector) {
+	/** @type {NodeListOf<T>} */
+    const allNodes = (document.querySelectorAll(selector))
+	return [...allNodes].filter(node => node instanceof HTMLElement)
 }

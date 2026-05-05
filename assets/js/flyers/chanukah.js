@@ -37,7 +37,7 @@ let shitot = document.getElementById("innerDisplay").firstElementChild.getAttrib
 jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.KISLEV, 24);
 calc.setDate(jCal.getDate());
 
-/** @type {Record<string, { plagHamincha: KosherZmanim.Temporal.ZonedDateTime; msg?: string } & ({ candleLighting: KosherZmanim.Temporal.ZonedDateTime } | { tzetShabbat: KosherZmanim.Temporal.ZonedDateTime; rt: KosherZmanim.Temporal.ZonedDateTime } | Record<string, KosherZmanim.Temporal.ZonedDateTime>)>} */
+/** @type {Record<string, { plagHamincha: Temporal.ZonedDateTime; msg?: string } & ({ candleLighting: Temporal.ZonedDateTime } | { tzetShabbat: Temporal.ZonedDateTime; rt: Temporal.ZonedDateTime } | Record<string, Temporal.ZonedDateTime>)>} */
 const timeSchedule = {};
 
 /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
@@ -68,7 +68,7 @@ for (let i = 0; i <= 7; i++) {
 	else {
 		timeSchedule[jCal.formatFancyDate().en] = buildObj;
 		for (const shita of shitot) {
-			/** @type {KosherZmanim.Temporal.ZonedDateTime} */
+			/** @type {Temporal.ZonedDateTime} */
 			// @ts-ignore
 			let time = calc[shita]();
 
@@ -147,10 +147,10 @@ for (const [day, times] of Object.entries(timeSchedule)) {
 }
 
 /**
- * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} a
- * @param {string | KosherZmanim.Temporal.ZonedDateTime | KosherZmanim.Temporal.ZonedDateTimeLike} b
+ * @param {string | Temporal.ZonedDateTime | Temporal.ZonedDateTimeLike} a
+ * @param {string | Temporal.ZonedDateTime | Temporal.ZonedDateTimeLike} b
  */
 function rZTDsort(a,b) {
-	const pSort = KosherZmanim.Temporal.ZonedDateTime.compare(a, b);
+	const pSort = Temporal.ZonedDateTime.compare(a, b);
 	return pSort * -1;
 }

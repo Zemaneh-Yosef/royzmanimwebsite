@@ -1,14 +1,14 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import { MathUtils, Temporal } from "../libraries/kosherZmanim/kosher-zmanim.js";
+import { MathUtils } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import TekufahCalculator from "./tekufot.js";
 
 /** @typedef {{minutes: number; degree?: number}} melakhaTzet */
 
 /**
- * @param {string | Temporal.Duration | KosherZmanim.Temporal.DurationLike} a
- * @param {string | Temporal.Duration | KosherZmanim.Temporal.DurationLike} b
+ * @param {string | Temporal.Duration | Temporal.DurationLike} a
+ * @param {string | Temporal.Duration | Temporal.DurationLike} b
  */
 function durationSort(a,b) {
 	const pSort = Temporal.Duration.compare(a, b);
@@ -182,7 +182,7 @@ class ZemanimMathBase {
 	setVisualSunrise(sunriseTimes) {
 		this.vSunrise.preservedInts = sunriseTimes;
 		this.vSunrise.zoneDT = sunriseTimes
-			.map((/** @type {number} */ value) => KosherZmanim.Temporal.Instant
+			.map((/** @type {number} */ value) => Temporal.Instant
 				.fromEpochMilliseconds(value * 1000)
 				.toZonedDateTimeISO(this.coreZC.getGeoLocation().getTimeZone())
 			)

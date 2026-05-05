@@ -2,7 +2,7 @@
 
 import { getOrdinal } from "../WebsiteCalendar.js";
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
-import { Temporal, GeoLocation, Calendar, HiloulahYomiCalculator, Parsha } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import { GeoLocation, Calendar, HiloulahYomiCalculator, Parsha } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import YihudCalendar from "../WebsiteLimudCalendar.js";
 import { HebrewNumberFormatter as hebNumFormat } from "../WebsiteCalendar.js"
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
@@ -120,14 +120,14 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 			].join('\n\n')
 		})
 
-		const todayHiloulot = hiloulahCalc.getHiloulah(jCal);
+		const todayHiloulot = await hiloulahCalc.getHiloulah(jCal);
 		events.push({
 			start: exportDate(jCal.getDate()),
 			end: exportDate(jCal.getDate().add({ days: 1 })),
 			title: funcSettings.language == "he" ? `הלולות יומי (${todayHiloulot.he.length})` : `Today's Hiloulot (${todayHiloulot.en.length})`,
 			// @ts-ignore
 			description: todayHiloulot[funcSettings.language == "he" ? "he" : "en"]
-				.map((/** @type {typeof todayHiloulot.en[0] & {desc: string}} */ hiloulahRet) =>
+				.map((/** @type {typeof todayHiloulot.en[0] & {desc?: string}} */ hiloulahRet) =>
 					hiloulahRet.name + "\n" + hiloulahRet.desc)
 				.join('\n\n')
 		})
