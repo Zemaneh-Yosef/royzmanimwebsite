@@ -18,6 +18,13 @@
 		<link rel="manifest" href="/manifest.json" />
 	</head>
 	<body>
+		<script>
+			if (!('Temporal' in window)) {
+				const s = document.createElement('script')
+				s.src = 'https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/global.min.js'
+				document.head.appendChild(s)
+			}
+		</script>
 		<script src="/assets/libraries/supValuesOf.js"></script>
 		<div>{{ content }}</div>
 		<script src="/assets/libraries/bootstrap/js/bootstrap.bundle.min.js"></script>
