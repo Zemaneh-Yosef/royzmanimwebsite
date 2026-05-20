@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="52.230999"
+   height="52.230999"
+   viewBox="0 0 52.230999 52.230998"
+   version="1.1"
+   id="svg9"
+   sodipodi:docname="dawn.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs9" />
+  <sodipodi:namedview
+     id="namedview9"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="9.1484375"
+     inkscape:cx="25.960717"
+     inkscape:cy="10.766866"
+     inkscape:window-width="2462"
+     inkscape:window-height="1406"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg9" />
+  <line
+     x1="11.034473"
+     y1="34.264755"
+     x2="2.8658941"
+     y2="27.428007"
+     stroke="#d7a548"
+     stroke-width="2.21972"
+     stroke-linecap="round"
+     id="line3" />
+  <line
+     x1="17.006035"
+     y1="31.268148"
+     x2="11.006035"
+     y2="20.868147"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line4" />
+  <line
+     x1="22.906036"
+     y1="29.16815"
+     x2="20.806034"
+     y2="17.368147"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line5" />
+  <line
+     x1="29.106033"
+     y1="29.16815"
+     x2="31.206032"
+     y2="17.368147"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line6" />
+  <line
+     x1="35.006035"
+     y1="31.268148"
+     x2="41.006035"
+     y2="20.868147"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line7" />
+  <line
+     x1="41.465752"
+     y1="33.846672"
+     x2="49.204567"
+     y2="27.369612"
+     stroke="#d7a548"
+     stroke-width="2.10294"
+     stroke-linecap="round"
+     id="line8" />
+  <line
+     x1="1.244705"
+     y1="34.868149"
+     x2="50.985985"
+     y2="34.868149"
+     stroke="#0b2345"
+     stroke-width="2.48941"
+     stroke-linecap="round"
+     id="line1" />
+</svg>

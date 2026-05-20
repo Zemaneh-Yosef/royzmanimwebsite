@@ -1,0 +1,689 @@
+---
+title: Ish Matzliach, BK
+permalink: /shul-wall/sbm-la
+layout: nothing
+---
+
+<link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="/assets/fonts/external-message/stylesheet.css" rel="stylesheet" />
+<link href="/assets/fonts/sbl/stylesheet.css" rel="stylesheet">
+<link rel="stylesheet" href="/assets/fonts/polin/stylesheet.css">
+
+<link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
+<link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
+
+<style>
+	#content {
+		width: 100%;
+		height: 100dvh;
+		display: grid;
+		color: black;
+		background-color: white;
+		--bs-body-font-family: 'Polin', var(--bs-font-sans-serif);
+		font-family: var(--bs-body-font-family);
+		font-weight: 500;
+	}
+	#background {
+		width: inherit;
+		height: inherit;
+		background: linear-gradient(to left, white, rgba(0,0,0,.5));
+	}
+
+	#zy-ptrn {
+		width: inherit;
+		height: inherit;
+		background: url('/assets/images/shul-wall/sbm-la/ptrn.png');
+		background-size: 90px 90px;
+		opacity: 10%;
+	}
+
+	#content>* {
+		grid-area: 1 / 1;
+	}
+
+	#clock > * {
+		grid-area: 1 / 1;
+	}
+
+	#topBar {
+		width: 500px;
+		height: 98vh;
+		text-align: center;
+		align-self: center;
+		justify-self: center;
+		color: #30344F;
+		z-index: 5;
+		padding: .65rem 1.5rem;
+		align-items: center;
+		font-size: 1.4rem;
+		background: white;
+
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+
+		border-radius: 3.5rem;
+		border: 4px solid #d8a736;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+		justify-content: space-between;
+	}
+
+	/* #topBar > * {
+		flex: 1 1;
+	}*/
+
+	#havdalaElem svg {
+		height: 1.75ch;
+		width: 1.75ch;
+		vertical-align: sub;
+	}
+
+	#havdalaElem svg path {
+		fill: #30344F;
+	}
+
+	#quickTimes {
+		display: grid;
+		justify-content: center;
+	}
+
+	#quickTimes i {
+		width: 1em;
+		text-align: center;
+	}
+
+	#dataGrid {
+		height: 92vh;
+		width: calc(100% - 2vw);
+
+		justify-self: center;
+		align-self: center;
+
+		background: white;
+		padding: 2vh 1.5vw;
+
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr;
+		align-items: center;
+		gap: 550px;
+		font-size: .8rem;
+		border-radius: 5rem;
+		border: 2px solid #d8a736;
+
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+		z-index: 4;
+	}
+
+	#dataGrid>*:not(.wideView) {
+		font-size: 2.15rem;
+	}
+
+	.wideView {
+		display: flex;
+		text-align: center;
+		align-self: end;
+		grid-column: 1 / span 3;
+		font-size: 1.45em;
+	}
+
+	#content[data-current-page="1"] .langTV:not(.lang-en) {
+		display: none;
+	}
+
+	#content[data-current-page="2"] .langTV:not(.lang-hb) {
+		display: none;
+	}
+
+	.wideView>* {
+		flex: 1 1;
+		padding: 6px;
+		padding-top: 0;
+
+		display: flex;
+		justify-content: space-between;
+		flex-direction: column;
+	}
+
+	.wideView>*:first-child {
+		padding-left: 0;
+	}
+
+	.wideView>*:last-child {
+		padding-right: 0;
+	}
+
+	.wideView>*:not(:last-child) {
+		border-right: 1px solid black;
+	}
+
+	article>.langTV {
+		font-weight: bold;
+		margin-bottom: .25rem;
+	}
+
+	#poweredBy {
+		justify-self: center;
+		align-self: end;
+		margin-bottom: .75vw;
+		text-align: center;
+		line-height: 1.2;
+		font-size: .95rem;
+		font-weight: bold;
+	}
+
+	.card,
+	.list-group-item {
+		--bs-card-color: black;
+		border: none;
+	}
+
+	.list-group-item {
+		--bs-list-group-item-padding-y: .25rem;
+		--bs-list-group-border-color: transparent;
+		--bs-list-group-bg: transparent;
+		--bs-list-group-color: black;
+		--bs-list-group-item-padding-x: 0;
+	}
+
+	.list-group {
+		--bs-list-group-bg: transparent;
+	}
+
+	.card {
+		--bs-card-bg: transparent;
+	}
+
+	#location {
+		align-self: start;
+		justify-self: start;
+		margin-left: 1.25vw;
+		padding-top: 2.25dvh;
+		text-align: center;
+		line-height: 1;
+		font-weight: 700;
+		color: #30344F;
+		font-size: 1.25rem;
+	}
+
+	#bsD {
+		align-self: start;
+		justify-self: end;
+		margin-right: 1.25vw;
+		padding-top: 2.25dvh;
+		text-align: center;
+		line-height: 1;
+		font-weight: 700;
+		color: #30344F;
+		font-size: 1.5rem;
+
+		filter: drop-shadow(0px 5px 4px white);
+	}
+
+	.zmanTitleText {
+		line-height: 1;
+		font-size: .7em;
+	}
+
+	#dataGrid .hiloulotCard .list-group-item {
+		line-height: 1;
+		--bs-list-group-item-padding-y: .75rem;
+	}
+
+	[data-zfFind="calendarFormatter"] .card {
+		--bs-border-color: #d8a736;
+		line-height: 1.3;
+		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, .2));
+	}
+
+	[data-parasha] {
+		font-size: 3.75rem;
+		line-height: 1;
+		font-family: "sbl_hebrewlimitregular", var(--bs-body-font-family);
+	}
+
+	.fs-sm {
+		font-size: .75em;
+	}
+
+	#top-left {
+		justify-self: start;
+		align-self: start;
+		z-index: 4;
+	}
+
+	#bottom-left {
+		justify-self: start;
+		align-self: end;
+		z-index: 40;
+	}
+
+	#logo {
+		width: 100%;
+	}
+
+	[data-zfFind="SefirathHaomer"] p {
+		font-size: 1.15rem;
+	}
+
+	.schedule-entry-grid {
+		display: grid;
+		grid-template-columns: 1fr auto;
+	}
+
+	.schedule-entry-grid > *:last-child {
+		grid-column: 1 / span 2;
+	}
+</style>
+
+<style>
+	:root {
+		--bs-gap: .8rem;
+
+		--tw-ring-offset-shadow: 0 0 #0000;
+		--tw-ring-shadow: 0 0 #0000;
+	}
+
+	.rounded {
+		border-radius: .25rem
+	}
+
+	.rounded-\[12px\] {
+		border-radius: 12px
+	}
+
+	.rounded-\[16px\] {
+		border-radius: 16px
+	}
+
+	.rounded-\[2px\] {
+		border-radius: 2px
+	}
+
+	.rounded-\[inherit\] {
+		border-radius: inherit
+	}
+
+	.rounded-xl {
+		border-radius: .75rem
+	}
+
+	.rounded-t-\[10px\] {
+		border-top-left-radius: 10px;
+		border-top-right-radius: 10px
+	}
+
+	.card {
+		--bs-card-spacer-y: .8rem;
+		--bs-card-spacer-x: .8rem;
+	}
+</style>
+
+<div id="content" data-current-page="1" data-page-count="2">
+	<div id="background"></div>
+	<div id="zy-ptrn"></div>
+	<img src="/assets/images/shul-wall/sbm-la/top-left.png" id="top-left">
+	<img src="/assets/images/shul-wall/sbm-la/bottom-left.png" id="bottom-left">
+	<div id="topBar">
+		<div><img src="/assets/images/shul-wall/sbm-la/logo.png" id="logo"></div>
+		<div style="text-align: center; display: grid; align-items: center; justify-content: center;" id="clock">
+			<svg id="clockSVG" viewBox="0 0 320 320" width="320" height="320" xmlns="http://www.w3.org/2000/svg"
+				style="transform: scale(1.25);" preserveAspectRatio="xMidYMid meet">
+				<defs>
+					<path id="topArc" d="M 30,160 A 130,130 0 0,1 290,160" />
+					<path id="bottomArc" d="M 55,235 A 120,120 0 0,0 265,235"/>
+				</defs>
+
+				<!-- The circle border, replacing the div -->
+				<circle cx="160" cy="160" r="150" fill="none" stroke="#d8a736" stroke-width="6" />
+
+				<text font-size="20" font-weight="400" text-anchor="middle">
+					<textPath href="#topArc" startOffset="50%" data-en-date></textPath>
+				</text>
+				<text font-size="20" font-family="var(--font-sans)" fill="var(--color-text-secondary)" font-weight="400"
+					text-anchor="middle">
+					<textPath href="#bottomArc" startOffset="50%" data-hb-date></textPath>
+				</text>
+			</svg>
+			<div id="clockCont" style="font-size: 5rem;"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
+		</div>
+		<div class="card">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
+				<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
+					{% for fast in site.data.events.fasts %}
+					<h5 data-zfFind="{{ fast.yomTovIndex }}">
+						<span class="lang lang-hb">{{ fast.text.he }}</span>
+						<span class="lang lang-et">{{ fast.text.et }}</span>
+						<span class="lang lang-en">{{ fast.text.en }}</span>
+					</h5>
+					{% endfor %}
+					<span data-zfFind="oneDayTimes">
+						<b class="lang lang-en">Fast Times: </b>
+						<b class="lang lang-et">Fast Times: </b>
+						<b class="lang lang-hb">שעות הצום: </b>
+					</span>
+					<ul data-zfFind="twoDayTimes">
+						<li>
+							<b class="lang lang-en">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-et">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-hb">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+						</li>
+						<li>
+							<b class="lang lang-en">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-et">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-hb">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+						</li>
+					</ul>
+				</li>
+				<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
+					<div data-zfFind="SefirathHaomer">
+						<div class="lang lang-en">
+							<h5 class="mb-0"><span data-zfReplace="completeCount"></span> day of the Omer</h5>
+							<p><span data-zfReplace="indCount"></span></p>
+							<p class="mb-0">
+								<b>Tonight:</b>
+								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> day of the Omer<span> -
+								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+							</p>
+						</div>
+						<div class="lang lang-et">
+							<h5 class="mb-0">Today is <span data-zfReplace="completeCount"></span> of the Omer</h5>
+							<p>which <span data-zfReplace="indCount"></span></p>
+							<p class="mb-0">
+								<b>Tonight:</b>
+								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> of the Omer<span>, which
+								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+							</p>
+						</div>
+						<div class="lang lang-hb">
+							<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
+							<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
+							<p class="mb-0">
+								<b>הלילה:</b>
+								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
+								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+							</p>
+						</div>
+						<hr class="my-1" data-zfFind="omerRules">
+					</div>
+					<div data-zfFind="ThreeWeeksHeader">
+						<h5>
+							<span class="lang lang-hb">
+								<span data-zfFind="threeWeeks">שלושה שבועות</span>
+								<span data-zfFind="nineDays">תשעה ימים</span>
+								<span data-zfFind="weekOf">שבוע שחל בו</span>
+							</span>
+							<span class="lang lang-et">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</span>
+							<span class="lang lang-en">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</span>
+						</h5>
+					</div>
+					<div class="marquee" style="max-height: 50px;">
+						<ul class="marquee__content list-unstyled">
+							{% for minhag in site.data.mourningMinhag %}
+							<li data-zfFind="{{ minhag.topic }}">
+								<span class="lang lang-hb">{{ minhag.text.he }}</span>
+								<span class="lang lang-et">{{ minhag.text.en }}</span>
+								<span class="lang lang-en">{{ minhag.text.en }}</span>
+							</li>
+							{% endfor %}
+						</ul>
+						<ul class="marquee__content list-unstyled">
+							{% for minhag in site.data.mourningMinhag %}
+							<li aria-hidden="true" data-zfFind="{{ minhag.topic }}">
+								<span class="lang lang-hb">{{ minhag.text.he }}</span>
+								<span class="lang lang-et">{{ minhag.text.en }}</span>
+								<span class="lang lang-en">{{ minhag.text.en }}</span>
+							</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</li>
+				<li class="list-group-item" data-zfReplace="Tachanun">
+					<span data-zfFind="0">
+						<span class="langTV lang-hb">לוח-תחנון יום</span>
+						<span class="langTV lang-en-et">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-en">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-ru">Календарь — День Тахануна</span>
+					</span>
+					<span data-zfFind="1">
+						<span class="langTV lang-hb">תחנון רק בשחרית</span>
+						<span class="langTV lang-en-et">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-en">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-ru">Только Таханун от Шахарит</span>
+					</span>
+					<span data-zfFind="2">
+						<span class="langTV lang-hb">אין תחנון היום</span>
+						<span class="langTV lang-en-et">No Taḥanun</span>
+						<span class="langTV lang-en">No Taḥanun</span>
+						<span class="langTV lang-ru">Нет Тахануна</span>
+					</span>
+					<span data-zfFind="3">צדקתך</span>
+					<span data-zfFind="4">יהי שם</span>
+				</li>
+				<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
+					<span class="lang lang-hb">ברכת החמה!</span>
+					<span class="lang lang-et">Birchath Hachama!</span>
+					<span class="lang lang-en">Blessing of the sun!</span>
+				</li>
+				<li class="list-group-item" data-zfFind="BirchatHalevana">
+					<span class="lang lang-hb">
+						ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
+						<span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
+						<span data-zfFind="ends-tonight"> - נגמר בלילה</span>
+					</span>
+					<span class="lang lang-et">
+						Birkath Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+					<span class="lang lang-en">
+						Blessing of the moon (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+				</li>
+				<li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
+				<li class="list-group-item" data-zfReplace="Ulchaparat" style="display: none;"></li>
+				<li class="list-group-item" data-zfFind="SeasonalPrayers">
+					<span data-zfReplace="SeasonalPrayers"></span>
+				</li>
+				<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
+					<span class="lang lang-hb">
+						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+					<span class="lang lang-et">
+						<b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+					<span class="lang lang-en">
+						<b>The <span data-zfReplace="tekufaName-en"></span> season</b> is at <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div id="dataGrid">
+		<div>
+			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+				<div class="list-group-item d-flex justify-content-between">
+					<dt class="langTV lang-hb">תלמוד בבלי</dt>
+					<dt class="langTV lang-en">Talmud Bavli</dt>
+					<dd class="m-0" data-zfReplace="dafBavli"></dd>
+				</div>
+			</dl>
+			<h1 data-zfFind="whichZemanimDay" style="font-size: 1.25rem;"></h1>
+			<div class="grid mb-3" style="--bs-columns: 3;" dir="rtl" data-zfFind="calendarFormatter">
+				{% for item in site.data.tv.zmanGridHY.preHatzot %}
+				<div class="g-col-1 card bg-white rounded-[12px] duration-200 text-center border border-gray-100"
+					data-zmanid="{{ item.id }}" {% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}" {% endif
+					%} {% if item.round %}data-round="{{ item.round }}" {% endif %} {% if item.attributes.luachInclusive
+					%}data-luachInclusive="{{ item.attributes.luachInclusive }}" {% endif %} {% if
+					item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}" {%
+					endif %} {% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}" {% endif
+					%} {% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or
+					item.attributes.condition %}style="display: none;" {% endif %}>
+					<div class="card-body">
+						{% if item.icon %} <img src="/assets/images/shul-wall/sbm-la/{{ item.icon }}.svg"
+							alt="{{ item.name | escape }}" style="width: 32px; height: 32px;"> {% endif %}
+						<div class="zmanTitleText">
+							<span class="langTV lang-hb">{{ item.names.he }}</span>
+							<span class="langTV lang-en">{{ item.names.en }}</span>
+							<span class="langTV lang-et">{{ item.names.et }}</span>
+						</div>
+						<span class="timeDisplay" dir="ltr">
+							<div class="upNextText" style="display: none;">הבא...</div>
+							<div></div>
+						</span>
+					</div>
+				</div>
+				{% endfor %}
+				<div style="grid-column: 1 / span 3;"
+					class="card bg-white rounded-[12px] shadow-xl transition-shadow duration-200 text-center border border-gray-100"
+					data-zmanid="hatzot" data-timeGetter="getHatzoth" data-round="earlier" data-ampm="false">
+					<div class="card-body">
+						<div class="zmanTitleText">
+							<span class="langTV lang-hb">חצות</span>
+							<span class="langTV lang-en">Midday/Midnight</span>
+							<span class="langTV lang-et">Midday/Midnight</span>
+						</div>
+						<span class="timeDisplay" dir="ltr">
+							<div class="upNextText" style="display: none;">הבא...</div>
+							<div></div>
+						</span>
+					</div>
+				</div>
+				{% for item in site.data.tv.zmanGridHY.postHatzot %}
+				<div class="g-col-1 card bg-white rounded-[12px] shadow-xl transition-shadow duration-200 text-center border border-gray-100"
+					data-zmanid="{{ item.id }}" {% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}" {% endif
+					%} {% if item.round %}data-round="{{ item.round }}" {% endif %} {% if item.attributes.luachInclusive
+					%}data-luachInclusive="{{ item.attributes.luachInclusive }}" {% endif %} {% if
+					item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}" {%
+					endif %} {% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}" {% endif
+					%} {% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or
+					item.attributes.condition %}style="display: none;" {% endif %}>
+					<div class="card-body">
+						{% if item.icon %} <img src="/assets/images/shul-wall/sbm-la/{{ item.icon }}.svg"
+							alt="{{ item.name | escape }}" style="width: 32px; height: 32px;"> {% endif %}
+						<div class="zmanTitleText">
+							<span class="langTV lang-hb">{{ item.names.he }}</span>
+							<span class="langTV lang-en">{{ item.names.en }}</span>
+							<span class="langTV lang-et">{{ item.names.et }}</span>
+						</div>
+						<span class="timeDisplay" dir="ltr">
+							<div class="upNextText" style="display: none;">הבא...</div>
+							<div></div>
+						</span>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+		<div>
+			<h1 class="text-center" data-parasha data-prefix="en-hb"></h1>
+			<h3 class="text-center" style="font-size: 2rem;">
+				<span data-zfReplace="Haftara"><img src="/assets/images/shabbat-abstract/megila-icon.png"
+						style="filter: invert(); height: 1.5ch; vertical-align: inherit;"> Haftara: </span>
+				<span id="makam" data-zfReplace="makamot">🎵Makam </span>
+			</h3>
+			<div class="list-group list-group-flush lh-sm">
+				<div class="list-group-item d-flex justify-content-between" id="havdalaElem">
+					<div data-lightingCandles data-onlyRegShab data-timeInsert="insertAdjacent">
+						<i class="bi bi-fire"></i>
+						<b class="langTV lang-hb">הדלקת נרות</b>
+						<b class="langTV lang-en">Candle Lighting</b>
+					</div>
+				</div>
+			</div>
+			<div class="card" style="line-height: 1.25;">
+				<zman-schedule class="list-group list-group-flush" id="shabbat">
+				</zman-schedule>
+			</div>
+			<div class="list-group list-group-flush lh-sm">
+				<div class="list-group-item d-flex justify-content-between" id="havdalaElem">
+					<div class="langTV lang-hb">
+						<svg viewBox="0 0 100 100">
+							<use href="/assets/images/havdalah.svg#Layer_1" />
+						</svg><b>צאת מלאכה</b>
+						<div class="fs-sm"><span style="unicode-bidi: isolate;">ר"ת</span>: <span
+								data-autoschedule-type="sUM" data-autoschedule-function="getTzetRT"
+								data-autoschedule-plusorminus="+" data-autoschedule-hours="00"
+								data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></span></div>
+					</div>
+					<div class="langTV lang-en">
+						<svg viewBox="0 0 100 100">
+							<use href="/assets/images/havdalah.svg#Layer_1" />
+						</svg><b>Tzet Melakha</b>
+						<div class="fs-sm">R"T: <span data-autoschedule-type="sUM"
+								data-autoschedule-function="getTzetRT" data-autoschedule-plusorminus="+"
+								data-autoschedule-hours="00" data-autoschedule-minutes="00"
+								data-autoschedule-roundmode="ex"></span></div>
+					</div>
+					<dd class="m-0" data-autoschedule-type="sUM" data-autoschedule-function="getTzetMelakha"
+						data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00"
+						data-autoschedule-roundmode="ex"></dd>
+				</div>
+			</div>
+			<hr>
+			<h1 class="text-center mb-0" style="font-size: 3.75rem; line-height: 1;">Weekday Schedule</h1>
+			<div class="card">
+				<zman-schedule class="list-group list-group-flush" id="weekday">
+				</zman-schedule>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script id="zy-scheduleScreen-config" type="application/json">
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "SBM",
+			"lat": 34.17290522603859,
+			"long": -118.40550170328315,
+			"elevation": 0,
+			"timezone": "America/Los_Angeles"
+		},
+		"calendarToggle": {
+			"rtKulah": false,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 20,
+			"tzeithIssurMelakha": { "minutes": 30 }
+		},
+		"schedule": {
+			"url": "https://docs.google.com/spreadsheets/d/1qEMUGrjWv2AoOYHSRcccM6LJZ2yQENMogcBoxQrGlLU/export?format=xlsx",
+			"type": "excel"
+		}
+	}
+</script>
+<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
+<script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
+<script type="module" src="/assets/js/shul-wall/reset.js"></script>
+<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
+<script type="module" src="/assets/js/shul-wall/zemanim/daySpotlight.js"></script>
+<script type="module" src="/assets/js/shul-wall/limud.js"></script>
+<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
+<script type="module">
+	import autoSchedule from "/assets/js/shul-wall/auto-schedule.js";
+	const autos = document.querySelectorAll("[data-autoschedule-type]");
+	if (autos.length) {
+		autoSchedule(autos);
+	}
+</script>

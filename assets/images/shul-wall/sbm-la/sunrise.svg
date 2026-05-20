@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="47.22665"
+   height="47.227001"
+   viewBox="0 0 47.22665 47.227001"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="sunrise.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="5.794961"
+     inkscape:cx="25.625712"
+     inkscape:cy="20.276236"
+     inkscape:window-width="2462"
+     inkscape:window-height="1406"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg8" />
+  <line
+     x1="1.4"
+     y1="38.104946"
+     x2="44.590679"
+     y2="38.104946"
+     stroke="#0b2345"
+     stroke-width="2.8"
+     stroke-linecap="round"
+     id="line1" />
+  <path
+     d="m 12.718884,29.197414 a 10.901811,10.901811 0 0 1 21.803622,0"
+     fill="#d7a548"
+     stroke="#0B2345"
+     stroke-width="1.99867"
+     id="path2"
+     style="stroke:none" />
+  <line
+     x1="11.076654"
+     y1="22.272055"
+     x2="4.9766507"
+     y2="17.172052"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line2" />
+  <line
+     x1="15.376654"
+     y1="18.672052"
+     x2="11.376654"
+     y2="11.772056"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line3" />
+  <line
+     x1="20.576651"
+     y1="16.772055"
+     x2="19.176657"
+     y2="8.9720564"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line4" />
+  <line
+     x1="26.176657"
+     y1="16.772055"
+     x2="27.576651"
+     y2="8.9720564"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line5" />
+  <line
+     x1="31.376654"
+     y1="18.672052"
+     x2="35.376656"
+     y2="11.772056"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line6" />
+  <line
+     x1="35.676659"
+     y1="22.272055"
+     x2="41.776653"
+     y2="17.172052"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line7" />
+  <line
+     x1="38.376652"
+     y1="27.072054"
+     x2="45.97665"
+     y2="24.372053"
+     stroke="#d7a548"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line8" />
+  <path
+     d="m 1.855204,38.104945 22,-18 18,18"
+     fill="none"
+     stroke="#0b2345"
+     stroke-width="2.8"
+     stroke-linejoin="round"
+     id="path1"
+     style="fill:#0b2345;fill-opacity:1" />
+</svg>
