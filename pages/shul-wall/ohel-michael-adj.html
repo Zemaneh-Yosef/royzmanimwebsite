@@ -47,8 +47,18 @@ layout: nothing
 	.centerLeftgrid {
 		display: grid;
 		justify-content: center;
-		padding-bottom: .5rem;
+		margin-bottom: .5rem;
 		font-size: 1.25em;
+	}
+
+	zman-schedule .centerLeftgrid {
+		font-size: 1.1em;
+		margin-bottom: 0;
+		margin-top: .85rem;
+	}
+
+	.centerLeftgrid > div {
+		text-align: left; width: fit-content; line-height: 1;
 	}
 
 	.centerLeftgrid i {
@@ -56,11 +66,17 @@ layout: nothing
 		text-align: center;
 	}
 
+	[data-zfReplace="Haftara"] img {
+		height: 1.5ch;
+		width: 1.5ch;
+		vertical-align: inherit;
+	}
+
 	#dataGrid {
-		width: calc(100% - 2vw);
-		height: calc(100dvh - 2.75vw - 2dvh);
-		margin-top: 2dvh;
-		margin-left: 1vw;
+		width: calc(100% - 1.5vw);
+		height: calc(100dvh - 1.25dvh - 2.5vw);
+		margin-top: 1.25dvh;
+		margin-left: .75vw;
 		z-index: 5;
 		display: grid;
 		grid-template-areas:
@@ -162,6 +178,7 @@ layout: nothing
 	#dataGrid .card .list-group-item {
 		--bs-list-group-border-color: #49505755;
 		background: transparent;
+		line-height: 1.3;
 	}
 
 	#noSmartphoneWithIcon {
@@ -238,29 +255,48 @@ layout: nothing
 		margin: .25rem 0;
 	}
 
-	#dataGrid #shiur_yonah.list-group,
-	#dataGrid #shiur_cohen.list-group,
-	#dataGrid #shiur_night.list-group {
+	#shiurCont .list-group {
 		--bs-list-group-item-padding-y: 0;
 		--bs-list-group-border-color: transparent;
 		--bs-list-group-item-padding-x: 0;
 		--bs-list-group-color: white;
 	}
 
-	#dataGrid #shiur_yonah .list-group-item,
-	#dataGrid #shiur_cohen .list-group-item,
-	#dataGrid #shiur_night .list-group-item {
+	#shiurCont .list-group .list-group-item {
 		background: transparent;
 		border: none;
 		padding: .15rem 0;
 	}
 
-	#dataGrid #yonahCont .card,
-	#dataGrid #cohenCont .card,
-	#dataGrid #otherShiurCont .card {
+	#dataGrid #shiurCont .card {
 		background: transparent;
 		border: none;
 		box-shadow: none;
+	}
+
+	#sedarim_weekday,
+	#sedarim_shabbat {
+		flex-direction: row;
+	}
+
+	#sedarim_weekday > *,
+	#sedarim_shabbat > * {
+		flex-direction: column;
+	}
+
+	.altTzetMelakhaTime, .fs-sm {
+		font-size: 0.75em;
+	}
+
+	#weekday > li:first-child {
+		flex-direction: column;
+	}
+
+	#weekday > li:first-child > div:last-child {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		width: 100%;
 	}
 </style>
 
@@ -281,34 +317,36 @@ layout: nothing
 		<div id="shiurCont" class="templeBG" style="
 			background: rgba(0,0,0,.4) url('/assets/images/shul-wall/ohel-michael-logo.png');
 			background-size: contain; background-repeat: no-repeat; background-position: center;">
-			<h1>Shiur Schedule</h1>
-			<div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto;">
+			<h1>Learning Schedule</h1>
+			<div style="display: flex; align-items: center;">
+				<h2 style="float: left; margin-right: 1rem;">Weekday<br>Sedarim</h2>
+				<div class="card" style="flex: 1 1;">
+					<zman-schedule class="list-group list-group-flush" id="sedarim_weekday" style="justify-content: space-between;">
+					</zman-schedule>
+				</div>
+			</div>
+			<div style="display: flex; align-items: center; border-top: 1px white solid;">
+				<h2 style="float: left; margin-right: 1rem;">Shabbat<br>Sedarim</h2>
+				<div class="card" style="flex: 1 1;">
+					<zman-schedule class="list-group list-group-flush" id="sedarim_shabbat" style="justify-content: space-around;">
+					</zman-schedule>
+				</div>
+			</div>
+			<div style="display: grid; grid-template-columns: 1fr 1fr; align-items: center; margin-top: 1.5rem;">
 				<div id="yonahCont" style="grid-column: 1; grid-row: 1; border-right: 1px white solid; padding-right: .5rem; padding-bottom: .5rem;">
-					<h2>R' Yonah Nisanov</h2>
+					<h2>Morning Shiurs</h2>
 					<div class="card">
-						<zman-schedule class="list-group list-group-flush" id="shiur_yonah">
+						<zman-schedule class="list-group list-group-flush" id="shiur_morning">
 						</zman-schedule>
 					</div>
 				</div>
 				<div id="cohenCont" style="grid-column: 2; grid-row: 1; padding-left: .5rem;">
-					<h2>R' Eliezer Cohen</h2>
+					<h2>Night Shiurs</h2>
 					<div class="card">
-						<zman-schedule class="list-group list-group-flush" id="shiur_cohen">
-						</zman-schedule>
-					</div>
-				</div>
-				<div id="otherShiurCont" style="grid-column: 1 / span 2; grid-row: 2; display: flex; align-items: center; border-top: 1px white solid; padding-top: .5rem;">
-					<h2 style="float: left; margin-right: 1rem;">Other<br>Shiurim</h2>
-					<div class="card" style="flex: 1 1;">
 						<zman-schedule class="list-group list-group-flush" id="shiur_night">
 						</zman-schedule>
 					</div>
 				</div>
-			</div>
-			<h2>Seder Schedule</h2>
-			<div class="card">
-				<zman-schedule class="list-group list-group-flush" id="sedarim">
-				</zman-schedule>
 			</div>
 		</div>
 		<div id="zemanehHayom" class="templeBG">
@@ -485,13 +523,6 @@ layout: nothing
 			<h2 style="text-align: center;" data-parasha data-prefix="en-hb"></h2>
 			<div class="centerLeftgrid">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
-					<div data-zfReplace="Haftara"><img src="/assets/images/shabbat-abstract/megila-icon.png" style="height: 1.5ch; vertical-align: inherit;"> Haftara: </div>
-					<div data-zfReplace="makamot"><span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>Makam </div>
-				</div>
-			</div>
-			<hr style="margin: .15rem 0">
-			<div class="centerLeftgrid">
-				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
 					<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
 				</div>
@@ -530,8 +561,8 @@ layout: nothing
 			"tzeithIssurMelakha": { "minutes": 42, "degree": null }
 		},
 		"schedule": {
-			"url": "https://zemaneh-yosef.github.io/extras/new-yonah-schedule.ini",
-			"type": "ini"
+			"url": "https://zemaneh-yosef.github.io/extras/yonah-schedule.toml",
+			"type": "toml"
 		}
 	}
 </script>
@@ -545,5 +576,11 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/zemanim/transition.js"></script>
 <script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
-<script type="module" src="/assets/js/shul-wall/limud.js"></script>
-<script type="module" src='/assets/js/shul-wall/scheduleOnline.js'></script>
+<script type="module">
+	await import('/assets/js/shul-wall/scheduleOnline.js');
+	setTimeout(async () => {
+		document.querySelector('[data-zfReplace="Haftara"]').insertAdjacentHTML('afterbegin', '<img src="/assets/images/shabbat-abstract/megila-icon.png"> ')
+		document.querySelector('[data-zfReplace="makamot"]').insertAdjacentHTML('afterbegin', '<span style="color: transparent; text-shadow: 0 0 0 white;">🎵</span>')
+		await import('/assets/js/shul-wall/limud.js')
+	}, 2000);
+</script>
