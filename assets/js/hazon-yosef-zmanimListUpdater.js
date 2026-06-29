@@ -210,7 +210,7 @@ export default class zmanimListUpdater {
 		this.zmanCalc = new ZemanFunctions(geoLocation, {
 			elevation: true,
 			fixedMil: true,
-			rtKulah: !this.jCal.getInIsrael(),
+			rtKulah: false,
 			candleLighting: 20,
 			melakha: (this.jCal.getInIsrael() ? { minutes: 30, degree: null } : { minutes: null, degree: 7.165 })
 		})
