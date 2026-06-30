@@ -368,4 +368,10 @@ function romanize (num) {
 }
 
 if (Worker)
-	addEventListener('message', async (message) => postMessage(await icsExport.apply(icsExport, message.data)))
+	addEventListener('message', async (message) => {
+		if (!('Temporal' in globalThis)) {
+			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
+			globalThis.Temporal = Temporal;
+		}
+		postMessage(await icsExport.apply(icsExport, message.data))
+	})

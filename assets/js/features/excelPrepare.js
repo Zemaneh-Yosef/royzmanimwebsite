@@ -83,4 +83,10 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 }
 
 if (Worker)
-	addEventListener('message', (message) => postMessage(spreadSheetExport.apply(spreadSheetExport, message.data)))
+	addEventListener('message', async (message) => {
+		if (!('Temporal' in globalThis)) {
+			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
+			globalThis.Temporal = Temporal;
+		}
+		postMessage(spreadSheetExport.apply(spreadSheetExport, message.data))
+	})

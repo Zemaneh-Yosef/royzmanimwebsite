@@ -227,7 +227,7 @@ export default class exportFriendly {
 			}
 		]
 
-		/** @type {Parameters<import('../../libraries/xlsx.js')["utils"]["json_to_sheet"]>[1][]} */
+		/** @type {import("./excelPrepare.js").SpreadsheetRow[]} */
 		let workerData = [];
 		let giveData = [];
 
