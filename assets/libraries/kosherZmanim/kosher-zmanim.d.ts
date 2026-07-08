@@ -455,257 +455,45 @@ declare class GeoLocation {
 //#endregion
 //#region src/util/Calculator/AstronomicalCalculator.d.ts
 /**
- * An abstract class that all sun time calculating classes extend. This allows the algorithm used to be changed at
- * runtime, easily allowing comparison the results of using different algorithms.
- * TODO: Consider methods that would allow atmospheric modeling. This can currently be adjusted by {@link
-  * #setRefraction(double) setting the refraction}.
- *
- * @author &copy; Eliyahu Hershfeld 2004 - 2020
+ * Abstract base class for sun-time calculators.
+ * Now includes date‑based apparent solar radius and correct Earth radius.
  */
 declare abstract class AstronomicalCalculator {
-  /**
-   * The commonly used average solar refraction. Calendrical Calculations lists a more accurate global average of
-   * 34.478885263888294
-   *
-   * @see #getRefraction()
-   */
-  private refraction;
-  /**
-   * The commonly used average solar radius in minutes of a degree.
-   *
-   * @see #getSolarRadius()
-   */
-  private solarRadius;
-  /**
-   * The commonly used average earth radius in KM. At this time, this only affects elevation adjustment and not the
-   * sunrise and sunset calculations. The value currently defaults to 6356.9 KM.
-   *
-   * @see #getEarthRadius()
-   * @see #setEarthRadius(double)
-   */
-  private earthRadius;
-  /**
-   * A method that returns the earth radius in KM. The value currently defaults to 6356.9 KM if not set.
-   *
-   * @return the earthRadius the earth radius in KM.
-   */
-  getEarthRadius(): number;
-  /**
-   * A method that allows setting the earth's radius.
-   *
-   * @param earthRadius
-   *            the earthRadius to set in KM
-   */
-  setEarthRadius(earthRadius: number): void;
-  /**
-   * The zenith of astronomical sunrise and sunset. The sun is 90&deg; from the vertical 0&deg;
-   */
   private static readonly GEOMETRIC_ZENITH;
-  /**
-   * Returns the default class for calculating sunrise and sunset. This is currently the {@link NOAACalculator},
-   * but this may change.
-   *
-   * @return AstronomicalCalculator the default class for calculating sunrise and sunset. In the current
-   *         implementation the default calculator returned is the {@link NOAACalculator}.
-   * @deprecated This depends on a circular dependency. Use <pre>new NOAACalculator()</pre> instead
-   */
-  static getDefault(): void;
-  /**
-   * Returns the name of the algorithm.
-   *
-   * @return the descriptive name of the algorithm.
-   */
-  abstract getCalculatorName(): string;
-  /**
-   * Setter method for the descriptive name of the calculator. This will typically not have to be set
-   *
-   * @param calculatorName
-   *            descriptive name of the algorithm.
-   */
-  /**
-   * A method that calculates UTC sunrise as well as any time based on an angle above or below sunrise. This abstract
-   * method is implemented by the classes that extend this class.
-   *
-   * @param calendar
-   *            Used to calculate day of year.
-   * @param geoLocation
-   *            The location information used for astronomical calculating sun times.
-   * @param zenith
-   *            the azimuth below the vertical zenith of 90 degrees. for sunrise typically the {@link #adjustZenith
-     *            zenith} used for the calculation uses geometric zenith of 90&deg; and {@link #adjustZenith adjusts}
-   *            this slightly to account for solar refraction and the sun's radius. Another example would be
-   *            {@link AstronomicalCalendar#getBeginNauticalTwilight()} that passes
-   *            {@link AstronomicalCalendar#NAUTICAL_ZENITH} to this method.
-   * @param adjustForElevation
-   *            Should the time be adjusted for elevation
-   * @return The UTC time of sunrise in 24 hour format. 5:45:00 AM will return 5.75.0. If an error was encountered in
-   *         the calculation (expected behavior for some locations such as near the poles,
-   *         {@link java.lang.Double#NaN} will be returned.
-   * @see #getElevationAdjustment(double)
-   */
-  abstract getUTCSunrise(date: Temporal.PlainDate, geoLocation: GeoLocation, zenith: number, adjustForElevation: boolean): number;
-  /**
-   * A method that calculates UTC sunset as well as any time based on an angle above or below sunset. This abstract
-   * method is implemented by the classes that extend this class.
-   *
-   * @param calendar
-   *            Used to calculate day of year.
-   * @param geoLocation
-   *            The location information used for astronomical calculating sun times.
-   * @param zenith
-   *            the azimuth below the vertical zenith of 90&deg;. For sunset typically the {@link #adjustZenith
-   *            zenith} used for the calculation uses geometric zenith of 90&deg; and {@link #adjustZenith adjusts}
-   *            this slightly to account for solar refraction and the sun's radius. Another example would be
-   *            {@link AstronomicalCalendar#getEndNauticalTwilight()} that passes
-   *            {@link AstronomicalCalendar#NAUTICAL_ZENITH} to this method.
-   * @param adjustForElevation
-   *            Should the time be adjusted for elevation
-   * @return The UTC time of sunset in 24 hour format. 5:45:00 AM will return 5.75.0. If an error was encountered in
-   *         the calculation (expected behavior for some locations such as near the poles,
-   *         {@link java.lang.Double#NaN} will be returned.
-   * @see #getElevationAdjustment(double)
-   */
-  abstract getUTCSunset(date: Temporal.PlainDate, geoLocation: GeoLocation, zenith: number, adjustForElevation: boolean): number;
-  /**
-     * Return <a href="https://en.wikipedia.org/wiki/Noon#Solar_noon">solar noon</a> (UTC) for the given day at the
-     * given location on earth. The the {@link com.kosherjava.zmanim.util.NOAACalculator} implementation calculates
-     * true solar noon, while the {@link com.kosherjava.zmanim.util.SunTimesCalculator} approximates it, calculating
-     * the time as halfway between sunrise and sunset.
-     *
-     * @param calendar
-     *            Used to calculate day of year.
-     * @param geoLocation
-     *            The location information used for astronomical calculating sun times.
-     *
-     * @return the time in minutes from zero UTC
-     */
-  abstract getUTCNoon(calendar: Temporal.PlainDate, geoLocation: GeoLocation): number;
-  /**
-   * Return <a href="https://en.wikipedia.org/wiki/Midnight">solar midnight</a> (UTC) for the given day at the
-   * given location on earth. The the {@link com.kosherjava.zmanim.util.NOAACalculator} implementation calculates
-   * true solar midnight, while the {@link com.kosherjava.zmanim.util.SunTimesCalculator} approximates it, calculating
-   * the time as 12 hours after halfway between sunrise and sunset.
-   *
-   * @param calendar
-   *            Used to calculate day of year.
-   * @param geoLocation
-   *            The location information used for astronomical calculating sun times.
-   *
-   * @return the time in minutes from zero UTC
-   */
-  abstract getUTCMidnight(calendar: Temporal.PlainDate, geoLocation: GeoLocation): number;
-  /**
-   * Method to return the adjustment to the zenith required to account for the elevation. Since a person at a higher
-   * elevation can see farther below the horizon, the calculation for sunrise / sunset is calculated below the horizon
-   * used at sea level. This is only used for sunrise and sunset and not times before or after it such as
-   * {@link AstronomicalCalendar#getBeginNauticalTwilight() nautical twilight} since those
-   * calculations are based on the level of available light at the given dip below the horizon, something that is not
-   * affected by elevation, the adjustment should only made if the zenith == 90&deg; {@link #adjustZenith adjusted}
-   * for refraction and solar radius. The algorithm used is
-   *
-   * <pre>
-   * elevationAdjustment = Math.toDegrees(Math.acos(earthRadiusInMeters / (earthRadiusInMeters + elevationMeters)));
-   * </pre>
-   *
-   * The source of this algorithm is <a href="http://www.calendarists.com">Calendrical Calculations</a> by Edward M.
-   * Reingold and Nachum Dershowitz. An alternate algorithm that produces an almost identical (but not accurate)
-   * result found in Ma'aglay Tzedek by Moishe Kosower and other sources is:
-   *
-   * <pre>
-   * elevationAdjustment = 0.0347 * Math.sqrt(elevationMeters);
-   * </pre>
-   *
-   * @param elevation
-   *            elevation in Meters.
-   * @return the adjusted zenith
-   */
-  getElevationAdjustment(elevation: number): number;
-  /**
-   * Adjusts the zenith of astronomical sunrise and sunset to account for solar refraction, solar radius and
-   * elevation. The value for Sun's zenith and true rise/set Zenith (used in this class and subclasses) is the angle
-   * that the center of the Sun makes to a line perpendicular to the Earth's surface. If the Sun were a point and the
-   * Earth were without an atmosphere, true sunset and sunrise would correspond to a 90&deg; zenith. Because the Sun
-   * is not a point, and because the atmosphere refracts light, this 90&deg; zenith does not, in fact, correspond to
-   * true sunset or sunrise, instead the centre of the Sun's disk must lie just below the horizon for the upper edge
-   * to be obscured. This means that a zenith of just above 90&deg; must be used. The Sun subtends an angle of 16
-   * minutes of arc (this can be changed via the {@link #setSolarRadius(double)} method , and atmospheric refraction
-   * accounts for 34 minutes or so (this can be changed via the {@link #setRefraction(double)} method), giving a total
-   * of 50 arcminutes. The total value for ZENITH is 90+(5/6) or 90.8333333&deg; for true sunrise/sunset. Since a
-   * person at an elevation can see blow the horizon of a person at sea level, this will also adjust the zenith to
-   * account for elevation if available. Note that this will only adjust the value if the zenith is exactly 90 degrees.
-   * For values below and above this no correction is done. As an example, astronomical twilight is when the sun is
-   * 18&deg; below the horizon or {@link AstronomicalCalendar#ASTRONOMICAL_ZENITH 108&deg;
-   * below the zenith}. This is traditionally calculated with none of the above mentioned adjustments. The same goes
-   * for various <em>tzais</em> and <em>alos</em> times such as the
-   * {@link ZmanimCalendar#ZENITH_16_POINT_1 16.1&deg;} dip used in
-   * {@link ComplexZmanimCalendar#getAlos16Point1Degrees()}.
-   *
-   * @param zenith
-   *            the azimuth below the vertical zenith of 90&deg;. For sunset typically the {@link #adjustZenith
-   *            zenith} used for the calculation uses geometric zenith of 90&deg; and {@link #adjustZenith adjusts}
-   *            this slightly to account for solar refraction and the sun's radius. Another example would be
-   *            {@link AstronomicalCalendar#getEndNauticalTwilight()} that passes
-   *            {@link AstronomicalCalendar#NAUTICAL_ZENITH} to this method.
-   * @param elevation
-   *            elevation in Meters.
-   * @return The zenith adjusted to include the {@link #getSolarRadius sun's radius}, {@link #getRefraction
-     *         refraction} and {@link #getElevationAdjustment elevation} adjustment. This will only be adjusted for
-   *         sunrise and sunset (if the zenith == 90&deg;)
-   * @see #getElevationAdjustment(double)
-   */
-  adjustZenith(zenith: number, elevation: number): number;
-  /**
-   * Method to get the refraction value to be used when calculating sunrise and sunset. The default value is 34 arc
-   * minutes. The <a href="http://emr.cs.iit.edu/home/reingold/calendar-book/second-edition/errata.pdf">Errata and
-   * Notes for Calendrical Calculations: The Millennium Edition</a> by Edward M. Reingold and Nachum Dershowitz lists
-   * the actual average refraction value as 34.478885263888294 or approximately 34' 29". The refraction value as well
-   * as the solarRadius and elevation adjustment are added to the zenith used to calculate sunrise and sunset.
-   *
-   * @return The refraction in arc minutes.
-   */
+  private refraction;
+  private solarRadius;
+  private earthRadius;
+  private useApparentSolarRadius;
+  protected static sinDegrees(deg: number): number;
+  protected static cosDegrees(deg: number): number;
+  protected static tanDegrees(deg: number): number;
+  protected static asinDegrees(x: number): number;
+  protected static acosDegrees(x: number): number;
   getRefraction(): number;
-  /**
-   * A method to allow overriding the default refraction of the calculator.
-   * @todo At some point in the future, an AtmosphericModel or Refraction object that models the atmosphere of different
-   * locations might be used for increased accuracy.
-   *
-   * @param refraction
-   *            The refraction in arc minutes.
-   * @see #getRefraction()
-   */
-  setRefraction(refraction: number): void;
-  /**
-   * Method to get the sun's radius. The default value is 16 arc minutes. The sun's radius as it appears from earth is
-   * almost universally given as 16 arc minutes but in fact it differs by the time of the year. At the <a
-   * href="https://en.wikipedia.org/wiki/Perihelion">perihelion</a> it has an apparent radius of 16.293, while at the
-   * <a href="https://en.wikipedia.org/wiki/Aphelion">aphelion</a> it has an apparent radius of 15.755. There is little
-   * affect for most location, but at high and low latitudes the difference becomes more apparent. My Calculations for
-   * the difference at the location of the <a href="http://www.rog.nmm.ac.uk">Royal Observatory, Greenwich </a> show
-   * only a 4.494 second difference between the perihelion and aphelion radii, but moving into the arctic circle the
-   * difference becomes more noticeable. Tests for Tromso, Norway (latitude 69.672312, longitude 19.049787) show that
-   * on May 17, the rise of the midnight sun, a 2 minute 23 second difference is observed between the perihelion and
-   * aphelion radii using the USNO algorithm, but only 1 minute and 6 seconds difference using the NOAA algorithm.
-   * Areas farther north show an even greater difference. Note that these test are not real valid test cases because
-   * they show the extreme difference on days that are not the perihelion or aphelion, but are shown for illustrative
-   * purposes only.
-   *
-   * @return The sun's radius in arc minutes.
-   */
+  setRefraction(r: number): void;
   getSolarRadius(): number;
+  setSolarRadius(r: number): void;
+  getEarthRadius(): number;
+  setEarthRadius(r: number): void;
+  isUseApparentSolarRadius(): boolean;
+  setUseApparentSolarRadius(flag: boolean): void;
+  private static readonly SOLAR_RADIUS_BY_DAY_OF_YEAR;
   /**
-   * Method to set the sun's radius.
-   *
-   * @param solarRadius
-   *            The sun's radius in arc minutes.
-   * @see #getSolarRadius()
+   * Returns the Sun's apparent semi‑diameter for the given date (in degrees).
+   * If date is null or apparent mode is off, falls back to fixed 16′.
    */
-  setSolarRadius(solarRadius: number): void;
+  getApparentSolarRadius(date: Temporal.PlainDate | null): number;
+  getElevationAdjustment(elevationMeters: number): number;
   /**
-   * @see java.lang.Object#clone()
-   * @since 1.1
+   * Adjust zenith for sunrise/sunset (only when zenith == 90°).
+   * Now includes the date for apparent solar radius.
    */
-  clone(): AstronomicalCalculator;
-  equals(object: object): boolean;
+  adjustZenith(zenith: number, elevation: number, date?: Temporal.PlainDate | null): number;
+  abstract getCalculatorName(): string;
+  abstract getUTCSunrise(date: Temporal.PlainDate, geoLocation: GeoLocation, zenith: number, adjustForElevation: boolean): number;
+  abstract getUTCSunset(date: Temporal.PlainDate, geoLocation: GeoLocation, zenith: number, adjustForElevation: boolean): number;
+  abstract getUTCNoon(date: Temporal.PlainDate, geoLocation: GeoLocation): number;
+  abstract getUTCMidnight(date: Temporal.PlainDate, geoLocation: GeoLocation): number;
 }
 //#endregion
 //#region src/AstronomicalCalendar.d.ts
@@ -2237,206 +2025,257 @@ declare const Long_MIN_VALUE: number;
  */
 declare function padZeros(num: number, places: number): string;
 //#endregion
-//#region src/util/Calculator/NOAACalculator.d.ts
+//#region src/util/Calculator/SPACalculator.d.ts
 /**
- * Implementation of sunrise and sunset methods to calculate astronomical times based on the <a
- * href="http://noaa.gov">NOAA</a> algorithm. This calculator uses the Java algorithm based on the implementation by <a
- * href="http://noaa.gov">NOAA - National Oceanic and Atmospheric Administration</a>'s <a href =
- * "http://www.srrb.noaa.gov/highlights/sunrise/sunrise.html">Surface Radiation Research Branch</a>. NOAA's <a
- * href="http://www.srrb.noaa.gov/highlights/sunrise/solareqns.PDF">implementation</a> is based on equations from <a
- * href="http://www.willbell.com/math/mc1.htm">Astronomical Algorithms</a> by <a
- * href="https://en.wikipedia.org/wiki/Jean_Meeus">Jean Meeus</a>. Added to the algorithm is an adjustment of the zenith
- * to account for elevation. The algorithm can be found in the <a
- * href="https://en.wikipedia.org/wiki/Sunrise_equation">Wikipedia Sunrise Equation</a> article.
+ * Implementation of solar times using the <a href="https://midcdmz.nrel.gov/spa/">Solar Position Algorithm (SPA)</a>. This was the
+ * work of Ibrahim Reda and Afshin Andreas (NREL/TP-560-34302, <a href="https://doi.org/10.1016/j.solener.2003.12.003">Solar Energy
+ * 76 (2004) 577-589</a>). SPA computes the Earth's heliocentric position from the <a href=
+ * "https://en.wikipedia.org/wiki/VSOP_(planets)">VSOP87</a> series, applies nutation, aberration and the obliquity of the ecliptic
+ * to obtain the Sun's apparent geocentric right ascension and declination, then performs the full <b>topocentric</b> reduction -
+ * observer parallax (using latitude, longitude and elevation) and atmospheric refraction - to yield the observed topocentric zenith
+ * and azimuth. Its stated uncertainty is ±0.0003° (about one arc-second) for the years −2000 to +6000.
  *
- * @author &copy; Eliyahu Hershfeld 2011 - 2019
+ * <p><b>Refraction is fully configurable through the parent {@link AstronomicalCalculator}.</b> Many SPA ports hardcode their
+ * refraction model (and even their solar radius); this one does not:
+ * <ul>
+ * <li><b>Sunrise / sunset (the geometric 90° zenith only).</b> The horizon geometry is taken entirely from the parent's {@link
+ *     #adjustZenith(double, double)}: {@link #getRefraction()} / {@link #setRefraction(double)} (default 0.5667° / 34′);
+ *     the solar radius - the date-based {@link #getApparentSolarRadius(date)} by default (it varies slightly day to day), or the
+ *     fixed {@link #getSolarRadius()} (default 0.26667° / 16′) when {@link #isUseApparentSolarRadius()} is {@code false};
+ *     and the {@link #getElevationAdjustment(double) elevation dip}. SPA's own atmospheric refraction is <em>not</em> applied on this
+ *     path - the calculator solves for the geometric (parallax-included, un-refracted) center of the Sun reaching the parent-supplied
+ *     zenith, exactly as {@link NOAACalculator} does. The parent only adds these corrections when the
+ *     zenith is exactly 90°, so {@link #setRefraction(double)} and {@link #setSolarRadius(double)} change sunrise / sunset (and any
+ *     90°-based time) and nothing else.</li>
+ * <li><b>Twilight and depression-angle <em>zmanim</em> (e.g. <em>alos</em> / <em>tzais</em> at 16.1°, 19.8°).</b> These pass a zenith
+ *     other than 90°, so {@link #adjustZenith(double, double)} adds nothing: no refraction, no solar radius. The time is
+ *     solved for the Sun's <em>true geometric</em> depression, as such <em>zmanim</em> are defined. None of {@link
+ *     #setRefraction(double)}, {@link #setSolarRadius(double)}, {@link #setPressure(double)} or {@link #setTemperature(double)}
+ *     affect them.</li>
+ * <li><b>Instantaneous {@link #getSolarElevation(instant, GeoLocation) elevation} / {@link #getSolarAzimuth(instant, GeoLocation)
+ *     azimuth} only.</b> Here the full SPA (Reda-Andreas / Sæmundsson) atmospheric-refraction model is used, with its horizon
+ *     parameter taken from the parent's {@link #getRefraction()} and the {@link #setPressure(double) pressure} and {@link
+ *     #setTemperature(double) temperature} settable. <b>These two settings affect this path and only this path</b> - they have no
+ *     effect on sunrise, sunset, twilight or any depression-angle <em>zman</em>. (Note that within the KosherJava calendar nothing
+ *     calls {@link #getSolarElevation(instant, GeoLocation)} / {@code #getSolarAzimuth(instant, GeoLocation)}; they are direct-query
+ *     methods, so in normal calendar use the pressure and temperature settings are inert.)</li>
+ * </ul>
+ *
+ * <p><b>ΔT</b> (TT − UT) is integral to SPA and is applied here. It defaults to an Espenak-Meeus estimate but can be overridden
+ * exactly via {@link #setDeltaTOverride(number)} (the published SPA test case fixes ΔT = 67 seconds), or disabled via {@link
+ * #setApplyDeltaT(boolean)}.
+ *
+ * <p><b>Topocentric note.</b> Unlike {@link NOAACalculator#getSolarElevation(instant, GeoLocation)} (sea-level, altitude-independent),
+ * this calculator's elevation / azimuth are genuinely topocentric: the observer's {@link GeoLocation#getElevation() elevation} feeds
+ * the parallax term. The {@code adjustForElevation} flag on sunrise / sunset continues to control only the geometric horizon
+ * <em>dip</em> via the parent.
+ *
+ * <p><b>Coefficient coverage.</b> The VSOP87 Earth tables are the abridged Appendix III set (validated to about 0.1′ against Meeus's
+ * worked example), and the nutation uses the principal terms. These give a few arc-seconds of accuracy - vastly beyond any
+ * <em>zmanim</em> requirements. For the full published SPA ±0.0003° envelope, the VSOP87 tables and the IAU 1980 nutation series can
+ * be extended without changing the algorithm.
+ *
+ * @author © Eliyahu Hershfeld 2026; NREL SPA (Reda and Andreas) port
  */
-declare class NOAACalculator extends AstronomicalCalculator {
-  /**
-   * The <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> of January 1, 2000
-   */
+declare class SPACalculator extends AstronomicalCalculator {
+  /** The <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> of J2000.0. */
   private static readonly JULIAN_DAY_JAN_1_2000;
-  /**
-   * Julian days per century
-   */
+  /** Julian days per century. */
   private static readonly JULIAN_DAYS_PER_CENTURY;
-  /**
-   * @see com.kosherjava.zmanim.util.AstronomicalCalculator#getCalculatorName()
-   */
+  /** Whether to apply the ΔT (TT−UT) correction. Defaults to {@code true}. */
+  private applyDeltaT;
+  /** An explicit ΔT (seconds) override; {@code null} means estimate it from the date. */
+  private deltaTOverride;
+  /** Annual average local pressure in millibars, used by the SPA refraction model. Default 1013.25. */
+  private pressure;
+  /** Annual average local temperature in °C, used by the SPA refraction model. Default 10. */
+  private temperature;
+  /** Default constructor of the SPACalculator. */
+  constructor();
   getCalculatorName(): string;
   /**
-   * @see AstronomicalCalculator#getUTCSunrise(Calendar, GeoLocation, double, boolean)
+   * Sets to apply ΔT {@code true} (default), or {@code false} to omit it (UT = TT).
+   * @param applyDeltaT {@code true} (default) to apply ΔT, {@code false} to omit it (UT = TT).
+   * @see #isApplyDeltaT()
    */
-  getUTCSunrise(date: Temporal.PlainDate, geoLocation: GeoLocation, zenith: number, adjustForElevation: boolean): number;
+  setApplyDeltaT(applyDeltaT: boolean): void;
   /**
-   * @see AstronomicalCalculator#getUTCSunset(Calendar, GeoLocation, double, boolean)
+   * Returns whether the ΔT correction is being applied.
+   * @return whether the ΔT correction is being applied.
+   * @see #setApplyDeltaT(boolean)
    */
-  getUTCSunset(date: Temporal.PlainDate, geoLocation: GeoLocation, zenith: number, adjustForElevation: boolean): number;
+  isApplyDeltaT(): boolean;
   /**
-   * Return the <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> from a Java Calendar
+   * Override the estimated ΔT with an explicit value in seconds (for example 67 seconds for the published SPA test
+   * case), or {@code null} to revert to the date-based estimate.
+   * @param deltaTSeconds ΔT in seconds, or {@code null} to estimate.
+   */
+  setDeltaTOverride(deltaTSeconds: number | null): void;
+  /**
+   * Return the explicit ΔT (TT - UT) override in seconds, or {@code null} if ΔT is being estimated from the
+   * date (the default). Note that this returns the override setting, not the estimated value in use.
+   * @return the explicit ΔT override in seconds, or {@code null} if it is being estimated from the date.
+   * @see #setDeltaTOverride(number)
+   */
+  getDeltaTOverride(): number | null;
+  /**
+   * Set the annual average local pressure used by the SPA atmospheric-refraction model. <b>This affects only
+   * {@link #getSolarElevation(instant, GeoLocation)} and {@link #getSolarAzimuth(instant, GeoLocation)}</b>; it has no
+   * effect on sunrise, sunset, twilight or any depression-angle <em>zman</em>, whose refraction (if any) comes from the
+   * parent's fixed {@link #getRefraction()}. See the class documentation.
+   * @param pressureMillibars the pressure in millibars (hPa).
+   */
+  setPressure(pressureMillibars: number): void;
+  /**
+   * Return the pressure in millibars used by the refraction model.
+   * @return the pressure in millibars used by the refraction model.
+   */
+  getPressure(): number;
+  /**
+   * Set the annual average local temperature used by the SPA atmospheric-refraction model. <b>This affects only
+   * {@link #getSolarElevation(instant, GeoLocation)} and {@link #getSolarAzimuth(instant, GeoLocation)}</b>; it has no
+   * effect on sunrise, sunset, twilight or any depression-angle <em>zman</em>, whose refraction (if any) comes from the
+   * parent's fixed {@link #getRefraction()}. See the class documentation.
+   * @param temperatureCelsius the temperature in degrees Celsius.
+   */
+  setTemperature(temperatureCelsius: number): void;
+  /**
+   * Returns the temperature in °C used by the refraction model.
+   * @return the temperature in °C used by the refraction model.
+   */
+  getTemperature(): number;
+  getUTCSunrise(dt: Temporal.PlainDate, geoLocation: GeoLocation, zenith: number, adjustForElevation: boolean): number;
+  getUTCSunset(dt: Temporal.PlainDate, geoLocation: GeoLocation, zenith: number, adjustForElevation: boolean): number;
+  /**
+   * Calculate UTC sunrise or sunset (or any twilight angle) in 24-hour format. The horizon geometry (refraction, the sun's radius
+   * and the elevation dip) is supplied entirely by the parent {@link #adjustZenith(double, double)}, so the SPA
+   * topocentric solution is solved for the un-refracted, parallax-corrected center of the Sun reaching that zenith.
+   * @param localDate the date.
+   * @param geoLocation the observer location.
+   * @param zenith the (un-adjusted) zenith; {@link #adjustZenith adjusted} by the parent before use.
+   * @param adjustForElevation whether to include the geometric elevation dip.
+   * @param solarEvent {@link SolarEvent#SUNRISE} or {@link SolarEvent#SUNSET}.
+   * @return the UTC time in hours, or {@link Double#NaN} if the event does not occur (polar day / night).
+   */
+  private getUTCSunRiseSet;
+  /**
+   * Solve for the UTC time, in minutes after 0:00, at which the topocentric (parallax-corrected, un-refracted) center of
+   * the Sun reaches {@code adjustedZenith}. A first guess is taken from the closed-form hour-angle equation (geocentric
+   * declination at local noon), then refined by a secant iteration on the full SPA topocentric zenith.
+   * @param localDate the date.
+   * @param geoLocation the observer location.
+   * @param adjustedZenith the target zenith (already including refraction / radius / dip from the parent).
+   * @param solarEvent {@link SolarEvent#SUNRISE} or {@link SolarEvent#SUNSET}.
+   * @return UTC minutes after 0:00, or {@link Double#NaN} if the event does not occur.
+   */
+  private solveRiseSet;
+  getUTCNoon(localDate: Temporal.PlainDate, geoLocation: GeoLocation): number;
+  getUTCMidnight(localDate: Temporal.PlainDate, geoLocation: GeoLocation): number;
+  /**
+   * Solar transit (noon) or anti-transit (midnight) in UTC minutes after 0:00, using the high-accuracy SPA equation of
+   * time. Parallax has a negligible (sub-second) effect on transit time, so the geocentric equation of time is used.
+   * @param julianDay the (UT) Julian day for 0:00.
+   * @param lonWest the observer longitude in degrees, positive west.
+   * @param solarEvent {@link SolarEvent#NOON} or {@link SolarEvent#MIDNIGHT}.
+   * @return UTC minutes after 0:00.
+   */
+  private solveNoonMidnight;
+  getTimeAtAzimuth(localDate: Temporal.PlainDate, geoLocation: GeoLocation, targetAzimuth: number): number;
+  getSolarElevation(instant: Temporal.Instant, geoLocation: GeoLocation): number;
+  getSolarAzimuth(instant: Temporal.Instant, geoLocation: GeoLocation): number;
+  /**
+   * Compute the Sun's <b>geocentric</b> apparent coordinates and the apparent sidereal time for the given UT Julian day.
+   * @param julianDayUT the UT Julian day (including fractional day).
+   * @return [alpha (geocentric apparent RA, deg 0-360), delta (geocentric apparent declination, deg), epsilon (true
+   *         obliquity, deg), nu (apparent Greenwich sidereal time, deg 0-360), radius (AU), lambda (apparent longitude, deg)].
+   */
+  private solarCoords;
+  /**
+   * Full SPA topocentric reduction (observer parallax + atmospheric refraction).
+   * @param julianDayUT the UT Julian day.
+   * @param latitude observer latitude in degrees.
+   * @param longitude observer longitude in degrees, positive east.
+   * @param elevationMeters observer elevation in meters.
+   * @return [trueElevation (topocentric, no refraction, deg), observedElevation (refraction-corrected, deg),
+   *         azimuth (eastward from north, deg 0-360)].
+   */
+  private topocentric;
+  /**
+   * Topocentric <em>true</em> (un-refracted) zenith of the Sun's center, used by the rise/set solver so that refraction
+   * is supplied solely by the parent {@link #adjustZenith adjustZenith}.
+   * @param julianDayUT the UT Julian day.
+   * @param latitude observer latitude in degrees.
+   * @param longitude observer longitude in degrees, positive east.
+   * @param elevationMeters observer elevation in meters.
+   * @return the topocentric true zenith in degrees.
+   */
+  private topocentricTrueZenith;
+  /**
+   * The SPA atmospheric-refraction correction (Reda and Andreas) in degrees. The horizon refraction parameter is the parent's
+   * {@link #getRefraction()}, and the {@link #pressure} / {@link #temperature} are settable, so the model is fully configurable
+   * rather than hardcoded.
+   * @param trueElevation the true (un-refracted) topocentric elevation in degrees.
+   * @return the refraction correction in degrees to add to the true elevation.
+   */
+  private refractionCorrection;
+  /**
+   * The <a href="https://en.wikipedia.org/wiki/Equation_of_time">equation of time</a> (apparent minus mean solar time)
+   * in minutes of time (Meeus chapter 28), built from the SPA geocentric apparent right ascension. The sign matches
+   * {@link NOAACalculator}.
+   * @param julianDayUT the UT Julian day.
+   * @return the equation of time in minutes.
+   */
+  private equationOfTime;
+  /**
+   * Return the <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> from a {@code Temporal.PlainDate}.
+   * Julian day for 0h UT of the date (Meeus chapter 7).
    *
-   * @param calendar
-   *            The Java Calendar
-   * @return the Julian day corresponding to the date Note: Number is returned for the start of the Julian
-   *         day. Fractional days / time should be added later.
+   * @param localDate the {@code Temporal.PlainDate} to get the Julian date for.
+   * @return the Julian day corresponding to the date Note: Number is returned for the start of the Julian day. Fractional days
+   *         / time should be added later.
    */
   private static getJulianDay;
   /**
-   * Convert <a href="https://en.wikipedia.org/wiki/Julian_day">Julian day</a> to centuries since J2000.0.
-   *
-   * @param julianDay
-   *            the Julian Day to convert
-   * @return the centuries since 2000 Julian corresponding to the Julian Day
+   * Julian day (including fractional day) for a {@code Temporal.Instant} in UTC.
+   * @param instant the day to calculate the Julian day for.
+   * @return the Julian day as a {@code number}
    */
-  private static getJulianCenturiesFromJulianDay;
+  private static julianDayFromInstant;
   /**
-   * Returns the Geometric <a href="https://en.wikipedia.org/wiki/Mean_longitude">Mean Longitude</a> of the Sun.
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return the Geometric Mean Longitude of the Sun in degrees
+   * The mean obliquity of the ecliptic in degrees (SPA / Meeus 22.2 polynomial in U = JME/10).
+   * @param jme Julian millennia of ephemeris time since J2000.0.
+   * @return mean obliquity in degrees.
    */
-  private static getSunGeometricMeanLongitude;
+  private static meanObliquity;
   /**
-   * Returns the Geometric <a href="https://en.wikipedia.org/wiki/Mean_anomaly">Mean Anomaly</a> of the Sun.
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return the Geometric Mean Anomaly of the Sun in degrees
+   * Principal nutation terms in longitude (Δψ) and obliquity (Δε), returned in <b>degrees</b>
+   * (Meeus chapter 22, abridged). These dominant terms give sub-arc-second nutation; the full IAU 1980 series can be
+   * substituted for the complete SPA precision.
+   * @param jce Julian centuries of ephemeris time since J2000.0.
+   * @return [Δψ, Δε] in degrees.
    */
-  private static getSunGeometricMeanAnomaly;
+  private static nutation;
   /**
-   * Return the <a href="https://en.wikipedia.org/wiki/Eccentricity_%28orbit%29">eccentricity of earth's orbit</a>.
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return the unitless eccentricity
+   * Estimate ΔT = TT−UT in seconds (Espenak and Meeus polynomials). Approximate but good to a few seconds for
+   * the modern era.
+   * @param julianDay the (UT) Julian day.
+   * @return ΔT in seconds.
    */
-  private static getEarthOrbitEccentricity;
+  private static estimateDeltaT;
   /**
-   * Returns the <a href="https://en.wikipedia.org/wiki/Equation_of_the_center">equation of center</a> for the sun.
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return the equation of center for the sun in degrees
+   * Evaluate a VSOP87 series Σ<sub>n</sub> (Σ<sub>i</sub> A<sub>i</sub>·cos(B<sub>i</sub> +
+   * C<sub>i</sub>·τ)) · τ<sup>n</sup> with coefficients in 1e-8 of the native unit (radians or AU).
+   * @param series indexed {@code [n][term][{A,B,C}]}.
+   * @param tau time in Julian millennia from J2000.0 (JME).
+   * @return the evaluated quantity (radians or AU).
    */
-  private static getSunEquationOfCenter;
-  /**
-   * Return the true longitude of the sun
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return the sun's true longitude in degrees
-   */
-  private static getSunTrueLongitude;
-  /**
-   * Return the apparent longitude of the sun
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return sun's apparent longitude in degrees
-   */
-  private static getSunApparentLongitude;
-  /**
-   * Returns the mean <a href="https://en.wikipedia.org/wiki/Axial_tilt">obliquity of the ecliptic</a> (Axial tilt).
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return the mean obliquity in degrees
-   */
-  private static getMeanObliquityOfEcliptic;
-  /**
-   * Returns the corrected <a href="https://en.wikipedia.org/wiki/Axial_tilt">obliquity of the ecliptic</a> (Axial
-   * tilt).
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return the corrected obliquity in degrees
-   */
-  private static getObliquityCorrection;
-  /**
-   * Return the <a href="https://en.wikipedia.org/wiki/Declination">declination</a> of the sun.
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return
-   *            the sun's declination in degrees
-   */
-  private static getSunDeclination;
-  /**
-   * Return the <a href="https://en.wikipedia.org/wiki/Equation_of_time">Equation of Time</a> - the difference between
-   * true solar time and mean solar time
-   *
-   * @param julianCenturies
-   *            the number of Julian centuries since J2000.0
-   * @return equation of time in minutes of time
-   */
-  private static getEquationOfTime;
-  /**
-   * Return the <a href="https://en.wikipedia.org/wiki/Hour_angle">hour angle</a> of the sun at sunrise for the
-   * latitude.
-   *
-   * @param lat
-   *            , the latitude of observer in degrees
-   * @param solarDec
-   *            the declination angle of sun in degrees
-   * @param zenith
-   *            the zenith
-   * @param solarEvent
-   *             If the hour angle is for sunrise or sunset
-   * @return hour angle of sunrise in radians
-   */
-  private static getSunHourAngle;
-  getSolarElevation(dateTime: Temporal.ZonedDateTime | Temporal.PlainDateTime, geoLocation: GeoLocation): number;
-  getSolarAzimuth(dateTime: Temporal.ZonedDateTime, geoLocation: GeoLocation): number;
-  private getSolarElevationAzimuth;
-  getUTCNoon(calendar: Temporal.PlainDate, geoLocation: GeoLocation): number;
-  /**
-   * Return the <a href="https://en.wikipedia.org/wiki/Universal_Coordinated_Time">Universal Coordinated Time</a>
-   * (UTC) of the <a href="https://en.wikipedia.org/wiki/Midnight">solar midnight</a> for the end of the given civil
-   * day at the given location on earth (about 12 hours after solar noon). This implementation returns true solar
-   * midnight as opposed to the time halfway between sunrise and sunset. Other calculators may return a more
-   * simplified calculation of halfway between sunrise and sunset. See <a href=
-   * "https://kosherjava.com/2020/07/02/definition-of-chatzos/">The Definition of <em>Chatzos</em></a> for details on
-   * solar noon / midnight calculations.
-   * @see com.kosherjava.zmanim.util.AstronomicalCalculator#getUTCNoon(Calendar, GeoLocation)
-   * @see #getSolarNoonMidnightUTC(double, double, SolarEvent)
-   *
-   * @param calendar
-   *            The Calendar representing the date to calculate solar noon for
-   * @param geoLocation
-   *            The location information used for astronomical calculating sun times. This class uses only requires
-   *            the longitude for calculating noon since it is the same time anywhere along the longitude line.
-   * @return the time in minutes from zero UTC
-   */
-  getUTCMidnight(calendar: Temporal.PlainDate, geoLocation: GeoLocation): number;
-  /**
-   * Return the <a href="https://en.wikipedia.org/wiki/Universal_Coordinated_Time">Universal Coordinated Time</a> (UTC)
-   * of <a href="https://en.wikipedia.org/wiki/Noon#Solar_noon">solar noon</a> for the given day at the given location
-   * on earth.
-   *
-   * @param julianDay
-   *            the Julian day since J2000.0
-   * @param longitude
-   *            the longitude of observer in degrees
-   * @return the time in minutes from zero UTC
-   */
-  private static getSolarNoonMidnightUTC;
-  /**
-   * Return the <a href="https://en.wikipedia.org/wiki/Universal_Coordinated_Time">Universal Coordinated Time</a> (UTC)
-   * of sunset for the given day at the given location on earth
-   *
-   * @param julianDay
-   *            the Julian day
-   * @param latitude
-   *            the latitude of observer in degrees
-   * @param longitude
-   *            : longitude of observer in degrees
-   * @param zenith
-   *            the zenith
-   * @return the time in minutes from zero Universal Coordinated Time (UTC)
-   */
-  private static getSunRiseSetUTC;
+  private static sumSeries;
+  /** Earth heliocentric longitude series L0..L5. */
+  private static readonly EARTH_L;
+  /** Earth heliocentric latitude series B0..B1. */
+  private static readonly EARTH_B;
+  /** Earth radius-vector series R0..R4 (AU). */
+  private static readonly EARTH_R;
 }
 //#endregion
 //#region src/ZmanimCalendar.d.ts
@@ -3253,7 +3092,7 @@ declare abstract class Daf {
  * @author &copy; Eliyahu Hershfeld 2011 - 2019
  * @version 0.0.1
  */
-declare class YomiCalculator {
+declare class DafYomiCalculator {
   /**
    * The start date of the first Daf Yomi Bavli cycle of September 11, 1923 / Rosh Hashana 5684.
    */
@@ -4920,6 +4759,65 @@ declare class MishnaYomi {
   private static findMishna;
 }
 //#endregion
+//#region src/hebrewcalendar/limud/HalachaYomi.d.ts
+interface HalachaSegment {
+  bookName: string;
+  siman: number;
+  firstSeif: number;
+  seifim: string;
+}
+interface DailyLearning {
+  date: Date;
+  dateString: string;
+  dayOfWeek: string;
+  segments: HalachaSegment[];
+}
+interface WeeklyLearning {
+  startDate: Date;
+  endDate: Date;
+  weekNumber: number;
+  days: DailyLearning[];
+  weeklyRange: string;
+  totalSegments: HalachaSegment[];
+}
+declare class HalachaYomi {
+  private static readonly START_DATE;
+  private static readonly RATE_SA;
+  private static readonly RATE_KITZUR;
+  private static readonly NAME_SA;
+  private static readonly NAME_KITZUR;
+  /**
+   * Get a single day's learning
+   */
+  static getDailyLearning(date: Date): HalachaSegment[] | null;
+  /**
+   * Get a week's worth of learning from Sunday to Saturday
+   * This shows the continuous progression across the week
+   */
+  static getWeeklyLearning(startDate?: Date): WeeklyLearning;
+  /**
+   * Get a formatted string showing the weekly learning progression
+   * Example: "Sunday: S"A O"H 1:1-1:3, Monday: S"A O"H 1:4-1:6, ..."
+   */
+  static getWeeklyLearningString(startDate?: Date): string;
+  /**
+   * Get a condensed weekly summary showing the progression
+   * Example: "Sun: 1:1-3 | Mon: 1:4-6 | Tue: 1:7-9 | ..."
+   */
+  static getWeeklySummary(startDate?: Date): string;
+  /**
+   * Get a very compact weekly summary
+   * Example: "S"A O"H 1:1-3:2 (Week 27)"
+   */
+  static getWeeklyCompact(startDate?: Date): string;
+  /**
+   * Get the weekly learning with Hebrew date formatting
+   */
+  static getWeeklyLearningHebrew(startDate?: Date): string;
+  private static calculateSegments;
+  private static daysBetween;
+}
+//#endregion
 //#region src/kosher-zmanim.d.ts
 declare function getZmanimJson(options: Options): JsonOutput;
 interface Options {
@@ -4948,5 +4846,5 @@ declare const temporalExtended: {
   rangeDates: typeof rangeDates;
 };
 //#endregion
-export { AstronomicalCalendar, Calendar, ChafetzChayimYomiCalculator, DafBavliYomi, DafYomiYerushalmi, GeoLocation, WeeklyHaftarahReading as Haftara, HiloulahYomiCalculator, IntegerUtils, JewishCalendar, JewishDate, Long_MIN_VALUE, WeeklyMakamReading as Makam, MathUtils, MishnaYomi, NOAACalculator, Options, Parsha, ParshaMap, StringUtils, TefilaRules, TehilimYomi, Time, TimeZone, Utils, YerushalmiYomiCalculator, YomiCalculator, ZmanimCalendar, _Big, getZmanimJson, padZeros, temporalExtended };
+export { AstronomicalCalendar, Calendar, ChafetzChayimYomiCalculator, DafYomiCalculator, DafYomiYerushalmi, GeoLocation, WeeklyHaftarahReading as Haftara, HalachaYomi, HiloulahYomiCalculator, IntegerUtils, JewishCalendar, JewishDate, Long_MIN_VALUE, WeeklyMakamReading as Makam, MathUtils, MishnaYomi, Options, Parsha, ParshaMap, SPACalculator, StringUtils, TefilaRules, TehilimYomi, Time, TimeZone, Utils, YerushalmiYomiCalculator, ZmanimCalendar, _Big, getZmanimJson, padZeros, temporalExtended };
 //# sourceMappingURL=kosher-zmanim.d.mts.map

@@ -3,7 +3,7 @@
 import * as KosherZmanim from '../../libraries/kosherZmanim/kosher-zmanim.js';
 import { Parsha } from '../../libraries/kosherZmanim/kosher-zmanim.js';
 import WebsiteLimudCalendar from '../WebsiteLimudCalendar.js';
-import { parseHTML } from '../../libraries/linkedom/linkedom.js'
+import { parseHTML } from '../../libraries/linkedom/linkedom.mjs'
 import { HebrewNumberFormatter, daysForLocale, getOrdinal, monthForLocale } from '../WebsiteCalendar.js';
 import { ZemanFunctions, methodNames, zDTFromFunc } from '../ROYZmanim.js';
 import n2wordsOrdinal from '../misc/n2wordsOrdinal.js';
@@ -506,7 +506,7 @@ function messageHandler(x) {
 					case 'en':
 						// @ts-ignore
 						primaryDate.innerHTML =
-							x.data.shabbatOnly ? jCal.formatFancyDate({ dayLength: "short", monthLength: "short", ordinal: false}) : (
+							x.data.shabbatOnly ? jCal.formatFancyDate({ dayLength: "short", monthLength: "short", ordinal: false}).en : (
 								jCal.getDate().toLocaleString('en', { weekday: "short" }) + ". " +
 								jCal.getDate().toLocaleString('en', { day: 'numeric' }))
 							;

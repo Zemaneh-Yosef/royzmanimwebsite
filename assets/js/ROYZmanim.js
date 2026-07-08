@@ -522,7 +522,7 @@ class ZemanFunctions extends ZemanimMathBase {
 
 class DebugZemanFunctions extends ZemanFunctions {
 	logDawn() {
-		/** @type {KosherZmanim.NOAACalculator} */
+		/** @type {KosherZmanim.SPACalculator} */
 		// @ts-ignore
 		const astCalc = this.coreZC.getAstronomicalCalculator()
 
