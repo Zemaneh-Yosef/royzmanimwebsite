@@ -11,16 +11,25 @@ import n2wordsOrdinal from './misc/n2wordsOrdinal.js';
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
-	formatJewishFullDate() {
+	/**
+	 * @param {Temporal.PlainDate} plainDate
+	 */
+	static formatJewishFullDate(plainDate) {
 		const hNum = new HebrewNumberFormatter();
+		const hebDate = plainDate.withCalendar("hebrew")
+
 		return {
-			english: this.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"}),
+			english: hebDate.toLocaleString('en-u-ca-hebrew', {month: 'long', year: "numeric", day: "numeric"}),
 			hebrew: [
-				hNum.formatHebrewNumber(this.getJewishDayOfMonth()),
-				this.formatJewishMonth().he + ',',
-				hNum.formatHebrewNumber(this.getJewishYear()),
+				hNum.formatHebrewNumber(hebDate.day),
+				hebDate.toLocaleString('he-u-ca-hebrew', { month: 'long' }) + ',',
+				hNum.formatHebrewNumber(hebDate.year),
 			].join(' ')
 		}
+	}
+
+	formatJewishFullDate() {
+		return WebsiteCalendar.formatJewishFullDate(this.getDate());
 	}
 
 	formatJewishYear() {
@@ -387,20 +396,20 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"english": "Sukkoth: Intermediary"
 			},
 			[KosherZmanim.JewishCalendar.HOSHANA_RABBA]: {
-				"hebrew": "הושנה רבה - שביעי של סוכות",
-				"english-translated": "Hoshanah Rabba - 7th day of Sukkoth",
-				"english": "7th day of Sukkoth (Hoshana Rabba)"
+				"hebrew": "הושענא רבה - שביעי של סוכות",
+				"english-translated": "Hosh'ana Rabba - 7th day of Sukkoth",
+				"english": "7th day of Sukkoth (Hosh'ana Rabba)"
 			},
 
 			// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 			// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 			[KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: {
 				"hebrew": "שמיני עצרת" + (this.getInIsrael() ? " & שמחת תורה" : ""),
-				"english": "Shemini Atzereth" + (this.getInIsrael() ? " & Simchath Torah" : "")
+				"english": "Shemini 'Atzereth" + (this.getInIsrael() ? " & Simḥath Torah" : "")
 			},
 			[KosherZmanim.JewishCalendar.SIMCHAS_TORAH]: {
 				"hebrew": (this.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
-				"english": (this.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
+				"english": (this.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simḥath Torah"
 			},
 
 			// Semi-Holidays
@@ -436,7 +445,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				"hebrew": "שושן פורים",
 				"english": "Shushan Purim"
 			},
-	
+
 			// Modern-Day Celebrations
 			[KosherZmanim.JewishCalendar.YOM_HASHOAH]: {
 				hebrew: "יום השועה",

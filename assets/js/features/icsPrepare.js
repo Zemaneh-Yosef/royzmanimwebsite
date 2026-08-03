@@ -75,22 +75,22 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 			"en-et": "Sukkoth"
 		},
 		[YihudCalendar.HOSHANA_RABBA]: {
-			he: "הושנה רבה",
-			"en-et": "Hoshana Rabba",
-			en: "Hoshana Rabba"
+			he: "הושענא רבה",
+			"en-et": "Hosh'ana Rabba",
+			en: "Hosh'ana Rabba"
 		},
 
 		// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 		// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 		[YihudCalendar.SHEMINI_ATZERES]: {
 			he: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
-			en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
-			"en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
+			en: "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
+			"en-et": "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
 		},
 		[YihudCalendar.SIMCHAS_TORAH]: {
 			he: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
-			en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simḥath Torah",
-			"en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simḥath Torah"
+			en: (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simḥath Torah",
+			"en-et": (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simḥath Torah"
 		},
 	})
 

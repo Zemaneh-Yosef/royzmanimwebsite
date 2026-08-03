@@ -129,22 +129,22 @@ function messageHandler(x) {
 			en: "Intermediary"
 		},
 		[KosherZmanim.JewishCalendar.HOSHANA_RABBA]: {
-			hb: "הושנה רבה",
-			"en-et": "Hoshanah Rabba",
-			en: "Hoshana Rabba"
+			hb: "הושענא רבה",
+			"en-et": "Hosh'ana Rabba",
+			en: "Hosh'ana Rabba"
 		},
 
 		// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 		// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 		[KosherZmanim.JewishCalendar.SHEMINI_ATZERES]: {
 			hb: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
-			en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
-			"en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
+			en: "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
+			"en-et": "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
 		},
 		[KosherZmanim.JewishCalendar.SIMCHAS_TORAH]: {
 			hb: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
-			en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simḥath Tora",
-			"en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simḥath Tora"
+			en: (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simḥath Torah",
+			"en-et": (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simḥath Torah"
 		},
 
 		// Semi-Holidays & Fasts
@@ -1421,8 +1421,7 @@ function messageHandler(x) {
 			return;
 
 		const jMonthForBLevana = [...jewishMonthsInSecMonth.entries()].sort((a, b) => b[1].length - a[1].length)[0][0]
-		const jCalBMoon = jCal.clone();
-		jCalBMoon.setJewishDate(parseInt(jMonthForBLevana.split('-')[1]), parseInt(jMonthForBLevana.split('-')[0]), 14);
+		const jCalBMoon = jCal.chainJewishDate(parseInt(jMonthForBLevana.split('-')[1]), parseInt(jMonthForBLevana.split('-')[0]), 14);
 
 		if (jCalBMoon.getJewishMonth() == KosherZmanim.JewishDate.TISHREI || (!x.data.pocket && jCalBMoon.getJewishMonth() == KosherZmanim.JewishDate.NISSAN))
 			return;

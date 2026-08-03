@@ -227,7 +227,7 @@ export default class exportFriendly {
 			}
 		]
 
-		/** @type {import("./excelPrepare.js").SpreadsheetRow[]} */
+		/** @type {ReturnType<import("./excelPrepare.js").default>[]} */
 		let workerData = [];
 		let giveData = [];
 
@@ -235,12 +235,19 @@ export default class exportFriendly {
 				+ ` Calendar (${isoYear}) - ` + zmanLister.geoLocation.getLocationName();
 
 		const postDataReceive = async () => {
-			const headerRow = Object.fromEntries(
+			const { utils, writeFile } = (await import('../../libraries/xlsx.js'));
+			const wb = utils.book_new();
+
+			if (settings.language() === 'hb') {
+				wb.Workbook = { Views: [{ RTL: true }] };
+			}
+
+			const headerZemanimRow = Object.fromEntries(
 				[['DATE', {'hb': "יום", en: 'DATE', "en-et": "DATE"}[settings.language()]]]
 					.concat(Object.entries(exportZmanList).map(entry => [entry[0], entry[1].title[settings.language()]]))
 			);
 
-			const tableData = [...new Set(workerData.flat().map(field => JSON.stringify(field)))]
+			const zemanimTableData = [...new Set(workerData.flatMap(workerData => workerData.zemanim).flat().map(field => JSON.stringify(field)))]
 				.map(field => JSON.parse(field))
 				.sort((a, b) => {
 					const aDate = new Date(a.DATE.v).getTime();
@@ -248,10 +255,29 @@ export default class exportFriendly {
 					return aDate - bDate;
 				});
 
-			const { utils, writeFile } = (await import('../../libraries/xlsx.js'));
-			const ws = utils.json_to_sheet([headerRow].concat(tableData), { skipHeader: true });
-			const wb = utils.book_new();
-			utils.book_append_sheet(wb, ws, "People");
+			const zemanimWs = utils.json_to_sheet([headerZemanimRow].concat(zemanimTableData), { skipHeader: true });
+			utils.book_append_sheet(wb, zemanimWs, "Zemanim");
+
+			const limudimHeaders = Object.fromEntries(
+				[['DATE', {'hb': "יום", en: 'DATE', "en-et": "DATE"}[settings.language()]]]
+				.concat([...document.querySelector('[data-zffind="DafYomi"]').children]
+				.map(limud => [
+					limud.querySelector('[data-zfreplace]').getAttribute('data-zfreplace'),
+					limud.querySelector(`.lang-${settings.language().replace('en-et', 'et')}`).innerHTML
+				]))
+			)
+
+			const limudimTableData = [...new Set(workerData.flatMap(workerData => workerData.limudim).flat().map(field => JSON.stringify(field)))]
+				.map(field => JSON.parse(field))
+				.sort((a, b) => {
+					const aDate = new Date(a.DATE.v).getTime();
+					const bDate = new Date(b.DATE.v).getTime();
+					return aDate - bDate;
+				});
+
+			const limudimWs = utils.json_to_sheet([limudimHeaders].concat(limudimTableData), { skipHeader: true });
+			utils.book_append_sheet(wb, limudimWs, "Limudim");
+
 			writeFile(wb, title + ".xlsx");
 
 			this.midDownload = false;

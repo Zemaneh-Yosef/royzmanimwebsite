@@ -1,6 +1,6 @@
 // @ts-check
 
-import { Parsha, TehilimYomi, MishnaYomi } from "../libraries/kosherZmanim/kosher-zmanim.js"
+import { Parsha, TehilimYomi, MishnaYomi, HalachaYomi, DailyMishnehTorah } from "../libraries/kosherZmanim/kosher-zmanim.js"
 import WebsiteCalendar, { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 export default
 class WebsiteLimudCalendar extends WebsiteCalendar {
@@ -87,7 +87,7 @@ class WebsiteLimudCalendar extends WebsiteCalendar {
 	}
 
 	getAllLearning() {
-		/** @type {Record<"dafBavli"|"DafYerushalmi"|"ccYomi"|"TehilimShvui"|"TehilimHodshi"|"MishnaYomi", string>} */
+		/** @type {Record<"dafBavli"|"DafYerushalmi"|"ccYomi"|"TehilimShvui"|"TehilimHodshi"|"MishnaYomi"|"DailyHalacha", string>} */
 		const learning = {};
 		const hNum = new HebrewNumberFormatter();
 
@@ -113,7 +113,14 @@ class WebsiteLimudCalendar extends WebsiteCalendar {
 		learning.TehilimShvui = TehilimYomi.byWeek(this).map(num => num.toString()).join(' - ');
 		learning.TehilimHodshi = TehilimYomi.byDayOfMonth(this).map(met => met.toString()).join(' - ');
 
-		learning.MishnaYomi = MishnaYomi.getMishnaForDate(this, true) || "N/A";
+		try {
+			learning.MishnaYomi = MishnaYomi.getMishnaForDate(this, true) || "N/A";
+		} catch (e) {
+			console.error(this.getDate(), e)
+		}
+
+		const halacha = HalachaYomi.getDailyLearning(this)
+		learning.DailyHalacha = `${halacha[0].bookName} ${halacha.map(seg => hNum.formatHebrewNumber(seg.siman) + ":" + seg.seifim).join(", ")}`
 
 		return learning;
 	}

@@ -2,7 +2,7 @@
 
 import { ZemanFunctions } from "../ROYZmanim.js";
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import WebsiteCalendar from "../WebsiteCalendar.js";
+import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 
 /** @typedef {T[keyof T]} ValueOf<T> */
 /**
@@ -22,7 +22,7 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
 	const geoLocation = new GeoLocation(...geoLocationData);
 
-	const jCal = new WebsiteCalendar(baseDate);
+	const jCal = new WebsiteLimudCalendar(baseDate);
 	jCal.setInIsrael(isIsrael)
 	const calc = new ZemanFunctions(geoLocation, config);
 	calc.setDate(baseDate);
@@ -35,9 +35,15 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 	/** @param {Temporal.ZonedDateTime} time */
 	const formatTime = (time) => '=TIME(' + [time.hour, time.minute, time.second].join(', ') + ')'
 
-	/** @type {SpreadsheetRow[]} */
-	const events = [];
+	/** @type {{ zemanim: SpreadsheetRow[]; limudim: SpreadsheetRow[]}} */
+	const events = { zemanim: [], limudim: [] };
+
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
+		const isoDate = new Date(`${jCal.getDate().year}-${String(jCal.getDate().month).padStart(2, "0")}-${String(jCal.getDate().day).padStart(2, "0")}`);
+		const baseRow = [
+			['DATE', { t: "d", v: isoDate, f: `=DATE(${jCal.getDate().year}, ${jCal.getDate().month}, ${jCal.getDate().day})`, z: "yyyy-mm-dd" }],
+		];
+
 		const dailyZmanim = Object.entries(jCal.getZmanimInfo(true, calc, zmanList, [null, funcSettings.seconds ? {second: '2-digit'} : {}]))
 			.filter(entry => entry[1].display == 1)
 			.map(entry => [
@@ -51,24 +57,21 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 				}
 			])
 
-		const isoDate = new Date(`${jCal.getDate().year}-${String(jCal.getDate().month).padStart(2, "0")}-${String(jCal.getDate().day).padStart(2, "0")}`);
+		const dailyLimudim = {
+			...(Object.fromEntries(baseRow)),
+			...jCal.getAllLearning()
+		}
+		events.limudim.push(dailyLimudim)
 
-		const row = Object.fromEntries(
-			[
-				['DATE', { t: "d", v: isoDate, f: `=DATE(${jCal.getDate().year}, ${jCal.getDate().month}, ${jCal.getDate().day})`, z: "yyyy-mm-dd" }],
-			]
-				// @ts-ignore
-				.concat(dailyZmanim)
-		);
-
-		events.push(row);
+		const zemanimRow = Object.fromEntries(baseRow.concat(dailyZmanim));
+		events.zemanim.push(zemanimRow);
 
 		jCal.setDate(jCal.getDate().add({ days: 1 }));
 		calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
 	}
 
 	for (const vNetzDay of vNetz) {
-		const netzDay = events.find((event) => event.DATE.f == `=DATE(${vNetzDay.year}, ${vNetzDay.month}, ${vNetzDay.day})`);
+		const netzDay = events.zemanim.find((event) => event.DATE.f == `=DATE(${vNetzDay.year}, ${vNetzDay.month}, ${vNetzDay.day})`);
 		if (netzDay && 'sunrise' in netzDay && Math.abs(netzDay.sunrise.v - vNetzDay.epochMilliseconds) < 1000 * 60 * 7)
 			netzDay.sunrise = {
 				t: "d", v: new Date(vNetzDay.epochMilliseconds), f: formatTime(vNetzDay), z:

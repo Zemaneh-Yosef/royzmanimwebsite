@@ -512,7 +512,9 @@ class ZemanFunctions extends ZemanimMathBase {
 		const zenith = KosherZmanim.ZmanimCalendar.GEOMETRIC_ZENITH;
 		const refraction = this.coreZC.getAstronomicalCalculator().getRefraction();
 
-		return this.coreZC.getSunriseOffsetByDegrees(zenith - solarRadius + refraction); // proper adjustment
+		const offsetFromRegSunrise = this.coreZC.getSeaLevelSunrise()
+			.until(this.coreZC.getSunriseOffsetByDegrees(zenith - solarRadius + refraction))
+		return zDTFromFunc(this.getNetz()).add(offsetFromRegSunrise); // proper adjustment
 	}
 
 	getAsiTzet () {
@@ -531,7 +533,7 @@ class DebugZemanFunctions extends ZemanFunctions {
 			+ ` and ${dropHundredths(this.timeRange.current.ranges.mga.total("hours"))} hours [MG"A]: `
 			+ `${dropHundredths(this.timeRange.current.dawn.until(this.timeRange.current.sunrise).total('minutes'))} minutes post-zemaniyot adjustments`
 			+ ` (${this.timeRange.current.dawn.toPlainTime().toLocaleString()}-${this.timeRange.current.sunrise.toPlainTime().toLocaleString()})`
-			+ `, which is at ${dropHundredths(astCalc.getSolarElevation(this.timeRange.current.dawn.toPlainDateTime(), this.coreZC.getGeoLocation()))} degrees`)
+			+ `, which is at ${dropHundredths(astCalc.getSolarElevation(this.timeRange.current.dawn.toInstant(), this.coreZC.getGeoLocation()))} degrees`)
 	}
 }
 

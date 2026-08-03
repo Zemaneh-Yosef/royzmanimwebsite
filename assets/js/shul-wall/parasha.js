@@ -49,13 +49,13 @@ const yomTovObj = {
 	// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 	[WebsiteLimudCalendar.SHEMINI_ATZERES]: {
 		hb: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
-		en: "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
-		"en-et": "Shemini Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
+		en: "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
+		"en-et": "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
 	},
 	[WebsiteLimudCalendar.SIMCHAS_TORAH]: {
 		hb: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
-		en: (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah",
-		"en-et": (jCal.getInIsrael() ? "Shemini Atzereth & " : "") + "Simchath Torah"
+		en: (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simchath Torah",
+		"en-et": (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simchath Torah"
 	},
 
 	// YK is the only Fast considered a YT

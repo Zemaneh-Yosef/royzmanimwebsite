@@ -27,6 +27,34 @@ weekday:
       et:
         short: Yerushalmi-V
         full: Talmud Yerushalmi (Vilna)
+  - limud: MishnaYomi
+    text:
+      ru:
+        short: Мишна
+        full: Мишна Ёми
+      he:
+        short: משנה
+        full: משנה יומי
+      en:
+        short: Mishna
+        full: Daily Mishna
+      et:
+        short: Mishna
+        full: Mishna Yomi
+  - limud: DailyHalacha
+    text:
+      ru:
+        short: Алаха
+        full: Ежедневная Алаха
+      he:
+        short: הלכה
+        full: הלכה יומית
+      en:
+        short: Halacha
+        full: Daily Halacha
+      et:
+        short: Halakha
+        full: Daily Halakha
   - limud: ccYomi
     text:
       ru:
@@ -69,20 +97,6 @@ weekday:
       et:
         short: Tehilim (Weekly)
         full: Tehilim Yomi (Weekly)
-  - limud: MishnaYomi
-    text:
-      ru:
-        short: Мишна
-        full: Мишна Ёми
-      he:
-        short: משנה
-        full: משנה יומי
-      en:
-        short: Mishna
-        full: Daily Mishna
-      et:
-        short: Mishna
-        full: Mishna Yomi
 shabbat:
   - limud: Haftara
     text:

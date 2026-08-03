@@ -80,7 +80,9 @@ for (const timeListing of sortedTimes) {
 
 	const artTitles = langList.map(lang => {
 		const titleElem = document.createElement('div');
-		titleElem.classList.add('langTV', `lang-${lang}`);
+		if (langList.length != 1)
+			titleElem.classList.add('langTV', `lang-${lang}`);
+
 		// @ts-ignore
 		titleElem.appendChild(document.createTextNode(timeData.title[lang]));
 		return titleElem;
