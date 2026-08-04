@@ -1,0 +1,132 @@
+zemanim:
+  - id: alot
+    timeGetter: getAlotHashahar
+    round: earlier
+    names:
+      he: עלות השחר
+      et: Dawn
+      en: Dawn
+      ru: Рассвет
+    attributes:
+      condition: ALL_NIGHT
+  - id: earliestTefilin
+    timeGetter: getMisheyakir
+    round: later
+    names:
+      he: משיכיר
+      et: Early Tallit
+      en: Early Tallit
+      ru: Мишеякир
+  - id: sunrise
+    timeGetter: getNetz
+    round: later
+    names:
+      he: הנץ החמה
+      et: Ha'Netz
+      en: Sunrise
+      ru: Восход
+  - id: latestShmaMGA
+    timeGetter: getSofZemanShemaMGA
+    round: earlier
+    names:
+      he: סו"ז שמע (מג'א)
+      ru: Шма МГ"А
+      en: Shema End-Time (MG"A)
+      et: Shema End-Time (MG"A)
+  - id: latestShmaGRA
+    timeGetter: getSofZemanShemaGRA
+    round: earlier
+    names:
+      he: סו"ז שמע (גר'א)
+      ru: шма Гр"а
+      en: Shema End-Time (GR"A)
+      et: Shema End-Time (GR"A)
+  - id: latestBrachotShmaGRA
+    timeGetter: getSofZemanBerakhothShema
+    round: earlier
+    names:
+      he: סו"ז ברכות שמע
+      ru: Шахарит
+      en: Shaḥarit End-Time
+      et: Shaḥarit End-Time
+  - id: midday
+    timeGetter: getHatzoth
+    round: earlier
+    names:
+      he: "חצות יום ולילה: "
+      et: Ḥatzot
+      en: "Midday/Midnight: "
+      ru: Полдень
+  - id: minhaGedola
+    timeGetter: getMinhaGedolah
+    round: later
+    names:
+      he: מנחה גדולה
+      en: Minḥa Gedola
+      et: Minḥa Gedola
+      ru: Ранняя Минха
+  - id: minhaKetana
+    timeGetter: getMinchaKetana
+    round: later
+    names:
+      he: מנחה קטנה
+      en: Minḥa Ketana
+      et: Minḥa Ketana
+      ru: Ранняя Минха
+  - id: plagHaminhaHB
+    timeGetter: getPlagHaminhaHalachaBrurah
+    round: later
+    names:
+      he: פלג המנחה (הלכה ברורה)
+      en: Pelag Ha'Minḥa (H"B)
+      et: Pelag Ha'Minḥa (H"B)
+      ru: Плаг минха
+  - id: plagHaminhaYY
+    timeGetter: getPlagHaminhaYalkutYosef
+    round: later
+    names:
+      he: פלג המנחה (לוח אור החיים)
+      en: Pelag Ha'Minḥa (O"H)
+      et: Pelag Ha'Minḥa (O"H)
+      ru: Плаг минха
+  - id: sunset
+    timeGetter: getShkiya
+    round: earlier
+    names:
+      he: שקיעת החמה
+      en: Sunset
+      et: Sheqi'a
+      ru: Закат
+  - id: nightfall
+    timeGetter: getTzet
+    round: later
+    names:
+      he: לילה
+      en: Nightfall
+      et: Tzet Ha'Kokhavim
+      ru: Ночь
+learnings:
+  - id: bavli
+    class: mainCycle
+    names:
+      he: דף שבועי - בבלי
+      en: Weekly Bavli Daf
+      et: Weekly Bavli Daf
+  - id: yerushalmi
+    class: mainCycle
+    names:
+      he: דף שבועי - ירושלמי (וולנה)
+      en: Weekly Yerushalmi (Vilna) Daf
+      et: Weekly Yerushalmi (Vilna) Daf
+  - id: mishna
+    class: mainCycle
+    names:
+      he: משנה שבועי
+      en: Weekly Mishna
+      et: Weekly Mishna
+  - id: halacha
+    class: mainCycle
+    names:
+      he: הלכה שבועי
+      en: Weekly Halacha
+      et: Weekly Halacha

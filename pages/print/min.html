@@ -23,11 +23,11 @@ layout: nothing
 		flex-direction: column;
 		justify-content: center;
 		height: 100%;
-		line-height: .8;
-		filter: grayscale(1);
+		line-height: 1;
+	}
 
-		margin-top: .185em;
-		margin-bottom: .125em;
+	.tableCellHasIcon {
+		filter: grayscale(1);
 	}
 
 	.tableHeader {
@@ -166,7 +166,7 @@ layout: nothing
 		margin-bottom: 0;
 	}
 
-.tableCell:not([data-time-for-shita="special"]) > .flexElemWorkaround:only-child {
+	.tableCell:not([data-time-for-shita="special"]) > .flexElemWorkaround:only-child {
 		font-size: 2.75ex;
 	}
 
@@ -203,6 +203,10 @@ layout: nothing
 	.hebSrc {
 		unicode-bidi: plaintext;
 	}
+
+	*.mb-0 {
+		margin-bottom: 0;
+	}
 </style>
 
 <div class="zyCalFooter">
@@ -224,7 +228,7 @@ layout: nothing
 	<div class="tableGrid" data-zyTemplate>
 		<div class="tableHeader" data-zyData="min-special"></div>
 		<div class="tableHeader" data-zyData="date"></div>
-		{% for item in site.data.print.min-printOut %}
+		{% for item in site.data.print.minimal-printOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
 			<span class="lang lang-hb">{{ item.names.he }}</span>

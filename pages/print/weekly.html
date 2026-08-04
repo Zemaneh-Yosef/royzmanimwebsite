@@ -1,0 +1,823 @@
+---
+title: Weekly-Print Calendar
+permalink: /print/weekly
+layout: nothing
+---
+
+{% capture rabbenuTam %}{% include printcal/weekly/rabbenuTam.md %}{% endcapture %}
+{% assign dayNames = "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday" | split: "," %}
+{% assign hebrewDays = "יום ראשון,יום שני,יום שלישי,יום רביעי,יום חמישי,יום שישי,יום שבת" | split: "," %}
+
+<style>
+	/* =========================================================
+   Zmanim Weekly Print CSS
+   4" x 6" | B&W interior | Cream 50lb | One week per page
+   ========================================================= */
+
+	/* ---------- Variables ---------- */
+	:root {
+		--margin-top: 0.35in;
+		--margin-bottom: 0.35in;
+		--margin-outer: 0.35in;
+		--margin-inner: 0.45in;
+		--page-bg: #f7f3e7;
+		--ink-color: #1a1a1a;
+		--body-font: 'EB Garamond', "SBL Hebrew", 'Times New Roman', serif;
+		--divider-color: #b3b3b3;
+	}
+
+	.page .mb-0 {
+		margin-bottom: 0;
+	}
+
+	/* =========================================================
+   @page — print page size and margins
+   ========================================================= */
+	@page {
+		size: 4in 6in;
+		margin: 0;
+	}
+
+	/* =========================================================
+   PRINT — flow-based multi-page output
+   ========================================================= */
+	@media print {
+		:root {
+			--page-bg: #fff
+		}
+
+		html,
+		body {
+			height: auto !important;
+			min-height: 0 !important;
+			margin: 0 !important;
+			padding: 0 !important;
+			background: var(--page-bg);
+			font-family: var(--body-font);
+			-webkit-print-color-adjust: exact;
+			print-color-adjust: exact;
+		}
+
+		/* Remove preceding layout elements so page 1 starts at y:0 */
+		#languageSelector {
+			display: none !important;
+		}
+
+		/* Zero out the anonymous wrapper div containing the pages */
+		body>div:has(.page) {
+			margin: 0 !important;
+			padding: 0 !important;
+			display: block !important;
+		}
+
+		/* Each .page breaks to its own physical page */
+		.page {
+			break-after: page;
+			page-break-after: always;
+			overflow: hidden;
+			box-shadow: none !important;
+			border: none !important;
+			background: var(--page-bg);
+		}
+
+		.page:last-child {
+			break-after: auto;
+			page-break-after: auto;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		.no-print {
+			display: none !important;
+		}
+	}
+
+	/* =========================================================
+   SCREEN — centered page preview
+   ========================================================= */
+	@media screen {
+		body {
+			background: #e9e9e9;
+			font-family: var(--body-font);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 24px;
+			padding: 40px 0;
+			margin: 0;
+		}
+
+		.page {
+			box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+			border: 1px solid #d8d2bd;
+			background: var(--page-bg) !important;
+		}
+	}
+
+	/* =========================================================
+   .page — fixed 4x6in box, identical in screen and print
+   (browsers treat 1in = 96px on screen, so 4in = 384px,
+    6in = 576px — no unit translation needed)
+   ========================================================= */
+	.page {
+		width: 4in;
+		height: 6in;
+		box-sizing: border-box;
+		color: var(--ink-color);
+		overflow: hidden;
+		position: relative;
+
+		/* Recto (right-hand page): gutter on left */
+		padding: var(--margin-top) var(--margin-outer) var(--margin-bottom) var(--margin-inner);
+
+		/* 7 day rows divide available height equally */
+		display: flex;
+		flex-direction: column;
+		gap: 0.05in;
+	}
+
+	/* Verso (left-hand / even pages): gutter on right — 
+   add class="page verso" to alternate pages */
+	.page.verso {
+		padding: var(--margin-top) var(--margin-inner) var(--margin-bottom) var(--margin-outer);
+	}
+
+	.page.fullBleed {
+		padding: 0;
+	}
+
+	#cover {
+		display: grid;
+	}
+
+	#cover>* {
+		grid-area: 1/1;
+	}
+
+	/* =========================================================
+   Day rows — each gets exactly 1/7 of the content area
+   ========================================================= */
+	.templateZmanimWeekDay {
+		flex: 1;
+		min-height: 0;
+		display: flex;
+		align-items: stretch;
+		margin: 0;
+		gap: 0.1in;
+		justify-content: space-between;
+	}
+
+	/* Divider between each day's row (not before the first day) */
+	.templateZmanimWeekDay:not(:first-child) {
+		border-top: 0.75pt solid var(--divider-color);
+		padding-top: 0.035in;
+	}
+
+	/* =========================================================
+   Date circle
+   ========================================================= */
+	.templateDate {
+		flex-shrink: 0;
+		aspect-ratio: 1;
+		height: 100%;
+		width: auto;
+		overflow: visible;
+		position: relative;
+		/* drop shadow moved to the <circle> element via filter above */
+	}
+
+	.templateDateInner {
+		font-size: 12px;
+		line-height: 1.3;
+		font-weight: 600;
+		text-align: center;
+		color: var(--ink-color);
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		align-content: center;
+	}
+
+	.templateDate text {
+		font-family: var(--body-font);
+		font-size: 10px;
+		fill: var(--ink-color);
+		text-anchor: middle;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		font-weight: 500;
+	}
+
+	.templateDate path,
+	.templateDate circle {
+		shape-rendering: geometricPrecision;
+	}
+
+	/* =========================================================
+   Zmanim grid — fills remaining row width
+   ========================================================= */
+	.templateZmanimDayGrid {
+		min-width: 0;
+		display: grid;
+		grid-auto-flow: column;
+		grid-template-rows: repeat(7, 1fr);
+		grid-template-columns: 1fr 1fr;
+		column-gap: .5em;
+		font-size: 0.42em;
+		align-content: stretch;
+		line-height: 1.3;
+	}
+
+	.templateZmanimDayGrid>*:not(.disableRowFormat),
+	.templateZmanimDayGrid .rowFormat {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		min-height: auto;
+		white-space: nowrap;
+		gap: .1in
+	}
+
+	.zman-time {
+		font-weight: 500;
+	}
+
+	/* Divider between each zman row within the grid */
+	.templateZmanimDayGrid>* {
+		border-bottom: 0.5pt dotted var(--divider-color);
+	}
+
+	/* No trailing divider after the very last zman in the grid */
+	.templateZmanimDayGrid>.disableRowFormat {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	/* ==============
+	Second Page
+	================= */
+
+	.secondPageHeader {
+		display: flex;
+		justify-content: space-between;
+		border-top: 2px solid black;
+		border-bottom: 2px solid black;
+		margin-top: .5rem;
+		align-items: center;
+
+		line-height: 1.3;
+		font-size: 14px;
+	}
+
+	.secondPageHeader>*:not(img) {
+		flex: 1 1;
+	}
+
+	.secondPageHeader img {
+		border-radius: 100%;
+		corner-shape: squircle;
+		height: 3ch;
+		transform: scale(1.8);
+		margin-left: .75rem;
+		margin-right: .75rem;
+	}
+
+	.learningCycles {
+		display: flex;
+		flex-wrap: wrap;
+		text-align: center;
+		row-gap: .5rem;
+		line-height: 1.3;
+	}
+
+	.learningCycles h4 {
+		width: 100%;
+		font-size: 1.15rem;
+		margin-bottom: 0;
+	}
+
+	.learningCycles div.mainCycle {
+		width: 50%;
+		font-size: .85em;
+	}
+
+	.learningCycles div.extraCycle {
+		width: 33%;
+	}
+
+	.learningCycles .fw-bold {
+		font-size: .65em;
+		font-weight: bold;
+	}
+
+	.shabbatCards {
+		flex: 1 1;
+	}
+
+	.whiteTekufotMonths {
+		display: flex;
+		justify-content: space-around;
+		font-size: .5rem;
+		text-align: center;
+	}
+
+	.whiteTekufotMonths h5 {
+		font-size: .7rem;
+		margin-bottom: 0;
+		font-weight: 600;
+	}
+
+	.whiteTekufotMonths p {
+		line-height: 1.2;
+		text-align: center;
+	}
+
+	.whiteTekufotMonths>* {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.whiteTekufotMonths ul {
+		padding-left: 0;
+		list-style: none;
+		width: fit-content;
+		text-align: left;
+		margin-bottom: 0;
+
+		display: flex;
+		flex-direction: column;
+	}
+
+	.whiteTekufotMonths ul .rec {
+		align-self: center;
+		font-size: .8em;
+		font-weight: 600;
+	}
+
+	.whiteTekufotMonths hr {
+		width: 100%;
+		margin: .25rem 0;
+	}
+
+	/* =========================================================
+   Typography
+   ========================================================= */
+	.page h1,
+	.page h2,
+	.page h3 {
+		font-family: var(--body-font);
+		font-weight: 600;
+		color: var(--ink-color);
+		margin: 0 0 0.15in 0;
+	}
+
+	.page h1 {
+		font-size: 16pt;
+		text-align: center;
+	}
+
+	.page h2 {
+		font-size: 13pt;
+	}
+
+	.page h3 {
+		font-size: 11pt;
+	}
+
+	.page p {
+		margin: 0 0 0.12in 0;
+		text-align: justify;
+		hyphens: auto;
+	}
+
+	.page:not(.fullBleed) img {
+		max-width: 100%;
+		filter: grayscale(100%);
+	}
+
+	.text-strike {
+		text-decoration: line-through;
+	}
+
+	/* ==============
+	Cover Page
+	================== */
+	#cover .plaque {
+		width: fit-content;
+		height: min-content;
+		padding: 6px 17.5px;
+		background: radial-gradient(circle at center, #3a5e78, hsl(205, 35%, 25%));
+		border: 3px solid #d4af37;
+		/* gold border */
+		border-radius: 12px;
+		position: relative;
+		text-align: center;
+		color: white;
+		box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.75), 1px 2px 2px rgba(98, 98, 98, .33), 2px 4px 4px rgba(98, 98, 98, .33), 3px 6px 6px rgba(98, 98, 98, .33);
+		corner-shape: scoop;
+		line-height: 1.3;
+		z-index: 5;
+		align-self: center;
+		justify-self: center;
+		margin-bottom: .75rem;
+		unicode-bidi: plaintext;
+	}
+
+	.plaque>* {
+		font-size: 30px;
+		font-weight: 700;
+		color: transparent;
+		background: linear-gradient(to bottom, #c7972f 0%, #916718 20%, #fde97d 40%, #d9a941 60%, #fddd8b 80%, #f3c14b 100%);
+		-webkit-background-clip: text;
+		position: relative;
+	}
+
+	.plaque>*::before {
+		content: attr(data-text);
+		position: absolute;
+		top: 0;
+		color: transparent;
+		-webkit-text-stroke: 1.5px black;
+		background: linear-gradient(to bottom, #c7972f 0%, #916718 20%, #fde97d 40%, #d9a941 60%, #fddd8b 80%, #f3c14b 100%);
+		-webkit-background-clip: text;
+		text-shadow: 0px 2px 2px rgba(0, 0, 0, .5);
+		z-index: -1;
+
+		left: 50%;
+		transform: translateX(-50%);
+		width: 100%;
+	}
+
+	.plaque .gregorian {
+		font-size: 26px;
+		font-weight: 600;
+		letter-spacing: 2px;
+	}
+
+	.page.fullBleed img.fullImageBG {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		margin: 0;
+		padding: 0;
+		/* object-view-box: inset(0% 0% 45% 7%);
+		object-position: left center; */
+		z-index: 1;
+	}
+
+	.page.fullBleed>*:not(img.fullImageBG) {
+		z-index: 2;
+	}
+
+	.explanation p {
+		font-size: 9pt;
+		margin: 0 0 0.08in 0;
+		line-height: 1.4;
+	}
+
+	/* Base text outline effect using CSS variables */
+	.text-outline {
+		paint-order: stroke fill;
+		-webkit-text-stroke: var(--base) black;
+		text-shadow:
+			calc(var(--base) * 3) calc(var(--base) * 3) 0 #000,
+			calc(var(--base) * -1) calc(var(--base) * -1) 0 #000,
+			calc(var(--base) * 1) calc(var(--base) * -1) 0 #000,
+			calc(var(--base) * -1) calc(var(--base) * 1) 0 #000,
+			calc(var(--base) * 1) calc(var(--base) * 1) 0 #000;
+	}
+
+	/* Heading variant */
+	.page h1.text-outline--heading {
+		--base: 0.33px;
+		font-size: 25pt;
+		color: white;
+		text-decoration: underline;
+		text-decoration-color: white;
+		font-weight: 800;
+		filter: drop-shadow(0px 2.5px 2px rgba(0, 0, 0, .5));
+	}
+
+	/* Subtitle variant */
+	.text-outline--subtitle {
+		--base: 0.5px;
+		font-size: 1.35em;
+		line-height: 1.3;
+		font-weight: 700;
+	}
+
+	/* Caption variant */
+	.text-outline--caption {
+		--base: 0.375px;
+		font-size: .9em;
+	}
+</style>
+<style>
+	/* Zemanim Table Wrapper */
+	.zemanim-table-wrapper {
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		overflow: hidden;
+		background: white;
+		page-break-inside: avoid;
+	}
+
+	/* Zemanim Table Title */
+	.zemanim-table-title {
+		padding: 8px 12px;
+		background: #f5f5f5;
+		font-weight: bold;
+		font-size: 14px;
+		border-bottom: 1px solid #ddd;
+		text-align: center;
+	}
+
+	/* Zemanim Table */
+	.zemanim-table {
+		border-collapse: collapse;
+		width: 100%;
+		font-size: 7px;
+	}
+
+	/* Table Header Cells */
+	.zemanim-table th {
+		border: 1px solid #ccc;
+		padding: 4px 6px;
+		background: #f5f5f5;
+		font-weight: bold;
+		text-align: center;
+		min-width: 40px;
+	}
+
+	/* Corner Cell (Day) */
+	.zemanim-table th.corner-cell {
+		min-width: 25px;
+	}
+
+	/* Table Data Cells */
+	.zemanim-table td {
+		border: 1px solid #ccc;
+		text-align: center;
+	}
+
+	/* Day Column */
+	.zemanim-table td.day-cell {
+		font-weight: bold;
+		background: #fafafa;
+	}
+
+	/* Empty Date Cell */
+	.zemanim-table td.empty-cell {
+		background-color: #f9f9f9;
+	}
+
+	/* Data Cell with Value */
+	.zemanim-table td.data-cell {
+		background-color: #e8f5e9;
+		font-weight: 500;
+	}
+
+	/* Empty Data Cell (no value for date) */
+	.zemanim-table td.no-data-cell {
+		color: #bbb;
+	}
+</style>
+
+<div class="page fullBleed" id="cover">
+	<img src="/assets/images/print/57b90297-9375-4a6e-9fbf-416f95ed9074.png" class="fullImageBG">
+	<div style="justify-self: center; margin-top: 30px; text-align: center; color: white;">
+		<img src="/assets/images/print/logo.png"
+			style="width: 90%; margin-bottom: 0.3rem;">
+		<div class="plaque">
+			<div data-text='Brooklyn, NY (תשפ"ז)'>Brooklyn, NY (תשפ"ז)</div>
+		</div>
+		<!-- <h1 class="text-outline text-outline--heading">תשפ"ז<span style="font-size: .9em; unicode-bidi: isolate;"> -
+				5787</span></h1> -->
+	</div>
+	<!-- <div
+		style="text-align: center; padding-top: 3.45rem; align-self: end; line-height: 1.3; /* background:
+    linear-gradient(to right,
+      rgba(0,0,0,0.08) 0%,
+      rgba(255,255,255,0.0) 50%,
+      rgba(0,0,0,0.08) 100%
+    ),
+    linear-gradient(to bottom,
+      #f7e7c3 0%,
+      #f1ddaf 50%,
+      #e3c88f 100%
+    ); */ height: 125px; width: 100%; color: white;">
+		<div style="letter-spacing: 1px;">Based on the mobile applications and website</div>
+		<div style="font-weight: bold; font-size: 1.5em; letter-spacing: 1.75px;">ROYZMANIM.COM</div>
+	</div> -->
+	<div
+		style="color: white; justify-self: center; text-align: center; font-weight: 600; margin-bottom: 1.25rem; align-self: end;">
+		<div class="text-outline text-outline--subtitle">The pocket-sized print calendar<br>of Sephardic Halachic Times
+		</div>
+		<div class="text-outline text-outline--caption">adapted from the Ohr Hachaim <span
+				style="font-size: .75em; font-weight: 400;">(לוח המאור)</span> calendar</div>
+	</div>
+</div>
+<div class="page"></div>
+<div id="templateZmanim" class="page verso">
+	{% for day in (0..6) %}
+	<div class="templateZmanimWeekDay" data-day-index="{{ day }}" data-arc-top-text="">
+		<svg class="templateDate" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+			<defs>
+				<!-- Print-safe multi-layer drop shadow matching original CSS -->
+				<filter id="dropShadow-{{ day }}" x="-50%" y="-50%" width="200%" height="200%">
+					<!-- Layer 1: 1px 2px 2px -->
+					<feGaussianBlur in="SourceAlpha" stdDeviation="0.667" />
+					<feOffset dx="1" dy="2" result="offsetblur1" />
+					<feComponentTransfer in="offsetblur1">
+						<feFuncA type="linear" slope="0.33" />
+					</feComponentTransfer>
+					<feFlood flood-color="rgba(98,98,98,1)" result="color1" />
+					<feComposite in="color1" in2="offsetblur1" operator="in" result="shadow1" />
+
+					<!-- Layer 2: 2px 4px 4px -->
+					<feGaussianBlur in="SourceAlpha" stdDeviation="1.333" />
+					<feOffset dx="2" dy="4" result="offsetblur2" />
+					<feComponentTransfer in="offsetblur2">
+						<feFuncA type="linear" slope="0.33" />
+					</feComponentTransfer>
+					<feFlood flood-color="rgba(98,98,98,1)" result="color2" />
+					<feComposite in="color2" in2="offsetblur2" operator="in" result="shadow2" />
+
+					<!-- Layer 3: 3px 6px 6px -->
+					<feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+					<feOffset dx="3" dy="6" result="offsetblur3" />
+					<feComponentTransfer in="offsetblur3">
+						<feFuncA type="linear" slope="0.33" />
+					</feComponentTransfer>
+					<feFlood flood-color="rgba(98,98,98,1)" result="color3" />
+					<feComposite in="color3" in2="offsetblur3" operator="in" result="shadow3" />
+
+					<!-- Composite all shadows together -->
+					<feMerge>
+						<feMergeNode in="shadow1" />
+						<feMergeNode in="shadow2" />
+						<feMergeNode in="shadow3" />
+						<feMergeNode in="SourceGraphic" />
+					</feMerge>
+				</filter>
+			</defs>
+
+			<!-- Circle background with filter -->
+			<circle cx="50" cy="50" r="48" fill="var(--page-bg)" filter="url(#dropShadow-{{ day }})" />
+
+			<!-- Top arc path (clockwise) -->
+			<path id="arcTop-{{ day }}" d="M 10,50 A 40,40 0 1,1 90,50" fill="none" />
+
+			<!-- Weekday along top arc -->
+			<text font-size="9" fill="var(--ink-color)">
+				<textPath href="#arcTop-{{ day }}" startOffset="50%" text-anchor="middle">
+					{{ dayNames[day] }} / {{ hebrewDays[day] }}
+				</textPath>
+			</text>
+
+			<!-- Container for special days (populated by JavaScript) -->
+			<text font-size="9" fill="var(--ink-color)" class="specialDaysText"></text>
+
+			<!-- Middle content: date centered via foreignObject -->
+			<foreignObject width="100" height="100">
+				<div xmlns="http://www.w3.org/1999/xhtml" class="templateDateInner">
+					<!-- Date goes here -->
+				</div>
+			</foreignObject>
+		</svg>
+		<div class="templateZmanimDayGrid">
+			{% for z in site.data.print.weekly.zemanim %}
+			<div class="zman-row {% if z.id == 'midday'%}disableRowFormat{% endif %}" {% if z.round
+				%}data-round="{{ z.round }}" {% endif %} data-zyData="{{ z.timeGetter }}" {% if z.id=='midday'
+				%}style="text-align: center; grid-column: span 2;" {%else if z.id=='nightfall' %}data-zyTzetStrict{%
+				endif %}>
+				<span class="zman-name">
+					<span class="lang lang-hb">{{ z.names.he }}</span>
+					<span class="lang lang-et">{{ z.names.en }}</span>
+					<span class="lang lang-en">{{ z.names.en }}</span>
+				</span>
+				<span></span>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+<div id="templateSecondPage" class="page">
+	<div class="secondPageHeader">
+		<div></div>
+		<img src="/assets/images/app-icon-full.jpeg">
+		<div dir="rtl"></div>
+	</div>
+	<div class="shabbatCards">
+		<div style="height: 85%; width: 85%; background: darkred; font-size: 2.15em; font-weight: 800; color: white; border-radius: 20px;
+		padding-top: 6rem; margin: 1rem;">
+			<div style="transform: rotateZ(-35deg);">PLACEHOLDER</div>
+		</div>
+	</div>
+	<div class="whiteTekufotMonths"></div>
+	<div class="learningCycles">
+		<h4>Learning Cycles</h4>
+		{% for z in site.data.print.weekly.learnings %}
+		<div class="{{ z.class }}" data-learningInsert="{{ z.id }}">
+			<div class="fw-bold lang lang-hb">{{ z.names.he }}</div>
+			<div class="fw-bold lang lang-et">{{ z.names.en }}</div>
+			<div class="fw-bold lang lang-en">{{ z.names.en }}</div>
+		</div>
+		{% endfor %}
+		<!-- Bavli, Yerushalmi, Mishna & Halacha are from the Ohr HaChaim calendar; they should be bigger.
+		 The others should be their own below-->
+	</div>
+</div>
+<div class="page verso explanation">
+	<h2>Full Solar-Sphere Sunrise</h2>
+	<p>The ideal form of the Halachic day does not start until the uppermost edge of the solar sphere appears over the horizon. This moment is called הנץ החמה, and is sourced from the similar language in שיר השרים. Anytime beforehand is considered unideal.</p>
+<p>This is best exemplified by prayer, where transition between שמע to the שמונה עשרה are timed around the rising of the sun. It is this context, though, that creates the most precision for sunrise: do we time שמע itself to sunrise? Or is it the שמונה עשרה that&#39;s timed accordingly? Furthermore, this is assuming we&#39;re using the traditional definition for sunrise, as a minority of later authorities rule that the <em>end</em> of sunrise is to be used instead.</p>
+<p>These disputes exist in permutation - from the perspective of law, only one sunrise was meant and it was for either the שמע or the עמידה. However, there is enough of a gap between the two points of sunrise that one could say the שמע at the earlier one and finish the blessings by the full solar reveal, thus starting the עמידה at the &quot;second sunrise&quot;. This definitionally fulfills two different permutations, and the other forms of the permutation are also accounted for since they fit in the <em>range</em> of sunrise (rather than the exact points, which is still permissible according to the law).</p>
+</div>
+<div class="page explanation" data-zmanToCapture="testSunriseHBWorking|noRound">
+	<p>This is the compromise of HaRav Matzliach Mazuz, introduced to the dynasty of Ḥakham Ovadia by the Halacha Berura. The scheduling they give is based on a combination of various texts, such as the Rambam&#39;s &quot;6 minutes until the full solar sphere sunrise&quot; with ammendments by the Vilna Gaon. Of course, the numbers used there were approximate in nature - however, using our current scientific knowledge on &quot;refraction&quot; and other details that affect the appearance of the sun on the horizon, we are able to give unprecedented precision.</p>
+<p>Our generation of the time is layered on top of ChaiTables&#39;s Visual Sunrise time (provided Visual Sunrise is available for your location), based on the instructions of HaRav Mazuz (עיין ב&quot;סולת נקיה&quot; עמוד רע&quot;ג). At the time of writing, the service does not offer a way of determining the <em>end</em> of sunrise (we hope to collaborate and change this in the near future). What we&#39;ve done is take the time difference between sea-level sunrise and sea-level full-solar-reveal sunrise and apply it on top of the Visual Sunrise time.</p>
+<p>The importance of this time is only as long as one believes these times are accurate to the second, something that is impossible for any printed calendar to be. In reality, there is a range of sunrise, and one can pray even beforehand. Furthermore, the tradition has already been set to side-step this stringency, and rely fully on the primary sunrise (even if it may be earlier than the sea-level one)</p>
+</div>
+<div class="page verso explanation">
+	<h2>Pelag Ha&#39;Minḥa - Ma'amar Mordekhi</h2>
+	<p>Pelag Ha&#39;Minḥa is defined as the latter half of the time span between מנחה קטנה until the end of the day
+		(ערב), occurring at 10¾ hours into the day. Considering how the day spans 12 hours, a shorter form of expressing
+		this time is in the inverse - that being 1¼ hours from the end of the day.</p>
+	<p>The dispute between the Halacha Berura and Yalkut Yosef is between the definition of ערב - is it sunset, or is it
+		nightfall? The ramifications depend on however long Ben Hashemashot could get in that location.</p>
+	<p>On the surface, the Yalkut Yosef looks like a simple stringency - a way to be concerned for later opinions
+		regarding blessings. However, almost every opinion the Yalkut Yosef relied on maintained a compliance with the
+		12-hour structure the Gemara expected. This structure wasn&#39;t serving Ben Hashemashot as a gap from sunset,
+		but rather, an endpoint to the day. The other side of the endpoint was extended as well, being at Dawn rather
+		than sunrise.</p>
+	<p>If this detail was compromised, that means the seasonal minutes no longer correspond to the length of the day, of
+		which a portion was assigned for Pelag purposes. These are authorities that ruled as such practice (such as the
+		Ramban, Ra&#39;ah, Ritva &amp; Rav Yaakov Emden), and there is a precedent for this legal re-evaluation (Peri
+		Ḥadash, Kuntress Debei Shimsha, end of ספר מים חיים). Nevertheless, the vast majority agreed on the structure of
+		the day being uncompromised.</p>
+</div>
+<div class="page explanation" data-zmanToCapture="getPlagHaminhaMaamarMordechi|later">
+	<p>The wording of the Yalkut Yosef indicates that the &quot;later Pelag&quot; was subject to this debate on the
+		structure of the day. Just like the later precedent in authorities, one can even do it using the Geonic
+		Nightfall rather than the proportional Nightfall of Rabbenu Tam (see the Ben Ish Ḥai, Year I, Vayakhel VIII; see
+		also Ohr Letzion vol. 2 pg. 147 &amp; the responsas of the Ma&#39;amar Mordechai vol. 4 siman 12).</p>
+	<p>The contrast to this structure, though, was the one implemented in the לוח אור החיים. They only consider the
+		difference between sunset and nightfall as a gap, without the adjusted structure to come with it. Because of
+		that, the difference between the two Pelag&#39;s are dependent on however long Ben Hashemashot is for that day.
+		For those looking to act ideal regarding Pelag (such as תרתי דסתרי), this makes the stringency overbearing
+		depending on the time of year.</p>
+	<p>Thus, although we&#39;ve put the official לוח אור החיים time as the primary representative of the Y&quot;Y
+		opinion, we&#39;ve included this alternative calculation in these back pages. To avoid any confusion for any
+		type of delay to nightfall, we&#39;ve named this on the Ma&#39;amar Mordekhi, who spelt out this opinion with
+		all its implications (such as midday not being equal to the solar-midday).</p>
+</div>
+<div class="page verso explanation">
+	<h2>Full-Length Rabbenu Tam List</h2>
+	<p>The transition from day to night is the same for Rabbenu Tam as it is for everyone; after &quot;sunset&quot;,
+		wait ¾<sup>th</sup>&#39;s of a <em>mil</em> and Nightfall occurs. However, <em>sunset</em> itself is redefined -
+		occuring 3¼ <em>mil</em> after our sunset.</p>
+	<p>Considering each <em>mil</em> is 18 minutes, this makes Rabbenu Tam&#39;s Nightfall as long as
+		<em>seventy-two</em> minutes after our sunset at baseline level. Through being consistent with defining Talmudic
+		time, this length changes based on the location&#39;s latitude and the day&#39;s length.
+	</p>
+	<p>Our interpretation of these later Nightfall interpretations is only for their stringent aspects (such as waiting
+		to perform the new commandments of the following day, or performing acts that would have been forbidden on the
+		previous day); <em>leniencies</em> (relative to our standard Halakha) coming with this calculation are
+		<strong>forbidden</strong> to be practiced.<br>(There is also no need to be stringent on Rabbinic times)
+	</p>
+	<p>However, compliance with such a standard is taxing - one day&#39;s sunset to the next day&#39;s nightfall is no
+		longer 24 hours with the length of Ben Hashemashot, but rather an additional <em>58.5</em> minutes (with the
+		same adjustments indicated above). If we&#39;re to be consistent with our standards of adjustments, this length
+		could very well exceed what most would consider &quot;reasonable&quot; for a stringency.</p>
+</div>
+<div class="page explanation" data-zmanToCapture="get72Seasonal">
+	<p>Thus, there are compromise calculations suggested, that still accommodate the Talmudic numbers and the
+		alternative application. The first method is to rule leniently during Rabbenu Tam&#39;s Ben Hashemashot, using
+		the principal of &quot;majority opinions&quot; - from 58.5 [adjusted-seasonal] minutes onwards, everyone (with
+		the 18-minute mil) holds it is either certain night or doubtful night, which combine for leniency. The
+		alternative (implemented in our calendar&#39;s weekly pages) is to limit the 72 minutes to clock minutes, and
+		only use the seasonal result when they&#39;re shorter. (Other forms of providing lenient times for Rabbenu Tam
+		are contrary to our ideology of Zemanim being a baseline from Israel and increasing when moving north)</p>
+	<p>This was chosen for the main calendar based on the following Y&quot;Y exerpt: &quot;במקומות שאם יורו להם לחשב לפי
+		שעות זמניות לא יוכלו להתעכב כל כך עד שיגיע זמן רבינו תם...שאז יש להקל לחשב לפי השעון הרגיל&quot;.<br>The
+		following table is the original, without these leniencies</p>
+</div>
+
+<script src="/assets/js/features/weeklyPrint/print-export.js" type="module"></script>
+<script type="module">
+	import { settings } from "/assets/js/settings/handler.js";
+	if (settings.language() == 'en') {
+		const style = document.createElement('style');
+		document.head.appendChild(style);
+		style.sheet.insertRule('.templateZmanimDayGrid { flex: 1 1; }', 0);
+	}
+</script>
