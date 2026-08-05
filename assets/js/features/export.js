@@ -217,6 +217,9 @@ export default class exportFriendly {
 			zmanLister.jCal.getInIsrael(),
 			exportZmanList,
 			false,
+			Object.keys(zmanLister.jCal.getAllLearning())
+				// @ts-expect-error
+				.filter(learn => document.getElementById(`exportlimudid-${learn}`).checked),
 			{
 				// @ts-ignore
 				language: settings.language() == "hb" ? "he" : settings.language(),
@@ -264,7 +267,8 @@ export default class exportFriendly {
 				.map(limud => [
 					limud.querySelector('[data-zfreplace]').getAttribute('data-zfreplace'),
 					limud.querySelector(`.lang-${settings.language().replace('en-et', 'et')}`).innerHTML
-				]))
+				])
+				.filter(learn => document.getElementById(`exportlimudid-${learn[0]}`).checked))
 			)
 
 			const limudimTableData = [...new Set(workerData.flatMap(workerData => workerData.limudim).flat().map(field => JSON.stringify(field)))]

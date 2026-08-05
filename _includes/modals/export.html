@@ -11,6 +11,9 @@
 						<button class="nav-link active" id="export-zmanim-tab" data-bs-toggle="tab" data-bs-target="#export-zmanim-tab-pane" type="button" role="tab" aria-controls="export-zmanim-tab-pane" aria-selected="true">Zemanim Selection</button>
 					</li>
 					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="export-limudim-tab" data-bs-toggle="tab" data-bs-target="#export-limudim-tab-pane" type="button" role="tab" aria-controls="export-limudim-tab-pane" aria-selected="false">Limudim Selection</button>
+					</li>
+					<li class="nav-item" role="presentation">
 						<button class="nav-link" id="export-holidays-tab" data-bs-toggle="tab" data-bs-target="#export-holidays-tab-pane" type="button" role="tab" aria-controls="export-holidays-tab-pane" aria-selected="false">Holiday Selection (ICS only)</button>
 					</li>
 				</ul>
@@ -38,6 +41,18 @@
 								</label>
 							</div>
 							{% endif %}
+						{% endfor %}
+					</div>
+					<div class="tab-pane fade" id="export-limudim-tab-pane" role="tabpanel" aria-labelledby="export-zmanim-tab" tabindex="0">
+						{% for item in site.data.learning.weekday %}
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="" id="exportlimudid-{{ item.limud }}" checked>
+							<label class="form-check-label" for="exportlimudid-{{ item.limud }}">
+								<span class="lang lang-hb">{{ item.text.he.full }}</span>
+								<span class="lang lang-et">{{ item.text.et.full }}</span>
+								<span class="lang lang-en">{{ item.text.en.full }}</span>
+							</label>
+						</div>
 						{% endfor %}
 					</div>
 					<div class="tab-pane fade" id="export-holidays-tab-pane" role="tabpanel" aria-labelledby="export-holidays-tab" tabindex="0">

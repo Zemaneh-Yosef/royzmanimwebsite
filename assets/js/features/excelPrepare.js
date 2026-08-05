@@ -16,9 +16,10 @@ import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
  * @param {boolean} isIsrael
  * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} isTimelyView
+ * @param {string[]} selectedLimudim
  * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; netzTimes: number[] }} funcSettings
  */
-export default function spreadSheetExport(plainDateParams, geoLocationData, config, isIsrael, zmanList, isTimelyView, funcSettings) {
+export default function spreadSheetExport(plainDateParams, geoLocationData, config, isIsrael, zmanList, isTimelyView, selectedLimudim, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
 	const geoLocation = new GeoLocation(...geoLocationData);
 
@@ -57,11 +58,9 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 				}
 			])
 
-		const dailyLimudim = {
-			...(Object.fromEntries(baseRow)),
-			...jCal.getAllLearning()
-		}
-		events.limudim.push(dailyLimudim)
+		const dailyLimudim = baseRow
+			.concat(Object.entries(jCal.getAllLearning()).filter(([learnID]) => selectedLimudim.includes(learnID)))
+		events.limudim.push(Object.fromEntries(dailyLimudim))
 
 		const zemanimRow = Object.fromEntries(baseRow.concat(dailyZmanim));
 		events.zemanim.push(zemanimRow);
