@@ -1758,7 +1758,7 @@ function messageHandler(x) {
 	}
 
 
-	return { week: x.data.week, htmlContent: [...document.getElementsByClassName("page")].map(elem => elem.outerHTML), addedZemanim }
+	return { week: x.data.week, htmlContent: [...document.getElementsByClassName("page")].map(elem => elem.outerHTML), addedZemanim, monthPrefix: (dateRangeHeb[0].day == 1 || dateRangeHeb[0].month !== dateRangeHeb[1].month) ? (new WebsiteLimudCalendar(dateRangeHeb[1])).getJewishMonth() : null }
 }
 
 if (Worker) {

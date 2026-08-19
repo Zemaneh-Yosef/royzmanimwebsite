@@ -49,7 +49,9 @@ class ZemanimMathBase {
 				dawn: Temporal.Duration;
 				nightfall: Temporal.Duration;
 				stringentNightfall: Temporal.Duration;
-				TzetHakokhavim: Temporal.Duration
+				TzetHakokhavim: Temporal.Duration;
+
+				milLength: Temporal.Duration;
 			};
 			current: {
 				dawn: Temporal.ZonedDateTime;
@@ -71,6 +73,8 @@ class ZemanimMathBase {
 				nightfall: null,
 				stringentNightfall: null,
 				TzetHakokhavim: null,
+				
+				milLength: null
 			},
 			current: {
 				dawn: null,
@@ -123,14 +127,18 @@ class ZemanimMathBase {
 				dawn: Temporal.Duration.from({ minutes: 72 }),
 				nightfall: Temporal.Duration.from({ minutes: 13, seconds: 30 }),
 				stringentNightfall: Temporal.Duration.from({ minutes: 20 }), // not used
-				TzetHakokhavim: Temporal.Duration.from({ minutes: 72 })
+				TzetHakokhavim: Temporal.Duration.from({ minutes: 72 }),
+
+				milLength: Temporal.Duration.from({ minutes: 18 })
 			}
 		else
 			this.timeRange.equinox = {
 				dawn: this.durationOfEquinoxDegreeSeasonalHour(16.04, false),
 				nightfall: this.durationOfEquinoxDegreeSeasonalHour(3.7, true),
 				stringentNightfall: this.durationOfEquinoxDegreeSeasonalHour(5.075, true),
-				TzetHakokhavim: this.durationOfEquinoxDegreeSeasonalHour(16.04, true)
+				TzetHakokhavim: this.durationOfEquinoxDegreeSeasonalHour(16.04, true),
+
+				milLength: this.durationOfEquinoxDegreeSeasonalHour(4.8, true)
 			}
 
 		this.setDate(this.coreZC.getDate())

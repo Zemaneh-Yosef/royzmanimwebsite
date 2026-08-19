@@ -3,7 +3,6 @@
 import { GeoLocation } from "../../../libraries/kosherZmanim/kosher-zmanim.js";
 import { settings } from "../../settings/handler.js";
 import { HebrewNumberFormatter } from "../../WebsiteCalendar.js";
-import { Previewer } from "../../../libraries/paged.js"
 import QrCode from "../../../libraries/qrCode.js";
 
 import { ZemanFunctions, zDTFromFunc } from "../../ROYZmanim.js";
@@ -133,8 +132,8 @@ if (footer) {
 }
 
 const today = Temporal.Now.plainDateISO()
-for (const genDate of document.getElementsByClassName("genDate"))
-	genDate.appendChild(document.createTextNode([today.year, today.month, today.day].map(num => num.toString().padStart(2, '0')).join("/")))
+for (const genDate of document.querySelectorAll("[data-zydategenerated]"))
+	genDate.appendChild(document.createTextNode([today.year, today.month, today.day].map(num => num.toString().padStart(2, '0')).join("-")))
 
 /** @type {HTMLElement} */
 const secondSide = document.getElementById('templateSecondPage');
@@ -161,12 +160,15 @@ document.title = title + " - " + document.title;
 for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 	locName.appendChild(document.createTextNode(title)) */
 
+for (const locName of document.querySelectorAll('[data-zylocationname]'))
+	locName.appendChild(document.createTextNode(geoLocation.getLocationName()))
+
 /** @type {Record<string, number>} */
 const jewishYears = {};
 
 let expectedReceive = 0;
 let actualReceive = 0;
-/** @type {Record<string, string[]>} */
+/** @type {Record<string, { htmlContent: string[]; monthForIntro: number }>} */
 let receiveData = {}
 /** @type {import('./print-web-worker').singlePageParams[]} */
 const arrayOfFuncParams = [];
@@ -214,9 +216,18 @@ if (fundamentalTable) {
 		const summerSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 6 }))
 		const equinox = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 20, month: 3 }))
 
-		fundamentalTable.querySelector('[data-zyReplace="dawnTzet"]').innerHTML = zmanCalc.timeRange.equinox.dawn.total("minutes").toFixed(2)
-		fundamentalTable.querySelector('[data-zyReplace="nightfall"]').innerHTML = zmanCalc.timeRange.equinox.nightfall.total("minutes").toFixed(2)
-		fundamentalTable.querySelector('[data-zyReplace="stringentNightfall"]').innerHTML = zmanCalc.timeRange.equinox.stringentNightfall.total("minutes").toFixed(2)
+		fundamentalTable.querySelector('[data-zylengthofmil]').insertAdjacentText(
+			'afterbegin',
+			`${zmanCalc.timeRange.equinox.milLength.total("minutes").toFixed(2)}-seasonal-minute mil`
+		);
+
+		['dawn', 'nightfall', 'stringentNightfall']
+			.forEach(zman => fundamentalTable.querySelector(`[data-zyReplace="${zman}"]`)
+				.insertAdjacentText(
+					'afterbegin',
+					zmanCalc.timeRange.equinox[zman].total("minutes").toFixed(2)
+				))
+
 		fundamentalTable.querySelector('[data-zyReplace="tzetShabbat"]').innerHTML = [
 			equinox.getShkiya().until(zDTFromFunc(equinox.getTzetMelakha())).total("minutes"),
 			winterSolstice.getShkiya().until(zDTFromFunc(winterSolstice.getTzetMelakha())).total("minutes"),
@@ -224,12 +235,15 @@ if (fundamentalTable) {
 		].map((minutes, index) =>
 			'~' + (new Intl.NumberFormat(local, { style: "unit", unit: "minute", maximumFractionDigits: 0 }))
 				.format(minutes)
-			+ " "
-			+ ["(Spring/Fall)", "(Winter)", "(Summer)"][index]).join("<br>")
+			+ ". "
+			+ "<span style='font-size: .8em'>" + ["(Spring/Fall)", "(Winter)", "(Summer)"][index] + "</span>").join("<br>")
 	}
 }
 
+/** @type {Record<string, Record<string, Record<string, string>>>} */
 const addedZemanim = {};
+
+const properPaging = document.querySelector('[data-insertBefore]');
 
 for (const monthData of arrayOfFuncParams) {
 	const webWorker = new Worker('/assets/js/features/weeklyPrint/print-web-worker.js', { type: 'module' });
@@ -237,14 +251,25 @@ for (const monthData of arrayOfFuncParams) {
 		actualReceive += 1;
 
 		const respData = msg.data;
-		receiveData[respData.week] = respData.htmlContent;
+		receiveData[respData.week] = { htmlContent: respData.htmlContent, monthForIntro: respData.monthPrefix };
 		addedZemanim[respData.week] = respData.addedZemanim;
 		if (actualReceive == expectedReceive) {
 			const sortedObject = Object.fromEntries(Object.keys(receiveData)
 				.sort()
 				.map(key => [key, receiveData[key]]));
 
-			baseTable.insertAdjacentHTML('afterend', Object.values(sortedObject).flat().join(''));
+			for (const [weekNum, weekData] of Object.entries(sortedObject)) {
+				if (weekData.monthForIntro && arrayOfFuncParams.at(-1).week !== parseInt(weekNum)) {
+					const prefixMonths = document.querySelectorAll(`[data-monthPrefix="${weekData.monthForIntro}"]`)
+					if (prefixMonths.length)
+						for (const prefixElem of prefixMonths)
+							properPaging.insertAdjacentElement('beforebegin', prefixElem)
+				}
+
+				for (const htmlPages of weekData.htmlContent) {
+					properPaging.insertAdjacentHTML('beforebegin', htmlPages)
+				}
+			}
 
 			if (footer)
 				footer.remove();
@@ -264,21 +289,22 @@ for (const monthData of arrayOfFuncParams) {
 }
 
 function insertBackZemanim() {
+	/**
+	 * @type {Record<string, Map<Temporal.PlainDate, any>>}
+	 */
 	const formattedBackZemanim = Object.values(addedZemanim).reduce((acc, item) => {
 		Object.entries(item).forEach(([key, value]) => {
 			if (!acc[key]) acc[key] = new Map();
 			Object.entries(value).forEach(([k, v]) => {
 				const dateKey = Temporal.PlainDate.from(k);
-
-				// Filter out dates outside the baseDate to endDate range
 				if (Temporal.PlainDate.compare(dateKey, baseDate) >= 0 &&
-				    Temporal.PlainDate.compare(dateKey, endDate) <= 0) {
+					Temporal.PlainDate.compare(dateKey, endDate) <= 0) {
 					acc[key].set(dateKey, v);
 				}
 			});
 		});
 		return acc;
-	}, {});
+	}, /** @type {Record<string, Map<Temporal.PlainDate, any>>} */({}));
 
 	// Get all unique zeman names
 	const zemanNames = Object.keys(formattedBackZemanim);
@@ -573,203 +599,6 @@ async function preparePrint() {
 	if (qrCodeDigitalView) {
 		qrCodeDigitalView.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(currentPage.toString())));
 	}
-
-	/** @type {HTMLElement} */
-	const finalExplanation = document.querySelector('[data-printFind]');
-	if (!finalExplanation) {
-		/* if (!location.pathname.includes('pocket'))
-			window.print(); */
-		return;
-	}
-
-	for (const toExtract of document.querySelectorAll('[data-lang-extract]')) {
-		const childFromExtract = Array.from(toExtract.children);
-		const selectedLangChild = childFromExtract
-			.find(langElem => langElem.classList.contains(`lang-${settings.language().replace('en-et', 'et')}`))
-
-		childFromExtract.splice(childFromExtract.indexOf(selectedLangChild), 1); // Deletes the elem from the array
-		for (const otherLang of childFromExtract)
-			otherLang.remove();
-
-		while (selectedLangChild.firstChild) {
-			if ((!(selectedLangChild.firstChild instanceof HTMLParagraphElement)
-				&& !(selectedLangChild.firstChild instanceof HTMLUListElement))
-				|| selectedLangChild.hasAttribute('data-force-regAppend')) {
-				toExtract.appendChild(selectedLangChild.firstChild);
-				continue;
-			}
-
-			if (selectedLangChild.firstChild instanceof HTMLParagraphElement) {
-				if (selectedLangChild.firstChild.textContent.trim() !== "") {
-					const newParagraph = selectedLangChild.firstChild.cloneNode();
-					while (selectedLangChild.firstChild.firstChild) {
-						if (selectedLangChild.firstChild.firstChild.nodeType !== selectedLangChild.TEXT_NODE) {
-							newParagraph.appendChild(selectedLangChild.firstChild.firstChild)
-							continue;
-						}
-
-						const words = selectedLangChild.firstChild.firstChild.textContent.split(" ")
-						for (let index = 0; index < words.length; index++) {
-							if (words[index].trim() === "")
-								continue;
-
-							newParagraph.appendChild(document.createTextNode(
-								(index == 1 && words[0].trim() === "" ? " " : "")
-								+ words[index]
-								+ (index + 1 == words.length ? "" : " ")))
-							if (index + 1 !== words.length)
-								newParagraph.appendChild(document.createElement("span"));
-						}
-						selectedLangChild.firstChild.firstChild.remove()
-					}
-					toExtract.appendChild(newParagraph);
-				}
-			}
-
-			if (selectedLangChild.firstChild instanceof HTMLUListElement) {
-				console.log("Detected List", selectedLangChild.firstChild);
-				const newList = selectedLangChild.firstChild.cloneNode();
-				while (selectedLangChild.firstChild.firstChild) {
-					const ogListItem = selectedLangChild.firstChild.firstChild;
-					if (ogListItem.nodeType == selectedLangChild.TEXT_NODE) {
-						if (ogListItem.textContent.trim() === "") {
-							ogListItem.remove();
-							continue;
-						}
-
-						throw new Error("Invalid HTML structure, expected <li> element inside <ul> or <ol>.");
-					}
-
-					if (!(ogListItem instanceof HTMLLIElement)) {
-						console.log(ogListItem);
-						throw new Error("Invalid HTML sturcture, expected <li> element inside <ul> or <ol>.");
-					}
-
-					const newListItem = ogListItem.cloneNode();
-					const elementToScan =
-						ogListItem.childElementCount == 1
-							&& ogListItem.firstElementChild instanceof HTMLParagraphElement
-							? ogListItem.firstElementChild
-							: ogListItem;
-
-					while (elementToScan.firstChild) {
-						if (elementToScan.firstChild.nodeType !== selectedLangChild.TEXT_NODE) {
-							newListItem.appendChild(elementToScan.firstChild)
-							continue;
-						}
-
-						const words = elementToScan.firstChild.textContent.split(" ")
-						for (let index = 0; index < words.length; index++) {
-							if (words[index].trim() === "")
-								continue;
-
-							newListItem.appendChild(document.createTextNode(
-								(index == 1 && words[0].trim() === "" ? " " : "")
-								+ words[index]
-								+ (index + 1 == words.length ? "" : " ")))
-							if (index + 1 !== words.length)
-								newListItem.appendChild(document.createElement("span"));
-						}
-						elementToScan.firstChild.remove()
-					}
-					selectedLangChild.firstChild.firstChild.remove()
-					newList.appendChild(newListItem);
-				}
-				toExtract.appendChild(newList);
-			}
-
-			selectedLangChild.firstChild.remove()
-		}
-		selectedLangChild.remove()
-	}
-
-	if (settings.language() == 'hb') {
-		document.body.removeAttribute('dir');
-		document.getElementsByTagName('main')[0].setAttribute('dir', 'rtl');
-	}
-
-	await sleep();
-
-	const paged = new Previewer();
-	const flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
-	console.log("Rendered", flow.total, "pages.");
-
-	finalExplanation.style.display = "none";
-
-	await sleep();
-
-	for (const pagedJSPage of document.getElementsByClassName('pagedjs_page')) {
-		if (!(pagedJSPage instanceof HTMLElement))
-			continue;
-
-		//const lastPage = pagedJSPage.getAttribute('data-page-number') == pagedJSPage.parentElement.style.getPropertyValue('--pagedjs-page-count')
-
-		//if (!lastPage) {
-		//pagedJSPage.style.height = 'unset';
-		//}
-
-		const pageSheet = pagedJSPage.firstElementChild;
-		if (!(pageSheet instanceof HTMLElement))
-			continue;
-
-		//if (!lastPage) {
-		//pageSheet.style.height = 'unset';
-		//}
-		pageSheet.style.overflow = 'unset';
-
-		[
-			'pagedjs_margin-top-left-corner-holder',
-			'pagedjs_margin-top',
-			'pagedjs_margin-top-right-corner-holder',
-			'pagedjs_margin-right',
-			'pagedjs_margin-left',
-			'pagedjs_margin-bottom-left-corner-holder',
-			'pagedjs_margin-bottom',
-			'pagedjs_margin-bottom-right-corner-holder',
-			'pagedjs_bleed'
-		]
-			.flatMap(className => Array.from(pageSheet.getElementsByClassName(className)))
-			.forEach(elem => elem.remove());
-
-		const pageBox = pageSheet.firstElementChild;
-		if (!(pageBox instanceof HTMLElement))
-			continue;
-
-		//pageBox.style.height = 'unset';
-		['top', 'right', 'left', 'bottom']
-			.forEach(dir => pageBox.style.setProperty(`--pagedjs-margin-${dir}`, '0'));
-
-		const pageContent = pageBox.getElementsByClassName('pagedjs_page_content')[0];
-		if (!(pageContent instanceof HTMLElement))
-			continue;
-
-		pageContent.style.columnWidth = 'unset';
-		pageContent.style.height = 'unset';
-		pageContent.style.flex = '1 1';
-
-		for (const pageContentChild of pageContent.children) {
-			if (!(pageContentChild instanceof HTMLDivElement))
-				continue;
-
-			pageContentChild.style.height = 'unset';
-		}
-
-		if (pageContent.nextElementSibling && pageContent.nextElementSibling.classList.contains('pagedjs_footnote_area')) {
-			// @ts-ignore
-			pageContent.nextElementSibling.style.height = 'unset'
-			// @ts-ignore
-			pageContent.nextElementSibling.style.overflow = 'unset';
-		}
-	}
-
-	await sleep();
-
-	if (settings.language() == 'hb') {
-		Array.from(document.getElementsByClassName('pagedjs_area')).forEach(pageArea => pageArea.setAttribute('dir', 'rtl'));
-		await sleep();
-	}
-
-	window.print();
 }
 
 /**
