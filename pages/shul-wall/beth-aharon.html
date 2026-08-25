@@ -552,8 +552,9 @@ layout: nothing
 				</ul>
 			</div>
 		</div>
-		<div id="ishMatzliachSlide">
-			<img src="{{ middleImage }}" style="width: 100%;">
+		<div id="ishMatzliachSlide" class="carousel slide" data-bs-ride="carousel">
+			<div class="carousel-inner">
+			</div>
 		</div>
 		<div id="shulScheduling" style="overflow: hidden; height: 70vh; padding-top: 0;">
 			<h1 style="text-align: center; padding-top: .75rem; margin-bottom: .75rem;">
@@ -619,11 +620,17 @@ layout: nothing
 
 	const mournersCont = Object.fromEntries(Object.entries(await loadIniSchedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true)).filter(Boolean));
 
-	/*const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
-		.filter(str => str.startsWith('./beth-aharon-portraits/'))
+		.filter(str => str.startsWith('./beth-aharon/'))
 
-	for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
+	const carousel = document.getElementById('ishMatzliachSlide');
+	carousel.firstElementChild.innerHTML = flyerURLs
+		.map((url, index) =>
+			`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="15000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+		.join('');
+
+	/* for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
 		marquee.innerHTML = flyerURLs.map(url => {
 			const name = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
 
