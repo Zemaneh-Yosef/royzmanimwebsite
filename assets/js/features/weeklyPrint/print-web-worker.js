@@ -1762,7 +1762,13 @@ function messageHandler(x) {
 }
 
 if (Worker) {
-	addEventListener('message', (eventData) => postMessage(messageHandler(eventData)));
+	addEventListener('message', async (message) => {
+		if (!('Temporal' in globalThis)) {
+			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
+			globalThis.Temporal = Temporal;
+		}
+		postMessage(messageHandler(message))
+	})
 	addEventListener('error', (e) => console.error(e));
 }
 
