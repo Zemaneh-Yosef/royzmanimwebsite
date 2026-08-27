@@ -35,7 +35,7 @@ window.timers.dayReload =
  */
 
 const REFRESH_SOURCE = "https://zemaneh-yosef.github.io/extras/refresh.json"
-const REFRESH_EVERY_MS = 60000
+const REFRESH_EVERY_MS = 10000
 
 /**
  * Which folder in `extras` each wall plays, by page name. The manager writes
@@ -72,7 +72,7 @@ const checkRefresh = async () => {
     if (reloadingNow) return
 
     try {
-        // Pages caches hard, and the point is to notice within the minute, so
+        // Pages caches hard, and the point is to notice within seconds, so
         // the URL has to differ every time.
         const response = await fetch(REFRESH_SOURCE + "?t=" + Date.now(), { cache: "no-store" })
         if (!response.ok) return
@@ -92,7 +92,7 @@ const checkRefresh = async () => {
             location.reload()
         }
     } catch {
-        // Offline, or a deploy in flight. Try again next minute.
+        // Offline, or a deploy in flight. Try again on the next tick.
     }
 }
 
