@@ -53,7 +53,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	/**
-	 * @param {Temporal.ZonedDateTime|Temporal.PlainDate} date
+	 * @param {Temporal.ZonedDateTime|Temporal.PlainDate|Date} date
 	 * @param {{ dayLength: "short" | "long" | "narrow"; monthLength: "short" | "long" | "narrow"; ordinal: boolean; }} [config]
 	 */
 	static formatFancyDate(date, config = {
@@ -61,12 +61,16 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		monthLength: 'long',
 		ordinal: true
 	}) {
-		const hebCal = date.withCalendar('hebrew');
+		const temporalDate = (date instanceof Date
+			? Temporal.PlainDate.from({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() })
+			: date)
+
+		const hebCal = temporalDate.withCalendar('hebrew');
 		const hNum = new HebrewNumberFormatter();
 		return {
-			en: `${daysForLocale('en', config.dayLength)[date.dayOfWeek]}, ${date.toLocaleString('en', { month: config.monthLength })} ${config.ordinal ? getOrdinal(date.day, true) : date.day}`.trim(),
-			"en-et": `${daysForLocale('en')[hebCal.dayOfWeek]}, ${date.toLocaleString('en-u-ca-hebrew', { month: config.monthLength })} ${config.ordinal ? getOrdinal(hebCal.day, true) : hebCal.day}`.trim(),
-			hb: `${n2hebDateOrdinal(date.dayOfWeek)}, ${hNum.formatHebrewNumber(hebCal.day)} ${hebCal.toLocaleString('he-u-ca-hebrew', { month: 'long' })}`
+			en: `${daysForLocale('en', config.dayLength)[temporalDate.dayOfWeek]}, ${temporalDate.toLocaleString('en', { month: config.monthLength })} ${config.ordinal ? getOrdinal(temporalDate.day, true) : temporalDate.day}`.trim(),
+			"en-et": `${daysForLocale('en')[hebCal.dayOfWeek]}, ${temporalDate.toLocaleString('en-u-ca-hebrew', { month: config.monthLength })} ${config.ordinal ? getOrdinal(hebCal.day, true) : hebCal.day}`.trim(),
+			hb: `${n2hebDateOrdinal(temporalDate.dayOfWeek)}, ${hNum.formatHebrewNumber(hebCal.day)} ${hebCal.toLocaleString('he-u-ca-hebrew', { month: 'long' })}`
 		}
 	}
 
