@@ -52,13 +52,13 @@ export async function loadExcelSchedule(url, silent=false, arrayBehavior="return
  * @param {Record<string, string | Record<string, string> | string[]>} data
  * @param {"return"|"comma"|"newline"} arrayBehavior
  */
-export async function loadSchedule(data, silentFail = false, arrayBehavior="return") {
+export async function loadSchedule(data, silentFail = false, arrayBehavior = "return") {
     /** @type {Record<string, any>} */
     const unprocessedEntries = {};
 
     for (const [sectionKey, value] of Object.entries(data)) {
         const elemForSimpID = document.getElementById(sectionKey);
-		if (typeof value == "string" || typeof value == "number") {
+        if (typeof value == "string" || typeof value == "number") {
             if (!elemForSimpID) {
                 if (silentFail) {
                     console.warn(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`);
@@ -66,10 +66,10 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior="retu
                     throw new Error(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`)
                 }
             } else {
-			    document.getElementById(sectionKey).innerHTML = String(value);
+                document.getElementById(sectionKey).innerHTML = String(value);
             }
             continue;
-		} else if (Array.isArray(value)) {
+        } else if (Array.isArray(value)) {
             if (!elemForSimpID) {
                 if (silentFail) {
                     console.warn(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`);
@@ -90,13 +90,13 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior="retu
                         break;
                 }
             }
-			continue;
-		}
+            continue;
+        }
 
         // 1. Split section key
         const parts = sectionKey.split(" ");
         const elemId = parts.shift();          // "shabbat"
-        const titleOverride = parts.join(" "); // "Schedule"
+        const titleOverride = parts.join(" "); // optional title
 
         const elem = document.getElementById(elemId);
 
@@ -110,7 +110,7 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior="retu
             continue;
         }
 
-        // 2. Update header above the element
+        // 2. Update header above the element (if a title override is given)
         if (titleOverride.length) {
             const card = elem.closest(".card");
             let headerElem = card ? card.previousElementSibling : null;
@@ -124,14 +124,31 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior="retu
             }
         }
 
-        // 3. Pass data to the custom element
+        // 3. Prepare the data object, extracting CSS variable keys
+        let dataToAssign = value; // default
+        if (typeof value === "object" && !Array.isArray(value)) {
+            // Create a shallow copy so we don't mutate the original
+            dataToAssign = { ...value };
+            // Find all keys that look like var(--something)
+            const varKeys = Object.keys(dataToAssign).filter(key => /^var\(--.+\)$/.test(key));
+            for (const varKey of varKeys) {
+                const varName = varKey.slice(4, -1); // extract "--something" from "var(--something)"
+                const varValue = String(dataToAssign[varKey]);
+                // Apply the CSS variable to this specific element
+                elem.style.setProperty(varName, varValue);
+                // Remove the key from the data object
+                delete dataToAssign[varKey];
+            }
+        }
+
+        // 4. Pass the (filtered) data to the custom element
         if ("data" in elem) {
             // @ts-ignore
-            elem.data = value;
+            elem.data = dataToAssign;
             continue;
         }
 
-        // 4. If it's not a custom element, it's an error now
+        // 5. If it's not a custom element, it's an error now
         console.error(`Element #${elemId} is not a <zman-schedule>. Migration required.`);
     }
 
@@ -146,33 +163,92 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior="retu
  * @param {xlsx.WorkSheet} sheetData - The full input object containing one or more sheets.
  * @returns {Record<string, Record<string, string>|string[]>} A new object where each sheet is mapped to { title: time }.
  */
+/**
+ * Convert any sheet into a simple mapping, supporting:
+ * - 1–2 columns → old behavior ({ key: value } or string[])
+ * - 3+ columns  → first row = headers, column A = primary key,
+ *                 columns B… → nested object mapped to that primary key
+ *
+ * @param {xlsx.WorkSheet} sheetData - The full workbook object.
+ * @returns {Record<string, Record<string, string> | string[]>}
+ */
 function mapSheetColumns(sheetData) {
     /** @type {Record<string, Record<string, string> | string[]>} */
     const output = {};
 
     for (const [sheetName, sheet] of Object.entries(sheetData)) {
-        const titles = [];
-		/** @type {Record<string, string>} */
-        const pairs = {};
+        // Convert sheet to a 2D array (empty cells become '')
+        const rows = xlsx.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-        for (const [key, cell] of Object.entries(sheet)) {
-            if (!key.startsWith("A")) continue;
+        if (rows.length === 0) {
+            output[sheetName] = {};
+            continue;
+        }
 
-            const index = key.slice(1);
-            const title = cell?.w;
-            const time = sheet[`B${index}`]?.w;
+        // Find the maximum number of columns in any row
+        let maxCols = 0;
+        for (const row of rows) {
+            if (row.length > maxCols) maxCols = row.length;
+        }
 
-            if (!title) continue;
+        // --- Case 1: 1 or 2 columns → original key‑value logic ---
+        if (maxCols <= 2) {
+            /** @type {Record<string, string>} */
+            const pairs = {};
+            const titles = [];
 
-            if (time) {
-                pairs[title] = time;
-            } else {
-                titles.push(title);
+            for (const row of rows) {
+                const key = String(row[0] || '').trim();
+                const val = row[1] !== undefined ? String(row[1]).trim() : undefined;
+
+                if (!key) continue;
+
+                if (val) {
+                    pairs[key] = val;
+                } else {
+                    titles.push(key);
+                }
+            }
+
+            output[sheetName] = Object.keys(pairs).length > 0 ? pairs : titles;
+            continue;
+        }
+
+        // --- Case 2: 3+ columns → tabular with headers ---
+        // First row = headers (columns B, C, D, …)
+        const headerRow = rows[0] || [];
+        const headerMap = {};
+        for (let c = 1; c < headerRow.length; c++) {
+            const h = String(headerRow[c] || `Column${c}`).trim();
+            headerMap[c] = h || `Column${c}`;
+        }
+
+        const result = {};
+
+        // Process each data row (starting at index 1)
+        for (let r = 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (!row || row.length === 0) continue;
+
+            const primaryKey = String(row[0] || '').trim();
+            if (!primaryKey) continue;
+
+            const rowData = {};
+            for (let c = 1; c < Math.min(row.length, headerRow.length); c++) {
+                const header = headerMap[c];
+                const val = row[c] !== undefined ? String(row[c]).trim() : '';
+                if (val !== '') {
+                    rowData[header] = val;
+                }
+            }
+
+            // Only store if there is at least one non‑empty value
+            if (Object.keys(rowData).length > 0) {
+                result[primaryKey] = rowData;
             }
         }
 
-        // If ANY B-values existed, use the map; otherwise use the array
-        output[sheetName] = Object.keys(pairs).length > 0 ? pairs : titles;
+        output[sheetName] = result;
     }
 
     return output;

@@ -1,0 +1,513 @@
+---
+title: Tov Queens
+permalink: /shul-wall/tov-queens
+layout: nothing
+---
+
+<link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
+<link href="/assets/css/shul-wall/marquee.css" rel="stylesheet" />
+<link id="bs" href="/assets/libraries/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous"/>
+<link href="/assets/fonts/subtitle/stylesheet.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Frank+Ruhl+Libre:wght@300..900&display=swap" rel="stylesheet">
+<link href="/assets/fonts/sbl/stylesheet.css" rel="stylesheet">
+
+<style>
+	@keyframes scrollX {
+		0% { transform: translateX(0); }
+		100% { transform: translateX(var(--marquee-distance)); }
+	}
+
+	html {
+		/* Fluid root font-size: keeps every rem/em value (padding, gaps,
+		   radii, headings, .fs-sm...) in the same visual proportion as
+		   the 1634x842 design canvas on any physical screen resolution.
+		   1600 = 16px reference root size x 100 -- assumes html currently
+		   computes to 16px; worth confirming in devtools if this or
+		   bootstrap.min.css/clock.css set a different root size.
+		   min() picks whichever axis (width or height) is more
+		   constrained, so nothing overflows even if a future screen's
+		   aspect ratio drifts further from 1634:842. */
+		font-size: min(calc(1600dvw / 1634), calc(1600dvh / 842));
+	}
+
+	body {
+		--bs-body-color: white;
+	}
+
+	#dateTimeCont {
+		grid-area: dateTime;
+		line-height: 1;
+		font-size: .95em;
+		font-weight: 600;
+		margin-bottom: 3rem;
+	}
+
+	#clock {
+		font-size: 4em;
+		line-height: 1;
+		font-weight: 700;
+	}
+
+	.centerLeftgrid svg {
+		height: 1em;
+		width: 1em;
+		vertical-align: bottom;
+	}
+
+	.centerLeftgrid svg path {
+		fill: white;
+	}
+
+	.centerLeftgrid {
+		display: grid;
+		justify-content: center;
+		margin-bottom: .5rem;
+		font-size: 1.25em;
+	}
+
+	zman-schedule .centerLeftgrid {
+		font-size: 1.1em;
+		margin-bottom: 0;
+		margin-top: .85rem;
+	}
+
+	.centerLeftgrid > div {
+		text-align: left; width: fit-content; line-height: 1;
+	}
+
+	.centerLeftgrid i {
+		width: 1em;
+		text-align: center;
+	}
+
+	[data-zfReplace="Haftara"] img {
+		height: 1.5ch;
+		width: 1.5ch;
+		vertical-align: inherit;
+	}
+
+	#content {
+		--polesStart: 9.5dvw;
+		--polesEnd: 10dvw;
+
+		background-image: linear-gradient(to bottom, black 2.5%, transparent 10%, transparent 90%, black 97.5%), url("/assets/images/shul-wall/tov-bg.png");
+        background-size: cover;
+		background-position-y: center;
+		width: 100dvw;
+		height: 100dvh;
+
+		padding-top: 1.75dvh;
+		padding-left: var(--polesStart);
+		padding-right: var(--polesEnd);
+		display: grid;
+		grid-template-areas:
+			"logo dateTime bsD"
+			"weekSchedule announcements shabbat"
+			"weekShiur announcements shabbat"
+			"times times times";
+		grid-template-columns: 1fr 1.25fr 1fr;
+		grid-template-rows: auto 1fr 1fr;
+		row-gap: 0.625rem;
+		column-gap: 6rem;
+		font-size: 1.3em;
+
+		font-family: "Barlow", var(--bs-body-font-family);
+		font-weight: 500;
+
+		overflow: hidden;
+	}
+
+	#times {
+		height: calc(8dvh - 0.625rem);
+		grid-area: times;
+		margin-left: calc(var(--polesStart) * -1);
+		margin-right: calc(var(--polesEnd) * -1);
+
+		display: flex;
+		gap: 3rem;
+		font-size: 1.2em;
+	}
+
+	#times > * {
+		display: flex;
+		white-space: nowrap;
+		gap: .5rem;
+	}
+
+	#times > * > *:first-child {
+		font-weight: bold;
+	}
+
+	.timeDisplayWide {
+		direction: ltr;
+	}
+
+	.timeDisplayWide.nextDay::after {
+		content: " (מחר)";
+		font-size: .75em;
+	}
+
+	#content[data-current-page="1"] .langTV:not(.lang-hb),
+	#content[data-current-page="3"] .langTV:not(.lang-hb) {
+		display: none;
+	}
+
+	#content[data-current-page="2"] .langTV:not(.lang-en),
+	#content[data-current-page="4"] .langTV:not(.lang-en) {
+		display: none;
+	}
+
+	article > .langTV:nth-child(1), article > .langTV:nth-child(2) {
+		font-weight: bold;
+	}
+
+	#content h2 {
+		text-align: center;
+		font-size: 1.5em;
+	}
+
+	#content h1 {
+		text-align: center;
+		margin-bottom: 0;
+		margin-top: 0;
+		line-height: 1;
+	}
+
+	.schedule-entry-grid {
+		display: grid;
+		grid-template-columns: 1fr auto;
+	}
+
+	.schedule-entry-grid > *:last-child {
+		grid-column: 1 / span 2;
+	}
+
+	.schedule-entry-grid hr {
+		margin: .25rem 0;
+	}
+
+	#shabbat {
+		grid-area: shabbat;
+	}
+
+	#weekShiur {
+		grid-area: weekShiur;
+		padding-right: 2.75rem;
+	}
+
+	.templeBG {
+		padding: 2rem;
+		min-height: 0;
+	}
+
+	.templeBGInner {
+		border-top-left-radius: 50% 6rem;
+		border-top-right-radius: 50% 6rem;
+		height: 100%;
+		overflow: hidden;
+		padding-top: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+	}
+
+	.templeBGInner > h1,
+	.templeBGInner > .list-group:not(zman-schedule) {
+		flex: 0 0 auto;
+	}
+
+	.templeBGInner zman-schedule {
+		display: block;
+		flex: 1 1 0;
+		min-height: 0;
+		overflow-y: auto;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(255,255,255,.35) transparent;
+	}
+
+	.templeBGInner zman-schedule::-webkit-scrollbar { width: .35rem; }
+	.templeBGInner zman-schedule::-webkit-scrollbar-track { background: transparent; }
+	.templeBGInner zman-schedule::-webkit-scrollbar-thumb {
+		background: rgba(255,255,255,.35);
+		border-radius: .2rem;
+	}
+
+	.schedule-marquee-track,
+	.schedule-marquee-track .list-group-item {
+		width: 100%;
+	}
+
+	.templeBG .list-group {
+		font-size: .9em;
+	}
+
+	[data-parasha] {
+		text-align: center;
+		font-weight: bold;
+		font-family: "sbl_hebrewregular", var(--bs-body-font-family);
+		paint-order: stroke fill;
+		-webkit-text-stroke: 3px rgba(0,0,0,.75);
+		text-decoration: underline;
+		text-decoration-color: white;
+		text-underline-offset: 6px;
+	}
+
+	.shabIconElm svg {
+		height: 1.75ch;
+		width: 1.75ch;
+		vertical-align: sub;
+	}
+
+	.shabIconElm svg path {
+		fill: #30344F;
+	}
+
+	.list-group-item {
+		background: transparent;
+	}
+
+	.fs-sm {
+		font-size: .75em;
+	}
+
+	#content[data-current-page='1'] #shabbatNightSch,
+	#content[data-current-page='2'] #shabbatNightSch {
+		display: none;
+	}
+
+	#content[data-current-page='3'] #shabbatDaySch,
+	#content[data-current-page='4'] #shabbatDaySch {
+		display: none;
+	}
+
+	#weekSchedule {
+		grid-area: weekSchedule;
+		padding-right: 2.75rem;
+	}
+
+	#weekSchedule h1,
+	#weekShiur h1 {
+		font-size: 1.25rem;
+		margin-top: .15rem;
+		margin-bottom: .5rem;
+	}
+
+	#logoPos {
+		grid-area: logo;
+		text-align: center;
+		padding-right: 2.5rem;
+		padding-top: .25rem;
+	}
+
+	#logoPos img {
+		width: 55%;
+	}
+
+	#announcementsArea {
+		grid-area: announcements;
+	}
+
+	zman-schedule-table {
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		margin-top: .5rem;
+	}
+
+	zman-schedule-table [data-valueof="Donor"] {
+		font-size: 2.5rem;
+	}
+
+	zman-schedule-table [data-valueof="inBetween"] {
+		font-size: 1.75rem;
+	}
+
+	zman-schedule-table [data-valueof="Cause"] {
+		font-size: 2.15rem;
+	}
+</style>
+
+<div id="content" data-current-page="1" data-page-count="4">
+	<div id="dateTimeCont">
+		<div data-en-date class="langTV lang-en text-center"></div>
+		<div data-hb-date class="langTV lang-hb text-center"></div>
+		<div id="clock" class="text-center"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
+	</div>
+	<div id="logoPos">
+		<img src="/assets/images/shul-wall/tov_logo.png">
+	</div>
+	<div id="weekSchedule" class="templeBG">
+		<div class="templeBGInner">
+			<h1 style="font-weight: 700;">Weekday Services</h1>
+			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="weekdayServics">
+			</zman-schedule>
+		</div>
+	</div>
+	<div id="announcementsArea" class="templeBG">
+		<div class="templeBGInner">
+			<h1  style="font-weight: 700;">Announcements</h1>
+			<zman-schedule-table class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="announcements">
+			</zman-schedule-table>
+		</div>
+	</div>
+	<div id="weekShiur" class="templeBG">
+		<h1 style="font-weight: 700;">Weekday Shiurim</h1>
+		<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="weekShiurCard">
+		</zman-schedule>
+	</div>
+	<div id="shabbat" class="templeBG">
+		<div class="templeBGInner">
+			<h1 data-parasha data-prefix="hb"></h1>
+			<div class="list-group list-group-flush lh-sm">
+				<div class="list-group-item d-flex justify-content-between shabIconElm">
+					<div data-lightingCandles data-onlyRegShab data-timeInsert="insertAdjacent">
+						<i class="bi bi-fire"></i>
+						<span class="langTV lang-hb fw-bold">הדלקת נרות</span>
+						<span class="langTV lang-en fw-bold">Candle Lighting</span>
+					</div>
+				</div>
+			</div>
+			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="shabbatNightSch">
+			</zman-schedule>
+			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="shabbatDaySch">
+			</zman-schedule>
+			<div class="list-group list-group-flush lh-sm">
+				<div class="list-group-item d-flex justify-content-between shabIconElm">
+					<div class="langTV lang-hb">
+						<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> <b>צאת מלאכה</b>
+						<div class="fs-sm"><span style="unicode-bidi: isolate;">ר"ת</span>: <span data-autoschedule-type="sUM" data-autoschedule-function="getTzetRT" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></span></div>
+					</div>
+					<div class="langTV lang-en">
+						<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> <b>Tzet Melakha</b>
+						<div class="fs-sm">R"T: <span data-autoschedule-type="sUM" data-autoschedule-function="getTzetRT" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></span></div>
+					</div>
+					<dd class="m-0" data-autoschedule-type="sUM" data-autoschedule-function="getTzetMelakha" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></dd>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="times" class="wideView" data-zfFind="calendarFormatter" data-langPull="hb" dir="rtl">
+		{% for item in site.data.tv.listTVZman %}
+			<article
+				data-zmanid="{{ item.id }}"
+				{% if item.round %}data-round="{{ item.round }}"{% endif %}
+				{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+				{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+				{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+				{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+			>
+				<span class="langTV lang-hb">{{ item.names.he }}</span>
+				<span class="timeDisplay"></span>
+			</article>
+		{% endfor %}
+	</div>
+</div>
+
+<script id="zy-scheduleScreen-config" type="application/json">
+	{
+		"seconds": false,
+		"timeFormat": "h12",
+		"language": "en",
+		"location": {
+			"name": "Ohel Michael",
+			"lat": 40.72208492546707,
+			"long": -73.81728435082479,
+			"elevation": 0,
+			"timezone": "America/New_York"
+		},
+		"calendarToggle": {
+			"rtKulah": true,
+			"tekufaMidpoint": "hatzoth",
+			"tekufaCalc": "shemuel",
+			"forceSunSeasonal": false
+		},
+		"customTimes": {
+			"candleLighting": 18,
+			"tzeithIssurMelakha": { "minutes": 42, "degree": null }
+		},
+		"schedule": {
+			"url": "https://docs.google.com/spreadsheets/d/1ZZPNAR2gPS3hGPFmsljKsMcaO5VCbq5Vn_voJXfYIT4/export?format=xlsx",
+			"type": "excel"
+		}
+	}
+</script>
+<script type="module">
+	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';
+	validNetzAssert('USA', "41");
+</script>
+
+<script type="module">
+	import ZmanSchedule from "/assets/js/shul-wall/zman-schedule.js";
+
+	class ZmanScheduleTable extends ZmanSchedule {
+
+		render() {
+			if (!this._data) return;
+
+			// Clear all children except those with data-keep
+			for (const child of this.children) {
+				if (!child.hasAttribute("data-keep")) child.remove();
+			}
+
+			const buildDOM = (obj, parent) => {
+				for (const [key, value] of Object.entries(obj)) {
+					// Skip CSS variable keys (they should already be removed)
+					if (/^var\(--.+\)$/.test(key)) continue;
+
+					const container = document.createElement('div');
+					
+					if (value && typeof value === 'object' && !Array.isArray(value)) {
+						// If it's an object, set its key as the id
+						container.id = String(key);
+						// Recurse into the nested object
+						buildDOM(value, container);
+					} else {
+						// Leaf node: use data-valueof for the key
+						container.setAttribute('data-valueof', String(key));
+						// Handle array values by joining
+						container.textContent = Array.isArray(value) ? value.join(', ') : String(value);
+					}
+					
+					parent.appendChild(container);
+				}
+			};
+
+			buildDOM(this._data, this);
+
+			// Run autoschedule if needed
+			this.runAutoSchedule();
+		}
+	}
+
+	customElements.define("zman-schedule-table", ZmanScheduleTable);
+	export default ZmanScheduleTable;
+
+</script>
+
+<script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
+<script type="module" src="/assets/js/shul-wall/reset.js"></script>
+<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
+<script type="module" src="/assets/js/shul-wall/zemanim/transition.js"></script>
+<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
+<script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
+<script type="module">
+	await import('/assets/js/shul-wall/scheduleOnline.js');
+	import autoSchedule from "/assets/js/shul-wall/auto-schedule.js";
+	import marqueeDuplicate from '/assets/js/shul-wall/justMarquee.js';
+
+	setTimeout(async () => {
+		await import('/assets/js/shul-wall/limud.js');
+
+		const timesElem = document.getElementById("times");
+		marqueeDuplicate(timesElem, { length: "40s", gap: "3rem" });
+
+		const { default: autoscrollSchedules } = await import('/assets/js/shul-wall/scheduleAutoscroll.js');
+		autoscrollSchedules('.templeBGInner zman-schedule', { gap: 0 });
+	}, 2000);
+
+	const autos = document.querySelectorAll("[data-autoschedule-type]");
+	if (autos.length) {
+		autoSchedule(autos);
+	}
+</script>
