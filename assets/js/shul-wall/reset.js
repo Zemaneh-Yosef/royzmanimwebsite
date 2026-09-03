@@ -35,7 +35,7 @@ window.timers.dayReload =
  */
 
 const REFRESH_SOURCE = "https://zemaneh-yosef.github.io/extras/refresh.json"
-const REFRESH_EVERY_MS = 10000
+const REFRESH_EVERY_MS = 20000
 
 /**
  * Which folder in `extras` each wall plays, by page name. The manager writes
@@ -89,7 +89,7 @@ const checkRefresh = async () => {
 
         if (token !== lastAsked) {
             reloadingNow = true
-            location.reload()
+            await reload()
         }
     } catch {
         // Offline, or a deploy in flight. Try again on the next tick.

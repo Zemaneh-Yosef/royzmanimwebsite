@@ -3,6 +3,8 @@
 import { methodNames } from "../ROYZmanim.js";
 import autoSchedule from "./auto-schedule.js";
 
+const STYLED_SPAN_RE = /^<span data-zy-inserted-style style="([^"]*)">([\s\S]*)<\/span>$/;
+
 /** @type {Record<string, Partial<{ ru: string; et: string; en: string; hb: string; }>>} */
 const localizedIndividual = {
 	"selihot": {
@@ -140,6 +142,18 @@ class ZmanSchedule extends HTMLElement {
 		if (this._data) this.render();
 	}
 
+	/**
+	 * If html is exactly a style span the Excel loader inserted, returns
+	 * its style string and inner text separately. Otherwise passes html
+	 * through unchanged.
+	 * @param {string} html
+	 */
+	unwrapStyledSpan(html) {
+		const match = STYLED_SPAN_RE.exec(html);
+		if (!match) return { style: null, inner: html };
+		return { style: match[1], inner: match[2] };
+	}
+
 	render() {
 		if (!this._data) return;
 
@@ -173,8 +187,18 @@ class ZmanSchedule extends HTMLElement {
 			// -------------------------------
 			const timeDiv = document.createElement("div");
 
-			if (typeof rowTime === "string" && this.isAutoSchedule(rowTime)) {
-				this.applyAutoScheduleAttributes(timeDiv, rowTime);
+			if (typeof rowTime === "string") {
+				const { style: cellStyle, inner: rawTime } = this.unwrapStyledSpan(rowTime);
+
+				if (this.isAutoSchedule(rawTime)) {
+					// The autoscheduler owns timeDiv's contents from here on, so any
+					// Excel-provided style moves to the container instead of a nested
+					// span that would just get clobbered.
+					if (cellStyle) timeDiv.setAttribute("style", cellStyle);
+					this.applyAutoScheduleAttributes(timeDiv, rawTime);
+				} else {
+					timeDiv.innerHTML = rowTime; // literal text — the styled span (if any) renders as-is
+				}
 			} else {
 				timeDiv.innerHTML = rowTime;
 			}

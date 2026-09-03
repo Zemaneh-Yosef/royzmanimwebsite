@@ -314,18 +314,6 @@ layout: nothing
 		gap: 1rem;
 		margin-top: .5rem;
 	}
-
-	zman-schedule-table [data-valueof="Donor"] {
-		font-size: 2.5rem;
-	}
-
-	zman-schedule-table [data-valueof="inBetween"] {
-		font-size: 1.75rem;
-	}
-
-	zman-schedule-table [data-valueof="Cause"] {
-		font-size: 2.15rem;
-	}
 </style>
 
 <div id="content" data-current-page="1" data-page-count="4">
@@ -456,7 +444,7 @@ layout: nothing
 					if (/^var\(--.+\)$/.test(key)) continue;
 
 					const container = document.createElement('div');
-					
+
 					if (value && typeof value === 'object' && !Array.isArray(value)) {
 						// If it's an object, set its key as the id
 						container.id = String(key);
@@ -466,9 +454,9 @@ layout: nothing
 						// Leaf node: use data-valueof for the key
 						container.setAttribute('data-valueof', String(key));
 						// Handle array values by joining
-						container.textContent = Array.isArray(value) ? value.join(', ') : String(value);
+						container.innerHTML = Array.isArray(value) ? value.join(', ') : String(value);
 					}
-					
+
 					parent.appendChild(container);
 				}
 			};
