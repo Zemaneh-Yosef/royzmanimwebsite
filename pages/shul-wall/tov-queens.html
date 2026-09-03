@@ -503,7 +503,7 @@ layout: nothing
 		marqueeDuplicate(timesElem, { length: "40s", gap: "3rem" });
 
 		const { default: autoscrollSchedules } = await import('/assets/js/shul-wall/scheduleAutoscroll.js');
-		autoscrollSchedules('.templeBGInner zman-schedule', { gap: 0 });
+		autoscrollSchedules('.templeBGInner zman-schedule, .templeBGInner zman-schedule-table', { gap: 0 });
 	}, 2000);
 
 	const autos = document.querySelectorAll("[data-autoschedule-type]");
