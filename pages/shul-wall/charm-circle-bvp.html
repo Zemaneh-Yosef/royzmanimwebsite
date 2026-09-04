@@ -96,9 +96,10 @@ layout: nothing
 		z-index: 5;
 		display: grid;
 		grid-template-columns: 1fr .95fr 1fr;
-		grid-template-rows: auto 1fr;
+		grid-template-rows: auto minmax(0, 1fr);
 		align-items: center;
 		gap: 16px;
+		height: calc(100vh - 12vh - 5vh);
 	}
 
 	#dataGrid > *:not(#megaline):not(#ishMatzliachSlide) {
@@ -300,6 +301,43 @@ layout: nothing
 	.altTzetMelakhaTime {
 		font-size: 0.75em;
 	}
+
+	#shulScheduling {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		min-height: 0;
+		height: 100%;
+		line-height: 1.3;
+	}
+
+	#shulScheduling h1 {
+		flex-shrink: 0;
+		padding-top: .5rem;
+		margin-bottom: .5rem;
+	}
+
+	/* 🔥 Key change: make the card a flex column and constrain its children */
+	#shulScheduling .card {
+		flex: 1 1 0;              /* take available space */
+		min-height: 0;            /* allow shrinking */
+		overflow: hidden;         /* don't let the card scroll itself */
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* 🔥 Critical: constrain the <zman-schedule> element itself */
+	#shulScheduling zman-schedule {
+		flex: 1 1 0;              /* fill the card's remaining height */
+		min-height: 0;            /* allow it to be smaller than its content */
+		overflow: hidden;         /* script will manage overflow */
+		display: block;           /* ensure flexbox sizing applies */
+	}
+
+	/* Also keep the inner list from forcing extra height */
+	#shulScheduling .list-group {
+		min-height: 0;
+	}
 </style>
 
 <div id="content" data-current-page="1" data-page-count="4" data-swap-time="10000">
@@ -445,9 +483,9 @@ layout: nothing
 			<div class="carousel-inner">
 			</div>
 		</div>
-		<div id="shulScheduling" style="height: 76vh; overflow: hidden;">
+		<div id="shulScheduling">
 			<h1 style="text-align: center;">Weekday Schedule</h1>
-			<div class="card">
+			<div class="card" style="flex: .35 0 0;">
 				<zman-schedule class="list-group list-group-flush" id="weekdaySchCard"></zman-schedule>
 			</div>
 			<h1 style="text-align: center;">Shabbat Schedule</h1>
@@ -481,7 +519,7 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
 <script type="module">
-	import marqueeDuplicate from '/assets/js/shul-wall/marquee_duplicate.js';
+	import autoscrollSchedules from '/assets/js/shul-wall/scheduleAutoscroll.js';
 
 	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 		.split('\n')
@@ -493,5 +531,7 @@ layout: nothing
 			`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="10000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
 		.join('');
 
-	marqueeDuplicate(document.getElementById("shulScheduling"), { length: "35s", gap: "1rem" });
+	setTimeout(() => {
+		autoscrollSchedules('zman-schedule', { gap: 0 });
+	}, 2000);
 </script>
