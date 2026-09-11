@@ -116,7 +116,7 @@ const calculateStyles = (/** @type {fitty} */ f) => {
             f.maxSize
         );
     } else {
-        f.availableWidth = f.element.parentNode.getBoundingClientRect().width;
+        f.availableWidth = getAvailableWidth(f.element.parentNode);
         f.currentWidth = f.element.scrollWidth;
 
         f.previousFontSize = f.currentFontSize;
@@ -134,7 +134,7 @@ const calculateStyles = (/** @type {fitty} */ f) => {
 const shouldRedraw = (/** @type {fitty} */ f) =>
     f.dirty !== DrawState.DIRTY_LAYOUT ||
     (f.dirty === DrawState.DIRTY_LAYOUT &&
-        f.element.parentNode.clientWidth !== f.availableWidth);
+        getAvailableWidth(f.element.parentNode) !== f.availableWidth);
 
 // every fitty element is tested for invalid styles
 const computeStyle = (/** @type {fitty} */ f) => {
@@ -181,7 +181,7 @@ const shouldPreStyle = (/** @type {fitty} */f) => {
 const applyStyle = (/** @type {fitty} */f) => {
     f.element.style.whiteSpace = f.whiteSpace;
     f.element.style.display = f.display;
-    f.element.style.fontSize = Math.floor(f.currentFontSize - 6) + 'px';
+    f.element.style.fontSize = f.currentFontSize.toFixed(2) + 'px';
 };
 
 // dispatch a fit event on a fitty
@@ -346,6 +346,18 @@ Object.defineProperty(fitty, 'observeWindow', {
             window[enabled ? 'addEventListener' : 'removeEventListener'](e, onWindowResized);
     },
 });
+
+/**
+ * @param {Element} parent
+ */
+function getAvailableWidth (parent) {
+    const style = getComputedStyle(parent);
+    const paddingLeft = parseFloat(style.paddingLeft) || 0;
+    const paddingRight = parseFloat(style.paddingRight) || 0;
+    const borderLeft = parseFloat(style.borderLeftWidth) || 0;
+    const borderRight = parseFloat(style.borderRightWidth) || 0;
+    return parent.getBoundingClientRect().width - paddingLeft - paddingRight - borderLeft - borderRight;
+};
 
 // fitty global properties (by setting observeWindow to true the events above get added)
 fitty.observeWindow = true;

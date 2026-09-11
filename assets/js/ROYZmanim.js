@@ -528,6 +528,18 @@ class ZemanFunctions extends ZemanimMathBase {
 	getAsiTzet () {
 		return this.coreZC.getSunsetOffsetByDegrees(18 + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH);
 	}
+
+	getSofZemanSeuda() {
+		return this.timeRange.current.sunrise
+			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 9, minutes: 0 })));
+	}
+
+	getSofZemanMelakha() {
+		return this.timeRange.current.sunset.subtract([
+			Temporal.Duration.from({ hours: 2, minutes: 30 }),
+			this.fixedToSeasonal(Temporal.Duration.from({ hours: 2, minutes: 30 }))
+		].sort(durationSort)[0]);
+	}
 }
 
 class DebugZemanFunctions extends ZemanFunctions {

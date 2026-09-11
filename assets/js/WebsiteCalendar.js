@@ -369,6 +369,27 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return calculatedZmanim;
 	}
 
+	/**
+     * This method is used to check if Eruv Tavshilim (the food set aside to enable cooking on Yom Tov for Shabbat) is made today.
+     * It will first check if there is candle lighting today and that we are not already in the Yom Tov.
+     * Then it will check if it is Wednesday or Thursday. If it is Wednesday, it will check if Thursday and Friday are assur b'melacha.
+     * If it is Thursday, it will check if Friday is assur b'melacha.
+     * @return a boolean value indicating if Eruv Tavshilim is made today before going into Yom Tov
+     */
+    isEruvTavshilimMadeToday() {
+        if (this.hasCandleLighting() && !this.isYomTovAssurBemelacha()) {// i.e. we are right before the Yom Tov starts and not into Yom Tov
+            const tomorrow = this.tomorrow();
+            const afterTomorrow = tomorrow.tomorrow();
+            if (this.getDayOfWeek() == KosherZmanim.Calendar.WEDNESDAY) {
+                return tomorrow.isYomTovAssurBemelacha() && afterTomorrow.isYomTovAssurBemelacha();// two day Yom Tov going into shabbat
+            }
+            if (this.getDayOfWeek() == KosherZmanim.Calendar.THURSDAY) {
+                return tomorrow.isYomTovAssurBemelacha();// yom tov (1 or 2 days) going into shabbat
+            }
+        }
+        return false;
+    }
+
 	getYomTovObject() {
 		return {
 			// Holidays

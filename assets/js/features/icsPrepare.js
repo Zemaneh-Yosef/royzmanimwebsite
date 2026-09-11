@@ -29,7 +29,7 @@ const monViewNight = (monthView, calc) =>
  * @param {boolean} isIsrael
  * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} monthView
- * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; fasts: Record<string, { "en-et": string; en: string; he: string; }>; tahanun: Record<string, string | { "en-et": string; en: string; he: string; }>; netzTimes: number[]; learningTitle: Record<string, { "en-et": string; en: string; he: string; }>; }} funcSettings
+ * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; fasts: Record<string, string>; tahanun: Record<string, string>; netzTimes: number[]; learningTitle: Record<string, { "en-et": string; en: string; he: string; }>; }} funcSettings
  */
 export default async function icsExport (plainDateParams, geoLocationData, config, isIsrael, zmanList, monthView=true, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
@@ -137,7 +137,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 			const jMonth = jCal.formatJewishMonth()
 			events.push({
 				start: calc.getShkiya().epochMilliseconds,
-				end: calc.chainDate(jCal.getDate().withCalendar("hebrew").with({ day: 15 })).getAlotHashahar().epochMilliseconds,
+				end: calc.chainDate(jCal.getDate().withCalendar("hebrew").with({ day: 15 }).withCalendar("iso8601")).getAlotHashahar().epochMilliseconds,
 				title: funcSettings.language == "he" ? "ברכת הלבנה - חדש " + jMonth.he : "Birkat Halevana - Month of " + jMonth.en,
 				description: "End-time of the Rama (Stringent): " + birkLev.data.end.toLocaleString()
 			})

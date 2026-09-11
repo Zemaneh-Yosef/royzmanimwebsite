@@ -227,21 +227,22 @@ export default class ChaiTables {
 		/** @type {Record<string, Document>} */
 		const radiusData = {};
 
+		const forceLatLongAlternativeRadius = [
+			{key: [34.053421006365724, -118.38418523460797], value: 2},
+			{key: [34.09777065545882, -118.42699812743257], value: 14}
+		]
+
 		const forceAlternativeRadius = [
 			{ key: ["Israel", null], value: "2" },
-			{
-				key: ["USA", 32], value: (this.zmanLister.geoLocation.getLatitude() == 34.09777065545882
-					&& this.zmanLister.geoLocation.getLongitude() == -118.42699812743257)
-					? "14"
-					: "8",
-			},
-			{
-				key: ["USA", 4], value: "8"
-			},
+			{ key: ["USA", 32], value: "8" },
+			{ key: ["USA", 4], value: "8" },
 			{ key: ["Eretz_Yisroel", null], value: isHebrewSpacesUnderscores(this.indexOfMetroArea) ? "forceHB" : "2" }
 		]
 
-		const findForceAlternativeRadius = forceAlternativeRadius.find(item =>
+		const findForceAlternativeRadius = forceLatLongAlternativeRadius.find(item => 
+			this.zmanLister.geoLocation.getLatitude() == item.key[0]
+			&& this.zmanLister.geoLocation.getLongitude() == item.key[1]
+		) || forceAlternativeRadius.find(item =>
 			item.key[0] == this.selectedCountry
 			&& (item.key[1] === null || item.key[1] == this.indexOfMetroArea)
 		);

@@ -1,0 +1,2 @@
+import{t as e}from"./basedecoder-BuG7fe0q.js";var t=class extends e{decodeBlock(e){return e}};export{t as default};
+//# sourceMappingURL=raw-A-vJRPpa.js.map

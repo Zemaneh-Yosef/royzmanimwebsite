@@ -1,0 +1,833 @@
+---
+title: Full-Print Calendar
+permalink: /print/yonah-top
+layout: nothing
+---
+
+<link href="/assets/fonts/print/stylesheet.css" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+
+<style>
+	:root {
+		--margin-right: 0.4in;
+		--margin-left: 0.4in;
+		--margin-outer: 0.35in;
+		--margin-inner: 0.55in;
+		--page-bg: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.5) 100%), url("/assets/images/shul-wall/yonah-bg.png") center/cover no-repeat;
+		--ink-color: white;
+		--body-font: 'Barlow', "SBL Hebrew", 'Times New Roman', serif;
+		--divider-color: #b3b3b3;
+		--sidebar-width: 0.65in;
+	}
+
+	* {
+		box-sizing: border-box;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
+	}
+
+	.page .fw-600 { font-weight: 600; }
+	.page .fw-bold { font-weight: bold; }
+	.page .mb-0 { margin-bottom: 0; }
+
+	/* =========================================================
+   @page — print page size and margins
+   9in x 12in stock, printed landscape -> 12in wide, 9in tall
+   ========================================================= */
+	@page {
+		size: 12in 9in;
+		margin: 0;
+	}
+
+		/* =========================================================
+   PRINT — flow-based multi-page output
+   ========================================================= */
+	@media print {
+		html, body {
+			height: auto !important;
+			min-height: 0 !important;
+			margin: 0 !important;
+			padding: 0 !important;
+			background: var(--page-bg);
+			font-family: var(--body-font);
+			-webkit-print-color-adjust: exact;
+			print-color-adjust: exact;
+		}
+
+		body > div:has(.page) {
+			margin: 0 !important;
+			padding: 0 !important;
+			display: block !important;
+		}
+
+		.page {
+			break-after: page;
+			page-break-after: always;
+			overflow: hidden;
+			box-shadow: none !important;
+			border: none !important;
+			background: var(--page-bg);
+		}
+
+		.page:last-child {
+			break-after: auto;
+			page-break-after: auto;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		.no-print {
+			display: none !important;
+		}
+	}
+
+	/* =========================================================
+   SCREEN — centered page preview
+   ========================================================= */
+	@media screen {
+		body {
+			background: #e9e9e9;
+			font-family: var(--body-font);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 24px;
+			padding: 40px 0;
+			margin: 0;
+		}
+
+		.page {
+			box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+			border: 1px solid #d8d2bd;
+			background: var(--page-bg) !important;
+		}
+	}
+
+	/* =========================================================
+   .page — fixed 12x9in box, identical in screen and print
+   (1in = 96px on screen, so 12in = 1152px, 9in = 864px —
+    no unit translation needed)
+
+   Recto (bottom-hand page): gutter on top -> inner margin top
+   Verso (top-hand / even pages): gutter on bottom -> add
+   class="page verso" to alternate pages
+   ========================================================= */
+	.page {
+		width: 12in;
+		height: 9in;
+		box-sizing: border-box;
+		color: var(--ink-color);
+		overflow: hidden;
+		position: relative;
+		padding: var(--margin-inner) var(--margin-right) var(--margin-outer) var(--margin-left);
+		font-weight: 500;
+	}
+
+	.calPage {
+		display: grid;
+		grid-template-columns: 72.5% 27.5%;
+		gap: 10px;
+		grid-template-rows: 1fr;
+	}
+
+	.page.verso {
+		padding: var(--margin-outer) var(--margin-right) var(--margin-inner) var(--margin-left);
+	}
+
+	.tableGrid {
+		width: 100%;
+		display: grid;
+		text-align: center;
+		line-height: 1;
+		font-size: .65em;
+	}
+
+	.tableCell {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		height: 100%;
+		line-height: 1;
+	}
+
+	.tableCellHasIcon {
+		filter: grayscale(1);
+	}
+
+	.tableHeader {
+		font-weight: bold;
+		padding-right: .125em;
+		padding-left: .125em;
+	}
+
+	.special {
+		display: flex;
+	}
+
+	.omerText {
+		font-size: .675em;
+		margin-top: .25rem;
+	}
+
+	[data-zyData="date"] {
+		font-size: 1.5em;
+		grid-row: 1 / span 2;
+		grid-column-end: span 2;
+	}
+
+	[data-zyData="min-special"] {
+		display: none;
+	}
+
+	.footerFind h5 {
+		font-size: 1.1rem;
+		margin-top: 1rem;
+		font-weight: 700;
+	}
+
+	.footerFind > div {
+		line-height: 1.3;
+		font-size: .9em;
+	}
+
+	.tableCell:not([data-time-for-shita="special"]) > .flexElemWorkaround:only-child {
+		font-size: 2.75ex;
+	}
+
+	.flexElemWorkaround svg,
+	.flexElemWorkaround img {
+		height: 1em;
+		vertical-align: bottom;
+	}
+
+	.flexElemWorkaround svg {
+		width: 1em;
+	}
+
+	.flexElemWorkaround svg path {
+		fill: black;
+	}
+
+	.columnSplit, .pagedjs_footnote_inner_content {
+		columns: var(--description-columns, 4);
+	}
+
+	.borderRow {
+		border-bottom: 1px solid #21252922;
+	}
+
+	.lastRow {
+		border-bottom: 3px solid #21252922;
+	}
+
+	.hebMidWord {
+		unicode-bidi: isolate;
+	}
+
+	.hebSrc {
+		unicode-bidi: plaintext;
+	}
+
+	*.mb-0 {
+		margin-bottom: 0;
+	}
+
+	.imageHolder {
+		display: grid;
+	}
+
+	.imageHolder > img {
+		grid-area: 1 / 1;
+		width: 100%;
+		border-radius: 10px;
+		box-shadow: 0px 5px 4px rgba(0,0,0,1);
+		border: 2.5px solid black;
+		mask-image: linear-gradient(to bottom, black 80%, transparent)
+	}
+
+	.imageHolder > div {
+		grid-area: 1 / 1;
+		align-self: end;
+		justify-self: center;
+
+		display: flex;
+		gap: 10px;
+	}
+
+	.imageHolder > div > img {
+		height: 30px;
+		width: 30px;
+		corner-shape: squircle;
+		border-radius: 50%;
+		background: white;
+		z-index: 3;
+	}
+
+	.templeBG {
+		background: rgba(0,0,0,.5);
+		border-top-left-radius: 50% 15%;
+		border-top-right-radius: 50% 15%;
+		padding: .5rem;
+		box-shadow: 0 0 1.75px 1.25px black;
+		padding-top: .5rem;
+	}
+
+	.tableSidebar {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+</style>
+<style>
+	/* ---------- Layout inside the page ---------- */
+	.page-container {
+		display: grid;
+		grid-template-columns: var(--sidebar-width) 1fr var(--sidebar-width);
+		gap: 0.1in;
+		height: 100%;
+	}
+
+	.sidebar {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.sidebar-content {
+		writing-mode: vertical-rl;
+		text-orientation: mixed;
+		text-transform: uppercase;
+	}
+
+	.sidebar-left .sidebar-content {
+		transform: rotate(180deg);
+	}
+
+	.sidebar h3 {
+		margin: 0;
+		font-weight: 600;
+		font-size: 0.32in;
+		letter-spacing: 0.03em;
+		line-height: 1.25;
+		text-align: center;
+		white-space: nowrap;
+	}
+
+	/* Calendar slot fills the middle column; the calendar itself
+	   is sized in JS to the largest square-celled grid that fits
+	   inside it, then centered -- like object-fit: contain. */
+	.calendar-slot {
+		height: 100%;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+		gap: .05in;
+	}
+
+	[data-zyCalCont] {
+		display: grid;
+        gap: 9.5px;
+		/* width/height/grid-template-columns/rows set via JS to
+		   an explicit pixel size so day cells are true squares */
+	}
+
+	.day-label {
+		text-align: center;
+		font-weight: 600;
+		font-size: calc(var(--cell-size, 1in) * 0.16);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: .4rem;
+	}
+
+	.day-label.weekend {
+		color: hsl(0, 0%, 85%);
+	}
+
+	.day-cell {
+        --padding: calc(var(--cell-size, 1in) * 0.085);
+        background: #536879cc;
+        border-radius: 30%;
+		corner-shape: squircle;
+
+		padding: var(--padding);
+		font-size: calc(var(--cell-size, 1in) * 0.2);
+		display: grid;
+        line-height: 1.3;
+	}
+
+	.day-cell.empty {
+		background: repeating-linear-gradient(
+			135deg,
+			transparent,
+			transparent 0.08in,
+			rgba(0, 0, 0, 0.03) 0.08in,
+			rgba(0, 0, 0, 0.03) 0.16in
+		);
+	}
+
+	.day-cell .gregDate {
+		grid-area: 1 / 1;
+		justify-self: start;
+		align-self: start;
+	}
+
+	.day-cell .fancyElem {
+		grid-area: 1 / 1;
+		justify-self: center;
+		align-self: center;
+		text-align: center;
+		line-height: 1;
+		font-size: .785em;
+	}
+
+	.day-cell .fancyElem .title {
+		margin-top: .18em;
+	}
+
+	.day-cell .range {
+		margin-top: .75em;
+		font-size: .6em;
+	}
+
+    .day-cell .hebDate {
+        grid-area: 1 / 1;
+        justify-self: end;
+		align-self: start;
+        font-size: .65em;
+        color: hsl(0, 0%, 80%);
+    }
+
+	.day-cell .specialTimes {
+		grid-area: 1 / 1;
+		justify-self: end;
+		align-self: end;
+		font-size: .7em;
+		color: hsl(0, 0%, 90%);
+	}
+
+    .label-bg {
+        grid-row: 1;
+        grid-column: 1 / span 7;
+        background: linear-gradient(to right,
+			rgba(11, 122, 116, .75) 0%,
+			rgba(11, 122, 116, 1) 5%,
+			rgba(11, 122, 116, 1) 95%,
+			rgba(11, 122, 116, .75) 100%);
+        border-radius: 10px;
+		margin-bottom: .4rem;
+    }
+
+	[data-zyShabSch] {
+		display: grid;
+		grid-template-rows: auto auto;
+		grid-template-columns: auto;
+		grid-auto-flow: column;
+		column-gap: .25in;
+		text-align: center;
+	}
+
+	[data-zyScheduleTitle] {
+		font-weight: 600;
+		text-decoration: underline;
+		margin-bottom: 1rem;
+		font-size: 1.15em;
+	}
+
+	.day-cell svg {
+		vertical-align: baseline;
+		height: 1em;
+		width: 1em;
+	}
+
+	.day-cell svg path {
+		fill: white;
+	}
+
+	.weekScheduleTitle {
+		font-weight: 600;
+		margin-top: .75rem;
+		margin-bottom: .75rem;
+	}
+
+	[data-zyweekdayschedule] > div > div:last-child {
+		line-height: 1.3;
+	}
+
+	[data-zyweekdayschedule] > div:last-child .weekScheduleTitle {
+		margin-bottom: 0;
+	}
+
+	.sponsorships {
+		line-height: 1.3;
+		text-align: center;
+	}
+
+	[data-zyWeekdaySchedule] > div {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	[data-zyWeekdaySchedule] > div > div:nth-child(even) {
+		text-align: right;
+	}
+
+	.fs-sm {
+		font-size: .75em;
+	}
+
+	hr {
+		margin: .5rem 0;
+	}
+
+	#meetTeamPage * {
+		text-box-trim: none;
+	}
+
+	.gridForTest {
+		width:100%;
+		height: 100%;
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		grid-template-rows: repeat(4, 1fr);
+		gap: .125in;
+	}
+
+	.gridForTest > div {
+		overflow: hidden;
+		text-align: center;
+		font-weight: 700;
+		font-size: 1.25rem;
+	}
+
+	.gridForTest > div:first-child {
+		display: flex;
+		gap: .115in;
+		grid-column: 1 / span 7;
+		grid-row: 1 / span 2;
+	}
+
+	.gridForTest > div:first-child > div {
+		flex: 1 1;
+	}
+
+	.gridForTest > div:not(.noGrid) > *,
+	.imgNameTag > * {
+		grid-area: 1/1;
+	}
+
+	.gridForTest > div:not(.noGrid),
+	.imgNameTag {
+		display: grid;
+		height: stretch;
+	}
+
+	.gridForTest > div:not(.noGrid) .nameTag,
+	.imgNameTag .nameTag {
+		align-self: end;
+		z-index: 3;
+		text-shadow: 0px 5px 4px rgba(0,0,0,1);
+	}
+
+	.gridForTest > div:not(.noGrid)::after,
+	.imgNameTag::after {
+		content: "";
+		grid-area: 1/1;
+		width: 100%;
+		height: 100%;
+
+		corner-shape: squircle;
+		border-radius: 50%;
+
+		background: linear-gradient(to bottom, transparent 75%, black);
+	}
+
+	.gridForTest img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+
+		corner-shape: squircle;
+		border-radius: 50%;
+	}
+
+	.gridForTest > div:not(:nth-child(1)) img {
+		height: 188px
+	}
+
+	.page.fullBleed img.fullImageBG {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		margin: 0;
+		padding: 0;
+		/* object-view-box: inset(0% 0% 45% 7%);
+		object-position: left center; */
+		z-index: 1;
+	}
+
+	.page.fullBleed>*:not(img.fullImageBG) {
+		z-index: 2;
+	}
+
+	.page.fullBleed {
+		padding: 0;
+	}
+</style>
+
+<section id="frontCover" class="page verso fullBleed">
+	<style>
+		#frontCover {
+			--page-bg: url("/assets/images/print/yona/ChatGPT\ Image\ Sep\ 4\,\ 2026\,\ 03_43_21\ AM.png") top/cover no-repeat;
+		}
+	</style>
+</section>
+<section id="meetTeamPage" class="page verso">
+	<div class="gridForTest">
+		<div class="mainHighlight noGrid">
+			<div class="imgNameTag">
+				<img src="/assets/images/print/yona/WhatsApp Image 2026-08-12 at 1.35.35 PM.jpeg">
+				<div class="nameTag">Rabbi Eliezer Cohen</div>
+			</div>
+			<div>
+				<img src="/assets/images/shul-wall/ohel-michael-logo.svg" style="filter: invert(1); width: 75%; height: 75%; overflow: visible; margin-bottom: 1rem;">
+				<br><span style="font-size: 1.75rem;">Rabbis & Avrechim</span>
+			</div>
+			<div class="imgNameTag">
+				<img src="/assets/images/print/yona/WhatsApp Image 2026-08-12 at 1.35.59 PM.jpeg">
+				<div class="nameTag">Rabbi Yonah Nisanov</div>
+			</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.27 AM.png">
+			<div class="nameTag">Nochum Cohen</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.25 AM.png">
+			<div class="nameTag">R' Eliyahu Medetsky</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.27 AM (3).png">
+			<div class="nameTag">R' Emanuel Aminov</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/IMG-20250519-WA01701.png">
+			<div class="nameTag">R' Maor Na'im</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.26 AM (2).png">
+			<div class="nameTag">R' Briller</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.26 AM (3).png">
+			<div class="nameTag">R' Yitsḥak Kaziyev</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.27 AM (2).png">
+			<div class="nameTag">Yonatan Elgad</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.26 AM.png">
+			<div class="nameTag">R' Daniel Frydman</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.53 AM.png">
+			<div class="nameTag">R' Yosef Hekmati</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.27 AM (1).png">
+			<div class="nameTag">R' Avi Mulayev</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.25 AM (1).png">
+			<div class="nameTag">Yaakov Berenstein</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 12.25.26 AM (1).png">
+			<div class="nameTag">R' Aharon Zweig</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 2.08.17 AM.png">
+			<div class="nameTag">R' Yehuda Benasaraf</div>
+		</div>
+		<div>
+			<img src="/assets/images/print/yona/WhatsApp Image 2026-09-04 at 2.08.05 AM.png">
+			<div class="nameTag">R' Akiva Katz</div>
+		</div>
+	</div>
+</section>
+<section id="aboutBM" class="page">
+	<style>
+		#aboutBM {
+			display: flex;
+			gap: 30px;
+			--page-bg: linear-gradient(to right, rgba(0,0,0,0.75) 50%, rgba(0,0,0,.25) 100%), url("/assets/images/shul-wall/yonah-bg.png") center/cover no-repeat;
+		}
+
+		#aboutBM #topBanner {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 145px;
+			background: linear-gradient(to right, var(--gradient-color-one) 25%, var(--gradient-color-two) 100%), url('/assets/images/shul-wall/ohel-michael-banner.jpeg');
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-position: right 52.5%;
+			--gradient-color-one: rgba(1, 22, 39, .7);
+			--gradient-color-two: rgba(1, 22, 39, .85);
+			z-index: 4;
+			box-shadow: 0px 5px 4px rgba(0,0,0,1);
+
+			text-align: center;
+			font-weight: 700;
+			font-size: 5.85rem;
+			padding-top: 2.75rem;
+		}
+
+		#aboutBM > * {
+			width: 50%;
+		}
+	</style>
+	<div id="topBanner">ABOUT US</div>
+	<img src="/assets/images/print/yona/310cd93a-39e4-491e-b4e0-f23b5759f1f5.jpeg" style="object-fit: cover; object-position: 20%;">
+	<div style="font-size: 1.18rem; text-align: justify;">
+		<p style="margin-top: 7rem; margin-bottom: 2rem;">Beth Medrash Ohel Michael was built around a belief that Torah should not live on the sidelines of a busy life — it should be at its center. What began as a place to create more opportunities for working men to learn has grown into a true hub of Torah, tefillah, friendship, and community. Every day, men with full schedules and real responsibilities make the choice to carve out time for something greater — to sit down with a chavruta, join a chabura, come before work, stay after a long day, and make Torah a permanent part of who they are.</p>
+		<p>But what makes Beth Medrash Ohel Michael special extends far beyond the seder. It is the energy of a <strong>vibrant Shabbat kiddush</strong>, the feeling of <strong>davening with purpose and kavanah</strong>, the warmth of families coming together for our <strong>holiday and community events</strong>, the sight of fathers and sons learning side by side at <strong>Avot U’Banim</strong>, and the countless moments throughout the year that turn a Beth Medrash into a true community. From the first seder at 5:30 in the morning until the final learning of the night, there is a spirit here that is difficult to describe but easy to feel. Our goal is not simply to add more hours of learning, but to help build lives shaped by Torah — stronger homes, deeper friendships, meaningful tefillah, genuine connection, and baalei batim who proudly see themselves as Bnei Torah.</p>
+	</div>
+</section>
+<section id="templatePage" class="page verso calPage">
+	<div class="tableGrid" data-zyTemplate>
+		<div class="tableHeader" data-zyData="min-special"></div>
+		<div class="tableHeader" data-zyData="date"></div>
+		{% for item in site.data.print.yonah-printOut %}
+		{% if item.shitot %}
+		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
+			<span class="lang lang-hb">{{ item.names.he }}</span>
+			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-en">{{ item.names.en }}</span>
+		</div>
+		{% for shita in item.shitot %}
+		<div class="tableHeader" data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
+			<span class="lang lang-hb">{{ shita.names.he }}</span>
+			<span class="lang lang-et">{{ shita.names.et }}</span>
+			<span class="lang lang-en">{{ shita.names.en }}</span>
+		</div>
+		{% endfor %}
+		{% else %}
+		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}">
+			<span class="lang lang-hb">{{ item.names.he }}</span>
+			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-en">{{ item.names.en }}</span>
+		</div>
+		{% endif %}
+		{% endfor %}
+	</div>
+	<div class="tableSidebar">
+		<div class="imageHolder">
+			<img src="">
+			<div>
+				<img src="/assets/images/app-icon-full.jpeg">
+				<img src="/assets/images/shul-wall/ohel-michael-logo.svg">
+			</div>
+		</div>
+		<div class="sponsorships"></div>
+		<div class="footerFind" data-zyfooter-tekufa data-zyfooter-hametz data-zyfooter-levana data-zyfooter-yomkippur></div>
+		<div class="schedule">
+			<div class="templeBG">
+				<h5 style="text-align: center; margin-bottom: .25rem; margin-top: .5rem; font-weight: 700;">Weekday Schedule</h5>
+				<div data-zyWeekdaySchedule>
+					<div>
+						<div class="weekScheduleTitle">
+							1<sup>st</sup> Shacharit
+							<div style="font-weight: 400; font-size: .7em;">Preceeded by learning at 6:15</div>
+						</div>
+						<div>6:55 AM <span class="fs-sm">(Torah Days)</span><br>7:00 AM <span class="fs-sm">(Other Days)</span></div>
+					</div>
+					<div>
+						<div class="weekScheduleTitle">
+							2<sup>nd</sup> Shacharit
+							<div style="font-weight: 400; font-size: .7em;">
+								Preceeded by <span data-zyTeshuvaText="Selihot|learning"></span> at 7:45
+							</div>
+						</div>
+						<div>8:15 AM</div>
+					</div>
+					<div>
+						<div class="weekScheduleTitle">
+							3<sup>rd</sup> Shacharit
+							<div style="font-weight: 400; font-size: .7em;">Followed by Morning Kollel;<br>Public Facing Shiur on Sunday</div>
+						</div>
+						<div>9:12 AM</div>
+					</div>
+					<hr>
+					<div><div class="weekScheduleTitle" data-weekdayCalculate="pelagMinyan">Early ("Pelag") Minyan</div></div>
+					<div><div class="weekScheduleTitle" data-weekdayCalculate="aftSelihot">Selichot Minyan</div></div>
+					<div><div class="weekScheduleTitle" data-weekdayCalculate="minha"><span data-pelag="|Late "></span>Afternoon Minyan</div></div>
+					<hr>
+					<div>
+						<div class="weekScheduleTitle">Night Seder<br>(followed with Arvit at 9:15)</div>
+						<div>8:00 PM</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="bottomSideCalendar" class="page">
+	<div class="page-container">
+		<!-- Left Sidebar -->
+		<div class="sidebar sidebar-left">
+			<div class="sidebar-content">
+				<h3 data-zyGregMonth></h3>
+			</div>
+		</div>
+
+		<!-- Calendar -->
+		<div class="calendar-slot">
+			<div data-zyShabSch style="--items: 5;">
+				<div data-zyScheduleTitle="pelagErevShabbat">Early ערב שבת Minyan</div>
+				<div data-zyScheduleTitle="erevShabbat">Erev Shabbat Minyan</div>
+				<div data-zyScheduleTitle="shacharit">Shabbat Shaḥarit</div>
+				<div data-zyScheduleTitle="minha">Shabbat Minḥa</div>
+				<div data-zyScheduleTitle="arvit" class="noRightBorder">Motzaeh Shabbat Arvit</div>
+			</div>
+			<div data-zyCalCont></div>
+		</div>
+
+		<!-- Right Sidebar -->
+		<div class="sidebar sidebar-right">
+			<div class="sidebar-content">
+				<h3 data-zyHebMonths></h3>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="backCover" class="page verso fullBleed">
+	<style>
+		#backCover {
+			--page-bg: url("/assets/images/print/yona/back.svg") center/cover no-repeat;
+		}
+		#frontCoverInner {
+			width: 100%;
+			height: 100%;
+			backdrop-filter: brightness(1.4);
+		}
+	</style>
+	<div id="frontCoverInner">
+	</div>
+</section>
+
+<script src="/assets/js/features/yonah/print-export.js" type="module"></script>
