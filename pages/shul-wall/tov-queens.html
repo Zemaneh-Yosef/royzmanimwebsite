@@ -212,11 +212,12 @@ layout: nothing
 	}
 
 	.templeBGInner > h1,
-	.templeBGInner > .list-group:not(zman-schedule) {
+	.templeBGInner > .list-group:not(zman-schedule):not(zman-schedule-table) {
 		flex: 0 0 auto;
 	}
 
-	.templeBGInner zman-schedule {
+	.templeBGInner zman-schedule,
+	.templeBGInner zman-schedule-table {
 		display: block;
 		flex: 1 1 0;
 		min-height: 0;
