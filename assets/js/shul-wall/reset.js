@@ -1,17 +1,21 @@
 // @ts-check
 
 import { reload } from "./reload.js";
-import { currentZDT } from "./base.js";
+import { scheduleSettings } from "./base.js";
 
 if (!('timers' in window))
     // @ts-ignore
     window.timers = {}
 
-const tomTime = currentZDT.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+// Computed live (not imported from base.js) so this stays correct even after
+// a soft DOM-swap reload, where base.js's own currentZDT never re-runs and
+// would otherwise stay frozen at the page's original load time forever.
+const now = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone);
+const tomTime = now.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 })
 
 // @ts-ignore
 window.timers.dayReload =
-    setTimeout(async () => await reload(), currentZDT.until(tomTime).total('milliseconds') + 2000)
+    setTimeout(async () => await reload(), now.until(tomTime).total('milliseconds') + 2000)
 
 /**
  * The other way a wall reloads: because somebody asked it to.
@@ -37,15 +41,6 @@ window.timers.dayReload =
 const REFRESH_SOURCE = "https://zemaneh-yosef.github.io/extras/refresh.json"
 const REFRESH_EVERY_MS = 20000
 
-/**
- * Which folder in `extras` each wall plays, by page name. The manager writes
- * these exact strings - they are its `repo_dir` values, and the same prefixes
- * the pages already filter `ls.txt` by. Some walls are reachable under a
- * shorter name than their file, so both spellings are listed.
- *
- * Five ish-matzliach pages share one folder on purpose: five walls play it, and
- * refreshing that screen in the manager should refresh all five.
- */
 const carouselFolder = {
     "beth-aharon": "beth-aharon",
     "charm-circle": "charm-circle/flyer",
@@ -69,7 +64,7 @@ let lastAsked
 let reloadingNow = false
 
 const checkRefresh = async () => {
-    if (reloadingNow) return
+    if (reloadingNow || !navigator.onLine) return
 
     try {
         // Pages caches hard, and the point is to notice within seconds, so
@@ -89,7 +84,11 @@ const checkRefresh = async () => {
 
         if (token !== lastAsked) {
             reloadingNow = true
-            await reload()
+            try {
+                await reload()
+            } finally {
+                reloadingNow = false
+            }
         }
     } catch {
         // Offline, or a deploy in flight. Try again on the next tick.

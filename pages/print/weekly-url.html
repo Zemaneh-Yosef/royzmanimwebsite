@@ -342,7 +342,7 @@ layout: nothing
 		row-gap: .065in;
 	}
 
-	.whiteTekufotMonths[data-events="3"] > div:first-child {
+	.whiteTekufotMonths[data-events="3"]>div:first-child {
 		grid-column: 1 / span 2;
 	}
 
@@ -441,7 +441,7 @@ layout: nothing
 	#cover .plaque {
 		width: fit-content;
 		height: min-content;
-		padding: 6px 17.5px;
+		padding: 3px 9.5px;
 		background: radial-gradient(circle at center, #3a5e78, hsl(205, 35%, 25%));
 		border: 3px solid #d4af37;
 		/* gold border */
@@ -457,37 +457,6 @@ layout: nothing
 		justify-self: center;
 		margin-bottom: .75rem;
 		unicode-bidi: plaintext;
-	}
-
-	.plaque>* {
-		font-size: 30px;
-		font-weight: 700;
-		color: transparent;
-		background: linear-gradient(to bottom, #c7972f 0%, #916718 20%, #fde97d 40%, #d9a941 60%, #fddd8b 80%, #f3c14b 100%);
-		-webkit-background-clip: text;
-		position: relative;
-	}
-
-	.plaque>*::before {
-		content: attr(data-text);
-		position: absolute;
-		top: 0;
-		color: transparent;
-		-webkit-text-stroke: 1.5px black;
-		background: linear-gradient(to bottom, #c7972f 0%, #916718 20%, #fde97d 40%, #d9a941 60%, #fddd8b 80%, #f3c14b 100%);
-		-webkit-background-clip: text;
-		text-shadow: 0px 2px 2px rgba(0, 0, 0, .5);
-		z-index: -1;
-
-		left: 50%;
-		transform: translateX(-50%);
-		width: 100%;
-	}
-
-	.plaque .gregorian {
-		font-size: 26px;
-		font-weight: 600;
-		letter-spacing: 2px;
 	}
 
 	.page.fullBleed img.fullImageBG {
@@ -576,7 +545,8 @@ layout: nothing
 		margin-bottom: .075in;
 	}
 
-	.fs-sm, .rabbenuTamAppend {
+	.fs-sm,
+	.rabbenuTamAppend {
 		font-size: .75em;
 	}
 
@@ -585,15 +555,15 @@ layout: nothing
 		gap: 0;
 	}
 
-	.hiloulot > h1 {
+	.hiloulot>h1 {
 		font-weight: 700;
 	}
 
-	.hiloulot > h2 {
+	.hiloulot>h2 {
 		text-align: center;
 	}
 
-	.hiloulot > div {
+	.hiloulot>div {
 		margin-bottom: .75em;
 	}
 
@@ -603,7 +573,7 @@ layout: nothing
 		align-items: baseline;
 	}
 
-	.hiloulot .nameRow > span:last-child {
+	.hiloulot .nameRow>span:last-child {
 		text-align: right;
 		white-space: nowrap;
 	}
@@ -677,33 +647,72 @@ layout: nothing
 	.zemanim-table td.no-data-cell {
 		color: #bbb;
 	}
+
+	.page.birkatLevanaMoonPage {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+		gap: 0.1in;
+		font-size: 0.95em;
+		line-height: 1.3;
+	}
+
+	.moonMonthCard {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.moonMonthCard .moonPageTitle {
+		text-align: center;
+		text-transform: uppercase;
+		font-weight: 900;
+		font-size: .95rem;
+		margin: 0 0 0.03in 0;
+	}
+
+	.moonBirkatLevanaTable {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.65rem;
+	}
+
+	.moonBirkatLevanaTable th {
+		font-weight: 500;
+		padding-bottom: 0.025in;
+		text-align: center;
+	}
+
+	.moonBirkatLevanaTable td {
+		text-align: center;
+		vertical-align: top;
+		padding: 0.03in 0;
+	}
+
+	.moonBirkatLevanaTable td.dayNum {
+		font-size: 1rem;
+		font-weight: 500;
+		width: 15%;
+	}
+
+	.moonBirkatLevanaTable .dateHint {
+		font-size: 0.5rem;
+		color: #777;
+	}
 </style>
 
+<style>
+	.goldPlaqueImg { display: block; margin: 0 auto; }
+</style>
 <div class="page fullBleed" id="cover">
 	<img src="/assets/images/print/57b90297-9375-4a6e-9fbf-416f95ed9074.png" class="fullImageBG">
 	<div style="justify-self: center; margin-top: 30px; text-align: center; color: white;">
 		<img src="/assets/images/print/logo.png" style="width: 90%; margin-bottom: 0.3rem;">
 		<div class="plaque">
-			<div data-zyLocationText></div>
+			<span class="goldPlaqueSourceText" hidden data-zyLocationText></span>
+			<img class="goldPlaqueImg">
 		</div>
-		<!-- <h1 class="text-outline text-outline--heading">תשפ"ז<span style="font-size: .9em; unicode-bidi: isolate;"> -
-				5787</span></h1> -->
 	</div>
-	<!-- <div
-		style="text-align: center; padding-top: 3.45rem; align-self: end; line-height: 1.3; /* background:
-    linear-gradient(to right,
-      rgba(0,0,0,0.08) 0%,
-      rgba(255,255,255,0.0) 50%,
-      rgba(0,0,0,0.08) 100%
-    ),
-    linear-gradient(to bottom,
-      #f7e7c3 0%,
-      #f1ddaf 50%,
-      #e3c88f 100%
-    ); */ height: 125px; width: 100%; color: white;">
-		<div style="letter-spacing: 1px;">Based on the mobile applications and website</div>
-		<div style="font-weight: bold; font-size: 1.5em; letter-spacing: 1.75px;">ROYZMANIM.COM</div>
-	</div> -->
 	<div
 		style="color: white; justify-self: center; text-align: center; font-weight: 600; margin-bottom: 1.25rem; align-self: end;">
 		<div class="text-outline text-outline--subtitle">The pocket-sized print calendar<br>of Sephardic Halachic Times
@@ -715,7 +724,8 @@ layout: nothing
 <div class="page fullBleed"
 	style="background: url('/assets/images/shul-wall/sbm-la/ptrn.png') 90px/90px !important; opacity: 10%;"></div>
 <div class="page">
-	<div style="font-weight: 900; text-align: center; font-size: 1.35em;"><span data-zyLocationText></span> edition</div>
+	<div style="font-weight: 900; text-align: center; font-size: 1.35em;"><span data-zyLocationText></span> edition
+	</div>
 	<div style="flex: 1 1; text-align: center;"><img src="/assets/images/print/B&W-icon.png" style="width: 80%;"></div>
 	<div style="text-align: center;">
 		<div style="font-weight: 400; font-style:italic; font-size: .9em;">Updated as of <span
@@ -743,7 +753,8 @@ layout: nothing
 		<li><strong class="fw-600">hamichlol.org.il, hyomi.org.il</strong>: Hiloulot assistance</li>
 	</ul>
 	<hr style="margin: .5rem 0">
-	<p class="fs-sm">All of the work here is open-source. This calendar in particular was generated via HTML, CSS & JavaScript;
+	<p class="fs-sm">All of the work here is open-source. This calendar in particular was generated via HTML, CSS &
+		JavaScript;
 		however, we provide classes/methods for Java & Swift (for our Android and iOS app respectively). View our GitHub
 		organization for more information</p>
 </div>
@@ -767,7 +778,8 @@ layout: nothing
 		</li>
 	</ul>
 	<hr>
-	<div style="display: flex; justify-content: space-evenly; gap: 6px; align-items: center; font-weight: 700; text-align: center; font-size: 1.1em;">
+	<div
+		style="display: flex; justify-content: space-evenly; gap: 6px; align-items: center; font-weight: 700; text-align: center; font-size: 1.1em;">
 		<img id="qrCodeDigitalView" style="width: 75px">
 		<div>Digital Equivalent of these times (on our website)</div>
 	</div>
@@ -782,14 +794,14 @@ layout: nothing
 		width: fit-content;
 	}
 
-	.numberTable > *:first-child {
+	.numberTable>*:first-child {
 		text-align: center;
 		font-weight: 800;
 		grid-column: span 2;
 		font-size: 1.2em;
 	}
 
-	.numberTable > *:nth-child(even) {
+	.numberTable>*:nth-child(even) {
 		text-align: right;
 		font-weight: 700;
 	}
@@ -802,9 +814,13 @@ layout: nothing
 			<div>ChaiTables Visual Sunrise (<span data-zyReplace="zyVSHebYear"></span>) Details</div>
 			<div>Radius</div>
 			<div data-zyReplace="sunriseRadius"></div>
-			<div>Earliest Offset<div style="font-size: .7em; font-weight: 400;">(When Visual Sunrise is <i>earlier</i> than sea-level)</div></div>
+			<div>Earliest Offset<div style="font-size: .7em; font-weight: 400;">(When Visual Sunrise is <i>earlier</i>
+					than sea-level)</div>
+			</div>
 			<div data-zyReplace="earliestOffset"></div>
-			<div>Latest Offset<div style="font-size: .7em; font-weight: 400;">(When Visual Sunrise is <i>later</i> than sea-level)</div></div>
+			<div>Latest Offset<div style="font-size: .7em; font-weight: 400;">(When Visual Sunrise is <i>later</i> than
+					sea-level)</div>
+			</div>
 			<div data-zyReplace="latestOffset"></div>
 		</div>
 	</div>
@@ -850,7 +866,8 @@ layout: nothing
 <div class="page">
 	<h1 style="font-weight: 800; margin-bottom: 0; font-size: 2.25rem;"><span data-zylocationname></span></h1>
 	<div style="flex: 1 1; align-content: center;">
-		<div data-zfFind="locationMap" style="aspect-ratio: 1/1; width: 100%; corner-shape: squircle; border-radius: 30%; overflow: hidden;"></div>
+		<div data-zfFind="locationMap"
+			style="aspect-ratio: 1/1; width: 100%; corner-shape: squircle; border-radius: 30%; overflow: hidden;"></div>
 	</div>
 	<div style="display: flex; justify-content: space-between; font-size: .6em; line-height: 1.3;">
 		<div>
@@ -866,8 +883,10 @@ layout: nothing
 	</div>
 	<hr>
 	<p style="text-align: center; font-size: .78em; line-height: 1.4;">
-		We <span data-zyFind="timeZoneOutlier">switch to Daylight Savings Time|return to Standard Time</span> from <span data-zyReplace="timezoneStartDate"></span> until <span data-zyReplace="timezoneEndDate"></span><br>
-		Light Pollution <span class="fs-sm">(Artificial Light excluded)</span>: <span data-zyReplace="light-pollution"></span><br>
+		We <span data-zyFind="timeZoneOutlier">switch to Daylight Savings Time|return to Standard Time</span> from <span
+			data-zyReplace="timezoneStartDate"></span> until <span data-zyReplace="timezoneEndDate"></span><br>
+		Light Pollution <span class="fs-sm">(Artificial Light excluded)</span>: <span
+			data-zyReplace="light-pollution"></span><br>
 		Pray at an <span data-zy-prayer-angle></span> angle to face ירושלים.
 	</p>
 </div>
@@ -876,10 +895,11 @@ layout: nothing
 	<div style="text-align: center; margin-bottom: .12in; font-size: .875em;">
 		<div style="unicode-bidi: plaintext;">בֶּחֳדָשִׁים הַשְּׁבִיעִי חָבִיב, "בַחֹדֶשׁ הַשְּׁבִיעִי בְּאֶחָד
 			לַחֹדֶשׁ"</div>
-		<div style="line-height: 1.3;">Of the months, the seventh is the beloved; "In the seventh month, on the first day"</div>
+		<div style="line-height: 1.3;">Of the months, the seventh is the beloved; "In the seventh month, on the first
+			day"</div>
 		<div class="fs-sm">Yalkut Shimoni, Parashat Yitro 276</div>
 	</div>
-	<p style="font-size: .825em;"><strong>Tishri</strong> is the month that starts various Jewish cycles, including
+	<p style="font-size: .785em;"><strong>Tishri</strong> is the month that starts various Jewish cycles, including
 		<em>Shemita</em>, <em>Nedarim</em> (vows), <em>Neti'a</em> (for <em>Orlah</em>) and vegetation (tithes and
 		<em>terumot</em>). According to R' Eliezer, the world (determined by mankind) was created in this month – or at
 		the very least, creation as a concept occurred for God during this month <span class="fs-sm">(see Rabbenu Tam on
@@ -888,7 +908,7 @@ layout: nothing
 		point – it's derived from the Akkadian word <em>tašrītu</em>, which literally means &#39;beginning&#39; from the
 		root <em>šurrū</em> (to begin, open, or initiate).
 	</p>
-	<p style="font-size: .825em;">The theme of the month's holidays are judgement, repentence and the acknowledgement
+	<p style="font-size: .785em;">The theme of the month's holidays are judgement, repentence and the acknowledgement
 		that God is our king. The holidays that start the month are <strong>Rosh Hashana</strong> and <strong>Yom
 			Kippur</strong>, with the <strong>10 Days of Repentence</strong> as the enclosure – focusing on our
 		judgement. Then we move to <strong>Sukkot</strong> and the judgement of the rain, a theme reflected as early as
@@ -922,41 +942,32 @@ layout: nothing
 	<p>Agriculturally and ritually, Marḥeshvan focuses on the arrival of rain in Israel, represented by its zodiac sign <strong>Akrav</strong> (the Scorpion), which symbolizes the parched earth&#39;s thirst for water. In Israel, the specific prayer for rain, <em>Veten Tal U&#39;Matar</em>, is added to the Shmone Esre on the 7th of Cheshvan. If no rain has fallen by the 17th of the month, the community begins ritual fasting and special prayers to avert the threat of drought. Historically, the month is notable for the <strong>completion of the First Temple</strong> by King Solomon, a project that took seven years and was finished in Bul. Although the building was ready, its dedication was delayed for eleven months until the following Tishrei; because of this perceived loss of a festival, Jewish tradition teaches that the month will be &quot;repaid&quot; with a celebration in the future. Significant historical dates observed during this month include the passing of the matriarch Rachel on the 11th, the anniversary of Kristallnacht on the 15th, and the issuance of the Balfour Declaration on the 17th.</p> -->
 </div>
 <div class="page verso" data-monthPrefix="9">
-	<h1>The Month of Kislev</h1>
-	<p>The month of <strong>Kislev</strong> is mostly known for the events that took place in this month, later being
-		celebrated in the form of <strong>Ḥanoukka</strong>. Although the entire story spanned several years, the
-		milestone events were performed in this month.</p>
-	<ul style="font-size: .84em;">
-		<li>On the 15<sup>th</sup> of Kislev 3594/167 BCE, the "abomination of desolation" was set on the
+	<h1 style="margin-top: -0.075in;">The Month of Kislev</h1>
+	<p style="font-size: .785em;">The strength of <strong>Kislev</strong> is shown as early as Ḥaggai, who encouraged the nation to rebuild the Temple, promising prosperity and military victory over its era's enemies. <span class="fs-sm">(Ḥaggai 2:10; this occurred on the 24<sup>th</sup> of Kislev, 3240/520 BCE)</span> Further strength was shown by the later prophet, <em>'Ezra</em>, who gathered the nation for three days and strengthened Torah observance while simultaneously dissolving interfaith marriages. <span class="fs-sm">(<em>'Ezra</em> 10:9; this occurred on the 20<sup>th</sup> of Kislev, 3414/347 BCE)</span></p>
+	<p style="font-size: .785em;">The area of strength most famous from this month was the war against the Greek empire, later celebrated in the form of <strong>Ḥanoukka</strong>. Although the entire story spanned several years, the milestone events were performed in this month.</p>
+	<ul style="font-size: .785em;">
+		<li style="text-align: justify;">On the 15<sup>th</sup> of Kislev 3594/167 BCE, the "abomination of desolation" was set on the
 			<em>mizbeakh</em> and multiple idols were set in the streets of Judea.
 		</li>
-		<li>On the 25<sup>th</sup> of Kislev 3594/167 BCE, idolatrous sacrifices were offered on the <em>mizbeakh</em>.
+		<li style="text-align: justify;">On the 25<sup>th</sup> of Kislev 3594/167 BCE, idolatrous sacrifices were offered on the <em>mizbeakh</em>.
 		</li>
-		<li>Three years later, on the 25<sup>th</sup> of Kislev 3597/164 BCE, the Kohanim were able to resume their
+		<li style="text-align: justify;">Three years later, on the 25<sup>th</sup> of Kislev 3597/164 BCE, the Kohanim were able to resume their
 			service. The only sealed oil jug found was used to light the candles for the following eight days.</li>
 	</ul>
-	<p>In Tanakh, this month is better known for the prophecies of Ḥaggai. Through the promises of prosperity and
-		victory over its enemies in its days, they were encouraged to rebuild the Temple. This occurred on the
-		24<sup>th</sup> of Kislev, 3240/520 BCE (Ḥaggai 2:10). Another event in the following century (on the
-		20<sup>th</sup> of Kislev, 3414/347 BCE) was <em>'Ezra</em>'s three-day gathering to adhere to the Torah and to
-		dissolve their interfaith marriages (see <em>'Ezra</em> 10:9)</p>
+	<p style="font-size: .785em;">The name <strong>Kislev</strong> itself may echo this theme of strength. Some derive it from the Akkadian root <em>kislu</em> (<em>kaslu</em>), meaning "inner strength."</p>
 </div>
 <div class="page verso" data-monthPrefix="10">
-	<h1>The Month of Tevet</h1>
-	<p>After concluding the holiday of <em>Ḥanoukka</em>, the month of <strong>Tevet</strong> shifts more to
-		representing its winter-season placement in the calendar. Some declared winter from half a month prior - some
-		even a full month prior. <span class="fs-sm">(See Bava Metzia 106b for clarification on this subject, from its
-			six-season cycle)</span> However, all agree on Tevet being the winter time, to the point where the winter
-		solstice's Halachic equivalent is called <strong>Tekufat Tevet</strong>.</p>
-	<p>In the northern hemisphere, this month's days are considerably shorter than any other season, and this might be
-		hinted to in the month's name. <em>Tevet</em> comes from the Akkadian <em>ṭebētu</em>, which means "sunk". It is
-		possible to read this "sunk" as referring to the position of the sun below the horizon outside of the
-		sunrise/sunset range.</p>
-	<p>Within the month itself, the 8<sup>th</sup>-10<sup>th</sup> days of the month are known for the tragedies that
-		befell – that being the translation of the Torah into Greek, the passing of <em>'Ezra</em> (and with it, the
-		leadership he represented), and the siege of Jerusalem. It was on this month, though, that decades later would
-		feature the rise of <em>Esther</em> (Megillat Esther, 2:16), representing the Purim story and the redemption
-		that followed suit.</p>
+	<h1 style="margin-top: -0.075in;">The Month of Tevet</h1>
+	<p style="font-size: .785em;">Following <em>Ḥanoukka</em>, <strong>Tevet</strong> serves as the representative of the winter season, whether as its climax or beginning <span class="fs-sm">(See Bava Metzia 106b on the six-season cycle division)</span>. The winter solstice found in this month (as titled in the Hebrew – <em>Tekufat Tevet</em>) demonstrates the qualities of the winter seasons <span class="fs-sm">(specifically across the northern hemisphere)</span>: shortest days from sunrise to sunset, due to the sun's low path below the horizon. This detail could be reflected in the original name of the month, which is derived from Akkadian <em>ṭebētu</em> ("sunk").</p>
+	<p style="font-size: .785em;">Spirually, this solar gloom reflects a deeper Kabbalistic theme. According to the Zohar <span class="fs-sm">(Yitro 13:241)</span> and <em>Ma'aseh
+			Rokeach</em> <span class="fs-sm">(commentary to Mishna Ta'anit 4:6)</span>, Tevet is one of three months governed by stern judgment (<em>Dina Kasya</em>). In the division
+		of the months between the patriarchs, Tevet fell into the portion of <em>Eisav</em>, temporarily giving power to
+		the <em>Sitra Achara</em> (the side of impurity).</p>
+	<p style="font-size: .785em;">Within the month itself, this spiritual vulnerability manifests on the 8th-10th days, known for the tragedies
+		that befell – namely the translation of the Torah into Greek, the passing of <em>'Ezra</em> (and with it, the
+		leadership he represented), and the siege of Jerusalem marked by the fast of <em>Tzom HaAsiri</em> (10th of
+		Tevet). It was on this month, though, that decades later would feature the rise of <em>Esther</em> (Megillat
+		Esther, 2:16), representing the Purim story and the redemption that followed suit.</p>
 </div>
 <div class="page verso" data-monthPrefix="11">
 	<h1>The Month of Shevat</h1>
@@ -997,7 +1008,8 @@ layout: nothing
 	<h1>The Month of Adar (II)</h1>
 	<div style="text-align: center; margin-bottom: .12in; font-size: .875em;">
 		<div style="unicode-bidi: plaintext;">מִשֶּׁנִּכְנַס אֲדָר מַרְבִּין בְּשִׂמְחָה</div>
-		<div style="line-height: 1.3;">When <span class="fs-sm">[the month of]</span> Adar begins, one increases rejoicing.</div>
+		<div style="line-height: 1.3;">When <span class="fs-sm">[the month of]</span> Adar begins, one increases
+			rejoicing.</div>
 		<div class="fs-sm">Ta'anit Bavli, 29a</div>
 	</div>
 	<p>Adar centers on <strong>Purim</strong>, marking the overturning of Haman's decree to annihilate the Jews of
@@ -1020,7 +1032,8 @@ layout: nothing
 	<div style="text-align: center; margin-bottom: .12in; font-size: .875em;">
 		<div style="unicode-bidi: plaintext;">הַחֹ֧דֶשׁ הַזֶּ֛ה לָכֶ֖ם רֹ֣אשׁ חֳדָשִׁ֑ים רִאשׁ֥וֹן הוּא֙ לָכֶ֔ם
 			לְחָדְשֵׁ֖י הַשָּׁנָֽה:</div>
-		<div style="line-height: 1.3;">This month shall be to you the head of the months; to you it shall be the first of the months of the year.
+		<div style="line-height: 1.3;">This month shall be to you the head of the months; to you it shall be the first
+			of the months of the year.
 		</div>
 		<div class="fs-sm">Exodus 12:2</div>
 	</div>
@@ -1061,9 +1074,25 @@ layout: nothing
 </div>
 <div class="page verso" data-monthPrefix="3">
 	<h1 style="margin-top: -0.075in;">The Month of Sivan</h1>
-	<p style="font-size: .785em;"><strong>Sivan</strong> means “season” or “appointed time,” from the Akkadian <em>simānu</em>, fitting its place in the agricultural year and the beginning of the wheat harvest. This is reflected in <strong>Shavu'ot</strong>, which the Torah associates with <em>חג הקציר</em> and <em>בכורי קציר חטים</em>. The events of <strong>Matan Torah</strong> fall within this same period, and we have incorporated their commemoration into the holiday, although, as the <em>Abarbanel</em> explains (Vayikra 23), the Torah itself established Shavu'ot for the beginning of the wheat harvest rather than as a commemoration of Matan Torah.</p>
-	<p style="font-size: .785em;">The 50-day <em>עומר</em> count allows Shavu'ot to fall on the 5<sup>th</sup>–7<sup>th</sup> of Sivan, depending on the length of Nisan and Iyar. The date of <strong>Matan Torah</strong>, however, is disputed: the חכמים maintain that it was the 6<sup>th</sup> of Sivan, while R' Yose maintains that it was the 7<sup>th</sup> (Shabbat 86b). Thus, while the two dates need not intrinsically coincide, the 6<sup>th</sup> and 7<sup>th</sup> are the dates on which Shavu'ot and Matan Torah can overlap (see <em>Teshuvot HaRibash</em> 96:1).</p>
-	<p style="font-size: .785em;">The apparent discrepancy between these dates is resolved by the <em>Ḥatam Sofer</em> (Shabbat 87a), who explains that the reckoning of the day changed when Israel accepted the Torah: before Sinai, as בני נח, the night followed the day; thereafter, as ישראל, the night preceded the day. Thus, the desert-era 7<sup>th</sup> of Sivan corresponds to our 6<sup>th</sup>, allowing us to celebrate both <strong>Matan Torah</strong> and Shavu'ot on the 6<sup>th</sup> of Sivan. Under the fixed calendar, the 50<sup>th</sup> day of the <em>עומר</em> likewise falls on 6 Sivan.</p>
+	<p style="font-size: .785em;"><strong>Sivan</strong> means “season” or “appointed time,” from the Akkadian
+		<em>simānu</em>, fitting its place in the agricultural year and the beginning of the wheat harvest. This is
+		reflected in <strong>Shavu'ot</strong>, which the Torah associates with <em>חג הקציר</em> and <em>בכורי קציר
+			חטים</em>. The events of <strong>Matan Torah</strong> fall within this same period, and we have incorporated
+		their commemoration into the holiday, although, as the <em>Abarbanel</em> explains (Vayikra 23), the Torah
+		itself established Shavu'ot for the beginning of the wheat harvest rather than as a commemoration of Matan
+		Torah.</p>
+	<p style="font-size: .785em;">The 50-day <em>עומר</em> count allows Shavu'ot to fall on the
+		5<sup>th</sup>–7<sup>th</sup> of Sivan, depending on the length of Nisan and Iyar. The date of <strong>Matan
+			Torah</strong>, however, is disputed: the חכמים maintain that it was the 6<sup>th</sup> of Sivan, while R'
+		Yose maintains that it was the 7<sup>th</sup> (Shabbat 86b). Thus, while the two dates need not intrinsically
+		coincide, the 6<sup>th</sup> and 7<sup>th</sup> are the dates on which Shavu'ot and Matan Torah can overlap (see
+		<em>Teshuvot HaRibash</em> 96:1).</p>
+	<p style="font-size: .785em;">The apparent discrepancy between these dates is resolved by the <em>Ḥatam Sofer</em>
+		(Shabbat 87a), who explains that the reckoning of the day changed when Israel accepted the Torah: before Sinai,
+		as בני נח, the night followed the day; thereafter, as ישראל, the night preceded the day. Thus, the desert-era
+		7<sup>th</sup> of Sivan corresponds to our 6<sup>th</sup>, allowing us to celebrate both <strong>Matan
+			Torah</strong> and Shavu'ot on the 6<sup>th</sup> of Sivan. Under the fixed calendar, the 50<sup>th</sup>
+		day of the <em>עומר</em> likewise falls on 6 Sivan.</p>
 </div>
 <!-- TO ADD: Conditional Hiloulot, so we could add Flood stop & Moshe River-->
 <div class="page verso" data-monthPrefix="4">
@@ -1092,7 +1121,8 @@ layout: nothing
 	<h1>The Month of Av</h1>
 	<div style="text-align: center; margin-bottom: .12in; font-size: .875em;">
 		<div style="unicode-bidi: plaintext;">מִשֶּׁנִּכְנַס אָב, מְמַעֲטִין בְּשִׂמְחָה</div>
-		<div style="line-height: 1.3;">When <span class="fs-sm">[the month of]</span> Av begins, one diminishes rejoicing.</div>
+		<div style="line-height: 1.3;">When <span class="fs-sm">[the month of]</span> Av begins, one diminishes
+			rejoicing.</div>
 		<div class="fs-sm">Mishna Ta'anit 4:6</div>
 	</div>
 	<p style="font-size: .785em;">The month of <strong>Av</strong> transitions from its 9<sup>th</sup> day to its
@@ -1137,7 +1167,7 @@ layout: nothing
 	<p style="font-size: .805em;">The 25<sup>th</sup> of the month is significant for two historical reasons:</p>
 	<ul style="font-size: .805em;">
 		<li>Assuming the world was <i>not</i> created in Nisan, ראש השנה is called as such because it was the day man
-			was created. Since that occured on the 6<sup>th</sup> day of creation, subtracting 6 days falls on this day,
+			was created. Since that occurred on the 6<sup>th</sup> day of creation, subtracting 6 days falls on this day,
 			when God started to give each item of the world its form.</li>
 		<li>It's the day Neḥemiah finished rebuilding the walls of Jerusalem after its original destruction.</li>
 	</ul>
@@ -1308,7 +1338,7 @@ layout: nothing
 
 	.mainTimes[data-item-count="1"] .zmanRow,
 	.mainTimes[data-item-count="2"] .zmanRow,
-	.mainTimes[data-item-count="3"] .zmanRow{
+	.mainTimes[data-item-count="3"] .zmanRow {
 		flex: 1 1;
 		text-align: center;
 	}
@@ -1522,49 +1552,57 @@ layout: nothing
 	}
 
 	#backCoverPage #footer {
-        align-self: end;
-        width: 100%;
-        background-image: url('/assets/images/heb_ad/or-hachaim-background.jpg');
-        background-position: center;
+		align-self: end;
+		width: 100%;
+		background-image: url('/assets/images/heb_ad/or-hachaim-background.jpg');
+		background-position: center;
 
-        color: white;
-    }
+		color: white;
+	}
 
-    #backCoverPage #footerContents {
-        padding: 1rem;
-        background-color: rgba(68, 76, 107, .75);
-        width: 100%;
+	#backCoverPage #footerContents {
+		padding: 1rem;
+		background-color: rgba(68, 76, 107, .75);
+		width: 100%;
 
 		display: flex;
 		justify-content: space-evenly;
 		align-items: center;
-    }
+	}
 
-	#backCoverPage #footerContents > * {
+	#backCoverPage #footerContents>* {
 		max-width: 35%;
 	}
 </style>
 <div class="page fullBleed" id="backCoverPage" style="background: radial-gradient(#FFFFFF, #e5e7eb) !important;">
 	<div style="flex: 1 1; padding: 0.15in 0.15in 0 0.15in;">
-		<img src="/assets/images/print/logo.png" style="width: 100%; margin-bottom: 0.15rem; filter: drop-shadow(0px 2.5px 2px rgba(0,0,0,.20))">
-		<p style="font-weight: 700; font-size: 1.15em; text-align: center;">All Halachic scheduling needs,<br>in one pocket sized calendar!</p>
+		<img src="/assets/images/print/logo.png"
+			style="width: 100%; margin-bottom: 0.15rem; filter: drop-shadow(0px 2.5px 2px rgba(0,0,0,.20))">
+		<p style="font-weight: 700; font-size: 1.15em; text-align: center;">All Halachic scheduling needs,<br>in one
+			pocket sized calendar!</p>
 		<ul style="margin-bottom: 3.25rem;">
-			<li>Introduction to each month<div style="font-size: .8em;">(Featuring holiday-details, history and <i>Hiloulot</i>)</div></li>
-			<li>Pages grouped into weeks<div style="font-size: .8em;">(Zemanim on the left, special-events on the right side)</div></li>
-			<li>Complimentary Digital equivalent<div style="font-size: .8em;">(QR code inside the book)</div></li>
+			<li>Introduction to each month<div style="font-size: .8em;">(Featuring holiday-details, history and
+					<i>Hiloulot</i>)</div>
+			</li>
+			<li>Pages grouped into weeks<div style="font-size: .8em;">(Zemanim on the left, special-events on the right
+					side)</div>
+			</li>
+			<li>Complimentary Digital equivalent<div style="font-size: .8em;">(QR code inside the book)</div>
+			</li>
 		</ul>
 
 		<p style="font-weight: 700; font-size: 1.25em; text-align: center; margin-bottom: 0;">ROYZMANIM.COM</p>
-		<p style="font-size: .7em; text-align: center; margin-bottom: 0;">To receive a calendar for other locations, reach out: neimmaor@gmail.com</p>
+		<p style="font-size: .7em; text-align: center; margin-bottom: 0;">To receive a calendar for other locations,
+			reach out: neimmaor@gmail.com</p>
 	</div>
 	<div id="footer">
-        <div id="footerContents">
+		<div id="footerContents">
 			<img src="/assets/images/heb_ad/ohr_hachaim_logo.png">
-		    <div style="background: white; padding: .5rem; border-radius: 8px; corner-shape: scoop;">
+			<div style="background: white; padding: .5rem; border-radius: 8px; corner-shape: scoop;">
 				<img src="/assets/images/moreshet-maran.svg" style="width: 100%;">
 			</div>
 		</div>
-    </div>
+	</div>
 </div>
 
 <script src="/assets/js/features/weeklyPrint/print-export-url-param.js" type="module"></script>

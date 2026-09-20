@@ -54,6 +54,7 @@
  * @property {CustomTimes} customTimes - Custom time offset overrides.
  * @property {WeeklyPrint} weeklyPrint - Options for weekly printed schedules.
  * @property {LocationConfig[]} location - Array of configured location profiles.
+ * @property {string} title
  */
 
 import { GeoLocation } from "../../../libraries/kosherZmanim/kosher-zmanim.js";
@@ -135,7 +136,7 @@ if ("continueToNext" in settings.weeklyPrint) {
 }
 const displayYears = yearsForDisplay.map(year => year > 3000 ? new HebrewNumberFormatter().formatHebrewNumber(year) : year)
 
-const title = geoLocation.getLocationName() + ` (${displayYears.join('-')})`
+const title = settings.title + ` (${displayYears.join('-')})`
 document.title = title + " - " + document.title;
 for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 	locName.appendChild(document.createTextNode(title))
@@ -144,52 +145,22 @@ const plaqueText = document.getElementsByClassName('plaque')[0].firstElementChil
 plaqueText.setAttribute('data-text', title)
 
 for (const locName of document.querySelectorAll('[data-zylocationname]'))
-	locName.appendChild(document.createTextNode(geoLocation.getLocationName()))
+	locName.appendChild(document.createTextNode(settings.title))
 
-const ctNetzRaw = localStorage.getItem('ctNetz');
+/*const ctNetzRaw = localStorage.getItem('ctNetz');
 const ctNetz = ctNetzRaw && isValidJSON(ctNetzRaw) ? JSON.parse(ctNetzRaw) : {};
-const ctNetzURL = ctNetz?.url ? new URL(ctNetz.url) : null;
-
-/** @type {number[]} */
-const availableVS = [];
-if (ctNetzURL) {
-	if (ctNetzURL.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
-		&& ctNetzURL.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
-		availableVS.push(...ctNetz.times)
-	else if (ctNetzURL.searchParams.get('cgi_country') == 'Eretz_Yisroel'
-		&& ctNetzURL.searchParams.get('cgi_TableType') == 'BY'
-		&& capitalizeFirstLetter(geoLocation.getLocationName().toLowerCase())
-			.startsWith(capitalizeFirstLetter(ctNetzURL.searchParams.get('cgi_MetroArea'))))
-		availableVS.push(...ctNetz.times)
-}
+const ctNetzURL = ctNetz?.url ? new URL(ctNetz.url) : null; */
 
 let local = settings.language == 'hb' ? 'he' : 'en'
 if (navigator.languages.find(lang => lang.startsWith(local)))
 	local = navigator.languages.find(lang => lang.startsWith(local));
 
-const degreeFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "degree", unitDisplay: "narrow", maximumFractionDigits: 5 });
-const meterFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "meter", maximumFractionDigits: 0 });
-
-if (document.querySelector('[data-zyReplace="latitude"]'))
-	document.querySelector('[data-zyReplace="latitude"]')
-		.appendChild(document.createTextNode(degreeFormatter.format(geoLocation.getLatitude())));
-if (document.querySelector('[data-zyReplace="longitude"]'))
-	document.querySelector('[data-zyReplace="longitude"]')
-		.appendChild(document.createTextNode(degreeFormatter.format(geoLocation.getLongitude())));
-
-const elevation = document.querySelector('[data-zyReplace="elevation"]');
-if (elevation) {
-	elevation.appendChild(document.createTextNode(
-		geoLocation.getElevation() == 0 || !useOhrHachaim
-			? "Disabled"
-			: meterFormatter.format(geoLocation.getElevation())
-	));
-}
+const centreLoc = averageCoordinates(settings.location);
 
 const lightPol = document.querySelector('[data-zyReplace="light-pollution"]')
 if (lightPol)
 	lightPol.appendChild(document.createTextNode(
-		(((await lightPollution(geoLocation.getLatitude(), geoLocation.getLongitude())) * Math.PI) * 1000).toFixed(2)
+		(((await lightPollution(centreLoc.lat, centreLoc.lng)) * Math.PI) * 1000).toFixed(2)
 		+ " mcd/m²"
 	));
 
@@ -207,19 +178,22 @@ if (locationMapElem) {
 		target: locationMapElem,
 		layers: [new ol.layer.Tile({ source: stadiaSource })],
 		view: new ol.View({
-			center: ol.fromLonLat([geoLocation.getLongitude(), geoLocation.getLatitude()]),
+			center: ol.fromLonLat([centreLoc.lng, centreLoc.lat]),
 			zoom: 11
 		})
 	});
 }
 
+const averageGeoLoc
+
 const prayerAngle = document.querySelector('[data-zy-prayer-angle]')
 if (prayerAngle) {
 	const harHabait = new GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
-	prayerAngle.appendChild(document.createTextNode(geoLocation.getRhumbLineBearing(harHabait).toFixed(2) + "°"))
+	prayerAngle.appendChild(document.createTextNode(
+		averageGeoLoc.getRhumbLineBearing(harHabait).toFixed(2) + "°"))
 }
 
-const timezoneTrans = analyzeTimeZoneCycle(baseDate.withCalendar("iso8601"), endDate.withCalendar("iso8601"), geoLocation.getTimeZone());
+const timezoneTrans = analyzeTimeZoneCycle(baseDate.withCalendar("iso8601"), endDate.withCalendar("iso8601"), settings.location[0].timezone);
 const dstText = document.querySelector('[data-zyFind="timeZoneOutlier"]');
 
 dstText.innerHTML = dstText.innerHTML.split("|")[timezoneTrans.bracketing.isDST ? 1 : 0];
@@ -252,9 +226,8 @@ for (let wIndex = 0; wIndex < weeksForLoop; wIndex++) {
 
 	expectedReceive += 1;
 	arrayOfFuncParams.push({
-		israel: ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)),
+		israel: ['israel', 'ישראל'].some(isrName => settings.title.toLowerCase().includes(isrName)),
 		geoCoordinates: glArgs,
-		netz: availableVS,
 		htmlElems: baseTable.outerHTML + secondSide.outerHTML,
 		calendar: cal,
 		hourCalculator: settings.calendarToggle.forceSunSeasonal ? "seasonal" : "degrees",
@@ -264,7 +237,7 @@ for (let wIndex = 0; wIndex < weeksForLoop; wIndex++) {
 		timeFormat: settings.timeFormat,
 		lang: settings.language,
 		week: wIndex,
-		candleTime: settings.customTimes.candleLighting(),
+		candleTime: settings.customTimes.candleLighting,
 		addedZemanim: [...document.querySelectorAll('[data-zmanToCapture]')].map(elem => elem.getAttribute('data-zmantocapture'))
 	})
 }
@@ -274,7 +247,7 @@ if (fundamentalTable) {
 	if (useOhrHachaim) {
 		fundamentalTable.remove();
 	} else {
-		const zmanCalc = new ZemanFunctions(geoLocation, {
+		const zmanCalc = new ZemanFunctions(averageGeoLoc, {
 			elevation: arrayOfFuncParams[0].israel,
 			melakha: arrayOfFuncParams[0].tzetMelakha,
 			fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal,
@@ -708,3 +681,28 @@ function formatDuration(duration) {
 	}
 	return `${minutes}m ${seconds}s`; // safe fallback
 }
+
+/** @param {LocationConfig[]} coords  */
+function averageCoordinates(coords) {
+  if (!coords || coords.length === 0) {
+    throw new Error("No coordinates provided");
+  }
+
+  const total = coords.reduce(
+    (acc, { lat, long }) => {
+      acc.lat += lat;
+      acc.lng += long;
+      return acc;
+    },
+    { lat: 0, lng: 0 }
+  );
+
+  const n = coords.length;
+  return {
+    lat: total.lat / n,
+    lng: total.lng / n,
+  };
+}
+
+const avg = averageCoordinates(settings.location);
+console.log(`Average location: ${avg.lat.toFixed(6)}, ${avg.lng.toFixed(6)}`);

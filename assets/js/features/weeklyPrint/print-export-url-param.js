@@ -2,7 +2,7 @@
 
 import { GeoLocation } from "../../../libraries/kosherZmanim/kosher-zmanim.js";
 import { settings } from "../../settings/handler.js";
-import { getOrdinal, HebrewNumberFormatter } from "../../WebsiteCalendar.js";
+import WebsiteCalendar, { getOrdinal, HebrewNumberFormatter } from "../../WebsiteCalendar.js";
 import fitty from "../../../libraries/fitty.js";
 import QrCode from "../../../libraries/qrCode.js";
 import { analyzeCycle as analyzeTimeZoneCycle } from "../../../libraries/dst-transition.js";
@@ -161,6 +161,88 @@ const endDate = Temporal.Now.plainDateISO()
 	.subtract({ days: 1 })
 const endDateForLoop = endDate.add({ days: (7 - endDate.dayOfWeek) % 7 })
 
+const MONTHS_PER_PAGE = 4;
+/**
+ * @param {Temporal.PlainDate} startDate
+ * @param {Temporal.PlainDate} endDate
+ */
+function collectHebrewMonths(startDate, endDate) {
+	const months = [];
+	const jd = new WebsiteCalendar(startDate);
+	let seenKey = null;
+
+	for (let cursor = startDate; Temporal.PlainDate.compare(cursor, endDate) <= 0; cursor = cursor.add({ days: 1 })) {
+		jd.setDate(cursor);
+		const key = jd.getJewishYear() + '-' + jd.getJewishMonth();
+		if (key !== seenKey) {
+			months.push({ year: jd.getJewishYear(), month: jd.getJewishMonth() });
+			seenKey = key;
+		}
+	}
+	return months;
+}
+
+/**
+ * @param {{ zdt: number; }} event
+ * @param {string} lang
+ * @param {'h11'|'h12'|'h23'|'h24'} timeFormat
+ */
+function formatMoonCell(event, lang, timeFormat) {
+	if (!event)
+		return '<div class="dateHint">&nbsp;</div><div class="timeVal">—</div>';
+
+	const plainDate = Temporal.Instant.fromEpochMilliseconds(event.zdt)
+		.toZonedDateTimeISO(geoLocation.getTimeZone()).toPlainDate();
+	const dateLabel = plainDate.toLocaleString('en', { month: 'short' }) + ' ' + getOrdinal(plainDate.day, true);
+	const timeLabel = Temporal.Instant.fromEpochMilliseconds(event.zdt)
+		.toZonedDateTimeISO(geoLocation.getTimeZone()).toLocaleString(lang == 'hb' ? 'he' : 'en', {
+		hourCycle: timeFormat, hour: 'numeric', minute: '2-digit'
+	});
+
+	return `<div class="dateHint">(${dateLabel})</div><div class="timeVal">${timeLabel}</div>`;
+}
+
+function buildMoonMonthCard(monthResult) {
+	const lang = settings.language();
+	const title = lang == 'hb' ? monthResult.titleHe : monthResult.titleEn;
+	const hNum = new HebrewNumberFormatter();
+
+	const rowsHtml = monthResult.rows.map(row => `
+		<tr>
+			<td class="dayNum">${lang == 'hb' ? hNum.formatHebrewNumber(row.jewishDay) : row.jewishDay}</td>
+			<td>${formatMoonCell(row.rise, lang, settings.timeFormat())}</td>
+			<td>${formatMoonCell(row.set, lang, settings.timeFormat())}</td>
+		</tr>`).join('');
+
+	return `
+		<div class="moonMonthCard">
+			<h2 class="moonPageTitle">${title}</h2>
+			<table class="moonBirkatLevanaTable">
+				<thead><tr><th></th><th>Moonrise</th><th>Moonset</th></tr></thead>
+				<tbody>${rowsHtml}</tbody>
+			</table>
+		</div>`;
+}
+
+function buildMoonPages(monthResults) {
+	const pages = [];
+	for (let i = 0; i < monthResults.length; i += MONTHS_PER_PAGE) {
+		const chunk = monthResults.slice(i, i + MONTHS_PER_PAGE);
+		pages.push(`<div class="page birkatLevanaMoonPage">${chunk.map(buildMoonMonthCard).join('')}</div>`);
+	}
+	return pages.join('');
+}
+
+const hebrewMonthsInRange = collectHebrewMonths(baseDate.withCalendar('hebrew'), endDate.withCalendar('hebrew'));
+
+const moonWorker = new Worker('/assets/js/features/weeklyPrint/moon-birkat-worker.js', { type: 'module' });
+moonWorker.addEventListener('message', (msg) => {
+	const solarSphereAnchor = document.querySelector('[data-zmanToCapture^="testSunriseHBWorking"]');
+	solarSphereAnchor.insertAdjacentHTML('beforebegin', buildMoonPages(msg.data));
+});
+moonWorker.addEventListener('error', (err) => console.error('Moon worker failed to load/run:', err));
+moonWorker.postMessage({ geoCoordinates: glArgs, months: hebrewMonthsInRange });
+
 const weeksForLoop = baseDateForLoop.until(endDateForLoop).total({ unit: 'week', relativeTo: baseDateForLoop })
 
 const yearsForDisplay = [dateForCal.year];
@@ -176,8 +258,76 @@ document.title = title + " - " + document.title;
 for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 	locName.appendChild(document.createTextNode(title))
 
-const plaqueText = document.getElementsByClassName('plaque')[0].firstElementChild;
-plaqueText.setAttribute('data-text', title)
+function renderGoldPlaques() {
+  const fontSize = 26, fontWeight = 700;
+  const fontFamily = getComputedStyle(document.documentElement)
+    .getPropertyValue('--body-font') || 'serif';
+  const font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+  const strokeWidth = 2.5, padX = 10, padY = 8;
+  const scale = 3; // supersample so it stays crisp at print resolution
+
+  document.querySelectorAll('.plaque').forEach(plaque => {
+    const source = plaque.querySelector('.goldPlaqueSourceText');
+    const img = plaque.querySelector('.goldPlaqueImg');
+    if (!source || !img) return;
+    const text = source.textContent;
+
+    // Measure first
+    const measureCtx = document.createElement('canvas').getContext('2d');
+    measureCtx.font = font;
+    const m = measureCtx.measureText(text);
+    const ascent = m.actualBoundingBoxAscent || fontSize * 0.8;
+    const descent = m.actualBoundingBoxDescent || fontSize * 0.3;
+    const cw = Math.ceil(m.width + padX * 2 + strokeWidth * 2);
+    const ch = Math.ceil(ascent + descent + padY * 2 + strokeWidth * 2);
+
+    // Draw at supersampled resolution
+    const canvas = document.createElement('canvas');
+    canvas.width = cw * scale;
+    canvas.height = ch * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+    ctx.font = font;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const cx = cw / 2, cy = ch / 2;
+    const grad = ctx.createLinearGradient(0, cy - ascent, 0, cy + descent);
+    grad.addColorStop(0.0, '#c7972f');
+    grad.addColorStop(0.2, '#916718');
+    grad.addColorStop(0.4, '#fde97d');
+    grad.addColorStop(0.6, '#d9a941');
+    grad.addColorStop(0.8, '#fddd8b');
+    grad.addColorStop(1.0, '#f3c14b');
+
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeText(text, cx, cy);   // stroke first, mimicking paint-order
+    ctx.fillStyle = grad;
+    ctx.fillText(text, cx, cy);    // gold fill on top
+
+    img.src = canvas.toDataURL('image/png');
+    img.width = cw;
+    img.height = ch;
+  });
+}
+
+async function readyThenRender() {
+  const fontFamily = getComputedStyle(document.documentElement)
+    .getPropertyValue('--body-font') || 'serif';
+  await Promise.all([
+    document.fonts.load(`700 26px ${fontFamily}`),
+    document.fonts.ready
+  ]);
+  await new Promise(res => {
+    if (document.readyState === 'complete') res();
+    else window.addEventListener('load', res, { once: true });
+  });
+  renderGoldPlaques();
+}
+
+readyThenRender();
 
 for (const locName of document.querySelectorAll('[data-zylocationname]'))
 	locName.appendChild(document.createTextNode(geoLocation.getLocationName()))
@@ -494,6 +644,9 @@ async function preparePrint() {
 	const resizeElems = [...document.getElementsByClassName('secondPageHeader')].map(elem => [elem.firstElementChild, elem.lastElementChild])
 		.flat()
 
+	/**
+	 * @param {Element} el
+	 */
 	function shrinkToFit(el) {
 		const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
 
