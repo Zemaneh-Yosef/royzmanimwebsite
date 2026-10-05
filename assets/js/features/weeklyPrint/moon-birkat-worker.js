@@ -133,6 +133,7 @@ function findMoonUp(calc, observer, winStart, winEnd) {
  * @property {{ rise: MoonEvent | null, set: MoonEvent | null, mid: MoonEvent | null }} events
  * @property {boolean} bediavadOnly
  * @property {Record<string, RowMark>} [marks]
+ * @property {MoonEvent | null} [peak]  Moon at the middle of its visible part of the night (early rows only; used for the table header glyph)
  */
 
 /**
@@ -142,9 +143,20 @@ function findMoonUp(calc, observer, winStart, winEnd) {
  * @property {number} monthID
  * @property {string} titleHe
  * @property {string} titleEn
- * @property {{ start: number, endStretch: number, endIkar: number }} limits
+ * @property {{ start3: number, start: number, endStretch: number, endIkar: number }} limits
  * @property {Record<string, number>} unplacedMarks
- * @property {BirkatRow[]} rows
+ * @property {BirkatRow[]} rows       The customary range: 7 days after the molad -> the 15th
+ * @property {BirkatRow[]} earlyRows  The halachic early range: 3 days -> 7 days after the molad
+ */
+
+/**
+ * @typedef {Object} NightTimes
+ * @property {Temporal.PlainDate} nightDate
+ * @property {number} shkiya
+ * @property {number} tzet
+ * @property {number} alot
+ * @property {number} netz
+ * @property {number} nextShkiya
  */
 
 /**
@@ -167,6 +179,74 @@ function messageHandler(x) {
 		rtKulah: false
 	});
 
+	/**
+	 * Builds one row for a night, clipped to the given limits. Returns null when the night
+	 * doesn't overlap the limits, or the moon isn't up at any point of it.
+	 * @param {NightTimes} n
+	 * @param {number} minStart   earliest allowed instant (both ranges)
+	 * @param {number} maxStretch bediavad end limit
+	 * @param {number} maxIkar    lechatchila end limit
+	 * @param {Record<string, number> | null} markTimes  marks to place on this row (null = none)
+	 * @param {Set<string>} placedMarks
+	 * @param {boolean} [withPeak]  also describe the moon mid-way through its visible part of the night
+	 * @returns {BirkatRow | null}
+	 */
+	function buildRow(n, minStart, maxStretch, maxIkar, markTimes, placedMarks, withPeak = false) {
+		// Ranges, each clipped by its own limits.
+		const bediavad = clip(n.shkiya, n.netz, minStart, maxStretch);    // full shkiya -> netz
+		const lechatchila = clip(n.tzet, n.alot, minStart, maxIkar);      // tzet -> alot (sub-range of bediavad)
+		if (!bediavad)
+			return null;
+
+		// Moon-up interval overlapping the bediavad window. None -> skip the night entirely.
+		const moon = findMoonUp(calc, observer, bediavad[0], bediavad[1]);
+		if (!moon)
+			return null;
+
+		// Bediavad-only: the moon is not up at any point of the lechatchila range.
+		const moonRise = moon.rise ?? -Infinity;
+		const moonSet = moon.set ?? Infinity;
+		const moonInLechatchila = lechatchila !== null && moonRise < lechatchila[1] && moonSet > lechatchila[0];
+
+		/** @type {Record<string, RowMark>} */
+		const marks = {};
+		for (const [name, t] of Object.entries(markTimes || {})) {
+			// Uses the unclipped boundaries so the position is about the day, not the clipping.
+			let position = null;
+			if (t >= n.shkiya && t < n.tzet) position = 'shkiyaToTzet';
+			else if (t >= n.tzet && t < n.alot) position = 'lechatchila';
+			else if (t >= n.alot && t < n.netz) position = 'alotToNetz';
+			else if (t >= n.netz && t < n.nextShkiya) position = 'day'; // the daytime after this night
+			if (position) {
+				marks[name] = { time: t, position };
+				placedMarks.add(name);
+			}
+		}
+
+		const coverage = classifyCoverage(moon, bediavad[0], bediavad[1]);
+		const midMs = Math.round(bediavad[0] + (bediavad[1] - bediavad[0]) / 2);
+
+		// Middle of the part of the window where the moon is actually up.
+		const visStart = Math.max(moonRise, bediavad[0]);
+		const visEnd = Math.min(moonSet, bediavad[1]);
+		const peak = withPeak ? describeMoonEvent(calc, observer, Math.round(visStart + (visEnd - visStart) / 2)) : undefined;
+
+		return {
+			jewishDay: n.nightDate.add({ days: 1 }).withCalendar("hebrew").day,
+			night: { lechatchila, bediavad },
+			moon,
+			coverage,
+			events: {
+				rise: coverage === 'both' || coverage === 'from' ? describeMoonEvent(calc, observer, moon.rise) : null,
+				set:  coverage === 'both' || coverage === 'until' ? describeMoonEvent(calc, observer, moon.set) : null,
+				mid:  coverage === 'all' ? describeMoonEvent(calc, observer, midMs) : null
+			},
+			bediavadOnly: !moonInLechatchila,
+			...(Object.keys(marks).length ? { marks } : {}),
+			...(peak ? { peak } : {})
+		};
+	}
+
 	return x.months.map(({ year, month }) => {
 		const monthCal = baseCal.chainJewishDate(year, month, 15);
 		const date15 = monthCal.getDate();
@@ -174,7 +254,8 @@ function messageHandler(x) {
 		const atEve15 = dayCalc.chainDate(date15.subtract({ days: 1 }));
 
 		// --- Global limits (these bound the loop and clip the ranges) ---
-		const start = monthCal.getTchilasZmanKidushLevana7Days().withTimeZone(tz).epochMilliseconds;
+		const start3 = monthCal.getTchilasZmanKidushLevana3Days().withTimeZone(tz).epochMilliseconds; // law: 3 days after the molad
+		const start = monthCal.getTchilasZmanKidushLevana7Days().withTimeZone(tz).epochMilliseconds;   // custom: 7 days after the molad
 		const endStretch = at15.timeRange.current.sunrise.epochMilliseconds; // bediavad end: sunrise of the 15th
 		const endIkar = at15.getAlotHashahar().epochMilliseconds;             // lechatchila end: alot of the 15th
 
@@ -185,14 +266,18 @@ function messageHandler(x) {
 			endEarlyIkar: atEve15.getAlotHashahar().epochMilliseconds,
 			endEarlyStretch: atEve15.timeRange.current.sunrise.epochMilliseconds
 		};
+		/** @type {Set<string>} */
 		const placedMarks = new Set();
 
+		/** @type {BirkatRow[]} */
 		const rows = [];
+		/** @type {BirkatRow[]} */
+		const earlyRows = [];
 
 		// A night starting on civil evening D runs until the morning of D+1.
-		// The night that contains `start` may begin the evening before start's civil date.
+		// The night that contains `start3` may begin the evening before start3's civil date.
 		let nightDate = Temporal.PlainDate.from(
-			Temporal.Instant.fromEpochMilliseconds(start).toZonedDateTimeISO(tz).toPlainDate()
+			Temporal.Instant.fromEpochMilliseconds(start3).toZonedDateTimeISO(tz).toPlainDate()
 		).subtract({ days: 1 });
 
 		// Last night = the one ending at the morning of the 15th, so nightDate + 1 day <= date15.
@@ -200,59 +285,28 @@ function messageHandler(x) {
 			const today = dayCalc.chainDate(nightDate);
 			const tomorrow = today.tomorrow();
 
-			const shkiya = today.getShkiya().epochMilliseconds;
-			const tzet = today.getTzet().epochMilliseconds;
-			const alot = tomorrow.getAlotHashahar().epochMilliseconds;
-			const netz = zDTFromFunc(tomorrow.getNetz()).epochMilliseconds;
-			const nextShkiya = tomorrow.getShkiya().epochMilliseconds;
+			/** @type {NightTimes} */
+			const n = {
+				nightDate,
+				shkiya: today.getShkiya().epochMilliseconds,
+				tzet: today.getTzet().epochMilliseconds,
+				alot: tomorrow.getAlotHashahar().epochMilliseconds,
+				netz: zDTFromFunc(tomorrow.getNetz()).epochMilliseconds,
+				nextShkiya: tomorrow.getShkiya().epochMilliseconds
+			};
 
-			// Ranges, each clipped by its own global limits.
-			const bediavad = clip(shkiya, netz, start, endStretch);    // full shkiya -> netz
-			const lechatchila = clip(tzet, alot, start, endIkar);      // tzet -> alot (sub-range of bediavad)
-			if (!bediavad)
-				continue;
-
-			// Moon-up interval overlapping the bediavad window. None -> skip the night entirely.
-			const moon = findMoonUp(calc, observer, bediavad[0], bediavad[1]);
-			if (!moon)
-				continue;
-
-			// Bediavad-only: the moon is not up at any point of the lechatchila range.
-			const moonRise = moon.rise ?? -Infinity;
-			const moonSet = moon.set ?? Infinity;
-			const moonInLechatchila = lechatchila !== null && moonRise < lechatchila[1] && moonSet > lechatchila[0];
-
-			/** @type {Record<string, {time: number, position: string}>} */
-			const marks = {};
-			for (const [name, t] of Object.entries(markTimes)) {
-				// Uses the unclipped boundaries so the position is about the day, not the clipping.
-				let position = null;
-				if (t >= shkiya && t < tzet) position = 'shkiyaToTzet';
-				else if (t >= tzet && t < alot) position = 'lechatchila';
-				else if (t >= alot && t < netz) position = 'alotToNetz';
-				else if (t >= netz && t < nextShkiya) position = 'day'; // the daytime after this night
-				if (position) {
-					marks[name] = { time: t, position };
-					placedMarks.add(name);
-				}
+			// Early (law) range: [start3, start). A night straddling `start` contributes its
+			// first part here and its remainder to the regular range below.
+			if (n.shkiya < start) {
+				const early = buildRow(n, start3, start, start, null, placedMarks, true);
+				if (early) earlyRows.push(early);
 			}
 
-			const coverage = classifyCoverage(moon, bediavad[0], bediavad[1]);
-			const midMs = Math.round(bediavad[0] + (bediavad[1] - bediavad[0]) / 2);
-
-			rows.push({
-				jewishDay: nightDate.add({ days: 1 }).withCalendar("hebrew").day,
-				night: { lechatchila, bediavad },
-				moon,
-				coverage,
-				events: {
-					rise: coverage === 'both' || coverage === 'from' ? describeMoonEvent(calc, observer, moon.rise) : null,
-					set:  coverage === 'both' || coverage === 'until' ? describeMoonEvent(calc, observer, moon.set) : null,
-					mid:  coverage === 'all' ? describeMoonEvent(calc, observer, midMs) : null
-				},
-				bediavadOnly: !moonInLechatchila,
-				...(Object.keys(marks).length ? { marks } : {})
-			});
+			// Regular (custom) range: [start, 15th].
+			if (n.netz > start) {
+				const row = buildRow(n, start, endStretch, endIkar, markTimes, placedMarks);
+				if (row) rows.push(row);
+			}
 		}
 
 		// Mark times that fell on no emitted row (e.g. a skipped night, or outside the loop).
@@ -267,9 +321,10 @@ function messageHandler(x) {
 			monthID: monthCal.getJewishMonth(),
 			titleHe: monthCal.formatJewishMonth().he,
 			titleEn: monthCal.formatJewishMonth().en,
-			limits: { start, endStretch, endIkar },
+			limits: { start3, start, endStretch, endIkar },
 			unplacedMarks,
-			rows
+			rows,
+			earlyRows
 		};
 	});
 }
@@ -283,6 +338,9 @@ addEventListener('message', async (message) => {
 		postMessage(messageHandler(message.data));
 	} catch (err) {
 		console.error('moon-birkat-worker failed:', err);
-		throw err;
+		// Throwing inside an async listener only causes an unhandled rejection in the worker,
+		// which never reaches the page's 'error' listener. Report back explicitly instead,
+		// so the page knows this worker is done and can still build the early pages.
+		postMessage({ error: String(err) });
 	}
 });

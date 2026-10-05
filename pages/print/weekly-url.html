@@ -451,7 +451,7 @@ layout: nothing
 		color: white;
 		box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.75), 1px 2px 2px rgba(98, 98, 98, .33), 2px 4px 4px rgba(98, 98, 98, .33), 3px 6px 6px rgba(98, 98, 98, .33);
 		corner-shape: scoop;
-		line-height: 1.3;
+		line-height: 1;
 		z-index: 5;
 		align-self: center;
 		justify-self: center;
@@ -649,56 +649,69 @@ layout: nothing
 	}
 
 	.page.birkatLevanaMoonPage {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		grid-template-rows: 1fr 1fr;
-		gap: 0.1in;
+		display: block;          /* one month per page, so the 2x2 grid is gone */
 		font-size: 0.95em;
 		line-height: 1.3;
-	}
-
-	.moonMonthCard {
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
 	}
 
 	.moonMonthCard .moonPageTitle {
 		text-align: center;
 		text-transform: uppercase;
 		font-weight: 900;
-		font-size: .95rem;
-		margin: 0 0 0.03in 0;
+		font-size: 1.1rem;
+		margin: 0 0 0.08in 0;
 	}
 
-	.moonBirkatLevanaTable {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: 0.65rem;
+	/* Two days per row. Each half is [day number | rise | set]. */
+	.moonGrid {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+		column-gap: 0.3in;
+		row-gap: 0;
 	}
 
-	.moonBirkatLevanaTable th {
-		font-weight: 500;
-		padding-bottom: 0.025in;
-		text-align: center;
-	}
+	.moonCell.wide { grid-column: span 2; }
 
-	.moonBirkatLevanaTable td {
-		text-align: center;
-		vertical-align: top;
+	.moonDay {
 		padding: 0.03in 0;
+		border-bottom: 1px solid #ddd;
 	}
 
-	.moonBirkatLevanaTable td.dayNum {
+	.moonDay .dayNum {
+		align-self: center;
+		text-align: center;
 		font-size: 1rem;
 		font-weight: 500;
-		width: 15%;
 	}
 
-	.moonBirkatLevanaTable .dateHint {
-		font-size: 0.5rem;
-		color: #777;
+	.moonCell { text-align: center; }
+
+	.moonGlyph {
+		display: flex;
+		justify-content: center;
+		height: 0.4in;           /* reserved even when the event is missing, so rows stay aligned */
+		line-height: 0;
 	}
+	.moonGlyph svg { display: block; width: 0.4in; height: 0.4in; }
+
+	.earlyMoonTable .moonGlyph {
+		height: 0.22in;
+		margin-right: 3.5px;
+		display: inline;
+	}
+	.earlyMoonTable .moonGlyph svg {
+		width: 0.22in;
+		height: 0.22in;
+		display: unset;
+	}
+
+	.earlyMoonTable {
+		font-size: .625rem;
+		text-align: center;
+	}
+
+	.dateHint { font-size: 0.55rem; color: #777; }
+	.timeVal  { font-size: 0.7rem; }
 </style>
 
 <style>
@@ -706,7 +719,7 @@ layout: nothing
 </style>
 <div class="page fullBleed" id="cover">
 	<img src="/assets/images/print/57b90297-9375-4a6e-9fbf-416f95ed9074.png" class="fullImageBG">
-	<div style="justify-self: center; margin-top: 30px; text-align: center; color: white;">
+	<div style="justify-self: center; margin-top: 22px; text-align: center; color: white;">
 		<img src="/assets/images/print/logo.png" style="width: 90%; margin-bottom: 0.3rem;">
 		<div class="plaque">
 			<span class="goldPlaqueSourceText" hidden data-zyLocationText></span>
@@ -738,7 +751,7 @@ layout: nothing
 <div class="page verso" style="gap:0; font-size: .85em;">
 	<p style="line-height: 1.15;">Contact email: neimmaor@gmail.com<br>Phone number provided on request</p>
 	<h5 style="text-decoration: underline; font-size: 1.15em; font-weight: 700; text-align: center;">Special Thanks</h5>
-	<ul class="mb-0">
+	<ul class="mb-0" style="text-align: left;">
 		<li><strong class="fw-600">Moreshet Maran, R' Nachum Hanon</strong>: Representing HaRav Yitshak Yosef</li>
 		<li><strong class="fw-600">R' Leeor Betzalel Dahan</strong>: Adapting the Ḥakham Ovadia rulings to other locales
 		</li>
@@ -760,7 +773,7 @@ layout: nothing
 </div>
 <div class="page" style="gap:0; font-size: .85em;">
 	<h1>Contents</h1>
-	<ul>
+	<ul style="text-align: left;">
 		<li>
 			<div class="fw-600" style="font-size: 1.15em;">Introduction</div>About Us, Approbations
 		</li>
@@ -1391,77 +1404,60 @@ layout: nothing
 <div data-insertBefore></div>
 <div class="page verso explanation">
 	<h2>Full Solar-Sphere Sunrise</h2>
-	<p>The ideal form of the Halachic day does not start until the uppermost edge of the solar sphere appears over the
-		horizon. This moment is called הנץ החמה, and is sourced from the similar language in שיר השרים. Anytime
-		beforehand is considered unideal.</p>
-	<p>This is best exemplified by prayer, where transition between שמע to the שמונה עשרה are timed around the rising of
+	<p>The ideal form of the Halakhic day does not start until the uppermost edge of the solar sphere appears over the
+		horizon. This moment is called הנץ החמה, and is sourced from the similar language in שיר השרים. Any significant time
+		beforehand is considered less than ideal, although not at the requirement to be overly meticulous for the second of sunrise to pass – this is because the rising of the sun itself is a range, and thus we are lenient to permit within a window of its rising (which is, on average, two minutes – both preceeding and following).</p>
+	<p>This is best exemplified by prayer, where the transition between שמע and the עמידה is timed around the rising of
 		the sun. It is this context, though, that creates the most precision for sunrise: do we time שמע itself to
-		sunrise? Or is it the שמונה עשרה that&#39;s timed accordingly? Furthermore, this is assuming we&#39;re using the
-		traditional definition for sunrise, as a minority of later authorities rule that the <em>end</em> of sunrise is
+		sunrise? Or is it the עמידה that's timed accordingly? Furthermore, this is assuming we're using the
+		traditional definition for sunrise, as a contrast to the minority of later authorities who rule that the <em>end</em> of sunrise is
 		to be used instead.</p>
-	<p>These disputes exist in permutation - from the perspective of law, only one sunrise was meant and it was for
-		either the שמע or the עמידה. However, there is enough of a gap between the two points of sunrise that one could
-		say the שמע at the earlier one and finish the blessings by the full solar reveal, thus starting the עמידה at the
-		&quot;second sunrise&quot;. This definitionally fulfills two different permutations, and the other forms of the
-		permutation are also accounted for since they fit in the <em>range</em> of sunrise (rather than the exact
-		points, which is still permissible according to the law).</p>
+	<p>These disputes exist in permutation – from the perspective of law, only one sunrise was meant and it was for
+		either the שמע or the עמידה. However, the gap between the two points provides enough time for the text of שמע and its final two blessings to be said. Thus, one can fulfill two separate permutations – reciting the שמע when the sun's <em>uppermost edge</em> is above the horizon, and waiting until the <em>full solar-sphere reveal</em> to recite the עמידה. The other forms of the permutations are accommodated through the window range of sunrise.</p>
 </div>
 <div class="page explanation" data-zmanToCapture="testSunriseHBWorking|noRound">
-	<p>This is the compromise of HaRav Matzliach Mazuz, introduced to the dynasty of Ḥakham Ovadia by the Halacha
-		Berura. The scheduling they give is based on a combination of various texts, such as the Rambam&#39;s &quot;6
-		minutes until the full solar sphere sunrise&quot; with ammendments by the Vilna Gaon. Of course, the numbers
-		used there were approximate in nature - however, using our current scientific knowledge on
-		&quot;refraction&quot; and other details that affect the appearance of the sun on the horizon, we are able to
-		give unprecedented precision.</p>
-	<p>Our generation of the time is layered on top of ChaiTables&#39;s Visual Sunrise time (provided Visual Sunrise is
-		available for your location), based on the instructions of HaRav Mazuz <span class="fs-sm">(עיין ב&quot;סולת
-			נקיה&quot; עמוד רע&quot;ג)</span>. At the time of writing, the service does not offer a way of determining
-		the <em>end</em> of sunrise (we hope to collaborate and change this in the near future). What we&#39;ve done is
-		take the time difference between sea-level sunrise and sea-level full-solar-reveal sunrise and apply it on top
-		of the Visual Sunrise time.</p>
-	<p>The importance of this time is only as long as one believes these times are accurate to the second, something
-		that is impossible for any printed calendar to be. In reality, there is a range of sunrise, and one can pray
-		even beforehand. Furthermore, the tradition has already been set to side-step this stringency, and rely fully on
-		the primary sunrise (even if it may be earlier than the sea-level one)</p>
+	<p>This compromise is attributed to HaRav Matzliaḥ Mazuz <span class="fs-sm">(סולת נקיה, עמוד רע"ג)</span>, but has received mixed receptions in the dynasty of Ḥakham 'Ovadia. Although the idea was met warmly at first by both sons <span class="fs-sm">(including the 5764 printing of the Yalkut Yosef, siman 89 and all editions of the Halacha Berura, siman 58)</span>, it eventually became another point of contention between the brothers. This is because the Yalkut Yosef eventually returned to the standard practice of using the uppermost-edge only, without being stringent for this second time. (The original לוח המאור from Yeshivat Ohr HaChaim presents only the uppermost-edge peak time, making it in accordance with RYY's later guidelines)</p>
+	<p>To present these rulings here, we use several justifications: on top of representing the Halacha Berura's concluded ruling, even RYY would consider this time eligible for the "תפילה בהנץ" status since it's still close in time to the initial time for sunrise (and minute-level precision was never intended). However, since its use is disputed (and one would need to use the main time anyway for שמע), we've chosen to place these times separately from the main listing.</p>
+	<p>We've implemented these times through a combined use of the already existing ChaiTables' Visual Sunrise times <span class="fs-sm">(when available for the location)</span> & the difference in time between the two sunrise's at sea-level. This is because the ChaiTables service does not provide the time for the <em>end</em> of sunrise; we hope to collaborate with them in the future to rectify this.</p>
 </div>
 <div class="page verso explanation">
 	<h2>Pelag Ha&#39;Minḥa - Ma'amar Mordekhi</h2>
-	<p>Pelag Ha&#39;Minḥa is defined as the latter half of the time span between מנחה קטנה until the end of the day
+	<p>Pelag Ha&#39;Minḥa is defined as the latter half of the time span from מנחה קטנה until the end of the day
 		(ערב), occurring at 10¾ hours into the day. Considering how the day spans 12 hours, a shorter form of expressing
 		this time is in the inverse - that being 1¼ hours from the end of the day.</p>
-	<p>The dispute between the Halacha Berura and Yalkut Yosef is between the definition of ערב - is it sunset, or is it
-		nightfall? The ramifications depend on however long Ben Hashemashot could get in that location.</p>
+	<p>The dispute between the Halacha Berura and Yalkut Yosef is over the definition of ערב - is it sunset, or is it
+		nightfall? The ramifications depend on how long Ben Hashemashot lasts in that location.</p>
 	<p>On the surface, the Yalkut Yosef looks like a simple stringency - a way to be concerned for later opinions
-		regarding blessings. However, almost every opinion the Yalkut Yosef relied on maintained a compliance with the
-		12-hour structure the Gemara expected. This structure wasn&#39;t serving Ben Hashemashot as a gap from sunset,
-		but rather, an endpoint to the day. The other side of the endpoint was extended as well, being at Dawn rather
+		regarding blessings. However, almost every opinion the Yalkut Yosef relied on maintained compliance with the
+		12-hour structure the Talmud expected. This structure wasn&#39;t serving Ben Hashemashot as a gap from sunset,
+		but rather, an endpoint to the day. The other end of the day was extended as well, beginning at Dawn rather
 		than sunrise.</p>
 	<p>If this detail was compromised, that means the seasonal minutes no longer correspond to the length of the day, of
-		which a portion was assigned for Pelag purposes. These are authorities that ruled as such practice <span
-			class="fs-sm">(such as the Ramban, Ra&#39;ah, Ritva &amp; Rav Yaakov Emden)</span>, and there is a precedent
+		which a portion was assigned for Pelag purposes. These are the authorities who ruled accordingly <span
+			class="fs-sm">(such as Nachmanides, the Ra&#39;ah, the Ritva &amp; Rabbi Jacob Emden)</span>, and there is a precedent
 		for this legal re-evaluation <span class="fs-sm">(Peri Ḥadash, Kuntress Debei Shimsha, end of ספר מים
 			חיים)</span>. Nevertheless, the vast majority agreed on the structure of the day being uncompromised.</p>
 </div>
 <div class="page explanation" data-zmanToCapture="getPlagHaminhaMaamarMordechi|later">
 	<p>The wording of the Yalkut Yosef indicates that the &quot;later Pelag&quot; was subject to this debate on the
-		structure of the day. Just like the later precedent in authorities, one can even do it using the Geonic
+		structure of the day. Following the precedent of those later authorities, one can even calculate it using the Geonic
 		Nightfall rather than the proportional Nightfall of Rabbenu Tam (see the Ben Ish Ḥai, Year I, Vayakhel VIII; see
-		also Ohr Letzion vol. 2 pg. 147 &amp; the responsas of the Ma&#39;amar Mordechai vol. 4 siman 12).</p>
+		also Ohr Letzion vol. 2 pg. 147 &amp; the responsa of the Ma&#39;amar Mordekhi vol. 4 siman 12).</p>
 	<p>The contrast to this structure, though, was the one implemented in the לוח אור החיים. They only consider the
 		difference between sunset and nightfall as a gap, without the adjusted structure to come with it. Because of
-		that, the difference between the two Pelag&#39;s are dependent on however long Ben Hashemashot is for that day.
-		For those looking to act ideal regarding Pelag (such as תרתי דסתרי), this makes the stringency overbearing
+		that, the difference between the two Pelag times depends on how long Ben Hashemashot is for that day.
+		For those looking to be ideal in their conduct regarding Pelag (such as תרתי דסתרי), this makes the stringency overbearing
 		depending on the time of year.</p>
 	<p>Thus, although we&#39;ve put the official לוח אור החיים time as the primary representative of the Y&quot;Y
-		opinion, we&#39;ve included this alternative calculation in these back pages. To avoid any confusion for any
-		type of delay to nightfall, we&#39;ve named this on the Ma&#39;amar Mordekhi, who spelt out this opinion with
+		opinion, we&#39;ve included this alternative calculation in these back pages. To avoid confusion with any other
+		delay to nightfall, we&#39;ve named this after the Ma&#39;amar Mordekhi, which spelled out this opinion with
 		all its implications (such as midday not being equal to the solar-midday).</p>
 </div>
 <div class="page verso explanation">
 	<h2>Full-Length Rabbenu Tam List</h2>
 	<p>The transition from day to night is the same for Rabbenu Tam as it is for everyone; after &quot;sunset&quot;,
-		wait ¾<sup>th</sup>&#39;s of a <em>mil</em> and Nightfall occurs. However, <em>sunset</em> itself is redefined -
-		occuring 3¼ <em>mil</em> after our sunset.</p>
+		wait ¾ of a <em>mil</em> and Nightfall occurs. However, <em>sunset</em> itself is redefined -
+		occurring 3¼ <em>mil</em> after our sunset.</p>
 	<p>Considering each <em>mil</em> is 18 minutes, this makes Rabbenu Tam&#39;s Nightfall as long as
 		<em>seventy-two</em> minutes after our sunset at baseline level. Through being consistent with defining Talmudic
 		time, this length changes based on the location&#39;s latitude and the day&#39;s length.
@@ -1479,12 +1475,12 @@ layout: nothing
 <div class="page explanation" data-zmanToCapture="get72Seasonal">
 	<p>Thus, there are compromise calculations suggested, that still accommodate the Talmudic numbers and the
 		alternative application. The first method is to rule leniently during Rabbenu Tam&#39;s Ben Hashemashot, using
-		the principal of &quot;majority opinions&quot; - from 58.5 [adjusted-seasonal] minutes onwards, everyone (with
+		the principle of &quot;majority opinions&quot; - from 58.5 [adjusted-seasonal] minutes onwards, everyone (with
 		the 18-minute mil) holds it is either certain night or doubtful night, which combine for leniency. The
 		alternative (implemented in our calendar&#39;s weekly pages) is to limit the 72 minutes to clock minutes, and
 		only use the seasonal result when they&#39;re shorter. (Other forms of providing lenient times for Rabbenu Tam
 		are contrary to our ideology of Zemanim being a baseline from Israel and increasing when moving north)</p>
-	<p>This was chosen for the main calendar based on the following Y&quot;Y exerpt: &quot;במקומות שאם יורו להם לחשב לפי
+	<p>This was chosen for the main calendar based on the following Y&quot;Y excerpt: &quot;במקומות שאם יורו להם לחשב לפי
 		שעות זמניות לא יוכלו להתעכב כל כך עד שיגיע זמן רבינו תם...שאז יש להקל לחשב לפי השעון הרגיל&quot;.<br>The
 		following table is the original, without these leniencies</p>
 </div>
@@ -1494,8 +1490,7 @@ layout: nothing
 		We advise that any alterations be marked explicitly, and adhear to the level-of-the-law as specified in the
 		back.</p>
 	<p>The layout of this work was made with the pocket-use case in mind, which may not work for alternative forms of
-		display. Feel free to email as needed for potential alternatives.
-</div>
+		display. Feel free to email as needed for potential alternatives.</p>
 </div>
 <div class="page fullBleed"
 	style="background: url('/assets/images/shul-wall/sbm-la/ptrn.png') 90px/90px !important; opacity: 10%;"></div>

@@ -281,10 +281,6 @@ document.querySelector('[data-zyReplace="timezoneEndDate"]').innerHTML =
 /** @type {Record<string, number>} */
 const jewishYears = {};
 
-let expectedReceive = 0;
-let actualReceive = 0;
-/** @type {Record<string, { htmlContent: string[]; monthForIntro: number }>} */
-let receiveData = {}
 /** @type {import('./print-web-worker.js').singlePageParams[]} */
 const arrayOfFuncParams = [];
 for (let wIndex = 0; wIndex < weeksForLoop; wIndex++) {
@@ -295,7 +291,6 @@ for (let wIndex = 0; wIndex < weeksForLoop; wIndex++) {
 	else
 		jewishYears[jewishYear] += 1;
 
-	expectedReceive += 1;
 	arrayOfFuncParams.push({
 		israel: ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)),
 		geoCoordinates: glArgs,
@@ -361,48 +356,74 @@ const addedZemanim = {};
 
 const properPaging = document.querySelector('[data-insertBefore]');
 
-for (const monthData of arrayOfFuncParams) {
-	const webWorker = new Worker('/assets/js/features/weeklyPrint/print-web-worker.js', { type: 'module' });
-	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {
-		actualReceive += 1;
+/** @type {ReturnType<import('./print-web-worker.js').default>[]} */
+const weekResults = new Array(arrayOfFuncParams.length);
 
-		const respData = msg.data;
-		receiveData[respData.week] = { htmlContent: respData.htmlContent, monthForIntro: respData.monthPrefix };
-		addedZemanim[respData.week] = respData.addedZemanim;
-		if (actualReceive == expectedReceive) {
-			const sortedObject = Object.fromEntries(Object.keys(receiveData)
-				.sort()
-				.map(key => [key, receiveData[key]]));
+// Leave one core for the main thread; never spawn more workers than there are weeks.
+const poolSize = Math.max(1, Math.min(
+	arrayOfFuncParams.length,
+	(navigator.hardwareConcurrency || 4) - 1
+));
 
-			for (const [weekNum, weekData] of Object.entries(sortedObject)) {
-				if (weekData.monthForIntro && arrayOfFuncParams.at(-1).week !== parseInt(weekNum)) {
-					const prefixMonths = document.querySelectorAll(`[data-monthPrefix="${weekData.monthForIntro}"]`)
-					if (prefixMonths.length)
-						for (const prefixElem of prefixMonths)
-							properPaging.insertAdjacentElement('beforebegin', prefixElem)
-				}
+await new Promise((resolve, reject) => {
+	let nextTask = 0;
+	let completed = 0;
+	/** @type {Worker[]} */
+	const pool = [];
 
-				for (const htmlPages of weekData.htmlContent) {
-					properPaging.insertAdjacentHTML('beforebegin', htmlPages)
-				}
-			}
+	const failAll = (/** @type {any} */ err) => {
+		pool.forEach(w => w.terminate());
+		reject(err);
+	};
 
-			if (footer)
-				footer.remove();
-			else if (secondSide)
-				secondSide.remove();
-			baseTable.remove();
+	for (let i = 0; i < poolSize; i++) {
+		const worker = new Worker('/assets/js/features/weeklyPrint/print-web-worker.js', { type: 'module' });
+		pool.push(worker);
 
-			insertBackZemanim();
-			await preparePrint();
-		}
-	})
-	webWorker.addEventListener("error", (err) => {
-		console.error(err);
-	})
+		const dispatch = () => {
+			if (nextTask < arrayOfFuncParams.length)
+				worker.postMessage(arrayOfFuncParams[nextTask++]);
+			else
+				worker.terminate(); // queue drained, free the thread
+		};
 
-	webWorker.postMessage(monthData)
+		worker.addEventListener('message', (/** @type {MessageEvent<any>} */ msg) => {
+			if (msg.data.error)
+				return failAll(new Error(`Week ${msg.data.week}: ${msg.data.error}`));
+
+			weekResults[msg.data.week] = msg.data;
+			addedZemanim[msg.data.week] = msg.data.addedZemanim;
+
+			if (++completed === arrayOfFuncParams.length)
+				resolve();
+			dispatch();
+		});
+		worker.addEventListener('error', failAll);
+
+		dispatch();
+	}
+});
+
+// Results are already indexed by week, so no string-key sorting is needed
+const lastWeek = arrayOfFuncParams.at(-1).week;
+for (const weekData of weekResults) {
+	if (weekData.monthPrefix && weekData.week !== lastWeek) {
+		for (const prefixElem of document.querySelectorAll(`[data-monthPrefix="${weekData.monthPrefix}"]`))
+			properPaging.insertAdjacentElement('beforebegin', prefixElem);
+	}
+
+	// One HTML parse per week instead of one per page
+	properPaging.insertAdjacentHTML('beforebegin', weekData.htmlContent.join(''));
 }
+
+if (footer)
+	footer.remove();
+else if (secondSide)
+	secondSide.remove();
+baseTable.remove();
+
+insertBackZemanim();
+await preparePrint();
 
 function insertBackZemanim() {
 	/**
