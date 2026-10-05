@@ -1,6 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
+import SPACalculatorCorrections from "../libraries/kosherZmanim/spa-calc-corrections.js"
 import { MathUtils } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import TekufahCalculator from "./tekufot.js";
 
@@ -37,9 +38,9 @@ class ZemanimMathBase {
 		};
 
 		/** @type {KosherZmanim.ZmanimCalendar} */
-		this.coreZC = new KosherZmanim.ZmanimCalendar(geoLocation)
+		this.coreZC = new KosherZmanim.ZmanimCalendar(geoLocation);
 		this.coreZC.setUseElevation(config.elevation);
-		this.coreZC.getAstronomicalCalculator().setRefraction(34.478885263888294 / 60);
+		this.coreZC.setAstronomicalCalculator(new SPACalculatorCorrections());
 
 		/** @type {TekufahCalculator} */
 		this.tekufaCalc = new TekufahCalculator(this.coreZC.getDate().withCalendar("hebrew").year);
@@ -120,7 +121,8 @@ class ZemanimMathBase {
 	 */
 	setGeoLocation(geoLocation) {
 		this.coreZC.setGeoLocation(geoLocation);
-		this.coreZC.getAstronomicalCalculator().setEarthRadius(getEarthRadiusAtLatitude(geoLocation.getLatitude()));
+		// @ts-ignore
+		this.coreZC.getAstronomicalCalculator().configureForLocation(geoLocation);
 
 		if (this.config.fixedMil)
 			this.timeRange.equinox = {

@@ -302,7 +302,7 @@ function messageHandler(x) {
 				}
 
 				if (jCal.isTaanis() && !jCal.isYomKippur()) {
-					tzetInUse.style.fontWeight = "bold";
+					tzetInUse.style.fontWeight = "800";
 				}
 
 				const potForCandle = jCal.hasCandleLighting() && jCal.getDayOfWeek() !== 6 && jCal.isAssurBemelacha() && jCal.getDayOfWeek() !== 7;
@@ -316,7 +316,7 @@ function messageHandler(x) {
 			case 'getAlotHashahar':
 				renderZmanInDiv(zmanCalc.getAlotHashahar(), round);
 				if (jCal.isTaanis() && jCal.getJewishMonth() !== WebsiteLimudCalendar.AV && !jCal.isYomKippur()) {
-					div.lastElementChild.style.fontWeight = "bold"
+					div.lastElementChild.style.fontWeight = "800"
 				}
 				break;
 			case 'getNetz':
@@ -334,7 +334,7 @@ function messageHandler(x) {
 				renderZmanInDiv(zmanCalc.getShkiya(), round);
 				if (jCal.getJewishMonth() == KosherZmanim.JewishDate.AV
 					&& ((jCal.getJewishDayOfMonth() == 9 && jCal.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY)
-						|| (jCal.getJewishDayOfMonth() == 8 && jCal.getDayOfWeek() !== KosherZmanim.Calendar.FRIDAY))) { div.lastElementChild.style.fontWeight = "bold" }
+						|| (jCal.getJewishDayOfMonth() == 8 && jCal.getDayOfWeek() !== KosherZmanim.Calendar.FRIDAY))) { div.lastElementChild.style.fontWeight = "800" }
 
 				break;
 			default:
@@ -1014,26 +1014,23 @@ function messageHandler(x) {
 		specialElems
 			.sort((aStr, bStr) => bStr.replace(/<\/?tspan\b[^>]*>/gi, '').length - aStr.replace(/<\/?tspan\b[^>]*>/gi, '').length)
 			.forEach((elem, i) => {
-				// Create a new path for each line
 				const arcPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 				const arcId = `arcBottom-${weekdayElem.dataset.dayIndex}-${i}`;
 
-				// Adjust y position and radius for each line
 				const yPos = 74 - (i * 8);
-				const radius = 38 + (i * 2);
+				const radius = 46 + (i * 2);   // was 38 + i*2 — widened to match top arc's span
 
 				arcPath.setAttribute('id', arcId);
-				arcPath.setAttribute('d', `M ${15 - i},${yPos} A ${radius},${radius} 0 0,0 ${85 + i},${yPos}`);
+				arcPath.setAttribute('d', `M ${10 - i},${yPos} A ${radius},${radius} 0 0,0 ${90 + i},${yPos}`); // was 15-i / 85+i
 				arcPath.setAttribute('fill', 'none');
 
 				svg.appendChild(arcPath);
 
-				// Create textPath pointing to this arc
 				const textPath = document.createElementNS('http://www.w3.org/2000/svg', 'textPath');
 				textPath.setAttribute('href', `#${arcId}`);
 				textPath.setAttribute('startOffset', '50%');
 				textPath.setAttribute('text-anchor', 'middle');
-				textPath.innerHTML = specialElems.length == 1 ? elem : elem.replace(/<\/?tspan\b[^>]*>/gi, '');
+				textPath.innerHTML = elem;
 
 				specialText.appendChild(textPath);
 			});
@@ -1917,7 +1914,7 @@ function n2hebDateOrdinal(dayOfWeek, prefixForShabbat = false) {
  */
 function getOrdinal(n, formating = 'none') {
 	return n.toString()
-		+ (formating == 'html' ? "<sup>" : formating == 'svg' ? '<tspan baseline-shift="super" font-size="0.7em">' : "")
+		+ (formating == 'html' ? "<sup>" : formating == 'svg' ? '<tspan baseline-shift="40%" font-size="0.55em">' : "")
 		+ { e: "st", o: "nd", w: "rd", h: "th" }[new Intl.PluralRules("en", { type: "ordinal" }).select(n)[2]]
 		+ (formating == 'html' ? "</sup>" : formating == 'svg' ? '</tspan>' : "")
 }

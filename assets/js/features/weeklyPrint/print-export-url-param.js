@@ -12,6 +12,7 @@ import { ZemanFunctions, zDTFromFunc } from "../../ROYZmanim.js";
 import * as ol from "../../../libraries/OpenLayers/ol.js"
 
 import { lightPollution } from "../../../libraries/lightPollution/lightPollution.js";
+import MoonRender from "./moon-render.js";
 
 const printParam = new URLSearchParams(window.location.search);
 /** @type {'iso8601'|'hebrew'} */
@@ -161,87 +162,11 @@ const endDate = Temporal.Now.plainDateISO()
 	.subtract({ days: 1 })
 const endDateForLoop = endDate.add({ days: (7 - endDate.dayOfWeek) % 7 })
 
-const MONTHS_PER_PAGE = 4;
-/**
- * @param {Temporal.PlainDate} startDate
- * @param {Temporal.PlainDate} endDate
- */
-function collectHebrewMonths(startDate, endDate) {
-	const months = [];
-	const jd = new WebsiteCalendar(startDate);
-	let seenKey = null;
-
-	for (let cursor = startDate; Temporal.PlainDate.compare(cursor, endDate) <= 0; cursor = cursor.add({ days: 1 })) {
-		jd.setDate(cursor);
-		const key = jd.getJewishYear() + '-' + jd.getJewishMonth();
-		if (key !== seenKey) {
-			months.push({ year: jd.getJewishYear(), month: jd.getJewishMonth() });
-			seenKey = key;
-		}
-	}
-	return months;
-}
-
-/**
- * @param {{ zdt: number; }} event
- * @param {string} lang
- * @param {'h11'|'h12'|'h23'|'h24'} timeFormat
- */
-function formatMoonCell(event, lang, timeFormat) {
-	if (!event)
-		return '<div class="dateHint">&nbsp;</div><div class="timeVal">—</div>';
-
-	const plainDate = Temporal.Instant.fromEpochMilliseconds(event.zdt)
-		.toZonedDateTimeISO(geoLocation.getTimeZone()).toPlainDate();
-	const dateLabel = plainDate.toLocaleString('en', { month: 'short' }) + ' ' + getOrdinal(plainDate.day, true);
-	const timeLabel = Temporal.Instant.fromEpochMilliseconds(event.zdt)
-		.toZonedDateTimeISO(geoLocation.getTimeZone()).toLocaleString(lang == 'hb' ? 'he' : 'en', {
-		hourCycle: timeFormat, hour: 'numeric', minute: '2-digit'
-	});
-
-	return `<div class="dateHint">(${dateLabel})</div><div class="timeVal">${timeLabel}</div>`;
-}
-
-function buildMoonMonthCard(monthResult) {
-	const lang = settings.language();
-	const title = lang == 'hb' ? monthResult.titleHe : monthResult.titleEn;
-	const hNum = new HebrewNumberFormatter();
-
-	const rowsHtml = monthResult.rows.map(row => `
-		<tr>
-			<td class="dayNum">${lang == 'hb' ? hNum.formatHebrewNumber(row.jewishDay) : row.jewishDay}</td>
-			<td>${formatMoonCell(row.rise, lang, settings.timeFormat())}</td>
-			<td>${formatMoonCell(row.set, lang, settings.timeFormat())}</td>
-		</tr>`).join('');
-
-	return `
-		<div class="moonMonthCard">
-			<h2 class="moonPageTitle">${title}</h2>
-			<table class="moonBirkatLevanaTable">
-				<thead><tr><th></th><th>Moonrise</th><th>Moonset</th></tr></thead>
-				<tbody>${rowsHtml}</tbody>
-			</table>
-		</div>`;
-}
-
-function buildMoonPages(monthResults) {
-	const pages = [];
-	for (let i = 0; i < monthResults.length; i += MONTHS_PER_PAGE) {
-		const chunk = monthResults.slice(i, i + MONTHS_PER_PAGE);
-		pages.push(`<div class="page birkatLevanaMoonPage">${chunk.map(buildMoonMonthCard).join('')}</div>`);
-	}
-	return pages.join('');
-}
-
-const hebrewMonthsInRange = collectHebrewMonths(baseDate.withCalendar('hebrew'), endDate.withCalendar('hebrew'));
-
-const moonWorker = new Worker('/assets/js/features/weeklyPrint/moon-birkat-worker.js', { type: 'module' });
-moonWorker.addEventListener('message', (msg) => {
-	const solarSphereAnchor = document.querySelector('[data-zmanToCapture^="testSunriseHBWorking"]');
-	solarSphereAnchor.insertAdjacentHTML('beforebegin', buildMoonPages(msg.data));
-});
-moonWorker.addEventListener('error', (err) => console.error('Moon worker failed to load/run:', err));
-moonWorker.postMessage({ geoCoordinates: glArgs, months: hebrewMonthsInRange });
+const mRender = new MoonRender(geoLocation, {
+	language: settings.language(),
+	timeFormat: settings.timeFormat(),
+	hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
+}, baseDate, endDate);
 
 const weeksForLoop = baseDateForLoop.until(endDateForLoop).total({ unit: 'week', relativeTo: baseDateForLoop })
 
@@ -259,15 +184,16 @@ for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 	locName.appendChild(document.createTextNode(title))
 
 function renderGoldPlaques() {
-  const fontSize = 26, fontWeight = 700;
+  const fontSize = 28, fontWeight = 700;
   const fontFamily = getComputedStyle(document.documentElement)
     .getPropertyValue('--body-font') || 'serif';
   const font = `${fontWeight} ${fontSize}px ${fontFamily}`;
-  const strokeWidth = 2.5, padX = 10, padY = 8;
-  const scale = 3; // supersample so it stays crisp at print resolution
+  const strokeWidth = 2.5, padX = 6, padY = 5;
+  const scale = 4; // supersample so it stays crisp at print resolution
 
   document.querySelectorAll('.plaque').forEach(plaque => {
     const source = plaque.querySelector('.goldPlaqueSourceText');
+	/** @type {HTMLImageElement} */
     const img = plaque.querySelector('.goldPlaqueImg');
     if (!source || !img) return;
     const text = source.textContent;

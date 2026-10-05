@@ -3508,6 +3508,7 @@ interface MoonGlyphOptions {
   strokeColor?: string;
   horizonColor?: string;
   label?: string;
+  horizon?: boolean;
 }
 /**
  * @param {typeof AstronomyImp} Astronomy  Astronomy Engine module/namespace.
@@ -3768,14 +3769,15 @@ export declare function highestLitPointFactor3D(thetaDeg: number, phaseAngleDeg:
 //#endregion
 //#region src/moon-calc.d.ts
 type FlexibleDateTime = Date | number | AstroTime;
+type Mode = 'lit' | 'lit-flat' | 'geometric';
 type HorizonTarget = (observer: Observer, metersAboveGround: number) => number;
 interface LitLimbAltitudeExcessOptions {
-  mode?: 'lit' | 'lit-flat' | 'geometric';
+  mode?: Mode;
   metersAboveGround?: number;
   horizonTarget?: HorizonTarget;
 }
 interface NextMoonEventOptions {
-  mode?: 'lit' | 'lit-flat' | 'geometric';
+  mode?: Mode;
   limitDays?: number;
   metersAboveGround?: number;
   horizonTarget?: HorizonTarget;
@@ -3784,6 +3786,33 @@ interface MoonEventsForDayOptions {
   mode?: 'lit' | 'lit-flat';
   metersAboveGround?: number;
   horizonTarget?: HorizonTarget;
+}
+/** Model constants that can be overridden per calculator instance. */
+export interface MoonCalcConfig {
+  /**
+   * Standard horizon refraction in arcminutes, for an observer at sea level in
+   * standard air. Default: ROY_REFRACTION_ARCMIN (ROYZmanim's value).
+   * Pass LIBRARY_REFRACTION_ARCMIN (34) to reproduce Astronomy Engine exactly.
+   */
+  refractionArcmin?: number;
+  /**
+   * Scale the refraction by the relative air density at ground level
+   * (what Astronomy Engine does). Default true. ROYZmanim/KosherJava apply a
+   * flat value; set false to mimic that.
+   */
+  scaleRefractionByDensity?: boolean;
+  /** Lunar radius used for the semi-diameter, km. Default 1738.1 (AA convention, 0.2725076 Re). */
+  moonRadiusKm?: number;
+  /**
+   * How the horizon below the observer is modelled when metersAboveGround > 0.
+   *  - 'physical' (default): dip and horizon-ray refraction from Sweer's (1938) ray equations in a
+   *    standard atmosphere (validated against his Table I). Refraction is scaled so that an observer
+   *    at the surface gets exactly `refractionArcmin` (times air density).
+   *  - 'library': Astronomy Engine's formula, kept for exact parity with SearchRiseSet. Its dip is
+   *    ~20% larger than Sweer's table, and its refraction is a flat value; the two errors partly cancel.
+   * With metersAboveGround = 0 (the default) both models give the same target.
+   */
+  dipModel?: 'physical' | 'library';
 }
 interface MoonGeometry {
   time: AstroTime;
@@ -3813,10 +3842,11 @@ interface MoonEventsForDay {
   rise: MoonEventTimes;
   set: MoonEventTimes;
 }
-/**
- * @param {typeof AstronomyImp} Astronomy  The Astronomy Engine module/namespace object.
- */
-export declare function createMoonCalc(Astronomy?: typeof astronomy_d_exports): {
+/** Astronomy Engine's built-in horizon refraction (arcmin). */
+export declare const LIBRARY_REFRACTION_ARCMIN = 34;
+/** ROYZmanim's horizon refraction (arcmin); within ~0.002' of Bennett (1982) at 0° apparent altitude. */
+export declare const ROY_REFRACTION_ARCMIN = 34.478885263888294;
+export declare function createMoonCalc(Astronomy?: typeof astronomy_d_exports, config?: MoonCalcConfig): {
   horizonDipAngle: (observer: Observer, metersAboveGround: number) => number;
   horizonTarget: (observer: Observer, metersAboveGround?: number) => number;
   moonGeometry: (time: FlexibleDateTime, observer: Observer) => MoonGeometry;
