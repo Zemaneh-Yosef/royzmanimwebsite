@@ -3,6 +3,10 @@
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import { loadRefraction, readCachedRefraction, providerFromCache } from "../refraction-data.js";
+
+/** How long the first render waits for fresh refraction data before using what's stored (offline TVs). */
+const REFRACTION_WAIT_MS = 8000;
 
 /** @typedef {{
     seconds: boolean;
@@ -46,28 +50,41 @@ const currentZDT = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timez
 const jCal = new WebsiteLimudCalendar(currentZDT.toPlainDate());
 jCal.setInIsrael(['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)))
 
+// ─── Refraction (forecast air + terrain horizon), same source as the website and weekly print ───
+// The screen reloads itself daily (reload.js), and this module runs again each time, so each day starts
+// with current data. Start from what's stored (instant, works offline); give the network a few seconds
+// to bring something fresher. If it's slower than that, it keeps loading in the background and fills
+// localStorage, so the next reload gets it.
+const lat = geoLocation.getLatitude(), lon = geoLocation.getLongitude();
+const cachedRefraction = readCachedRefraction(lat, lon);
+/** @type {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon'>} */
+let refraction = {
+	atmosphereProvider: providerFromCache(cachedRefraction),
+	horizon: cachedRefraction?.horizon ?? null
+};
+
+/** @type {import("../refraction-data.js").RefractionData | null} */
+const freshRefraction = await Promise.race([
+	loadRefraction(lat, lon).catch((e) => { console.error("Refraction data failed to load", e); return null; }),
+	new Promise((resolve) => setTimeout(() => resolve(null), REFRACTION_WAIT_MS))
+]);
+if (freshRefraction) {
+	if (freshRefraction.notes.length)
+		console.info("Refraction:", freshRefraction.notes);
+	refraction = { atmosphereProvider: freshRefraction.provider, horizon: freshRefraction.horizon };
+}
+
 const zmanCalc = new ZemanFunctions(geoLocation, {
 	elevation: jCal.getInIsrael(),
 	rtKulah: scheduleSettings.calendarToggle.rtKulah,
 	candleLighting: scheduleSettings.customTimes.candleLighting,
 	fixedMil: scheduleSettings.calendarToggle.forceSunSeasonal || jCal.getInIsrael(),
-	melakha: scheduleSettings.customTimes.tzeithIssurMelakha
+	melakha: scheduleSettings.customTimes.tzeithIssurMelakha,
+	// getNetz() now ray-traces the visible sunrise from the horizon (replaces the ChaiTables 'ctNetz' data)
+	atmosphereProvider: refraction.atmosphereProvider,
+	horizon: refraction.horizon
 })
 zmanCalc.setDate(currentZDT.toPlainDate());
-
-/** @type {number[]} */
-let availableVS = [];
-if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-    const ctNetz = JSON.parse(localStorage.getItem('ctNetz'))
-    if ('url' in ctNetz) {
-        const ctNetzLink = new URL(ctNetz.url);
-
-        if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
-        && ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
-            availableVS = ctNetz.times
-    }
-}
-zmanCalc.setVisualSunrise(availableVS);
 
 /** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 const dtF = [scheduleSettings.language == 'hb' ? 'he' : 'en', {
@@ -78,14 +95,3 @@ const dtF = [scheduleSettings.language == 'hb' ? 'he' : 'en', {
 
 export { scheduleSettings, geoLocation, currentZDT, jCal, zmanCalc, dtF };
 
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-    try {
-        JSON.parse(str);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}

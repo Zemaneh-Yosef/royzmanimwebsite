@@ -2,6 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { zDTFromFunc, ZemanFunctions } from "../ROYZmanim.js";
+import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 
@@ -63,8 +64,13 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 			.forEach(imgToReplace => imgToReplace.setAttribute("src", imgToReplace.getAttribute("src").replace("digital", "print")));
 	}
 	const elems = document.getElementsByClassName('timecalc');
+	// Each city's actual air and horizon (loaded together, before the first city is computed)
+	await preloadFlyerRefraction([...elems].map(elem => new KosherZmanim.GeoLocation("null",
+		parseFloat(elem.getAttribute("data-lat")), parseFloat(elem.getAttribute('data-lng')),
+		elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0,
+		elem.getAttribute('data-timezone'))));
 	for (const elem of elems) {
-		const currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
+		let currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
 		const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
 
 		const geoLocationsParams = [
@@ -75,7 +81,7 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 			elem.getAttribute('data-timezone')
 		]
 		// @ts-ignore
-		currentCalc.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams));
+		currentCalc = calcFor(currentCalc, new KosherZmanim.GeoLocation(...geoLocationsParams));
 
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 		const dtF = ['en', {

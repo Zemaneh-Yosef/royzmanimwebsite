@@ -4,6 +4,7 @@ import { getOrdinal } from "../WebsiteCalendar.js";
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 import { GeoLocation, Calendar, HiloulahYomiCalculator, Parsha } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import YihudCalendar from "../WebsiteLimudCalendar.js";
+import { providerFromSnapshot } from "../refraction-snapshot.js";
 import { HebrewNumberFormatter as hebNumFormat } from "../WebsiteCalendar.js"
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { he as n2heWords } from "../../libraries/n2words.esm.js";
@@ -29,7 +30,7 @@ const monViewNight = (monthView, calc) =>
  * @param {boolean} isIsrael
  * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} monthView
- * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; fasts: Record<string, string>; tahanun: Record<string, string>; netzTimes: number[]; learningTitle: Record<string, { "en-et": string; en: string; he: string; }>; }} funcSettings
+ * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; fasts: Record<string, string>; tahanun: Record<string, string>; refraction?: import("./excelPrepare.js").ExportRefraction; learningTitle: Record<string, { "en-et": string; en: string; he: string; }>; }} funcSettings
  */
 export default async function icsExport (plainDateParams, geoLocationData, config, isIsrael, zmanList, monthView=true, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
@@ -37,9 +38,13 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 
 	const jCal = new YihudCalendar(baseDate);
 	jCal.setInIsrael(isIsrael)
-	const calc = new ZemanFunctions(geoLocation, config);
+	const calc = new ZemanFunctions(geoLocation, {
+		...config,
+		atmosphereProvider: funcSettings.refraction
+			? providerFromSnapshot(funcSettings.refraction.table, funcSettings.refraction.normals)
+			: null
+	});
 	calc.setDate(baseDate);
-	calc.setVisualSunrise(funcSettings.netzTimes)
 
 	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 	const dtF = [funcSettings.language, {

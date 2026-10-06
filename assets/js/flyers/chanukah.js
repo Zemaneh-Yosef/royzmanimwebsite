@@ -2,6 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
+import { preloadFlyerRefraction, refractionFor } from "./flyer-refraction.js";
 import WebsiteCalendar from "../WebsiteCalendar.js"
 import { settings } from "../settings/handler.js";
 
@@ -16,7 +17,9 @@ const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 
 const jCal = new WebsiteCalendar()
 jCal.setInIsrael(settings.location.timezone() == 'Asia/Jerusalem')
+await preloadFlyerRefraction([geoLocation]);
 const calc = new ZemanFunctions(geoLocation, {
+	...refractionFor(geoLocation),
 	elevation: jCal.getInIsrael(),
 	fixedMil: settings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael(),
 	melakha: settings.customTimes.tzeithIssurMelakha(),

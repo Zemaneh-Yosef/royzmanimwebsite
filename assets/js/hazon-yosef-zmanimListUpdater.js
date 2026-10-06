@@ -5,13 +5,14 @@ import { Parsha } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
+import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
+
+/** Floor for the next refraction check (e.g. when offline), so a failure doesn't loop. */
+const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
 
 const urlParams = new URLSearchParams(window.location.search);
 /** @param {string} param */
 const settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
-
-/** @type {Record<string, number[]>} */
-const allChaiTablesData = {};
 
 /** @typedef {{ datesToZman: Map<Temporal.PlainDate, Record<string, Temporal.ZonedDateTime>>; extra?: string } & ({ytI: number; title?: string} | { title: string })} highlightedZman */
 
@@ -199,22 +200,14 @@ export default class zmanimListUpdater {
 			shareIcon.style.display = 'none';
 		}
 
-		/** @type {number[]} */
-		let availableVS = [];
-		if (this.geoLocation.getLocationName() in allChaiTablesData) {
-			availableVS = allChaiTablesData[this.geoLocation.getLocationName()];
-		}
-
 		this.jCal.setInIsrael(geoLocation.getTimeZone() == 'Asia/Jerusalem');
 
-		this.zmanCalc = new ZemanFunctions(geoLocation, {
-			elevation: true,
-			fixedMil: true,
-			rtKulah: false,
-			candleLighting: 20,
-			melakha: (this.jCal.getInIsrael() ? { minutes: 30, degree: null } : { minutes: null, degree: 7.165 })
-		})
-		this.zmanCalc.setVisualSunrise(availableVS);
+		// Render at once from what previous visits stored (forecast, terrain horizon, normals); fresh data
+		// follows in _loadRefraction(). getNetz() computes the visible sunrise from the horizon (this
+		// replaces the ChaiTables files in /assets/hazon-yosef-data/).
+		const cached = readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
+		this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
+		this._setupZmanCalc(providerFromCache(cached), cached?.horizon ?? null);
 
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 		this.dtF = ['he', {
@@ -237,32 +230,66 @@ export default class zmanimListUpdater {
 
 		this.setNextUpcomingZman();
 		this.changeDate(this.jCal.getDate());
-		if (!availableVS.length && [
-			"אלעד",
-			"אשדוד",
-			"באר שבע",
-			"בית שמש",
-			"ביתר עילית",
-			"בני ברק",
-			"גבעת זאב",
-			"חיפה",
-			"טבריה",
-			"ירושלים",
-			"מודיעין",
-			"מירון",
-			"נתיבות",
-			"עמנואל",
-			"צפת",
-			"קרית יערים",
-			"תל אביב"
-		].includes(this.geoLocation.getLocationName()))
-			this.getCurLocaleNetz()
-				.then(() => this.resetCalendar())
+		this._loadRefraction();
 	}
 
-	async getCurLocaleNetz() {
-		const fetchedDate = await (await fetch(`/assets/hazon-yosef-data/${this.geoLocation.getLocationName().replaceAll(" ", "_")}.json`)).json()
-		allChaiTablesData[this.geoLocation.getLocationName()] = fetchedDate.times;
+	/**
+	 * @param {import("./refraction-snapshot.js").AtmosphereProvider | null} atmosphereProvider
+	 * @param {import("./refraction-snapshot.js").Horizon | null} horizon
+	 * @private
+	 */
+	_setupZmanCalc(atmosphereProvider, horizon) {
+		this.zmanCalc = new ZemanFunctions(this.geoLocation, {
+			elevation: true,
+			fixedMil: true,
+			rtKulah: false,
+			candleLighting: 20,
+			melakha: (this.jCal.getInIsrael() ? { minutes: 30, degree: null } : { minutes: null, degree: 7.165 }),
+			atmosphereProvider,
+			horizon
+		});
+	}
+
+	/**
+	 * Get current refraction data (from storage when fresh, else the network), re-render only if it
+	 * differs from what's shown, and check again when the forecast goes stale. Never throws.
+	 * @private
+	 */
+	async _loadRefraction() {
+		const token = this._refractionToken = (this._refractionToken ?? 0) + 1;
+		if (this._refractionRefresh) {
+			clearTimeout(this._refractionRefresh);
+			this._refractionRefresh = null;
+		}
+
+		/** @type {import("./refraction-data.js").RefractionData} */
+		let data;
+		try {
+			data = await loadRefraction(this.geoLocation.getLatitude(), this.geoLocation.getLongitude());
+		} catch (e) {
+			console.error("Refraction data failed to load", e);
+			return;
+		}
+		if (token !== this._refractionToken)
+			return; // the location changed while we were loading
+		if (data.notes.length)
+			console.info("Refraction:", data.notes);
+
+		if (data.forecastFetchedAt !== this._shownForecastAt || !!data.horizon !== !!this.zmanCalc.config.horizon) {
+			const selectedDate = this.zmanCalc.coreZC.getDate();
+			this._shownForecastAt = data.forecastFetchedAt;
+			this._setupZmanCalc(data.provider, data.horizon);
+			if (this.timeoutToChangeDate !== null)
+				clearTimeout(this.timeoutToChangeDate);
+			this.timeoutToChangeDate = null;
+			this.setNextUpcomingZman();
+			this.changeDate(selectedDate);
+		}
+
+		const staleIn = data.forecastFetchedAt !== null
+			? data.forecastFetchedAt + FORECAST_TTL_MS - Date.now()
+			: FORECAST_TTL_MS;
+		this._refractionRefresh = setTimeout(() => this._loadRefraction(), Math.max(MIN_REFRACTION_RECHECK_MS, staleIn));
 	}
 
 	updateWeekListing(date = this.weekPlainDate) {

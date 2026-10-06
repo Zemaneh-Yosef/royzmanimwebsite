@@ -2,6 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions } from "../ROYZmanim.js";
+import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import WebsiteLimudCalendar from "../WebsiteCalendar.js"
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
@@ -42,6 +43,11 @@ document.getElementById("zemanehShab").innerHTML += jCal.formatJewishYear().hebr
 
 const elems = document.getElementsByClassName('timecalc');
 let anyIsrael = false;
+// Each city's actual air and horizon (loaded together, before the first city is computed)
+await preloadFlyerRefraction([...elems].map(elem => new KosherZmanim.GeoLocation("null",
+	parseFloat(elem.getAttribute("data-lat")), parseFloat(elem.getAttribute('data-lng')),
+	elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0,
+	elem.getAttribute('data-timezone'))));
 for (const locationTitleElem of elems) {
 	let currentCalc = amudehHoraahCal;
 	if (locationTitleElem.getAttribute('data-timezone') == 'Asia/Jerusalem') {
@@ -58,7 +64,7 @@ for (const locationTitleElem of elems) {
 		locationTitleElem.getAttribute('data-timezone')
 	]
 	// @ts-ignore
-	currentCalc.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
+	currentCalc = calcFor(currentCalc, new KosherZmanim.GeoLocation(...geoLocationsParams))
 	currentCalc.coreZC.setCandleLightingOffset(20);
 	currentCalc.setDate(dayB4ErevPesach);
 

@@ -63,6 +63,7 @@ import fitty from "../../../libraries/fitty.js";
 import QrCode from "../../../libraries/qrCode.js";
 import { analyzeCycle as analyzeTimeZoneCycle } from "../../../libraries/dst-transition.js";
 import { ZemanFunctions, zDTFromFunc } from "../../ROYZmanim.js";
+import { loadPrintRefraction, fillVisibleSunriseTable } from "../print-refraction.js";
 import * as ol from "../../../libraries/OpenLayers/ol.js"
 import { lightPollution } from "../../../libraries/lightPollution/lightPollution.js";
 
@@ -147,10 +148,6 @@ plaqueText.setAttribute('data-text', title)
 for (const locName of document.querySelectorAll('[data-zylocationname]'))
 	locName.appendChild(document.createTextNode(settings.title))
 
-/*const ctNetzRaw = localStorage.getItem('ctNetz');
-const ctNetz = ctNetzRaw && isValidJSON(ctNetzRaw) ? JSON.parse(ctNetzRaw) : {};
-const ctNetzURL = ctNetz?.url ? new URL(ctNetz.url) : null; */
-
 let local = settings.language == 'hb' ? 'he' : 'en'
 if (navigator.languages.find(lang => lang.startsWith(local)))
 	local = navigator.languages.find(lang => lang.startsWith(local));
@@ -163,7 +160,6 @@ if (lightPol)
 		(((await lightPollution(centreLoc.lat, centreLoc.lng)) * Math.PI) * 1000).toFixed(2)
 		+ " mcd/m²"
 	));
-
 
 /** @type {HTMLElement} */
 const locationMapElem = document.querySelector('[data-zfFind="locationMap"]')
@@ -184,7 +180,12 @@ if (locationMapElem) {
 	});
 }
 
-const averageGeoLoc
+// Everything on this page is computed for the centre of the configured locations (the map, the qibla
+// angle and the refraction server's horizon search area are centred there too)
+const averageElevation = settings.location.reduce((sum, loc) => sum + (loc.elevation || 0), 0) / settings.location.length;
+/** @type {[string, number, number, number, string]} */
+const glArgs = [settings.title, centreLoc.lat, centreLoc.lng, averageElevation, settings.location[0].timezone];
+const averageGeoLoc = new GeoLocation(...glArgs);
 
 const prayerAngle = document.querySelector('[data-zy-prayer-angle]')
 if (prayerAngle) {
@@ -242,6 +243,12 @@ for (let wIndex = 0; wIndex < weeksForLoop; wIndex++) {
 	})
 }
 
+// ─── Refraction data (forecast air + terrain horizon), as on the web page ───
+const { refraction, refractionInit } = await loadPrintRefraction(averageGeoLoc, baseDateForLoop, endDateForLoop);
+
+/** Visible minus sea-level sunrise per ISO date (ms), reported by the workers. @type {Record<string, number>} */
+const sunriseOffsets = {};
+
 const fundamentalTable = document.querySelector('[data-zyFind="adjustmentsTable"]');
 if (fundamentalTable) {
 	if (useOhrHachaim) {
@@ -252,7 +259,9 @@ if (fundamentalTable) {
 			melakha: arrayOfFuncParams[0].tzetMelakha,
 			fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal,
 			candleLighting: settings.customTimes.candleLighting,
-			rtKulah: settings.calendarToggle.rtKulah
+			rtKulah: settings.calendarToggle.rtKulah,
+			atmosphereProvider: refraction?.provider ?? null,
+			horizon: refraction?.horizon ?? null
 		});
 
 		const winterSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 12 }))
@@ -271,7 +280,7 @@ if (fundamentalTable) {
 					zmanCalc.timeRange.equinox[zman].total("minutes").toFixed(2)
 				))
 
-		fundamentalTable.querySelector('[data-zyReplace="candleLighting"]').innerHTML = settings.customTimes.candleLighting().toString()
+		fundamentalTable.querySelector('[data-zyReplace="candleLighting"]').innerHTML = settings.customTimes.candleLighting.toString()
 		fundamentalTable.querySelector('[data-zyReplace="tzetShabbat"]').innerHTML = [
 			equinox.getShkiya().until(zDTFromFunc(equinox.getTzetMelakha())).total("minutes"),
 			winterSolstice.getShkiya().until(zDTFromFunc(winterSolstice.getTzetMelakha())).total("minutes"),
@@ -291,12 +300,15 @@ const properPaging = document.querySelector('[data-insertBefore]');
 
 for (const monthData of arrayOfFuncParams) {
 	const webWorker = new Worker('/assets/js/features/weeklyPrint/print-web-worker.js', { type: 'module' });
+	// Before the week: messages are handled in order, so it's in place in time
+	webWorker.postMessage(refractionInit);
 	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {
 		actualReceive += 1;
 
 		const respData = msg.data;
 		receiveData[respData.week] = { htmlContent: respData.htmlContent, monthForIntro: respData.monthPrefix };
 		addedZemanim[respData.week] = respData.addedZemanim;
+		Object.assign(sunriseOffsets, respData.sunriseOffsets);
 		if (actualReceive == expectedReceive) {
 			const sortedObject = Object.fromEntries(Object.keys(receiveData)
 				.sort()
@@ -542,95 +554,8 @@ async function preparePrint() {
 		});
 	});
 
-	// Generate QR Code for ChaiTables
-	// Use the jewishYears object to get the Jewish year with the most months covered in our calendar
-
-	const vsTable = document.querySelector('[data-zyFind="vsTable"]');
-	if (vsTable && availableVS.length) {
-		const radiusElem = vsTable.querySelector('[data-zyReplace="sunriseRadius"]')
-		if (!ctNetzURL.searchParams.has("cgi_searchradius")) {
-			radiusElem.previousElementSibling.remove()
-			radiusElem.remove()
-		} else {
-			const vsRNumber = new Intl.NumberFormat(local, { style: "unit", unit: "kilometer" })
-				.format(parseFloat(ctNetzURL.searchParams.get("cgi_searchradius")));
-			radiusElem.innerHTML = vsRNumber;
-		}
-
-		const earliestCalendarDay = Temporal.PlainDate.from(arrayOfFuncParams[0].date);
-		const latestCalendarDay = Temporal.PlainDate.from(arrayOfFuncParams[arrayOfFuncParams.length - 1].date).add({ months: 1 }).subtract({ days: 1 });
-
-		// Convert all the ints of availableVS (second form) to Temporal.PlainDate
-		const availableVSDates = availableVS.map(vsInt => {
-			const vsDate = Temporal.Instant.fromEpochMilliseconds(vsInt * 1000);
-			return vsDate.toZonedDateTimeISO(geoLocation.getTimeZone());
-		});
-
-		// Use Temporal Compare function to determine whether the date is within the calendar range
-		const filteredVSDates = availableVSDates.filter(vsDate =>
-			Temporal.PlainDate.compare(vsDate.toPlainDate(), earliestCalendarDay) >= 0
-			&& Temporal.PlainDate.compare(vsDate.toPlainDate(), latestCalendarDay) <= 0);
-
-		const zmanCalc = new ZemanFunctions(geoLocation, {
-			elevation: arrayOfFuncParams[0].israel,
-			melakha: arrayOfFuncParams[0].tzetMelakha,
-			fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal,
-			candleLighting: settings.customTimes.candleLighting,
-			rtKulah: settings.calendarToggle.rtKulah
-		});
-
-		/** @type {{
-		 * earliest: {msDiff: number; date: Temporal.PlainDate}
-		 * latest: {msDiff: number; date: Temporal.PlainDate}}} */
-		let diffs = {
-			earliest: { msDiff: 0, date: null },
-			latest: { msDiff: 0, date: null }
-		};
-
-		for (const vsDate of filteredVSDates) {
-			zmanCalc.setDate(vsDate.toPlainDate());
-			const sunriseTime = zDTFromFunc(zmanCalc.getNetz());
-			const msDiff = vsDate.epochMilliseconds - sunriseTime.epochMilliseconds;
-
-			if (msDiff < 0 && (diffs.earliest.date === null || msDiff < diffs.earliest.msDiff)) {
-				diffs.earliest = { msDiff, date: vsDate.toPlainDate() };
-			} else if (msDiff > 0 && (diffs.latest.date === null || msDiff > diffs.latest.msDiff)) {
-				diffs.latest = { msDiff, date: vsDate.toPlainDate() };
-			}
-		}
-
-		if (diffs.earliest.date == null) {
-			vsTable.querySelector('[data-zyReplace="earliestOffset"]').innerHTML = "N/A";
-		} else {
-			const dur = Temporal.Duration.from({ milliseconds: Math.abs(diffs.earliest.msDiff) }).round({ smallestUnit: "second" });
-			vsTable.querySelector('[data-zyReplace="earliestOffset"]').innerHTML =
-				formatDuration(dur) + `<div style='font-size:.8em;'>(${diffs.earliest.date})</div>`;
-		}
-
-		if (diffs.latest.date == null) {
-			vsTable.querySelector('[data-zyReplace="latestOffset"]').innerHTML = "N/A";
-		} else {
-			const dur = Temporal.Duration.from({ milliseconds: Math.abs(diffs.latest.msDiff) }).round({ smallestUnit: "second" });
-			vsTable.querySelector('[data-zyReplace="latestOffset"]').innerHTML =
-				formatDuration(dur) + `<div style='font-size:.8em;'>(${diffs.latest.date})</div>`;
-		}
-	} else if (vsTable) {
-		vsTable.remove()
-	}
-
-	if (availableVS.length) {
-		const qrCodeNetzElem = document.getElementById('qrCodeVisualSunrise');
-		if (qrCodeNetzElem) {
-			const jewishYearForQR = Object.entries(jewishYears).sort((a, b) => b[1] - a[1])[0][0];
-			document.querySelector('[data-zyReplace="zyVSHebYear"]').innerHTML = jewishYearForQR;
-			await sleep();
-
-			const fixedNetzURL = new URL(JSON.parse(localStorage.getItem('ctNetz')).url);
-			fixedNetzURL.searchParams.set('cgi_yrheb', jewishYearForQR);
-			qrCodeNetzElem.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(fixedNetzURL.toString())));
-			qrCodeNetzElem.style.height = vsTable.getBoundingClientRect().height + "px"
-		}
-	}
+	fillVisibleSunriseTable(document.querySelector('[data-zyFind="vsTable"]'), sunriseOffsets,
+		baseDate, endDate, refraction?.horizon, local);
 
 	const currentPage = new URL(location.href);
 	currentPage.pathname = '/calendar';
@@ -644,42 +569,8 @@ async function preparePrint() {
 	}
 }
 
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-	try {
-		JSON.parse(str);
-		return true;
-	} catch (e) {
-		return false;
-	}
-}
-
 async function sleep() {
 	return new Promise(requestAnimationFrame);
-}
-
-/**
- * @param {string} val
- */
-function capitalizeFirstLetter(val) {
-	return String(val).charAt(0).toUpperCase() + String(val).slice(1);
-}
-
-/** @param {Temporal.Duration} duration */
-function formatDuration(duration) {
-	const totalSeconds = Math.round(duration.total("seconds"));
-	const minutes = Math.floor(totalSeconds / 60);
-	const seconds = totalSeconds % 60;
-	// Use Intl.DurationFormat when available, fallback otherwise
-	// @ts-ignore
-	if (typeof Intl.DurationFormat !== "undefined") {
-		// @ts-ignore
-		return new Intl.DurationFormat(local, { minute: "short", second: "short" })
-			.format({ minutes, seconds });
-	}
-	return `${minutes}m ${seconds}s`; // safe fallback
 }
 
 /** @param {LocationConfig[]} coords  */
@@ -703,6 +594,4 @@ function averageCoordinates(coords) {
     lng: total.lng / n,
   };
 }
-
-const avg = averageCoordinates(settings.location);
-console.log(`Average location: ${avg.lat.toFixed(6)}, ${avg.lng.toFixed(6)}`);
+console.log(`Average location: ${centreLoc.lat.toFixed(6)}, ${centreLoc.lng.toFixed(6)}`);

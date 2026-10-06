@@ -2,6 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions, zDTFromFunc, methodNames } from "../ROYZmanim.js";
+import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import { settings } from "../settings/handler.js"
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js"
 
@@ -179,8 +180,8 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 		const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 
-		const calc = settings.location.timezone() == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal;
-		calc.setGeoLocation(geoLocation);
+		await preloadFlyerRefraction([geoLocation]);
+		const calc = calcFor(settings.location.timezone() == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal, geoLocation);
 
 		jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.KISLEV, 24);
 		calc.setDate(jCal.getDate());
@@ -304,8 +305,13 @@ for (const yearDisplay of document.querySelectorAll('[data-yearRender]')) {
 const elems = document.getElementsByClassName('timecalc');
 /** @type {Record<string, {elem: Element; geo: KosherZmanim.GeoLocation}>} */
 const dupLocs = {}
+// Each city's actual air and horizon (loaded together, before the first city is computed)
+await preloadFlyerRefraction([...elems].map(elem => new KosherZmanim.GeoLocation("null",
+	parseFloat(elem.getAttribute("data-lat")), parseFloat(elem.getAttribute('data-lng')),
+	elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0,
+	elem.getAttribute('data-timezone'))));
 for (const elem of elems) {
-	const currentCalc = elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal;
+	let currentCalc = elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal;
 	const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
 
 	const geoLocationsParams = [
@@ -316,7 +322,7 @@ for (const elem of elems) {
 		elem.getAttribute('data-timezone')
 	]
 	// @ts-ignore
-	currentCalc.setGeoLocation(new KosherZmanim.GeoLocation(...geoLocationsParams))
+	currentCalc = calcFor(currentCalc, new KosherZmanim.GeoLocation(...geoLocationsParams))
 
 	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 	const dtF = ['en', {
@@ -349,13 +355,13 @@ for (const elem of elems) {
 
 			if (document.getElementById('gridElement').getAttribute('data-flyerType') == 'shovavim') {
 				// @ts-ignore
-				const action = (Temporal.ZonedDateTime.compare(currentCalc[shita](), plag) == 1 ? 'add' : 'subtract')
+				const action = (Temporal.ZonedDateTime.compare(zDTFromFunc(currentCalc[timeFunc]()), plag) == 1 ? 'add' : 'subtract')
 				const times = [];
 				for (let extremeDay = 0; extremeDay < 6; extremeDay++) {
 					const extremeCalc = currentCalc.chainDate(currentCalc.coreZC.getDate().add({ days: extremeDay }));
 					/** @type {Temporal.ZonedDateTime} */
 					// @ts-ignore
-					let extremeTime = extremeCalc[shita]();
+					let extremeTime = zDTFromFunc(extremeCalc[timeFunc]());
 					if (elem.hasAttribute('data-humra')) {
 						extremeTime = extremeTime[action]({minutes: parseInt(elem.getAttribute('data-humra'))})
 					}
@@ -415,8 +421,8 @@ for (const elem of elems) {
 		if (stateLoc in dupLocs) {
 			const baseLocation = dupLocs[stateLoc].elem;
 
-			const baseCalc = new ZemanFunctions(dupLocs[stateLoc].geo,
-				baseLocation.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal.config : amudehHoraahCal.config)
+			const baseCalc = calcFor(baseLocation.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal,
+				dupLocs[stateLoc].geo)
 			baseCalc.setDate(shabbatDate);
 
 			const compTimes = zDTFromFunc(baseCalc.getTzetMelakha()).until(zDTFromFunc(currentCalc.getTzetMelakha())).total({ unit: 'minutes' })

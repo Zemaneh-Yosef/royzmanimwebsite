@@ -1,56 +1,23 @@
 // @ts-check
-import ChaiTables from "../features/chaiTables.js";
-import { geoLocation, jCal } from "./base.js";
+/**
+ * Retired: the screen's netz now comes from the refraction server (base.js passes the terrain horizon
+ * to ZemanFunctions, and getNetz() computes the visible sunrise), so ChaiTables is no longer scraped.
+ * The exports stay as no-ops so pages that still call them keep working; remove those calls, then
+ * this file.
+ */
 
 /**
- * @param {string} selectedCountry
- * @param {string} indexOfMetroArea
+ * @param {string} [_selectedCountry]
+ * @param {string} [_indexOfMetroArea]
  */
-export async function validNetzAssert(selectedCountry, indexOfMetroArea) {
-    if (typeof localStorage !== "undefined") {
-        let validListOfNetzTimes = false;
-        if (localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-            const ctNetz = JSON.parse(localStorage.getItem('ctNetz'));
-            if ('url' in ctNetz) {
-                const ctNetzLink = new URL(ctNetz.url);
-
-                if (ctNetzLink.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
-                && ctNetzLink.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
-                    if (Temporal.Instant.compare(
-                        Temporal.Now.instant(),
-                        Temporal.Instant.fromEpochMilliseconds(ctNetz.times[ctNetz.times.length - 1] * 1000)
-                    ) < 0)
-                        validListOfNetzTimes = true;
-            }
-        }
-
-        if (!validListOfNetzTimes) {
-            localStorage.removeItem('ctNetz');
-            await scrapeChaiTables(selectedCountry, indexOfMetroArea);
-        }
-    }
+export async function validNetzAssert(_selectedCountry, _indexOfMetroArea) {
+	// nothing to do ('ctNetz' is left alone: the website's ChaiTables panel still writes and reads it)
 }
 
 /**
- * @param {string} selectedCountry
- * @param {string} indexOfMetroArea
+ * @param {string} [_selectedCountry]
+ * @param {string} [_indexOfMetroArea]
  */
-export async function scrapeChaiTables(selectedCountry, indexOfMetroArea) {
-    const chaiTableExtracter = new ChaiTables({ geoLocation, jCal });
-    chaiTableExtracter.setOtherData(selectedCountry, indexOfMetroArea);
-
-    const chaiTableData = await chaiTableExtracter.formatInterfacer();
-    localStorage.setItem("ctNetz", JSON.stringify(chaiTableData));
-
-    return true;
-}
-
-/** @param {string} str */
-function isValidJSON(str) {
-    try {
-        JSON.parse(str);
-        return true;
-    } catch (e) {
-        return false;
-    }
+export async function scrapeChaiTables(_selectedCountry, _indexOfMetroArea) {
+	return true;
 }

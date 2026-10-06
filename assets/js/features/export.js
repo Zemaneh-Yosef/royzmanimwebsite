@@ -2,6 +2,31 @@
 
 import { settings } from "../settings/handler.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
+import { snapshotProvider } from "../refraction-snapshot.js";
+
+/**
+ * The calculator setup for the export workers. postMessage can't carry the page's config as-is (its
+ * atmosphere provider and deferVisibleSunrise are functions), so the workers get a plain copy of it and
+ * the provider's results for the exported year; they rebuild the provider with providerFromSnapshot().
+ * The terrain horizon is plain data and stays in the config, so the workers compute the same visible
+ * sunrise as the page.
+ * @param {import('../zmanimListUpdater.js').default} zmanLister
+ * @param {[number, number, number, string]} firstDateParams the first month's PlainDate constructor arguments
+ * @returns {{ config: import("../ROYZmanim.js").ZemanimConfig, refraction: import("./excelPrepare.js").ExportRefraction }}
+ */
+function workerCalcInputs(zmanLister, firstDateParams) {
+	const { atmosphereProvider, deferVisibleSunrise: _deferred, ...config } = zmanLister.zmanCalc.config;
+	const provider = zmanLister.refraction?.provider ?? atmosphereProvider ?? null;
+	// a 13-month year plus a little on each side (some zmanim look at neighbouring days)
+	const from = new Temporal.PlainDate(...firstDateParams).subtract({ days: 14 });
+	return {
+		config,
+		refraction: {
+			table: provider ? snapshotProvider(provider, zmanLister.geoLocation, from, 420) : {},
+			normals: zmanLister.refraction?.normals ?? null
+		}
+	};
+}
 
 export default class exportFriendly {
 	constructor() {
@@ -24,12 +49,13 @@ export default class exportFriendly {
 		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 
 		const { year: isoYear, calendarId: isoCalendar } = zmanLister.jCal.getDate()
+		const calcInputs = workerCalcInputs(zmanLister, [isoYear, 1, 1, isoCalendar]);
 
 		/** @type {Parameters<import('./icsPrepare.js')["default"]>} */
 		const icsParams = [
 			undefined,
 			glArgs,
-			zmanLister.zmanCalc.config,
+			calcInputs.config,
 			zmanLister.jCal.getInIsrael(),
 			exportZmanList,
 			true,
@@ -66,7 +92,7 @@ export default class exportFriendly {
 								.innerHTML
 						]
 				)),
-				netzTimes: zmanLister.zmanCalc.vSunrise.preservedInts,
+				refraction: calcInputs.refraction,
 				learningTitle: Object.fromEntries(
 					Object.keys(zmanLister.jCal.getAllLearning())
 					.map(/** @returns {[string, {"he": string; "en-et": string; "en": string}]} */
@@ -205,14 +231,13 @@ export default class exportFriendly {
 		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 
 		const { year: isoYear, calendarId: isoCalendar } = zmanLister.jCal.getDate()
-
-		let availableVS = zmanLister.zmanCalc.vSunrise.preservedInts;
+		const calcInputs = workerCalcInputs(zmanLister, [isoYear, 1, 1, isoCalendar]);
 
 		/** @type {Parameters<import('./excelPrepare.js')["default"]>} */
 		const excelParams = [
 			undefined,
 			glArgs,
-			zmanLister.zmanCalc.config,
+			calcInputs.config,
 			zmanLister.jCal.getInIsrael(),
 			exportZmanList,
 			false,
@@ -225,7 +250,7 @@ export default class exportFriendly {
 				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
 				seconds: settings.seconds(),
 				timeFormat: settings.timeFormat(),
-				netzTimes: availableVS
+				refraction: calcInputs.refraction
 			}
 		]
 

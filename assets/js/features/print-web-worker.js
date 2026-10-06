@@ -6,6 +6,7 @@ import WebsiteLimudCalendar from '../WebsiteLimudCalendar.js';
 import { parseHTML } from '../../libraries/linkedom/linkedom.mjs'
 import { HebrewNumberFormatter, daysForLocale, getOrdinal, monthForLocale } from '../WebsiteCalendar.js';
 import { ZemanFunctions, methodNames, zDTFromFunc } from '../ROYZmanim.js';
+import { providerFromSnapshot } from '../refraction-snapshot.js';
 import n2wordsOrdinal from '../misc/n2wordsOrdinal.js';
 import makamObj from '../makamObj.js';
 
@@ -24,7 +25,6 @@ const hNum = new HebrewNumberFormatter();
 /** @typedef {{
 	israel: boolean;
 	geoCoordinates: [string, number, number, number, string];
-	netz: number[]
 	htmlElems: string;
 	calendar: 'iso8601'|'hebrew';
 	hourCalculator: "seasonal"|"degrees";
@@ -46,6 +46,12 @@ const hNum = new HebrewNumberFormatter();
   }} singlePageParams */
 
 // "date" of param will have to be in the iso8601 calendar
+/**
+ * Set by the RefractionInit message the page sends before any month (see ../print-refraction.js).
+ * @type {{ provider: import('../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../refraction-snapshot.js').Horizon | null }}
+ */
+const refraction = { provider: null, horizon: null };
+
 /**
   * @param {MessageEvent<singlePageParams>} x
  */
@@ -88,10 +94,14 @@ function messageHandler(x) {
 		melakha: x.data.tzetMelakha,
 		fixedMil: x.data.israel || x.data.hourCalculator == "seasonal",
 		candleLighting: x.data.candleTime,
-		rtKulah: x.data.rtKulah
+		rtKulah: x.data.rtKulah,
+		atmosphereProvider: refraction.provider,
+		horizon: refraction.horizon
 	});
 	zmanCalc.setDate(jCal.getDate())
-	zmanCalc.setVisualSunrise(x.data.netz);
+
+	/** Visible minus sea-level sunrise (ms) per ISO date, for the summary table on the main page. @type {Record<string, number>} */
+	const sunriseOffsets = {};
 
 	// @ts-ignore
 	const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
@@ -689,6 +699,8 @@ function messageHandler(x) {
 
 				let sunriseTime = zmanCalc.getNetz();
 				if (!(sunriseTime instanceof Temporal.ZonedDateTime)) {
+					sunriseOffsets[zmanCalc.coreZC.getDate().withCalendar("iso8601").toString({ calendarName: "never" })] =
+						sunriseTime.time.epochMilliseconds - zmanCalc.coreZC.getSeaLevelSunrise().epochMilliseconds;
 					rZIDoptions.dtF = [defaulTF[0], { ...defaulTF[1], second: '2-digit' }];
 					sunriseTime = sunriseTime.time;
 				}
@@ -1852,7 +1864,7 @@ function messageHandler(x) {
 				thisMonthFooter.lastElementChild.appendChild(tekufaContainer);
 		}
 
-		return { month: x.data.month, htmlContent: [monthTable.outerHTML, thisMonthFooter.outerHTML] };
+		return { month: x.data.month, sunriseOffsets, htmlContent: [monthTable.outerHTML, thisMonthFooter.outerHTML] };
 	} else {
 		const secondSide = document.getElementsByClassName('secondSide')[0];
 
@@ -2118,12 +2130,19 @@ function messageHandler(x) {
 
 		const secondSideClone = handleSecondSide();
 
-		return { month: x.data.month, htmlContent: [monthTable.outerHTML, firstSideClone.outerHTML, backupMonthTable.outerHTML, secondSideClone.outerHTML] };
+		return { month: x.data.month, sunriseOffsets, htmlContent: [monthTable.outerHTML, firstSideClone.outerHTML, backupMonthTable.outerHTML, secondSideClone.outerHTML] };
 	}
 }
 
 if (Worker) {
 	addEventListener('message', async (message) => {
+		// Handled before any await, so it is in place before the first month runs
+		if (message.data && message.data.type === 'refraction') {
+			refraction.provider = providerFromSnapshot(message.data.table, message.data.normals);
+			refraction.horizon = message.data.horizon;
+			return;
+		}
+
 		if (!('Temporal' in globalThis)) {
 			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
 			globalThis.Temporal = Temporal;

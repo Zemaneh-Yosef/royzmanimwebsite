@@ -3,6 +3,12 @@
 import { ZemanFunctions } from "../ROYZmanim.js";
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import { providerFromSnapshot } from "../refraction-snapshot.js";
+
+/**
+ * Refraction data for an export worker (see workerCalcInputs in export.js).
+ * @typedef {{ table: import("../refraction-snapshot.js").ProviderSnapshot, normals: import("../refraction-snapshot.js").Normals | null }} ExportRefraction
+ */
 
 /** @typedef {T[keyof T]} ValueOf<T> */
 /**
@@ -17,7 +23,7 @@ import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
  * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} isTimelyView
  * @param {string[]} selectedLimudim
- * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; netzTimes: number[] }} funcSettings
+ * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; refraction?: ExportRefraction }} funcSettings
  */
 export default function spreadSheetExport(plainDateParams, geoLocationData, config, isIsrael, zmanList, isTimelyView, selectedLimudim, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
@@ -25,13 +31,13 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 
 	const jCal = new WebsiteLimudCalendar(baseDate);
 	jCal.setInIsrael(isIsrael)
-	const calc = new ZemanFunctions(geoLocation, config);
+	const calc = new ZemanFunctions(geoLocation, {
+		...config,
+		atmosphereProvider: funcSettings.refraction
+			? providerFromSnapshot(funcSettings.refraction.table, funcSettings.refraction.normals)
+			: null
+	});
 	calc.setDate(baseDate);
-
-	const vNetz = funcSettings.netzTimes.map((/** @type {number} */ value) => Temporal.Instant
-		.fromEpochMilliseconds(value * 1000)
-		.toZonedDateTimeISO(geoLocation.getTimeZone())
-	);
 
 	/** @param {Temporal.ZonedDateTime} time */
 	const formatTime = (time) => '=TIME(' + [time.hour, time.minute, time.second].join(', ') + ')'
@@ -67,18 +73,6 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 
 		jCal.setDate(jCal.getDate().add({ days: 1 }));
 		calc.setDate(calc.coreZC.getDate().add({ days: 1 }))
-	}
-
-	for (const vNetzDay of vNetz) {
-		const netzDay = events.zemanim.find((event) => event.DATE.f == `=DATE(${vNetzDay.year}, ${vNetzDay.month}, ${vNetzDay.day})`);
-		if (netzDay && 'sunrise' in netzDay && Math.abs(netzDay.sunrise.v - vNetzDay.epochMilliseconds) < 1000 * 60 * 7)
-			netzDay.sunrise = {
-				t: "d", v: new Date(vNetzDay.epochMilliseconds), f: formatTime(vNetzDay), z:
-					"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
-					+ ":mm:ss"
-					+ (["h11", "h12"].includes(funcSettings.timeFormat) ? " AM/PM" : "")
-			}
-
 	}
 
 	return events;

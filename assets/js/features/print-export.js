@@ -8,6 +8,7 @@ import fitty from "../../libraries/fitty.js";
 import QrCode from "../../libraries/qrCode.js";
 
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
+import { loadPrintRefraction, fillVisibleSunriseTable } from "./print-refraction.js";
 
 import * as ol from "../../libraries/OpenLayers/ol.js"
 
@@ -81,24 +82,6 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
 	})
 	.join(" ");
 
-
-const ctNetzRaw = localStorage.getItem('ctNetz');
-const ctNetz = ctNetzRaw && isValidJSON(ctNetzRaw) ? JSON.parse(ctNetzRaw) : {};
-const ctNetzURL = ctNetz?.url ? new URL(ctNetz.url) : null;
-
-/** @type {number[]} */
-let availableVS = [];
-if (ctNetzURL) {
-	if (ctNetzURL.searchParams.get('cgi_eroslatitude') == geoLocation.getLatitude().toFixed(6)
-	&& ctNetzURL.searchParams.get('cgi_eroslongitude') == (-geoLocation.getLongitude()).toFixed(6))
-		availableVS = ctNetz.times
-	else if (ctNetzURL.searchParams.get('cgi_country') == 'Eretz_Yisroel'
-			&& ctNetzURL.searchParams.get('cgi_TableType') == 'BY'
-			&& capitalizeFirstLetter(geoLocation.getLocationName().toLowerCase())
-				.startsWith(capitalizeFirstLetter(ctNetzURL.searchParams.get('cgi_MetroArea'))))
-		availableVS = ctNetz.times
-}
-
 let local = settings.language() == 'hb' ? 'he' : 'en'
 if (navigator.languages.find(lang => lang.startsWith(local)))
 	local = navigator.languages.find(lang => lang.startsWith(local));
@@ -121,7 +104,6 @@ if (elevation) {
 			: meterFormatter.format(geoLocation.getElevation())
 	));
 }
-
 
 /** @type {HTMLElement} */
 const locationMapElem = document.querySelector('[data-zfFind="locationMap"]')
@@ -197,7 +179,6 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 	arrayOfFuncParams.push({
 		israel: ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)),
 		geoCoordinates: glArgs,
-		netz: availableVS,
 		htmlElems: baseTable.outerHTML + (footer ? footer.outerHTML : "") + (secondSide ? secondSide.outerHTML : ""),
 		calendar: cal,
 		hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
@@ -217,6 +198,14 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.ha
 	})
 }
 
+// ─── Refraction data (forecast air + terrain horizon), as on the web page ───
+const firstPrintedDate = plainDateForLoop;
+const lastPrintedDate = plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal }).subtract({ days: 1 });
+const { refraction, refractionInit } = await loadPrintRefraction(geoLocation, firstPrintedDate, lastPrintedDate);
+
+/** Visible minus sea-level sunrise per ISO date (ms), reported by the workers. @type {Record<string, number>} */
+const sunriseOffsets = {};
+
 const fundamentalTable = document.querySelector('[data-zyFind="adjustmentsTable"]');
 if (fundamentalTable) {
 	if (useOhrHachaim) {
@@ -227,7 +216,9 @@ if (fundamentalTable) {
 			melakha: arrayOfFuncParams[0].tzetMelakha,
 			fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal(),
 			candleLighting: settings.customTimes.candleLighting(),
-			rtKulah: settings.calendarToggle.rtKulah()
+			rtKulah: settings.calendarToggle.rtKulah(),
+			atmosphereProvider: refraction?.provider ?? null,
+			horizon: refraction?.horizon ?? null
 		});
 
 		const winterSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 12 }))
@@ -251,11 +242,14 @@ if (fundamentalTable) {
 
 for (const monthData of arrayOfFuncParams) {
 	const webWorker = new Worker('/assets/js/features/print-web-worker.js', { type: 'module' });
+	// Before the month: messages are handled in order, so it's in place in time
+	webWorker.postMessage(refractionInit);
 	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {
 		actualReceive += 1;
 
 		const respData = await msg.data;
 		receiveData[respData.month] = respData.htmlContent
+		Object.assign(sunriseOffsets, respData.sunriseOffsets);
 		if (actualReceive == expectedReceive) {
 			const sortedObject = Object.fromEntries(Object.keys(receiveData)
 				.sort()
@@ -294,96 +288,8 @@ async function preparePrint() {
 		window.fittyElem = fitty(fittyElems, { multiLine: true })
 	}
 
-	// Generate QR Code for ChaiTables
-	// Use the jewishYears object to get the Jewish year with the most months covered in our calendar
-
-	const vsTable = document.querySelector('[data-zyFind="vsTable"]');
-	if (vsTable) {
-		if (availableVS.length == 0) {
-			vsTable.remove();
-		} else {
-			const radiusElem = vsTable.querySelector('[data-zyReplace="sunriseRadius"]')
-			if (!ctNetzURL.searchParams.has("cgi_searchradius")) {
-				radiusElem.previousElementSibling.remove()
-				radiusElem.remove()
-			} else {
-				const vsRNumber = new Intl.NumberFormat(local, { style: "unit", unit: "kilometer"})
-					.format(parseFloat(ctNetzURL.searchParams.get("cgi_searchradius")));
-				radiusElem.innerHTML = vsRNumber;
-			}
-
-			const earliestCalendarDay = Temporal.PlainDate.from(arrayOfFuncParams[0].date);
-			const latestCalendarDay = Temporal.PlainDate.from(arrayOfFuncParams[arrayOfFuncParams.length - 1].date).add({ months: 1 }).subtract({ days: 1 });
-
-			// Convert all the ints of availableVS (second form) to Temporal.PlainDate
-			const availableVSDates = availableVS.map(vsInt => {
-				const vsDate = Temporal.Instant.fromEpochMilliseconds(vsInt * 1000);
-				return vsDate.toZonedDateTimeISO(geoLocation.getTimeZone());
-			});
-
-			// Use Temporal Compare function to determine whether the date is within the calendar range
-			const filteredVSDates = availableVSDates.filter(vsDate =>
-				Temporal.PlainDate.compare(vsDate.toPlainDate(), earliestCalendarDay) >= 0
-				&& Temporal.PlainDate.compare(vsDate.toPlainDate(), latestCalendarDay) <= 0);
-
-			const zmanCalc = new ZemanFunctions(geoLocation, {
-				elevation: arrayOfFuncParams[0].israel,
-				melakha: arrayOfFuncParams[0].tzetMelakha,
-				fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal(),
-				candleLighting: settings.customTimes.candleLighting(),
-				rtKulah: settings.calendarToggle.rtKulah()
-			});
-
-			/** @type {{
-			 * earliest: {msDiff: number; date: Temporal.PlainDate}
-			 * latest: {msDiff: number; date: Temporal.PlainDate}}} */
-			let diffs = {
-				earliest: { msDiff: 0, date: null },
-				latest:   { msDiff: 0, date: null }
-			};
-
-			for (const vsDate of filteredVSDates) {
-				zmanCalc.setDate(vsDate.toPlainDate());
-				const sunriseTime = zDTFromFunc(zmanCalc.getNetz());
-				const msDiff = vsDate.epochMilliseconds - sunriseTime.epochMilliseconds;
-
-				if (msDiff < 0 && (diffs.earliest.date === null || msDiff < diffs.earliest.msDiff)) {
-					diffs.earliest = { msDiff, date: vsDate.toPlainDate() };
-				} else if (msDiff > 0 && (diffs.latest.date === null || msDiff > diffs.latest.msDiff)) {
-					diffs.latest = { msDiff, date: vsDate.toPlainDate() };
-				}
-			}
-
-			if (diffs.earliest.date == null) {
-				vsTable.querySelector('[data-zyReplace="earliestOffset"]').innerHTML = "N/A";
-			} else {
-				const dur = Temporal.Duration.from({ milliseconds: Math.abs(diffs.earliest.msDiff) }).round({ smallestUnit: "second" });
-				vsTable.querySelector('[data-zyReplace="earliestOffset"]').innerHTML =
-					formatDuration(dur) + `<div style='font-size:.8em;'>(${diffs.earliest.date})</div>`;
-			}
-
-			if (diffs.latest.date == null) {
-				vsTable.querySelector('[data-zyReplace="latestOffset"]').innerHTML = "N/A";
-			} else {
-				const dur = Temporal.Duration.from({ milliseconds: Math.abs(diffs.latest.msDiff) }).round({ smallestUnit: "second" });
-				vsTable.querySelector('[data-zyReplace="latestOffset"]').innerHTML =
-					formatDuration(dur) + `<div style='font-size:.8em;'>(${diffs.latest.date})</div>`;
-			}
-		}
-	}
-
-	if (availableVS.length) {
-		const qrCodeNetzElem = document.getElementById('qrCodeVisualSunrise');
-		if (qrCodeNetzElem) {
-			const jewishYearForQR = Object.entries(jewishYears).sort((a, b) => b[1] - a[1])[0][0];
-
-			const fixedNetzURL = new URL(JSON.parse(localStorage.getItem('ctNetz')).url);
-			fixedNetzURL.searchParams.set('cgi_yrheb', jewishYearForQR);
-			qrCodeNetzElem.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(fixedNetzURL.toString())));
-
-			document.querySelector('[data-zyReplace="zyVSHebYear"]').innerHTML = jewishYearForQR;
-		}
-	}
+	fillVisibleSunriseTable(document.querySelector('[data-zyFind="vsTable"]'), sunriseOffsets,
+		firstPrintedDate, lastPrintedDate, refraction?.horizon, local);
 
 	const currentPage = new URL(location.href);
 	currentPage.pathname = '/calendar';
@@ -594,40 +500,7 @@ async function preparePrint() {
 	window.print();
 }
 
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-	try {
-		JSON.parse(str);
-		return true;
-	} catch (e) {
-		return false;
-	}
-}
-
 async function sleep() {
     return new Promise(requestAnimationFrame);
 }
 
-/**
- * @param {string} val
- */
-function capitalizeFirstLetter(val) {
-    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
-}
-
-/** @param {Temporal.Duration} duration */
-function formatDuration(duration) {
-    const totalSeconds = Math.round(duration.total("seconds"));
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    // Use Intl.DurationFormat when available, fallback otherwise
-	// @ts-ignore
-    if (typeof Intl.DurationFormat !== "undefined") {
-		// @ts-ignore
-        return new Intl.DurationFormat(local, { minute: "short", second: "short" })
-            .format({ minutes, seconds });
-    }
-    return `${minutes}m ${seconds}s`; // safe fallback
-}
