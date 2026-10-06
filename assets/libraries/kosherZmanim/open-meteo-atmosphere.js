@@ -56,18 +56,43 @@ function hourlySeries(times, values) {
 	return out;
 }
 
-/** @param {typeof fetch} doFetch @param {string} url */
-async function getJson(doFetch, url) {
-	const r = await doFetch(url);
-	if (!r.ok) {
-		let msg = `HTTP ${r.status}`;
-		try { const j = await r.json(); if (j?.reason) msg += `: ${j.reason}`; } catch { /* not JSON */ }
-		throw new Error(`Open-Meteo request failed (${msg})`);
+/**
+ * GET a JSON response from Open-Meteo, with clear errors and retries for passing trouble.
+ *
+ * Open-Meteo sometimes answers a heavy request with HTTP 200 and a plain-text body ("Unexpected error
+ * while streaming data: timeoutReached"), typically the first time a model is asked for in a while;
+ * the same request usually succeeds seconds later. That, a timeout (the fetch's AbortSignal), a
+ * network error, HTTP 429 and HTTP 5xx are retried `retries` times; HTTP 4xx (a bad request, a
+ * location outside a model) is not.
+ * @param {typeof fetch} doFetch @param {string} url
+ * @param {{ retries?: number, retryDelayMs?: number }} [options] retries default 1, delay default 2000 ms
+ */
+export async function getOpenMeteoJson(doFetch, url, options = {}) {
+	const retries = options.retries ?? 1, delay = options.retryDelayMs ?? 2000;
+	for (let attempt = 0; ; attempt++) {
+		/** @type {boolean} */ let retryable = true;
+		try {
+			const r = await doFetch(url);
+			const text = await r.text();
+			/** @type {any} */ let j;
+			try { j = JSON.parse(text); }
+			catch {
+				retryable = r.ok || r.status === 429 || r.status >= 500;
+				throw new Error(`Open-Meteo request failed (HTTP ${r.status}: ${text.trim().slice(0, 120) || 'empty response'})`);
+			}
+			if (!r.ok || j?.error) {
+				retryable = r.status === 429 || r.status >= 500;
+				throw new Error(`Open-Meteo request failed (HTTP ${r.status}${j?.reason ? `: ${j.reason}` : ''})`);
+			}
+			return j;
+		} catch (e) {
+			if (!retryable || attempt >= retries || globalThis.navigator?.onLine === false) throw e;
+			await new Promise(res => setTimeout(res, delay * (attempt + 1)));
+		}
 	}
-	const j = await r.json();
-	if (j?.error) throw new Error(`Open-Meteo: ${j.reason ?? 'error'}`);
-	return j;
 }
+
+const getJson = getOpenMeteoJson;
 
 /**
  * Forecast-backed provider.

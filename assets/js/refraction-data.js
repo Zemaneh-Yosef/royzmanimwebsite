@@ -290,7 +290,9 @@ export async function loadRefraction(lat, lon, options = {}) {
 	}
 
 	// ── Fetch ──
-	const atm = await createAutoAtmosphere(lat, lon, { serverUrl, normals: cached?.normals ?? null })
+	// wait: this page already shows the stored forecast / normals while this runs (resetCalendar), and
+	// what follows needs the complete result (snapshot, normals, gotForecast)
+	const atm = await createAutoAtmosphere(lat, lon, { serverUrl, normals: cached?.normals ?? null, wait: true })
 		.catch((/** @type {Error} */ e) => { notes.push(`atmosphere: ${e.message}`); return null; });
 	const horizon = await horizonP;
 	if (atm) notes.push(...atm.notes);
