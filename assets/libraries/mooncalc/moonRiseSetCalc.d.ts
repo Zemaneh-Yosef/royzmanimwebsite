@@ -3770,7 +3770,14 @@ export declare function highestLitPointFactor3D(thetaDeg: number, phaseAngleDeg:
 //#region src/moon-calc.d.ts
 type FlexibleDateTime = Date | number | AstroTime;
 type Mode = 'lit' | 'lit-flat' | 'geometric';
-type HorizonTarget = (observer: Observer, metersAboveGround: number) => number;
+/**
+ * Geometric altitude (degrees, usually negative) the Moon's relevant point must reach for rise/set.
+ * `time` is the instant being evaluated, so a target can follow the weather (see moon-refraction.js).
+ * A target that depends on `time` should be piecewise constant (e.g. one value per evening / morning):
+ * nextMoonEvent() evaluates it at the search start and again at the event found, and re-solves once
+ * if the two differ.
+ */
+export type HorizonTarget = (observer: Observer, metersAboveGround: number, time?: AstroTime) => number;
 interface LitLimbAltitudeExcessOptions {
   mode?: Mode;
   metersAboveGround?: number;
@@ -3848,7 +3855,7 @@ export declare const LIBRARY_REFRACTION_ARCMIN = 34;
 export declare const ROY_REFRACTION_ARCMIN = 34.478885263888294;
 export declare function createMoonCalc(Astronomy?: typeof astronomy_d_exports, config?: MoonCalcConfig): {
   horizonDipAngle: (observer: Observer, metersAboveGround: number) => number;
-  horizonTarget: (observer: Observer, metersAboveGround?: number) => number;
+  horizonTarget: (observer: Observer, metersAboveGround?: number, _time?: AstroTime) => number;
   moonGeometry: (time: FlexibleDateTime, observer: Observer) => MoonGeometry;
   litLimbAltitudeExcess: (time: FlexibleDateTime, observer: Observer, opts?: LitLimbAltitudeExcessOptions) => number;
   nextMoonEvent: (direction: number, startTime: FlexibleDateTime, observer: Observer, opts?: NextMoonEventOptions) => AstroTime | null;

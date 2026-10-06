@@ -15,6 +15,8 @@
  *                                        { south: 40.60, west: -73.98, north: 40.63, east: -73.95 });
  *   calc.getVisibleSunrise(date, geo, area);      // epoch ms
  *   calc.getSunrises(date, geo, here);            // { seaLevel, elevated, visible }
+ *   // moon: true adds set.moon, the composite moonrise / moonset horizon (see MoonHorizon below):
+ *   const withMoon = await fetchHorizonForArea('https://example.org/refraction', 31.778, 35.235, { moon: true });
  *
  * The server computes the set once per place and caches it, so this is one small download per place
  * (a few KB for a point, ~50 KB gzip for a vantage set). Keep it with the location; it does not change.
@@ -23,7 +25,7 @@
 /**
  * @typedef {{ south: number, west: number, north: number, east: number }} BoundingBox
  * @typedef {{ radiusKm?: number, bbox?: BoundingBox | [number, number, number, number], area?: boolean, gridM?: number, eyeM?: number,
- *             heightM?: number, minKm?: number, version?: string, fetch?: typeof fetch, signal?: AbortSignal }} HorizonOptions
+ *             heightM?: number, minKm?: number, moon?: boolean, version?: string, fetch?: typeof fetch, signal?: AbortSignal }} HorizonOptions
  *   radiusKm: 0 (default) = the exact coordinates; > 0 = search vantage points within that radius
  *             (the server caps it, default 3 km), each with its own ground height + eyeM.
  *   bbox:     search every spot inside this box instead of a circle ([south, west, north, east] or an
@@ -37,6 +39,9 @@
  *   heightM:  observer height above sea level, for radiusKm 0 (e.g. an upper floor); default ground + eyeM.
  *             Use the same height in the GeoLocation for the elevated sunrise.
  *   minKm:    ignore terrain nearer than this (default 1 km: the observer's own building / hilltop).
+ *   moon:     also return `moon`, the composite moonrise / moonset horizon (the Moon's wider range of
+ *             directions; in an area, the spots at the server's 90th percentile of horizon height, i.e. a
+ *             moonrise nearly all of the area can see). The sun's part of the answer is unchanged.
  *   version:  any string, sent as &v=; the server ignores it, but a new value is a new URL, so browsers
  *             re-fetch instead of using a cached copy (horizons are cached for up to 30 days). Change it
  *             when the server's terrain data changes.
@@ -66,6 +71,7 @@ export async function fetchHorizon(baseUrl, lat, lon, options = {}) {
 	if (options.eyeM != null) q.set('eye', String(options.eyeM));
 	if (options.heightM != null) q.set('height', String(options.heightM));
 	if (options.minKm != null) q.set('min_km', String(options.minKm));
+	if (options.moon) q.set('moon', '1');
 	if (options.version) q.set('v', options.version);
 	const url = `${baseUrl.replace(/\/+$/, '')}/v1/horizon?${q}`;
 	if (cache.has(url)) return cache.get(url);
@@ -105,6 +111,14 @@ export function fetchHorizonForArea(baseUrl, lat, lon, options = {}) {
 	// the server adds `area` (and `areaNote`) when called with area=auto
 	return /** @type {Promise<any>} */ (fetchHorizon(baseUrl, lat, lon, { ...options, area: true }));
 }
+
+/**
+ * One direction of the composite moon horizon. Its geometric elevation, seen from the reference point
+ * (MoonHorizon.lat / lon), is geometricElevation(observerM, heightM, distanceKm) - tiltDeg.
+ * @typedef {{ azimuthDeg: number, distanceKm: number, heightM: number, observerM: number, tiltDeg: number }} MoonHorizonEntry
+ * @typedef {{ lat: number, lon: number, percentile: number, spots: number, spotsUsed: number,
+ *             moonrise: MoonHorizonEntry[], moonset: MoonHorizonEntry[] }} MoonHorizon
+ */
 
 /**
  * @typedef {{ id: string, name: string, kind: string, level: number, source: string, places: string[],

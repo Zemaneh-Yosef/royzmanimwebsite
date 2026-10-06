@@ -3,6 +3,9 @@ import { createMoonCalc, AstronomyImp } from '../../../libraries/mooncalc/moonRi
 import * as KosherZmanim from '../../../libraries/kosherZmanim/kosher-zmanim.js';
 import WebsiteCalendar from '../../WebsiteCalendar.js';
 import { ZemanFunctions, zDTFromFunc } from '../../ROYZmanim.js';
+import { providerFromSnapshot } from '../../refraction-snapshot.js';
+import { moonHorizonTarget } from '../../moon-refraction.js';
+import { createVisibleMoon } from '../../moon-visible.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -54,6 +57,11 @@ function classifyCoverage(moon, winStart, winEnd) {
 }
 
 /**
+ * Next moonrise / moonset at or after an instant (epoch ms), or null if none within the search horizon.
+ * @typedef {{ rise: (epochMs: number) => number | null, set: (epochMs: number) => number | null }} MoonEvents
+ */
+
+/**
  * Finds the moon-up interval (rise -> set) that overlaps the window [winStart, winEnd], in epoch ms.
  *
  * The moon may already be up when the window opens (e.g. it rose in the afternoon and is still up
@@ -63,23 +71,18 @@ function classifyCoverage(moon, winStart, winEnd) {
  *  - Moon not up at winStart: interval is [the next rise, the set after it], but only if that rise
  *    occurs before winEnd. Otherwise the moon is not in the sky at any point of the window -> null.
  *
- * `mode: 'lit'` is used because we care about the moon being illuminated/visible.
- * `limitDays` is the search horizon of the calculator.
- * rise or set is null only if the calculator finds none within its horizon.
+ * `events` decides what rise / set mean: visible over the terrain when there is a moon horizon, else
+ * the lit limb on the flat horizon (see messageHandler).
+ * rise or set is null only if none is found within the search horizon.
  *
- * @param {ReturnType<typeof createMoonCalc>} calc
- * @param {AstronomyImp.Observer} observer
+ * @param {MoonEvents} events
  * @param {number} winStart
  * @param {number} winEnd
  * @returns {{rise: number | null, set: number | null} | null}
  */
-function findMoonUp(calc, observer, winStart, winEnd) {
-	/** @type {{mode: 'lit', limitDays: number}} */
-	const opts = { mode: 'lit', limitDays: 2 };
-	const ms = (/** @type {AstronomyImp.AstroTime | null | undefined} */ t) => t ? t.date.getTime() : null;
-
-	const nextRise = ms(calc.nextMoonRise(new Date(winStart), observer, opts));
-	const nextSet = ms(calc.nextMoonSet(new Date(winStart), observer, opts));
+function findMoonUp(events, winStart, winEnd) {
+	const nextRise = events.rise(winStart);
+	const nextSet = events.set(winStart);
 
 	// A set that comes before the next rise means the moon is currently up.
 	// (Condition is inlined, not stored in a boolean, so TS narrows nextSet to number inside.)
@@ -88,7 +91,7 @@ function findMoonUp(calc, observer, winStart, winEnd) {
 		let rise = null;
 		let cursor = winStart - 2 * DAY_MS;
 		for (let i = 0; i < 4; i++) {
-			const r = ms(calc.nextMoonRise(new Date(cursor), observer, opts));
+			const r = events.rise(cursor);
 			if (r === null || r >= nextSet) break;
 			rise = r;
 			cursor = r + 60 * 1000;
@@ -100,10 +103,19 @@ function findMoonUp(calc, observer, winStart, winEnd) {
 		return null;
 
 	// The set that completes THIS rise's arc, searched from the rise itself.
-	return { rise: nextRise, set: ms(calc.nextMoonSet(new Date(nextRise), observer, opts)) };
+	return { rise: nextRise, set: events.set(nextRise) };
 }
 
 /** @typedef {{geoCoordinates: [string, number, number, number, string]; months: {year: number; month: number}[]; israel: boolean; hourCalculator: "seasonal"|"degrees";}} birkatWorkerParam */
+
+/** Same message the weekly print workers get. @typedef {import('./print-web-worker.js').RefractionInit} RefractionInit */
+
+/**
+ * Set by the RefractionInit message, which the page posts before any months.
+ * Both stay null if it never comes: then the calculators use their standard-air defaults.
+ * @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null }}
+ */
+const refraction = { provider: null, horizon: null };
 
 /**
  * @typedef {Object} MoonEvent
@@ -169,9 +181,37 @@ function messageHandler(x) {
 	const baseCal = new WebsiteCalendar();
 	const observer = new AstronomyImp.Observer(geoLocation.getLatitude(), geoLocation.getLongitude(), geoLocation.getElevation());
 	const calc = createMoonCalc();
+	// Moonrise / moonset refraction from the same air as the sun's (falls back to calc's standard air)
+	const horizonTarget = moonHorizonTarget(refraction.provider, tz, calc.horizonTarget, geoLocation);
+
+	// Flat horizon: the same convention as the printed sun times. With elevation on (Israel), a sea-level
+	// horizon seen from the elevation (the dip included); otherwise an observer at sea level.
+	const elevationM = x.israel ? Math.max(0, geoLocation.getElevation()) : 0;
+	const flatObserver = new AstronomyImp.Observer(geoLocation.getLatitude(), geoLocation.getLongitude(), elevationM);
+	/** @type {{mode: 'lit', limitDays: number, metersAboveGround: number, horizonTarget: ReturnType<typeof moonHorizonTarget>}} */
+	const flatOpts = { mode: 'lit', limitDays: 2, metersAboveGround: elevationM, horizonTarget };
+	const msOf = (/** @type {AstronomyImp.AstroTime | null | undefined} */ t) => t ? t.date.getTime() : null;
+	/** @type {import('../../moon-visible.js').FlatEvent} */
+	const flat = (dir, at) => msOf(dir > 0
+		? calc.nextMoonRise(new Date(at), flatObserver, flatOpts)
+		: calc.nextMoonSet(new Date(at), flatObserver, flatOpts));
+
+	// Over the terrain when the server sent a moon horizon: the moonrise about 90% of the area can see
+	// (and the moonset before it is hidden from about 90% of it). Directions the data doesn't cover: flat.
+	const moonHorizon = refraction.horizon?.moon;
+	const visible = moonHorizon?.moonrise?.length && moonHorizon.moonset?.length
+		? createVisibleMoon(calc, moonHorizon, AstronomyImp, { provider: refraction.provider, timeZone: tz, geo: geoLocation, flat })
+		: null;
+	/** @type {MoonEvents} */
+	const moonEvents = visible
+		? { rise: visible.nextRise, set: visible.nextSet }
+		: { rise: at => flat(1, at), set: at => flat(-1, at) };
 	const dayCalc = new ZemanFunctions(geoLocation, {
 		elevation: x.israel,
 		fixedMil: x.israel || x.hourCalculator == "seasonal",
+		// Same atmosphere and horizon as the weekly pages, so shkiya / netz here match the printed times
+		atmosphereProvider: refraction.provider,
+		horizon: refraction.horizon,
 
 		// Rest are unused, so we'll fill them with defaults
 		candleLighting: 0,
@@ -199,7 +239,7 @@ function messageHandler(x) {
 			return null;
 
 		// Moon-up interval overlapping the bediavad window. None -> skip the night entirely.
-		const moon = findMoonUp(calc, observer, bediavad[0], bediavad[1]);
+		const moon = findMoonUp(moonEvents, bediavad[0], bediavad[1]);
 		if (!moon)
 			return null;
 
@@ -329,13 +369,20 @@ function messageHandler(x) {
 	});
 }
 
-addEventListener('message', async (message) => {
+addEventListener('message', async (/** @type {MessageEvent<birkatWorkerParam | RefractionInit>} */ message) => {
+	// Handled before any await, so it is in place before the first month runs
+	if ('type' in message.data && message.data.type === 'refraction') {
+		refraction.provider = providerFromSnapshot(message.data.table, message.data.normals);
+		refraction.horizon = message.data.horizon;
+		return;
+	}
+
 	try {
 		if (!('Temporal' in globalThis)) {
 			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
 			globalThis.Temporal = Temporal;
 		}
-		postMessage(messageHandler(message.data));
+		postMessage(messageHandler(/** @type {birkatWorkerParam} */ (message.data)));
 	} catch (err) {
 		console.error('moon-birkat-worker failed:', err);
 		// Throwing inside an async listener only causes an unhandled rejection in the worker,

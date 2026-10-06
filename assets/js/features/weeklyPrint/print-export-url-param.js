@@ -146,6 +146,7 @@ const endDate = Temporal.Now.plainDateISO()
 	.subtract({ days: 1 })
 const endDateForLoop = endDate.add({ days: (7 - endDate.dayOfWeek) % 7 })
 
+// Workers start once the refraction data is in (mRender.start below)
 const mRender = new MoonRender(geoLocation, {
 	language: settings.language(),
 	timeFormat: settings.timeFormat(),
@@ -158,14 +159,19 @@ const weeksForLoop = baseDateForLoop.until(endDateForLoop).total({ unit: 'week',
 // This page is the main thread, so loadRefraction() can use localStorage (horizon + normals are
 // shared with the web page's cache). Workers can't receive the provider (a closure), so we evaluate it
 // here for every sunrise / sunset in range and post the plain results; dates outside the snapshot fall
-// back to the monthly normals inside the worker.
+// back to the monthly normals inside the worker. The moon workers get the same snapshot, so it also spans
+// their nights: the first Hebrew month can start up to a month before the printed range.
 const SNAPSHOT_MARGIN_DAYS = 14; // holiday boxes look a few days before / after their week
-const snapshotStart = baseDateForLoop.withCalendar("iso8601").subtract({ days: SNAPSHOT_MARGIN_DAYS });
-const snapshotDays = snapshotStart.until(endDateForLoop.withCalendar("iso8601"), { largestUnit: "day" }).days
-	+ 1 + SNAPSHOT_MARGIN_DAYS;
+const moonNights = mRender.nightRange();
+const earlier = (/** @type {Temporal.PlainDate} */ a, /** @type {Temporal.PlainDate | undefined} */ b) => b && Temporal.PlainDate.compare(b, a) < 0 ? b : a;
+const later = (/** @type {Temporal.PlainDate} */ a, /** @type {Temporal.PlainDate | undefined} */ b) => b && Temporal.PlainDate.compare(b, a) > 0 ? b : a;
+const snapshotStart = earlier(baseDateForLoop.withCalendar("iso8601").subtract({ days: SNAPSHOT_MARGIN_DAYS }), moonNights?.from);
+const snapshotEnd = later(endDateForLoop.withCalendar("iso8601").add({ days: SNAPSHOT_MARGIN_DAYS }), moonNights?.to);
+const snapshotDays = snapshotStart.until(snapshotEnd, { largestUnit: "day" }).days + 1;
 
 const refraction = await loadRefraction(geoLocation.getLatitude(), geoLocation.getLongitude(), {
-	prefetch: { from: snapshotStart, days: snapshotDays }
+	prefetch: { from: snapshotStart, days: snapshotDays },
+	moon: true // the moon pages' visible moonrise / moonset (horizon.moon); the sun's part is unchanged
 });
 if (refraction.notes.length)
 	console.info("Refraction:", refraction.notes);
@@ -177,6 +183,9 @@ const refractionInit = {
 	normals: refraction.normals,
 	horizon: refraction.horizon
 };
+
+// The moon workers take the same message as the weekly ones
+mRender.start(refractionInit);
 
 const yearsForDisplay = [dateForCal.year];
 if (printParam.has('continueToNext')) {
@@ -734,4 +743,4 @@ function formatDuration(duration) {
 			.format({ minutes, seconds });
 	}
 	return `${minutes}m ${seconds}s`; // safe fallback
-}
+}

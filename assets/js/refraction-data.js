@@ -218,7 +218,8 @@ export function forecastStaleIn(cached) {
 /** @param {number} lon */
 function yesterdayAt(lon) {
 	// local date at this longitude, minus a day (the forecast/server ranges start yesterday too)
-	return Temporal.Instant.fromEpochMilliseconds(Date.now() + lon / 15 * 3600000)
+	// Temporal (natively, unlike some polyfills) requires a whole number of milliseconds
+	return Temporal.Instant.fromEpochMilliseconds(Math.round(Date.now() + lon / 15 * 3600000))
 		.toZonedDateTimeISO("UTC").toPlainDate().subtract({ days: 1 });
 }
 
@@ -234,10 +235,12 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  * With a fresh stored forecast (< FORECAST_TTL_MS) no forecast request is made at all.
  *
  * @param {number} lat @param {number} lon
- * @param {{ serverUrl?: string, prefetch?: { from: Temporal.PlainDate, days: number }, force?: boolean, signal?: AbortSignal }} [options]
+ * @param {{ serverUrl?: string, prefetch?: { from: Temporal.PlainDate, days: number }, force?: boolean, moon?: boolean, signal?: AbortSignal }} [options]
  *   prefetch: also load the server's climatology for this range (e.g. a yearly print). Only the server
  *     is asked for it: a fresh stored forecast still saves the Open-Meteo download.
  *   force: ignore the stored forecast and fetch.
+ *   moon: the horizon must include `moon` (the composite moonrise / moonset horizon). A stored horizon
+ *     without it is fetched again once; if that fails, the stored one is kept (the sun still has it).
  * @returns {Promise<RefractionData>}
  */
 export async function loadRefraction(lat, lon, options = {}) {
@@ -249,10 +252,11 @@ export async function loadRefraction(lat, lon, options = {}) {
 	const notes = [];
 
 	/** @type {Promise<Horizon | null>} */
-	const horizonP = cached?.horizon
+	const horizonP = cached?.horizon && (!options.moon || cached.horizon.moon)
 		? Promise.resolve(cached.horizon)
-		: fetchHorizonForArea(serverUrl, lat, lon, { signal: options.signal, version: TERRAIN_VERSION })
-			.catch((/** @type {Error} */ e) => { notes.push(`horizon: ${e.message}`); return null; });
+		: fetchHorizonForArea(serverUrl, lat, lon, { signal: options.signal, version: TERRAIN_VERSION, moon: options.moon })
+			// a stored sun-only horizon beats none when the moon version can't be had
+			.catch((/** @type {Error} */ e) => { notes.push(`horizon: ${e.message}`); return cached?.horizon ?? null; });
 
 	// ── Fresh forecast in storage: no Open-Meteo request ──
 	if (freshForecast) {
@@ -272,7 +276,7 @@ export async function loadRefraction(lat, lon, options = {}) {
 		}
 		const horizon = await horizonP;
 		const normals = cached?.normals ?? null;
-		if (!cached?.horizon && horizon)
+		if (horizon && horizon !== cached?.horizon)
 			writeForPlace(id, staticKey(id), { horizon, normals });
 
 		notes.push(`forecast from storage (${Math.round((Date.now() - freshForecast.fetchedAt) / 60000)} min old)`);

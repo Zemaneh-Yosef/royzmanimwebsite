@@ -9,6 +9,7 @@ const MONTHS_PER_PAGE = 1;
 /** @typedef {{ms: number, thetaDeg: number, phaseAngleDeg: number}} MoonEvent */
 /** @typedef {import('./moon-birkat-worker.js').MonthResult} MonthResult */
 /** @typedef {import('./moon-birkat-worker.js').BirkatRow} BirkatRow */
+/** @typedef {import('./print-web-worker.js').RefractionInit} RefractionInit */
 
 const TEXT = {
 	en: {
@@ -62,6 +63,8 @@ export default class MoonRender {
     hNum = new HebrewNumberFormatter();
 
     /**
+     * Collects the months to print. Nothing is computed until start(): the workers need the refraction
+     * data, which the page loads after constructing this (see nightRange()).
      * @param {import('../../../libraries/kosherZmanim/kosher-zmanim').GeoLocation} geoLocation
      * @param {{language: "en" | "hb" | "en-et";timeFormat: 'h11' | 'h12' | 'h23' | 'h24';hourCalculator: "seasonal" | "degrees";}} settings
      * @param {Temporal.PlainDate} baseDate
@@ -71,24 +74,48 @@ export default class MoonRender {
         this.geoLocation = geoLocation;
         this.settings = settings;
 
-        const hebrewMonthsInRange = collectHebrewMonths(baseDate.withCalendar('hebrew'), endDate.withCalendar('hebrew'));
+        this.months = collectHebrewMonths(baseDate.withCalendar('hebrew'), endDate.withCalendar('hebrew'));
         /** @type {[string, number, number, number, string]} */
         // @ts-ignore
-        const glArgs = [geoLocation.getLocationName(), geoLocation.getLatitude(), geoLocation.getLongitude(), geoLocation.getElevation(),
+        this.glArgs = [geoLocation.getLocationName(), geoLocation.getLatitude(), geoLocation.getLongitude(), geoLocation.getElevation(),
             geoLocation.getTimeZone()
         ];
 
-        const israel = ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName));
+        this.israel = ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName));
+    }
 
-        this.spawnMoonWorkers(hebrewMonthsInRange, glArgs, israel);
+    /**
+     * ISO dates spanning every night the workers will compute: from the evening before the 1st of the
+     * first month to the morning after the 15th of the last. The page uses it to size the refraction
+     * snapshot, since a month that starts before the printed range still gets its moon page.
+     * @returns {{ from: Temporal.PlainDate, to: Temporal.PlainDate } | null}
+     */
+    nightRange() {
+        if (!this.months.length) return null;
+        const cal = new WebsiteCalendar();
+        const first = this.months[0], last = this.months[this.months.length - 1];
+        return {
+            from: cal.chainJewishDate(first.year, first.month, 1).getDate().withCalendar('iso8601').subtract({ days: 1 }),
+            to: cal.chainJewishDate(last.year, last.month, 15).getDate().withCalendar('iso8601').add({ days: 1 })
+        };
+    }
+
+    /**
+     * Spawns the workers. Call once, after the refraction data is loaded.
+     * @param {RefractionInit | null} [refractionInit] the message the weekly workers get; without it the
+     *   moon workers use standard air
+     */
+    start(refractionInit = null) {
+        this.spawnMoonWorkers(this.months, this.glArgs, this.israel, refractionInit);
     }
 
     /**
      * @param {{year: number; month: number}[]} months
      * @param {[string, number, number, number, string]} glArgs
      * @param {boolean} israel
+     * @param {RefractionInit | null} refractionInit
      */
-    spawnMoonWorkers(months, glArgs, israel) {
+    spawnMoonWorkers(months, glArgs, israel, refractionInit) {
         const anchor = document.querySelector('[data-monthPrefix^="7"]');
         if (!anchor || !months.length) return;
 
@@ -146,6 +173,10 @@ export default class MoonRender {
                 indices.forEach(i => placeholders[i].remove());
                 finish();
             });
+
+            // Once per worker, before the months: messages are handled in order, so it's in place in time
+            if (refractionInit)
+                worker.postMessage(refractionInit);
 
             worker.postMessage({
                 geoCoordinates: glArgs,
@@ -416,4 +447,4 @@ export default class MoonRender {
 
         placeholder.remove();
     }
-}
+}

@@ -13,6 +13,7 @@ import { chainProviders, monthlyClimate } from "../libraries/kosherZmanim/royzma
 /** @typedef {import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonSet} HorizonSet */
 /** @typedef {import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").VisibleOptions} VisibleOptions */
 /** @typedef {import("../libraries/kosherZmanim/horizon-client.js").AreaInfo} AreaInfo */
+/** @typedef {import("../libraries/kosherZmanim/horizon-client.js").MoonHorizon} MoonHorizon */
 /** @typedef {'sunrise'|'sunset'} SolarEvent */
 
 /**
@@ -20,7 +21,10 @@ import { chainProviders, monthlyClimate } from "../libraries/kosherZmanim/royzma
  * @typedef {(date: Temporal.PlainDate, event: SolarEvent, geo?: any) => AtmosphereSpec | null | undefined} AtmosphereProvider
  */
 
-/** @typedef {HorizonSet & { area?: AreaInfo | null, areaNote?: string }} Horizon */
+/**
+ * moon: the composite moonrise / moonset horizon, when it was asked for (loadRefraction's moon option).
+ * @typedef {HorizonSet & { area?: AreaInfo | null, areaNote?: string, moon?: MoonHorizon | null }} Horizon
+ */
 /** @typedef {{ minC: number[], meanC: number[], pressureMb?: number, heightM?: number }} Normals */
 
 /**
