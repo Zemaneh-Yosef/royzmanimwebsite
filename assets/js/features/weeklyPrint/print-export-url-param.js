@@ -12,7 +12,7 @@ import { loadRefraction, snapshotProvider } from "../../refraction-data.js";
 
 import * as ol from "../../../libraries/OpenLayers/ol.js"
 
-import { lightPollution } from "../../../libraries/lightPollution/lightPollution.js";
+import { fetchLightPollution } from "../../../libraries/light-pollution-client.js";
 import MoonRender from "./moon-render.js";
 
 const printParam = new URLSearchParams(window.location.search);
@@ -88,7 +88,7 @@ if (elevation) {
 const lightPol = document.querySelector('[data-zyReplace="light-pollution"]')
 if (lightPol)
 	lightPol.appendChild(document.createTextNode(
-		(((await lightPollution(geoLocation.getLatitude(), geoLocation.getLongitude())) * Math.PI) * 1000).toFixed(2)
+		(await fetchLightPollution("https://hanetz.royzmanim.com/selfhost", geoLocation.getLatitude(), geoLocation.getLongitude())).artificialMcdM2.toFixed(2)
 		+ " mcd/m²"
 	));
 
@@ -743,4 +743,4 @@ function formatDuration(duration) {
 			.format({ minutes, seconds });
 	}
 	return `${minutes}m ${seconds}s`; // safe fallback
-}
+}
