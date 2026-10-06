@@ -6,6 +6,7 @@ import WebsiteLimudCalendar from '../../WebsiteLimudCalendar.js';
 import { parseHTML } from '../../../libraries/linkedom/linkedom.mjs'
 import { daysForLocale } from '../../WebsiteCalendar.js';
 import { ZemanFunctions, methodNames, zDTFromFunc } from '../../ROYZmanim.js';
+import { providerFromSnapshot } from '../../refraction-snapshot.js';
 import n2wordsOrdinal from '../../misc/n2wordsOrdinal.js';
 import makamObj from '../../makamObj.js';
 
@@ -27,7 +28,6 @@ hNum.setUseFinalFormLetters(true);
 /** @typedef {{
 	israel: boolean;
 	geoCoordinates: [string, number, number, number, string];
-	netz: number[]
 	htmlElems: string;
 	calendar: 'iso8601'|'hebrew';
 	hourCalculator: "seasonal"|"degrees";
@@ -43,6 +43,19 @@ hNum.setUseFinalFormLetters(true);
 	candleTime: number;
 	addedZemanim: string[];
   }} singlePageParams */
+
+/**
+ * Sent once per worker, before any week (see print-export-url-param.js). Workers have no localStorage
+ * and can't receive the provider closure, so they get the provider's plain results instead.
+ * @typedef {{
+	type: 'refraction';
+	table: import('../../refraction-snapshot.js').ProviderSnapshot;
+	normals: import('../../refraction-snapshot.js').Normals | null;
+	horizon: import('../../refraction-snapshot.js').Horizon | null;
+  }} RefractionInit */
+
+/** Set by the RefractionInit message. @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null }} */
+const refraction = { provider: null, horizon: null };
 
 // "date" of param will have to be in the iso8601 calendar
 /**
@@ -83,10 +96,14 @@ function messageHandler(x) {
 		melakha: x.data.tzetMelakha,
 		fixedMil: x.data.israel || x.data.hourCalculator == "seasonal",
 		candleLighting: x.data.candleTime,
-		rtKulah: x.data.rtKulah
+		rtKulah: x.data.rtKulah,
+		atmosphereProvider: refraction.provider,
+		horizon: refraction.horizon
 	});
 	zmanCalc.setDate(jCal.getDate())
-	zmanCalc.setVisualSunrise(x.data.netz);
+
+	/** Visible minus sea-level sunrise (ms) per ISO date, for the summary table on the main page. @type {Record<string, number>} */
+	const sunriseOffsets = {};
 
 	// @ts-ignore
 	const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
@@ -256,7 +273,7 @@ function messageHandler(x) {
 		// @ts-expect-error
 		const round = zmanRow.getAttribute("data-round")
 
-		const div = zmanRow.lastElementChild
+		const div = /** @type {HTMLElement} */ (zmanRow.lastElementChild)
 		/**
 		 * @param {Temporal.ZonedDateTime} zDT
 		 * @param {'earlier'|'later'} round
@@ -296,7 +313,7 @@ function messageHandler(x) {
 				if (zmanRow.hasAttribute('data-zytzetstrict'))
 					renderZmanInDiv(zmanCalc.getTzetHumra(), round, { dtF: defaulTF, icon: x.data.lang == 'hb' ? ' (חומרה: ' : ' (Strict:', appendText: ')' })
 
-				const tzetInUse = [...zmanRow.getElementsByClassName("zman-time")].at(-1)
+				const tzetInUse = /** @type {HTMLElement | undefined} */ ([...zmanRow.getElementsByClassName("zman-time")].at(-1))
 				if (!tzetInUse) {
 					break;
 				}
@@ -316,7 +333,7 @@ function messageHandler(x) {
 			case 'getAlotHashahar':
 				renderZmanInDiv(zmanCalc.getAlotHashahar(), round);
 				if (jCal.isTaanis() && jCal.getJewishMonth() !== WebsiteLimudCalendar.AV && !jCal.isYomKippur()) {
-					div.lastElementChild.style.fontWeight = "800"
+					/** @type {HTMLElement} */ (div.lastElementChild).style.fontWeight = "800"
 				}
 				break;
 			case 'getNetz':
@@ -334,7 +351,7 @@ function messageHandler(x) {
 				renderZmanInDiv(zmanCalc.getShkiya(), round);
 				if (jCal.getJewishMonth() == KosherZmanim.JewishDate.AV
 					&& ((jCal.getJewishDayOfMonth() == 9 && jCal.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY)
-						|| (jCal.getJewishDayOfMonth() == 8 && jCal.getDayOfWeek() !== KosherZmanim.Calendar.FRIDAY))) { div.lastElementChild.style.fontWeight = "800" }
+						|| (jCal.getJewishDayOfMonth() == 8 && jCal.getDayOfWeek() !== KosherZmanim.Calendar.FRIDAY))) { /** @type {HTMLElement} */ (div.lastElementChild).style.fontWeight = "800" }
 
 				break;
 			default:
@@ -948,6 +965,11 @@ function messageHandler(x) {
 		jCal.setDate(plainDate.withCalendar("iso8601"))
 		zmanCalc.setDate(plainDate.withCalendar("iso8601"));
 
+		const netz = zmanCalc.getNetz();
+		if (!(netz instanceof Temporal.ZonedDateTime))
+			sunriseOffsets[plainDate.withCalendar("iso8601").toString({ calendarName: "never" })] =
+				netz.time.epochMilliseconds - zmanCalc.coreZC.getSeaLevelSunrise().epochMilliseconds;
+
 		populateHighlightZmanim();
 
 		const dateText = [jCal.getDate().toLocaleString('en', { month: "long" }) + " " +
@@ -1040,7 +1062,8 @@ function messageHandler(x) {
 		}
 
 		for (const shitaFull of x.data.addedZemanim) {
-			const [shita, round] = shitaFull.split("|")
+			const [shita, roundAttr] = shitaFull.split("|")
+			const round = /** @type {'earlier'|'later'|'noRound'} */ (roundAttr)
 			if (shitaFull == "get72Seasonal")
 				addedZemanim[shitaFull][plainDate.toString()] = handleRound(zmanCalc.timeRange.current.tzethakokhavim, "later").toLocaleString(...defaulTF);
 			else if (shitaFull == "rambamYomi") {
@@ -1148,7 +1171,7 @@ function messageHandler(x) {
 	const yerushalmiFinder = document.querySelector('[data-learningInsert=yerushalmi]')
 	if (yerushalmiFinder)
 		yerushalmiFinder.appendChild(document.createTextNode(hNum.formatDafYerushalmiYomiRange(
-			...Object.values(KosherZmanim.YerushalmiYomiCalculator.formatDafRange(new KosherZmanim.JewishDate(dateRange[0]), new KosherZmanim.JewishDate(dateRange[1])))
+			...yerushalmiRange(KosherZmanim.YerushalmiYomiCalculator.formatDafRange(new KosherZmanim.JewishDate(dateRange[0]), new KosherZmanim.JewishDate(dateRange[1])))
 		)))
 
 	const halachaFinder = document.querySelector('[data-learningInsert=halacha]')
@@ -1852,16 +1875,24 @@ function messageHandler(x) {
 
 	handleSecondSide()
 	whiteTekufotMonth.setAttribute('data-events', whiteTekufotMonth.childElementCount.toString())
-	return { week: x.data.week, htmlContent: [...document.getElementsByClassName("page")].map(elem => elem.outerHTML), addedZemanim, monthPrefix: (dateRangeHeb[0].day == 1 || dateRangeHeb[0].month !== dateRangeHeb[1].month) ? (new WebsiteLimudCalendar(dateRangeHeb[1])).getJewishMonth() : null }
+	return { week: x.data.week, sunriseOffsets, htmlContent: [...document.getElementsByClassName("page")].map(elem => elem.outerHTML), addedZemanim, monthPrefix: (dateRangeHeb[0].day == 1 || dateRangeHeb[0].month !== dateRangeHeb[1].month) ? (new WebsiteLimudCalendar(dateRangeHeb[1])).getJewishMonth() : null }
 }
 
 if (Worker) {
-	addEventListener('message', async (message) => {
+	addEventListener('message', async (/** @type {MessageEvent<singlePageParams | RefractionInit>} */ message) => {
+		// Handled before any await, so it is in place before the first week runs
+		if ('type' in message.data && message.data.type === 'refraction') {
+			refraction.provider = providerFromSnapshot(message.data.table, message.data.normals);
+			refraction.horizon = message.data.horizon;
+			return;
+		}
+
 		if (!('Temporal' in globalThis)) {
+			// @ts-ignore -- URL import: no type declarations
 			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
 			globalThis.Temporal = Temporal;
 		}
-		postMessage(messageHandler(message))
+		postMessage(messageHandler(/** @type {MessageEvent<singlePageParams>} */ (message)))
 	})
 	addEventListener('error', (e) => console.error(e));
 }
@@ -1934,6 +1965,15 @@ function romanize (num) {
     while (i--)
         roman = (key[+digits.pop() + (i * 10)] || "") + roman;
     return Array(+digits.join("") + 1).join("M") + roman;
+}
+
+/**
+ * formatDafRange's result as the argument pair formatDafYerushalmiYomiRange takes
+ * @param {{ firstDaf: any, lastDaf: any }} range
+ * @returns {[any, any]}
+ */
+function yerushalmiRange(range) {
+	return [range.firstDaf, range.lastDaf];
 }
 
 export default messageHandler;

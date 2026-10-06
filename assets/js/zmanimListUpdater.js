@@ -1,17 +1,32 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
+import { ZemanFunctions, methodNames, zDTFromFunc, seedVisiblePlaceholders } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
 import ChaiTables from "./features/chaiTables.js";
 import * as leaflet from "../libraries/leaflet/leaflet.js"
+import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
+import VisibleSunriseClient from "./visible-sunrise-client.js";
+
+/** Floor for the next refraction check, so a clock or storage oddity can't cause a request loop. */
+const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
 
 import exportFriendly from "./features/export.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
 
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
+
+/**
+ * @typedef {Object} ZmanimDisplay
+ * @property {string} function - Method name from ZemanFunctions
+ * @property {boolean} yomTovInclusive - Include if Yom Tov
+ * @property {boolean} luachInclusive - Include if in Hebrew calendar
+ * @property {string|null} condition - Custom condition
+ * @property {string|null} round - Rounding strategy
+ * @property {{hb: string; en: string; 'en-et': string}} title - Display titles
+ */
 
 export default class zmanimListUpdater {
 	/**
@@ -23,6 +38,31 @@ export default class zmanimListUpdater {
 		this.jCal = new WebsiteLimudCalendar();
 		this.jCal.setUseModernHolidays(true);
 
+		/** Latest full refraction data (forecast + horizon); null until the first load finishes. @type {import("./refraction-data.js").RefractionData | null} */
+		this.refraction = null;
+		/** When the forecast currently on screen was downloaded (null = normals only), to skip no-op re-renders. @type {number | null} */
+		this._shownForecastAt = null;
+		/** Bumped on every location change, so a slow load for an old location is dropped. */
+		this._refractionToken = 0;
+		/** Next check for a newer forecast. @type {ReturnType<typeof setTimeout> | null} */
+		this._refractionRefresh = null;
+		/** @type {null|ReturnType<typeof setTimeout>} */
+		this.timeoutToChangeDate = null;
+		/** Cancels the idle-time precomputation of the days around the shown one. */
+		this._cancelPrewarm = () => {};
+
+		/**
+		 * Visible sunrise (terrain ray tracing, up to ~100 ms a day) runs in a worker; the netz cell shows
+		 * sea-level sunrise until it answers. null where module workers aren't available: computed inline then.
+		 * @type {VisibleSunriseClient | null}
+		 */
+		this.netzWorker = null;
+		try {
+			this.netzWorker = new VisibleSunriseClient((date) => this._onVisibleSunrise(date));
+		} catch (e) {
+			console.warn("Visible sunrise worker unavailable; computing on the main thread", e);
+		}
+
 		/** @type {null|Temporal.ZonedDateTime} */
 		this.nextUpcomingZman = null;
 
@@ -31,14 +71,14 @@ export default class zmanimListUpdater {
 
 		this.midDownload = false;
 
-		/** @type {null|NodeJS.Timeout} */ // It's not node but whatever
+		/** @type {null|ReturnType<typeof setTimeout>} */
 		this.countdownToNextDay = null;
 
-		// FIX: Bind modal handlers once so the same reference can be added and removed
+		// Bind modal handlers to stable references for add/remove event listeners
 		this._boundOpenLocationModal = this.openLocationModal.bind(this);
 		this._boundCloseLocationModal = this.closeLocationModal.bind(this);
 
-		/** @type {Parameters<typeof this.jCal.getZmanimInfo>[2]} */
+		/** @type {Record<string, ZmanimDisplay>} */
 		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
 			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), Object.freeze({
 				function: timeSlot.getAttribute('data-timeGetter'),
@@ -71,11 +111,13 @@ export default class zmanimListUpdater {
 
 	// ─── Location Modal ───────────────────────────────────────────────────────
 
+	/**
+	 * Open location modal with map display
+	 */
 	openLocationModal() {
 		/** @type {HTMLElement} */
-		const locationMapElem = document.querySelector('#locationModal [data-zfFind="locationMap"]')
+		const locationMapElem = document.querySelector('#locationModal [data-zfFind="locationMap"]');
 
-		// FIX: Use this.geoLocation consistently instead of the module-level geoLocation variable
 		this.locationMap = leaflet.map(locationMapElem, {
 			dragging: false,
 			minZoom: 14,
@@ -87,129 +129,214 @@ export default class zmanimListUpdater {
 			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 		}).addTo(this.locationMap);
 
-		// FIX: Use imported leaflet instead of bare global L
-		leaflet.polyline([
-			[this.geoLocation.getLatitude(), this.geoLocation.getLongitude()],
-			[harHabait.getLatitude(), harHabait.getLongitude()]
-		], { color: 'red' }).addTo(this.locationMap);
+		// Draw line to Jerusalem
+		leaflet.polyline(
+			[
+				[this.geoLocation.getLatitude(), this.geoLocation.getLongitude()],
+				[harHabait.getLatitude(), harHabait.getLongitude()]
+			],
+			{ color: 'red' }
+		).addTo(this.locationMap);
 
-		// 🔵 Accuracy circle (halo)
+		// Accuracy circle (halo)
 		leaflet.circle([this.geoLocation.getLatitude(), this.geoLocation.getLongitude()], {
 			radius: 30,
-			color: "blue",
-			fillColor: "blue",
+			color: 'blue',
+			fillColor: 'blue',
 			fillOpacity: 0.15,
 			weight: 0
 		}).addTo(this.locationMap);
 
-		// 🔵 Solid center dot
+		// Center dot marker
 		leaflet.circleMarker([this.geoLocation.getLatitude(), this.geoLocation.getLongitude()], {
 			radius: 8,
-			fillColor: "blue",
-			color: "white",
+			fillColor: 'blue',
+			color: 'white',
 			weight: 2,
 			opacity: 1,
 			fillOpacity: 1
 		}).addTo(this.locationMap);
 	}
 
+	/**
+	 * Close location modal and clean up map
+	 */
 	closeLocationModal() {
-		this.locationMap.remove();
-		this.locationMap = null;
+		if (this.locationMap) {
+			this.locationMap.remove();
+			this.locationMap = null;
+		}
 	}
 
 	// ─── Initialization ───────────────────────────────────────────────────────
 
 	/**
-	 * Wire up all one-time button/input event listeners.
-	 * FIX: Moved out of renderDateContainer so it runs exactly once (in the constructor).
+	 * Initialize one-time button event listeners
+	 * @private
 	 */
 	_initButtons() {
-		const downloadBtn = document.getElementById("downloadModalBtn");
-		downloadBtn.addEventListener('click', async () => { await this.exportManager.handleICS(this) });
+		const downloadBtn = document.getElementById('downloadModalBtn');
+		if (downloadBtn) {
+			downloadBtn.addEventListener('click', async () => {
+				await this.exportManager.handleICS(this);
+			});
+		}
 
-		const spreadSheetBtn = document.getElementById("spreadSheetBtn");
-		spreadSheetBtn.addEventListener('click', async () => { await this.exportManager.handleExcel(this) });
+		const spreadSheetBtn = document.getElementById('spreadSheetBtn');
+		if (spreadSheetBtn) {
+			spreadSheetBtn.addEventListener('click', async () => {
+				await this.exportManager.handleExcel(this);
+			});
+		}
 
 		const clipboardBtn = document.getElementById('clipboardDownload');
-		if ('clipboard' in navigator)
-			clipboardBtn.addEventListener('click', async () => { await this.clipboardCopy() });
-		else
-			clipboardBtn.setAttribute('disabled', '');
+		if (clipboardBtn) {
+			if ('clipboard' in navigator) {
+				clipboardBtn.addEventListener('click', async () => {
+					await this.clipboardCopy();
+				});
+			} else {
+				clipboardBtn.setAttribute('disabled', '');
+			}
+		}
 	}
 
 	// ─── Calendar Reset ───────────────────────────────────────────────────────
 
 	/**
-	 * @param {KosherZmanim.GeoLocation} geoLocation
+	 * Reset calendar for a new location. Renders right away from what previous visits stored (forecast
+	 * snapshot, terrain horizon, monthly normals); fetches a new forecast only if the stored one is stale.
+	 * @param {KosherZmanim.GeoLocation} [geoLocation]
 	 */
 	resetCalendar(geoLocation = this.geoLocation) {
+		if (this.timeoutToChangeDate !== null)
+			clearTimeout(this.timeoutToChangeDate);
 		this.timeoutToChangeDate = null;
 		this.geoLocation = geoLocation;
 
 		this._teardownLocationModal();
 		this.locationMap = null;
 
-		this._setupZmanCalc();
+		const cached = readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
+		this.refraction = null;
+		this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
+		this._setupZmanCalc({
+			atmosphereProvider: providerFromCache(cached),
+			horizon: cached?.horizon ?? null
+		});
 		this._updateLocationDisplay();
 		this._setupLocaleFormat();
 
+		// TODO: ChaiTables' scraped sunrises are no longer read (getNetz() computes the visible sunrise
+		// from the refraction server's horizon). Remove this and its UI once nothing else depends on it.
 		this.chaiTableInfo = new ChaiTables(this);
 
 		this.lastData = {
-			'parsha': undefined,
-			'day': undefined,
-			'specialDay': undefined,
-			'hamah': undefined,
-			'levana': undefined
+			parsha: undefined,
+			day: undefined,
+			specialDay: undefined,
+			hamah: undefined,
+			levana: undefined
 		};
 
 		this.setNextUpcomingZman();
 		this.changeDate(this.jCal.getDate());
+
+		this._loadRefraction();
 	}
 
 	/**
-	 * Remove modal event listeners using the stable bound references.
-	 * FIX: Ensures removeEventListener matches the exact function reference that was added.
+	 * Get current refraction data (from storage when fresh, else the network), re-render only if it
+	 * differs from what's shown, and schedule the next check for when the forecast goes stale.
+	 * Failures are logged, never thrown: the page keeps the stored / default model.
+	 * @private
+	 */
+	async _loadRefraction() {
+		const token = ++this._refractionToken;
+		if (this._refractionRefresh !== null) {
+			clearTimeout(this._refractionRefresh);
+			this._refractionRefresh = null;
+		}
+
+		/** @type {import("./refraction-data.js").RefractionData} */
+		let data;
+		try {
+			data = await loadRefraction(this.geoLocation.getLatitude(), this.geoLocation.getLongitude());
+		} catch (e) {
+			console.error("Refraction data failed to load", e);
+			return;
+		}
+		if (token !== this._refractionToken)
+			return; // the location changed while we were loading
+
+		if (data.notes.length)
+			console.info("Refraction:", data.notes);
+		this.refraction = data;
+
+		// Same forecast and horizon as on screen (the usual case on a reload): nothing to redo
+		const changed = data.forecastFetchedAt !== this._shownForecastAt
+			|| !!data.horizon !== !!this.zmanCalc.config.horizon;
+		if (changed)
+			this._applyRefraction();
+
+		// Next look: when this forecast turns stale (another tab may have refreshed storage by then,
+		// in which case no request is made). Without a forecast (offline), try again after a TTL.
+		const staleIn = data.forecastFetchedAt !== null
+			? data.forecastFetchedAt + FORECAST_TTL_MS - Date.now()
+			: FORECAST_TTL_MS;
+		this._refractionRefresh = setTimeout(() => this._loadRefraction(), Math.max(MIN_REFRACTION_RECHECK_MS, staleIn));
+	}
+
+	/**
+	 * Rebuild the calculator with the latest refraction data and re-render the selected date.
+	 * @private
+	 */
+	_applyRefraction() {
+		if (!this.refraction)
+			return;
+
+		const selectedDate = this.zmanCalc.coreZC.getDate();
+		this._shownForecastAt = this.refraction.forecastFetchedAt;
+		this._setupZmanCalc({
+			atmosphereProvider: this.refraction.provider,
+			horizon: this.refraction.horizon
+		}, this.zmanCalc.config);
+		this.setNextUpcomingZman();
+		this.changeDate(selectedDate);
+	}
+
+	/**
+	 * Remove modal event listeners using stable bound references
+	 * @private
 	 */
 	_teardownLocationModal() {
 		const locationModal = document.getElementById('locationModal');
-		locationModal.removeEventListener('shown.bs.modal', this._boundOpenLocationModal);
-		locationModal.removeEventListener('hidden.bs.modal', this._boundCloseLocationModal);
+		if (locationModal) {
+			locationModal.removeEventListener('shown.bs.modal', this._boundOpenLocationModal);
+			locationModal.removeEventListener('hidden.bs.modal', this._boundCloseLocationModal);
+		}
 	}
 
 	/**
-	 * Attach modal event listeners and re-attach bound references after a reset.
+	 * Attach modal event listeners using stable bound references
+	 * @private
 	 */
 	_attachLocationModal() {
 		const locationModal = document.getElementById('locationModal');
-		locationModal.addEventListener('shown.bs.modal', this._boundOpenLocationModal);
-		locationModal.addEventListener('hidden.bs.modal', this._boundCloseLocationModal);
+		if (locationModal) {
+			locationModal.addEventListener('shown.bs.modal', this._boundOpenLocationModal);
+			locationModal.addEventListener('hidden.bs.modal', this._boundCloseLocationModal);
+		}
 	}
 
 	/**
-	 * Initialise ZemanFunctions and the visual-sunrise data for the current geoLocation.
-	 * Extracted from resetCalendar for readability.
+	 * Initialise ZemanFunctions for the current geoLocation.
+	 * @param {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon'>} refraction
+	 * @param {import("./ROYZmanim.js").ZemanimConfig} [replacing] the config this one replaces for the SAME
+	 *   place: its visible sunrises stay on screen until the worker computes the new ones
+	 * @private
 	 */
-	_setupZmanCalc() {
-		/** @type {number[]} */
-		let availableVS = [];
-		if (typeof localStorage !== "undefined" && localStorage.getItem('ctNetz') && isValidJSON(localStorage.getItem('ctNetz'))) {
-			const ctNetz = JSON.parse(localStorage.getItem('ctNetz'));
-			if ('url' in ctNetz) {
-				const ctNetzLink = new URL(ctNetz.url);
-
-				if (ctNetzLink.searchParams.get('cgi_eroslatitude') == this.geoLocation.getLatitude().toFixed(6)
-				&& ctNetzLink.searchParams.get('cgi_eroslongitude') == (-this.geoLocation.getLongitude()).toFixed(6))
-					availableVS = ctNetz.times;
-				else if (ctNetzLink.searchParams.get('cgi_country') == 'Eretz_Yisroel'
-					  && ctNetzLink.searchParams.get('cgi_TableType') == 'BY'
-					  && capitalizeFirstLetter(this.geoLocation.getLocationName().toLowerCase())
-					  	.startsWith(capitalizeFirstLetter(ctNetzLink.searchParams.get('cgi_MetroArea'))))
-					availableVS = ctNetz.times;
-			}
-		}
-
+	_setupZmanCalc(refraction, replacing) {
 		const amudehHoraahIndicators = queryAllElements('[data-zfFind="luachAmudehHoraah"]');
 		const ohrHachaimIndicators = queryAllElements('[data-zfFind="luachOhrHachaim"]');
 
@@ -227,14 +354,40 @@ export default class zmanimListUpdater {
 			ohrHachaimIndicators.forEach((ind) => ind.style.display = 'none');
 		}
 
-		this.zmanCalc = new ZemanFunctions(this.geoLocation, {
+		/** @type {import("./ROYZmanim.js").ZemanimConfig} */
+		const config = {
 			elevation: fixedMil,
 			fixedMil,
 			rtKulah: settings.calendarToggle.rtKulah(),
 			candleLighting: settings.customTimes.candleLighting(),
-			melakha: settings.customTimes.tzeithIssurMelakha()
-		});
-		this.zmanCalc.setVisualSunrise(availableVS);
+			melakha: settings.customTimes.tzeithIssurMelakha(),
+			atmosphereProvider: refraction.atmosphereProvider,
+			horizon: refraction.horizon
+		};
+		if (this.netzWorker && refraction.horizon) {
+			const netzWorker = this.netzWorker;
+			config.deferVisibleSunrise = (date) => netzWorker.request(date);
+			netzWorker.configure(config, this.geoLocation);
+			seedVisiblePlaceholders(config, replacing);
+		}
+
+		this.zmanCalc = new ZemanFunctions(this.geoLocation, config);
+	}
+
+	/**
+	 * A visible sunrise arrived from the worker (already in the calculator's cache). Only the netz cell
+	 * depends on it, so a list re-render is enough; today / tomorrow also feed the "up next" marker.
+	 * @param {Temporal.PlainDate} date
+	 * @private
+	 */
+	_onVisibleSunrise(date) {
+		// marker first: updateZmanimList() draws it
+		const today = Temporal.Now.plainDateISO(this.geoLocation.getTimeZone());
+		if (date.equals(today) || date.equals(today.add({ days: 1 })))
+			this.setNextUpcomingZman();
+
+		if (date.equals(this.jCal.getDate().withCalendar("iso8601")))
+			this.updateZmanimList();
 	}
 
 	/**
@@ -369,7 +522,14 @@ export default class zmanimListUpdater {
 		this.jCal.setDate(date);
 
 		if (!internal) {
+			// re-renders (e.g. after a forecast refresh) must not stack midnight timers
+			if (this.timeoutToChangeDate !== null)
+				clearTimeout(this.timeoutToChangeDate);
+			this._cancelPrewarm();
 			this.updateZmanimList();
+			// With forecast refraction each new day costs ~100 ms of ray tracing; do the neighbours while
+			// the user reads this one, so the next / previous click is instant
+			this._cancelPrewarm = this.zmanCalc.prewarm(date);
 			if (date.equals(Temporal.Now.plainDateISO())) {
 				const tomorrow = Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
 					.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 });
@@ -795,8 +955,7 @@ export default class zmanimListUpdater {
 			birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]').innerHTML =
 				birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'});
 
-			birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
-				// @ts-ignore
+			/** @type {NodeListOf<HTMLElement>} */ (birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]')).forEach(
 				startsToday => {
 					if (birLev.data.start.dayOfYear == this.jCal.getDate().dayOfYear)
 						startsToday.style.removeProperty("display");
@@ -805,8 +964,7 @@ export default class zmanimListUpdater {
 				}
 			);
 
-			birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
-				// @ts-ignore
+			/** @type {NodeListOf<HTMLElement>} */ (birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]')).forEach(
 				endsToday => {
 					if (birLev.data.end.dayOfYear == this.jCal.getDate().dayOfYear)
 						endsToday.style.removeProperty("display");
@@ -1224,25 +1382,6 @@ window.zmanimListUpdater2 = zmanimListUpdater2;
 window.KosherZmanim = KosherZmanim;
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
-
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-	try {
-		JSON.parse(str);
-		return true;
-	} catch (e) {
-		return false;
-	}
-}
-
-/**
- * @param {string} val
- */
-function capitalizeFirstLetter(val) {
-	return String(val).charAt(0).toUpperCase() + String(val).slice(1);
-}
 
 /**
  * @template {HTMLElement} [T=HTMLElement]

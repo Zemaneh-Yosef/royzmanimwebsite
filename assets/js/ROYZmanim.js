@@ -1,46 +1,158 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import SPACalculatorCorrections from "../libraries/kosherZmanim/spa-calc-corrections.js"
+import ROYSPACalculator from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
 import { MathUtils } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import TekufahCalculator from "./tekufot.js";
 
-/** @typedef {{minutes: number; degree?: number}} melakhaTzet */
+/** @typedef {{minutes: number | null; degree?: number | null}} melakhaTzet */
+/** @typedef {import("./refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
+/** @typedef {import("./refraction-snapshot.js").Horizon} Horizon */
+/** @typedef {import("./refraction-snapshot.js").VisibleOptions} VisibleOptions */
 
 /**
+ * @typedef {Object} ZemanimConfig
+ * @property {boolean} [elevation] use the GeoLocation's elevation for sunrise / sunset
+ * @property {boolean} fixedMil fixed (Ohr HaChaim) instead of degree-based (Amudeh Hora'ah) offsets
+ * @property {boolean} rtKulah use the earlier of the Rabbenu Tam options
+ * @property {melakhaTzet|melakhaTzet[]|null} melakha stringency config(s) for Tzet Melakha
+ * @property {number} candleLighting minutes before sunset
+ * @property {AtmosphereProvider | null} [atmosphereProvider] actual air at sunrise / sunset (refraction-data.js);
+ *   null / omitted = the calculator's default 34.48' model
+ * @property {Horizon | null} [horizon] terrain horizon set from the refraction server; enables the visible
+ *   sunrise in getNetz(). null / omitted = getNetz() returns sea-level sunrise
+ * @property {VisibleOptions} [visibleOptions] passed to getVisibleSunrise (e.g. { limb: 'top' })
+ * @property {(date: Temporal.PlainDate) => void} [deferVisibleSunrise] compute visible sunrises elsewhere
+ *   (visible-sunrise-client.js): on a cache miss this is called instead of ray tracing here, and getNetz()
+ *   returns sea-level sunrise until setCachedVisibleSunrise() delivers the value. Omit to compute inline
+ *   (print pages and workers do).
+ */
+
+/**
+ * Visible sunrises per config object, shared by every instance chainDate() makes from it
+ * (they all pass the same config). A new config — e.g. after a forecast refresh — starts a new cache.
+ * @type {WeakMap<ZemanimConfig, Map<string, number>>}
+ */
+const visibleSunriseCache = new WeakMap();
+
+/** @param {ZemanimConfig} config */
+function visibleCacheFor(config) {
+	let cache = visibleSunriseCache.get(config);
+	if (!cache) {
+		cache = new Map();
+		visibleSunriseCache.set(config, cache);
+	}
+	return cache;
+}
+
+/** @param {Temporal.PlainDate} date */
+const visibleCacheKey = (date) => date.withCalendar("iso8601").toString({ calendarName: "never" });
+
+/**
+ * Store a visible sunrise computed elsewhere (see ZemanimConfig.deferVisibleSunrise).
+ * @param {ZemanimConfig} config the same config object the calendar was built with
+ * @param {Temporal.PlainDate} date
+ * @param {number} epochMs NaN = no visible sunrise (getNetz() then keeps sea level)
+ */
+export function setCachedVisibleSunrise(config, date, epochMs) {
+	visibleCacheFor(config).set(visibleCacheKey(date), epochMs);
+}
+
+/**
+ * Values to show while a deferred visible sunrise is being computed (instead of sea level).
+ * @type {WeakMap<ZemanimConfig, Map<string, number>>}
+ */
+const visiblePlaceholders = new WeakMap();
+
+/**
+ * When a config replaces another for the same place (e.g. fresh forecast data), keep showing the old
+ * visible sunrises until the new ones arrive, so netz doesn't flick to sea level and back.
+ * Copies plain numbers: the old config (and the forecast data it holds) can be garbage-collected.
+ * @param {ZemanimConfig} newConfig @param {ZemanimConfig | null | undefined} oldConfig
+ */
+export function seedVisiblePlaceholders(newConfig, oldConfig) {
+	if (!oldConfig) return;
+	const seeded = new Map(visiblePlaceholders.get(oldConfig));
+	for (const [key, ms] of visibleSunriseCache.get(oldConfig) ?? [])
+		seeded.set(key, ms);
+	if (seeded.size)
+		visiblePlaceholders.set(newConfig, seeded);
+}
+
+/**
+ * One astronomical calculator per config (and latitude), shared by every instance chainDate() makes.
+ * With a forecast provider each sunrise / sunset is ray traced through the temperature layers
+ * (~10-20 ms each); the calculator caches those traces, so sharing it means a date is traced once per
+ * page instead of once per chainDate(). Safe to share: the calculator only holds per-call state inside
+ * synchronous calls. Earth radius depends on latitude, hence the inner key.
+ * @type {WeakMap<ZemanimConfig, Map<string, ROYSPACalculator>>}
+ */
+const sharedCalculators = new WeakMap();
+
+/**
+ * @param {ZemanimConfig} config
+ * @param {KosherZmanim.GeoLocation} geoLocation
+ * @returns {ROYSPACalculator}
+ */
+function calculatorFor(config, geoLocation) {
+	let byLatitude = sharedCalculators.get(config);
+	if (!byLatitude) {
+		byLatitude = new Map();
+		sharedCalculators.set(config, byLatitude);
+	}
+	const latKey = geoLocation.getLatitude().toFixed(6);
+	let calc = byLatitude.get(latKey);
+	if (!calc) {
+		calc = new ROYSPACalculator();
+		// The provider changes every sunrise / sunset this calendar computes (sea-level and elevated too),
+		// not only the visible sunrise.
+		calc.setAtmosphereProvider(config.atmosphereProvider ?? null);
+		calc.configureForLocation(geoLocation);
+		byLatitude.set(latKey, calc);
+	}
+	return calc;
+}
+
+/** requestIdleCallback where it exists (not Safari, not workers), else a short timeout. @param {() => void} fn */
+const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdleCallback(() => fn(), { timeout: 2000 }) : setTimeout(fn, 50));
+
+/**
+ * Sort durations in descending order
  * @param {string | Temporal.Duration | Temporal.DurationLike} a
  * @param {string | Temporal.Duration | Temporal.DurationLike} b
+ * @returns {number}
  */
-function durationSort(a,b) {
+function durationSort(a, b) {
 	const pSort = Temporal.Duration.compare(a, b);
 	return pSort * -1;
 }
 
 class ZemanimMathBase {
 	/**
-	 * @param {KosherZmanim.GeoLocation} geoLocation
-	 * @param {{ elevation: boolean | undefined; fixedMil: boolean; rtKulah: boolean; melakha: melakhaTzet|melakhaTzet[]; candleLighting: number; }} config
+	 * Base class for halachic time calculations
+	 * @param {KosherZmanim.GeoLocation} geoLocation - Geographic location
+	 * @param {ZemanimConfig} [config] - Configuration options
+	 * @param {Temporal.PlainDate} [initialDate] start on this date instead of today (saves computing
+	 *   today first when the caller is about to setDate anyway, as chainDate() is)
 	 */
-	constructor(geoLocation, config={
+	constructor(geoLocation, config = {
 		elevation: undefined,
 		fixedMil: false,
 		rtKulah: true,
-		melakha: {minutes: 30, degree: 7.165},
+		melakha: { minutes: 30, degree: 7.165 },
 		candleLighting: 20
-	}) {
+	}, initialDate = undefined) {
 		this.config = config;
-
-		/** @type {{indexDates:Temporal.PlainDate[];zoneDT:Temporal.ZonedDateTime[];preservedInts:number[]}} */
-		this.vSunrise = {
-			indexDates: [],
-			zoneDT: [],
-			preservedInts: []
-		};
 
 		/** @type {KosherZmanim.ZmanimCalendar} */
 		this.coreZC = new KosherZmanim.ZmanimCalendar(geoLocation);
 		this.coreZC.setUseElevation(config.elevation);
-		this.coreZC.setAstronomicalCalculator(new SPACalculatorCorrections());
+		if (initialDate)
+			this.coreZC.setDate(initialDate);
+
+		/** @type {ROYSPACalculator} */
+		this.astroCalc = calculatorFor(config, geoLocation);
+		this.coreZC.setAstronomicalCalculator(this.astroCalc);
 
 		/** @type {TekufahCalculator} */
 		this.tekufaCalc = new TekufahCalculator(this.coreZC.getDate().withCalendar("hebrew").year);
@@ -96,8 +208,9 @@ class ZemanimMathBase {
 	}
 
 	/**
-	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[0]} degree 
-	 * @param {Parameters<KosherZmanim.ZmanimCalendar["getPercentOfShaahZmanisFromDegrees"]>[1]} sunset 
+	 * Calculate seasonal hour duration at equinox for a given degree
+	 * @param {number} degree - Solar angle in degrees
+	 * @param {boolean} sunset - If true, calculate from sunset; if false, from sunrise
 	 * @returns {Temporal.Duration}
 	 */
 	durationOfEquinoxDegreeSeasonalHour(degree, sunset) {
@@ -121,8 +234,9 @@ class ZemanimMathBase {
 	 */
 	setGeoLocation(geoLocation) {
 		this.coreZC.setGeoLocation(geoLocation);
-		// @ts-ignore
-		this.coreZC.getAstronomicalCalculator().configureForLocation(geoLocation);
+		// shared calculators are per latitude: swap rather than reconfigure one other instances use
+		this.astroCalc = calculatorFor(this.config, geoLocation);
+		this.coreZC.setAstronomicalCalculator(this.astroCalc);
 
 		if (this.config.fixedMil)
 			this.timeRange.equinox = {
@@ -188,15 +302,37 @@ class ZemanimMathBase {
 		this.setDate(this.coreZC.getDate())
 	}
 
-	/** @param {number[]} sunriseTimes */
-	setVisualSunrise(sunriseTimes) {
-		this.vSunrise.preservedInts = sunriseTimes;
-		this.vSunrise.zoneDT = sunriseTimes
-			.map((/** @type {number} */ value) => Temporal.Instant
-				.fromEpochMilliseconds(value * 1000)
-				.toZonedDateTimeISO(this.coreZC.getGeoLocation().getTimeZone())
-			)
-		this.vSunrise.indexDates = this.vSunrise.zoneDT.map((/** @type {Temporal.ZonedDateTime} */ value) => value.toPlainDate());
+	/**
+	 * Visible sunrise over the terrain for the current date, in epoch ms (NaN if there is no horizon set,
+	 * or the Sun is not seen to rise). Ray tracing is not cheap, so results are cached per config.
+	 * @returns {number}
+	 */
+	getVisibleSunriseEpochMs() {
+		const horizon = this.config.horizon;
+		if (!horizon) return NaN;
+
+		// The calculator does its own Julian-day math on year/month/day, so it needs ISO fields
+		const date = this.coreZC.getDate().withCalendar("iso8601");
+		const key = visibleCacheKey(date);
+		const cache = visibleCacheFor(this.config);
+
+		let ms = cache.get(key);
+		if (ms === undefined && this.config.deferVisibleSunrise) {
+			// computed off-thread; until setCachedVisibleSunrise() fills it in, show the previous config's
+			// value if there was one (seedVisiblePlaceholders), else NaN -> getNetz() shows sea level
+			this.config.deferVisibleSunrise(date);
+			return visiblePlaceholders.get(this.config)?.get(key) ?? NaN;
+		}
+		if (ms === undefined) {
+			try {
+				ms = this.astroCalc.getVisibleSunrise(date, this.coreZC.getGeoLocation(), horizon, this.config.visibleOptions);
+			} catch (e) {
+				console.error("Visible sunrise failed", e);
+				ms = NaN;
+			}
+			cache.set(key, ms);
+		}
+		return ms;
 	}
 
 	/** @returns {this} */
@@ -212,19 +348,46 @@ class ZemanimMathBase {
 		if (this.coreZC.getDate().equals(date))
 			return this;
 
-		// @ts-ignore
-		let calc = new (this.constructor)(this.coreZC.getGeoLocation(), this.config);
-		calc.setDate(date);
-		calc.setVisualSunrise(this.vSunrise.preservedInts);
+		// Starts directly on `date` (no detour through today) and shares this instance's calculator caches
+		/** @type {this} */
+		const calc = new (/** @type {new (geo: KosherZmanim.GeoLocation, config: ZemanimConfig, initialDate?: Temporal.PlainDate) => this} */ (this.constructor))(this.coreZC.getGeoLocation(), this.config, date);
 
 		return calc;
 	}
 
 	/**
-	 * @param {Temporal.Duration} portion
-	 * @param {Temporal.Duration} fullDay
+	 * Compute the days around `date` ahead of time, one day per idle slot, so navigating to them is
+	 * instant: their sunrise / sunset ray traces and visible sunrise land in the shared caches.
+	 * No-op without refraction data (nothing expensive to warm).
+	 * @param {Temporal.PlainDate} date
+	 * @param {number} [radius=2] days on each side
+	 * @returns {() => void} cancel (call it when the user navigates again, to warm the new neighbours instead)
 	 */
-	fixedToSeasonal(portion, fullDay=this.timeRange.current.ranges.gra) {
+	prewarm(date, radius = 2) {
+		if (!this.config.atmosphereProvider && !this.config.horizon)
+			return () => {};
+
+		// nearest first, alternating: +1, -1, +2, -2, ...
+		const offsets = Array.from({ length: radius }, (_, i) => [i + 1, -(i + 1)]).flat();
+		let cancelled = false;
+		const next = () => {
+			if (cancelled || !offsets.length)
+				return;
+			const day = this.chainDate(date.add({ days: /** @type {number} */ (offsets.shift()) }));
+			day.getVisibleSunriseEpochMs(); // fills the same cache getNetz() reads
+			whenIdle(next);
+		};
+		whenIdle(next);
+		return () => { cancelled = true; };
+	}
+
+	/**
+	 * Convert fixed duration to seasonal proportion of the day
+	 * @param {Temporal.Duration} portion - Fixed duration (e.g., 1 hour)
+	 * @param {Temporal.Duration} [fullDay] - Full day duration (defaults to GRA range)
+	 * @returns {Temporal.Duration}
+	 */
+	fixedToSeasonal(portion, fullDay = this.timeRange.current.ranges.gra) {
 		const inputPortionOfDay = portion.total("nanoseconds") / Temporal.Duration.from({ hours: 12 }).total('nanoseconds'); // Length of 12
 
 		return Temporal.Duration.from({
@@ -233,14 +396,18 @@ class ZemanimMathBase {
 	}
 
 	/**
-	 * @param {Temporal.ZonedDateTime} time
+	 * Core calculation for Plag HaMincha (various opinions)
+	 * @param {Temporal.ZonedDateTime} time - Reference time (sunset or nightfall)
+	 * @returns {Temporal.ZonedDateTime}
 	 */
 	plagHaminchaCore(time) {
 		return time.subtract(this.fixedToSeasonal(Temporal.Duration.from({ hours: 1, minutes: 15 })));
 	}
 
 	/**
-	 * @param {boolean} [fixedClock]
+	 * Get the next tekufah (seasonal turning point)
+	 * @param {boolean} [fixedClock] - Use fixed clock (Jerusalem time)
+	 * @returns {Temporal.ZonedDateTime|undefined}
 	 */
 	nextTekufa(fixedClock) {
 		const plainTekufoth = this.tekufaCalc.calculateTekufotShemuel(fixedClock);
@@ -275,14 +442,26 @@ class ZemanFunctions extends ZemanimMathBase {
 		return this.getMisheyakir(5.5/6);
 	}
 
+	/**
+	 * Netz: the visible sunrise over the terrain when a horizon set is configured, otherwise sea-level sunrise.
+	 * Same return shape as before (callers check for the wrapper to show seconds).
+	 * @returns {Temporal.ZonedDateTime | {time: Temporal.ZonedDateTime; isVisual: true}}
+	 */
 	getNetz() {
-		if (this.vSunrise.zoneDT.length) {
-			const todayVS = this.vSunrise.zoneDT[this.vSunrise.indexDates.indexOf(this.vSunrise.indexDates.find(vs => vs.equals(this.coreZC.getDate())))];
-			if (todayVS && Math.abs(todayVS.until(this.timeRange.current.sunrise).total('hour')) <= 1) {
-				return {time: todayVS, isVisual: true};
-			}
-		}
-		return this.coreZC.getSeaLevelSunrise();
+		const seaLevel = this.coreZC.getSeaLevelSunrise();
+		const ms = this.getVisibleSunriseEpochMs();
+		if (!Number.isFinite(ms))
+			return seaLevel;
+
+		const visible = Temporal.Instant
+			.fromEpochMilliseconds(Math.round(ms))
+			.toZonedDateTimeISO(this.coreZC.getGeoLocation().getTimeZone());
+
+		// Same sanity check as with the ChaiTables data: a result more than an hour off is a bad profile
+		if (Math.abs(visible.until(this.timeRange.current.sunrise).total('hour')) > 1)
+			return seaLevel;
+
+		return { time: visible, isVisual: true };
 	}
 
 	getSofZemanShemaMGA() {
@@ -405,32 +584,24 @@ class ZemanFunctions extends ZemanimMathBase {
 		);
 	}
 
-	/* This function will always be a stringency on top of what the letter of the law is (Stringent Nightfall). To explain the default web usage:
-	 * In our Ohr HaChaim mode in Israel, they present the letter-of-the-law as 20 fixed/seasonal, so 30 fixed covers that
-	 * In our Amudeh Hora'ah mode anywhere, we rule the letter of the law is 5.2 degrees (20 minutes of Israel), so 7.165 (30 minutes of Israel) is the stringency used
-	 * This will always be before Hatzot HaLayla.
+	/**
+	 * Calculate Tzet for work/melakha (stringency opinion)
 	 *
-	 * Disregarding the cases that we completely revert back to the letter of the law (like the default was outright removed or we can't calculate it)
-	 * the point of this function is that we can accept stringencies, either in the form of fixed minutes or degrees.
-	 * For singular stringencies, you could either do a fixed amount of minutes after sunset
-	 * (examples: 30 minutes, since that's more than 27; 42 because that's a full 25 hours after an 18-minute candle lighting)
+	 * Supports:
+	 * - Single fixed minutes: `{minutes: 30}`
+	 * - Single degree: `{degree: 7.165}`
+	 * - Multiple stringencies: `[{minutes: 27}, {minutes: 30}]`
 	 *
-	 * Uniquely, we allow multiple stringencies to be inserted too; of course, one time will be returned (perhaps with its metadata so you know how we got there)
-	 * What do we do with BOTH? We calculate which one is more suitable based on the "multiHandle" parameters. Sometimes a stringency is too stringent for the context
-	 * One example is for a flyer: It's easier to remember a number that ends with either a five or zero, so multi handler could be set to "pretty".
-	 * Alternatively, maybe you have someone that wants to be as stringent as possible - you load up all the stringencies with that configuration
-	 * Maybe you want the complete opposite, so you do the same above.
+	 * When multiple provided, multiHandle determines selection:
+	 * - "PRETTY": Returns rounded time (ends in 0 or 5)
+	 * - "LENIENT": Returns earlier time
+	 * - "STRINGENT": Returns later time
 	 *
-	 * We ignore interopability between degrees and fixed minutes, so choose one and stick to it.
-	 * When both are provided, the fixedMil config will determine which one to pick between them.
-	 *
-	 * Zemaneh YosefTM uses: Default web/app uses the fixedMil for 30/7.165, while providing both
-	 * Hazon Yosef: fixedMil is always true, so for outside Eretz Yisrael, we omit minutes.
-	 * Flyers use the stringency of 27 minutes as the "do not compromise point" and the 30 minutes is only used when the rounded of PRETTY would be later than it
+	 * @param {melakhaTzet|melakhaTzet[]|null} [humraConf] - Stringency config(s)
+	 * @param {"PRETTY"|"LENIENT"|"STRINGENT"} [multiHandle="PRETTY"] - Selection strategy for multiple configs
+	 * @returns {Temporal.ZonedDateTime|{time: Temporal.ZonedDateTime; minutes?: number; degree?: number}}
 	 */
-	/** @param {"PRETTY"|"LENIENT"|"STRINGENT"} [multiHandle="PRETTY"] */
-	/** @returns {Temporal.ZonedDateTime|{time:Temporal.ZonedDateTime; minutes?: number; degree?: number;}} */
-	getTzetMelakha(humraConf = this.config.melakha, multiHandle="PRETTY") {
+	getTzetMelakha(humraConf = this.config.melakha, multiHandle = "PRETTY") {
 		if (!humraConf) {
 			return this.getTzetHumra();
 		}
@@ -517,10 +688,21 @@ class ZemanFunctions extends ZemanimMathBase {
 		return this.coreZC.getSolarMidnight()
 	}
 
+	/** Full solar-sphere sunrise (Halacha Berura): the whole disk above the horizon. */
 	testSunriseHBWorking() {
-		const solarRadius = this.coreZC.getAstronomicalCalculator().getSolarRadius();
+		if (this.config.horizon) {
+			const date = this.coreZC.getDate().withCalendar("iso8601");
+			const ms = this.astroCalc.getVisibleSunrise(date, this.coreZC.getGeoLocation(), this.config.horizon,
+				{ ...this.config.visibleOptions, limb: 'full' });
+			if (Number.isFinite(ms))
+				return Temporal.Instant.fromEpochMilliseconds(Math.round(ms))
+					.toZonedDateTimeISO(this.coreZC.getGeoLocation().getTimeZone());
+		}
+
+		// No terrain: shift the sunrise by the solar diameter
+		const solarRadius = this.astroCalc.getSolarRadius();
 		const zenith = KosherZmanim.ZmanimCalendar.GEOMETRIC_ZENITH;
-		const refraction = this.coreZC.getAstronomicalCalculator().getRefraction();
+		const refraction = this.astroCalc.getRefraction();
 
 		const offsetFromRegSunrise = this.coreZC.getSeaLevelSunrise()
 			.until(this.coreZC.getSunriseOffsetByDegrees(zenith - solarRadius + refraction))
@@ -560,16 +742,20 @@ class DebugZemanFunctions extends ZemanFunctions {
 }
 
 /**
- * @param {{ [x: string]: any; }} toCheck
+ * Get all method names from a class/object including inherited ones
+ * @param {any} toCheck - Object to inspect
+ * @returns {string[]} Array of unique method names
  */
-function getAllMethods (toCheck) {
+function getAllMethods(toCheck) {
 	const props = [];
-    let obj = toCheck;
-    do {
-        props.push(...Object.getOwnPropertyNames(obj));
-    } while (obj = Object.getPrototypeOf(obj));
+	let obj = toCheck;
+	do {
+		props.push(...Object.getOwnPropertyNames(obj));
+	} while ((obj = Object.getPrototypeOf(obj)));
 
-    return props.sort().filter((e, i, arr) => (e!=arr[i+1] && typeof toCheck[e] == 'function'));
+	return props
+		.sort()
+		.filter((e, i, arr) => e !== arr[i + 1] && typeof toCheck[e] === 'function');
 }
 
 /**
@@ -580,28 +766,30 @@ const WGS84_EQUATORIAL_RADIUS = 6378.137; // in KM
 const WGS84_POLAR_RADIUS = 6356.752; // in KM
 
 /**
- * A method to calculate the Earth's radius at a given latitude using the WGS84 model.
- * This accounts for the Earth's oblateness.
-
- * @param {number} latitude The latitude in degrees.
- * @return The Earth's radius at the given latitude in KM.
+ * Calculate Earth's radius at a given latitude using WGS84 ellipsoid model
+ * @param {number} latitude - Latitude in degrees
+ * @returns {number} Earth's radius at latitude in kilometers
  */
 function getEarthRadiusAtLatitude(latitude) {
-  const latRad = MathUtils.degreesToRadians(latitude); // Convert latitude to radians
-  const a = WGS84_EQUATORIAL_RADIUS; // Equatorial radius
-  const b = WGS84_POLAR_RADIUS; // Polar radius
+	const latRad = MathUtils.degreesToRadians(latitude);
+	const a = WGS84_EQUATORIAL_RADIUS;
+	const b = WGS84_POLAR_RADIUS;
 
-  // Calculate the radius using the formula for an oblate spheroid
-  const numerator = Math.pow(a * Math.cos(latRad), 2) + Math.pow(b * Math.sin(latRad), 2);
-  const denominator = Math.pow(a * Math.cos(latRad), 2) / Math.pow(a, 2) + Math.pow(b * Math.sin(latRad), 2) / Math.pow(b, 2);
-  return Math.sqrt(numerator / denominator);
+	// Formula for oblate spheroid radius
+	const numerator = Math.pow(a * Math.cos(latRad), 2) + Math.pow(b * Math.sin(latRad), 2);
+	const denominator = Math.pow(a * Math.cos(latRad), 2) / Math.pow(a, 2) + Math.pow(b * Math.sin(latRad), 2) / Math.pow(b, 2);
+	return Math.sqrt(numerator / denominator);
 }
 
-const methodNames = getAllMethods(ZemanFunctions.prototype)
+const methodNames = getAllMethods(ZemanFunctions.prototype);
 
-/** @param {Temporal.ZonedDateTime | { time: Temporal.ZonedDateTime }} funcRet */
+/**
+ * Extract ZonedDateTime from function result (handles both direct return and {time} wrapper)
+ * @param {Temporal.ZonedDateTime | {time: Temporal.ZonedDateTime}} funcRet
+ * @returns {Temporal.ZonedDateTime}
+ */
 const zDTFromFunc = (funcRet) =>
-	(funcRet instanceof Temporal.ZonedDateTime ? funcRet : funcRet.time)
+	funcRet instanceof Temporal.ZonedDateTime ? funcRet : funcRet.time;
 
 export {
 	ZemanimMathBase,
@@ -611,17 +799,21 @@ export {
 };
 
 /**
+ * Round number down to 2 decimal places
  * @param {number} num
+ * @returns {number}
  */
 function dropHundredths(num) {
-	const factor = Math.pow(10, 2); // keep 2 decimal places
+	const factor = Math.pow(10, 2);
 	return Math.floor(num * factor) / factor;
 }
 
 /**
+ * Return the longer of two durations
  * @param {Temporal.Duration} a
  * @param {Temporal.Duration} b
+ * @returns {Temporal.Duration}
  */
 function maxDuration(a, b) {
-  return a.total("nanoseconds") >= b.total("nanoseconds") ? a : b;
+	return a.total("nanoseconds") >= b.total("nanoseconds") ? a : b;
 }
