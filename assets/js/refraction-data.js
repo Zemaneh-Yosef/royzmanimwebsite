@@ -42,6 +42,12 @@ const MAX_LOCATIONS = 3;
 
 /** Bump when the cached shape changes, so old entries are ignored. */
 const CACHE_VERSION = 2;
+/**
+ * The server's terrain data generation. Change it whenever the server's elevation sources change
+ * (terrain.layers): it is sent with horizon requests (so browsers don't serve a 30-day-old cached copy)
+ * and is part of the stored horizon's key (so stored horizons are re-fetched). Forecasts are unaffected.
+ */
+export const TERRAIN_VERSION = "bare-earth-2"; // 2: + Jerusalem 10 m DTM
 const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
 
 // Types live in refraction-snapshot.js; aliased here so either module can be imported for them
@@ -92,7 +98,7 @@ function getStorage() {
 /** @param {number} lat @param {number} lon */
 const placeId = (lat, lon) => `${lat.toFixed(5)},${lon.toFixed(5)}`;
 /** @param {string} id */
-const staticKey = (id) => `refraction:v${CACHE_VERSION}:${id}`;
+const staticKey = (id) => `refraction:v${CACHE_VERSION}:${id}:${TERRAIN_VERSION}`;
 /** @param {string} id */
 const forecastKey = (id) => `refraction:v${CACHE_VERSION}:${id}:forecast`;
 
@@ -112,6 +118,27 @@ function readIndex(storage) {
 	return Array.isArray(index) ? index : [];
 }
 
+let swept = false;
+/**
+ * Once per page: drop entries an older CACHE_VERSION or TERRAIN_VERSION left behind (a stored horizon
+ * can be a few hundred KB, and nothing else would ever remove them).
+ * @param {Storage} storage
+ */
+function sweepOldEntries(storage) {
+	if (swept) return;
+	swept = true;
+	try {
+		const current = `refraction:v${CACHE_VERSION}:`;
+		for (let i = storage.length - 1; i >= 0; i--) {
+			const key = storage.key(i);
+			if (!key || !/^refraction:v\d+:/.test(key)) continue;
+			const stale = !key.startsWith(current)
+				|| (!key.endsWith(":forecast") && key !== INDEX_KEY && !key.endsWith(`:${TERRAIN_VERSION}`));
+			if (stale) storage.removeItem(key);
+		}
+	} catch { /* best-effort */ }
+}
+
 /** @param {Storage} storage @param {string} id */
 function removePlace(storage, id) {
 	try {
@@ -128,6 +155,7 @@ function removePlace(storage, id) {
 function writeForPlace(id, key, value) {
 	const storage = getStorage();
 	if (!storage) return;
+	sweepOldEntries(storage);
 
 	const index = [id, ...readIndex(storage).filter(other => other !== id)];
 	for (const old of index.splice(MAX_LOCATIONS))
@@ -223,7 +251,7 @@ export async function loadRefraction(lat, lon, options = {}) {
 	/** @type {Promise<Horizon | null>} */
 	const horizonP = cached?.horizon
 		? Promise.resolve(cached.horizon)
-		: fetchHorizonForArea(serverUrl, lat, lon, { signal: options.signal })
+		: fetchHorizonForArea(serverUrl, lat, lon, { signal: options.signal, version: TERRAIN_VERSION })
 			.catch((/** @type {Error} */ e) => { notes.push(`horizon: ${e.message}`); return null; });
 
 	// ── Fresh forecast in storage: no Open-Meteo request ──

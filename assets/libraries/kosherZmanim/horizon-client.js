@@ -23,7 +23,7 @@
 /**
  * @typedef {{ south: number, west: number, north: number, east: number }} BoundingBox
  * @typedef {{ radiusKm?: number, bbox?: BoundingBox | [number, number, number, number], area?: boolean, gridM?: number, eyeM?: number,
- *             heightM?: number, minKm?: number, fetch?: typeof fetch, signal?: AbortSignal }} HorizonOptions
+ *             heightM?: number, minKm?: number, version?: string, fetch?: typeof fetch, signal?: AbortSignal }} HorizonOptions
  *   radiusKm: 0 (default) = the exact coordinates; > 0 = search vantage points within that radius
  *             (the server caps it, default 3 km), each with its own ground height + eyeM.
  *   bbox:     search every spot inside this box instead of a circle ([south, west, north, east] or an
@@ -37,6 +37,9 @@
  *   heightM:  observer height above sea level, for radiusKm 0 (e.g. an upper floor); default ground + eyeM.
  *             Use the same height in the GeoLocation for the elevated sunrise.
  *   minKm:    ignore terrain nearer than this (default 1 km: the observer's own building / hilltop).
+ *   version:  any string, sent as &v=; the server ignores it, but a new value is a new URL, so browsers
+ *             re-fetch instead of using a cached copy (horizons are cached for up to 30 days). Change it
+ *             when the server's terrain data changes.
  */
 
 const cache = new Map();
@@ -63,6 +66,7 @@ export async function fetchHorizon(baseUrl, lat, lon, options = {}) {
 	if (options.eyeM != null) q.set('eye', String(options.eyeM));
 	if (options.heightM != null) q.set('height', String(options.heightM));
 	if (options.minKm != null) q.set('min_km', String(options.minKm));
+	if (options.version) q.set('v', options.version);
 	const url = `${baseUrl.replace(/\/+$/, '')}/v1/horizon?${q}`;
 	if (cache.has(url)) return cache.get(url);
 	const doFetch = options.fetch ?? globalThis.fetch;

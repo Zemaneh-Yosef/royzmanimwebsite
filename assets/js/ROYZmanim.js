@@ -59,6 +59,14 @@ export function setCachedVisibleSunrise(config, date, epochMs) {
 }
 
 /**
+ * Whether a visible sunrise for this date is already known (computed or delivered) for this config.
+ * @param {ZemanimConfig} config @param {Temporal.PlainDate} date
+ */
+export function hasCachedVisibleSunrise(config, date) {
+	return visibleSunriseCache.get(config)?.has(visibleCacheKey(date)) ?? false;
+}
+
+/**
  * Values to show while a deferred visible sunrise is being computed (instead of sea level).
  * @type {WeakMap<ZemanimConfig, Map<string, number>>}
  */
@@ -152,6 +160,8 @@ class ZemanimMathBase {
 
 		/** @type {ROYSPACalculator} */
 		this.astroCalc = calculatorFor(config, geoLocation);
+		/** set by getVisibleSunriseEpochMs(): its last answer was a placeholder estimate */
+		this.visibleSunriseIsEstimate = false;
 		this.coreZC.setAstronomicalCalculator(this.astroCalc);
 
 		/** @type {TekufahCalculator} */
@@ -317,11 +327,18 @@ class ZemanimMathBase {
 		const cache = visibleCacheFor(this.config);
 
 		let ms = cache.get(key);
+		this.visibleSunriseIsEstimate = false;
 		if (ms === undefined && this.config.deferVisibleSunrise) {
 			// computed off-thread; until setCachedVisibleSunrise() fills it in, show the previous config's
-			// value if there was one (seedVisiblePlaceholders), else NaN -> getNetz() shows sea level
+			// value if there was one (seedVisiblePlaceholders), else an estimate from a neighbouring day,
+			// else NaN -> getNetz() shows sea level
 			this.config.deferVisibleSunrise(date);
-			return visiblePlaceholders.get(this.config)?.get(key) ?? NaN;
+			const seeded = visiblePlaceholders.get(this.config)?.get(key);
+			if (seeded !== undefined)
+				return seeded;
+			const estimate = this.estimateVisibleSunriseEpochMs(date, cache);
+			this.visibleSunriseIsEstimate = Number.isFinite(estimate);
+			return estimate;
 		}
 		if (ms === undefined) {
 			try {
@@ -333,6 +350,29 @@ class ZemanimMathBase {
 			cache.set(key, ms);
 		}
 		return ms;
+	}
+
+	/**
+	 * Placeholder while the real value is computed: the visible-minus-sea-level gap of the nearest day
+	 * already known (within 3 days), applied to this day's sea-level sunrise. The gap changes slowly
+	 * from day to day, so this is usually seconds from the final value instead of a minute or more.
+	 * @param {Temporal.PlainDate} date ISO date of this calendar
+	 * @param {Map<string, number>} cache this config's visible sunrises
+	 * @returns {number} epoch ms, or NaN if no neighbour is known
+	 */
+	estimateVisibleSunriseEpochMs(date, cache) {
+		const geo = this.coreZC.getGeoLocation();
+		for (let k = 1; k <= 3; k++) {
+			for (const d of [date.subtract({ days: k }), date.add({ days: k })]) {
+				const known = cache.get(visibleCacheKey(d));
+				if (known === undefined || !Number.isFinite(known))
+					continue;
+				const gap = known - this.astroCalc.getSunrises(d, geo).seaLevel;
+				const estimate = this.coreZC.getSeaLevelSunrise().epochMilliseconds + gap;
+				return Number.isFinite(estimate) ? estimate : NaN;
+			}
+		}
+		return NaN;
 	}
 
 	/** @returns {this} */
@@ -374,7 +414,10 @@ class ZemanimMathBase {
 			if (cancelled || !offsets.length)
 				return;
 			const day = this.chainDate(date.add({ days: /** @type {number} */ (offsets.shift()) }));
-			day.getVisibleSunriseEpochMs(); // fills the same cache getNetz() reads
+			// with a worker, the page queues visible sunrises itself (prefetchAround); computing it here
+			// would also ask with "needed now" priority and get in front of the day on screen
+			if (!this.config.deferVisibleSunrise)
+				day.getVisibleSunriseEpochMs(); // fills the same cache getNetz() reads
 			whenIdle(next);
 		};
 		whenIdle(next);
@@ -445,7 +488,9 @@ class ZemanFunctions extends ZemanimMathBase {
 	/**
 	 * Netz: the visible sunrise over the terrain when a horizon set is configured, otherwise sea-level sunrise.
 	 * Same return shape as before (callers check for the wrapper to show seconds).
-	 * @returns {Temporal.ZonedDateTime | {time: Temporal.ZonedDateTime; isVisual: true}}
+	 * `estimated: true` while the real visible sunrise is still being computed off-thread (the value is a
+	 * neighbouring day's visible-minus-sea-level gap applied to today; see estimateVisibleSunriseEpochMs).
+	 * @returns {Temporal.ZonedDateTime | {time: Temporal.ZonedDateTime; isVisual: true; estimated?: boolean}}
 	 */
 	getNetz() {
 		const seaLevel = this.coreZC.getSeaLevelSunrise();
@@ -461,7 +506,9 @@ class ZemanFunctions extends ZemanimMathBase {
 		if (Math.abs(visible.until(this.timeRange.current.sunrise).total('hour')) > 1)
 			return seaLevel;
 
-		return { time: visible, isVisual: true };
+		return this.visibleSunriseIsEstimate
+			? { time: visible, isVisual: true, estimated: true }
+			: { time: visible, isVisual: true };
 	}
 
 	getSofZemanShemaMGA() {

@@ -193,10 +193,25 @@ export function createAtmosphere(temperatureC, pressureMb, heightM) {
 	};
 }
 
+/**
+ * Built path media, per profile array. Providers hand back the same array for a date / event, and this is
+ * called on every sunrise / sunset calculation: rebuilding the columns each time cost more than the
+ * cached ray trace the medium feeds (and a path medium does not depend on the observer's height).
+ * @type {WeakMap<object, Medium>}
+ */
+const pathMediumCache = new WeakMap();
+
 /** @param {number} heightM @param {AtmosphereSpec | null | undefined} spec @returns {Medium} */
 function atmosphereFromSpec(heightM, spec) {
 	if (!spec) return mediumOf(createAtmosphere(ISA_T0 - 273.15, 1013.25, 0));
-	if ('path' in spec) return createPathAtmosphere(spec.path, spec.key);
+	if ('path' in spec) {
+		let medium = pathMediumCache.get(spec.path);
+		if (!medium) {
+			medium = createPathAtmosphere(spec.path, spec.key);
+			pathMediumCache.set(spec.path, medium);
+		}
+		return medium;
+	}
 	const h = spec.heightM ?? heightM;
 	return mediumOf(createAtmosphere(spec.temperatureC, spec.pressureMb ?? standardPressure(h), h));
 }

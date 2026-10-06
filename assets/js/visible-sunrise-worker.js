@@ -5,8 +5,13 @@
  *
  * Protocol (all plain data):
  *   → { type: 'init', gen, geo: [name, lat, lon, elevation, tz], horizon, visibleOptions }
- *   → { type: 'compute', gen, date: 'YYYY-MM-DD', table }      table: ProviderSnapshot around that date
- *   ← { gen, date, ms }                                         ms: epoch ms, NaN = not seen / failed
+ *   → { type: 'compute', gen, date: 'YYYY-MM-DD', table, priority }   table: ProviderSnapshot around that date
+ *   → { type: 'bump', gen, date, priority }                           raise a queued date's priority
+ *   ← { gen, date, ms }                                               ms: epoch ms, NaN = not seen / failed
+ *
+ * Requests are queued, not handled in arrival order: the lowest `priority` goes first (0 = the day on
+ * screen, k = k days away, for prefetching), and among equals the most recent request - so after quick
+ * clicks through the days, the day the user stopped on is computed next instead of waiting its turn.
  */
 
 import { GeoLocation } from "../libraries/kosherZmanim/kosher-zmanim.js";
@@ -18,7 +23,9 @@ import { providerFromSnapshot } from "./refraction-snapshot.js";
 /** @typedef {import("./refraction-snapshot.js").VisibleOptions} VisibleOptions */
 
 /** @typedef {{ type: 'init', gen: number, geo: [string, number, number, number, string], horizon: Horizon, visibleOptions?: VisibleOptions }} InitMessage */
-/** @typedef {{ type: 'compute', gen: number, date: string, table: ProviderSnapshot }} ComputeMessage */
+/** @typedef {{ type: 'compute', gen: number, date: string, table: ProviderSnapshot, priority?: number }} ComputeMessage */
+/** @typedef {{ type: 'bump', gen: number, date: string, priority: number }} BumpMessage */
+/** @typedef {InitMessage | ComputeMessage | BumpMessage} WorkerMessage */
 /** @typedef {{ gen: number, date: string, ms: number }} ResultMessage */
 
 /**
@@ -42,6 +49,14 @@ export function createVisibleSunriseEngine() {
 			state = { gen: msg.gen, geo, horizon: msg.horizon, visibleOptions: msg.visibleOptions, calc, table };
 		},
 
+		/** current config generation (-1 before init) */
+		get gen() { return state ? state.gen : -1; },
+
+		/** @param {ProviderSnapshot} table */
+		addSpecs(table) {
+			if (state) Object.assign(state.table, table);
+		},
+
 		/** @param {ComputeMessage} msg @returns {ResultMessage | null} null = stale (an init for a newer config came in) */
 		compute(msg) {
 			if (!state || msg.gen !== state.gen)
@@ -58,27 +73,89 @@ export function createVisibleSunriseEngine() {
 	};
 }
 
+/**
+ * Priority queue in front of the engine. `post` sends a result; `defer` schedules the next step (a macrotask,
+ * so messages that arrived during a computation are queued - and can overtake - before the next one starts).
+ * @param {ReturnType<typeof createVisibleSunriseEngine>} engine
+ * @param {(result: ResultMessage) => void} post
+ * @param {(fn: () => void) => void} [defer]
+ * @param {() => Promise<void>} [ready] resolves once computing is possible (e.g. the Temporal polyfill is loaded)
+ */
+export function createVisibleSunriseQueue(engine, post, defer = (fn) => setTimeout(fn, 0), ready = async () => {}) {
+	/** @type {Map<string, { msg: ComputeMessage, priority: number, seq: number }>} */
+	const queue = new Map();
+	let seq = 0;
+	let scheduled = false;
+	let busy = false;
+
+	const schedule = () => {
+		if (scheduled || busy || !queue.size) return;
+		scheduled = true;
+		defer(step);
+	};
+
+	const step = async () => {
+		scheduled = false;
+		if (busy || !queue.size) return;
+		busy = true;
+		try {
+			await ready();
+			/** @type {string | null} */
+			let bestKey = null;
+			for (const [key, item] of queue) {
+				const best = bestKey === null ? null : queue.get(bestKey);
+				if (!best || item.priority < best.priority || (item.priority === best.priority && item.seq > best.seq))
+					bestKey = key;
+			}
+			if (bestKey === null) return;
+			const item = /** @type {{ msg: ComputeMessage }} */ (queue.get(bestKey));
+			queue.delete(bestKey);
+			const result = engine.compute(item.msg);
+			if (result) post(result);
+		} finally {
+			busy = false;
+			schedule();
+		}
+	};
+
+	return {
+		/** @param {WorkerMessage} msg */
+		receive(msg) {
+			if (msg.type === "init") {
+				engine.init(msg);                          // synchronous: in place before any later compute
+				queue.clear();                             // everything queued was for the old config
+				return;
+			}
+			if (msg.gen !== engine.gen) return;           // stale
+			const existing = queue.get(msg.date);
+			if (msg.type === "bump") {
+				if (existing) {
+					existing.priority = Math.min(existing.priority, msg.priority);
+					existing.seq = ++seq;
+				}
+			} else if (existing) {
+				engine.addSpecs(msg.table);
+				existing.priority = Math.min(existing.priority, msg.priority ?? 0);
+				existing.seq = ++seq;
+			} else {
+				queue.set(msg.date, { msg, priority: msg.priority ?? 0, seq: ++seq });
+			}
+			schedule();
+		},
+		get size() { return queue.size; }
+	};
+}
+
 // Worker wiring (skipped when this module is imported for tests)
 if ("WorkerGlobalScope" in globalThis && !("document" in globalThis)) {
-	const engine = createVisibleSunriseEngine();
 	/** @type {Promise<void> | null} */
 	let temporalReady = null;
-
-	addEventListener("message", async (/** @type {MessageEvent<InitMessage | ComputeMessage>} */ event) => {
-		const msg = event.data;
-		if (msg.type === "init") {
-			engine.init(msg); // synchronous, so it is in place before any compute that follows it
-			return;
-		}
-
-		if (!("Temporal" in globalThis)) {
-			// @ts-ignore -- URL import: no type declarations
-			temporalReady ??= import("https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm").then(m => { globalThis.Temporal = m.Temporal; });
-			await temporalReady;
-		}
-
-		const result = engine.compute(msg);
-		if (result)
-			postMessage(result);
-	});
+	const ready = async () => {
+		if ("Temporal" in globalThis) return;
+		// @ts-ignore -- URL import: no type declarations
+		temporalReady ??= import("https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm").then(m => { globalThis.Temporal = m.Temporal; });
+		await temporalReady;
+	};
+	const queue = createVisibleSunriseQueue(createVisibleSunriseEngine(), (r) => postMessage(r), undefined, ready);
+	addEventListener("message", (/** @type {MessageEvent<WorkerMessage>} */ event) => queue.receive(event.data));
 }

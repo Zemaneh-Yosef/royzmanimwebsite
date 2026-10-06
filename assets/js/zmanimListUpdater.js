@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import { ZemanFunctions, methodNames, zDTFromFunc, seedVisiblePlaceholders } from "./ROYZmanim.js";
+import { ZemanFunctions, methodNames, zDTFromFunc, seedVisiblePlaceholders, hasCachedVisibleSunrise } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
 import ChaiTables from "./features/chaiTables.js";
@@ -530,6 +530,10 @@ export default class zmanimListUpdater {
 			// With forecast refraction each new day costs ~100 ms of ray tracing; do the neighbours while
 			// the user reads this one, so the next / previous click is instant
 			this._cancelPrewarm = this.zmanCalc.prewarm(date);
+			// Visible sunrises for the surrounding week, queued in the worker behind the day on screen
+			if (this.netzWorker && this.zmanCalc.config.deferVisibleSunrise)
+				this.netzWorker.prefetchAround(date.withCalendar("iso8601"), 7,
+					(d) => hasCachedVisibleSunrise(this.zmanCalc.config, d));
 			if (date.equals(Temporal.Now.plainDateISO())) {
 				const tomorrow = Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
 					.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 });
