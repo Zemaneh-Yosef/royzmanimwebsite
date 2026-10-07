@@ -54,12 +54,21 @@
  *  8. Optional: air that varies along the path. A provider may return { path: [...] } - weather-model
  *     temperature profiles at several distances along the Sun's azimuth (see path-atmosphere.js and
  *     refraction-server) - instead of one temperature. Rays are then traced through that 2D field
- *     (RK4 in the vertical plane of the azimuth; agrees with the 1D tracer to < 1" for uniform air).
- *     Over water the lowest 2 m follow a neutral log profile in potential temperature from the water
- *     temperature to the 2 m air; rays below 0.5 m (wave crests) count as blocked; over warm water the
- *     Sun is taken to vanish at the inferior-mirage vanishing line, not the sea edge. The surface layer
- *     omits stability corrections, so air-sea effects confined to the lowest metres are probably
- *     underestimated. chainProviders(a, b, c) uses the first provider that has data.
+ *     (RK4 in the vertical plane of the azimuth; agrees with the 1D tracer to ~1-2" (~0.1 s) for uniform
+ *     air). chainProviders(a, b, c) uses the first provider that has data.
+ *     Sea surface layer (OFF by default, setSeaSurfaceLayer(true)): over water the lowest 2 m follow a
+ *     neutral log profile in potential temperature from the water temperature to the 2 m air; rays below
+ *     0.5 m (wave crests) count as blocked; over warm water the Sun is taken to vanish at the
+ *     inferior-mirage vanishing line, not the sea edge. It omits stability corrections, and over water
+ *     colder than the air the grazing ray's refraction through it is ill-conditioned (a sea-level eye's
+ *     ray meets the wave line, and 0.2 K of sea temperature moved the elevated sunset by up to a minute),
+ *     so it stays off for zmanim until it has been checked against observations. Off, the sea is a
+ *     smooth surface at sea level under the weather model's air.
+ *  9. Observers below sea level (Jordan Valley, Kinneret, Dead Sea). KosherJava's GeoLocation rejects
+ *     negative elevations, so the visible sunrise takes the eye's real height separately (the server's
+ *     HorizonSet points carry it; for a plain profile pass options.observerHeightM). Rays are then traced
+ *     down to the basin floor instead of to sea level. Sea-level / elevated sunrise treat such an
+ *     observer as at sea level (no sea horizon lies below them), as KosherJava's callers clamp anyway.
  *
  * NOT ported from ChaiTables: its low-precision solar ephemeris (SPA is far better), the 6356.766 km
  * radius, the fixed 16' semidiameter, and the +/-15 s winter "inversion" cushion (a safety margin, not a
@@ -197,18 +206,24 @@ export function createAtmosphere(temperatureC, pressureMb, heightM) {
  * Built path media, per profile array. Providers hand back the same array for a date / event, and this is
  * called on every sunrise / sunset calculation: rebuilding the columns each time cost more than the
  * cached ray trace the medium feeds (and a path medium does not depend on the observer's height).
- * @type {WeakMap<object, Medium>}
+ * One cache per sea-surface-layer setting.
+ * @type {[WeakMap<object, Medium>, WeakMap<object, Medium>]}
  */
-const pathMediumCache = new WeakMap();
+const pathMediumCache = [new WeakMap(), new WeakMap()];
 
-/** @param {number} heightM @param {AtmosphereSpec | null | undefined} spec @returns {Medium} */
-function atmosphereFromSpec(heightM, spec) {
+/**
+ * @param {number} heightM @param {AtmosphereSpec | null | undefined} spec
+ * @param {boolean} [surfaceLayer] model the sea surface layer over water (see header, item 8)
+ * @returns {Medium}
+ */
+function atmosphereFromSpec(heightM, spec, surfaceLayer = false) {
 	if (!spec) return mediumOf(createAtmosphere(ISA_T0 - 273.15, 1013.25, 0));
 	if ('path' in spec) {
-		let medium = pathMediumCache.get(spec.path);
+		const cache = pathMediumCache[surfaceLayer ? 1 : 0];
+		let medium = cache.get(spec.path);
 		if (!medium) {
-			medium = createPathAtmosphere(spec.path, spec.key);
-			pathMediumCache.set(spec.path, medium);
+			medium = createPathAtmosphere(spec.path, spec.key, { surfaceLayer });
+			cache.set(spec.path, medium);
 		}
 		return medium;
 	}
@@ -218,14 +233,17 @@ function atmosphereFromSpec(heightM, spec) {
 
 /**
  * Total refraction (degrees) of the ray leaving an observer at height ho (m) with apparent altitude
- * aDeg, out to the top of the atmosphere. NaN if the ray meets the sea before its perigee.
+ * aDeg, out to the top of the atmosphere. NaN if the ray meets the surface before its perigee.
  * @param {Atmosphere} atm
- * @param {number} ho
+ * @param {number} ho observer height above sea level (may be negative in a depression)
  * @param {number} aDeg
  * @param {number} R radius of curvature, metres
+ * @param {number} [steps]
+ * @param {number} [floorM] height of the lowest surface the ray can reach (0 = the sea; a basin floor
+ *   below sea level for an observer in a depression)
  */
-export function rayRefraction(atm, ho, aDeg, R, steps = 600) {
-	const a = aDeg * DEG, ro = R + ho;
+export function rayRefraction(atm, ho, aDeg, R, steps = 600, floorM = 0) {
+	const a = aDeg * DEG, ro = R + ho, Rb = R + floorM;
 	const k = (1 + atm.nm1(ho)) * ro * Math.cos(a);
 	/** @param {number} r */
 	const nr = r => (1 + atm.nm1(r - R)) * r;
@@ -244,8 +262,8 @@ export function rayRefraction(atm, ho, aDeg, R, steps = 600) {
 	};
 	let total;
 	if (a < 0) {
-		if (nr(R) > k) return NaN;
-		let lo = R, hi = ro;
+		if (nr(Rb) > k) return NaN;
+		let lo = Rb, hi = ro;
 		for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (nr(mid) < k) lo = mid; else hi = mid; }
 		total = 2 * seg(hi, ro, Math.max(60, steps >> 2)) + seg(ro, R + RAY_TOP_M, steps);
 	} else {
@@ -255,12 +273,13 @@ export function rayRefraction(atm, ho, aDeg, R, steps = 600) {
 }
 
 /**
- * Apparent altitude (degrees, <= 0) of the sea horizon for an observer at height ho.
- * @param {Atmosphere} atm @param {number} ho @param {number} R
+ * Apparent altitude (degrees, <= 0) of the sea horizon (or, with floorM < 0, of a level basin floor)
+ * for an observer at height ho.
+ * @param {Atmosphere} atm @param {number} ho @param {number} R @param {number} [floorM]
  */
-export function seaHorizonAltitude(atm, ho, R) {
-	if (ho <= 0) return 0;
-	return -Math.acos(Math.min(1, (1 + atm.nm1(0)) * R / ((1 + atm.nm1(ho)) * (R + ho)))) / DEG;
+export function seaHorizonAltitude(atm, ho, R, floorM = 0) {
+	if (ho <= floorM) return 0;
+	return -Math.acos(Math.min(1, (1 + atm.nm1(floorM)) * (R + floorM) / ((1 + atm.nm1(ho)) * (R + ho)))) / DEG;
 }
 
 /**
@@ -271,7 +290,8 @@ export function seaHorizonAltitude(atm, ho, R) {
  * @param {number} h1 @param {number} h2 @param {number} pathM
  */
 export function terrestrialRefraction(atm, h1, h2, pathM) {
-	return Math.max(0, -atm.dndh((h1 + h2) / 2)) * pathM / 2 / DEG;
+	// negative when the air at that height is superadiabatic (rays bend upward): the target looks lower
+	return -atm.dndh((h1 + h2) / 2) * pathM / 2 / DEG;
 }
 
 /**
@@ -300,8 +320,8 @@ export function geometricElevation(observerM, targetM, distM, R) {
  * @typedef {{ h: number, t: number, p: number }} ProfileLevel
  * @typedef {{ distanceKm: number, water?: boolean, skinC?: number | null, levels: ProfileLevel[] }} PathProfile
  * @typedef {{ key: string, nm1: (h:number)=>number, dndh: (h:number)=>number,
- *             refraction: (ho:number, aDeg:number, R:number)=>number,
- *             seaHorizon: (ho:number, R:number)=>number }} Medium
+ *             refraction: (ho:number, aDeg:number, R:number, floorM?:number)=>number,
+ *             seaHorizon: (ho:number, R:number, floorM?:number)=>number }} Medium
  */
 
 const SURFACE_Z0H = 1e-4;
@@ -310,8 +330,8 @@ const PATH_TOP_M = 60000;
 // "sea horizon" would hinge on the bottom millimetres of air over a perfectly smooth sphere.
 const WAVE_CLEARANCE_M = 0.5;
 
-/** @param {PathProfile} prof */
-function buildColumn(prof) {
+/** @param {PathProfile} prof @param {boolean} surfaceLayer */
+function buildColumn(prof, surfaceLayer) {
 	/** @type {{z:number, T:number, lp:number}[]} */
 	let pts = (prof.levels ?? [])
 		.filter(l => Number.isFinite(l.h) && Number.isFinite(l.t) && Number.isFinite(l.p) && l.p > 0)
@@ -320,7 +340,7 @@ function buildColumn(prof) {
 	pts = pts.filter((q, i) => i === 0 || q.z > pts[i - 1].z + 1e-6);
 	if (!pts.length) throw new Error('Path profile has no usable levels');
 	const s = pts[0];
-	if (prof.water && Number.isFinite(prof.skinC) && s.z > 0 && s.z <= 10) {
+	if (surfaceLayer && prof.water && Number.isFinite(prof.skinC) && s.z > 0 && s.z <= 10) {
 		// log profile in potential temperature (theta = T + GAMMA_D z), so equal water and air temperatures
 		// give the dry-adiabatic (neutral) lapse rate rather than an isothermal layer
 		const GAMMA_D = G0 / 1004.7;
@@ -381,13 +401,16 @@ function hashString(s) {
  * azimuth. The first profile should be at (or near) the observer.
  * @param {PathProfile[]} profiles
  * @param {string} [key] cache key; derived from the data when omitted
+ * @param {{ surfaceLayer?: boolean }} [options] surfaceLayer: model the sea surface layer, wave crests and
+ *   inferior mirages over water (default true here; ROYSPACalculator turns it off unless asked, see header item 8)
  * @returns {Medium}
  */
-export function createPathAtmosphere(profiles, key) {
+export function createPathAtmosphere(profiles, key, options = {}) {
+	const surfaceLayer = options.surfaceLayer ?? true;
 	const sorted = [...profiles].sort((a, b) => a.distanceKm - b.distanceKm);
 	if (!sorted.length) throw new Error('No path profiles');
 	const ds = sorted.map(p => p.distanceKm * 1000);
-	const cols = sorted.map(buildColumn);
+	const cols = sorted.map(p => buildColumn(p, surfaceLayer));
 	/** N, dN/dz, dN/dd at height z and ground distance d @param {number} z @param {number} d @returns {[number, number, number]} */
 	const field = (z, d) => {
 		if (cols.length === 1 || d <= ds[0]) { const c = cols[0](z); return [c[0], c[1], 0]; }
@@ -402,10 +425,11 @@ export function createPathAtmosphere(profiles, key) {
 
 	/**
 	 * Trace a ray from height ho with apparent altitude aDeg. Returns the refraction (degrees), or NaN
-	 * if the ray comes down to sea level.
-	 * @param {number} ho @param {number} aDeg @param {number} R
+	 * if the ray comes down to the surface (sea level, or floorM in a basin below sea level).
+	 * @param {number} ho @param {number} aDeg @param {number} R @param {number} [floorM]
 	 */
-	const trace = (ho, aDeg, R) => {
+	const trace = (ho, aDeg, R, floorM = 0) => {
+		const blockedBelow = floorM < 0 ? () => floorM : clearance;
 		// state: r (radius), th (central angle travelled), b (ray elevation above the local horizontal)
 		let dr = 0, dth = 0, db = 0;
 		/** derivatives d/ds into dr, dth, db @param {number} r @param {number} th @param {number} b */
@@ -423,14 +447,15 @@ export function createPathAtmosphere(profiles, key) {
 			r += s / 6 * (r1 + 2 * r2 + 2 * r3 + dr);
 			th += s / 6 * (t1 + 2 * t2 + 2 * t3 + dth);
 			b += s / 6 * (b1 + 2 * b2 + 2 * b3 + db);
-			if (r - R < clearance(R * th)) return NaN;
+			if (r - R < blockedBelow(R * th)) return NaN;
 		}
 		return aDeg - (b - th) / DEG;
 	};
 
-	const water = sorted.map(p => !!p.water);
+	// without the surface layer the sea is a smooth surface at sea level: no wave crests, no mirage
+	const water = sorted.map(p => surfaceLayer && !!p.water);
 	// an inferior mirage needs water warmer than the air above it
-	const warmWater = sorted.some(p => p.water && Number.isFinite(p.skinC) && p.levels?.length
+	const warmWater = surfaceLayer && sorted.some(p => p.water && Number.isFinite(p.skinC) && p.levels?.length
 		&& /** @type {number} */ (p.skinC) > p.levels[0].t);
 	/** blocking height of the surface at ground distance d (nearest profile decides water / land) @param {number} d */
 	const clearance = d => {
@@ -440,7 +465,7 @@ export function createPathAtmosphere(profiles, key) {
 	};
 	const near = cols[0];
 	return {
-		key: key ?? 'path|' + hashString(JSON.stringify(sorted)),
+		key: (key ?? 'path|' + hashString(JSON.stringify(sorted))) + (surfaceLayer ? '|sl' : ''),
 		nm1: z => near(z)[0],
 		dndh: z => near(z)[1],
 		refraction: trace,
@@ -448,20 +473,21 @@ export function createPathAtmosphere(profiles, key) {
 		// sea horizon (the ray grazing the water). Over water warmer than the air, rays aimed just above
 		// the water curve back up (inferior mirage); the Sun then vanishes where it meets its mirror image,
 		// at the apparent altitude whose ray reaches the lowest true altitude (the "vanishing line").
-		seaHorizon(ho, R) {
-			if (ho <= 0) return 0;
+		seaHorizon(ho, R, floorM = 0) {
+			if (ho <= floorM) return 0;
+			const tr = (/** @type {number} */ a) => trace(ho, a, R, floorM);
 			// bracket around the estimate for an atmosphere like the observer's column, widening if needed
-			const n0 = 1 + near(0)[0], no = 1 + near(ho)[0];
-			const est = -Math.acos(Math.min(1, n0 * R / (no * (R + ho)))) / DEG;
-			const geo = Math.acos(R / (R + ho)) / DEG;
+			const n0 = 1 + near(floorM)[0], no = 1 + near(ho)[0];
+			const est = -Math.acos(Math.min(1, n0 * (R + floorM) / (no * (R + ho)))) / DEG;
+			const geo = Math.acos((R + floorM) / (R + ho)) / DEG;
 			let lo = est - 0.005, hi = est + 0.005;
-			while (Number.isNaN(trace(ho, hi, R)) && hi < 0.5) { lo = hi; hi += 0.1; }
-			while (!Number.isNaN(trace(ho, lo, R)) && lo > -2 * geo - 1) { hi = lo; lo -= 0.1; }
-			if (!Number.isNaN(trace(ho, lo, R))) return lo;                   // nothing reaches the water
+			while (Number.isNaN(tr(hi)) && hi < 0.5) { lo = hi; hi += 0.1; }
+			while (!Number.isNaN(tr(lo)) && lo > -2 * geo - 1) { hi = lo; lo -= 0.1; }
+			if (!Number.isNaN(tr(lo))) return lo;                             // nothing reaches the surface
 			// bisect to 1e-5 deg (0.04") - far below anything visible
-			while (hi - lo > 1e-5) { const m = (lo + hi) / 2; if (Number.isNaN(trace(ho, m, R))) lo = m; else hi = m; }
+			while (hi - lo > 1e-5) { const m = (lo + hi) / 2; if (Number.isNaN(tr(m))) lo = m; else hi = m; }
 			const aHit = hi + 1e-7;
-			if (!warmWater) return aHit;                                      // no mirage possible
+			if (!warmWater || floorM < 0) return aHit;                        // no mirage possible
 			/** true altitude reached by the ray @param {number} a */
 			const trueAlt = a => { const x = trace(ho, a, R); return Number.isNaN(x) ? Infinity : a - x; };
 			// coarse scan (denser near the water), then golden-section refinement around the minimum
@@ -491,8 +517,8 @@ function mediumOf(atm) {
 	if ('refraction' in atm) return atm;
 	return {
 		key: atm.key, nm1: atm.nm1, dndh: atm.dndh,
-		refraction: (ho, a, R) => rayRefraction(atm, ho, a, R),
-		seaHorizon: (ho, R) => seaHorizonAltitude(atm, ho, R),
+		refraction: (ho, a, R, floorM = 0) => rayRefraction(atm, ho, a, R, 600, floorM),
+		seaHorizon: (ho, R, floorM = 0) => seaHorizonAltitude(atm, ho, R, floorM),
 	};
 }
 
@@ -602,7 +628,9 @@ class Cache {
 
 /**
  * @typedef {{ limbPoints?: number, stepSeconds?: number, maxGapDeg?: number, inversionCorrection?: boolean,
- *             limb?: 'any' | 'top' | 'bottom' | 'full' }} VisibleOptions
+ *             limb?: 'any' | 'top' | 'bottom' | 'full', observerHeightM?: number }} VisibleOptions
+ *   observerHeightM: the eye's height above sea level when it differs from the GeoLocation's elevation -
+ *   in practice below sea level, which a GeoLocation cannot hold (HorizonSet points carry it themselves).
  *   limb: which part of the Sun's disk decides the moment (sunrise: first moment it clears the terrain;
  *   sunset: last moment it is still clear):
  *     'any' (default) - any part of the disk: the first / last light an observer sees (on a sloping
@@ -643,6 +671,16 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._horizonCache = new Cache(256);
 		/** @type {Cache<{a0:number, step:number, refr:Float64Array}>} */
 		this._refrTableCache = new Cache(64);
+		this._seaSurfaceLayer = false;
+	}
+
+	/**
+	 * Model the sea surface layer, wave crests and inferior mirages over water in path profiles (header,
+	 * item 8). Off by default: unvalidated, and unstable over water colder than the air.
+	 * @param {boolean} on
+	 */
+	setSeaSurfaceLayer(on) {
+		this._seaSurfaceLayer = !!on;
 	}
 
 	getCalculatorName() {
@@ -716,7 +754,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	_atmosphereFor(date, event, geo, heightM) {
 		if (!this._atmosphereProvider || !date || !event) return null;
 		const spec = this._atmosphereProvider(date, event, geo);
-		return spec ? atmosphereFromSpec(heightM, spec) : null;
+		return spec ? atmosphereFromSpec(heightM, spec, this._seaSurfaceLayer) : null;
 	}
 
 	/** @param {Medium} atm @param {number} heightM */
@@ -748,7 +786,9 @@ export default class ROYSPACalculator extends SPACalculator {
 		const h0 = Math.max(0, elevationMeters);
 		if (atmosphere) {
 			const r = this._rayTracedHorizon(mediumOf(atmosphere), h0);
-			return r.dip + r.refr;
+			const total = r.dip + r.refr;
+			// never let odd weather data take sunrise / sunset away: fall back to the default model
+			if (Number.isFinite(total)) return total;
 		}
 		const h = sweerHorizon(h0, 0, this.getEarthRadius() * 1000);
 		return h.dipDeg + this.getRefraction() * h.refractionRatio;
@@ -873,8 +913,12 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	_fromSet(date, geo, set, event, options) {
 		if (!set?.points?.length) throw new Error('Not a horizon profile or HorizonSet');
+		// A GeoLocation cannot be below sea level; the real height goes to the horizon model separately
 		/** @param {HorizonSetPoint} p */
-		const pointGeo = p => new GeoLocation(geo.getLocationName(), p.lat, p.lon, p.height, geo.getTimeZone());
+		const pointGeo = p => new GeoLocation(geo.getLocationName(), p.lat, p.lon, Math.max(0, p.height), geo.getTimeZone());
+		// The server sends each point's horizon only around the directions it wins (+/- 3 deg), at 0.1 deg
+		// steps: never interpolate across what it left out
+		const opts = { ...options, maxGapDeg: options.maxGapDeg ?? 0.5 };
 		let pts = set.points.filter(p => p[event]?.length);
 		if (set.mode === 'vantage' && pts.length > 1) {
 			// only points that win near today's rise / set direction need tracing
@@ -889,7 +933,13 @@ export default class ROYSPACalculator extends SPACalculator {
 		}
 		const out = [];
 		for (const p of pts) {
-			const ms = this._visibleEvent(date, pointGeo(p), /** @type {HorizonPoint[]} */ (p[event]), event, options);
+			let ms = NaN;
+			try {
+				ms = this._visibleEvent(date, pointGeo(p), /** @type {HorizonPoint[]} */ (p[event]), event, opts,
+					{ heightM: p.height, groundM: p.ground });
+			} catch (e) {
+				console.error('Visible ' + event + ' failed for vantage point', p.lat, p.lon, e);
+			}
 			if (Number.isFinite(ms)) out.push({ epochMs: ms, lat: p.lat, lon: p.lon, height: p.height });
 		}
 		out.sort((a, b) => event === 'sunrise' ? a.epochMs - b.epochMs : b.epochMs - a.epochMs);
@@ -900,10 +950,20 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * The profile reduced to the true (unrefracted) altitude the Sun must reach at each azimuth.
 	 * Exposed for inspection / plotting.
 	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {HorizonPoint[]} profile @param {'sunrise'|'sunset'} event
+	 * @param {{ heightM?: number, groundM?: number }} [observer] the eye's real height above sea level (and the
+	 *   ground's) when the GeoLocation cannot hold it, i.e. below sea level
 	 * @returns {{ azimuthDeg: number[], apparentDeg: number[], thresholdDeg: number[] }}
 	 */
-	getHorizonThresholds(date, geoLocation, profile, event) {
-		const ho = Math.max(0, geoLocation.getElevation());
+	getHorizonThresholds(date, geoLocation, profile, event, observer = {}) {
+		const ho = Number.isFinite(observer.heightM) ? /** @type {number} */ (observer.heightM) : Math.max(0, geoLocation.getElevation());
+		// Rays can reach down to sea level, or in a depression to the basin floor: the lowest of the
+		// observer's ground and the terrain heights in the profile (which include the lake where the
+		// line of sight crosses it)
+		let floorM = 0;
+		if (ho < 0) {
+			floorM = Math.min(Number.isFinite(observer.groundM) ? /** @type {number} */ (observer.groundM) : ho, ho);
+			for (const p of profile) if ('heightM' in p && Number.isFinite(p.heightM)) floorM = Math.min(floorM, p.heightM);
+		}
 		const R = this.getEarthRadius() * 1000;
 		const provided = this._atmosphereFor(date, event, geoLocation, ho);
 		const atm = provided ?? atmosphereFromSpec(ho, null);
@@ -911,7 +971,7 @@ export default class ROYSPACalculator extends SPACalculator {
 		// sea-level horizon refraction equals getRefraction() (34.48' by default), as Sweer's ratio is.
 		const scale = provided ? 1 : this.getRefraction() / this._horizonCache.get('isa0|' + R,
 			() => ({ dip: 0, refr: atm.refraction(0, 0, R) })).refr;
-		const seaAlt = atm.seaHorizon(ho, R);
+		const seaAlt = atm.seaHorizon(ho, R, floorM);
 		const pts = profile.map(p => {
 			let app;
 			if ('elevationDeg' in p && p.elevationDeg != null) {
@@ -928,7 +988,7 @@ export default class ROYSPACalculator extends SPACalculator {
 		if (pts.length < 2) throw new Error('Horizon profile needs at least two points');
 
 		const maxApp = Math.max(...pts.map(p => p.app));
-		const table = this._refractionTable(atm, ho, R, seaAlt, maxApp);
+		const table = this._refractionTable(atm, ho, R, seaAlt, maxApp, floorM);
 		const tab = table.refr, N = tab.length;
 		/** cubic Hermite (Catmull-Rom) interpolation; < 1" from a direct ray trace @param {number} a */
 		const refrAt = a => {
@@ -949,18 +1009,19 @@ export default class ROYSPACalculator extends SPACalculator {
 	/**
 	 * Refraction versus apparent altitude for this observer and air, from the sea horizon upward.
 	 * @param {Medium} atm @param {number} ho @param {number} R @param {number} seaAlt @param {number} maxApp
+	 * @param {number} [floorM] lowest surface the rays can reach (see getHorizonThresholds)
 	 */
-	_refractionTable(atm, ho, R, seaAlt, maxApp) {
+	_refractionTable(atm, ho, R, seaAlt, maxApp, floorM = 0) {
 		const step = 0.1;
 		const top = Math.max(maxApp, seaAlt) + 0.5;
 		const n = Math.ceil((top - seaAlt) / step) + 1;
-		const key = [atm.key, ho, R, n].join('|');
+		const key = [atm.key, ho, R, n, floorM].join('|');
 		return this._refrTableCache.get(key, () => {
 			const refr = new Float64Array(n);
 			for (let i = 0; i < n; i++) {
 				// the grazing ray itself: nudge up by 1e-7 deg so the perigee solve stays inside the atmosphere
-				const a = i === 0 && ho > 0 ? seaAlt + 1e-7 : seaAlt + i * step;
-				refr[i] = atm.refraction(ho, a, R);
+				const a = i === 0 && ho > floorM ? seaAlt + 1e-7 : seaAlt + i * step;
+				refr[i] = atm.refraction(ho, a, R, floorM);
 			}
 			return { a0: seaAlt, step, refr };
 		});
@@ -990,9 +1051,10 @@ export default class ROYSPACalculator extends SPACalculator {
 	/**
 	 * @param {Temporal.PlainDate} date @param {GeoLocation} geo @param {HorizonPoint[]} profile
 	 * @param {'sunrise'|'sunset'} event @param {VisibleOptions} options
+	 * @param {{ heightM?: number, groundM?: number }} [observer] see getHorizonThresholds
 	 */
-	_visibleEvent(date, geo, profile, event, options) {
-		const th = this.getHorizonThresholds(date, geo, profile, event);
+	_visibleEvent(date, geo, profile, event, options, observer = { heightM: options.observerHeightM }) {
+		const th = this.getHorizonThresholds(date, geo, profile, event, observer);
 		const sd = this.getApparentSolarRadius(date);
 		const limb = options.limb ?? 'any';
 		if (!['any', 'top', 'bottom', 'full'].includes(limb)) throw new Error(`Unknown limb option '${limb}'`);

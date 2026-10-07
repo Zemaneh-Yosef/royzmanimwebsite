@@ -116,14 +116,16 @@ export function createVisibleMoon(calc, horizon, Astronomy, options) {
 		const atm = air ? createAtmosphere(/** @type {number} */ (T), /** @type {number} */ (P), /** @type {number} */ (H)) : isa;
 		const scale = air ? 1 : isaScale;
 		const entries = horizon[side];
-		const hOf = (/** @type {number} */ ho) => Math.max(0, Math.round(ho / 10) * 10);   // eye heights to 10 m
+		const hOf = (/** @type {number} */ ho) => Math.round(ho / 10) * 10;   // eye heights to 10 m
+		// rays reach down to sea level, or for a spot below sea level to (about) its own ground
+		const floorOf = (/** @type {number} */ h) => (h < 0 ? h - 10 : 0);
 
 		// 1. apparent elevation of every horizon point, in its own spot's frame
 		/** @type {Map<number, number>} */
 		const seaAlts = new Map();
 		const seaAltAt = (/** @type {number} */ h) => {
 			let v = seaAlts.get(h);
-			if (v === undefined) { v = seaHorizonAltitude(atm, h, R); seaAlts.set(h, v); }
+			if (v === undefined) { v = seaHorizonAltitude(atm, h, R, floorOf(h)); seaAlts.set(h, v); }
 			return v;
 		};
 		const apps = entries.map(e => {
@@ -145,7 +147,7 @@ export function createVisibleMoon(calc, horizon, Astronomy, options) {
 			const at = (/** @type {number} */ i) => {
 				if (!filled[i]) {
 					// the grazing ray itself: nudge up so the perigee solve stays inside the atmosphere
-					tab[i] = rayRefraction(atm, h, i === 0 && h > 0 ? seaAlt + 1e-7 : seaAlt + i * step, R);
+					tab[i] = rayRefraction(atm, h, i === 0 && h > floorOf(h) ? seaAlt + 1e-7 : seaAlt + i * step, R, 600, floorOf(h));
 					filled[i] = 1;
 				}
 				return tab[i];
