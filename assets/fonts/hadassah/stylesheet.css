@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'Hadassah Friedlaender';
+    src: url('HadassahFriedlaender.woff2') format('woff2'),
+        url('HadassahFriedlaender.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Hadassah Friedlaender';
+    src: url('HadassahFriedlaender-Bold.woff2') format('woff2'),
+        url('HadassahFriedlaender-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+

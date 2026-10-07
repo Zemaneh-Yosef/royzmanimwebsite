@@ -20,7 +20,7 @@
         "tzeithIssurMelakha": { "minutes": 30, "degree": 7.165 }
     },
     "schedule": {
-        "url": "https://raw.githubusercontent.com/Zemaneh-Yosef/extras/refs/heads/main/charm-circle.ini",
-        "type": "ini"
+        "url": "https://zemaneh-yosef.github.io/extras/charm-circle.toml",
+        "type": "toml"
     }
 }
