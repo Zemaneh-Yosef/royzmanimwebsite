@@ -62,6 +62,17 @@ function overflows(page, last) {
 export default class MoonRender {
     hNum = new HebrewNumberFormatter();
 
+    /** @type {() => void} */
+    resolveMonthPages = () => {};
+
+    /**
+     * Resolves once every month page is in the document (or its worker failed). The page waits on it
+     * before moving the month prefix pages, since the moon workers can finish after the weekly ones.
+     * The early (3-7 day) pages aren't covered: they have no month prefix and stay where they are.
+     * @type {Promise<void>}
+     */
+    monthPagesReady = new Promise(resolve => { this.resolveMonthPages = resolve; });
+
     /**
      * Collects the months to print. Nothing is computed until start(): the workers need the refraction
      * data, which the page loads after constructing this (see nightRange()).
@@ -117,7 +128,10 @@ export default class MoonRender {
      */
     spawnMoonWorkers(months, glArgs, israel, refractionInit) {
         const anchor = document.querySelector('[data-monthPrefix^="7"]');
-        if (!anchor || !months.length) return;
+        if (!anchor || !months.length) {
+            this.resolveMonthPages();
+            return;
+        }
 
         // One hidden placeholder per month, so pages end up in order no matter which worker finishes first
         const placeholders = months.map(() => {
@@ -147,11 +161,13 @@ export default class MoonRender {
                 if (finished) return;
                 finished = true;
                 worker.terminate();
-                if (--remainingWorkers === 0)
+                if (--remainingWorkers === 0) {
+                    this.resolveMonthPages();
                     this.buildEarlyPages(
                         /** @type {MonthResult[]} */ (earlyResults.filter(Boolean)),
                         earlyPlaceholder
                     );
+                }
             };
 
             worker.addEventListener('message', ({ data }) => {
@@ -283,7 +299,8 @@ export default class MoonRender {
                     ${daysHtml}
                 </div>
             </div>`,
-            id: monthResult.monthID
+            id: monthResult.monthID,
+            year: monthResult.year
         };
     }
 
@@ -296,7 +313,7 @@ export default class MoonRender {
             const chunk = monthResults.slice(i, i + MONTHS_PER_PAGE);
             if (chunk.length == 1) {
                 const monthCard = this.buildMoonMonthCard(chunk[0])
-                pages.push(`<div class="page birkatLevanaMoonPage verso" data-monthPrefix="${monthCard.id}">${monthCard.html}</div>`)
+                pages.push(`<div class="page birkatLevanaMoonPage verso" data-monthPrefix="${monthCard.id}" data-monthYear="${monthCard.year}">${monthCard.html}</div>`)
             } else {
                 pages.push(`<div class="page birkatLevanaMoonPage verso">${chunk.map(m => this.buildMoonMonthCard(m).html).join('')}</div>`);
             }
@@ -447,4 +464,4 @@ export default class MoonRender {
 
         placeholder.remove();
     }
-}
+}

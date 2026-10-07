@@ -2,7 +2,7 @@
 
 import { GeoLocation } from "../../../libraries/kosherZmanim/kosher-zmanim.js";
 import { settings } from "../../settings/handler.js";
-import WebsiteCalendar, { getOrdinal, HebrewNumberFormatter } from "../../WebsiteCalendar.js";
+import { getOrdinal, HebrewNumberFormatter } from "../../WebsiteCalendar.js";
 import fitty from "../../../libraries/fitty.js";
 import QrCode from "../../../libraries/qrCode.js";
 import { analyzeCycle as analyzeTimeZoneCycle } from "../../../libraries/dst-transition.js";
@@ -14,6 +14,8 @@ import * as ol from "../../../libraries/OpenLayers/ol.js"
 
 import { fetchLightPollution } from "../../../libraries/light-pollution-client.js";
 import MoonRender from "./moon-render.js";
+
+const WORKER_URL = '/assets/js/features/weeklyPrint/print-web-worker.js';
 
 const printParam = new URLSearchParams(window.location.search);
 /** @type {'iso8601'|'hebrew'} */
@@ -42,7 +44,8 @@ if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new GeoLocation(...glArgs);
 
-const useOhrHachaim = ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)) || settings.calendarToggle.forceSunSeasonal()
+const inIsrael = ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName));
+const useOhrHachaim = inIsrael || settings.calendarToggle.forceSunSeasonal()
 const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')];
 const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')];
 if (useOhrHachaim) {
@@ -85,16 +88,16 @@ if (elevation) {
 	));
 }
 
+// Not awaited: nothing else depends on it, so it no longer holds up the rest of the page
 const lightPol = document.querySelector('[data-zyReplace="light-pollution"]')
 if (lightPol)
-	lightPol.appendChild(document.createTextNode(
-		(await fetchLightPollution("https://hanetz.royzmanim.com/selfhost", geoLocation.getLatitude(), geoLocation.getLongitude())).artificialMcdM2.toFixed(2)
-		+ " mcd/m²"
-	));
+	fetchLightPollution("https://hanetz.royzmanim.com/selfhost", geoLocation.getLatitude(), geoLocation.getLongitude())
+		.then(result => lightPol.appendChild(document.createTextNode(result.artificialMcdM2.toFixed(2) + " mcd/m²")))
+		.catch(err => console.warn("Light pollution:", err));
 
 
 /** @type {HTMLElement} */
-const locationMapElem = document.querySelector('[data-zfFind="locationMap"]')
+const locationMapElem = document.querySelector('[data-zyFind="locationMap"]')
 if (locationMapElem) {
 	const stadiaSource = new ol.StadiaMaps({
 		layer: 'stamen_terrain',
@@ -155,6 +158,22 @@ const mRender = new MoonRender(geoLocation, {
 
 const weeksForLoop = baseDateForLoop.until(endDateForLoop).total({ unit: 'week', relativeTo: baseDateForLoop });
 
+// ─── Week worker pool ────────────────────────────────────────────────────────
+// Spawned now so the module loads (and the Temporal polyfill import) overlap with the refraction fetch.
+// Nothing is posted until the refraction data and the template are ready. One core is left for the main
+// thread and one for the moon workers; never more workers than weeks.
+const poolSize = Math.max(1, Math.min(
+	weeksForLoop,
+	(navigator.hardwareConcurrency || 4) - 2
+));
+
+/** @type {Worker[]} */
+const pool = Array.from({ length: poolSize }, () => new Worker(WORKER_URL, { type: 'module' }));
+/** @type {ErrorEvent | null} */
+let earlyWorkerError = null;
+const recordEarlyWorkerError = (/** @type {ErrorEvent} */ e) => { earlyWorkerError ??= e; };
+pool.forEach(worker => worker.addEventListener('error', recordEarlyWorkerError));
+
 // ─── Refraction data ─────────────────────────────────────────────────────────
 // This page is the main thread, so loadRefraction() can use localStorage (horizon + normals are
 // shared with the web page's cache). Workers can't receive the provider (a closure), so we evaluate it
@@ -201,73 +220,75 @@ for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 	locName.appendChild(document.createTextNode(title))
 
 function renderGoldPlaques() {
-  const fontSize = 28, fontWeight = 700;
-  const fontFamily = getComputedStyle(document.documentElement)
-    .getPropertyValue('--body-font') || 'serif';
-  const font = `${fontWeight} ${fontSize}px ${fontFamily}`;
-  const strokeWidth = 2.5, padX = 6, padY = 5;
-  const scale = 4; // supersample so it stays crisp at print resolution
+	const fontSize = 28, fontWeight = 700;
+	const fontFamily = getComputedStyle(document.documentElement)
+		.getPropertyValue('--body-font') || 'serif';
+	const font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+	const strokeWidth = 2.5, padX = 6, padY = 5;
+	const scale = 4; // supersample so it stays crisp at print resolution
 
-  document.querySelectorAll('.plaque').forEach(plaque => {
-    const source = plaque.querySelector('.goldPlaqueSourceText');
-	/** @type {HTMLImageElement} */
-    const img = plaque.querySelector('.goldPlaqueImg');
-    if (!source || !img) return;
-    const text = source.textContent;
+	// One measuring context for every plaque
+	const measureCtx = document.createElement('canvas').getContext('2d');
+	measureCtx.font = font;
 
-    // Measure first
-    const measureCtx = document.createElement('canvas').getContext('2d');
-    measureCtx.font = font;
-    const m = measureCtx.measureText(text);
-    const ascent = m.actualBoundingBoxAscent || fontSize * 0.8;
-    const descent = m.actualBoundingBoxDescent || fontSize * 0.3;
-    const cw = Math.ceil(m.width + padX * 2 + strokeWidth * 2);
-    const ch = Math.ceil(ascent + descent + padY * 2 + strokeWidth * 2);
+	document.querySelectorAll('.plaque').forEach(plaque => {
+		const source = plaque.querySelector('.goldPlaqueSourceText');
+		/** @type {HTMLImageElement} */
+		const img = plaque.querySelector('.goldPlaqueImg');
+		if (!source || !img) return;
+		const text = source.textContent;
 
-    // Draw at supersampled resolution
-    const canvas = document.createElement('canvas');
-    canvas.width = cw * scale;
-    canvas.height = ch * scale;
-    const ctx = canvas.getContext('2d');
-    ctx.scale(scale, scale);
-    ctx.font = font;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+		// Measure first
+		const m = measureCtx.measureText(text);
+		const ascent = m.actualBoundingBoxAscent || fontSize * 0.8;
+		const descent = m.actualBoundingBoxDescent || fontSize * 0.3;
+		const cw = Math.ceil(m.width + padX * 2 + strokeWidth * 2);
+		const ch = Math.ceil(ascent + descent + padY * 2 + strokeWidth * 2);
 
-    const cx = cw / 2, cy = ch / 2;
-    const grad = ctx.createLinearGradient(0, cy - ascent, 0, cy + descent);
-    grad.addColorStop(0.0, '#c7972f');
-    grad.addColorStop(0.2, '#916718');
-    grad.addColorStop(0.4, '#fde97d');
-    grad.addColorStop(0.6, '#d9a941');
-    grad.addColorStop(0.8, '#fddd8b');
-    grad.addColorStop(1.0, '#f3c14b');
+		// Draw at supersampled resolution
+		const canvas = document.createElement('canvas');
+		canvas.width = cw * scale;
+		canvas.height = ch * scale;
+		const ctx = canvas.getContext('2d');
+		ctx.scale(scale, scale);
+		ctx.font = font;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
 
-    ctx.lineJoin = 'round';
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = strokeWidth;
-    ctx.strokeText(text, cx, cy);   // stroke first, mimicking paint-order
-    ctx.fillStyle = grad;
-    ctx.fillText(text, cx, cy);    // gold fill on top
+		const cx = cw / 2, cy = ch / 2;
+		const grad = ctx.createLinearGradient(0, cy - ascent, 0, cy + descent);
+		grad.addColorStop(0.0, '#c7972f');
+		grad.addColorStop(0.2, '#916718');
+		grad.addColorStop(0.4, '#fde97d');
+		grad.addColorStop(0.6, '#d9a941');
+		grad.addColorStop(0.8, '#fddd8b');
+		grad.addColorStop(1.0, '#f3c14b');
 
-    img.src = canvas.toDataURL('image/png');
-    img.width = cw;
-    img.height = ch;
-  });
+		ctx.lineJoin = 'round';
+		ctx.strokeStyle = 'black';
+		ctx.lineWidth = strokeWidth;
+		ctx.strokeText(text, cx, cy);   // stroke first, mimicking paint-order
+		ctx.fillStyle = grad;
+		ctx.fillText(text, cx, cy);    // gold fill on top
+
+		img.src = canvas.toDataURL('image/png');
+		img.width = cw;
+		img.height = ch;
+	});
 }
 
 async function readyThenRender() {
-  const fontFamily = getComputedStyle(document.documentElement)
-    .getPropertyValue('--body-font') || 'serif';
-  await Promise.all([
-    document.fonts.load(`700 26px ${fontFamily}`),
-    document.fonts.ready
-  ]);
-  await new Promise(res => {
-    if (document.readyState === 'complete') res();
-    else window.addEventListener('load', res, { once: true });
-  });
-  renderGoldPlaques();
+	const fontFamily = getComputedStyle(document.documentElement)
+		.getPropertyValue('--body-font') || 'serif';
+	await Promise.all([
+		document.fonts.load(`700 26px ${fontFamily}`),
+		document.fonts.ready
+	]);
+	await new Promise(res => {
+		if (document.readyState === 'complete') res();
+		else window.addEventListener('load', res, { once: true });
+	});
+	renderGoldPlaques();
 }
 
 readyThenRender();
@@ -295,35 +316,29 @@ document.querySelector('[data-zyReplace="timezoneEndDate"]').innerHTML =
 	+ ". "
 	+ getOrdinal(timezoneTrans.outlier.end.day, true)
 
-/** @type {Record<string, number>} */
-const jewishYears = {};
+// Everything that is the same for every week goes to each worker once; the weeks only carry their date.
+// Built here (not earlier) so the template HTML includes the location / date text filled in above.
+/** @type {import('./print-web-worker.js').WorkerInit} */
+const weekInit = {
+	type: "init",
+	israel: inIsrael,
+	geoCoordinates: glArgs,
+	htmlElems: baseTable.outerHTML + secondSide.outerHTML,
+	calendar: cal,
+	hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
+	rtKulah: settings.calendarToggle.rtKulah(),
+	tzetMelakha: settings.customTimes.tzeithIssurMelakha(),
+	timeFormat: settings.timeFormat(),
+	lang: settings.language(),
+	candleTime: settings.customTimes.candleLighting(),
+	addedZemanim: [...document.querySelectorAll('[data-zmanToCapture]')].map(elem => elem.getAttribute('data-zmantocapture'))
+};
 
 /** @type {import('./print-web-worker.js').singlePageParams[]} */
-const arrayOfFuncParams = [];
-for (let wIndex = 0; wIndex < weeksForLoop; wIndex++) {
-	const jewishYear = baseDateForLoop.add({ weeks: wIndex }).withCalendar('hebrew').year.toString();
-
-	if (!(jewishYear in jewishYears))
-		jewishYears[jewishYear] = 1;
-	else
-		jewishYears[jewishYear] += 1;
-
-	arrayOfFuncParams.push({
-		israel: ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)),
-		geoCoordinates: glArgs,
-		htmlElems: baseTable.outerHTML + secondSide.outerHTML,
-		calendar: cal,
-		hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
-		date: baseDateForLoop.add({ weeks: wIndex }).toString(),
-		rtKulah: settings.calendarToggle.rtKulah(),
-		tzetMelakha: settings.customTimes.tzeithIssurMelakha(),
-		timeFormat: settings.timeFormat(),
-		lang: settings.language(),
-		week: wIndex,
-		candleTime: settings.customTimes.candleLighting(),
-		addedZemanim: [...document.querySelectorAll('[data-zmanToCapture]')].map(elem => elem.getAttribute('data-zmantocapture'))
-	})
-}
+const arrayOfFuncParams = Array.from({ length: weeksForLoop }, (_, week) => ({
+	week,
+	date: baseDateForLoop.add({ weeks: week }).toString()
+}));
 
 const fundamentalTable = document.querySelector('[data-zyFind="adjustmentsTable"]');
 if (fundamentalTable) {
@@ -331,9 +346,9 @@ if (fundamentalTable) {
 		fundamentalTable.remove();
 	} else {
 		const zmanCalc = new ZemanFunctions(geoLocation, {
-			elevation: arrayOfFuncParams[0].israel,
-			melakha: arrayOfFuncParams[0].tzetMelakha,
-			fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal(),
+			elevation: weekInit.israel,
+			melakha: weekInit.tzetMelakha,
+			fixedMil: weekInit.israel || settings.calendarToggle.forceSunSeasonal(),
 			candleLighting: settings.customTimes.candleLighting(),
 			rtKulah: settings.calendarToggle.rtKulah(),
 			atmosphereProvider: refraction.provider,
@@ -356,14 +371,14 @@ if (fundamentalTable) {
 					zmanCalc.timeRange.equinox[zman].total("minutes").toFixed(2)
 				))
 
+		const minuteFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "minute", maximumFractionDigits: 0 });
 		fundamentalTable.querySelector('[data-zyReplace="candleLighting"]').innerHTML = settings.customTimes.candleLighting().toString()
 		fundamentalTable.querySelector('[data-zyReplace="tzetShabbat"]').innerHTML = [
 			equinox.getShkiya().until(zDTFromFunc(equinox.getTzetMelakha())).total("minutes"),
 			winterSolstice.getShkiya().until(zDTFromFunc(winterSolstice.getTzetMelakha())).total("minutes"),
 			summerSolstice.getShkiya().until(zDTFromFunc(summerSolstice.getTzetMelakha())).total("minutes")
 		].map((minutes, index) =>
-			'~' + (new Intl.NumberFormat(local, { style: "unit", unit: "minute", maximumFractionDigits: 0 }))
-				.format(minutes)
+			'~' + minuteFormatter.format(minutes)
 			+ ". "
 			+ "<span style='font-size: .8em'>" + ["(Spring/Fall)", "(Winter)", "(Summer)"][index] + "</span>").join("<br>")
 	}
@@ -380,28 +395,28 @@ const properPaging = document.querySelector('[data-insertBefore]');
 /** @type {ReturnType<import('./print-web-worker.js').default>[]} */
 const weekResults = new Array(arrayOfFuncParams.length);
 
-// Leave one core for the main thread; never spawn more workers than there are weeks.
-const poolSize = Math.max(1, Math.min(
-	arrayOfFuncParams.length,
-	(navigator.hardwareConcurrency || 4) - 1
-));
-
 await new Promise((resolve, reject) => {
 	let nextTask = 0;
 	let completed = 0;
-	/** @type {Worker[]} */
-	const pool = [];
+	let failed = false;
 
 	const failAll = (/** @type {any} */ err) => {
+		if (failed) return;
+		failed = true;
 		pool.forEach(w => w.terminate());
 		reject(err);
 	};
 
-	for (let i = 0; i < poolSize; i++) {
-		const worker = new Worker('/assets/js/features/weeklyPrint/print-web-worker.js', { type: 'module' });
-		pool.push(worker);
-		// Once per worker, before any week: messages are handled in order, so it's in place in time
+	if (earlyWorkerError)
+		return failAll(earlyWorkerError);
+
+	for (const worker of pool) {
+		worker.removeEventListener('error', recordEarlyWorkerError);
+		worker.addEventListener('error', failAll);
+
+		// Once per worker, before any week: messages are handled in order, so both are in place in time
 		worker.postMessage(refractionInit);
+		worker.postMessage(weekInit);
 
 		const dispatch = () => {
 			if (nextTask < arrayOfFuncParams.length)
@@ -422,7 +437,6 @@ await new Promise((resolve, reject) => {
 				resolve();
 			dispatch();
 		});
-		worker.addEventListener('error', failAll);
 
 		dispatch();
 	}
@@ -430,14 +444,56 @@ await new Promise((resolve, reject) => {
 
 // Results are already indexed by week, so no string-key sorting is needed
 const lastWeek = arrayOfFuncParams.at(-1).week;
+
+// ─── Month prefix pages ──────────────────────────────────────────────────────
+// Each week that starts a Hebrew month gets an invisible marker (a comment, so it doesn't count as a
+// page for CSS) right before its pages, and the month's prefix pages are moved there.
+//
+// The moon (Birkat Ha'Levana) month pages are prefix pages too, but MoonRender's own workers build them,
+// and those can finish after the weekly ones; a page that wasn't in the document yet was never moved.
+// So this waits for them, then places everything in one pass in document order, which keeps a month's
+// moon page ahead of its static prefix pages (MoonRender puts them all before the Tishrei one).
+//
+// The same month can start twice in one print (a Gregorian year spans two Hebrew years; continueToNext
+// covers two years):
+//  - a page with data-monthYear (the moon pages) belongs to that year only, so it goes to that start
+//  - a page without it (the static ones) goes to every start: a copy to the earlier ones, the original
+//    to the last
+
+/** @type {{ month: number, year: number, marker: Comment }[]} */
+const prefixSlots = [];
+
 for (const weekData of weekResults) {
 	if (weekData.monthPrefix && weekData.week !== lastWeek) {
-		for (const prefixElem of document.querySelectorAll(`[data-monthPrefix="${weekData.monthPrefix}"]`))
-			properPaging.insertAdjacentElement('beforebegin', prefixElem);
+		const marker = document.createComment(` ${weekData.monthPrefixYear}-${weekData.monthPrefix} `);
+		properPaging.before(marker);
+		prefixSlots.push({ month: weekData.monthPrefix, year: weekData.monthPrefixYear, marker });
 	}
 
 	// One HTML parse per week instead of one per page
 	properPaging.insertAdjacentHTML('beforebegin', weekData.htmlContent.join(''));
+}
+
+await mRender.monthPagesReady;
+
+// A static list, so the copies inserted below are never picked up again
+for (const page of document.querySelectorAll('[data-monthPrefix]')) {
+	const month = Number(page.getAttribute('data-monthPrefix'));
+	const year = page.hasAttribute('data-monthYear') ? Number(page.getAttribute('data-monthYear')) : null;
+	const slots = prefixSlots.filter(slot => slot.month === month && (year === null || slot.year === year));
+	if (!slots.length)
+		continue; // its month doesn't start in this print: left where it is, as before
+
+	slots.forEach((slot, index) => {
+		let placed = page;
+		if (index < slots.length - 1) {
+			placed = /** @type {Element} */ (page.cloneNode(true));
+			// ids must stay unique; the original keeps them
+			placed.removeAttribute('id');
+			placed.querySelectorAll('[id]').forEach(elem => elem.removeAttribute('id'));
+		}
+		slot.marker.before(placed); // after the month's pages already placed, so document order is kept
+	});
 }
 
 if (footer)
@@ -467,6 +523,9 @@ function insertBackZemanim() {
 		return acc;
 	}, /** @type {Record<string, Map<Temporal.PlainDate, any>>} */({}));
 
+	// Month names in the calendar the columns are actually in (Gregorian columns used to get Hebrew names)
+	const monthNameLocale = (settings.language() == 'hb' ? 'he' : 'en') + '-u-ca-' + (cal == 'hebrew' ? 'hebrew' : 'gregory');
+
 	// Get all unique zeman names
 	const zemanNames = Object.keys(formattedBackZemanim);
 
@@ -477,6 +536,7 @@ function insertBackZemanim() {
 		if (!dateMap || dateMap.size === 0) return;
 
 		// Group dates by month
+		/** @type {Map<string, Map<number, any>>} */
 		const monthData = new Map();
 		dateMap.forEach((value, date) => {
 			const monthKey = `${date.year}-${String(date.month).padStart(2, '0')}`;
@@ -505,15 +565,27 @@ function insertBackZemanim() {
 		let insertAfterElement = [...document.querySelectorAll(`[data-zmanToCapture]`)]
 			.find(elem => (elem instanceof HTMLElement) && elem.getAttribute('data-zmantocapture').startsWith(zemanName));
 
+		const zemanTitle = zemanName
+			.replace("get72Seasonal", "Full-Length Rabbenu Tam")
+			.replace("getPlagHaminhaMaamarMordechi", "Pelag Ha'Minḥa - Ma'amar Mordekhi")
+			.replace("testSunriseHBWorking", "Full Solar-Sphere Sunrise (H\"B)")
+
 		// Create a table for each chunk
 		monthChunks.forEach((monthChunk, chunkIndex) => {
+			// Each month's name and length computed once, instead of a try/catch date build per cell
+			const months = monthChunk.map(monthKey => {
+				const [year, month] = monthKey.split('-').map(Number);
+				const firstDay = Temporal.PlainDate.from({ year, month, day: 1, calendar: cal });
+				return {
+					name: firstDay.toLocaleString(monthNameLocale, { month: 'short' }),
+					daysInMonth: firstDay.daysInMonth,
+					values: monthData.get(monthKey)
+				};
+			});
+			const maxDays = Math.max(...months.map(m => m.daysInMonth));
+
 			const tableWrapper = document.createElement('div');
 			tableWrapper.classList.add('zemanim-table-wrapper');
-
-			const zemanTitle = zemanName
-				.replace("get72Seasonal", "Full-Length Rabbenu Tam")
-				.replace("getPlagHaminhaMaamarMordechi", "Pelag Ha'Minḥa - Ma'amar Mordekhi")
-				.replace("testSunriseHBWorking", "Full Solar-Sphere Sunrise (H\"B)")
 
 			// Table title (zeman name + page number if multiple pages)
 			const title = document.createElement('div');
@@ -538,22 +610,18 @@ function insertBackZemanim() {
 			headerRow.appendChild(cornerCell);
 
 			// Month headers for this chunk only
-			monthChunk.forEach(monthKey => {
-				const [year, month] = monthKey.split('-').map(Number);
-				const date = Temporal.PlainDate.from({ year, month, day: 1, calendar: cal });
-				const monthName = date.toLocaleString((settings.language() == 'hb' ? 'he' : 'en') + '-u-ca-hebrew', { month: 'short' });
-
+			for (const { name } of months) {
 				const th = document.createElement('th');
-				th.textContent = monthName;
+				th.textContent = name;
 				headerRow.appendChild(th);
-			});
+			}
 			thead.appendChild(headerRow);
 			table.appendChild(thead);
 
-			// Body rows (days 1-31)
+			// Body rows: as many days as the longest month in the chunk (30 Hebrew, 31 Gregorian)
 			const tbody = document.createElement('tbody');
 
-			for (let day = 1; day <= 30; day++) {
+			for (let day = 1; day <= maxDays; day++) {
 				const row = document.createElement('tr');
 
 				// Day cell
@@ -563,26 +631,14 @@ function insertBackZemanim() {
 				row.appendChild(dayCell);
 
 				// Data cells for each month in this chunk
-				monthChunk.forEach(monthKey => {
+				for (const { daysInMonth, values } of months) {
 					const cell = document.createElement('td');
 
-					const monthMap = monthData.get(monthKey);
-					const [year, month] = monthKey.split('-').map(Number);
-
-					// Check if this day exists in this month
-					let dateValid = false;
-					try {
-						Temporal.PlainDate.from({ year, month, day, calendar: cal });
-						dateValid = true;
-					} catch (e) {
-						// Invalid date (e.g., Feb 30)
-					}
-
-					if (!dateValid) {
-						cell.textContent = '';
+					if (day > daysInMonth) {
+						// Day doesn't exist in this month (e.g. Feb 30)
 						cell.classList.add('empty-cell');
-					} else if (monthMap && monthMap.has(day)) {
-						cell.innerHTML = monthMap.get(day);
+					} else if (values && values.has(day)) {
+						cell.innerHTML = values.get(day);
 						cell.classList.add('data-cell');
 					} else {
 						cell.textContent = '—';
@@ -590,7 +646,7 @@ function insertBackZemanim() {
 					}
 
 					row.appendChild(cell);
-				});
+				}
 
 				tbody.appendChild(row);
 			}
@@ -617,16 +673,38 @@ async function preparePrint() {
 		.flat())
 
 	/**
-	 * @param {HTMLElement} el
+	 * Shrinks every header until its text fits on one line. All elements are bisected together on a
+	 * 0.5px grid, writing every size first and then reading every height, so each round costs one layout
+	 * for the whole document (about 7 rounds) instead of one layout per element per 0.5px step.
 	 */
-	function shrinkToFit(el) {
-		const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+	function fitHeaders() {
+		for (const el of resizeElems)
+			el.style.fontSize = '';  // Reset to CSS default
 
-		// Keep shrinking until text fits on one line
-		while (el.scrollHeight > lineHeight * 1.1) {
-			const current = parseFloat(getComputedStyle(el).fontSize);
-			el.style.fontSize = (current - 0.5) + 'px';
-			if (current <= 4) break;  // Safety limit
+		const fitsOneLine = (/** @type {{ el: HTMLElement, lineHeight: number }} */ s) => s.el.scrollHeight <= s.lineHeight * 1.1;
+
+		let pending = resizeElems
+			.map(el => {
+				const style = getComputedStyle(el);
+				return { el, lineHeight: parseFloat(style.lineHeight), lo: 4, hi: parseFloat(style.fontSize), mid: 0 };
+			})
+			.filter(s => s.hi > s.lo && !fitsOneLine(s));
+
+		while (pending.length) {
+			for (const s of pending) // writes
+				s.el.style.fontSize = (s.mid = Math.floor(s.lo + s.hi) / 2) + 'px';
+
+			for (const s of pending) { // reads
+				if (fitsOneLine(s)) s.lo = s.mid;
+				else s.hi = s.mid;
+			}
+
+			pending = pending.filter(s => {
+				const done = Math.floor(s.lo + s.hi) / 2 <= s.lo;
+				if (done)
+					s.el.style.fontSize = s.lo + 'px';
+				return !done;
+			});
 		}
 	}
 
@@ -639,29 +717,17 @@ async function preparePrint() {
 		window.fittyElem = fitty(fittyElems, { multiLine: true, minSize: 8 })
 	}
 
-	// Run once on init
-	requestAnimationFrame(() => {
+	// Once layout has settled, again once fonts are in, and on resize (at most once per frame)
+	requestAnimationFrame(() => requestAnimationFrame(fitHeaders));
+	document.fonts.ready.then(fitHeaders);
+
+	let resizeQueued = false;
+	window.addEventListener('resize', () => {
+		if (resizeQueued) return;
+		resizeQueued = true;
 		requestAnimationFrame(() => {
-			resizeElems.forEach(shrinkToFit);
-		})
-	});
-
-	// Re-run if window resizes
-	window.addEventListener('resize', () => {
-		resizeElems.forEach(el => {
-			el.style.fontSize = '';  // Reset to CSS default
-			shrinkToFit(el);
-		});
-	});
-
-	// Run once on init
-	resizeElems.forEach(shrinkToFit);
-
-	// Re-run if window resizes
-	window.addEventListener('resize', () => {
-		resizeElems.forEach(el => {
-			el.style.fontSize = '';  // Reset to CSS default
-			shrinkToFit(el);
+			resizeQueued = false;
+			fitHeaders();
 		});
 	});
 
@@ -669,8 +735,11 @@ async function preparePrint() {
 	// from the offsets the workers reported. Replaces the ChaiTables-based table and its QR code.
 	const vsTable = document.querySelector('[data-zyFind="vsTable"]');
 	const offsetEntries = Object.entries(sunriseOffsets)
-		.filter(([date]) => Temporal.PlainDate.compare(Temporal.PlainDate.from(date), baseDate) >= 0
-			&& Temporal.PlainDate.compare(Temporal.PlainDate.from(date), endDate) <= 0);
+		.filter(([date]) => {
+			const plainDate = Temporal.PlainDate.from(date);
+			return Temporal.PlainDate.compare(plainDate, baseDate) >= 0
+				&& Temporal.PlainDate.compare(plainDate, endDate) <= 0;
+		});
 
 	if (vsTable && refraction.horizon && offsetEntries.length) {
 		// "radius" now describes the area the server searched for the best vantage points

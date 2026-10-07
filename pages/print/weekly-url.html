@@ -435,6 +435,11 @@ layout: nothing
 		text-decoration: line-through;
 	}
 
+	/* Keep superscript ordinals from widening the line spacing */
+	.page sup {
+		line-height: 0;
+	}
+
 	/* ==============
 	Cover Page
 	================== */
@@ -728,10 +733,10 @@ layout: nothing
 	</div>
 	<div
 		style="color: white; justify-self: center; text-align: center; font-weight: 600; margin-bottom: 1.25rem; align-self: end;">
-		<div class="text-outline text-outline--subtitle">The pocket-sized print calendar<br>of Sephardic Halachic Times
+		<div class="text-outline text-outline--subtitle">The pocket-sized print calendar<br>of Sephardic Halakhic Times
 		</div>
-		<div class="text-outline text-outline--caption">adapted from the Ohr Hachaim <span class="fs-sm"
-				style="font-weight: 400;">(לוח המאור)</span> calendar</div>
+		<div class="text-outline text-outline--caption">adapted from the לוח המאור calendar <span class="fs-sm"
+				style="font-weight: 400;">(Yeshivat Ohr Hachaim)</span></div>
 	</div>
 </div>
 <div class="page fullBleed"
@@ -745,31 +750,30 @@ layout: nothing
 				data-zydategenerated></span></div>
 		<div style="font-size: .95em; line-height: 1.4;">Presented by Maor Na'im & Elyahu Jacobi,<br>
 			using formulas from R' Leeor Betzalel Dahan<br>
-			based on the Halachic rulings of R' Ovadia Yosef zt"l</div>
+			based on the Halakhic rulings of R' 'Ovadia Yosef zt"l</div>
 	</div>
 </div>
 <div class="page verso" style="gap:0; font-size: .85em;">
 	<p style="line-height: 1.15;">Contact email: neimmaor@gmail.com<br>Phone number provided on request</p>
 	<h5 style="text-decoration: underline; font-size: 1.15em; font-weight: 700; text-align: center;">Special Thanks</h5>
 	<ul class="mb-0" style="text-align: left;">
-		<li><strong class="fw-600">Moreshet Maran, R' Nachum Hanon</strong>: Representing HaRav Yitshak Yosef</li>
-		<li><strong class="fw-600">R' Leeor Betzalel Dahan</strong>: Adapting the Ḥakham Ovadia rulings to other locales
+		<li><strong class="fw-600">Moreshet Maran, R' Nachum Hanon</strong>: Representing Ha'Rav Yitzḥak Yosef</li>
+		<li><strong class="fw-600">R' Leeor Betzalel Dahan</strong>: Adapting the Ḥakham 'Ovadia rulings to other locales
 		</li>
 		<li><strong class="fw-600">R' Meir Gavriel Elbaz</strong>: Halakhic Research</li>
 		<li><strong class="fw-600">R' Avraham Soleimani</strong>: Halakhic Composition Assistance</li>
 		<li><strong class="fw-600">Eliyahu Hershfeld</strong>: The original KosherJava library used</li>
-		<li><strong class="fw-600">Chaim Keller, ChaiTables/לוח בכורי יוסף</strong>: Visual Sunrise research</li>
+		<li><strong class="fw-600">Chaim Keller, ChaiTables/לוח בכורי יוסף</strong>: Visual Sunrise Research</li>
 		<li>
 			<strong class="fw-600">Sephardic Heritage Foundation, Sam Kassin</strong>: Source of Makamat used, as
-			represented in שיר ושבחה הלל וזנמרה
+			represented in שיר ושבחה הלל וזמרה
 		</li>
-		<li><strong class="fw-600">hamichlol.org.il, hyomi.org.il</strong>: Hiloulot assistance</li>
+		<li><strong class="fw-600">hamichlol.org.il, hyomi.org.il</strong>: Hiloulot Assistance</li>
 	</ul>
 	<hr style="margin: .5rem 0">
 	<p class="fs-sm">All of the work here is open-source. This calendar in particular was generated via HTML, CSS &
-		JavaScript;
-		however, we provide classes/methods for Java & Swift (for our Android and iOS app respectively). View our GitHub
-		organization for more information</p>
+		JavaScript, and we also provide classes/methods for Java & Swift (for our Android and iOS apps respectively).
+		View our GitHub organization for more information.</p>
 </div>
 <div class="page" style="gap:0; font-size: .85em;">
 	<h1>Contents</h1>
@@ -787,7 +791,7 @@ layout: nothing
 		</li>
 		<li>
 			<div class="fw-600" style="font-size: 1.15em;">Additional Time Tables</div>Full Solar-Sphere Sunrise, Pelag
-			Ha'Minḥa - Ma'amar Mordekhi, Rabbenu Tam Seasonal Minutes
+			Ha'Minḥa – Ma'amar Mordekhi, Full-Length Rabbenu Tam List
 		</li>
 	</ul>
 	<hr>
@@ -828,11 +832,11 @@ layout: nothing
 			<div>Radius</div>
 			<div data-zyReplace="sunriseRadius"></div>
 			<div>Earliest Offset<div style="font-size: .7em; font-weight: 400;">(When Visual Sunrise is <i>earlier</i>
-					than sea-level)</div>
+					than sea-level sunrise)</div>
 			</div>
 			<div data-zyReplace="earliestOffset"></div>
 			<div>Latest Offset<div style="font-size: .7em; font-weight: 400;">(When Visual Sunrise is <i>later</i> than
-					sea-level)</div>
+					sea-level sunrise)</div>
 			</div>
 			<div data-zyReplace="latestOffset"></div>
 		</div>
@@ -859,7 +863,7 @@ layout: nothing
 			<div data-zyReplace="nightfall"> seasonal minutes</div>
 			<p style="grid-column-end: span 2;">
 				These stringent times for Shabbat & Yom Tov use the fixed minute formula. They can be found on the
-				right-side pages of the calendar
+				right-side pages of the calendar.
 			</p>
 			<div class="fw-600">Candle Lighting</div>
 			<div data-zyReplace="candleLighting"></div>
@@ -868,8 +872,8 @@ layout: nothing
 			<p style="grid-column-end: span 2;">
 				Finally, "Stringent Nightfall" represents the <b>strictest</b> permutation of Geonic Nightfall through
 				our
-				methodologies <span style="font-size: .8em;">(the <i>24-minute mil</i> of Maimonides, the
-					half-second of <i>R' Yose</i>, with slight increases beyond that)</span> - the length of <b
+				methodologies <span style="font-size: .8em;">(the <i>24-minute mil</i> of the Rambam, the
+					half-second of <i>R' Yose</i>, with slight increases beyond that)</span> – the length of <b
 					data-zyReplace="stringentNightfall"> seasonal
 					minutes</b> for <span data-zylocationname></span>.
 			</p>
@@ -879,7 +883,7 @@ layout: nothing
 <div class="page">
 	<h1 style="font-weight: 800; margin-bottom: 0; font-size: 2.25rem;"><span data-zylocationname></span></h1>
 	<div style="flex: 1 1; align-content: center;">
-		<div data-zfFind="locationMap"
+		<div data-zyFind="locationMap"
 			style="aspect-ratio: 1/1; width: 100%; corner-shape: squircle; border-radius: 30%; overflow: hidden;"></div>
 	</div>
 	<div style="display: flex; justify-content: space-between; font-size: .6em; line-height: 1.3;">
@@ -900,110 +904,107 @@ layout: nothing
 		<div style="margin-bottom: .05in;" class="fs-sm">(artificial skyglow overhead; natural sky not included)</div>
 		We <span data-zyFind="timeZoneOutlier">switch to Daylight Saving Time|return to Standard Time</span> from <span
 			data-zyReplace="timezoneStartDate"></span> until <span data-zyReplace="timezoneEndDate"></span><br>
-		Pray at an <span data-zy-prayer-angle></span> angle to face Jerusalem.
+		Direction of prayer toward Jerusalem: <span data-zy-prayer-angle></span>
 	</div>
 </div>
 <div class="page verso" data-monthPrefix="7">
 	<h1 style="margin-top: -0.075in;">The Month of Tishri</h1>
-	<div style="text-align: center; margin-bottom: .12in; font-size: .875em;">
+	<div style="text-align: center; margin-bottom: .08in; font-size: .785em;">
 		<div style="unicode-bidi: plaintext;">בֶּחֳדָשִׁים הַשְּׁבִיעִי חָבִיב, "בַחֹדֶשׁ הַשְּׁבִיעִי בְּאֶחָד
 			לַחֹדֶשׁ"</div>
-		<div style="line-height: 1.3;">Of the months, the seventh is the beloved; "In the seventh month, on the first
+		<div style="line-height: 1.3;">Of the months, the seventh is beloved; "In the seventh month, on the first
 			day"</div>
 		<div class="fs-sm">Yalkut Shimoni, Parashat Yitro 276</div>
 	</div>
-	<p style="font-size: .825em;"><strong>Tishri</strong> is the month that starts various Jewish cycles, including
-		the <em>Sabbatical year</em>, vows, planting (for <em>Orlah</em>) and vegetation (tithes and
-		<em>terumot</em>). According to R' Eliezer, the world (determined by mankind) was created in this month – or at
-		the very least, creation as a concept occurred for God during this month <span class="fs-sm">(see Rabbenu Tam on
-			Rosh Hashanah 27a; combine with the resolution of Resh Lakish on Ḥagigah 12a, Rashi on Bereshit 1:1, and
-			Bereshit Rabbah 12:4 for a complete explanation)</span>. The name itself reinforces this status as a starting
-		point – it's derived from the Akkadian word <em>tašrītu</em>, which literally means &#39;beginning&#39; from the
-		root <em>šurrū</em> (to begin, open, or initiate).
-	</p>
-	<p style="font-size: .825em;">The themes of the month's holidays are judgment, repentance and the acknowledgement
-		that God is our king. The holidays that start the month are <strong>Rosh Hashanah</strong> and <strong>Yom
-			Kippur</strong>, with the <strong>Ten Days of Repentance</strong> connecting them – focusing on our
-		judgment. Then we move to <strong>Sukkot</strong> and the judgment of the rain, a theme reflected as early as
-		the month's initial name (איתנים - see I Kings 8:2). This all culminates in <strong>Shemini 'Atzeret</strong>,
-		which we've also made the day for completing the Torah cycle.</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;"><strong>Tishri</strong> starts several cycles – <em>Shemitta</em>, vows, planting
+		(<em>'Orla</em>) and vegetation (tithes, <em>terumot</em>) – and per R' Eliezer, the world (determined by mankind)
+		was created in this month, or at least creation as a concept occurred for God then <span class="fs-sm">(Rabbenu
+			Tam, Rosh Hashana 27a; cf. Ḥagiga 12a, Rashi on Bereshit 1:1, Bereshit Rabba 12:4)</span>. Fittingly, its name derives from the Akkadian <em>tašrītu</em> ("beginning"), from
+		<em>šurrū</em> (to begin or open).</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">Its holidays center on judgment, repentance and God's kingship: <strong>Rosh
+			Hashana</strong> (shofar) and <strong>Yom Kippur</strong> (a full fast), joined by the <strong>'Aseret Yemei
+			Teshuva</strong>, focus on our judgment; <strong>Sukkot</strong> (sukka and four species) turns to the
+		judgment of rain (cf. the month's old name, איתנים – I Melakhim 8:2), culminating in <strong>Shemini
+			'Atzeret</strong>, when (in Israel) we also complete the Torah cycle.</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">Its history opens with the <strong>'Akeida</strong> <span class="fs-sm">(2085/1677 BCE
+			by tradition)</span> – on the 1<sup>st</sup> <span class="fs-sm">(Peshat; serves as an explanation to various practices of Rosh
+			Hashana)</span>, or the 10<sup>th</sup> <span class="fs-sm">(Zohar)</span>. The Midrashim link this event with Sara's passing, culmunating with the purchase of מערת המכפלה <span class="fs-sm">(Rashi, Bereshit 23:2;
+			Shadal does not necessarily connect the two)</span>. Later came the First Temple's
+		dedication, celebrated through Sukkot <span class="fs-sm">(I Melakhim 8:65; 2936/826 BCE by tradition<!--; c. 959
+			BCE by historians-->)</span>, and, after its destruction, the murder of <em>Gedalya ben Aḥikam</em>, ending
+		Jewish self-rule – mourned with <strong>Tzom Gedalya</strong> on the 3<sup>rd</sup> <span
+			class="fs-sm">(II Melakhim 25:25; 3339/423 BCE by tradition<!-- ; 586/582 BCE by historians-->)</span>.</p>
 </div>
 <div class="page verso" data-monthPrefix="8">
 	<h1>The Month of Marḥeshvan</h1>
-	<p>In the Tanakh (I Kings 6:38), this month is referred to as <strong>Yeraḥ Bul</strong>, a name rooted in seasonal
-		shifts such as the withering of grass (<em>baleh</em>), the mixing of fodder (<em>bolelin</em>), and the
-		harvesting of produce (<em>yevul</em>). The name is also associated with the onset of rain—forming clods of
-		earth (<em>bolot</em>) and recalling the Great Flood (<em>mabul</em>)—which mirrors the current practice in
-		Israel of requesting rain beginning on the 7<sup>th</sup> of the month (ברך עלינו), with historical fasts held
-		if none fell by the 17<sup>th</sup>.</p>
+	<p>In the Tanakh (I Melakhim 6:38), this month is referred to as <strong>Yeraḥ Bul</strong>, a name rooted in seasonal
+		shifts: the withering of grass (<em>baleh</em>), the mixing of fodder (<em>bolelin</em>), and the
+		harvesting of produce (<em>yevul</em>). The name is also associated with the onset of rain – forming clods of
+		earth (<em>bolot</em>) and recalling the Great Flood (<em>mabul</em>), which began on the 17<sup>th</sup> of this
+		month <span class="fs-sm">(Bereshit 7:11; 1656/2106 BCE by tradition)</span>. This mirrors the practice in Israel
+		of requesting rain in ברך עלינו from the 7<sup>th</sup> of the month <span class="fs-sm">(elsewhere, from early
+			December)</span>, with fasts once held if none fell by the 17<sup>th</sup>.</p>
 
 	<p>The name <strong>Marḥeshvan</strong> (often shortened to <strong>Ḥeshvan</strong>) instead denotes the
-		month&#39;s numerical order, deriving from the Akkadian <em>warḫu samnu</em> (&quot;eighth month&quot;).
-		Linguistically, <em>warḫu</em> corresponds to the Hebrew <em>yerach</em> (month) and <em>samnu</em> relates to
-		<em>shemonah</em> (eight). While the prefix <strong>Mar</strong> is often interpreted as &quot;bitter&quot; due
-		to the month&#39;s lack of festivals, it also means &quot;drop,&quot; (such as its use in Isaiah 40:15)
-		signifying the welcome arrival of the autumn rains. As a complete contrast, the Aramaic definition behind the
-		prefix "Mar" is "master", representing the construction of the First Temple (despite the bitter
-		delay of its dedication) and the eventual repayment through future celebrations.
+		month's numerical order, deriving from the Akkadian <em>warḫu samnu</em> ("eighth month").
+		Linguistically, <em>warḫu</em> corresponds to <em>yeraḥ</em> (month) and <em>samnu</em> to
+		<em>shemona</em> (eight). While the prefix <strong>Mar</strong> is often interpreted as "bitter" due
+		to the month's lack of festivals, it also means "drop" (as in Yesha'yahu 40:15), signifying the welcome
+		arrival of the autumn rains. Conversely, the Aramaic definition behind the prefix "Mar" is
+		"master", alluding to the First Temple, which King Shelomo completed in this month <span class="fs-sm">(2935/827
+			BCE by tradition; c. 959 BCE by historians)</span> – despite the bitter delay of its dedication, the month
+		will eventually be repaid with future celebration.
 	</p>
-
-	<!--
-	<p>The month of <strong>Marḥeshvan</strong> (often shortened to <strong>Cheshvan</strong>) is the eighth month of the Jewish calendar, following the festival-heavy month of Tishri. In the Tanakh (Kings I 6:38), this period is specifically referred to as <strong>Yerach Bul</strong>. The name <strong>Bul</strong> carries several agricultural and linguistic connotations, such as the withering of grass (<em>baleh</em>) or the practice of mixing fodder (<em>bolelin</em>) for animals indoors as outdoor pasture disappears. Other traditions link the name to &quot;produce&quot; (<em>yevul</em>) as the season for plowing and planting begins, or to clods of earth (<em>bolot</em>) formed by the onset of rain. This connection to water is further echoed by the association with the Great Flood (<em>mabul</em>), which began in this month. It relates to our times (for Israeli residents) as we start asking for rain on the 7<sup>th</sup> of the month. Historically, this practice would involve ritual fasts and special prayers if rain hadn't fallen by the 17<sup>th</sup> of the month.</p>
-
-	<p>Interestingly, while <strong>Bul</strong> emphasizes the month&#39;s seasonal character, the name <strong>Marcheshvan</strong> itself highlights its numerical position in the calendar; it is derived from the Akkadian <em>warḫu samnu</em>, which literally translates to &quot;eighth month&quot;. In this Akkadian phrase, <em>warḫu</em> corresponds to the Hebrew word for month (<em>yerach</em>), while <em>samnu</em> relates to the Hebrew for &quot;eight&quot; (<em>shemonah</em>). The common prefix <strong>Mar</strong> is often interpreted as &quot;bitter&quot; due to the lack of festivals, though it can also mean &quot;drop,&quot; signifying the welcome arrival of the autumn rains (source: Isaiah 40:15, כמר מדלי, "like a drop from a bucket").</p>
-
-	<p>Agriculturally and ritually, Marḥeshvan focuses on the arrival of rain in Israel, represented by its zodiac sign <strong>Akrav</strong> (the Scorpion), which symbolizes the parched earth&#39;s thirst for water. In Israel, the specific prayer for rain, <em>Veten Tal U&#39;Matar</em>, is added to the Shmone Esre on the 7th of Cheshvan. If no rain has fallen by the 17th of the month, the community begins ritual fasting and special prayers to avert the threat of drought. Historically, the month is notable for the <strong>completion of the First Temple</strong> by King Solomon, a project that took seven years and was finished in Bul. Although the building was ready, its dedication was delayed for eleven months until the following Tishrei; because of this perceived loss of a festival, Jewish tradition teaches that the month will be &quot;repaid&quot; with a celebration in the future. Significant historical dates observed during this month include the passing of the matriarch Rachel on the 11th, the anniversary of Kristallnacht on the 15th, and the issuance of the Balfour Declaration on the 17th.</p> -->
 </div>
 <div class="page verso" data-monthPrefix="9">
 	<h1 style="margin-top: -0.075in;">The Month of Kislev</h1>
-	<p style="font-size: .785em;">The strength of <strong>Kislev</strong> is shown as early as Ḥaggai, who encouraged the nation to rebuild the Temple, promising prosperity and military victory over its era's enemies. <span class="fs-sm">(Ḥaggai 2:10; this occurred on the 24<sup>th</sup> of Kislev, 3242/520 BCE)</span> Further strength was shown by the later prophet, <em>'Ezra</em>, who gathered the nation for three days and strengthened Torah observance while simultaneously dissolving interfaith marriages. <span class="fs-sm">(<em>'Ezra</em> 10:9; this occurred on the 20<sup>th</sup> of Kislev, 3414/348 BCE)</span></p>
-	<p style="font-size: .785em;">The area of strength most famous from this month was the war against the Greek empire, later celebrated in the form of <strong>Ḥanukkah</strong>. Although the entire story spanned several years, the milestone events were performed in this month.</p>
+	<p style="font-size: .785em;">The strength of <strong>Kislev</strong> appears as early as Ḥaggai, who encouraged the nation to rebuild the Temple, promising prosperity and victory over its era's enemies <span class="fs-sm">(Ḥaggai 2:10; 24<sup>th</sup> of Kislev, 3408/354 BCE by tradition; 520 BCE by historians)</span>. The later scribe <em>'Ezra</em> showed further strength, gathering the nation within three days to strengthen Torah observance and dissolve interfaith marriages <span class="fs-sm">('Ezra 10:9; 20<sup>th</sup> of Kislev, 3414/348 BCE by tradition; 458 BCE by historians)</span>.</p>
+	<p style="font-size: .785em;">The month's most famous display of strength was the war against the Greek empire, celebrated as <strong>Ḥanukka</strong> – by lighting candles for eight nights, reciting the full Hallel, and adding <em>'Al Ha'Nissim</em>. Although the story spanned several years, its milestones fell in this month:</p>
 	<ul style="font-size: .785em;">
-		<li style="text-align: justify;">On the 15<sup>th</sup> of Kislev 3595/167 BCE, the "abomination of desolation" was set on the
-			altar and multiple idols were set in the streets of Judea.
-		</li>
-		<li style="text-align: justify;">On the 25<sup>th</sup> of Kislev 3595/167 BCE, idolatrous sacrifices were offered on the altar.
-		</li>
-		<li style="text-align: justify;">Three years later, on the 25<sup>th</sup> of Kislev 3598/164 BCE, the <i>Kohanim</i> were able to resume their	service. The only sealed oil jug found was used to light the candles for the following eight days.</li>
+		<li style="text-align: justify;">On the 15<sup>th</sup>, the "abomination of desolation" was set on the altar and idols were set in the streets of Judea; on the 25<sup>th</sup>, idolatrous sacrifices were offered on the altar <span class="fs-sm">(3619/143 BCE by tradition; 167 BCE by historians)</span>.</li>
+		<li style="text-align: justify;">Three years later, on the 25<sup>th</sup>, the <i>Kohanim</i> resumed their service, and the only sealed oil jug found lit the Menorah for eight days <span class="fs-sm">(3622/140 BCE by tradition; 164 BCE by historians)</span>.</li>
 	</ul>
 	<p style="font-size: .785em;">The name <strong>Kislev</strong> itself may echo this theme of strength. Some derive it from the Akkadian root <em>kislu</em> (<em>kaslu</em>), meaning "inner strength."</p>
 </div>
 <div class="page verso" data-monthPrefix="10">
 	<h1 style="margin-top: -0.075in;">The Month of Tevet</h1>
-	<p style="font-size: .785em;">Following <em>Ḥanukkah</em>, <strong>Tevet</strong> serves as the representative of the winter season, whether as its climax or beginning <span class="fs-sm">(See Bava Metzia 106b on the six-season cycle division)</span>. The winter solstice found in this month (as titled in the Hebrew – <em>Tekufat Tevet</em>) demonstrates the qualities of the winter seasons <span class="fs-sm">(specifically across the northern hemisphere)</span>: shortest days from sunrise to sunset, due to the sun's low path across the sky. This detail could be reflected in the original name of the month, which is derived from Akkadian <em>ṭebētu</em> ("sunk").</p>
+	<p style="font-size: .785em;">Following <em>Ḥanukka</em>, <strong>Tevet</strong> serves as the representative of the winter season, whether as its climax or beginning <span class="fs-sm">(see Bava Metzia 106b)</span>. The winter solstice found in this month (as titled in the Hebrew – <em>Tekufat Tevet</em>) brings the northern hemisphere's shortest days, as the sun takes its lowest path across the sky. This detail could be reflected in the original name of the month, which is derived from Akkadian <em>ṭebētu</em> ("sunk").</p>
 	<p style="font-size: .785em;">Spiritually, this solar gloom reflects a deeper Kabbalistic theme. According to the Zohar <span class="fs-sm">(Yitro 13:241)</span> and <em>Ma'aseh
-			Rokeach</em> <span class="fs-sm">(commentary to Mishnah Ta'anit 4:6)</span>, Tevet is one of three months governed by stern judgment (<em>Dina Kasya</em>). In the division
-		of the months between the patriarchs, Tevet fell into the portion of <em>Esau</em>, temporarily giving power to
-		the <em>Sitra Achara</em> (the side of impurity).</p>
-	<p style="font-size: .785em;">Within the month itself, this spiritual vulnerability manifests on the 8th-10th days, known for the tragedies
-		that befell – namely the translation of the Torah into Greek, the passing of <em>'Ezra</em> (and with it, the
-		leadership he represented), and the siege of Jerusalem marked by the fast of צום העשירי (10<sup>th</sup> of
-		Tevet). It was on this month, though, that decades later would <em>King Ahashverosh</em> take <em>Esther</em> as his wife <span class="fs-sm">(Megillat
-		Esther, 2:16)</span>, representing the Purim story and the redemption that followed suit.</p>
+			Roke'aḥ</em> <span class="fs-sm">(commentary to Mishna Ta'anit 4:6)</span>, Tevet is one of three months governed by stern judgment (<em>Dina Kasya</em>). In the division
+		of the months between <em>Ya'akov</em> and <em>'Esav</em>, Tevet fell into the portion of <em>'Esav</em>, temporarily giving power to
+		the <em>Sitra Aḥara</em> (the side of impurity).</p>
+	<p style="font-size: .785em;">Within the month itself, this spiritual vulnerability manifests on the 8<sup>th</sup>–10<sup>th</sup> days, known for the tragedies
+		that befell – namely the translation of the Torah into Greek <span class="fs-sm">(c. 3<sup>rd</sup> century BCE by historians)</span>, the passing of <em>'Ezra</em> (and with it, the
+		leadership he represented), and the siege of Jerusalem <span class="fs-sm">(II Melakhim 25:1; 3336/425 BCE by tradition; 588 BCE by historians)</span>, marked by the fast of צום העשירי from dawn until nightfall. It was also in this month, decades after the siege, that <em>King Aḥashverosh</em> took <em>Esther</em> as his wife <span class="fs-sm">(Megillat
+		Esther 2:16; 3399/362 BCE by tradition; 478 BCE by historians)</span>, setting in motion the Purim story and the redemption that followed.</p>
 </div>
 <div class="page verso" data-monthPrefix="11">
 	<h1>The Month of Shevat</h1>
-	<h2 style="font-weight: 500; text-align: center;"><b>ש</b>נשמע <b>ב</b>סורות <b>ט</b>ובות</h2>
-	<p>The agriculture-influence of <strong>Shevat</strong> is found as early as its name, with its Akkadian source (<em>šabāṭu</em>) referring to the harsh rains that come with the solar season of this month. We also know <span class="fs-sm">(from R' Hai Gaon, Teshuvot HaGeonim [Harkavy], §243)</span> that the solar season coincides with the Arabic <em>al-jamra al-thāniya</em> (the second ember/coal) period, where the trees become moist and begin to absorb water, thus reviving them. Hence, it is fitting for the New Year of the Trees to fall in this season, celebrated on the 15<sup>th</sup> day known as <strong>ט"ו בשבט</strong>. <span class="fs-sm">The exact date follows the ruling of בית הלל; see Mishna Rosh Hashana 1:1 for the full discussion, including the opinion of בית שמאי</span></p>
-	<p>This month started the final speech of Moses, addressing the nation before <em>Joshua</em> replaced his leadership. These teachings would ultimately be written in the form of the <strong>Book of Deuteronomy</strong>, often called <strong>Mishneh Torah</strong>.</p>
+	<div style="text-align: center; margin-bottom: .12in;">
+		<h2 style="font-weight: 500; margin-bottom: 0;"><b>ש</b>נשמע <b>ב</b>שורות <b>ט</b>ובות</h2>
+		<div style="line-height: 1.3; font-size: .875em;">That we may hear good tidings</div>
+	</div>
+	<p>The agricultural influence of <strong>Shevat</strong> is found as early as its name, with its Akkadian source (<em>šabāṭu</em>) referring to the harsh rains that come with the solar season of this month. We also know <span class="fs-sm">(from R' Hai Gaon, Teshuvot Ha'Geonim [Harkavy], §243)</span> that the solar season coincides with the Arabic <em>al-jamra al-thāniya</em> (the second ember/coal) period, where the trees become moist and begin to absorb water, thus reviving them. Hence, it is fitting for the New Year of the Trees to fall in this season, celebrated on the 15<sup>th</sup> day known as <strong>ט"ו בשבט</strong>. <span class="fs-sm">(The exact date follows the ruling of בית הלל; see Mishna Rosh Hashana 1:1 for the full discussion, including the opinion of בית שמאי.)</span></p>
+	<p>On the 1<sup>st</sup> of this month, Moshe began his final speech, addressing the nation before <em>Yehoshua</em> replaced his leadership <span class="fs-sm">(Devarim 1:3; 2488/1273 BCE by tradition)</span>. These teachings would ultimately be written in the form of <strong>Sefer Devarim</strong>, often called <strong>Mishneh Torah</strong>.</p>
 </div>
 <div class="page verso" data-monthPrefix="12">
 	<h1>The Month of Adar I</h1>
-	<p>The months of the year are determined by the lunar cycle, which falls short by 11 days from the solar calendar.
-		This desync causes a problem for Jewish holidays, which have seasonal placements despite the date being ruled
-		from the lunar month. Thus, we add the month of <strong>Adar I</strong> to the lunar calendar. With Hillel's
-		calendar cycle originating in 358-9 CE, the institution of this month was no longer dependent on agricultural
-		concerns and astronomical calculations <span class="fs-sm">(which required a <em>Sanhedrin</em>)</span>, instead
-		just a division of seven leap years and twelve "ordinary" years, collectively becoming a <em>nineteen-year
-			cycle</em>.</p>
+	<p>The months of the year are determined by the lunar cycle, and the lunar year falls about 11 days short of the
+		solar year. This desync causes a problem for Jewish holidays, which have seasonal placements despite their dates
+		being set by the lunar month. Thus, in leap years, we add the month of <strong>Adar I</strong> to the calendar.
+		With Hillel's calendar cycle originating in 358–9 CE, the institution of this month was no longer dependent on
+		agricultural concerns and astronomical calculations <span class="fs-sm">(which required a <em>Sanhedrin</em>)</span>,
+		instead following a fixed pattern of seven leap years and twelve "ordinary" years, collectively becoming a
+		<em>nineteen-year cycle</em>.</p>
 	<p>We've kept the month of <em>Adar II</em> for the respective festival of <em>Purim</em> <span class="fs-sm">(to
 			keep the redemption of Purim close to the redemption from Egypt)</span> and the recital of the <em>Arba
 			Parashiot</em> <span class="fs-sm">(which are dependent on <em>Purim</em>)</span>. Nevertheless, the
-		14<sup>th</sup> and 15<sup>th</sup> of Adar I were titled <strong>[Shushan-]Purim Katan</strong>, observed by
-		refraining from <em>Taḥanun</em>, eulogies, or fasts.</p>
+		14<sup>th</sup> and 15<sup>th</sup> of Adar I are called <strong>[Shushan-]Purim Katan</strong>, observed by
+		refraining from <em>Taḥanun</em>, eulogies, or fasts. The name <strong>Adar</strong> itself derives from the
+		Akkadian <em>addaru</em>; in Hebrew, the root אדר denotes might and glory (as in אדיר).</p>
 	<p>The ramifications of this month affect <em>Hiloulot</em>, <em>vows</em>, and birthdays (affecting Jewish
-		adulthood - the bar mitzvah status). <span class="fs-sm">(See the discussion in Talmud Yerushalmi, Megillah
-			7a-7b)</span></p>
+		adulthood – the bar mitzvah status). <span class="fs-sm">(See the discussion in Talmud Yerushalmi, Megilla
+			7a–7b.)</span></p>
 </div>
 <div class="page verso" data-monthPrefix="13">
 	<h1>The Month of Adar (II)</h1>
@@ -1013,21 +1014,21 @@ layout: nothing
 			rejoicing.</div>
 		<div class="fs-sm">Talmud Bavli, Ta'anit 29a</div>
 	</div>
-	<p>Adar centers on <strong>Purim</strong>, marking the overturning of Haman's decree to annihilate the Jews of
-		Persia. Although Haman himself had already been executed, his decree remained in force, so the Jews were
-		authorized to defend themselves. They fought on the 13<sup>th</sup> of Adar throughout the empire and rested on
-		the 14<sup>th</sup>; in <em>Susa</em> they fought through the 14<sup>th</sup> and rested on the
-		15<sup>th</sup>.
-	</p>
-	<p>These events are recorded in the <strong>Book of Esther</strong>. Purim falls on the 15<sup>th</sup> in walled cities
-		like <em>Susa</em>, and the 14<sup>th</sup> elsewhere. Observance includes reading the Scroll of Esther, giving to
-		the poor, sending food gifts, and a festive meal <span class="fs-sm">(with wine - drink a bit more than usual,
-			then sleep; see B"Y 695:2)</span>. The <strong>Fast of Esther</strong>, held beforehand, commemorates the
-		fasting and prayer that preceded the fighting.</p>
-	<p>More broadly, Adar marks victories over persecutions from both Temple eras: <em>Nebuchadnezzar</em>, destroyer of
-		the First Temple, died on the 25<sup>th</sup> <span class="fs-sm">(Rashi, II Kings 25:27)</span>; and the
-		Second Temple-era <strong>Battle of Adasa</strong> is commemorated as <strong>Nicanor Day</strong> on the
-		13<sup>th</sup> <span class="fs-sm">(1 Maccabees 7:26–50)</span>.</p>
+	<p style="font-size: .785em;">Adar centers on <strong>Purim</strong>, the overturning of Haman's decree to annihilate the Jews of Persia.
+		Though Haman had been executed, his decree stood, so the Jews were authorized to defend themselves: they fought
+		on the 13<sup>th</sup> throughout the empire and rested on the 14<sup>th</sup>; in <em>Shushan</em>, they fought
+		through the 14<sup>th</sup> and rested on the 15<sup>th</sup> <span class="fs-sm">(3405/356 BCE by tradition; 473
+			BCE by historians)</span>.</p>
+	<p style="font-size: .785em;">Purim, recorded in <strong>Megillat Esther</strong>, falls on the 15<sup>th</sup> in cities
+		walled since the days of <em>Yehoshua</em> (as well as <em>Shushan</em>), and the 14<sup>th</sup> elsewhere.
+		Observance includes reading <em>Megillat Esther</em>, giving to the poor, sending food gifts, and a festive meal
+		<span class="fs-sm">(with wine – drink a bit more than usual, then sleep; see B"Y 695:2)</span>.
+		<strong>Ta'anit Esther</strong>, held beforehand, recalls the fasting and prayer that preceded the fighting.</p>
+	<p style="font-size: .785em;">Adar also marks victories from both Temple eras: <em>Nevukhadnetzar</em>, destroyer of
+		the First Temple, died on the 25<sup>th</sup> <span class="fs-sm">(Rashi, II Melakhim 25:27; 3364/397 BCE by tradition;
+			562 BCE by historians)</span>; and the Second Temple-era <strong>Battle of Adasa</strong> is commemorated as
+		<strong>Yom Nikanor</strong> on the 13<sup>th</sup> <span class="fs-sm">(I Maccabees 7:26–50; 161 BCE by
+			historians)</span>. The 7<sup>th</sup> marks both the birth and the passing of <strong>Moshe Rabbenu</strong> <span class="fs-sm">(Megilla 13b; 2368/1393 and 2488/1273 BCE by tradition)</span>.</p>
 </div>
 <div class="page verso" data-monthPrefix="1" style="line-height: 1.4;">
 	<h1 style="margin-top: -0.075in;">The Month of Nisan</h1>
@@ -1037,51 +1038,55 @@ layout: nothing
 		<div style="line-height: 1.3;">This month shall be to you the head of the months; to you it shall be the first
 			of the months of the year.
 		</div>
-		<div class="fs-sm">Exodus 12:2</div>
+		<div class="fs-sm">Shemot 12:2</div>
 	</div>
-	<p style="font-size: 8.85pt; margin-bottom: .075in;"><strong>Nisan</strong> is a month of new beginnings. Its name derives from the Akkadian root <em>Nisānu</em>, and it marks several fresh starts:</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;"><strong>Nisan</strong> is a month of new beginnings. Its name derives from the Akkadian <em>Nisānu</em>, and it marks several fresh starts:</p>
 	<ul style="font-size: 8.85pt; margin-bottom: .075in;">
 		<li>It opens spring (hence its biblical name, חודש האביב), ending winter and allowing new produce to grow.</li>
-		<li>Royal reigns are dated from this month when timestamping royal decrees. <span class="fs-sm">(Mishna Rosh Hashana 1:1)</span></li>
+		<li>Kings' reigns are counted from this month when dating official documents. <span class="fs-sm">(Mishna Rosh Hashana 1:1)</span></li>
 	</ul>
 	<p style="font-size: 8.85pt; margin-bottom: .075in;">
-		Most significant is the Jewish nation's own transition from slavery in Egypt to freedom, commemorated as <strong>Passover</strong>. The nation commemorated the new moon of Wednesday night as the start of Nisan <span class="fs-sm">(and thus, the start of the Jewish month inauguration process)</span>. The following Shabbat (the 10<sup>th</sup>), the nation was commanded to tie a lamb to their bedpost, alarming the Egyptians into internal quarrel; this Shabbat is called <strong>Shabbat HaGadol</strong>. On the 14<sup>th</sup>, they slaughtered the lamb and marked their doorposts with its blood. That night God struck Egypt's firstborns, and Pharaoh – himself a firstborn – sent the Jews out. After circling back following their three days, they drew Pharaoh's pursuit, and both camps reached the Red Sea a week into freedom (the 21<sup>st</sup>), where the split sea <span class="fs-sm">from the great winds</span> let the Jews cross and drowned the Egyptians.
+		Most significant is the Jewish nation's own transition from slavery in Egypt to freedom, commemorated as <strong>Pesaḥ</strong> <span class="fs-sm">(2448/1313 BCE by tradition)</span>. The nation sanctified the new moon of Wednesday night as the start of Nisan <span class="fs-sm">(the first month ever sanctified)</span>. The following Shabbat (the 10<sup>th</sup>), the nation was commanded to tie a lamb to their bedpost, alarming the Egyptians into internal quarrel; this Shabbat is called <strong>Shabbat Ha'Gadol</strong>. On the 14<sup>th</sup>, they slaughtered the lamb and marked their doorposts with its blood. That night God struck Egypt's firstborn, and <em>Par'oh</em> – himself a firstborn – sent the Jews out. After circling back following their three days, they drew <em>Par'oh</em>'s pursuit, and both camps reached <em>Yam Suf</em> a week into freedom (the 21<sup>st</sup>), where the sea, split by a strong east wind, let the Jews cross and drowned the Egyptians.
 	</p>
-	<p style="font-size: 8.85pt; margin-bottom: .075in;">This month's redemptive pattern recurs: 40 years later, <em>Yehoshua</em> began leading on the 7<sup>th</sup> of Nisan, 30 days after <em>Moshe's</em> death, and sent spies to <em>Yericho</em> three days after that. Just as these conquests happened in Nisan, so will the final redemption. <span class="fs-sm">(Talmud Bavli, Rosh Hashanah 11b)</span></p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">This month's redemptive pattern recurs: 40 years later, <em>Yehoshua</em> began leading on the 7<sup>th</sup> of Nisan, 30 days after <em>Moshe's</em> death, and sent two spies to <em>Yeriḥo</em> that day; the nation crossed the <em>Yarden</em> three days later, on the 10<sup>th</sup> <span class="fs-sm">(2488/1273 BCE by tradition)</span>. Just as redemption came in Nisan, so will the final redemption. <span class="fs-sm">(Talmud Bavli, Rosh Hashana 11a)</span></p>
 </div>
 <div class="page verso" data-monthPrefix="2">
 	<h1>The Month of Iyar</h1>
-	<p>The month of <strong>Iyar</strong> follows the previous month of Nisan, and is traditionally associated with
-		blossoming. This has its basis in its Akkadian name, <em>ajjāru</em>, which refers to a 'blossom' or 'rosette',
-		as well as its biblical name <em>Ziv</em>, meaning 'radiance', reflecting the brilliance of spring flowers.</p>
-	<p>This month may be known also for its sustenance and opportunity – in the second year of wandering the desert, the
-		14<sup>th</sup> of this month was designated to give Jews another opportunity to offer the Passover offering
-		if they couldn't do so the month before. The sustenance provided came in the form of the <em>Manna</em>, which fell
-		after the Jews complained about the lack of food on the 15<sup>th</sup> of Iyar. Perhaps we have somewhat of a
-		hint of said sustenance this month, as the previous year's grain becomes <em>Yashan</em> on the 16<sup>th</sup>
-		of Nisan, leaving a surplus of grain for months to benefit from (with Iyar being the first full month of the
-		<em>Yashan</em> grain).
+	<p>The month of <strong>Iyar</strong> is traditionally associated with blossoming. This has its basis in its
+		Akkadian name, <em>ajjāru</em>, which refers to a "blossom" or "rosette", as well as its biblical name
+		<em>Ziv</em>, meaning "radiance", reflecting the brilliance of spring flowers <span class="fs-sm">(I Melakhim
+			6:1)</span>.</p>
+	<p>This month may also be known for its sustenance and opportunity. In the first year after the Exodus, the
+		<em>Manna</em> began to fall after the Jews complained about the lack of food on the 15<sup>th</sup> of Iyar
+		<span class="fs-sm">(Shemot 16:1; 2448/1313 BCE by tradition)</span>. In the second year of wandering the desert,
+		the 14<sup>th</sup> of this month was designated to give Jews another opportunity to bring the <em>Korban
+			Pesaḥ</em> if they couldn't do so the month before <span class="fs-sm">(Bamidbar 9:11; 2449/1312 BCE by
+			tradition)</span>, known today as <strong>Pesaḥ Sheni</strong>. Perhaps
+		we have a hint of said sustenance this month as well: the new crop becomes permitted on the 16<sup>th</sup> of
+		Nisan (after the <em>'Omer</em>), making Iyar the first full month in which the new harvest may be eaten. The
+		entire month falls within the <em>'Omer</em> count, which continues each night.
 	</p>
-	<p>Historically, this is also the month in which King Solomon began construction of the First Temple.</p>
+	<p>Historically, this is also the month in which King Shelomo began construction of the First Temple <span
+			class="fs-sm">(I Melakhim 6:1; 2928/833 BCE by tradition; c. 966 BCE by historians)</span>.</p>
 </div>
 <div class="page verso" data-monthPrefix="3">
 	<h1 style="margin-top: -0.075in;">The Month of Sivan</h1>
-	<p style="font-size: 9pt;"><strong>Sivan</strong> means “season” or “appointed time” (from Akkadian <em>simānu</em>), fitting its place in the agricultural wheat harvest. This is reflected in <strong>Shavu'ot</strong>, associated with the <em>Festival of the Harvest</em> and <em>first fruits of the wheat harvest</em>. The events of <em>Matan Torah</em> fall within this period, though as the <em>Abarbanel</em> explains (Leviticus 23), the Torah established <em>Shavu'ot</em> for the wheat harvest rather than as an explicit commemoration of <em>Matan Torah</em>.</p>
-	<p style="font-size: 9pt;">When calendar months were determined by witnesses, the flexibility of Nisan and Iyar permitted <em>Shavu'ot</em> <span class="fs-sm">(which was specifically the day after the full 7 weeks of the 'Omer)</span> to fall on the 5<sup>th</sup>–7<sup>th</sup> of Sivan <span class="fs-sm">(Teshuvot HaRibash 96:1)</span>. This is an interesting parallel to the historical date of <em>Matan Torah</em> itself, which could fall on two of those three days <span class="fs-sm">(Shabbat 86b)</span>: either the 6<sup>th</sup> of Sivan <span class="fs-sm">(the Sages)</span> or the 7<sup>th</sup> <span class="fs-sm">(R' Yose)</span>. Under today's fixed calendar, <em>Shavu'ot</em> consistently falls on the 6<sup>th</sup> of Sivan.</p>
-	<p style="font-size: 9pt;">The discrepancy between these two dates is explained <span class="fs-sm">(as per the Ben Aryeh, Shabbat 87a)</span> through the two-day <em>perisha</em> (separation) period commanded during the daytime of the 4<sup>th</sup> of Sivan. For <strong>Bnei Noah</strong> (night follows day), the 4<sup>th</sup> and 5<sup>th</sup> formed the two days of <em>perisha</em>, placing <em>Matan Torah</em> on the 6<sup>th</sup>. However, for <strong>Bnei Yisrael</strong> (night precedes day), Moshe began the two-day count from Wednesday night, making the 5<sup>th</sup> and 6<sup>th</sup> the <em>perisha</em> days and placing <em>Matan Torah</em> on the 7<sup>th</sup>.</p>
+	<p style="font-size: 9pt;"><strong>Sivan</strong> means "season" or "appointed time" (from Akkadian <em>simānu</em>), fitting its place in the agricultural wheat harvest; it is named only once in Tanakh <span class="fs-sm">(Esther 8:9)</span>. This is reflected in <strong>Shavu'ot</strong>, associated with the <em>Festival of the Harvest</em> and <em>first fruits of the wheat harvest</em>. The events of <em>Matan Torah</em> fall within this period <span class="fs-sm">(2448/1313 BCE by tradition)</span>, though as the <em>Abarbanel</em> explains (Vayikra 23), the Torah established <em>Shavu'ot</em> for the wheat harvest rather than as an explicit commemoration of <em>Matan Torah</em>.</p>
+	<p style="font-size: 9pt;">When calendar months were determined by witnesses, the flexibility of Nisan and Iyar permitted <em>Shavu'ot</em> <span class="fs-sm">(which was specifically the day after the full 7 weeks of the 'Omer)</span> to fall on the 5<sup>th</sup>–7<sup>th</sup> of Sivan <span class="fs-sm">(Teshuvot Ha'Ribash 96:1)</span>. This is an interesting parallel to the historical date of <em>Matan Torah</em> itself, which could fall on two of those three days <span class="fs-sm">(Shabbat 86b)</span>: either the 6<sup>th</sup> of Sivan <span class="fs-sm">(the Sages)</span> or the 7<sup>th</sup> <span class="fs-sm">(R' Yose)</span>. Under today's fixed calendar, <em>Shavu'ot</em> consistently falls on the 6<sup>th</sup> of Sivan.</p>
+	<p style="font-size: 9pt;">The discrepancy between these two dates is explained <span class="fs-sm">(per the Ben Aryeh, Shabbat 87a)</span> through the two-day <em>perisha</em> (separation) period commanded during the daytime of the 4<sup>th</sup> of Sivan. For <strong>Bnei Noaḥ</strong> (night follows day), the 4<sup>th</sup> and 5<sup>th</sup> formed the two days of <em>perisha</em>, placing <em>Matan Torah</em> on the 6<sup>th</sup>. However, for <strong>Bnei Yisrael</strong> (night precedes day), Moshe began the two-day count from Wednesday night, making the 5<sup>th</sup> and 6<sup>th</sup> the <em>perisha</em> days and placing <em>Matan Torah</em> on the 7<sup>th</sup>.</p>
 </div>
 <!-- TO ADD: Conditional Hiloulot, so we could add Flood stop & Moshe River-->
 <div class="page verso" data-monthPrefix="4" style="line-height: 1.4;">
 	<h1 style="margin-top: -0.075in;">The Month of Tammuz</h1>
-	<p style="font-size: 8.85pt; margin-bottom: .075in;">Long before adopting present names, the "fourth month" held a solemn weight tied to the sin of the <strong>Golden Calf</strong>. Centuries later, during the Babylonian exile, the name <strong>Tammuz</strong> was adopted—derived from Assyrian <em>tammūzu</em> (referencing the deity <strong>Dumuzi</strong>). Jewish awareness of this rite preceded the name, as <strong>Yeḥezkel</strong>'s vision showed women at the Sanctuary's north gate "weeping for the Tammuz" <span class="fs-sm">(Yeḥezkel 8:14)</span>.</p>
-	<p style="font-size: 8.85pt; margin-bottom: .075in;">Though the deity and the fast share no intrinsic connection, the common thread is weeping—their weeping served as idolatrous worship <span class="fs-sm">(Radak, Rashi & Rambam)</span>, whereas ours expresses mourning for the Temple during this period called <em>Bein HaMetzarim</em> (בין המצרים). Spanning three weeks from the 17<sup>th</sup> of Tammuz until <em>Tisha B'Av</em> (תשעה באב), this period commemorates the breach of Jerusalem's walls in 69 CE <span class="fs-sm">(and the First Temple breach per the Talmud Yerushalmi; see Jeremiah 39:2 for the opinion of the 9<sup>th</sup> of Tammuz instead)</span>. Four other tragedies occurred on the 17<sup>th</sup>:</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">Long before adopting present names, the "fourth month" held a solemn weight tied to the sin of the <strong>Golden Calf</strong>. Centuries later, during the Babylonian exile, the name <strong>Tammuz</strong> was adopted – derived from Assyrian <em>tammūzu</em> (referencing the deity <strong>Dumuzi</strong>). Jewish awareness of this rite preceded the name, as <strong>Yeḥezkel</strong>'s vision showed women at the Sanctuary's north gate "weeping for the Tammuz" <span class="fs-sm">(Yeḥezkel 8:14)</span>.</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">Though the deity and the fast share no intrinsic connection, the common thread is weeping – their weeping served as idolatrous worship <span class="fs-sm">(Radak, Rashi & Rambam)</span>, whereas ours expresses mourning for the Temple during this period called <em>Bein Ha'Metzarim</em> (בין המצרים). Spanning three weeks from the 17<sup>th</sup> of Tammuz until <em>Tisha B'Av</em> (תשעה באב), this period commemorates the breach of Jerusalem's walls <span class="fs-sm">(3829/69 CE by tradition; 70 CE by historians; the Yerushalmi includes the First Temple breach – cf. Yirmeyahu 39:2, the 9<sup>th</sup>)</span>. Four other tragedies occurred on the 17<sup>th</sup>:</p>
 	<ul style="font-size: 8.85pt; margin-bottom: .075in;">
-		<li>Forty days post-Matan Torah, Moshe shattered the Tablets upon the Golden Calf's creation and dispatched the Levi'im against the idolaters. <span class="fs-sm">(Midrashic sources add that Ḥur was murdered by the 'Erev Rav in this event)</span>.</li>
+		<li>Forty days post-Matan Torah <span class="fs-sm">(2448/1313 BCE by tradition)</span>, Moshe shattered the Tablets upon the Golden Calf's creation and dispatched the Levi'im against the idolaters <span class="fs-sm">(Midrashim add that the 'Erev Rav murdered Ḥur then)</span>.</li>
 		<li>Apostomos burned a Torah scroll.</li>
 		<li>An idol was set up in the Temple Sanctuary.</li>
-		<li>The daily sacrifices (<em>Korban HaTamid</em>) ceased during the siege <span class="fs-sm">(from either priestly impurity or lack of sheep)</span>.</li>
+		<li>The daily sacrifices (<em>Korban Ha'Tamid</em>) ceased during the siege <span class="fs-sm">(from either priestly impurity or lack of sheep)</span>.</li>
 	</ul>
-	<p style="font-size: 8.85pt; margin-bottom: .075in;">The theme of Tammuz is mishandled responsibility and its consequences—echoing the prophetic rebukes read during this season.</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">The theme of Tammuz is mishandled responsibility and its consequences – echoing the prophetic rebukes read during this season.</p>
 </div>
 <!-- END TAMMUZ -->
 <div class="page verso" data-monthPrefix="5">
@@ -1090,53 +1095,52 @@ layout: nothing
 		<div style="unicode-bidi: plaintext;">מִשֶּׁנִּכְנַס אָב, מְמַעֲטִין בְּשִׂמְחָה</div>
 		<div style="line-height: 1.3;">When <span class="fs-sm">[the month of]</span> Av begins, one diminishes
 			rejoicing.</div>
-		<div class="fs-sm">Mishnah Ta'anit 4:6</div>
+		<div class="fs-sm">Mishna Ta'anit 4:6</div>
 	</div>
-	<p style="font-size: .785em;">The month of <strong>Av</strong> transitions from its 9<sup>th</sup> day to its
-		15<sup>th</sup> - the contrast between the saddest and happiest, separated only by 6 days <span
-			class="fs-sm">(maybe even just 5)</span>.</p>
-	<!-- <p style="font-size: .785em;">The effects of the ninth are felt through Rabbinic law already the week of, with restrictions such as haircuts, ironed clothing and others. The eve of the ninth restricts the meal-style, with only one cooked item and the lack of Zimmun. The climax is the fast day itself, starting at sunset and ending on the next day's Nightfall. The prevalent Jewish custom adds more restrictions, including extensions into the full day of the 10<sup>th</sup>.</p> -->
-	<!-- <p>The Midrashim explain that the effects of the 1<sup>st</sup> תשעה באב cemented its day as the day great tragedy will occur to the nation. This list depicts both eras of events, beyond the first three already listed in the Mishna (only listing events in its era):</p>
+	<p style="font-size: .785em;"><strong>Av</strong> holds the year's saddest and happiest days, only six days
+		apart <span class="fs-sm">(maybe even five)</span>. Its name, from the Akkadian <em>abu</em>, matches the
+		Hebrew for "father"; we call it <em>Menaḥem Av</em>, looking toward consolation.</p>
+	<p style="font-size: .785em;">The sadness began in the desert: when the spies returned, the nation wept through the
+		night of the 9<sup>th</sup> <span class="fs-sm">(2449/1312 BCE by tradition)</span>. Since that weeping was for
+		nothing, God set the night aside for weeping for generations <span class="fs-sm">(Ta'anit 29a)</span>, as
+		the Mishna records:</p>
 	<ul style="font-size: .785em;">
-		<li>The Jewish nation weeped over entering the land of Israel, when the spies came back with the negative testimony. God decreed that the generation will die in the desert throughout its 40 year wandering.</li>
-		<li>Both Temples were destroyed, by the Babylonians and Romans respectively. <span class="fs-sm">For the first Temple specifically, the burning extended into the 10<sup>th</sup>.</span></li>
-		<li>The <strong>Bar Kochba revolt</strong> against the Romans in 133 CE ended in defeat: Betar, an important Jewish stronghold during the Bar-Kochba revolt fell to the Romans, leaving its Jewish residents butchered. One year afterwards, the Romans plowed over Jerusalem, destroying hopes of its rebuilding [for that generation].</li>
-		<li>In each respective era, Jews were banished from England, France and Spanish-ruled territories, all approximately around the 9<sup>th</sup> of Av.</li>
-		<li>Both world wars had Germany enter or advance their plans during this month, including the plan for the "Total Solution".</li>
-	</ul> -->
-	<p style="font-size: .785em;">The Midrashim explain that due to the Jews "crying for no reason" on the
-		first Ninth of Av, God will provide reasons for mourning for years to come. Indeed, the list below
-		includes only events listed in the Mishnah, but the full list that extends to our day would be too long (and too
-		painful):</p>
-	<ul style="font-size: .785em;">
-		<li>The Jewish nation wept over entering the Land of Israel, when the spies came back with the negative
-			testimony. God decreed that the generation would die in the desert throughout its 40-year wandering.</li>
-		<li>Both Temples were destroyed, by the Babylonians and Romans respectively. <span class="fs-sm">For the First
-				Temple specifically, the burning extended into the 10<sup>th</sup>.</span></li>
-		<li>The <strong>Bar Kokhba revolt</strong> against the Romans (132–135 CE) ended in defeat: Betar, an important
-			Jewish stronghold, fell to the Romans in 135 CE, leaving its Jewish residents butchered.
-			One year afterwards, the Romans plowed over Jerusalem, destroying hopes of its rebuilding [for that
-			generation].</li>
+		<li>Both Temples were destroyed – the First by the Babylonians, burning into the 10<sup>th</sup> <span
+				class="fs-sm">(3338/423 BCE by tradition; 586 BCE by historians)</span>, and the Second by the Romans
+			<span class="fs-sm">(3829/69 CE by tradition; 70 CE by historians)</span>.</li>
+		<li>Betar fell, ending the <strong>Bar Kokhba revolt</strong> in a massacre of its residents <span
+				class="fs-sm">(3881/121 CE by tradition; 135 CE by historians)</span>; a year later, Jerusalem was
+			plowed over.</li>
 	</ul>
+	<p style="font-size: .785em;">The list since is too long, and too painful, to print. Mourning builds from Rosh Ḥodesh
+		until the fast (sunset to nightfall). Then, on the 15<sup>th</sup>, the mood turns: <strong>Tu B'Av</strong>
+		ended the desert generation's dying, and the Mishna counts it among the year's happiest days, a day of
+		matchmaking <span class="fs-sm">(Mishna Ta'anit 4:8; Ta'anit 30b)</span>.</p>
 </div>
 <div class="page verso" data-monthPrefix="6">
 	<h1 style="margin-top: -0.075in;">The Month of Elul</h1>
-	<p style="font-size: .785em;">After 40 days of pleading for the Jewish nation to be forgiven, God commands Moshe
-		to return to <em>Har Sinai</em> to receive the second tablets. This is the mindset of the month of
-		<strong>Elul</strong> - the season to be aware of all the chances God gave us throughout the year and prepare
-		for mercy.
-	</p>
-	<p style="font-size: .785em;">These practices, by definition, differ between the Sephardic and Ashkenazi
-		communities. Our custom is to recite the prayers of repentence (<em>Seliḥot</em>), starting after <em>Rosh Ḥodesh</em>. The practice by
-		Ashkenazim utilizes the shofar (usually reserved for Rosh Hashanah) throughout the entire month (except the eve of Rosh
-		Hashanah). There is overlap between the two; a minority of Sephardic congregations blow the shofar during the recital
-		of the 13 attributes, whereas Ashkenazim also recite <em>Seliḥot</em> at the end of the month.</p>
-	<p style="font-size: .785em;">The 25<sup>th</sup> of the month is significant for two historical reasons:</p>
+	<div style="text-align: center; margin-bottom: .1in; font-size: .8em;">
+		<div style="unicode-bidi: plaintext;"><b>אֲ</b>נִי <b>לְ</b>דוֹדִי <b>וְ</b>דוֹדִי <b>לִ</b>י</div>
+		<div style="line-height: 1.3;">I am my beloved's, and my beloved is mine.</div>
+		<div class="fs-sm">Shir Ha'Shirim 6:3</div>
+	</div>
+	<p style="font-size: .785em;">On Rosh Ḥodesh <strong>Elul</strong>, after 40 days of pleading for the nation to be
+		forgiven, God commanded Moshe to ascend <em>Har Sinai</em> for the second tablets, which he brought down on Yom
+		Kippur <span class="fs-sm">(Shemot 34; 2448/1313 BCE by tradition)</span>. This is the mindset of the month: recognizing
+		the chances God gave us and preparing for mercy. Its name reflects this: the Akkadian
+		<em>ulūlu</em> may relate to purification, while in Aramaic, אלל means "to search", as Onkelos renders the spies'
+		scouting <span class="fs-sm">(ויאללון, Bamidbar 13:2)</span> – a month for searching our deeds. Its letters are
+		also the initials of the verse above.</p>
+	<p style="font-size: .785em;">Our custom is to recite <em>Seliḥot</em> starting after <em>Rosh Ḥodesh</em> (a
+		minority also blow the shofar during the 13 attributes); Ashkenazim blow the shofar all month (except the eve of
+		Rosh Hashana), reciting <em>Seliḥot</em> only at its end. The 25<sup>th</sup> is significant for two historical
+		reasons:</p>
 	<ul style="font-size: .785em;">
-		<li>Assuming the world was <i>not</i> created in Nisan, Rosh Hashanah is called as such because it was the day man
-			was created. Since that occurred on the 6<sup>th</sup> day of creation, counting back six days inclusively from Rosh Hashanah
-			arrives at this day, when God started to give each item of the world its form.</li>
-		<li>It's the day Nehemiah finished rebuilding the walls of Jerusalem after its original destruction.</li>
+		<li>Assuming the world was <i>not</i> created in Nisan, Rosh Hashana marks man's creation on the 6<sup>th</sup>
+			day; counting back six days inclusively arrives at this day, when God started to give each item of the world
+			its form.</li>
+		<li>Neḥemya finished rebuilding the walls of Jerusalem <span class="fs-sm">(Neḥemya 6:15; 3426/335 BCE by
+				tradition; 445 BCE by historians)</span>.</li>
 	</ul>
 </div>
 <div id="templateZmanim" class="page verso">
@@ -1209,8 +1213,8 @@ layout: nothing
 		<div class="templateZmanimDayGrid">
 			{% for z in site.data.print.weekly.zemanim %}
 			<div class="zman-row {% if z.id == 'midday'%}disableRowFormat{% endif %}" {% if z.round
-				%}data-round="{{ z.round }}" {% endif %} data-zyData="{{ z.timeGetter }}" {% if z.id=='midday'
-				%}style="text-align: center; grid-column: span 2;" {%else if z.id=='nightfall' %}data-zyTzetStrict{%
+				%}data-round="{{ z.round }}" {% endif %} data-zyData="{{ z.timeGetter }}" {% if z.id == 'midday'
+				%}style="text-align: center; grid-column: span 2;" {% elsif z.id == 'nightfall' %}data-zyTzetStrict{%
 				endif %}>
 				<span class="zman-name">
 					<span class="lang lang-hb">{{ z.names.he }}</span>
@@ -1405,89 +1409,88 @@ layout: nothing
 <div class="page verso explanation">
 	<h2>Full Solar-Sphere Sunrise</h2>
 	<p>The ideal form of the Halakhic day does not start until the uppermost edge of the solar sphere appears over the
-		horizon. This moment is called הנץ החמה, and is sourced from the similar language in שיר השרים. Any significant time
-		beforehand is considered less than ideal, although not at the requirement to be overly meticulous for the second of sunrise to pass – this is because the rising of the sun itself is a range, and thus we are lenient to permit within a window of its rising (which is, on average, two minutes – both preceeding and following).</p>
+		horizon. This moment is called הנץ החמה, and is sourced from the similar language in שיר השירים. Any significant time
+		beforehand is considered less than ideal, although there is no requirement to be precise to the second – the rising of the sun is itself a range, so we are lenient within a window around it (on average, two minutes, both preceding and following).</p>
 	<p>This is best exemplified by prayer, where the transition between שמע and the עמידה is timed around the rising of
-		the sun. It is this context, though, that creates the most precision for sunrise: do we time שמע itself to
+		the sun. It is this context, though, that demands the most precision for sunrise: do we time שמע itself to
 		sunrise? Or is it the עמידה that's timed accordingly? Furthermore, this is assuming we're using the
 		traditional definition for sunrise, as a contrast to the minority of later authorities who rule that the <em>end</em> of sunrise is
 		to be used instead.</p>
-	<p>These disputes exist in permutation – from the perspective of law, only one sunrise was meant and it was for
-		either the שמע or the עמידה. However, the gap between the two points provides enough time for the text of שמע and its final two blessings to be said. Thus, one can fulfill two separate permutations – reciting the שמע when the sun's <em>uppermost edge</em> is above the horizon, and waiting until the <em>full solar-sphere reveal</em> to recite the עמידה. The other forms of the permutations are accommodated through the window range of sunrise.</p>
+	<p>These disputes combine into several permutations – from the perspective of law, only one sunrise was meant, and it was for
+		either the שמע or the עמידה. However, the gap between the two points provides enough time for the text of שמע and its following blessing to be said. Thus, one can fulfill two separate permutations – reciting the שמע when the sun's <em>uppermost edge</em> is above the horizon, and waiting until the <em>full solar-sphere reveal</em> to recite the עמידה. The other permutations are accommodated through the window range of sunrise.</p>
 </div>
 <div class="page explanation" data-zmanToCapture="testSunriseHBWorking|noRound">
-	<p>This compromise is attributed to HaRav Matzliaḥ Mazuz <span class="fs-sm">(סולת נקיה, עמוד רע"ג)</span>, but has received mixed receptions in the dynasty of Ḥakham 'Ovadia. Although the idea was met warmly at first by both sons <span class="fs-sm">(including the 5764 printing of the Yalkut Yosef, siman 89 and all editions of the Halacha Berura, siman 58)</span>, it eventually became another point of contention between the brothers. This is because the Yalkut Yosef eventually returned to the standard practice of using the uppermost-edge only, without being stringent for this second time. (The original לוח המאור from Yeshivat Ohr HaChaim presents only the uppermost-edge peak time, making it in accordance with RYY's later guidelines)</p>
-	<p>To present these rulings here, we use several justifications: on top of representing the Halacha Berura's concluded ruling, even RYY would consider this time eligible for the "תפילה בהנץ" status since it's still close in time to the initial time for sunrise (and minute-level precision was never intended). However, since its use is disputed (and one would need to use the main time anyway for שמע), we've chosen to place these times separately from the main listing.</p>
-	<p>We've implemented these times through a combined use of the already existing ChaiTables' Visual Sunrise times <span class="fs-sm">(when available for the location)</span> & the difference in time between the two sunrise's at sea-level. This is because the ChaiTables service does not provide the time for the <em>end</em> of sunrise; we hope to collaborate with them in the future to rectify this.</p>
+	<p>This compromise is attributed to Ha'Rav Matzliaḥ Mazuz <span class="fs-sm">(סולת נקיה, עמוד רע"ג)</span>, but has received mixed receptions in the family of Ḥakham 'Ovadia. Although the idea was met warmly at first by both sons <span class="fs-sm">(including the 5764 printing of the Yalkut Yosef, siman 89 and all editions of the Halacha Berura, siman 58)</span>, it eventually became another point of contention between the brothers. The reason is that the Yalkut Yosef eventually returned to the standard practice of using the uppermost edge only, without being stringent for this second time. (The original לוח המאור from Yeshivat Ohr Hachaim presents only the uppermost-edge peak time, in accordance with the later Y"Y guidelines.)</p>
+	<p>To present these rulings here, we use several justifications: on top of representing the Halacha Berura's concluded ruling, even R' Yitzḥak Yosef would consider this time eligible for the "תפילה בהנץ" status since it's still close in time to the initial time for sunrise (and minute-level precision was never intended). However, since its use is disputed (and one would need to use the main time anyway for שמע), we've chosen to place these times separately from the main listing.</p>
 </div>
 <div class="page verso explanation">
-	<h2>Pelag Ha&#39;Minḥa - Ma'amar Mordekhi</h2>
-	<p>Pelag Ha&#39;Minḥa is defined as the latter half of the time span from מנחה קטנה until the end of the day
-		(ערב), occurring at 10¾ hours into the day. Considering how the day spans 12 hours, a shorter form of expressing
-		this time is in the inverse - that being 1¼ hours from the end of the day.</p>
-	<p>The dispute between the Halacha Berura and Yalkut Yosef is over the definition of ערב - is it sunset, or is it
-		nightfall? The ramifications depend on how long Ben Hashemashot lasts in that location.</p>
-	<p>On the surface, the Yalkut Yosef looks like a simple stringency - a way to be concerned for later opinions
+	<h2>Pelag Ha'Minḥa – Ma'amar Mordekhi</h2>
+	<p>Pelag Ha'Minḥa is defined as the midpoint of the time span from מנחה קטנה until the end of the day
+		(ערב), occurring at 10¾ hours into the day. Since the day spans 12 hours, a shorter way of expressing
+		this time is the inverse – 1¼ hours before the end of the day.</p>
+	<p>The dispute between the Halacha Berura and Yalkut Yosef is over the definition of ערב – is it sunset, or is it
+		nightfall? The ramifications depend on how long Ben Ha'Shemashot lasts in that location.</p>
+	<p>On the surface, the Yalkut Yosef looks like a simple stringency – a way to be concerned for later opinions
 		regarding blessings. However, almost every opinion the Yalkut Yosef relied on maintained compliance with the
-		12-hour structure the Talmud expected. This structure wasn&#39;t serving Ben Hashemashot as a gap from sunset,
-		but rather, an endpoint to the day. The other end of the day was extended as well, beginning at Dawn rather
-		than sunrise.</p>
+		12-hour structure the Talmud expected. In this structure, Ben Ha'Shemashot wasn't a gap following the day's end
+		at sunset; rather, its conclusion was the day's endpoint. The other end of the day was extended as well, beginning
+		at Dawn rather than sunrise.</p>
 	<p>If this detail was compromised, that means the seasonal minutes no longer correspond to the length of the day, of
 		which a portion was assigned for Pelag purposes. These are the authorities who ruled accordingly <span
-			class="fs-sm">(such as Nachmanides, the Ra&#39;ah, the Ritva &amp; Rabbi Jacob Emden)</span>, and there is a precedent
+			class="fs-sm">(such as the Ramban, the Ra'ah, the Ritva &amp; R' Ya'akov Emden)</span>, and there is a precedent
 		for this legal re-evaluation <span class="fs-sm">(Peri Ḥadash, Kuntress Debei Shimsha, end of ספר מים
 			חיים)</span>. Nevertheless, the vast majority agreed on the structure of the day being uncompromised.</p>
 </div>
 <div class="page explanation" data-zmanToCapture="getPlagHaminhaMaamarMordechi|later">
-	<p>The wording of the Yalkut Yosef indicates that the &quot;later Pelag&quot; was subject to this debate on the
+	<p>The wording of the Yalkut Yosef indicates that the "later Pelag" was subject to this debate on the
 		structure of the day. Following the precedent of those later authorities, one can even calculate it using the Geonic
 		Nightfall rather than the proportional Nightfall of Rabbenu Tam (see the Ben Ish Ḥai, Year I, Vayakhel VIII; see
-		also Ohr Letzion vol. 2 pg. 147 &amp; the responsa of the Ma&#39;amar Mordekhi vol. 4 siman 12).</p>
-	<p>The contrast to this structure, though, was the one implemented in the לוח אור החיים. They only consider the
+		also Ohr Letzion vol. 2 pg. 147 &amp; the responsa of the Ma'amar Mordekhi vol. 4 siman 12).</p>
+	<p>The contrast to this structure, though, was the one implemented in the לוח המאור. It only considers the
 		difference between sunset and nightfall as a gap, without the adjusted structure to come with it. Because of
-		that, the difference between the two Pelag times depends on how long Ben Hashemashot is for that day.
-		For those looking to be ideal in their conduct regarding Pelag (such as תרתי דסתרי), this makes the stringency overbearing
+		that, the difference between the two Pelag times depends on how long Ben Ha'Shemashot is for that day.
+		For those looking to be ideal in their conduct regarding Pelag (such as avoiding תרתי דסתרי), this makes the stringency overbearing
 		depending on the time of year.</p>
-	<p>Thus, although we&#39;ve put the official לוח אור החיים time as the primary representative of the Y&quot;Y
-		opinion, we&#39;ve included this alternative calculation in these back pages. To avoid confusion with any other
-		delay to nightfall, we&#39;ve named this after the Ma&#39;amar Mordekhi, which spelled out this opinion with
-		all its implications (such as midday not being equal to the solar-midday).</p>
+	<p>Thus, although we've put the official לוח המאור time as the primary representative of the Y"Y
+		opinion, we've included this alternative calculation in these back pages. To avoid confusion with any other
+		delay to nightfall, we've named this after the Ma'amar Mordekhi, which spelled out this opinion with
+		all its implications (such as midday not being equal to the solar midday).</p>
 </div>
 <div class="page verso explanation">
 	<h2>Full-Length Rabbenu Tam List</h2>
-	<p>The transition from day to night is the same for Rabbenu Tam as it is for everyone; after &quot;sunset&quot;,
-		wait ¾ of a <em>mil</em> and Nightfall occurs. However, <em>sunset</em> itself is redefined -
+	<p>The transition from day to night is the same for Rabbenu Tam as it is for everyone; after "sunset",
+		wait ¾ of a <em>mil</em> and Nightfall occurs. However, <em>sunset</em> itself is redefined –
 		occurring 3¼ <em>mil</em> after our sunset.</p>
-	<p>Considering each <em>mil</em> is 18 minutes, this makes Rabbenu Tam&#39;s Nightfall as long as
-		<em>seventy-two</em> minutes after our sunset at baseline level. Through being consistent with defining Talmudic
-		time, this length changes based on the location&#39;s latitude and the day&#39;s length.
+	<p>Considering each <em>mil</em> is 18 minutes, this makes Rabbenu Tam's Nightfall as late as
+		<em>seventy-two</em> minutes after our sunset at baseline level. To stay consistent with how Talmudic time is
+		defined, this length changes based on the location's latitude and the day's length.
 	</p>
-	<p>Our interpretation of these later Nightfall interpretations is only for their stringent aspects (such as waiting
+	<p>Our interpretation of these later Nightfall opinions is only for their stringent aspects (such as waiting
 		to perform the new commandments of the following day, or performing acts that would have been forbidden on the
 		previous day); <em>leniencies</em> (relative to our standard Halakha) coming with this calculation are
-		<strong>forbidden</strong> to be practiced.<br>(There is also no need to be stringent on Rabbinic times)
+		<strong>forbidden</strong> to be practiced.<br>(There is also no need to be stringent on Rabbinic times.)
 	</p>
-	<p>However, compliance with such a standard is taxing - one day&#39;s sunset to the next day&#39;s nightfall is no
-		longer 24 hours with the length of Ben Hashemashot, but rather an additional <em>58.5</em> minutes (with the
-		same adjustments indicated above). If we&#39;re to be consistent with our standards of adjustments, this length
-		could very well exceed what most would consider &quot;reasonable&quot; for a stringency.</p>
+	<p>However, compliance with such a standard is taxing – one day's sunset to the next day's nightfall is no
+		longer 24 hours with the length of Ben Ha'Shemashot, but rather an additional <em>58.5</em> minutes (with the
+		same adjustments indicated above). If we're to be consistent with our standards of adjustments, this length
+		could very well exceed what most would consider "reasonable" for a stringency.</p>
 </div>
 <div class="page explanation" data-zmanToCapture="get72Seasonal">
 	<p>Thus, there are compromise calculations suggested, that still accommodate the Talmudic numbers and the
-		alternative application. The first method is to rule leniently during Rabbenu Tam&#39;s Ben Hashemashot, using
-		the principle of &quot;majority opinions&quot; - from 58.5 [adjusted-seasonal] minutes onwards, everyone (with
+		alternative application. The first method is to rule leniently during Rabbenu Tam's Ben Ha'Shemashot, using
+		the principle of "majority opinions" – from 58.5 [adjusted-seasonal] minutes onwards, everyone (with
 		the 18-minute mil) holds it is either certain night or doubtful night, which combine for leniency. The
-		alternative (implemented in our calendar&#39;s weekly pages) is to limit the 72 minutes to clock minutes, and
-		only use the seasonal result when they&#39;re shorter. (Other forms of providing lenient times for Rabbenu Tam
-		are contrary to our ideology of Zemanim being a baseline from Israel and increasing when moving north)</p>
-	<p>This was chosen for the main calendar based on the following Y&quot;Y excerpt: &quot;במקומות שאם יורו להם לחשב לפי
-		שעות זמניות לא יוכלו להתעכב כל כך עד שיגיע זמן רבינו תם...שאז יש להקל לחשב לפי השעון הרגיל&quot;.<br>The
-		following table is the original, without these leniencies</p>
+		alternative (implemented in our calendar's weekly pages) is to limit the 72 minutes to clock minutes, and
+		only use the seasonal result when they're shorter. (Other forms of providing lenient times for Rabbenu Tam
+		are contrary to our ideology of Zemanim being a baseline from Israel and increasing when moving north.)</p>
+	<p>This was chosen for the main calendar based on the following Y"Y excerpt: "במקומות שאם יורו להם לחשב לפי
+		שעות זמניות לא יוכלו להתעכב כל כך עד שיגיע זמן רבינו תם...שאז יש להקל לחשב לפי השעון הרגיל".<br>The
+		following table is the original, without these leniencies.</p>
 </div>
 <div class="page verso fs-sm" style="text-align: justify; text-align-last: center;">
 	<div style="flex: 1 1;"></div>
 	<p>This work may be freely copied for redistribution or personal use.<br>
-		We advise that any alterations be marked explicitly, and adhear to the level-of-the-law as specified in the
+		We advise that any alterations be marked explicitly, and adhere to the level-of-the-law as specified in the
 		back.</p>
 	<p>The layout of this work was made with the pocket-use case in mind, which may not work for alternative forms of
 		display. Feel free to email as needed for potential alternatives.</p>
@@ -1527,16 +1530,16 @@ layout: nothing
 	<div style="flex: 1 1; padding: 0.15in 0.15in 0 0.15in;">
 		<img src="/assets/images/print/logo.png"
 			style="width: 100%; margin-bottom: 0.15rem; filter: drop-shadow(0px 2.5px 2px rgba(0,0,0,.20))">
-		<p style="font-weight: 700; font-size: 1.15em; text-align: center;">All Halachic scheduling needs,<br>in one
-			pocket sized calendar!</p>
+		<p style="font-weight: 700; font-size: 1.15em; text-align: center;">All Halakhic scheduling needs,<br>in one
+			pocket-sized calendar!</p>
 		<ul style="margin-bottom: 3.25rem;">
-			<li>Introduction to each month<div style="font-size: .8em;">(Featuring holiday-details, history and
+			<li>Introduction to each month<div style="font-size: .8em;">(Featuring holiday details, history and
 					<i>Hiloulot</i>)</div>
 			</li>
-			<li>Pages grouped into weeks<div style="font-size: .8em;">(Zemanim on the left, special-events on the right
+			<li>Pages grouped into weeks<div style="font-size: .8em;">(Zemanim on the left, special events on the right
 					side)</div>
 			</li>
-			<li>Complimentary Digital equivalent<div style="font-size: .8em;">(QR code inside the book)</div>
+			<li>Complimentary digital equivalent<div style="font-size: .8em;">(QR code inside the book)</div>
 			</li>
 		</ul>
 
