@@ -67,15 +67,14 @@ layout: nothing
 	#content {
 		background-image: linear-gradient(to bottom, rgba(0,0,0,.95) 0%, transparent 7.5%, transparent 92.5%, rgba(0,0,0,.95) 100%), url("/assets/images/shul-wall/Designer.png");
 		background-size: cover;
-		background-position-y: center;
+		background-position-y: 12%;
 		width: 100dvw;
 		height: 100dvh;
-		padding-top: 4.75dvh;
-		padding-bottom: 1.25rem;
+		padding-top: 1.25dvh;
 		padding-left: 1rem;
 		padding-right: 1rem;
 		display: grid;
-		grid-template-areas: "logo title bsD"
+		grid-template-areas: "title title title"
 				"dailyShiurim tefilot weeklyShiurim";
 		grid-template-columns: 1fr 1.15fr 1fr;
 		grid-template-rows: auto minmax(0, 1fr);
@@ -176,14 +175,13 @@ layout: nothing
 
 	#pageTitle {
 		text-align: center;
-		font-size: 3.25em;
+		font-size: 4.65em;
 		font-weight: bold;
 		line-height: 1;
 		margin: 0;
 		font-family: "sbl_hebrewregular", var(--bs-body-font-family);
 		paint-order: stroke fill;
 		-webkit-text-stroke: 3px rgba(0,0,0,.75);
-		text-decoration: underline;
 		text-decoration-color: white;
 		text-underline-offset: 8px;
 	}
@@ -226,10 +224,11 @@ layout: nothing
 
 <div id="content">
 	<div id="titleArea">
-		<h1 id="pageTitle" data-parasha data-prefix="hb"></h1>
+		<h1 id="pageTitle"><span data-parasha data-prefix="hb"></span> <img src="/assets/images/shul-wall/charm-circle-logo.png" style="height: 1em; corner-shape: squircle;
+    border-radius: 25%;"></h1>
 		<div id="shabbatTimes">
 			<div data-lightingCandles><i class="bi bi-fire"></i> </div>
-			<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> </div>
+			<div data-tzetShab data-rt-text='R"T'><svg viewBox="0 0 108.81511 287.75458" class="flipImageRTL"><use href="/assets/images/havdala.svg#layer1"/></svg></div>
 		</div>
 	</div>
 	<div id="logoPos"></div>
@@ -281,8 +280,6 @@ layout: nothing
 
 <script type="module" src="/assets/js/shul-wall/reset.js"></script>
 <script type="module" src="/assets/js/shul-wall/parasha.js"></script>
-<script type="module" src="/assets/js/shul-wall/zemanim/transition.js"></script>
-<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
 <script type="module">
 	await import('/assets/js/shul-wall/scheduleOnline.js');
 
