@@ -43,6 +43,8 @@ export const FORECAST_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 const FORECAST_DAYS = 33;
 /** The haze forecast (CAMS, two runs a day) is fetched again after this. */
 export const HAZE_TTL_MS = 6 * 60 * 60 * 1000;
+/** The server's AERONET calibration factor is asked again after this. */
+const HAZE_CALIBRATION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 /** Monthly haze averages are rebuilt after this (the archive grows by a year). */
 const HAZE_NORMALS_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000;
 /** Places kept in localStorage (a vantage horizon set alone can be a few hundred KB). */
@@ -73,7 +75,8 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
  * What is stored for a place's haze.
  * @typedef {{ monthly: number[], reference: number, normalsRange: [string, string], source: string,
  *             normalsFetchedAt: number, blpCdM2: number | null, evenings: Record<string, number>,
- *             forecastFetchedAt: number | null, forecastSource?: string }} StoredHaze
+ *             forecastFetchedAt: number | null, forecastSource?: string,
+ *             aodScale?: number | null, calibratedAt?: number }} StoredHaze
  */
 
 // Re-exported so main-thread code has one import
@@ -229,7 +232,22 @@ function hazeFromStored(st) {
 		evenings: fresh ? st.evenings ?? {} : {},
 		forecastFetchedAt: fresh ? st.forecastFetchedAt : null,
 		...(fresh && st.forecastSource ? { forecastSource: st.forecastSource } : {}),
+		...(Number.isFinite(st.aodScale) ? { aodScale: /** @type {number} */ (st.aodScale) } : {}),
 	};
+}
+
+/**
+ * The refraction server's AERONET calibration of CAMS at a place (/v1/haze-calibration): the factor, 1
+ * where no station is near.
+ * @param {string} serverUrl @param {number} lat @param {number} lon @param {AbortSignal} [signal]
+ * @returns {Promise<number>}
+ */
+async function fetchHazeCalibration(serverUrl, lat, lon, signal) {
+	const r = await fetch(`${serverUrl}/v1/haze-calibration?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`, { signal });
+	if (!r.ok) throw new Error(`HTTP ${r.status}`);
+	const j = await r.json();
+	if (!Number.isFinite(j?.factor) || j.factor <= 0) throw new Error("no factor in the answer");
+	return j.factor;
 }
 
 /**
@@ -245,7 +263,8 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 	const now = Date.now();
 	const normalsOk = st && Array.isArray(st.monthly) && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
 	const forecastOk = !options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS;
-	const [normals, evenings, blp] = await Promise.all([
+	const calibrationOk = st?.calibratedAt != null && now - st.calibratedAt < HAZE_CALIBRATION_MAX_AGE_MS;
+	const [normals, evenings, blp, scale] = await Promise.all([
 		normalsOk ? null : fetchHazeNormals(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze normals: ${e.message}`); return null; }),
 		forecastOk ? null : fetchHazeForecast(lat, lon)
 			.then(ev => ({ ev, src: "cams" }))
@@ -257,6 +276,8 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 			.catch((/** @type {Error} */ e) => { notes.push(`haze forecast (NOAA GEFS-Aerosols): ${e.message}`); return null; }),
 		st?.blpCdM2 != null ? null : fetchLightPollution(serverUrl, lat, lon, { signal: options.signal })
 			.then(lp => lp.blpCdM2).catch((/** @type {Error} */ e) => { notes.push(`light pollution: ${e.message}`); return null; }),
+		calibrationOk ? null : fetchHazeCalibration(serverUrl, lat, lon, options.signal)
+			.catch((/** @type {Error} */ e) => { notes.push(`haze calibration: ${e.message}`); return null; }),
 	]);
 	const base = normals ?? (st && Array.isArray(st.monthly) ? st : null);
 	if (!base) return null;
@@ -268,8 +289,11 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 		evenings: evenings?.ev ?? st?.evenings ?? {},
 		forecastFetchedAt: evenings ? now : st?.forecastFetchedAt ?? null,
 		forecastSource: evenings?.src ?? st?.forecastSource,
+		aodScale: scale ?? st?.aodScale ?? null,
+		// a failed ask is retried on the next load; an answer is kept for HAZE_CALIBRATION_MAX_AGE_MS
+		calibratedAt: scale != null ? now : st?.calibratedAt,
 	};
-	if (normals || evenings || blp != null) writeForPlace(id, hazeKey(id), out);
+	if (normals || evenings || blp != null || scale != null) writeForPlace(id, hazeKey(id), out);
 	return hazeFromStored(out);
 }
 

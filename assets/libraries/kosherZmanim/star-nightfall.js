@@ -314,11 +314,13 @@ export function hazeDelayMs(date, latDeg, lonDeg, options) {
 /**
  * @typedef {{ monthly: number[], reference: number, evenings: Record<string, number>, blpCdM2: number | null,
  *             forecastFetchedAt: number | null, normalsRange: [string, string], source: string,
- *             forecastSource?: string }} HazeData
+ *             forecastSource?: string, aodScale?: number }} HazeData
  *   monthly: average evening aerosol optical depth (550 nm), January..December. reference: the place's
  *   year-round average (mean of the months): the "average sky". evenings: forecast evening values by ISO
  *   date. blpCdM2: light pollution (the refraction server's blpCdM2), null if unknown. forecastSource:
- *   'cams' (Open-Meteo) or 'gefs' (NOAA GEFS-Aerosols, the fallback).
+ *   'cams' (Open-Meteo) or 'gefs' (NOAA GEFS-Aerosols, the fallback). aodScale: the refraction server's
+ *   AERONET calibration of CAMS for the place (/v1/haze-calibration; 1 or absent = none); it multiplies the
+ *   CAMS values (monthly, reference and CAMS forecasts), not a GEFS forecast.
  */
 
 const MID_MONTH_DOY = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5];
@@ -331,8 +333,10 @@ const MID_MONTH_DOY = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5
  */
 export function hazeOn(haze, date) {
 	const iso = `${String(date.year).padStart(4, '0')}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+	const scale = Number.isFinite(haze.aodScale) && /** @type {number} */ (haze.aodScale) > 0 ? /** @type {number} */ (haze.aodScale) : 1;
+	const aodRef = haze.reference * scale;
 	const f = haze.evenings?.[iso];
-	if (Number.isFinite(f)) return { aod: f, aodRef: haze.reference, forecast: true };
+	if (Number.isFinite(f)) return { aod: haze.forecastSource === 'gefs' ? f : f * scale, aodRef, forecast: true };
 	const doy = (Date.UTC(date.year, date.month - 1, date.day) - Date.UTC(date.year, 0, 1)) / 86400000 + 1;
 	const m = haze.monthly, d = doy < MID_MONTH_DOY[0] ? doy + 365 : doy;
 	let aod = m[0];
@@ -340,7 +344,7 @@ export function hazeOn(haze, date) {
 		const a = MID_MONTH_DOY[i], b = i < 11 ? MID_MONTH_DOY[i + 1] : MID_MONTH_DOY[0] + 365;
 		if (d >= a && d <= b) { aod = m[i] + (m[(i + 1) % 12] - m[i]) * (d - a) / (b - a); break; }
 	}
-	return { aod, aodRef: haze.reference, forecast: false };
+	return { aod: aod * scale, aodRef, forecast: false };
 }
 
 // ------------------------------------------------------------------------------------------------
