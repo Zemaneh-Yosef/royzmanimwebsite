@@ -44,6 +44,16 @@
  * as Tzet Shabbat by degrees), it makes hazier evenings later and clearer ones earlier. Where the stars
  * do not appear before the Sun is 18 degrees down, the moment it reaches 18 degrees stands in.
  *
+ * Options added for absolute nightfall times (handasi-hazeman), both off by default so the haze delay above
+ * is unchanged:
+ *  - marginMag: the safety margin on the threshold magnitude (halakhic_calc's 1.0). A smaller margin counts
+ *    a star as seen sooner, so nightfall comes earlier.
+ *  - moon: the Moon's position and phase per instant (moonFromAstronomy() builds one); its glare and the sky
+ *    glow it scatters are added to every star's sky as calc_time.py does (Krisciunas & Schaefer 1991 scattering,
+ *    glare in the eye and in the air near the Moon), only while the Moon is above the horizon.
+ * defaultAod(elevationM) gives the aerosol optical depth that matches halakhic_calc's fixed extinction
+ * 0.1066 + 0.12 e^(-h/1500): the "default sky" with nothing local about it.
+ *
  * How sure: the extinction of starlight by haze is plain physics; the brightening of the twilight sky by
  * haze (the (1 - 10^(-0.4 k X)) factor) is the model's assumption and probably overstates the effect late
  * in twilight, when most haze is in the Earth's shadow. Not yet compared with observations on hazy nights.
@@ -58,11 +68,16 @@ const EARTH_R_M = 6371000;
 
 /** @typedef {'medium' | 'small'} StarClass */
 /**
+ * @typedef {(ms: number) => { raDeg: number, decDeg: number, phaseAngleDeg: number } | null} MoonSource
+ *   the Moon's topocentric right ascension / declination of date (deg) and phase angle (deg) at an instant
+ */
+/**
  * @typedef {{ aod: number, blpCdM2?: number | null, stars?: StarClass, together?: boolean, nearDeg?: number,
- *             elevationM?: number }} NightfallOptions
+ *             elevationM?: number, marginMag?: number, moon?: MoonSource | null }} NightfallOptions
  *   aod: aerosol optical depth at 550 nm. blpCdM2: light pollution, cd/m^2 (the server's blpCdM2; 0 / null =
  *   none). stars: 'medium' (default) or 'small'. together: three within nearDeg (default: true for small
- *   stars, false for medium). elevationM: observer's height (airmass only; default 0).
+ *   stars, false for medium). elevationM: observer's height (airmass only; default 0). marginMag: threshold
+ *   margin in magnitudes (default 1.0, halakhic_calc's). moon: include the Moon's light (default: none).
  */
 
 /** Julian day of an epoch-ms instant @param {number} ms */
@@ -153,6 +168,30 @@ function airmass(altDeg, elevationM) {
 	return 1 / Math.sqrt(1 - s * s);
 }
 
+/**
+ * Aerosol optical depth that, with the Rayleigh / ozone term, gives halakhic_calc's default extinction
+ * k = 0.1066 + 0.12 e^(-h / 1500) at the observer's height.
+ * @param {number} [elevationM]
+ */
+export function defaultAod(elevationM = 0) {
+	return 0.12 * Math.exp(-Math.max(0, elevationM) / 1500) / AOD_TO_K;
+}
+
+/**
+ * A MoonSource from astronomy-engine (the mooncalc bundle's AstronomyImp).
+ * @param {any} Astronomy astronomy-engine namespace @param {number} latDeg @param {number} lonDeg
+ * @param {number} [elevationM] @returns {MoonSource}
+ */
+export function moonFromAstronomy(Astronomy, latDeg, lonDeg, elevationM = 0) {
+	const observer = new Astronomy.Observer(latDeg, lonDeg, elevationM);
+	return (ms) => {
+		const date = new Date(ms);
+		const eq = Astronomy.Equator(Astronomy.Body.Moon, date, observer, true, true);
+		const ill = Astronomy.Illumination(Astronomy.Body.Moon, date);
+		return { raDeg: eq.ra * 15, decDeg: eq.dec, phaseAngleDeg: ill.phase_angle };
+	};
+}
+
 /** angular distance (deg) @param {number[]} a [alt, az] @param {number[]} b */
 function separation(a, b) {
 	const c = Math.sin(a[0] * DEG) * Math.sin(b[0] * DEG) + Math.cos(a[0] * DEG) * Math.cos(b[0] * DEG) * Math.cos((a[1] - b[1]) * DEG);
@@ -174,13 +213,26 @@ function threeTogether(pts, d) {
  * Every star of a list above 10 degrees at an instant, with the faintest magnitude visible where it is.
  * @param {number} ms epoch ms @param {number} latDeg @param {number} lonDeg
  * @param {[number, number, number][]} stars precessed [ra, dec, mag]
- * @param {{ k: number, blp: number, elevationM: number }} p
+ * @param {{ k: number, blp: number, elevationM: number, marginMag: number, moon: MoonSource | null }} p
  * @returns {{ alt: number, az: number, mag: number, limit: number }[]}
  */
 function skyAt(ms, latDeg, lonDeg, stars, p) {
 	const jd = jdOf(ms), t = lst(jd, lonDeg);
 	const [sra, sdec] = sunRaDec(jd);
 	const [sunAlt, sunAz] = altAz(sra, sdec, t, latDeg);
+	// the Moon, as calc_time.py: magnitude from the phase angle, dimmed by its own airmass
+	let moon = null;
+	const m = p.moon ? p.moon(ms) : null;
+	if (m) {
+		const [mAlt, mAz] = altAz(m.raDeg, m.decDeg, t, latDeg);
+		if (mAlt > 0) {
+			const a = m.phaseAngleDeg;
+			const mag = 0.026 * a + 4e-9 * Math.pow(a, 4) - 12.73;
+			const Istar = Math.pow(10, -0.4 * (mag + 13.99));                 // lux, outside the air
+			const I = Istar * Math.pow(10, -0.4 * p.k * airmass(mAlt, p.elevationM));
+			moon = { pos: [mAlt, mAz], Istar, I };
+		}
+	}
 	const out = [];
 	for (const [ra, dec, mag] of stars) {
 		const [trueAlt, az] = altAz(ra, dec, t, latDeg);
@@ -190,9 +242,18 @@ function skyAt(ms, latDeg, lonDeg, stars, p) {
 		let dAz = Math.abs(az - sunAz);
 		if (dAz > 180) dAz = 360 - dAz;
 		const X = airmass(alt, p.elevationM);
-		const B = twilightLuminance(alt, dAz, sunAlt) * (1 - Math.pow(10, -0.4 * p.k * X)) + p.blp + NATURAL_SKY_CDM2;
+		let B = twilightLuminance(alt, dAz, sunAlt) * (1 - Math.pow(10, -0.4 * p.k * X)) + p.blp + NATURAL_SKY_CDM2;
+		if (moon) {
+			const d = Math.max(separation(moon.pos, [alt, az]), 0.25); // deg; floored: no star sits on the Moon
+			const ext = Math.pow(10, -0.4 * p.k * X);
+			B += 3.183e-6 * 4.63e7 * moon.I / 10.76 / (d * d);                                       // glare in the eye
+			if (d <= 5) B += 3.183e-6 * 6.25e7 * moon.Istar / 10.76 * (ext - ext * ext) / (d * d);  // glare in the air
+			const cosd = Math.cos(d * DEG);
+			const f = Math.pow(10, 5.36) * (1.06 + cosd * cosd) + Math.pow(10, 6.15 - d / 40) + 6.2e7 / (d * d);
+			B += 3.183e-6 * f * (1 - ext) * moon.I / 10.76;                                            // scattered moonlight
+		}
 		const I = brightLimit(B) * Math.pow(10, 0.4 * p.k * X);
-		out.push({ alt, az, mag, limit: -2.5 * Math.log10(I) - 13.99 - 1.0 });
+		out.push({ alt, az, mag, limit: -2.5 * Math.log10(I) - 13.99 - p.marginMag });
 	}
 	return out;
 }
@@ -201,7 +262,7 @@ function skyAt(ms, latDeg, lonDeg, stars, p) {
  * Whether three stars are visible at an instant.
  * @param {number} ms epoch ms @param {number} latDeg @param {number} lonDeg
  * @param {[number, number, number][]} stars precessed [ra, dec, mag]
- * @param {{ k: number, blp: number, together: boolean, nearDeg: number, elevationM: number }} p
+ * @param {{ k: number, blp: number, together: boolean, nearDeg: number, elevationM: number, marginMag: number, moon: MoonSource | null }} p
  */
 function starsVisible(ms, latDeg, lonDeg, stars, p) {
 	const seen = skyAt(ms, latDeg, lonDeg, stars, p).filter(s => s.mag <= s.limit).map(s => [s.alt, s.az]);
@@ -227,6 +288,8 @@ function paramsOf(options) {
 		together: options.together ?? cls === 'small',
 		nearDeg: options.nearDeg ?? 10,
 		elevationM: Math.max(0, options.elevationM ?? 0),
+		marginMag: Number.isFinite(options.marginMag) ? /** @type {number} */ (options.marginMag) : 1.0,
+		moon: options.moon ?? null,
 	};
 }
 
@@ -298,7 +361,7 @@ export function starNightfall(date, latDeg, lonDeg, options) {
  * equal. 0 when the two hazes are equal or the Sun doesn't set.
  * @param {{year:number, month:number, day:number}} date @param {number} latDeg @param {number} lonDeg
  * @param {{ aod: number, aodRef: number, blpCdM2?: number | null, elevationM?: number, stars?: StarClass,
- *           together?: boolean, nearDeg?: number }} options
+ *           together?: boolean, nearDeg?: number, marginMag?: number, moon?: MoonSource | null }} options
  */
 export function hazeDelayMs(date, latDeg, lonDeg, options) {
 	if (!(Number.isFinite(options.aod) && Number.isFinite(options.aodRef)) || options.aod === options.aodRef) return 0;

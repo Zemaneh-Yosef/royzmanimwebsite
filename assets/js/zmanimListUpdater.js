@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import { ZemanFunctions, methodNames, zDTFromFunc, seedVisiblePlaceholders, hasCachedVisibleSunrise } from "./ROYZmanim.js";
+import { ZemanFunctions, methodNamesOf, zDTFromFunc, seedVisiblePlaceholders, hasCachedVisibleSunrise } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
 import ChaiTables from "./features/chaiTables.js";
@@ -77,6 +77,15 @@ export default class zmanimListUpdater {
 		// Bind modal handlers to stable references for add/remove event listeners
 		this._boundOpenLocationModal = this.openLocationModal.bind(this);
 		this._boundCloseLocationModal = this.closeLocationModal.bind(this);
+
+		/**
+		 * The calculator class. A page can put its own rulings in place of ZY's by setting window.zemanClass to a
+		 * subclass of ZemanFunctions (in a module script before this one); without it, ZemanFunctions.
+		 * @type {typeof ZemanFunctions}
+		 */
+		// @ts-ignore
+		this.ZemanClass = window.zemanClass ?? ZemanFunctions;
+		const methodNames = methodNamesOf(this.ZemanClass);
 
 		/** @type {Record<string, ZmanimDisplay>} */
 		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
@@ -342,7 +351,7 @@ export default class zmanimListUpdater {
 			seedVisiblePlaceholders(config, replacing);
 		}
 
-		this.zmanCalc = new ZemanFunctions(this.geoLocation, config);
+		this.zmanCalc = new this.ZemanClass(this.geoLocation, config);
 	}
 
 	/**
@@ -721,7 +730,10 @@ export default class zmanimListUpdater {
 
 			if (this.jCal.isYomKippur()) {
 				yomTzom.appendChild(document.createTextNode(
-					zDTFromFunc(fastCalc.getTzetMelakha()).toLocaleString(...this.dtF) + ` (R"T: ${fastCalc.getTzetRT().toLocaleString(...this.dtF)})`
+					zDTFromFunc(fastCalc.getTzetMelakha()).toLocaleString(...this.dtF)
+					// a calculator class can keep Rabbenu Tam off the page (static hideRT)
+					// @ts-ignore
+					+ (this.ZemanClass.hideRT ? "" : ` (R"T: ${fastCalc.getTzetRT().toLocaleString(...this.dtF)})`)
 				));
 			} else {
 				yomTzom.appendChild(document.createTextNode(fastCalc.getTzetHumra().toLocaleString(...this.dtF)));

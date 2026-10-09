@@ -1,0 +1,800 @@
+---
+permalink: /handasi-hazeman
+accordian: true
+chaiTable: true
+---
+
+<div class="alert alert-warning text-center mb-2" role="alert" id="handasiHazemanWarning">
+	<span class="lang lang-hb">דף זה מיועד לבדיקות בלבד. לזמנים, השתמשו <a href="/calendar" class="alert-link">בלוח הראשי</a>.</span>
+	<span class="lang lang-et">This page is for debugging purposes only. Please use the <a href="/calendar" class="alert-link">main calendar</a> instead.</span>
+	<span class="lang lang-en">This page is for debugging purposes only. Please use the <a href="/calendar" class="alert-link">main calendar</a> instead.</span>
+</div>
+<script>
+	// Hidden only for the page's owner, who sets this key by hand in the browser console
+	try {
+		if (localStorage.getItem("handasiHazeman.owner") === "true")
+			document.getElementById("handasiHazemanWarning").remove();
+	} catch (e) {}
+</script>
+
+<noscript>
+	<h1>This site requires JavaScript to function</h1>
+	<p>However, you are free to look at descriptions</p>
+</noscript>
+
+<div id="wideGrid" class="maxWidthContainer">
+	<div id="shabbat" data-zfFind="Parasha">
+		<div class="card mt-2 mt-lg-0">
+			<div class="card-header">
+				<div class="d-none d-lg-flex justify-content-between handleSvg align-items-center">
+					<span><i class="bi bi-fire"></i> <span data-zfReplace="CandleLighting"></span></span>
+					<span class="flex-fill text-center" data-zfReplace="Parasha"></span>
+					<span style="text-align: center; line-height: .8;">
+						<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg>
+						<span data-zfReplace="TzetShabbat"></span>
+					</span>
+				</div>
+				<div class="d-lg-none">
+					<span data-zfReplace="Parasha"></span>
+					<ul class="lang lang-hb">
+						<li>הדלכת נרות: <span data-zfReplace="CandleLighting"></span></li>
+						<li>צאת שבת: <span data-zfReplace="TzetShabbat"></span></li>
+					</ul>
+					<ul class="lang lang-en">
+						<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
+						<li>Shabbat Ends: <span data-zfReplace="TzetShabbat"></span></li>
+					</ul>
+					<ul class="lang lang-et">
+						<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
+						<li>Tzet Shabbat: <span data-zfReplace="TzetShabbat"></span></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="accordian">
+			{% for learning in site.data.learning.shabbat %}
+			<details class="noContent" data-zfFind="{{ learning.limud }}">
+				<summary>
+					<div class="accordianText">
+						<span class="lang lang-hb">{{ learning.text.he.full }}</span>
+						<span class="lang lang-et">{{ learning.text.et.full }}</span>
+						<span class="lang lang-en">{{ learning.text.en.full }}</span>
+					</div>
+					<span data-zfReplace="{{ learning.limud }}"></span>
+				</summary>
+			</details>
+			{% endfor %}
+		</div>
+	</div>
+	<div id="generic">
+		<h3 class="text-center mb-0" data-zfReplace="LocationName"></h3>
+		<p class="text-center" data-zfFind="LocationYerushalayimLine">
+			<a data-bs-toggle="modal" data-bs-target="#locationModal"><i class="bi bi-info-circle-fill"></i></a>
+			<span class="lang lang-hb">כיוון תפילה: </span>
+			<span class="lang lang-et">Tefilah Direction: </span>
+			<span class="lang lang-en">Prayer Direction: </span>
+		</p>
+		<div class="card mb-2">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item" id="cardDateContainer" data-zfFind="dateContainer">
+					<button data-dateAlter="-1" style="grid-column: 1;">
+						<span class="lang lang-hb"><i class="bi bi-arrow-right"></i></span>
+						<span class="lang lang-et"><i class="bi bi-arrow-left"></i></span>
+						<span class="lang lang-en"><i class="bi bi-arrow-left"></i></span>
+					</button>
+					<div id="dateBox">
+						<h6 data-zfReplace="Day" style="margin-bottom: .125rem;"></h6>
+						<h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
+						<div id="nonPrimaryDateRow">
+							<h5 data-zfReplace="secondaryDate"></h5>
+							<input type="button" value="&#xF1FD;" id="inDateBoxCalBtn" class="bi btn btn-primary d-none d-md-block lang lang-en lang-en-et">
+							<h5 data-zfReplace="otherDate" class="lang lang-en lang-en-et"></h5>
+						</div>
+					</div>
+					<button data-dateAlter="1" style="grid-column: 3;">
+						<span class="lang lang-hb"><i class="bi bi-arrow-left"></i></span>
+						<span class="lang lang-et"><i class="bi bi-arrow-right"></i></span>
+						<span class="lang lang-en"><i class="bi bi-arrow-right"></i></span>
+					</button>
+					<input type="button" value="&#xF1FD; Select a date" style="font-family: bootstrap-icons, var(--bs-body-font-family) !important;" class="bi inputRow d-md-en-et-none d-md-en-none btn btn-primary">
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div id="zmanim">
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link active" id="zemanim-tab" data-bs-toggle="tab" data-bs-target="#zemanim-tab-pane" type="button" role="tab" aria-controls="zemanim-tab-pane" aria-selected="true">
+					<span class="lang lang-en">Times Display</span>
+					<span class="lang lang-et">Zemanim Display</span>
+					<span class="lang lang-hb">זמנים</span>
+				</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="limud-tab" data-bs-toggle="tab" data-bs-target="#limud-tab-pane" type="button" role="tab" aria-controls="limud-tab-pane" aria-selected="false">
+					<span class="lang lang-en">Learning Display</span>
+					<span class="lang lang-et">Limud Display</span>
+					<span class="lang lang-hb">לימודים</span>
+				</button>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade show active" id="zemanim-tab-pane" role="tabpanel" aria-labelledby="zemanim-tab" tabindex="0">
+				<div class="grid text-center py-2" style="--bs-columns: 1;">
+					<button data-mdb-ripple-init type="button" class="btn btn-primary" id="clipboardDownload">
+						<i class="bi bi-clipboard"></i>
+						<span class="lang lang-en">Copy to clipboard</span>
+						<span class="lang lang-et">Copy to clipboard</span>
+						<span class="lang lang-hb">העתק ללוח</span>
+					</button>
+				</div>
+				<div class="accordian loading" data-zfFind="calendarFormatter">
+					{% for item in site.data.handasi-hazeman.zmanim %}
+						{% if item.shitot %}
+						{% for mobileZman in item.shitot%}
+						<details
+							data-zmanid="{{ item.id }}-{{ mobileZman.id }}"
+							class="d-lg-none"
+							data-timeGetter="{{ mobileZman.timeGetter }}"
+							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+							{% if mobileZman.round %}data-round="{{ mobileZman.round }}"{% endif %}
+							{% if mobileZman.attributes.luachInclusive %}data-luachInclusive="{{ mobileZman.attributes.luachInclusive }}"{% endif %}
+							{% if mobileZman.attributes.yomTovInclusive %}data-yomTovInclusive="{{ mobileZman.attributes.yomTovInclusive }}"{% endif %}
+							{% if mobileZman.attributes.condition %}data-condition="{{ mobileZman.attributes.condition }}"{% endif %}
+							{% if mobileZman.attributes.luachInclusive or mobileZman.attributes.yomTovInclusive or mobileZman.attributes.condition %}style="display: none;"{% endif %}
+						>
+							<summary>
+								<div class="accordianText">
+									<span class="lang lang-hb">{{ item.names.he }} - {{ mobileZman.names.he }}</span>
+									<span class="lang lang-et">{{ item.names.et }} - {{ mobileZman.names.et }}</span>
+									<span class="lang lang-en">{{ item.names.en }} - {{ mobileZman.names.en }}</span>
+								</div>
+								<span class="timeDisplay">
+									<div class="upNextText" style="display: none;">
+										<span class="lang lang-hb">הבא...</span>
+										<span class="lang lang-et">Up next...</span>
+										<span class="lang lang-en">Up next...</span>
+									</div>
+									<div></div>
+								</span>
+							</summary>
+							<div class="accordianContent">
+								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
+
+---
+{% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
+								{% endcapture %}{{ my_include | markdownify }}
+							</div>
+						</details>
+						{% endfor %}
+						<details
+							data-zmanid="{{ item.id }}"
+							class="d-none d-lg-detailsBlend"
+							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+						>
+							<summary>
+								<div class="accordianText">
+									<span class="lang lang-hb">{{ item.names.he }}</span>
+									<span class="lang lang-et">{{ item.names.et }}</span>
+									<span class="lang lang-en">{{ item.names.en }}</span>
+								</div>
+								<span class="timeDisplay multiZmanContainer">
+									{% for pcDisplay in item.shitot %}
+									<span class="subShita" data-subZmanId="{{ pcDisplay.id }}">
+										<div class="upNextText" style="display: none;">
+											<span class="lang lang-hb">הבא...</span>
+											<span class="lang lang-et">Up next...</span>
+											<span class="lang lang-en">Up next...</span>
+										</div>
+										<span style="font-size: .75em;" class="lang lang-hb">{{ pcDisplay.names.he }}</span>
+										<span style="font-size: .75em;" class="lang lang-en">{{ pcDisplay.names.en }}</span>
+										<span style="font-size: .75em;" class="lang lang-et">{{ pcDisplay.names.et }}</span>
+										<span></span>
+									</span>
+									{% endfor %}
+								</span>
+							</summary>
+							<div class="accordianContent">
+								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
+
+	---
+	{% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
+								{% endcapture %}{{ my_include | markdownify }}
+							</div>
+						</details>
+						{% else %}
+						<details
+							data-zmanid="{{ item.id }}"
+							{% if item.timeGetter %}data-timeGetter="{{ item.timeGetter }}"{% endif %}
+							{% if item.specialDropdownContent %}data-specialDropdownContent{% endif %}
+							{% if item.round %}data-round="{{ item.round }}"{% endif %}
+							{% if item.attributes.luachInclusive %}data-luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+							{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+							{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
+							{% if item.attributes.luachInclusive or item.attributes.yomTovInclusive or item.attributes.condition %}style="display: none;"{% endif %}
+						>
+							<summary>
+								<div class="accordianText">
+									<span class="lang lang-hb">{{ item.names.he }}</span>
+									<span class="lang lang-et">{{ item.names.et }}</span>
+									<span class="lang lang-en">{{ item.names.en }}</span>
+								</div>
+								<span class="timeDisplay">
+									<div class="upNextText" style="display: none;">
+										<span class="lang lang-hb">הבא...</span>
+										<span class="lang lang-et">Up next...</span>
+										<span class="lang lang-en">Up next...</span>
+									</div>
+									<div></div>
+								</span>
+							</summary>
+							<div class="accordianContent">
+								{% capture my_include %}{% if item.descriptionIncludeArray %}{% for description in item.descriptionIncludeArray.short %}{% include {{ description }} %}
+
+---
+{% endfor %}{% elsif item.descriptionInclude %}{% include {{ item.descriptionInclude }} %}{% else %}{{ item.description }}{% endif %}
+								{% endcapture %}{{ my_include | markdownify }}
+							</div>
+						</details>
+						{% endif %}
+					{% endfor %}
+				</div>
+				<div class="card mt-2">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<span class="lang lang-hb">שעה זמנית</span>
+							<span class="lang lang-et">Sha'ah Zmanith</span>
+							<span class="lang lang-en">Seasonal Hour</span>
+						</h5>
+					</div>
+					<dl class="list-group list-group-flush lh-sm" data-zfFind="shaahZmanit">
+						<div class="list-group-item d-flex justify-content-between">
+							<dt class="lang lang-hb">
+								גר"א (װילנער גאון)<br>
+								<small class="fw-normal">מהנץ החמה עד שקיעה</small>
+							</dt>
+							<dt class="lang lang-et">
+								GR"A (Vilna Gaon)<br>
+								<small class="fw-normal">From Hanetz until Sheqi'a</small>
+							</dt>
+							<dt class="lang lang-en">
+								GR"A (Vilna Gaon)<br>
+								<small class="fw-normal">From sunrise until sunset</small>
+							</dt>
+							<dd class="m-0" data-zfReplace="graShaahZmanit"></dd>
+						</div>
+						<div class="list-group-item d-flex justify-content-between">
+							<dt class="lang lang-hb">
+								מג"א (מגן אברהם)<br>
+								<small class="fw-normal">
+									מעלות השחר עד צאת הכוכבים (16.04°)
+								</small>
+							</dt>
+							<dt class="lang lang-et">
+								MG"A (Maghen Avraham)<br>
+								<small class="fw-normal">
+									From Alot Hashahar until Tzet Ha'Kokhavim (16.04°)
+								</small>
+							</dt>
+							<dt class="lang lang-en">
+								MG"A (Maghen Avraham)<br>
+								<small class="fw-normal">
+									From Dawn until Nightfall (16.04°)
+								</small>
+							</dt>
+							<dd class="m-0" data-zfReplace="mgaShaahZmanit"></dd>
+						</div>
+					</dl>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="limud-tab-pane" role="tabpanel" aria-labelledby="limud-tab" tabindex="0">
+				<div class="card mb-2 lang lang-hb">
+					<div class="card-header"><h5 class="mb-0">הילולות של...</h5></div>
+					<ul class="list-group list-group-flush" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
+						<li class="list-group-item">אין היום</li>
+					</ul>
+				</div>
+				<div class="card mb-2 lang lang-et">
+					<div class="card-header"><h5 class="mb-0">Hiloulot of...</h5></div>
+					<ul class="list-group list-group-flush" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+				</div>
+				<div class="card mb-2 lang lang-en">
+					<div class="card-header"><h5 class="mb-0">Hiloulah's of...</h5></div>
+					<ul class="list-group list-group-flush" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
+						<li class="list-group-item">There aren't any today</li>
+					</ul>
+				</div>
+				<div class="card mb-2">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<span class="lang lang-hb">לימוד יומי</span>
+							<span class="lang lang-et">Today's Limud</span>
+							<span class="lang lang-en">Today's Learning</span>
+						</h5>
+					</div>
+					<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
+						{% for learning in site.data.learning.weekday %}
+						<div class="list-group-item d-flex justify-content-between">
+							<dt class="lang lang-hb">{{ learning.text.he.full }}</dt>
+							<dt class="lang lang-et">{{ learning.text.et.full }}</dt>
+							<dt class="lang lang-en">{{ learning.text.en.full }}</dt>
+							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
+						</div>
+						{% endfor %}
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="special">
+		<div class="card mb-2 mt-2 mt-lg-0">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item" data-zfReplace="SpecialDay" style="display: none;"></li>
+				<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
+					{% for fast in site.data.events.fasts %}
+					<h5 data-zfFind="{{ fast.yomTovIndex }}">
+						<span class="lang lang-hb">{{ fast.text.he }}</span>
+						<span class="lang lang-et">{{ fast.text.et }}</span>
+						<span class="lang lang-en">{{ fast.text.en }}</span>
+					</h5>
+					{% endfor %}
+					<span data-zfFind="oneDayTimes">
+						<b class="lang lang-en">Fast Times: </b>
+						<b class="lang lang-et">Fast Times: </b>
+						<b class="lang lang-hb">שעות הצום: </b>
+					</span>
+					<ul data-zfFind="twoDayTimes">
+						<li>
+							<b class="lang lang-en">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-et">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-hb">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+						</li>
+						<li>
+							<b class="lang lang-en">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-et">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-hb">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+						</li>
+					</ul>
+				</li>
+				<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
+					<div data-zfFind="SefirathHaomer">
+						<div class="lang lang-en">
+							<h5 class="mb-0"><span data-zfReplace="completeCount"></span> day of the Omer</h5>
+							<p><span data-zfReplace="indCount"></span></p>
+							<p class="mb-0">
+								<b>Tonight:</b>
+								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> day of the Omer<span> -
+								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+							</p>
+						</div>
+						<div class="lang lang-et">
+							<h5 class="mb-0">Today is <span data-zfReplace="completeCount"></span> of the Omer</h5>
+							<p>which <span data-zfReplace="indCount"></span></p>
+							<p class="mb-0">
+								<b>Tonight:</b>
+								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> of the Omer<span>, which
+								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+							</p>
+						</div>
+						<div class="lang lang-hb">
+							<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
+							<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
+							<p class="mb-0">
+								<b>הלילה:</b>
+								<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
+								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
+							</p>
+						</div>
+						<hr class="my-1" data-zfFind="omerRules">
+					</div>
+					<div data-zfFind="ThreeWeeksHeader">
+						<h5>
+							<span class="lang lang-hb">
+								<span data-zfFind="threeWeeks">שלושה שבועות</span>
+								<span data-zfFind="nineDays">תשעה ימים</span>
+								<span data-zfFind="weekOf">שבוע שחל בו</span>
+							</span>
+							<span class="lang lang-et">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</span>
+							<span class="lang lang-en">
+								<span data-zfFind="threeWeeks">Three Weeks</span>
+								<span data-zfFind="nineDays">Nine Days</span>
+								<span data-zfFind="weekOf">The week of Tisha Beav</span>
+							</span>
+						</h5>
+					</div>
+					<ul>
+						{% for minhag in site.data.mourningMinhag %}
+						<li data-zfFind="{{ minhag.topic }}">
+							<span class="lang lang-hb">{{ minhag.text.he }}</span>
+							<span class="lang lang-et">{{ minhag.text.en }}</span>
+							<span class="lang lang-en">{{ minhag.text.en }}</span>
+						</li>
+						{% endfor %}
+					</ul>
+				</li>
+				<li class="list-group-item" data-zfFind="Tachanun">
+					<div data-zfFind="0">
+						<span class="lang lang-hb">לוח-תחנון יום</span>
+						<span class="lang lang-et">Calendar-Taḥanun Day</span>
+						<span class="lang lang-en">Calendar-Taḥanun Day</span>
+					</div>
+					<div data-zfFind="1">
+						<span class="lang lang-hb">תחנון רק בשחרית</span>
+						<span class="lang lang-et">Only Taḥanun by Shaḥarith</span>
+						<span class="lang lang-en">Only Taḥanun by Shaḥarith</span>
+					</div>
+					<div data-zfFind="2">
+						<span class="lang lang-hb">אין תחנון היום</span>
+						<span class="lang lang-et">No Taḥanun</span>
+						<span class="lang lang-en">No Taḥanun</span>
+					</div>
+					<div data-zfFind="3">צדקתך</div>
+					<div data-zfFind="4">יהי שם</div>
+				</li>
+				<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
+					<span class="lang lang-hb">ברכת החמה!</span>
+					<span class="lang lang-et">Birchath Hachama!</span>
+					<span class="lang lang-en">Blessing of the sun!</span>
+				</li>
+				<li class="list-group-item" data-zfFind="BirchatHalevana">
+					<span class="lang lang-hb">
+						ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
+						<span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
+						<span data-zfFind="ends-tonight"> - נגמר בלילה</span>
+					</span>
+					<span class="lang lang-et">
+						Birkath Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+					<span class="lang lang-en">
+						Blessing of the moon (until the night of <span data-zfReplace="date-en-end"></span>)
+						<span data-zfFind="starts-tonight"> - Starts tonight</span>
+						<span data-zfFind="ends-tonight"> - Ends tonight</span>
+					</span>
+				</li>
+				<li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
+				<li class="list-group-item" data-zfReplace="Ulchaparat" style="display: none;"></li>
+				<li class="list-group-item" data-zfFind="SeasonalPrayers">
+					<span data-zfReplace="SeasonalPrayers"></span>
+					<ul data-zfFind="ShemaKolenu">
+						<li class="lang lang-hb">בשמע קולנו: "ותן טל ומתר לברכה"</li>
+						<li class="lang lang-et">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
+						<li class="lang lang-en">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
+					</ul>
+				</li>
+				<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
+					<a data-bs-toggle="modal" data-bs-target="#tekufaModal">
+						<i class="bi bi-info-circle-fill"></i>
+					</a>
+					<span class="lang lang-hb">
+						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+					<span class="lang lang-et">
+						<b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+					<span class="lang lang-en">
+						<b>The <span data-zfReplace="tekufaName-en"></span> season</b> is at <span data-zfReplace="tekufaTime"></span><br>
+						<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
+					</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<script>
+	if (new URL(window.location.href).searchParams.has('modernAccordian')) {
+		document.querySelector('[data-zfFind="calendarFormatter"]').classList.add('accordianModern');
+	}
+</script>
+
+{% comment %}
+<div id="tvLayout">
+		<section class="wideView" calendarFormatter>
+			{% for item in site.data.handasi-hazeman.zmanim %}
+				<article
+					zmanid="{{ item.id }}"
+					{% if item.timeGetter %}timeGetter="{{ item.timeGetter }}"{% endif %}
+					{% if item.attributes.luachInclusive %}luachInclusive="{{ item.attributes.luachInclusive }}"{% endif %}
+					{% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
+					{% if item.attributes.condition %}condition="{{ item.attributes.condition }}"{% endif %}
+				>
+					<span class="lang lang-hb">{{ item.names.he }}</span>
+					<span class="lang lang-et">{{ item.names.et }}</span>
+					<span class="lang lang-en">{{ item.names.en }}</span>
+					<span class="timeDisplay"></span>
+				</article>
+			{% endfor %}
+		</section>
+</div>
+{% endcomment %}
+
+<script src="/assets/libraries/flexcal/jquery-4.0.0.min.js"></script>
+<script src="/assets/libraries/flexcal/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/assets/libraries/flexcal/flexcal.css" />
+<link rel="stylesheet" href="/assets/libraries/flexcal/jquery-ui.min.css" />
+<script src="/assets/libraries/flexcal/jquery.textpopup.js"></script>
+<script src="/assets/libraries/flexcal/jquery.flexcal.js"></script>
+<!--All these files just to include flexcal.js for a jewish calendar popup widget-->
+
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+		for (const dateContainer of document.querySelectorAll('[data-zfFind="dateContainer"]'))
+			for (const inputField of dateContainer.getElementsByTagName("input"))
+				$(inputField).flexcal({
+					calendars: ["en", "jewish", "he-jewish"],
+					selected: "en",
+				});
+	});
+</script>
+
+{% capture tekufaEng %}{% include zmanDescription/tekufa/english.md %}{% endcapture %}
+{% capture tekufaHeb %}{% include zmanDescription/tekufa/hebrew.md %}{% endcapture %}
+
+<div class="modal fade modal-xl" id="tekufaModal" tabindex="-1" aria-labelledby="tekufaModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="tekufaModalLabel">Tekufa</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<span class="lang lang-hb">{{ tekufaHeb | markdownify }}</span>
+				<span class="lang lang-et">{{ tekufaEng | markdownify }}</span>
+				<span class="lang lang-en">{{ tekufaEng | markdownify }}</span>
+			</div>
+		</div>
+	</div>
+</div>
+{% include modals/location.html %}
+
+<link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
+<script type="module">
+	// @ts-check
+	/*
+	 * This page's rulings: a subclass of ZY's ZemanFunctions, handed to zmanimListUpdater.js through
+	 * window.zemanClass (this module runs before it: module scripts run in document order).
+	 *
+	 *  Dawn                16.04 degrees each day (midnight where the Sun never gets that low)
+	 *  Sunrise             "Any Peak" (ZY's getNetz) and "Full Reveal" (the whole disk up)
+	 *  Shema, Tefila, Ḥatzot, Minḥa, Sunset   as ZY
+	 *  Ḥametz              as ZY, over the day from 16.04 degrees before sunrise to 16.04 degrees after sunset
+	 *  Pelag               Halacha Berura only
+	 *  Nightfall           three medium stars (magnitude 2-3) seen anywhere, by A. Taylor's star-visibility model
+	 *                      (star-nightfall.js) under the default sky (halakhic_calc's extinction for the height,
+	 *                      no light pollution) with the Moon, plus the haze delay of the evening (as ZY's Tzet
+	 *                      by degrees). The threshold margin is calibrated so that the earliest nightfall of the
+	 *                      year in Jerusalem is 18 minutes after sea-level sunset.
+	 *  Rabbenu Tam         16.04 degrees after sunset; only the end of the Ḥametz day, never shown
+	 *  Candle lighting / Tzet Shabbat / fast ends   sunset / nightfall
+	 */
+	import * as KosherZmanim from "/assets/libraries/kosherZmanim/kosher-zmanim.js";
+	import { ZemanFunctions, zDTFromFunc } from "/assets/js/ROYZmanim.js";
+	import { starNightfall, eveningSunAt, defaultAod, moonFromAstronomy } from "/assets/libraries/kosherZmanim/star-nightfall.js";
+	import { AstronomyImp } from "/assets/libraries/mooncalc/moonRiseSetCalc.js";
+
+	/** Dawn, and the end of the MG"A day (Rabbenu Tam) for Ḥametz, in degrees below the horizon */
+	const DAWN_DEGREES = 16.04;
+	/**
+	 * Threshold margin of the star model, in magnitudes (halakhic_calc uses 1.0). 0.5 puts the earliest
+	 * nightfall of the year in Jerusalem (754 m, default sky, with the Moon) at 18.00 minutes after SEA-LEVEL
+	 * sunset, on January 27 in every year 2024-2030 (latest: 21.6 minutes, end of June). Counted from the
+	 * sunset with elevation (on in Israel unless switched off) it is ~5 minutes less: that is intended.
+	 */
+	const STAR_MARGIN_MAG = 0.5;
+	/** localStorage: "true" / "false" = elevation in sunrise and sunset on / off; absent = as ZY (on in Israel) */
+	const ELEVATION_KEY = "handasiHazeman.elevation";
+
+	/** @param {Temporal.PlainDate} date */
+	const isoKey = (date) => date.withCalendar("iso8601").toString({ calendarName: "never" });
+
+	/**
+	 * Per-config caches (every instance chainDate() makes shares its config), as ROYZmanim.js does
+	 * @type {WeakMap<object, Map<string, Map<string, number>>>}
+	 */
+	const caches = new WeakMap();
+	/** @param {object} config @param {string} name */
+	function cacheFor(config, name) {
+		let byName = caches.get(config);
+		if (!byName) caches.set(config, byName = new Map());
+		let cache = byName.get(name);
+		if (!cache) byName.set(name, cache = new Map());
+		return cache;
+	}
+
+	/** @type {Map<string, import("/assets/libraries/kosherZmanim/star-nightfall.js").MoonSource>} */
+	const moonSources = new Map();
+	/** @param {KosherZmanim.GeoLocation} geo */
+	function moonFor(geo) {
+		const key = [geo.getLatitude(), geo.getLongitude(), geo.getElevation()].join();
+		let moon = moonSources.get(key);
+		if (!moon) moonSources.set(key, moon = moonFromAstronomy(AstronomyImp, geo.getLatitude(), geo.getLongitude(), geo.getElevation()));
+		return moon;
+	}
+
+	/** @returns {boolean | null} */
+	function elevationPreference() {
+		try {
+			const value = localStorage.getItem(ELEVATION_KEY);
+			return value === "true" ? true : value === "false" ? false : null;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	class HandasiHazemanFunctions extends ZemanFunctions {
+		/** zmanimListUpdater.js leaves Rabbenu Tam off the fast cards */
+		static hideRT = true;
+
+		/**
+		 * @param {KosherZmanim.GeoLocation} geoLocation
+		 * @param {import("/assets/js/ROYZmanim.js").ZemanimConfig} config
+		 * @param {Temporal.PlainDate} [initialDate]
+		 */
+		constructor(geoLocation, config, initialDate) {
+			const elevation = elevationPreference();
+			if (config && elevation !== null)
+				config.elevation = elevation;
+			super(geoLocation, config, initialDate);
+		}
+
+		/**
+		 * Own day frame, not ZY's: ZY's dawn floor (8.5 degrees) fails where the Sun doesn't get that low.
+		 * nightfall stays null: getTzet() computes it (by the stars) only when asked.
+		 * @param {Temporal.PlainDate} plainDate
+		 */
+		setDate(plainDate) {
+			this.coreZC.setDate(plainDate);
+			this.tekufaCalc.setYear(this.coreZC.getDate().withCalendar("hebrew").year);
+
+			const current = this.timeRange.current;
+			current.sunrise = this.coreZC.isUseElevation() ? this.coreZC.getSunrise() : this.coreZC.getSeaLevelSunrise();
+			current.sunset = this.coreZC.isUseElevation() ? this.coreZC.getSunset() : this.coreZC.getSeaLevelSunset();
+			current.ranges.gra = current.sunrise.until(current.sunset);
+			current.hatzoth = this.coreZC.getSunTransit();
+
+			const zenith = KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH + DAWN_DEGREES;
+			current.dawn = this.coreZC.getSunriseOffsetByDegrees(zenith) ?? this.previousSolarMidnight();
+			current.tzethakokhavim = this.coreZC.getSunsetOffsetByDegrees(zenith) ?? this.getSolarMidnight();
+			current.ranges.mga = current.dawn.until(current.tzethakokhavim);
+			current.nightfall = null;
+		}
+
+		/** Solar midnight of the night before this date's morning */
+		previousSolarMidnight() {
+			const zc = new KosherZmanim.ZmanimCalendar(this.coreZC.getGeoLocation());
+			zc.setAstronomicalCalculator(this.astroCalc);
+			zc.setDate(this.coreZC.getDate().subtract({ days: 1 }));
+			return zc.getSolarMidnight();
+		}
+
+		/** Any Peak: the visible sunrise over the terrain; without one, sunrise (with elevation when it is on) */
+		getNetz() {
+			const netz = super.getNetz();
+			return netz instanceof Temporal.ZonedDateTime ? this.timeRange.current.sunrise : netz;
+		}
+
+		/** Full Reveal: the whole disk above the terrain; without terrain, Any Peak moved by the solar diameter */
+		getNetzFullReveal() {
+			const geo = this.coreZC.getGeoLocation();
+			if (this.config.horizon) {
+				const date = this.coreZC.getDate().withCalendar("iso8601");
+				const cache = cacheFor(this.config, "fullReveal");
+				let ms = cache.get(isoKey(date));
+				if (ms === undefined) {
+					try {
+						ms = this.astroCalc.getVisibleSunrise(date, geo, this.config.horizon, { ...this.config.visibleOptions, limb: 'full' });
+					} catch (e) {
+						console.error("Full Reveal sunrise failed", e);
+						ms = NaN;
+					}
+					cache.set(isoKey(date), ms);
+				}
+				if (Number.isFinite(ms)) {
+					const visible = Temporal.Instant.fromEpochMilliseconds(Math.round(ms)).toZonedDateTimeISO(geo.getTimeZone());
+					// same sanity check as getNetz(): more than an hour off is a bad profile
+					if (Math.abs(visible.until(this.timeRange.current.sunrise).total('hour')) <= 1)
+						return visible;
+				}
+			}
+
+			const zenith = KosherZmanim.ZmanimCalendar.GEOMETRIC_ZENITH - this.astroCalc.getSolarRadius() + this.astroCalc.getRefraction();
+			const diameterOffset = this.coreZC.getSeaLevelSunrise().until(this.coreZC.getSunriseOffsetByDegrees(zenith));
+			return zDTFromFunc(this.getNetz()).add(diameterOffset);
+		}
+
+		/** Nightfall by the stars (see the top of this script) */
+		getTzet() {
+			const geo = this.coreZC.getGeoLocation();
+			const date = this.coreZC.getDate().withCalendar("iso8601");
+			const cache = cacheFor(this.config, "nightfall");
+			let ms = cache.get(isoKey(date));
+			if (ms === undefined) {
+				const lat = geo.getLatitude(), lon = geo.getLongitude(), elevationM = Math.max(0, geo.getElevation());
+				try {
+					const result = starNightfall(date, lat, lon, {
+						stars: 'medium', aod: defaultAod(elevationM), blpCdM2: 0, elevationM,
+						marginMag: STAR_MARGIN_MAG, moon: moonFor(geo)
+					});
+					// stars not seen before the Sun is 18 degrees down: that moment; never that low: midnight
+					ms = (!result.reached && !Number.isFinite(eveningSunAt(date, lat, lon, -18))) ? NaN : result.ms;
+				} catch (e) {
+					console.error("Star nightfall failed", e);
+					ms = NaN;
+				}
+				cache.set(isoKey(date), ms);
+			}
+			if (!Number.isFinite(ms))
+				return this.getSolarMidnight();
+
+			return this.withHazeDelay(Temporal.Instant.fromEpochMilliseconds(Math.round(ms)).toZonedDateTimeISO(geo.getTimeZone()));
+		}
+
+		/** The haze delay sees the stars the way nightfall here does */
+		starModelOptions() {
+			return { marginMag: STAR_MARGIN_MAG, moon: moonFor(this.coreZC.getGeoLocation()) };
+		}
+
+		getTzetHumra() {
+			return this.getTzet();
+		}
+
+		getTzetMelakha() {
+			return this.getTzet();
+		}
+
+		getTzetRT() {
+			return this.timeRange.current.tzethakokhavim;
+		}
+
+		getCandleLighting() {
+			return this.getShkiya();
+		}
+	}
+
+	// @ts-ignore
+	window.zemanClass = HandasiHazemanFunctions;
+
+	// ─── Elevation switch, in the location modal's atmosphere form ────────────────────
+	const atmosphereForm = document.querySelector('[data-zfFind="atmosphereEditForm"]');
+	if (atmosphereForm) {
+		const wrapper = document.createElement("div");
+		wrapper.className = "form-check form-switch mb-2";
+		wrapper.innerHTML = `
+			<input class="form-check-input" type="checkbox" role="switch" id="locModal-hhElevation">
+			<label class="form-check-label" for="locModal-hhElevation">
+				<span class="lang lang-hb">גובה המקום בזריחה ובשקיעה</span>
+				<span class="lang lang-et">Elevation in sunrise and sunset</span>
+				<span class="lang lang-en">Elevation in sunrise and sunset</span>
+			</label>`;
+		atmosphereForm.querySelector("h5")?.after(wrapper);
+		const input = /** @type {HTMLInputElement} */ (wrapper.querySelector("input"));
+
+		// @ts-ignore
+		const shownElevation = () => !!window.zmanimListUpdater2?.zmanCalc?.config?.elevation;
+		document.getElementById("locationModal")?.addEventListener("show.bs.modal", () => {
+			input.checked = shownElevation();
+		});
+		// "Defaults" saves and rebuilds at once (location-modal.js); this listener was added first, so it runs first
+		atmosphereForm.querySelector('[data-zfFind="atmosphereDefaults"]')?.addEventListener("click", () => {
+			try { localStorage.removeItem(ELEVATION_KEY); } catch (e) {}
+			// ZY's default: elevation in Israel only
+			// @ts-ignore
+			input.checked = !!window.zmanimListUpdater2?.jCal?.getInIsrael();
+		});
+		// capture: saved before the form's own submit handler rebuilds the calendar
+		atmosphereForm.addEventListener("submit", () => {
+			try { localStorage.setItem(ELEVATION_KEY, String(input.checked)); } catch (e) {}
+		}, true);
+	}
+</script>
+<script src="/assets/js/zmanimListUpdater.js" type="module"></script>

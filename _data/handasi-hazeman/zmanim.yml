@@ -1,0 +1,123 @@
+---
+# Zemanim rows for /handasi-hazeman (pages/handasi-hazeman.html), read by the same zmanimListUpdater.js
+# as /calendar. Every timeGetter is a method of the page's calculator class (window.zemanClass).
+- id: alot
+  timeGetter: getAlotHashahar
+  names:
+    he: עלות השחר
+    et: Alot Ha'Shaḥar
+    en: Dawn
+  round: earlier
+- id: sunrise
+  shitot:
+    - names:
+        he: ראשית הנץ
+        en: Any Peak
+        et: Any Peak
+      timeGetter: getNetz
+      id: anyPeak
+      round: later
+    - names:
+        he: גילוי מלא
+        en: Full Reveal
+        et: Full Reveal
+      timeGetter: getNetzFullReveal
+      id: fullReveal
+      round: later
+  names:
+    he: הנץ
+    et: HaNetz
+    en: Sunrise
+- id: latestShma
+  timeGetter: getSofZemanShemaGRA
+  names:
+    he: סוף זמן שמע
+    et: Sof Zeman Shema
+    en: Latest Shema
+  round: earlier
+- id: SofZmanChametz
+  shitot:
+    - names:
+        he: אכילת
+        en: Eating
+        et: Akhilath
+      timeGetter: getSofZemanAhilathHametz
+      id: eating
+      attributes:
+        yomTovInclusive: EREV_PESACH
+      round: earlier
+    - names:
+        he: ביעור
+        en: Burning
+        et: Biur
+      timeGetter: getSofZemanBiurHametz
+      id: burning
+      attributes:
+        yomTovInclusive: EREV_PESACH
+      round: earlier
+  names:
+    he: זמני חמץ
+    et: Ḥametz Times
+    en: Ḥametz Times
+- id: latestBrachotShmaGRA
+  timeGetter: getSofZemanBerakhothShema
+  names:
+    he: סוף זמן ברכות שמע
+    et: Sof Zeman Berakhoth Shema
+    en: Latest Berakhoth Shema
+  round: earlier
+- id: hatzoth
+  timeGetter: getHatzoth
+  names:
+    he: חצות
+    et: Ḥatzot Hayom
+    en: Midday
+  round: earlier
+- id: minha
+  shitot:
+    - names:
+        he: גדולה
+        en: Gedola
+        et: Earliest
+      timeGetter: getMinhaGedolah
+      id: gedolah
+      round: later
+    - names:
+        he: קטנה
+        en: Ketana
+        et: Preferable
+      timeGetter: getMinchaKetana
+      id: ketanah
+      round: later
+  names:
+    he: זמן מנחה
+    et: Zeman Minḥa
+    en: Times for Minḥa
+- id: plagHaminha
+  timeGetter: getPlagHaminhaHalachaBrurah
+  names:
+    he: פלג המנחה
+    et: Pelag Ha'Minḥa
+    en: Pelag Ha'Minḥa
+  round: later
+- id: sunset
+  timeGetter: getShkiya
+  names:
+    he: שקיעה
+    et: Sheqi'a
+    en: Sunset
+  round: earlier
+- id: tzeit
+  timeGetter: getTzet
+  names:
+    he: צאת הכוכבים
+    et: Tzet Ha'Kokhavim
+    en: Nightfall
+  round: later
+- id: chatzotLayla
+  timeGetter: getSolarMidnight
+  names:
+    he: חצות לילה
+    et: Hatzot Layla
+    en: Midnight
+  round: later

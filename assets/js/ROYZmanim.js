@@ -420,7 +420,7 @@ class ZemanimMathBase {
 			try {
 				const { aod, aodRef } = hazeOn(haze, date);
 				ms = hazeDelayMs(date, geo.getLatitude(), geo.getLongitude(),
-					{ aod, aodRef, blpCdM2: haze.blpCdM2, elevationM: geo.getElevation() });
+					{ ...this.starModelOptions(), aod, aodRef, blpCdM2: haze.blpCdM2, elevationM: geo.getElevation() });
 			} catch (e) {
 				console.error("Haze delay failed", e);
 				ms = 0;
@@ -430,6 +430,15 @@ class ZemanimMathBase {
 			cache.set(key, ms);
 		}
 		return Temporal.Duration.from({ milliseconds: Math.round(ms) });
+	}
+
+	/**
+	 * Extra options for the star-visibility model (star-nightfall.js) behind the haze delay, for subclasses
+	 * that see the stars differently (e.g. a smaller threshold margin). None here.
+	 * @returns {Partial<import("../libraries/kosherZmanim/star-nightfall.js").NightfallOptions>}
+	 */
+	starModelOptions() {
+		return {};
 	}
 
 	/**
@@ -906,6 +915,14 @@ function getEarthRadiusAtLatitude(latitude) {
 const methodNames = getAllMethods(ZemanFunctions.prototype);
 
 /**
+ * Method names of a calculator class (ZemanFunctions or a subclass of it), inherited ones included.
+ * @param {typeof ZemanFunctions} zemanClass
+ * @returns {string[]}
+ */
+const methodNamesOf = (zemanClass) =>
+	zemanClass === ZemanFunctions ? methodNames : getAllMethods(zemanClass.prototype);
+
+/**
  * Extract ZonedDateTime from function result (handles both direct return and {time} wrapper)
  * @param {Temporal.ZonedDateTime | {time: Temporal.ZonedDateTime}} funcRet
  * @returns {Temporal.ZonedDateTime}
@@ -917,6 +934,7 @@ export {
 	ZemanimMathBase,
 	ZemanFunctions,
 	methodNames,
+	methodNamesOf,
 	zDTFromFunc
 };
 
