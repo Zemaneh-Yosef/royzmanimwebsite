@@ -671,11 +671,9 @@ layout: nothing
 	.moonGrid {
 		display: grid;
 		grid-template-columns: 1fr 1fr 1fr 1fr;
-		column-gap: 0.3in;
+		column-gap: 0.15in;
 		row-gap: 0;
 	}
-
-	.moonCell.wide { grid-column: span 2; }
 
 	.moonDay {
 		padding: 0.03in 0;
@@ -717,8 +715,13 @@ layout: nothing
 
 	.dateHint { font-size: 0.55rem; color: #777; }
 	.timeVal  { font-size: 0.7rem; }
-</style>
 
+	.whiteTekufotMonths ul {
+		margin-bottom: 0;
+	}
+
+	.moonBothTime { display: block; white-space: nowrap; }
+</style>
 <style>
 	.goldPlaqueImg { display: block; margin: 0 auto; }
 </style>
@@ -907,7 +910,58 @@ layout: nothing
 		Direction of prayer toward Jerusalem: <span data-zy-prayer-angle></span>
 	</div>
 </div>
-<div class="page verso" data-monthPrefix="7">
+<style>
+		.monthGrid {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: 2px;
+		margin-bottom: .08in;
+		font-size: 6.5px;
+		line-height: 1.15;
+	}
+
+	.monthGrid .mgLabel {
+		text-align: center;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: .04em;
+		padding-bottom: 1px;
+		border-bottom: .75pt solid var(--ink-color);
+	}
+
+	.monthGrid .mgCell {
+		height: .36in;
+		border: .5pt solid var(--divider-color);
+		border-radius: 22%;
+		corner-shape: squircle;
+		padding: 2px;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		overflow: hidden;
+	}
+
+	.monthGrid .mgCell.empty {
+		border: none;
+		background: repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(0, 0, 0, .05) 3px, rgba(0, 0, 0, .05) 6px);
+	}
+
+	.monthGrid .mgCell.shabbat { background: rgba(0, 0, 0, .06); }
+	.monthGrid .mgTop { display: flex; justify-content: space-between; align-items: baseline; }
+	.monthGrid .mgHeb { font-weight: 500; font-size: 1.15em; }
+	.monthGrid .mgCell.bold .mgHeb { font-weight: 800; }
+	.monthGrid .mgGreg { font-size: .8em; color: #666; }
+	.monthGrid .mgTitles { align-self: center; text-align: center; font-size: .85em; font-weight: 600; line-height: 1.05; }
+	.monthGrid .mgTitles.many { font-size: .7em; }
+	.monthGrid .mgTimes { text-align: end; font-size: .85em; font-weight: 600; white-space: nowrap; }
+	.monthGrid .mgTimes svg { height: 1em; width: .4em; vertical-align: -.1em; }
+
+	/* Moon grid shrinks when the month grid shares its page */
+	.moonMonthCard:has(.monthGrid) .moonGlyph { height: .28in; }
+	.moonMonthCard:has(.monthGrid) .moonGlyph svg { width: .28in; height: .28in; }
+	.moonMonthCard:has(.monthGrid) .timeVal { font-size: .62rem; }
+	.moonMonthCard:has(.monthGrid) .moonDay { padding: .015in 0; }
+</style>
+<div class="page" data-monthPrefix="7">
 	<h1 style="margin-top: -0.075in;">The Month of Tishri</h1>
 	<div style="text-align: center; margin-bottom: .08in; font-size: .785em;">
 		<div style="unicode-bidi: plaintext;">בֶּחֳדָשִׁים הַשְּׁבִיעִי חָבִיב, "בַחֹדֶשׁ הַשְּׁבִיעִי בְּאֶחָד
@@ -935,7 +989,7 @@ layout: nothing
 		Jewish self-rule – mourned with <strong>Tzom Gedalya</strong> on the 3<sup>rd</sup> <span
 			class="fs-sm">(II Melakhim 25:25; 3339/423 BCE by tradition<!-- ; 586/582 BCE by historians-->)</span>.</p>
 </div>
-<div class="page verso" data-monthPrefix="8">
+<div class="page" data-monthPrefix="8">
 	<h1>The Month of Marḥeshvan</h1>
 	<p>In the Tanakh (I Melakhim 6:38), this month is referred to as <strong>Yeraḥ Bul</strong>, a name rooted in seasonal
 		shifts: the withering of grass (<em>baleh</em>), the mixing of fodder (<em>bolelin</em>), and the
@@ -956,7 +1010,7 @@ layout: nothing
 		will eventually be repaid with future celebration.
 	</p>
 </div>
-<div class="page verso" data-monthPrefix="9">
+<div class="page" data-monthPrefix="9">
 	<h1 style="margin-top: -0.075in;">The Month of Kislev</h1>
 	<p style="font-size: .785em;">The strength of <strong>Kislev</strong> appears as early as Ḥaggai, who encouraged the nation to rebuild the Temple, promising prosperity and victory over its era's enemies <span class="fs-sm">(Ḥaggai 2:10; 24<sup>th</sup> of Kislev, 3408/354 BCE by tradition; 520 BCE by historians)</span>. The later scribe <em>'Ezra</em> showed further strength, gathering the nation within three days to strengthen Torah observance and dissolve interfaith marriages <span class="fs-sm">('Ezra 10:9; 20<sup>th</sup> of Kislev, 3414/348 BCE by tradition; 458 BCE by historians)</span>.</p>
 	<p style="font-size: .785em;">The month's most famous display of strength was the war against the Greek empire, celebrated as <strong>Ḥanukka</strong> – by lighting candles for eight nights, reciting the full Hallel, and adding <em>'Al Ha'Nissim</em>. Although the story spanned several years, its milestones fell in this month:</p>
@@ -966,7 +1020,7 @@ layout: nothing
 	</ul>
 	<p style="font-size: .785em;">The name <strong>Kislev</strong> itself may echo this theme of strength. Some derive it from the Akkadian root <em>kislu</em> (<em>kaslu</em>), meaning "inner strength."</p>
 </div>
-<div class="page verso" data-monthPrefix="10">
+<div class="page" data-monthPrefix="10">
 	<h1 style="margin-top: -0.075in;">The Month of Tevet</h1>
 	<p style="font-size: .785em;">Following <em>Ḥanukka</em>, <strong>Tevet</strong> serves as the representative of the winter season, whether as its climax or beginning <span class="fs-sm">(see Bava Metzia 106b)</span>. The winter solstice found in this month (as titled in the Hebrew – <em>Tekufat Tevet</em>) brings the northern hemisphere's shortest days, as the sun takes its lowest path across the sky. This detail could be reflected in the original name of the month, which is derived from Akkadian <em>ṭebētu</em> ("sunk").</p>
 	<p style="font-size: .785em;">Spiritually, this solar gloom reflects a deeper Kabbalistic theme. According to the Zohar <span class="fs-sm">(Yitro 13:241)</span> and <em>Ma'aseh
@@ -978,7 +1032,7 @@ layout: nothing
 		leadership he represented), and the siege of Jerusalem <span class="fs-sm">(II Melakhim 25:1; 3336/425 BCE by tradition; 588 BCE by historians)</span>, marked by the fast of צום העשירי from dawn until nightfall. It was also in this month, decades after the siege, that <em>King Aḥashverosh</em> took <em>Esther</em> as his wife <span class="fs-sm">(Megillat
 		Esther 2:16; 3399/362 BCE by tradition; 478 BCE by historians)</span>, setting in motion the Purim story and the redemption that followed.</p>
 </div>
-<div class="page verso" data-monthPrefix="11">
+<div class="page" data-monthPrefix="11">
 	<h1>The Month of Shevat</h1>
 	<div style="text-align: center; margin-bottom: .12in;">
 		<h2 style="font-weight: 500; margin-bottom: 0;"><b>ש</b>נשמע <b>ב</b>שורות <b>ט</b>ובות</h2>
@@ -987,7 +1041,7 @@ layout: nothing
 	<p>The agricultural influence of <strong>Shevat</strong> is found as early as its name, with its Akkadian source (<em>šabāṭu</em>) referring to the harsh rains that come with the solar season of this month. We also know <span class="fs-sm">(from R' Hai Gaon, Teshuvot Ha'Geonim [Harkavy], §243)</span> that the solar season coincides with the Arabic <em>al-jamra al-thāniya</em> (the second ember/coal) period, where the trees become moist and begin to absorb water, thus reviving them. Hence, it is fitting for the New Year of the Trees to fall in this season, celebrated on the 15<sup>th</sup> day known as <strong>ט"ו בשבט</strong>. <span class="fs-sm">(The exact date follows the ruling of בית הלל; see Mishna Rosh Hashana 1:1 for the full discussion, including the opinion of בית שמאי.)</span></p>
 	<p>On the 1<sup>st</sup> of this month, Moshe began his final speech, addressing the nation before <em>Yehoshua</em> replaced his leadership <span class="fs-sm">(Devarim 1:3; 2488/1273 BCE by tradition)</span>. These teachings would ultimately be written in the form of <strong>Sefer Devarim</strong>, often called <strong>Mishneh Torah</strong>.</p>
 </div>
-<div class="page verso" data-monthPrefix="12">
+<div class="page" data-monthPrefix="12">
 	<h1>The Month of Adar I</h1>
 	<p>The months of the year are determined by the lunar cycle, and the lunar year falls about 11 days short of the
 		solar year. This desync causes a problem for Jewish holidays, which have seasonal placements despite their dates
@@ -1006,31 +1060,20 @@ layout: nothing
 		adulthood – the bar mitzvah status). <span class="fs-sm">(See the discussion in Talmud Yerushalmi, Megilla
 			7a–7b.)</span></p>
 </div>
-<div class="page verso" data-monthPrefix="13">
-	<h1>The Month of Adar (II)</h1>
-	<div style="text-align: center; margin-bottom: .12in; font-size: .875em;">
-		<div style="unicode-bidi: plaintext;">מִשֶּׁנִּכְנַס אֲדָר מַרְבִּין בְּשִׂמְחָה</div>
+<div class="page" data-monthPrefix="13" style="line-height: 1.4;">
+	<h1 style="margin-top: -0.075in;">The Month of Adar (II)</h1>
+	<div style="text-align: center; margin-bottom: .12in; font-size: .785em;">
+		<div dir="rtl" lang="he" style="unicode-bidi: plaintext;">מִשֶּׁנִּכְנַס אֲדָר מַרְבִּין בְּשִׂמְחָה</div>
 		<div style="line-height: 1.3;">When <span class="fs-sm">[the month of]</span> Adar begins, one increases
 			rejoicing.</div>
 		<div class="fs-sm">Talmud Bavli, Ta'anit 29a</div>
 	</div>
-	<p style="font-size: .785em;">Adar centers on <strong>Purim</strong>, the overturning of Haman's decree to annihilate the Jews of Persia.
-		Though Haman had been executed, his decree stood, so the Jews were authorized to defend themselves: they fought
-		on the 13<sup>th</sup> throughout the empire and rested on the 14<sup>th</sup>; in <em>Shushan</em>, they fought
-		through the 14<sup>th</sup> and rested on the 15<sup>th</sup> <span class="fs-sm">(3405/356 BCE by tradition; 473
-			BCE by historians)</span>.</p>
-	<p style="font-size: .785em;">Purim, recorded in <strong>Megillat Esther</strong>, falls on the 15<sup>th</sup> in cities
-		walled since the days of <em>Yehoshua</em> (as well as <em>Shushan</em>), and the 14<sup>th</sup> elsewhere.
-		Observance includes reading <em>Megillat Esther</em>, giving to the poor, sending food gifts, and a festive meal
-		<span class="fs-sm">(with wine – drink a bit more than usual, then sleep; see B"Y 695:2)</span>.
-		<strong>Ta'anit Esther</strong>, held beforehand, recalls the fasting and prayer that preceded the fighting.</p>
-	<p style="font-size: .785em;">Adar also marks victories from both Temple eras: <em>Nevukhadnetzar</em>, destroyer of
-		the First Temple, died on the 25<sup>th</sup> <span class="fs-sm">(Rashi, II Melakhim 25:27; 3364/397 BCE by tradition;
-			562 BCE by historians)</span>; and the Second Temple-era <strong>Battle of Adasa</strong> is commemorated as
-		<strong>Yom Nikanor</strong> on the 13<sup>th</sup> <span class="fs-sm">(I Maccabees 7:26–50; 161 BCE by
-			historians)</span>. The 7<sup>th</sup> marks both the birth and the passing of <strong>Moshe Rabbenu</strong> <span class="fs-sm">(Megilla 13b; 2368/1393 and 2488/1273 BCE by tradition)</span>.</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">
+		The glory of Adar comes from <strong>Purim</strong>, when Haman's decree to annihilate Persian Jewry was overturned <span class="fs-sm">(3405/356 BCE by tradition; 473 BCE by historians)</span>. Though Haman had been hanged eleven months earlier <span class="fs-sm">(16 Nisan)</span>, his decree still stood; the Jews were thus <em>permitted</em> to defend themselves, and did so on the 13<sup>th</sup> <span class="fs-sm">(in Shushan, the 14<sup>th</sup> as well)</span>. These events are recorded in <strong>Megillat Esther</strong>, read on the holiday.</p>
+		<p style="font-size: 8.85pt; margin-bottom: .075in;">Purim falls on the day the Jews rested: the 15<sup>th</sup> in <em>Shushan</em> [and cities walled since <em>Yehoshua</em>'s day], the 14<sup>th</sup> elsewhere. Besides the <em>Megillah</em>, it is marked by gifts to the poor, food gifts to friends, and a festive meal <span class="fs-sm">(with wine – a little more than usual, short of drunkenness; B"Y, O"Ḥ 695)</span>. <strong>Ta'anit Esther</strong>, beforehand, recalls the fasting and prayer that preceded the battle.</p>
+		<p style="font-size: 8.85pt; margin-bottom: .075in;">Adar's story begins long before Shushan. Early in the month, on the 7<sup>th</sup>, <strong>Moshe Rabbenu</strong> was born – and on that same date, 120 years later, he passed away <span class="fs-sm">(Megilla 13b; 2368/1393 and 2488/1273 BCE by tradition)</span>. Egypt, too, felt Adar's hand: if each plague followed 24 days' warning and lasted 7, as R. Yehuda reckons <span class="fs-sm">(Tanchuma, Va'era 13)</span>, then the <strong>plague of darkness</strong> descended in Adar <span class="fs-sm">(2448/1313 BCE by tradition)</span> – yet "all the Children of Israel had light in their dwellings" <span class="fs-sm">(Shemot 10:23)</span>, much as the Jews of Shushan would one day have "light and gladness" <span class="fs-sm">(Esther 8:16)</span>. The pattern of victory held through both Temple eras: <em>Nevukhadnetzar</em>, who destroyed the First Temple, died on the 25<sup>th</sup> <span class="fs-sm">(Rashi, II Melakhim 25:27; 3364/397 BCE by tradition; 562 BCE by historians)</span>; and during the Second, Yehuda the Maccabee routed Nikanor at <strong>Adasa</strong> on the 13<sup>th</sup> of Adar, long celebrated as <strong>Yom Nikanor</strong> <span class="fs-sm">(I Maccabees 7:26–50; 161 BCE by historians)</span>.</p>
 </div>
-<div class="page verso" data-monthPrefix="1" style="line-height: 1.4;">
+<div class="page" data-monthPrefix="1" style="line-height: 1.4;">
 	<h1 style="margin-top: -0.075in;">The Month of Nisan</h1>
 	<div style="text-align: center; margin-bottom: .12in; font-size: .785em;">
 		<div style="unicode-bidi: plaintext;">הַחֹ֧דֶשׁ הַזֶּ֛ה לָכֶ֖ם רֹ֣אשׁ חֳדָשִׁ֑ים רִאשׁ֥וֹן הוּא֙ לָכֶ֔ם
@@ -1046,11 +1089,11 @@ layout: nothing
 		<li>Kings' reigns are counted from this month when dating official documents. <span class="fs-sm">(Mishna Rosh Hashana 1:1)</span></li>
 	</ul>
 	<p style="font-size: 8.85pt; margin-bottom: .075in;">
-		Most significant is the Jewish nation's own transition from slavery in Egypt to freedom, commemorated as <strong>Pesaḥ</strong> <span class="fs-sm">(2448/1313 BCE by tradition)</span>. The nation sanctified the new moon of Wednesday night as the start of Nisan <span class="fs-sm">(the first month ever sanctified)</span>. The following Shabbat (the 10<sup>th</sup>), the nation was commanded to tie a lamb to their bedpost, alarming the Egyptians into internal quarrel; this Shabbat is called <strong>Shabbat Ha'Gadol</strong>. On the 14<sup>th</sup>, they slaughtered the lamb and marked their doorposts with its blood. That night God struck Egypt's firstborn, and <em>Par'oh</em> – himself a firstborn – sent the Jews out. After circling back following their three days, they drew <em>Par'oh</em>'s pursuit, and both camps reached <em>Yam Suf</em> a week into freedom (the 21<sup>st</sup>), where the sea, split by a strong east wind, let the Jews cross and drowned the Egyptians.
+		Most significant is the Jewish nation's own beginning of freedom from the Egyptian slavery, commemorated as <strong>Pesaḥ</strong> <span class="fs-sm">(2448/1313 BCE by tradition)</span>. The month surrounded (and was defined) through the climax of the redemption – midnight of the 15<sup>th</sup>, when God struck all the Egyptian firstborns, and <em>Par'oh</em> – himself a firstborn – sent the Jews out. This preparation started on the 10<sup>th</sup>, after the Jews tied a lamb to their bedpost <span class="fs-sm">(alarming Egyptian firstborns into an internal quarrel)</span>. It then continued on the 14<sup>th</sup>, through their slaughtering of the lamb and marking their doorposts with its blood. God then drowned the Egyptian military at the seas of <em>Yam Suf</em> <span class="fs-sm">while splitting it with a great wind for the Jews just moments before</span> on the 21<sup>st</sup> – just four days after the Jews drew their attention, neutralizing the threat for good.
 	</p>
-	<p style="font-size: 8.85pt; margin-bottom: .075in;">This month's redemptive pattern recurs: 40 years later, <em>Yehoshua</em> began leading on the 7<sup>th</sup> of Nisan, 30 days after <em>Moshe's</em> death, and sent two spies to <em>Yeriḥo</em> that day; the nation crossed the <em>Yarden</em> three days later, on the 10<sup>th</sup> <span class="fs-sm">(2488/1273 BCE by tradition)</span>. Just as redemption came in Nisan, so will the final redemption. <span class="fs-sm">(Talmud Bavli, Rosh Hashana 11a)</span></p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">The recurrance of the month's redemptive pattern is shown through its later generations, which will eventually result in the final redemption <span class="fs-sm">(Talmud Bavli, Rosh Hashana 11a)</span>. History's example is <em>Yehoshua</em>'s leadership, from the 7<sup>th</sup> of Nisan <span class="fs-sm">(30 days after <em>Moshe's</em> death; 2488/1273 BCE by tradition)</span> by the spies' mission of <em>Yeriḥo</em> and the nation's crossing of the <em>Yarden</em> three days later.</p>
 </div>
-<div class="page verso" data-monthPrefix="2">
+<div class="page" data-monthPrefix="2">
 	<h1>The Month of Iyar</h1>
 	<p>The month of <strong>Iyar</strong> is traditionally associated with blossoming. This has its basis in its
 		Akkadian name, <em>ajjāru</em>, which refers to a "blossom" or "rosette", as well as its biblical name
@@ -1069,14 +1112,14 @@ layout: nothing
 	<p>Historically, this is also the month in which King Shelomo began construction of the First Temple <span
 			class="fs-sm">(I Melakhim 6:1; 2928/833 BCE by tradition; c. 966 BCE by historians)</span>.</p>
 </div>
-<div class="page verso" data-monthPrefix="3">
+<div class="page" data-monthPrefix="3">
 	<h1 style="margin-top: -0.075in;">The Month of Sivan</h1>
 	<p style="font-size: 9pt;"><strong>Sivan</strong> means "season" or "appointed time" (from Akkadian <em>simānu</em>), fitting its place in the agricultural wheat harvest; it is named only once in Tanakh <span class="fs-sm">(Esther 8:9)</span>. This is reflected in <strong>Shavu'ot</strong>, associated with the <em>Festival of the Harvest</em> and <em>first fruits of the wheat harvest</em>. The events of <em>Matan Torah</em> fall within this period <span class="fs-sm">(2448/1313 BCE by tradition)</span>, though as the <em>Abarbanel</em> explains (Vayikra 23), the Torah established <em>Shavu'ot</em> for the wheat harvest rather than as an explicit commemoration of <em>Matan Torah</em>.</p>
 	<p style="font-size: 9pt;">When calendar months were determined by witnesses, the flexibility of Nisan and Iyar permitted <em>Shavu'ot</em> <span class="fs-sm">(which was specifically the day after the full 7 weeks of the 'Omer)</span> to fall on the 5<sup>th</sup>–7<sup>th</sup> of Sivan <span class="fs-sm">(Teshuvot Ha'Ribash 96:1)</span>. This is an interesting parallel to the historical date of <em>Matan Torah</em> itself, which could fall on two of those three days <span class="fs-sm">(Shabbat 86b)</span>: either the 6<sup>th</sup> of Sivan <span class="fs-sm">(the Sages)</span> or the 7<sup>th</sup> <span class="fs-sm">(R' Yose)</span>. Under today's fixed calendar, <em>Shavu'ot</em> consistently falls on the 6<sup>th</sup> of Sivan.</p>
 	<p style="font-size: 9pt;">The discrepancy between these two dates is explained <span class="fs-sm">(per the Ben Aryeh, Shabbat 87a)</span> through the two-day <em>perisha</em> (separation) period commanded during the daytime of the 4<sup>th</sup> of Sivan. For <strong>Bnei Noaḥ</strong> (night follows day), the 4<sup>th</sup> and 5<sup>th</sup> formed the two days of <em>perisha</em>, placing <em>Matan Torah</em> on the 6<sup>th</sup>. However, for <strong>Bnei Yisrael</strong> (night precedes day), Moshe began the two-day count from Wednesday night, making the 5<sup>th</sup> and 6<sup>th</sup> the <em>perisha</em> days and placing <em>Matan Torah</em> on the 7<sup>th</sup>.</p>
 </div>
 <!-- TO ADD: Conditional Hiloulot, so we could add Flood stop & Moshe River-->
-<div class="page verso" data-monthPrefix="4" style="line-height: 1.4;">
+<div class="page" data-monthPrefix="4" style="line-height: 1.4;">
 	<h1 style="margin-top: -0.075in;">The Month of Tammuz</h1>
 	<p style="font-size: 8.85pt; margin-bottom: .075in;">Long before adopting present names, the "fourth month" held a solemn weight tied to the sin of the <strong>Golden Calf</strong>. Centuries later, during the Babylonian exile, the name <strong>Tammuz</strong> was adopted – derived from Assyrian <em>tammūzu</em> (referencing the deity <strong>Dumuzi</strong>). Jewish awareness of this rite preceded the name, as <strong>Yeḥezkel</strong>'s vision showed women at the Sanctuary's north gate "weeping for the Tammuz" <span class="fs-sm">(Yeḥezkel 8:14)</span>.</p>
 	<p style="font-size: 8.85pt; margin-bottom: .075in;">Though the deity and the fast share no intrinsic connection, the common thread is weeping – their weeping served as idolatrous worship <span class="fs-sm">(Radak, Rashi & Rambam)</span>, whereas ours expresses mourning for the Temple during this period called <em>Bein Ha'Metzarim</em> (בין המצרים). Spanning three weeks from the 17<sup>th</sup> of Tammuz until <em>Tisha B'Av</em> (תשעה באב), this period commemorates the breach of Jerusalem's walls <span class="fs-sm">(3829/69 CE by tradition; 70 CE by historians; the Yerushalmi includes the First Temple breach – cf. Yirmeyahu 39:2, the 9<sup>th</sup>)</span>. Four other tragedies occurred on the 17<sup>th</sup>:</p>
@@ -1089,7 +1132,7 @@ layout: nothing
 	<p style="font-size: 8.85pt; margin-bottom: .075in;">The theme of Tammuz is mishandled responsibility and its consequences – echoing the prophetic rebukes read during this season.</p>
 </div>
 <!-- END TAMMUZ -->
-<div class="page verso" data-monthPrefix="5">
+<div class="page" data-monthPrefix="5">
 	<h1>The Month of Av</h1>
 	<div style="text-align: center; margin-bottom: .12in; font-size: .875em;">
 		<div style="unicode-bidi: plaintext;">מִשֶּׁנִּכְנַס אָב, מְמַעֲטִין בְּשִׂמְחָה</div>
@@ -1117,7 +1160,7 @@ layout: nothing
 		ended the desert generation's dying, and the Mishna counts it among the year's happiest days, a day of
 		matchmaking <span class="fs-sm">(Mishna Ta'anit 4:8; Ta'anit 30b)</span>.</p>
 </div>
-<div class="page verso" data-monthPrefix="6">
+<div class="page" data-monthPrefix="6">
 	<h1 style="margin-top: -0.075in;">The Month of Elul</h1>
 	<div style="text-align: center; margin-bottom: .1in; font-size: .8em;">
 		<div style="unicode-bidi: plaintext;"><b>אֲ</b>נִי <b>לְ</b>דוֹדִי <b>וְ</b>דוֹדִי <b>לִ</b>י</div>

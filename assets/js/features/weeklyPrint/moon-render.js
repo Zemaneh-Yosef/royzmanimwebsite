@@ -265,8 +265,7 @@ export default class MoonRender {
         let cells;
         switch (row.coverage) {
             case 'both':
-                cells = this.moonCell(rise, 'rise', t.rises, lang, timeFormat, false)
-                    + this.moonCell(set, 'set', t.sets, lang, timeFormat, false);
+                cells = this.moonBothCell(rise, set, lang, timeFormat);
                 break;
             case 'from':
                 cells = this.moonCell(rise, 'rise', t.from, lang, timeFormat, true);
@@ -355,6 +354,39 @@ export default class MoonRender {
             content = riseHtml + setHtml + hint(riseDate ?? setDate);
 
         return `<td class="earlyCell ${row.coverage}${row.bediavadOnly ? ' bediavadOnly' : ''}">${content}</td>`;
+    }
+
+    /**
+     * A night with both a rise and a set: one glyph, two stacked times, one merged date.
+     * Same footprint as a single-event cell, so it never makes its grid row taller.
+     * @param {MoonEvent} rise
+     * @param {MoonEvent} set
+     * @param {string} lang
+     * @param {'h11'|'h12'|'h23'|'h24'} timeFormat
+     */
+    moonBothCell(rise, set, lang, timeFormat) {
+        const t = TEXT[lang == 'hb' ? 'hb' : 'en'];
+        const tz = this.geoLocation.getTimeZone();
+        const toDate = (/** @type {number} */ ms) => Temporal.Instant.fromEpochMilliseconds(ms).toZonedDateTimeISO(tz).toPlainDate();
+        const rd = toDate(rise.ms), sd = toDate(set.ms);
+
+        // "Apr 20th–21st", or "Apr 30th – May 1st" across months
+        const dates = rd.equals(sd) ? this.formatDateLabel(rise.ms)
+            : rd.month === sd.month ? `${this.formatDateLabel(rise.ms)}–${getOrdinal(sd.day, true)}`
+            : `${this.formatDateLabel(rise.ms)} – ${this.formatDateLabel(set.ms)}`;
+
+        const glyph = moonGlyphSvg(rise.thetaDeg, rise.phaseAngleDeg, {
+            size: MOON_GLYPH_SIZE, horizon: false, label: 'Moon in the night sky'
+        });
+
+        return `<div class="moonCell wide">`
+            + `<div class="moonGlyph">${glyph}</div>`
+            + `<div class="timeVal">`
+            +   `<span class="moonBothTime" title="${t.rises}">Rises at ${this.formatTime(rise.ms, lang, timeFormat)},</span>`
+            +   `<span class="moonBothTime" title="${t.sets}">sets at ${this.formatTime(set.ms, lang, timeFormat)}</span>`
+            + `</div>`
+            + `<div class="dateHint">(${dates})</div>`
+            + `</div>`;
     }
 
     /**

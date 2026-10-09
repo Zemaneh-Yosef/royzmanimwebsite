@@ -1,5 +1,6 @@
 //@ts-check
 
+import { insertMonthGrids } from "./month-grid.js";
 import { GeoLocation } from "../../../libraries/kosherZmanim/kosher-zmanim.js";
 import { settings } from "../../settings/handler.js";
 import { getOrdinal, HebrewNumberFormatter } from "../../WebsiteCalendar.js";
@@ -390,6 +391,9 @@ const addedZemanim = {};
 /** Visible minus sea-level sunrise per date (ms), reported by the workers for the sunrise table. @type {Record<string, number>} */
 const sunriseOffsets = {};
 
+/** Month-grid day contents from the workers. @type {Record<string, import('./print-web-worker.js').GridDay>} */
+const monthGridDays = {};
+
 const properPaging = document.querySelector('[data-insertBefore]');
 
 /** @type {ReturnType<import('./print-web-worker.js').default>[]} */
@@ -431,6 +435,7 @@ await new Promise((resolve, reject) => {
 
 			weekResults[msg.data.week] = msg.data;
 			addedZemanim[msg.data.week] = msg.data.addedZemanim;
+			Object.assign(monthGridDays, msg.data.monthGridDays);
 			Object.assign(sunriseOffsets, msg.data.sunriseOffsets);
 
 			if (++completed === arrayOfFuncParams.length)
@@ -475,6 +480,7 @@ for (const weekData of weekResults) {
 }
 
 await mRender.monthPagesReady;
+insertMonthGrids(settings.language(), monthGridDays);
 
 // A static list, so the copies inserted below are never picked up again
 for (const page of document.querySelectorAll('[data-monthPrefix]')) {

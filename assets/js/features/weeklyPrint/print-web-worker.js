@@ -61,6 +61,14 @@ hNum.setUseFinalFormLetters(true);
 /** @typedef {[string, Intl.DateTimeFormatOptions]} TimeFormat */
 /** @typedef {Record<'hb'|'en'|'en-et', string>} LangText */
 
+/**
+ * One day of the month grid on the moon pages (see month-grid.js). Times are pre-formatted, without AM/PM.
+ * @typedef {{
+	titles: string[];
+	times: { kind: 'candle'|'havdalah'|'fastStart'|'fastEnd'|'fastRange'; time: string }[];
+	bold: boolean;
+  }} GridDay */
+
 /** Set by the RefractionInit message. @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null }} */
 const refraction = { provider: null, horizon: null };
 
@@ -111,6 +119,28 @@ function fmt(zdt, tf) {
 	}
 
 	return formatter ? formatter.format(zdt.epochMilliseconds) : zdt.toLocaleString(...tf);
+}
+
+/** @type {Map<string, Intl.DateTimeFormat | null>} */
+const shortFormatterCache = new Map();
+
+/** @param {Temporal.ZonedDateTime} zdt */
+function fmtShort(zdt) {
+	const key = zdt.timeZoneId;
+	let formatter = shortFormatterCache.get(key);
+	if (formatter === undefined) {
+		try {
+			formatter = new Intl.DateTimeFormat(workerInit.lang == 'hb' ? 'he' : 'en',
+				{ hourCycle: workerInit.timeFormat, hour: 'numeric', minute: '2-digit', timeZone: key });
+		} catch {
+			formatter = null;
+		}
+		shortFormatterCache.set(key, formatter);
+	}
+	if (!formatter) return fmt(zdt, formats.default);
+	return formatter.formatToParts(zdt.epochMilliseconds)
+		.filter(part => part.type !== 'dayPeriod')
+		.map(part => part.value).join('').trim();
 }
 
 /** Resets the parsed template to its original state and returns it. */
@@ -336,6 +366,9 @@ function messageHandler(x) {
 
 	/** Visible minus sea-level sunrise (ms) per ISO date, for the summary table on the main page. @type {Record<string, number>} */
 	const sunriseOffsets = {};
+
+	/** Per-day contents for the month grids on the moon pages, keyed by ISO date. @type {Record<string, GridDay>} */
+	const monthGridDays = {};
 
 	// @ts-ignore
 	makamIndex ??= new KosherZmanim.Makam(makamObj.sefarimList);
@@ -1055,6 +1088,55 @@ function messageHandler(x) {
 		if (!(netz instanceof Temporal.ZonedDateTime))
 			sunriseOffsets[plainDate.withCalendar("iso8601").toString({ calendarName: "never" })] =
 				netz.time.epochMilliseconds - zmanCalc.coreZC.getSeaLevelSunrise().epochMilliseconds;
+
+		// ─── Month grid (moon pages) ───
+		{
+			/** @type {GridDay} */
+			const gridDay = { titles: [], times: [], bold: false };
+			const lang = x.data.lang;
+
+			if (jCal.getDayOfWeek() === 7 && WebsiteLimudCalendar.hebrewParshaMap[jCal.getParshah()])
+				gridDay.titles.push(WebsiteLimudCalendar.hebrewParshaMap[jCal.getParshah()]);
+			if (jCal.isRoshChodesh())
+				gridDay.titles.push({ 'hb': "ראש חדש", "en-et": "Rosh Ḥodesh", 'en': "New Month" }[lang]);
+			if (jCal.getYomTovIndex() in yomTovObj)
+				gridDay.titles.push(yomTovObj[jCal.getYomTovIndex()][lang]);
+			else if (jCal.isTaanis())
+				gridDay.titles.push(taanitYomTovNames[jCal.getYomTovIndex()] ?? (lang == 'hb' ? "צום" : "Fast"));
+			if (jCal.getDayOfChanukah() !== -1)
+				gridDay.titles.push(lang == 'hb'
+					? "חנוכה " + hNum.formatHebrewNumber(jCal.getDayOfChanukah())
+					: "Ḥanukka " + jCal.getDayOfChanukah());
+
+			gridDay.bold = jCal.isAssurBemelacha() || jCal.isRoshChodesh() || jCal.getYomTovIndex() in yomTovObj;
+
+			// Same rules as the Ohel Michael grid / the weekly cards
+			if (jCal.hasCandleLighting()) {
+				const dow = jCal.getDayOfWeek();
+				const candle = dow === 6 || !jCal.isAssurBemelacha()
+					? handleRound(zmanCalc.getCandleLighting(), 'earlier')
+					: dow === 7
+						? handleRound(zDTFromFunc(zmanCalc.getTzetMelakha()), 'later')
+						: handleRound(zmanCalc.getTzetHumra(), 'later');
+				gridDay.times.push({ kind: 'candle', time: fmtShort(candle) });
+			} else if (jCal.isAssurBemelacha()) {
+				gridDay.times.push({ kind: 'havdalah', time: fmtShort(handleRound(zDTFromFunc(zmanCalc.getTzetMelakha()), 'later')) });
+			}
+
+			if (jCal.tomorrow().getYomTovIndex() === WebsiteLimudCalendar.TISHA_BEAV)
+				gridDay.times.push({ kind: 'fastStart', time: fmtShort(handleRound(zmanCalc.getShkiya(), 'earlier')) });
+			if (jCal.isTaanis() && !jCal.isYomKippur()) {
+				if (jCal.getYomTovIndex() === WebsiteLimudCalendar.TISHA_BEAV)
+					gridDay.times.push({ kind: 'fastEnd', time: fmtShort(handleRound(zmanCalc.getTzetHumra(), 'later')) });
+				else
+					gridDay.times.push({
+						kind: 'fastRange',
+						time: fmtShort(handleRound(zmanCalc.getAlotHashahar(), 'earlier')) + '–' + fmtShort(handleRound(zmanCalc.getTzetHumra(), 'later'))
+					});
+			}
+
+			monthGridDays[plainDate.withCalendar("iso8601").toString()] = gridDay;
+		}
 
 		populateHighlightZmanim();
 
@@ -1974,6 +2056,7 @@ function messageHandler(x) {
 	return {
 		week: x.data.week,
 		sunriseOffsets,
+		monthGridDays,
 		htmlContent: [...document.getElementsByClassName("page")].map(elem => elem.outerHTML),
 		addedZemanim,
 		monthPrefix: startsMonth ? (new WebsiteLimudCalendar(dateRangeHeb[1])).getJewishMonth() : null,

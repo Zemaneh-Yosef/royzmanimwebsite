@@ -224,6 +224,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		: new Set();
 	const extraPagesCount = Math.max(0, parseInt(urlParams.get('addExtraHiloulot') ?? '0', 10) || 0);
 
+	const skipMonthPages = urlParams.has('skipMonthPages');
+
 	// --------------------------------------------------------------
 	// 7. Process containers
 	// --------------------------------------------------------------
@@ -257,6 +259,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// it turns out to have zero entries below - it's still a real month
 		// occupying a real slot in the year.
 		monthOrder.push(monthNum);
+
+		if (skipMonthPages) continue;
 
 		let monthEntries = allEntries.filter(e => monthKeys.includes(e.month));
 		if (monthEntries.length === 0) continue;
