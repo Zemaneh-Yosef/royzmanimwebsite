@@ -56,6 +56,7 @@ hNum.setUseFinalFormLetters(true);
 	table: import('../../refraction-snapshot.js').ProviderSnapshot;
 	normals: import('../../refraction-snapshot.js').Normals | null;
 	horizon: import('../../refraction-snapshot.js').Horizon | null;
+	haze?: import('../../../libraries/kosherZmanim/star-nightfall.js').HazeData | null;
   }} RefractionInit */
 
 /** @typedef {[string, Intl.DateTimeFormatOptions]} TimeFormat */
@@ -69,8 +70,8 @@ hNum.setUseFinalFormLetters(true);
 	bold: boolean;
   }} GridDay */
 
-/** Set by the RefractionInit message. @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null }} */
-const refraction = { provider: null, horizon: null };
+/** Set by the RefractionInit message. @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null, haze: import('../../../libraries/kosherZmanim/star-nightfall.js').HazeData | null }} */
+const refraction = { provider: null, horizon: null, haze: null };
 
 // ─── Per-worker state, set once by the WorkerInit message ─────────────────────
 /** @type {WorkerInit} */
@@ -349,7 +350,8 @@ function messageHandler(x) {
 		candleLighting: x.data.candleTime,
 		rtKulah: x.data.rtKulah,
 		atmosphereProvider: refraction.provider,
-		horizon: refraction.horizon
+		horizon: refraction.horizon,
+		haze: refraction.haze
 	});
 	zmanCalc.setDate(jCal.getDate())
 
@@ -2075,6 +2077,7 @@ if (typeof window === 'undefined') {
 			if (data.type === 'refraction') {
 				refraction.provider = providerFromSnapshot(data.table, data.normals);
 				refraction.horizon = data.horizon;
+				refraction.haze = data.haze ?? null;
 			} else if (data.type === 'init') {
 				initWorker(data);
 			}

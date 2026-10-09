@@ -218,7 +218,8 @@ if (fundamentalTable) {
 			candleLighting: settings.customTimes.candleLighting(),
 			rtKulah: settings.calendarToggle.rtKulah(),
 			atmosphereProvider: refraction?.provider ?? null,
-			horizon: refraction?.horizon ?? null
+			horizon: refraction?.horizon ?? null,
+			haze: refraction?.haze ?? null
 		});
 
 		const winterSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 12 }))

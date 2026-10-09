@@ -4,11 +4,13 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import ROYSPACalculator from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
 import { MathUtils } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import TekufahCalculator from "./tekufot.js";
+import { hazeDelayMs, hazeOn } from "../libraries/kosherZmanim/star-nightfall.js";
 
 /** @typedef {{minutes: number | null; degree?: number | null}} melakhaTzet */
 /** @typedef {import("./refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
 /** @typedef {import("./refraction-snapshot.js").Horizon} Horizon */
 /** @typedef {import("./refraction-snapshot.js").VisibleOptions} VisibleOptions */
+/** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeData} HazeData */
 
 /**
  * @typedef {Object} ZemanimConfig
@@ -25,6 +27,14 @@ import TekufahCalculator from "./tekufot.js";
  * @property {boolean} [humidity] include water vapour in the refraction where the atmosphere data carry
  *   humidity (ROYSPACalculator.setHumidity; at most a few seconds). Off unless set; load the data with
  *   loadRefraction(lat, lon, { humidity: true }) so there is humidity to use
+ * @property {HazeData | null} [haze] evening haze and light pollution for the place (loadRefraction's
+ *   `haze`). With it, Tzet Melakha by degrees moves by the haze delay (see hazeTzet)
+ * @property {boolean} [hazeTzet] apply the haze delay to Tzet Melakha by degrees: nightfall by the stars
+ *   (star-nightfall.js) at the evening's haze minus at the place's average haze, so a hazier evening is
+ *   later and a clearer one earlier than the degree alone. Default true (when `haze` is given)
+ * @property {number | null} [hazeMaxDelayMinutes] largest haze delay either way (default 15; null = none).
+ *   Past it the model is least sure: on dust-storm / smoke evenings under city skies the stars may not
+ *   appear before the Sun is 18 degrees down, and that moment then stands in
  * @property {(date: Temporal.PlainDate) => void} [deferVisibleSunrise] compute visible sunrises elsewhere
  *   (visible-sunrise-client.js): on a cache miss this is called instead of ray tracing here, and getNetz()
  *   returns sea-level sunrise until setCachedVisibleSunrise() delivers the value. Omit to compute inline
@@ -68,6 +78,12 @@ export function setCachedVisibleSunrise(config, date, epochMs) {
 export function hasCachedVisibleSunrise(config, date) {
 	return visibleSunriseCache.get(config)?.has(visibleCacheKey(date)) ?? false;
 }
+
+/**
+ * Haze delays (ms) per config and ISO date, shared by every instance chainDate() makes from it.
+ * @type {WeakMap<ZemanimConfig, Map<string, number>>}
+ */
+const hazeDelayCache = new WeakMap();
 
 /**
  * Values to show while a deferred visible sunrise is being computed (instead of sea level).
@@ -379,6 +395,49 @@ class ZemanimMathBase {
 		return NaN;
 	}
 
+	/**
+	 * How much later (negative: earlier) nightfall by the stars comes on the current date at the evening's
+	 * haze than at the place's average haze (ZemanimConfig.haze / hazeTzet). null when off or without data.
+	 * @returns {Temporal.Duration | null}
+	 */
+	getHazeDelay() {
+		const haze = this.config.haze;
+		if (!haze || this.config.hazeTzet === false)
+			return null;
+		const date = this.coreZC.getDate().withCalendar("iso8601");
+		const key = visibleCacheKey(date);
+		let cache = hazeDelayCache.get(this.config);
+		if (!cache) {
+			cache = new Map();
+			hazeDelayCache.set(this.config, cache);
+		}
+		let ms = cache.get(key);
+		if (ms === undefined) {
+			const geo = this.coreZC.getGeoLocation();
+			try {
+				const { aod, aodRef } = hazeOn(haze, date);
+				ms = hazeDelayMs(date, geo.getLatitude(), geo.getLongitude(),
+					{ aod, aodRef, blpCdM2: haze.blpCdM2, elevationM: geo.getElevation() });
+			} catch (e) {
+				console.error("Haze delay failed", e);
+				ms = 0;
+			}
+			const capMin = this.config.hazeMaxDelayMinutes === undefined ? 15 : this.config.hazeMaxDelayMinutes;
+			if (capMin != null) ms = Math.max(-capMin * 60000, Math.min(capMin * 60000, ms));
+			cache.set(key, ms);
+		}
+		return Temporal.Duration.from({ milliseconds: Math.round(ms) });
+	}
+
+	/**
+	 * A degree-based Tzet moved by the haze delay (unchanged when there is none).
+	 * @param {Temporal.ZonedDateTime} time
+	 */
+	withHazeDelay(time) {
+		const delay = this.getHazeDelay();
+		return delay ? time.add(delay) : time;
+	}
+
 	/** @returns {this} */
 	tomorrow() {
 		return this.chainDate(this.coreZC.getDate().add({ days: 1 }));
@@ -650,7 +709,10 @@ class ZemanFunctions extends ZemanimMathBase {
 	 *
 	 * @param {melakhaTzet|melakhaTzet[]|null} [humraConf] - Stringency config(s)
 	 * @param {"PRETTY"|"LENIENT"|"STRINGENT"} [multiHandle="PRETTY"] - Selection strategy for multiple configs
-	 * @returns {Temporal.ZonedDateTime|{time: Temporal.ZonedDateTime; minutes?: number; degree?: number}}
+	 * Degree-based results move by the haze delay when the config has haze data (ZemanimConfig.hazeTzet);
+	 * the single-degree result then carries it as `hazeDelay`.
+	 *
+	 * @returns {Temporal.ZonedDateTime|{time: Temporal.ZonedDateTime; minutes?: number; degree?: number; hazeDelay?: Temporal.Duration}}
 	 */
 	getTzetMelakha(humraConf = this.config.melakha, multiHandle = "PRETTY") {
 		if (!humraConf) {
@@ -671,7 +733,11 @@ class ZemanFunctions extends ZemanimMathBase {
 			if (!sunsetOffset || Temporal.ZonedDateTime.compare(sunsetOffset, this.getSolarMidnight()) == 1)
 				return (humraObj.degree > 5.2 ? this.getTzetMelakha({ degree: 5.2, minutes: null }) : this.getSolarMidnight());
 
-			return { time: sunsetOffset, minutes: humraObj.minutes, degree: humraObj.degree };
+			const hazeDelay = this.getHazeDelay();
+			return {
+				time: hazeDelay ? sunsetOffset.add(hazeDelay) : sunsetOffset, minutes: humraObj.minutes, degree: humraObj.degree,
+				...(hazeDelay ? { hazeDelay } : {})
+			};
 		}
 
 		switch (multiHandle) {
@@ -683,6 +749,8 @@ class ZemanFunctions extends ZemanimMathBase {
 				let degreeTzet = this.coreZC.getSunsetOffsetByDegrees(lenientDegree.degree + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH);
 				if (!degreeTzet || Temporal.ZonedDateTime.compare(degreeTzet, this.getSolarMidnight()) == 1)
 					degreeTzet = this.getSolarMidnight();
+				else
+					degreeTzet = this.withHazeDelay(degreeTzet);
 
 				const sortedEntries = [degreeTzet, this.timeRange.current.sunset.add({ minutes: stringentFixed.minutes })]
 					.sort(Temporal.ZonedDateTime.compare);
@@ -701,10 +769,10 @@ class ZemanFunctions extends ZemanimMathBase {
 						if (!sunsetOffset || Temporal.ZonedDateTime.compare(sunsetOffset, this.getSolarMidnight()) == 1) {
 							sunsetOffset = this.coreZC.getSunsetOffsetByDegrees(5.2 + KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH);
 							if (!sunsetOffset || Temporal.ZonedDateTime.compare(sunsetOffset, this.getSolarMidnight()) == 1)
-								sunsetOffset = this.getSolarMidnight();
+								return this.getSolarMidnight();
 						}
 
-						return sunsetOffset;
+						return this.withHazeDelay(sunsetOffset);
 					}).reduce((/** @type {Temporal.ZonedDateTime[]} */acc, obj) => {
 						if (!acc.some(o => o.epochMilliseconds === obj.epochMilliseconds)) acc.push(obj);
 						return acc;

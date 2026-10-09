@@ -20,6 +20,8 @@
  *   - forecast snapshot: the provider's results for yesterday .. +FORECAST_DAYS, stamped with when it
  *     was fetched. Fresh (< FORECAST_TTL_MS) -> used with no network at all; older but within
  *     FORECAST_MAX_AGE_MS -> shown at once while a fresh one loads (stale-while-revalidate).
+ *   - haze (for Tzet by the stars' haze delay, star-nightfall.js): monthly averages + reference (refetched
+ *     after HAZE_NORMALS_MAX_AGE_MS), light pollution, and the evening forecast (HAZE_TTL_MS).
  */
 
 import { chainProviders } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
@@ -27,6 +29,8 @@ import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHa
 import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
 import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
 import { fetchHorizonForArea } from "../libraries/kosherZmanim/horizon-client.js";
+import { fetchHazeNormals, fetchHazeForecast } from "../libraries/kosherZmanim/open-meteo-haze.js";
+import { fetchLightPollution } from "../libraries/light-pollution-client.js";
 
 /** Root of the refraction server; its API lives under `${REFRACTION_SERVER}/v1/...`. */
 export const REFRACTION_SERVER = "https://hanetz.royzmanim.com/selfhost";
@@ -37,6 +41,10 @@ export const FORECAST_TTL_MS = 3 * 60 * 60 * 1000;
 export const FORECAST_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 /** Days stored from yesterday on (Open-Meteo covers ~16, the server's profiles ~31). */
 const FORECAST_DAYS = 33;
+/** The haze forecast (CAMS, two runs a day) is fetched again after this. */
+export const HAZE_TTL_MS = 6 * 60 * 60 * 1000;
+/** Monthly haze averages are rebuilt after this (the archive grows by a year). */
+const HAZE_NORMALS_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000;
 /** Places kept in localStorage (a vantage horizon set alone can be a few hundred KB). */
 const MAX_LOCATIONS = 3;
 
@@ -60,6 +68,13 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
 /** @typedef {import("./refraction-snapshot.js").Horizon} Horizon */
 /** @typedef {import("./refraction-snapshot.js").Normals} Normals */
 /** @typedef {import("./refraction-snapshot.js").ProviderSnapshot} ProviderSnapshot */
+/** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeData} HazeData */
+/**
+ * What is stored for a place's haze.
+ * @typedef {{ monthly: number[], reference: number, normalsRange: [string, string], source: string,
+ *             normalsFetchedAt: number, blpCdM2: number | null, evenings: Record<string, number>,
+ *             forecastFetchedAt: number | null }} StoredHaze
+ */
 
 // Re-exported so main-thread code has one import
 export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./refraction-snapshot.js";
@@ -71,6 +86,7 @@ export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./r
  * @property {Horizon | null} horizon
  * @property {Normals | null} normals
  * @property {CachedForecast | null} forecast  null when none, or older than FORECAST_MAX_AGE_MS
+ * @property {HazeData | null} haze            null when none stored
  */
 
 /**
@@ -81,6 +97,8 @@ export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./r
  * @property {number | null} forecastFetchedAt when the forecast behind `provider` was downloaded (epoch ms);
  *   null = no forecast (normals only). Compare it to tell whether data actually changed.
  * @property {boolean} fromCache            true = no forecast request was made
+ * @property {HazeData | null} haze          evening haze + light pollution for nightfall by the stars
+ *   (ZemanimConfig.haze); null when it could not be had
  * @property {string[]} notes               what could not be loaded, for logging
  */
 
@@ -101,6 +119,8 @@ const placeId = (lat, lon) => `${lat.toFixed(5)},${lon.toFixed(5)}`;
 const staticKey = (id) => `refraction:v${CACHE_VERSION}:${id}:${TERRAIN_VERSION}`;
 /** @param {string} id */
 const forecastKey = (id) => `refraction:v${CACHE_VERSION}:${id}:forecast`;
+/** @param {string} id */
+const hazeKey = (id) => `refraction:v${CACHE_VERSION}:${id}:haze`;
 
 /** @param {Storage} storage @param {string} key */
 function readJSON(storage, key) {
@@ -133,7 +153,7 @@ function sweepOldEntries(storage) {
 			const key = storage.key(i);
 			if (!key || !/^refraction:v\d+:/.test(key)) continue;
 			const stale = !key.startsWith(current)
-				|| (!key.endsWith(":forecast") && key !== INDEX_KEY && !key.endsWith(`:${TERRAIN_VERSION}`));
+				|| (!key.endsWith(":forecast") && !key.endsWith(":haze") && key !== INDEX_KEY && !key.endsWith(`:${TERRAIN_VERSION}`));
 			if (stale) storage.removeItem(key);
 		}
 	} catch { /* best-effort */ }
@@ -144,6 +164,7 @@ function removePlace(storage, id) {
 	try {
 		storage.removeItem(staticKey(id));
 		storage.removeItem(forecastKey(id));
+		storage.removeItem(hazeKey(id));
 	} catch { /* nothing to do */ }
 }
 
@@ -190,8 +211,57 @@ export function readCachedRefraction(lat, lon) {
 	if (!forecast || typeof forecast.fetchedAt !== "number" || !forecast.table
 		|| Date.now() - forecast.fetchedAt > FORECAST_MAX_AGE_MS)
 		forecast = null;
-	if (!stat && !forecast) return null;
-	return { horizon: stat?.horizon ?? null, normals: stat?.normals ?? null, forecast };
+	const haze = hazeFromStored(readJSON(storage, hazeKey(id)));
+	if (!stat && !forecast && !haze) return null;
+	return { horizon: stat?.horizon ?? null, normals: stat?.normals ?? null, forecast, haze };
+}
+
+/**
+ * HazeData from what is stored (the forecast part only while it is under FORECAST_MAX_AGE_MS old).
+ * @param {StoredHaze | null} st @returns {HazeData | null}
+ */
+function hazeFromStored(st) {
+	if (!st || !Array.isArray(st.monthly) || st.monthly.length !== 12 || !Number.isFinite(st.reference)) return null;
+	const fresh = st.forecastFetchedAt != null && Date.now() - st.forecastFetchedAt < FORECAST_MAX_AGE_MS;
+	return {
+		monthly: st.monthly, reference: st.reference, normalsRange: st.normalsRange, source: st.source,
+		blpCdM2: st.blpCdM2 ?? null,
+		evenings: fresh ? st.evenings ?? {} : {},
+		forecastFetchedAt: fresh ? st.forecastFetchedAt : null,
+	};
+}
+
+/**
+ * Haze for a place: stored parts reused while fresh, the rest fetched. Never throws.
+ * @param {number} lat @param {number} lon @param {string} serverUrl @param {string[]} notes
+ * @param {{ force?: boolean, signal?: AbortSignal }} options
+ * @returns {Promise<HazeData | null>}
+ */
+async function loadHaze(lat, lon, serverUrl, notes, options) {
+	const storage = getStorage(), id = placeId(lat, lon);
+	/** @type {StoredHaze | null} */
+	const st = storage ? readJSON(storage, hazeKey(id)) : null;
+	const now = Date.now();
+	const normalsOk = st && Array.isArray(st.monthly) && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
+	const forecastOk = !options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS;
+	const [normals, evenings, blp] = await Promise.all([
+		normalsOk ? null : fetchHazeNormals(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze normals: ${e.message}`); return null; }),
+		forecastOk ? null : fetchHazeForecast(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze forecast: ${e.message}`); return null; }),
+		st?.blpCdM2 != null ? null : fetchLightPollution(serverUrl, lat, lon, { signal: options.signal })
+			.then(lp => lp.blpCdM2).catch((/** @type {Error} */ e) => { notes.push(`light pollution: ${e.message}`); return null; }),
+	]);
+	const base = normals ?? (st && Array.isArray(st.monthly) ? st : null);
+	if (!base) return null;
+	/** @type {StoredHaze} */
+	const out = {
+		monthly: base.monthly, reference: base.reference, normalsRange: base.normalsRange, source: base.source,
+		normalsFetchedAt: normals ? now : /** @type {StoredHaze} */ (st).normalsFetchedAt,
+		blpCdM2: blp ?? st?.blpCdM2 ?? null,
+		evenings: evenings ?? st?.evenings ?? {},
+		forecastFetchedAt: evenings ? now : st?.forecastFetchedAt ?? null,
+	};
+	if (normals || evenings || blp != null) writeForPlace(id, hazeKey(id), out);
+	return hazeFromStored(out);
 }
 
 /**
@@ -236,7 +306,7 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  *
  * @param {number} lat @param {number} lon
  * @param {{ serverUrl?: string, prefetch?: { from: Temporal.PlainDate, days: number }, force?: boolean, moon?: boolean,
- *           signal?: AbortSignal, humidity?: boolean }} [options]
+ *           signal?: AbortSignal, humidity?: boolean, haze?: boolean }} [options]
  *   prefetch: also load the server's climatology for this range (e.g. a yearly print). Only the server
  *     is asked for it: a fresh stored forecast still saves the Open-Meteo download.
  *   force: ignore the stored forecast and fetch.
@@ -244,6 +314,7 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  *     without it is fetched again once; if that fails, the stored one is kept (the sun still has it).
  *   humidity: also fetch dew points / relative humidity (for ZemanimConfig.humidity). A stored forecast
  *     or normals without them are fetched again once; if that fails, the stored ones are used dry.
+ *   haze: load the haze data (default true; false skips it and `haze` comes back null).
  * @returns {Promise<RefractionData>}
  */
 export async function loadRefraction(lat, lon, options = {}) {
@@ -256,6 +327,9 @@ export async function loadRefraction(lat, lon, options = {}) {
 	const usableNormals = options.humidity && cached?.normals && !cached.normals.sunriseDewC ? null : cached?.normals ?? null;
 	/** @type {string[]} */
 	const notes = [];
+	/** @type {Promise<HazeData | null>} */
+	const hazeP = options.haze === false ? Promise.resolve(null)
+		: loadHaze(lat, lon, serverUrl, notes, { force: options.force, signal: options.signal });
 
 	/** @type {Promise<Horizon | null>} */
 	const horizonP = cached?.horizon && (!options.moon || cached.horizon.moon)
@@ -291,6 +365,7 @@ export async function loadRefraction(lat, lon, options = {}) {
 			horizon, normals,
 			forecastFetchedAt: freshForecast.fetchedAt,
 			fromCache: true,
+			haze: await hazeP,
 			notes
 		};
 	}
@@ -335,9 +410,10 @@ export async function loadRefraction(lat, lon, options = {}) {
 			horizon, normals,
 			forecastFetchedAt: cached.forecast.fetchedAt,
 			fromCache: true,
+			haze: await hazeP,
 			notes
 		};
 	}
 
-	return { provider, horizon, normals, forecastFetchedAt: gotForecast ? fetchedAt : null, fromCache: false, notes };
+	return { provider, horizon, normals, forecastFetchedAt: gotForecast ? fetchedAt : null, fromCache: false, haze: await hazeP, notes };
 }

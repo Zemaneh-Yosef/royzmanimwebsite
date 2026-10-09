@@ -5,7 +5,7 @@
  * weeklyPrint/print-export-url-param.js:
  *
  *   const { refraction, refractionInit } = await loadPrintRefraction(geo, firstDate, lastDate);
- *   new ZemanFunctions(geo, { ...config, atmosphereProvider: refraction.provider, horizon: refraction.horizon });
+ *   new ZemanFunctions(geo, { ...config, atmosphereProvider: refraction.provider, horizon: refraction.horizon, haze: refraction.haze });
  *   worker.postMessage(refractionInit);   // once per worker, before its first job
  *   ...workers report { sunriseOffsets } (visible minus sea-level sunrise, ms, per ISO date)...
  *   fillVisibleSunriseTable(vsTable, offsets, firstDate, lastDate, refraction.horizon, locale);
@@ -23,6 +23,7 @@ import { loadRefraction, snapshotProvider } from "../refraction-data.js";
 	table: import('../refraction-snapshot.js').ProviderSnapshot;
 	normals: import('../refraction-snapshot.js').Normals | null;
 	horizon: import('../refraction-snapshot.js').Horizon | null;
+	haze?: import('../../libraries/kosherZmanim/star-nightfall.js').HazeData | null;
   }} RefractionInit */
 
 /** Holiday boxes and "next Shabbat" lookups reach a little outside the printed range. */
@@ -59,7 +60,8 @@ export async function loadPrintRefraction(geoLocation, first, last) {
 			type: "refraction",
 			table: refraction ? snapshotProvider(refraction.provider, geoLocation, from, days) : {},
 			normals: refraction?.normals ?? null,
-			horizon: refraction?.horizon ?? null
+			horizon: refraction?.horizon ?? null,
+			haze: refraction?.haze ?? null
 		}
 	};
 }

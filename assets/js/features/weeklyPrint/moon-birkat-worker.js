@@ -113,9 +113,9 @@ function findMoonUp(events, winStart, winEnd) {
 /**
  * Set by the RefractionInit message, which the page posts before any months.
  * Both stay null if it never comes: then the calculators use their standard-air defaults.
- * @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null }}
+ * @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null, haze: import('../../../libraries/kosherZmanim/star-nightfall.js').HazeData | null }}
  */
-const refraction = { provider: null, horizon: null };
+const refraction = { provider: null, horizon: null, haze: null };
 
 /**
  * @typedef {Object} MoonEvent
@@ -212,6 +212,7 @@ function messageHandler(x) {
 		// Same atmosphere and horizon as the weekly pages, so shkiya / netz here match the printed times
 		atmosphereProvider: refraction.provider,
 		horizon: refraction.horizon,
+		haze: refraction.haze,
 
 		// Rest are unused, so we'll fill them with defaults
 		candleLighting: 0,
@@ -374,6 +375,7 @@ addEventListener('message', async (/** @type {MessageEvent<birkatWorkerParam | R
 	if ('type' in message.data && message.data.type === 'refraction') {
 		refraction.provider = providerFromSnapshot(message.data.table, message.data.normals);
 		refraction.horizon = message.data.horizon;
+		refraction.haze = message.data.haze ?? null;
 		return;
 	}
 

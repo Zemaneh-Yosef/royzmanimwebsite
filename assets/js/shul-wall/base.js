@@ -57,10 +57,11 @@ jCal.setInIsrael(['israel', 'ישראל'].some(isrName => (geoLocation.getLocati
 // localStorage, so the next reload gets it.
 const lat = geoLocation.getLatitude(), lon = geoLocation.getLongitude();
 const cachedRefraction = readCachedRefraction(lat, lon);
-/** @type {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon'>} */
+/** @type {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} */
 let refraction = {
 	atmosphereProvider: providerFromCache(cachedRefraction),
-	horizon: cachedRefraction?.horizon ?? null
+	horizon: cachedRefraction?.horizon ?? null,
+	haze: cachedRefraction?.haze ?? null
 };
 
 /** @type {import("../refraction-data.js").RefractionData | null} */
@@ -71,7 +72,7 @@ const freshRefraction = await Promise.race([
 if (freshRefraction) {
 	if (freshRefraction.notes.length)
 		console.info("Refraction:", freshRefraction.notes);
-	refraction = { atmosphereProvider: freshRefraction.provider, horizon: freshRefraction.horizon };
+	refraction = { atmosphereProvider: freshRefraction.provider, horizon: freshRefraction.horizon, haze: freshRefraction.haze };
 }
 
 const zmanCalc = new ZemanFunctions(geoLocation, {
@@ -82,7 +83,8 @@ const zmanCalc = new ZemanFunctions(geoLocation, {
 	melakha: scheduleSettings.customTimes.tzeithIssurMelakha,
 	// getNetz() now ray-traces the visible sunrise from the horizon (replaces the ChaiTables 'ctNetz' data)
 	atmosphereProvider: refraction.atmosphereProvider,
-	horizon: refraction.horizon
+	horizon: refraction.horizon,
+	haze: refraction.haze
 })
 zmanCalc.setDate(currentZDT.toPlainDate());
 

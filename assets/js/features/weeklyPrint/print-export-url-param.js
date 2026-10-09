@@ -201,7 +201,8 @@ const refractionInit = {
 	type: "refraction",
 	table: snapshotProvider(refraction.provider, geoLocation, snapshotStart, snapshotDays),
 	normals: refraction.normals,
-	horizon: refraction.horizon
+	horizon: refraction.horizon,
+	haze: refraction.haze
 };
 
 // The moon workers take the same message as the weekly ones
@@ -353,7 +354,8 @@ if (fundamentalTable) {
 			candleLighting: settings.customTimes.candleLighting(),
 			rtKulah: settings.calendarToggle.rtKulah(),
 			atmosphereProvider: refraction.provider,
-			horizon: refraction.horizon
+			horizon: refraction.horizon,
+			haze: refraction.haze
 		});
 
 		const winterSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 12 }))

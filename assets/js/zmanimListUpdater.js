@@ -222,7 +222,8 @@ export default class zmanimListUpdater {
 		this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
 		this._setupZmanCalc({
 			atmosphereProvider: providerFromCache(cached),
-			horizon: cached?.horizon ?? null
+			horizon: cached?.horizon ?? null,
+			haze: cached?.haze ?? null
 		});
 		this._updateLocationDisplay();
 		this._setupLocaleFormat();
@@ -274,8 +275,11 @@ export default class zmanimListUpdater {
 		this.refraction = data;
 
 		// Same forecast and horizon as on screen (the usual case on a reload): nothing to redo
+		const shownHaze = this.zmanCalc.config.haze ?? null;
 		const changed = data.forecastFetchedAt !== this._shownForecastAt
-			|| !!data.horizon !== !!this.zmanCalc.config.horizon;
+			|| !!data.horizon !== !!this.zmanCalc.config.horizon
+			|| !!data.haze !== !!shownHaze
+			|| (data.haze?.forecastFetchedAt ?? null) !== (shownHaze?.forecastFetchedAt ?? null);
 		if (changed)
 			this._applyRefraction();
 
@@ -299,7 +303,8 @@ export default class zmanimListUpdater {
 		this._shownForecastAt = this.refraction.forecastFetchedAt;
 		this._setupZmanCalc({
 			atmosphereProvider: this.refraction.provider,
-			horizon: this.refraction.horizon
+			horizon: this.refraction.horizon,
+			haze: this.refraction.haze
 		}, this.zmanCalc.config);
 		this.setNextUpcomingZman();
 		this.changeDate(selectedDate);
@@ -331,7 +336,7 @@ export default class zmanimListUpdater {
 
 	/**
 	 * Initialise ZemanFunctions for the current geoLocation.
-	 * @param {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon'>} refraction
+	 * @param {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} refraction
 	 * @param {import("./ROYZmanim.js").ZemanimConfig} [replacing] the config this one replaces for the SAME
 	 *   place: its visible sunrises stay on screen until the worker computes the new ones
 	 * @private
@@ -362,7 +367,8 @@ export default class zmanimListUpdater {
 			candleLighting: settings.customTimes.candleLighting(),
 			melakha: settings.customTimes.tzeithIssurMelakha(),
 			atmosphereProvider: refraction.atmosphereProvider,
-			horizon: refraction.horizon
+			horizon: refraction.horizon,
+			haze: refraction.haze ?? null
 		};
 		if (this.netzWorker && refraction.horizon) {
 			const netzWorker = this.netzWorker;
