@@ -21,14 +21,22 @@
  * it, refreshing once a year. The reference ("average sky") is the mean of the 12 monthly averages, so
  * an uneven number of each month in the archive does not tilt it.
  *
+ * Fallback forecast: NOAA's GEFS-Aerosols (fetchGefsHazeForecast), the US global aerosol forecast -
+ * 0.25 deg, 3-hourly, ~5 days, the same 550 nm optical depth - from NOAA's ERDDAP server (no key; free to
+ * use and redistribute). Used only when Open-Meteo's forecast fails. The normals stay CAMS (ERDDAP keeps
+ * no history), so a GEFS evening is compared with a CAMS average: if the two models differ on average,
+ * the delay carries that difference on those days.
+ *
  * Terms as open-meteo-atmosphere.js: non-commercial use, credit "Weather data by Open-Meteo.com" (CC BY
- * 4.0); CAMS data: Copernicus Atmosphere Monitoring Service.
+ * 4.0); CAMS data: Copernicus Atmosphere Monitoring Service. GEFS-Aerosols: NOAA/NCEP.
  */
 
 import { getOpenMeteoJson } from './open-meteo-atmosphere.js';
 import { eveningSunAt } from './star-nightfall.js';
 
 const AQ_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality';
+/** NOAA AOML's ERDDAP copy of the latest GEFS-Aerosols run (aerosol optical thickness at 550 nm) */
+export const GEFS_AEROSOL_URL = 'https://oceanwatch.aoml.noaa.gov/erddap/griddap/GEFS_Aerosols_bfd8_ee31_ed8b.json';
 export const HAZE_HISTORY_START = '2022-08-01';
 /** the Sun's altitude (deg) at which the evening's haze is read */
 export const HAZE_SUN_ALT = -7;
@@ -48,11 +56,19 @@ function valueAt(times, values, t) {
 const isoOf = d => d.toISOString().slice(0, 10);
 
 /**
- * Evening aerosol optical depth per date over the series.
+ * Evening aerosol optical depth per date over an Open-Meteo hourly series.
  * @param {any} j Open-Meteo JSON @param {number} lat @param {number} lon @returns {Record<string, number>}
  */
 function evenings(j, lat, lon) {
-	const times = j?.hourly?.time ?? [], vals = j?.hourly?.aerosol_optical_depth ?? [];
+	return eveningsOf(j?.hourly?.time ?? [], j?.hourly?.aerosol_optical_depth ?? [], lat, lon);
+}
+
+/**
+ * Evening aerosol optical depth per date over a regular series.
+ * @param {number[]} times unix s, evenly spaced @param {(number | null)[]} vals @param {number} lat @param {number} lon
+ * @returns {Record<string, number>}
+ */
+function eveningsOf(times, vals, lat, lon) {
 	/** @type {Record<string, number>} */
 	const out = {};
 	if (!times.length) return out;
@@ -109,4 +125,48 @@ export async function fetchHazeForecast(latitude, longitude, options = {}) {
 		+ `&hourly=aerosol_optical_depth&past_days=1&forecast_days=${Math.min(7, Math.max(1, options.days ?? 7))}`
 		+ '&timeformat=unixtime&timezone=GMT' + (options.extraParams ?? '');
 	return evenings(await getOpenMeteoJson(doFetch, url, { retries: options.retries ?? 1 }), latitude, longitude);
+}
+
+/**
+ * Forecast evening haze from NOAA's GEFS-Aerosols (the fallback; see the header), same shape as
+ * fetchHazeForecast. The latest run's ~41 three-hourly values at the nearest 0.25 deg point.
+ * @param {number} latitude @param {number} longitude
+ * @param {{ fetch?: typeof fetch, url?: string, retries?: number }} [options]
+ *   url: the dataset's .json address (default GEFS_AEROSOL_URL), e.g. a same-origin proxy of it if a
+ *   browser may not call NOAA's server directly.
+ * @returns {Promise<Record<string, number>>} aerosol optical depth by ISO date
+ */
+export async function fetchGefsHazeForecast(latitude, longitude, options = {}) {
+	const doFetch = options.fetch ?? globalThis.fetch;
+	const lat = Math.round(latitude * 4) / 4, lon = ((Math.round(longitude * 4) / 4) % 360 + 360) % 360;
+	const url = `${options.url ?? GEFS_AEROSOL_URL}?AOTK_entireatmosphere%5B0:1:last%5D%5B(${lat})%5D%5B(${lon})%5D`;
+	const retries = options.retries ?? 1;
+	/** @type {any} */ let j = null;
+	for (let attempt = 0; ; attempt++) {
+		try {
+			const r = await doFetch(url);
+			if (!r.ok) throw new Error(`GEFS-Aerosols request failed (HTTP ${r.status})`);
+			j = await r.json();
+			break;
+		} catch (e) {
+			if (attempt >= retries) throw e;
+			await new Promise(res => setTimeout(res, 2000 * (attempt + 1)));
+		}
+	}
+	const cols = j?.table?.columnNames ?? [], rows = j?.table?.rows ?? [];
+	const it = cols.indexOf('time'), iv = cols.indexOf('AOTK_entireatmosphere');
+	if (it < 0 || iv < 0 || rows.length < 2) throw new Error('GEFS-Aerosols returned no data');
+	const pts = rows.map((/** @type {any[]} */ r) => [Date.parse(r[it]) / 1000, r[iv]]).filter((/** @type {any[]} */ q) => Number.isFinite(q[0]))
+		.sort((/** @type {number[]} */ a, /** @type {number[]} */ b) => a[0] - b[0]);
+	// onto an even hourly grid (the interpolation assumes even spacing)
+	const t0 = pts[0][0], t1 = pts[pts.length - 1][0];
+	/** @type {number[]} */ const times = [];
+	/** @type {(number | null)[]} */ const vals = [];
+	for (let t = t0, k = 0; t <= t1; t += 3600) {
+		while (k < pts.length - 2 && pts[k + 1][0] <= t) k++;
+		const [ta, va] = pts[k], [tb, vb] = pts[k + 1];
+		times.push(t);
+		vals.push(Number.isFinite(va) && Number.isFinite(vb) ? va + (vb - va) * (t - ta) / (tb - ta) : null);
+	}
+	return eveningsOf(times, vals, latitude, longitude);
 }

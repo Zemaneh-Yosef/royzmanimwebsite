@@ -29,7 +29,7 @@ import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHa
 import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
 import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
 import { fetchHorizonForArea } from "../libraries/kosherZmanim/horizon-client.js";
-import { fetchHazeNormals, fetchHazeForecast } from "../libraries/kosherZmanim/open-meteo-haze.js";
+import { fetchHazeNormals, fetchHazeForecast, fetchGefsHazeForecast } from "../libraries/kosherZmanim/open-meteo-haze.js";
 import { fetchLightPollution } from "../libraries/light-pollution-client.js";
 
 /** Root of the refraction server; its API lives under `${REFRACTION_SERVER}/v1/...`. */
@@ -73,7 +73,7 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
  * What is stored for a place's haze.
  * @typedef {{ monthly: number[], reference: number, normalsRange: [string, string], source: string,
  *             normalsFetchedAt: number, blpCdM2: number | null, evenings: Record<string, number>,
- *             forecastFetchedAt: number | null }} StoredHaze
+ *             forecastFetchedAt: number | null, forecastSource?: string }} StoredHaze
  */
 
 // Re-exported so main-thread code has one import
@@ -228,6 +228,7 @@ function hazeFromStored(st) {
 		blpCdM2: st.blpCdM2 ?? null,
 		evenings: fresh ? st.evenings ?? {} : {},
 		forecastFetchedAt: fresh ? st.forecastFetchedAt : null,
+		...(fresh && st.forecastSource ? { forecastSource: st.forecastSource } : {}),
 	};
 }
 
@@ -246,7 +247,14 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 	const forecastOk = !options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS;
 	const [normals, evenings, blp] = await Promise.all([
 		normalsOk ? null : fetchHazeNormals(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze normals: ${e.message}`); return null; }),
-		forecastOk ? null : fetchHazeForecast(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze forecast: ${e.message}`); return null; }),
+		forecastOk ? null : fetchHazeForecast(lat, lon)
+			.then(ev => ({ ev, src: "cams" }))
+			// Open-Meteo down: NOAA's GEFS-Aerosols forecast instead
+			.catch((/** @type {Error} */ e) => {
+				notes.push(`haze forecast (Open-Meteo): ${e.message}`);
+				return fetchGefsHazeForecast(lat, lon).then(ev => ({ ev, src: "gefs" }));
+			})
+			.catch((/** @type {Error} */ e) => { notes.push(`haze forecast (NOAA GEFS-Aerosols): ${e.message}`); return null; }),
 		st?.blpCdM2 != null ? null : fetchLightPollution(serverUrl, lat, lon, { signal: options.signal })
 			.then(lp => lp.blpCdM2).catch((/** @type {Error} */ e) => { notes.push(`light pollution: ${e.message}`); return null; }),
 	]);
@@ -257,8 +265,9 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 		monthly: base.monthly, reference: base.reference, normalsRange: base.normalsRange, source: base.source,
 		normalsFetchedAt: normals ? now : /** @type {StoredHaze} */ (st).normalsFetchedAt,
 		blpCdM2: blp ?? st?.blpCdM2 ?? null,
-		evenings: evenings ?? st?.evenings ?? {},
+		evenings: evenings?.ev ?? st?.evenings ?? {},
 		forecastFetchedAt: evenings ? now : st?.forecastFetchedAt ?? null,
+		forecastSource: evenings?.src ?? st?.forecastSource,
 	};
 	if (normals || evenings || blp != null) writeForPlace(id, hazeKey(id), out);
 	return hazeFromStored(out);

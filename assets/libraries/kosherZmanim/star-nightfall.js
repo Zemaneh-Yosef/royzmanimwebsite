@@ -313,10 +313,12 @@ export function hazeDelayMs(date, latDeg, lonDeg, options) {
 // ------------------------------------------------------------------------------------------------
 /**
  * @typedef {{ monthly: number[], reference: number, evenings: Record<string, number>, blpCdM2: number | null,
- *             forecastFetchedAt: number | null, normalsRange: [string, string], source: string }} HazeData
+ *             forecastFetchedAt: number | null, normalsRange: [string, string], source: string,
+ *             forecastSource?: string }} HazeData
  *   monthly: average evening aerosol optical depth (550 nm), January..December. reference: the place's
  *   year-round average (mean of the months): the "average sky". evenings: forecast evening values by ISO
- *   date. blpCdM2: light pollution (the refraction server's blpCdM2), null if unknown.
+ *   date. blpCdM2: light pollution (the refraction server's blpCdM2), null if unknown. forecastSource:
+ *   'cams' (Open-Meteo) or 'gefs' (NOAA GEFS-Aerosols, the fallback).
  */
 
 const MID_MONTH_DOY = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5];
