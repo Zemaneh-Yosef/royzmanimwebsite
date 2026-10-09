@@ -30,7 +30,7 @@
 		}[]}} geoNamesResponse */
 
 import * as leaflet from "../libraries/leaflet/leaflet.js"
-/** @type {ReturnType<leaflet["map"]>} */
+/** @type {leaflet.Map} */
 let leafletInit;
 
 const getJSON = async (/** @type {RequestInfo | URL} */ url) => await (await fetch(url)).json();
