@@ -69,7 +69,9 @@ export default class VisibleSunriseClient {
 			geo: [geoLocation.getLocationName() ?? "", geoLocation.getLatitude(), geoLocation.getLongitude(),
 				geoLocation.getElevation(), geoLocation.getTimeZone()],
 			horizon: config.horizon,
-			visibleOptions: config.visibleOptions
+			visibleOptions: config.visibleOptions,
+			humidity: config.humidity === true,
+			seaSurfaceLayer: config.seaSurfaceLayer === true
 		});
 	}
 

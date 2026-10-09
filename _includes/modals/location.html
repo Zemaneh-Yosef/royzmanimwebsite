@@ -1,29 +1,314 @@
-<div class="modal fade" id="locationModal" tabindex="-1" aria-hidden="true">
-	<div class="modal-dialog">
+<style>
+	/* this site's Bootstrap build has no grid (.row / .col-*), so the modal lays itself out */
+	#locationModal .zf-facts { display: grid; grid-template-columns: minmax(8rem, 38%) 1fr; gap: .3rem 1rem; margin: 0; }
+	#locationModal .zf-facts dt { font-weight: 600; }
+	#locationModal .zf-facts dd { margin: 0; }
+	#locationModal .zf-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+	#locationModal .zf-fields .zf-wide { grid-column: 1 / -1; }
+	@media (max-width: 575.98px) {
+		#locationModal .zf-facts { grid-template-columns: 1fr; gap: 0; }
+		#locationModal .zf-facts dd { margin-bottom: .5rem; }
+	}
+</style>
+<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-lg modal-dialog-scrollable">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h3 class="modal-title"> Location information for <span data-zfReplace="LocationName"></span></h3>
+				<h3 class="modal-title" id="locationModalTitle">
+					<span class="lang lang-hb">מידע על המיקום: </span>
+					<span class="lang lang-et">Location information for </span>
+					<span class="lang lang-en">Location information for </span>
+					<span data-zfReplace="LocationName"></span>
+				</h3>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body">
-				<p>(<span data-zfReplace="locationLat"></span>, <span data-zfReplace="locationLng"></span>)</p>
-                <p class="lang lang-hb">
-                    <b data-zfFind="locationElev">Elevation: </b><span data-zfFind="luachAmudehHoraah"> (disabled outside Eretz Yisrael)</span><br>
-                    <b data-zfFind="locationTimeZone">Timezone: </b>
-                </p>
-                <p class="lang lang-et">
-                    <b data-zfFind="locationElev">Elevation: </b><span data-zfFind="luachAmudehHoraah"> (disabled outside Eretz Yisrael)</span><br>
-                    <b data-zfFind="locationTimeZone">Timezone: </b>
-                </p>
-                <p class="lang lang-en">
-                    <b data-zfFind="locationElev">Elevation: </b><span data-zfFind="luachAmudehHoraah"> (disabled outside Eretz Yisrael)</span><br>
-                    <b data-zfFind="locationTimeZone">Timezone: </b>
-                </p>
-                <div data-zfFind="locationMap" style="width: 100%; aspect-ratio: 1/1;"></div>
-                <hr>
-                <p class="lang lang-hb">כשמתפללים את העמידה, צריך לחזור פניו כנגד ארץ ישראל, ירושלים, המקדש, והבית קדשי הקדשים (ברכות בבלי 30a, לפי מלכים א' 8:35-48 & דברי הימים ב' 6:32). קביעת הכיוון של זה ניתן לעשות דרך שיטת "קו הרומב", ש"מצייר" קו מהמיקום של אדם לנקודה מסוימת (שבמקרה שלנו, זה יהיה הר הבית). לאחר שהקו מצויר, אתה מצופה להתפלל בכיוון שבו הקו מצויר דרך התאמת הכיוון שלך לזווית המעלות שלו (אפשרי דרך מצפן).</p>
-                <p class="lang lang-et">When praying the Amidah, one should direct himself towards Israel, Jerusalem, the temple mount and the Kodesh Hakodashim area (Berakhot Bavli 30a, based on Kings I 8:35-48 & Chronicles II 6:32). Determining which direction that is in can be done through the "Rhumb line" method, which "draws" a line from one's location to a specific point (which in our case, would be the Temple mount). Once the line is drawn, you are expected to pray in the direction the line is drawn in through matching your direction with its degree angle (possible via a compass).</p>
-                <p class="lang lang-en">When praying the Amidah, one should direct himself towards Israel, Jerusalem, the temple mount and the Kodesh Hakodashim area (Berakhot Bavli 30a, based on Kings I 8:35-48 & Chronicles II 6:32). Determining which direction that is in can be done through the "Rhumb line" method, which "draws" a line from one's location to a specific point (which in our case, would be the Temple mount). Once the line is drawn, you are expected to pray in the direction the line is drawn in through matching your direction with its degree angle (possible via a compass).</p>
+			<div class="modal-body pt-2">
+				<ul class="nav nav-tabs nav-fill mb-3" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active" id="locModal-direction-tab" data-bs-toggle="tab" data-bs-target="#locModal-direction" type="button" role="tab" aria-controls="locModal-direction" aria-selected="true">
+							<i class="bi bi-compass"></i>
+							<span class="lang lang-hb">כיוון התפילה</span>
+							<span class="lang lang-et">Prayer Direction</span>
+							<span class="lang lang-en">Prayer Direction</span>
+						</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="locModal-technical-tab" data-bs-toggle="tab" data-bs-target="#locModal-technical" type="button" role="tab" aria-controls="locModal-technical" aria-selected="false">
+							<i class="bi bi-cloud-haze2"></i>
+							<span class="lang lang-hb">נתונים טכניים</span>
+							<span class="lang lang-et">Technical Details</span>
+							<span class="lang lang-en">Technical Details</span>
+						</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="locModal-edit-tab" data-bs-toggle="tab" data-bs-target="#locModal-edit" type="button" role="tab" aria-controls="locModal-edit" aria-selected="false">
+							<i class="bi bi-pencil-square"></i>
+							<span class="lang lang-hb">עריכה</span>
+							<span class="lang lang-et">Edit</span>
+							<span class="lang lang-en">Edit</span>
+						</button>
+					</li>
+				</ul>
+
+				<div class="tab-content">
+					<!-- ── Tab 1: prayer direction and map ─────────────────────────────── -->
+					<div class="tab-pane fade show active" id="locModal-direction" role="tabpanel" aria-labelledby="locModal-direction-tab" tabindex="0">
+						<div class="d-flex align-items-center gap-3 mb-3">
+							<svg data-zfFind="locationCompass" viewBox="-50 -50 100 100" width="96" height="96" class="flex-shrink-0" role="img" aria-hidden="true">
+								<circle r="46" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2"></circle>
+								<g stroke="currentColor" stroke-opacity=".5" stroke-width="2">
+									<line y1="-46" y2="-38"></line><line y1="46" y2="38"></line>
+									<line x1="-46" x2="-38"></line><line x1="46" x2="38"></line>
+								</g>
+								<text y="-27" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="currentColor">N</text>
+								<g data-zfFind="locationCompassNeedle">
+									<path d="M0,-36 L7,4 L0,-2 L-7,4 Z" fill="var(--bs-danger, #dc3545)"></path>
+									<path d="M0,22 L5,4 L0,8 L-5,4 Z" fill="currentColor" fill-opacity=".35"></path>
+								</g>
+								<circle r="3.5" fill="currentColor"></circle>
+							</svg>
+							<div>
+								<div class="text-body-secondary small">
+									<span class="lang lang-hb">יש לפנות בתפילה לכיוון</span>
+									<span class="lang lang-et">Face towards</span>
+									<span class="lang lang-en">Face towards</span>
+								</div>
+								<div class="fs-2 fw-bold lh-1 my-1">
+									<span data-zfReplace="locationBearing"></span>
+									<span class="fs-5 fw-normal text-body-secondary" data-zfReplace="locationBearingCardinal"></span>
+								</div>
+								<div class="small text-body-secondary">
+									<span class="lang lang-hb">מרחק עד הר הבית (קו רומב): </span>
+									<span class="lang lang-et">Distance to Har HaBayith (rhumb line): </span>
+									<span class="lang lang-en">Distance to the Temple Mount (rhumb line): </span>
+									<span data-zfReplace="locationDistance"></span>
+								</div>
+							</div>
+						</div>
+
+						<div data-zfFind="locationMap" class="rounded overflow-hidden" style="width: 100%; aspect-ratio: 1/1; max-height: 60vh;"></div>
+
+						<hr>
+						<p class="lang lang-hb">כשמתפללים את העמידה, צריך לחזור פניו כנגד ארץ ישראל, ירושלים, המקדש, והבית קדשי הקדשים (ברכות בבלי 30a, לפי מלכים א' 8:35-48 & דברי הימים ב' 6:32). קביעת הכיוון של זה ניתן לעשות דרך שיטת "קו הרומב", ש"מצייר" קו מהמיקום של אדם לנקודה מסוימת (שבמקרה שלנו, זה יהיה הר הבית). לאחר שהקו מצויר, אתה מצופה להתפלל בכיוון שבו הקו מצויר דרך התאמת הכיוון שלך לזווית המעלות שלו (אפשרי דרך מצפן).</p>
+						<p class="lang lang-et">When praying the Amidah, one should direct himself towards Israel, Jerusalem, the temple mount and the Kodesh Hakodashim area (Berakhot Bavli 30a, based on Kings I 8:35-48 &amp; Chronicles II 6:32). Determining which direction that is in can be done through the "Rhumb line" method, which "draws" a line from one's location to a specific point (which in our case, would be the Temple mount). Once the line is drawn, you are expected to pray in the direction the line is drawn in through matching your direction with its degree angle (possible via a compass).</p>
+						<p class="lang lang-en">When praying the Amidah, one should direct himself towards Israel, Jerusalem, the temple mount and the Kodesh Hakodashim area (Berakhot Bavli 30a, based on Kings I 8:35-48 &amp; Chronicles II 6:32). Determining which direction that is in can be done through the "Rhumb line" method, which "draws" a line from one's location to a specific point (which in our case, would be the Temple mount). Once the line is drawn, you are expected to pray in the direction the line is drawn in through matching your direction with its degree angle (possible via a compass).</p>
+					</div>
+
+					<!-- ── Tab 2: technical details ────────────────────────────────────── -->
+					<div class="tab-pane fade" id="locModal-technical" role="tabpanel" aria-labelledby="locModal-technical-tab" tabindex="0">
+						<h5 class="mb-2">
+							<span class="lang lang-hb">מיקום</span>
+							<span class="lang lang-et">Location</span>
+							<span class="lang lang-en">Location</span>
+						</h5>
+						<dl class="zf-facts small">
+							<dt>
+								<span class="lang lang-hb">קו רוחב, קו אורך</span>
+								<span class="lang lang-et">Latitude, longitude</span>
+								<span class="lang lang-en">Latitude, longitude</span>
+							</dt>
+							<dd dir="ltr"><span data-zfReplace="locationLat"></span>, <span data-zfReplace="locationLng"></span></dd>
+
+							<dt>
+								<span class="lang lang-hb">גובה</span>
+								<span class="lang lang-et">Elevation</span>
+								<span class="lang lang-en">Elevation</span>
+							</dt>
+							<dd>
+								<span data-zfReplace="locationElev" dir="ltr"></span>
+								<span class="lang lang-hb"><span data-zfFind="luachAmudehHoraah" class="text-body-secondary"> (לא בשימוש מחוץ לארץ ישראל)</span></span>
+								<span class="lang lang-et"><span data-zfFind="luachAmudehHoraah" class="text-body-secondary"> (disabled outside Eretz Yisrael)</span></span>
+								<span class="lang lang-en"><span data-zfFind="luachAmudehHoraah" class="text-body-secondary"> (disabled outside Israel)</span></span>
+							</dd>
+
+							<dt>
+								<span class="lang lang-hb">גובה הקרקע (שרת)</span>
+								<span class="lang lang-et">Ground height (server)</span>
+								<span class="lang lang-en">Ground height (server)</span>
+							</dt>
+							<dd data-zfReplace="locationGroundHeight" dir="ltr"></dd>
+
+							<dt>
+								<span class="lang lang-hb">אזור זמן</span>
+								<span class="lang lang-et">Timezone</span>
+								<span class="lang lang-en">Timezone</span>
+							</dt>
+							<dd data-zfReplace="locationTimeZone" dir="ltr"></dd>
+						</dl>
+
+						<!-- Climate, haze, humidity, light pollution and the rest, rendered by location-modal.js -->
+						<div data-zfFind="locationTechnical"></div>
+					</div>
+
+					<!-- ── Tab 3: edit ─────────────────────────────────────────────────── -->
+					<div class="tab-pane fade" id="locModal-edit" role="tabpanel" aria-labelledby="locModal-edit-tab" tabindex="0">
+						<form data-zfFind="locationEditForm" novalidate>
+							<h5 class="mb-2">
+								<span class="lang lang-hb">מיקום</span>
+								<span class="lang lang-et">Location</span>
+								<span class="lang lang-en">Location</span>
+							</h5>
+							<div class="zf-fields">
+								<div class="zf-wide">
+									<label class="form-label small mb-1" for="locModal-name">
+										<span class="lang lang-hb">שם המקום</span>
+										<span class="lang lang-et">Location name</span>
+										<span class="lang lang-en">Location name</span>
+									</label>
+									<input type="text" class="form-control" id="locModal-name" name="locationName" autocomplete="off">
+									<div class="form-text">
+										<span class="lang lang-hb">שם שכולל "ישראל" מפעיל את לוח ארץ ישראל (אור החיים, גובה).</span>
+										<span class="lang lang-et">A name containing "Israel" switches to the Eretz Yisrael luaḥ (Ohr HaḤaim, elevation).</span>
+										<span class="lang lang-en">A name containing "Israel" switches to the Israel calendar (Ohr HaChaim, elevation).</span>
+									</div>
+								</div>
+								<div>
+									<label class="form-label small mb-1" for="locModal-lat">
+										<span class="lang lang-hb">קו רוחב</span>
+										<span class="lang lang-et">Latitude</span>
+										<span class="lang lang-en">Latitude</span>
+									</label>
+									<input type="number" class="form-control" id="locModal-lat" name="lat" min="-90" max="90" step="any" required dir="ltr">
+								</div>
+								<div>
+									<label class="form-label small mb-1" for="locModal-long">
+										<span class="lang lang-hb">קו אורך</span>
+										<span class="lang lang-et">Longitude</span>
+										<span class="lang lang-en">Longitude</span>
+									</label>
+									<input type="number" class="form-control" id="locModal-long" name="long" min="-180" max="180" step="any" required dir="ltr">
+								</div>
+								<div>
+									<label class="form-label small mb-1" for="locModal-elevation">
+										<span class="lang lang-hb">גובה (מטרים)</span>
+										<span class="lang lang-et">Elevation (metres)</span>
+										<span class="lang lang-en">Elevation (meters)</span>
+									</label>
+									<div class="input-group">
+										<input type="number" class="form-control" id="locModal-elevation" name="elevation" step="any" dir="ltr">
+										<button class="btn btn-outline-secondary" type="button" data-zfFind="locationUseGround" disabled>
+											<span class="lang lang-hb">גובה הקרקע</span>
+											<span class="lang lang-et">Use ground</span>
+											<span class="lang lang-en">Use ground</span>
+										</button>
+									</div>
+								</div>
+								<div>
+									<label class="form-label small mb-1" for="locModal-timeZone">
+										<span class="lang lang-hb">אזור זמן</span>
+										<span class="lang lang-et">Timezone</span>
+										<span class="lang lang-en">Timezone</span>
+									</label>
+									<input type="text" class="form-control" id="locModal-timeZone" name="timeZone" list="locModal-timeZones" autocomplete="off" required dir="ltr">
+									<datalist id="locModal-timeZones"></datalist>
+								</div>
+							</div>
+							<div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+								<button type="submit" class="btn btn-primary">
+									<span class="lang lang-hb">פתח לוח למיקום זה</span>
+									<span class="lang lang-et">Open calendar for this location</span>
+									<span class="lang lang-en">Open calendar for this location</span>
+								</button>
+								<span class="small text-danger" data-zfFind="locationEditError" role="alert"></span>
+							</div>
+						</form>
+
+						<hr>
+
+						<form data-zfFind="atmosphereEditForm" novalidate>
+							<h5 class="mb-2">
+								<span class="lang lang-hb">מודל האטמוספרה</span>
+								<span class="lang lang-et">Atmosphere model</span>
+								<span class="lang lang-en">Atmosphere model</span>
+							</h5>
+
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" role="switch" id="locModal-hazeTzet" name="hazeTzet">
+								<label class="form-check-label" for="locModal-hazeTzet">
+									<span class="lang lang-hb">התאמת צאת הכוכבים לפי האובך</span>
+									<span class="lang lang-et">Adjust Tzet by degrees for haze</span>
+									<span class="lang lang-en">Adjust nightfall by degrees for haze</span>
+								</label>
+								<div class="form-text mt-0">
+									<span class="lang lang-hb">ערב אובך יותר מהממוצע מאחר את הצאת, ערב צלול מקדים אותו.</span>
+									<span class="lang lang-et">A hazier evening than the place's average moves Tzet later; a clearer one, earlier.</span>
+									<span class="lang lang-en">A hazier evening than the place's average moves nightfall later; a clearer one, earlier.</span>
+								</div>
+							</div>
+
+							<div class="d-flex flex-wrap align-items-center gap-2 ms-4 mt-1 mb-2">
+								<div>
+									<label class="small" for="locModal-hazeMaxDelay">
+										<span class="lang lang-hb">הזזה מרבית (דקות)</span>
+										<span class="lang lang-et">Largest shift (minutes)</span>
+										<span class="lang lang-en">Largest shift (minutes)</span>
+									</label>
+								</div>
+								<div>
+									<input type="number" class="form-control form-control-sm" id="locModal-hazeMaxDelay" name="hazeMaxDelay" min="0" max="120" step="1" style="width: 6em;" dir="ltr">
+								</div>
+								<div>
+									<div class="form-check mb-0">
+										<input class="form-check-input" type="checkbox" id="locModal-hazeNoCap" name="hazeNoCap">
+										<label class="form-check-label small" for="locModal-hazeNoCap">
+											<span class="lang lang-hb">ללא הגבלה</span>
+											<span class="lang lang-et">No limit</span>
+											<span class="lang lang-en">No limit</span>
+										</label>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" role="switch" id="locModal-humidity" name="humidity">
+								<label class="form-check-label" for="locModal-humidity">
+									<span class="lang lang-hb">לחות (אדי מים) בחישוב השבירה</span>
+									<span class="lang lang-et">Humidity (water vapour) in the refraction</span>
+									<span class="lang lang-en">Humidity (water vapor) in the refraction</span>
+								</label>
+								<div class="form-text mt-0">
+									<span class="lang lang-hb">משנה את הזריחה והשקיעה בשניות ספורות לכל היותר.</span>
+									<span class="lang lang-et">Moves sunrise and sunset by a few seconds at most.</span>
+									<span class="lang lang-en">Moves sunrise and sunset by a few seconds at most.</span>
+								</div>
+							</div>
+
+							<div class="form-check form-switch mt-2">
+								<input class="form-check-input" type="checkbox" role="switch" id="locModal-seaSurfaceLayer" name="seaSurfaceLayer">
+								<label class="form-check-label" for="locModal-seaSurfaceLayer">
+									<span class="lang lang-hb">שכבת פני הים (ניסיוני)</span>
+									<span class="lang lang-et">Sea surface layer (experimental)</span>
+									<span class="lang lang-en">Sea surface layer (experimental)</span>
+								</label>
+								<div class="form-text mt-0">
+									<span class="lang lang-hb">מדמה את האוויר הסמוך למים כשהשמש עולה או שוקעת מעל הים. טרם אומת.</span>
+									<span class="lang lang-et">Models the air just above water when the sun rises or sets over the sea. Not yet validated.</span>
+									<span class="lang lang-en">Models the air just above water when the sun rises or sets over the sea. Not yet validated.</span>
+								</div>
+							</div>
+
+							<div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+								<button type="submit" class="btn btn-primary">
+									<span class="lang lang-hb">שמור</span>
+									<span class="lang lang-et">Save</span>
+									<span class="lang lang-en">Save</span>
+								</button>
+								<button type="button" class="btn btn-outline-secondary" data-zfFind="atmosphereDefaults">
+									<span class="lang lang-hb">ברירת מחדל</span>
+									<span class="lang lang-et">Defaults</span>
+									<span class="lang lang-en">Defaults</span>
+								</button>
+								<button type="button" class="btn btn-outline-secondary" data-zfFind="atmosphereRefresh">
+									<i class="bi bi-arrow-clockwise"></i>
+									<span class="lang lang-hb">רענן תחזית</span>
+									<span class="lang lang-et">Refresh forecast</span>
+									<span class="lang lang-en">Refresh forecast</span>
+								</button>
+								<span class="small text-body-secondary" data-zfFind="atmosphereStatus" role="status"></span>
+							</div>
+						</form>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

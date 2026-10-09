@@ -27,6 +27,8 @@ import { hazeDelayMs, hazeOn } from "../libraries/kosherZmanim/star-nightfall.js
  * @property {boolean} [humidity] include water vapour in the refraction where the atmosphere data carry
  *   humidity (ROYSPACalculator.setHumidity; at most a few seconds). Off unless set; load the data with
  *   loadRefraction(lat, lon, { humidity: true }) so there is humidity to use
+ * @property {boolean} [seaSurfaceLayer] model the sea surface layer over water in path profiles
+ *   (ROYSPACalculator.setSeaSurfaceLayer). Off unless set: unvalidated
  * @property {HazeData | null} [haze] evening haze and light pollution for the place (loadRefraction's
  *   `haze`). With it, Tzet Melakha by degrees moves by the haze delay (see hazeTzet)
  * @property {boolean} [hazeTzet] apply the haze delay to Tzet Melakha by degrees: nightfall by the stars
@@ -135,6 +137,7 @@ function calculatorFor(config, geoLocation) {
 		// not only the visible sunrise.
 		calc.setAtmosphereProvider(config.atmosphereProvider ?? null);
 		calc.setHumidity(config.humidity === true);
+		calc.setSeaSurfaceLayer(config.seaSurfaceLayer === true);
 		calc.configureForLocation(geoLocation);
 		byLatitude.set(latKey, calc);
 	}

@@ -101,6 +101,23 @@ const settings = Object.freeze({
 		// @ts-ignore
 		forceSunSeasonal: () => defaultSettings("forceSunSeasonal") == "true",
 	},
+	/** Atmosphere-model options, edited from the location modal (assets/js/location-modal.js) */
+	refraction: {
+		/** move Tzet Melakha by degrees by the evening's haze (star-visibility nightfall); on by default */
+		hazeTzet: () => defaultSettings("hazeTzet", "true") == "true",
+		/** @returns {number | null} largest haze delay either way in minutes; null = no cap */
+		hazeMaxDelay: () => {
+			const raw = settingsURLOverride("hazeMaxDelay");
+			if (raw == "none")
+				return null;
+			const minutes = parseFloat(raw);
+			return Number.isFinite(minutes) && minutes >= 0 ? minutes : 15;
+		},
+		/** include water vapour in the refraction; off by default */
+		humidity: () => defaultSettings("refrHumidity", "false") == "true",
+		/** model the sea surface layer over water; off by default (unvalidated) */
+		seaSurfaceLayer: () => defaultSettings("seaSurfaceLayer", "false") == "true",
+	},
 	customTimes: {
 		candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
 		tzeithIssurMelakha: () => {
@@ -230,4 +247,24 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
 		localStorage.setItem("zmanimLanguage", zmanimLanguage)
 }
 
-export {settings, handleLanguage}
+/**
+ * Save a setting to localStorage. A URL parameter of the same name would keep overriding it, so it is
+ * dropped from both this page's address and the parameters the settings above read.
+ * @param {string} key
+ * @param {string | null} value null = remove (back to the default)
+ */
+function saveSetting(key, value) {
+	if (value === null)
+		localStorage.removeItem(key);
+	else
+		localStorage.setItem(key, value);
+
+	if (urlParams.has(key)) {
+		urlParams.delete(key);
+		const url = new URL(window.location.href);
+		url.searchParams.delete(key);
+		history.replaceState(history.state, "", url);
+	}
+}
+
+export {settings, handleLanguage, saveSetting}

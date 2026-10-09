@@ -4,7 +4,7 @@
  * (see visible-sunrise-client.js). Imports only the calculator and the worker-safe snapshot helpers.
  *
  * Protocol (all plain data):
- *   → { type: 'init', gen, geo: [name, lat, lon, elevation, tz], horizon, visibleOptions }
+ *   → { type: 'init', gen, geo: [name, lat, lon, elevation, tz], horizon, visibleOptions, humidity, seaSurfaceLayer }
  *   → { type: 'compute', gen, date: 'YYYY-MM-DD', table, priority }   table: ProviderSnapshot around that date
  *   → { type: 'bump', gen, date, priority }                           raise a queued date's priority
  *   ← { gen, date, ms }                                               ms: epoch ms, NaN = not seen / failed
@@ -22,7 +22,7 @@ import { providerFromSnapshot } from "./refraction-snapshot.js";
 /** @typedef {import("./refraction-snapshot.js").ProviderSnapshot} ProviderSnapshot */
 /** @typedef {import("./refraction-snapshot.js").VisibleOptions} VisibleOptions */
 
-/** @typedef {{ type: 'init', gen: number, geo: [string, number, number, number, string], horizon: Horizon, visibleOptions?: VisibleOptions }} InitMessage */
+/** @typedef {{ type: 'init', gen: number, geo: [string, number, number, number, string], horizon: Horizon, visibleOptions?: VisibleOptions, humidity?: boolean, seaSurfaceLayer?: boolean }} InitMessage */
 /** @typedef {{ type: 'compute', gen: number, date: string, table: ProviderSnapshot, priority?: number }} ComputeMessage */
 /** @typedef {{ type: 'bump', gen: number, date: string, priority: number }} BumpMessage */
 /** @typedef {InitMessage | ComputeMessage | BumpMessage} WorkerMessage */
@@ -42,6 +42,9 @@ export function createVisibleSunriseEngine() {
 		init(msg) {
 			const geo = new GeoLocation(...msg.geo);
 			const calc = new ROYSPACalculator();
+			// same switches as calculatorFor() in ROYZmanim.js, so the worker's answer matches the main thread's
+			calc.setHumidity(msg.humidity === true);
+			calc.setSeaSurfaceLayer(msg.seaSurfaceLayer === true);
 			calc.configureForLocation(geo);
 			/** Specs accumulate across requests for this config, so neighbouring days share them */
 			const table = /** @type {ProviderSnapshot} */ ({});

@@ -5,7 +5,7 @@ import { ZemanFunctions, methodNames, zDTFromFunc, seedVisiblePlaceholders, hasC
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
 import ChaiTables from "./features/chaiTables.js";
-import * as leaflet from "../libraries/leaflet/leaflet.js"
+import LocationModal from "./location-modal.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
 import VisibleSunriseClient from "./visible-sunrise-client.js";
 
@@ -102,6 +102,9 @@ export default class zmanimListUpdater {
 		// FIX: Initialize buttons in the constructor instead of lazily inside renderDateContainer
 		this._initButtons();
 
+		/** The location modal: direction & map, technical details, editing */
+		this.locationModalUI = new LocationModal(this);
+
 		this._makamObjPromise = fetch("/assets/js/makamObj.json")
 			.then(res => res.json())
 			.catch(e => { console.error("Failed to load makamObj.json", e); return null; });
@@ -111,61 +114,14 @@ export default class zmanimListUpdater {
 
 	// ─── Location Modal ───────────────────────────────────────────────────────
 
-	/**
-	 * Open location modal with map display
-	 */
+	/** The location modal was opened: draw the map and fill in the current data */
 	openLocationModal() {
-		/** @type {HTMLElement} */
-		const locationMapElem = document.querySelector('#locationModal [data-zfFind="locationMap"]');
-
-		this.locationMap = leaflet.map(locationMapElem, {
-			dragging: false,
-			minZoom: 14,
-			touchZoom: 'center',
-			scrollWheelZoom: 'center'
-		}).setView([this.geoLocation.getLatitude(), this.geoLocation.getLongitude()], 16);
-
-		leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-		}).addTo(this.locationMap);
-
-		// Draw line to Jerusalem
-		leaflet.polyline(
-			[
-				[this.geoLocation.getLatitude(), this.geoLocation.getLongitude()],
-				[harHabait.getLatitude(), harHabait.getLongitude()]
-			],
-			{ color: 'red' }
-		).addTo(this.locationMap);
-
-		// Accuracy circle (halo)
-		leaflet.circle([this.geoLocation.getLatitude(), this.geoLocation.getLongitude()], {
-			radius: 30,
-			color: 'blue',
-			fillColor: 'blue',
-			fillOpacity: 0.15,
-			weight: 0
-		}).addTo(this.locationMap);
-
-		// Center dot marker
-		leaflet.circleMarker([this.geoLocation.getLatitude(), this.geoLocation.getLongitude()], {
-			radius: 8,
-			fillColor: 'blue',
-			color: 'white',
-			weight: 2,
-			opacity: 1,
-			fillOpacity: 1
-		}).addTo(this.locationMap);
+		this.locationModalUI.open();
 	}
 
-	/**
-	 * Close location modal and clean up map
-	 */
+	/** The location modal was closed: drop the map */
 	closeLocationModal() {
-		if (this.locationMap) {
-			this.locationMap.remove();
-			this.locationMap = null;
-		}
+		this.locationModalUI.close();
 	}
 
 	// ─── Initialization ───────────────────────────────────────────────────────
@@ -215,7 +171,6 @@ export default class zmanimListUpdater {
 		this.geoLocation = geoLocation;
 
 		this._teardownLocationModal();
-		this.locationMap = null;
 
 		const cached = readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
 		this.refraction = null;
@@ -227,6 +182,7 @@ export default class zmanimListUpdater {
 		});
 		this._updateLocationDisplay();
 		this._setupLocaleFormat();
+		this.locationModalUI.refresh({ redrawMap: true });
 
 		// TODO: ChaiTables' scraped sunrises are no longer read (getNetz() computes the visible sunrise
 		// from the refraction server's horizon). Remove this and its UI once nothing else depends on it.
@@ -250,9 +206,10 @@ export default class zmanimListUpdater {
 	 * Get current refraction data (from storage when fresh, else the network), re-render only if it
 	 * differs from what's shown, and schedule the next check for when the forecast goes stale.
 	 * Failures are logged, never thrown: the page keeps the stored / default model.
-	 * @private
+	 * @param {{ force?: boolean }} [options] force: download a new forecast even if the stored one is fresh
+	 *   (the location modal's "Refresh forecast")
 	 */
-	async _loadRefraction() {
+	async _loadRefraction(options = {}) {
 		const token = ++this._refractionToken;
 		if (this._refractionRefresh !== null) {
 			clearTimeout(this._refractionRefresh);
@@ -262,7 +219,10 @@ export default class zmanimListUpdater {
 		/** @type {import("./refraction-data.js").RefractionData} */
 		let data;
 		try {
-			data = await loadRefraction(this.geoLocation.getLatitude(), this.geoLocation.getLongitude());
+			data = await loadRefraction(this.geoLocation.getLatitude(), this.geoLocation.getLongitude(), {
+				force: options.force === true,
+				humidity: settings.refraction.humidity()
+			});
 		} catch (e) {
 			console.error("Refraction data failed to load", e);
 			return;
@@ -282,6 +242,7 @@ export default class zmanimListUpdater {
 			|| (data.haze?.forecastFetchedAt ?? null) !== (shownHaze?.forecastFetchedAt ?? null);
 		if (changed)
 			this._applyRefraction();
+		this.locationModalUI.refresh();
 
 		// Next look: when this forecast turns stale (another tab may have refreshed storage by then,
 		// in which case no request is made). Without a forecast (offline), try again after a TTL.
@@ -368,7 +329,11 @@ export default class zmanimListUpdater {
 			melakha: settings.customTimes.tzeithIssurMelakha(),
 			atmosphereProvider: refraction.atmosphereProvider,
 			horizon: refraction.horizon,
-			haze: refraction.haze ?? null
+			haze: refraction.haze ?? null,
+			humidity: settings.refraction.humidity(),
+			seaSurfaceLayer: settings.refraction.seaSurfaceLayer(),
+			hazeTzet: settings.refraction.hazeTzet(),
+			hazeMaxDelayMinutes: settings.refraction.hazeMaxDelay()
 		};
 		if (this.netzWorker && refraction.horizon) {
 			const netzWorker = this.netzWorker;
@@ -475,23 +440,6 @@ export default class zmanimListUpdater {
 					document.createTextNode(this.zmanCalc.coreZC.getGeoLocation().getRhumbLineBearing(harHabait).toFixed(2) + "°")
 				);
 			});
-
-		locationModal.querySelector('[data-zfReplace="locationLat"]').innerHTML = this.geoLocation.getLatitude().toString();
-		locationModal.querySelector('[data-zfReplace="locationLng"]').innerHTML = this.geoLocation.getLongitude().toString();
-
-		locationModal.querySelectorAll('[data-zfFind="locationElev"]').forEach(elevElem => {
-			if (elevElem.nextSibling.nodeType == Node.TEXT_NODE)
-				elevElem.nextSibling.remove();
-
-			elevElem.insertAdjacentText('afterend', this.geoLocation.getElevation().toFixed(1));
-		});
-
-		locationModal.querySelectorAll('[data-zfFind="locationTimeZone"]').forEach(tzElem => {
-			if (tzElem.nextSibling.nodeType == Node.TEXT_NODE)
-				tzElem.nextSibling.remove();
-
-			tzElem.insertAdjacentText('afterend', this.geoLocation.getTimeZone());
-		});
 
 		this._attachLocationModal();
 	}
