@@ -31,6 +31,10 @@
  * This is the same information the refraction-server builds from GFS, from better models, and needs
  * nothing of yours. It covers the forecast range only; for later dates chain a climatology after it.
  *
+ * Humidity (options.humidity, off by default): also the 2 m dew point and the relative humidity at each
+ * level, for a calculator with setHumidity(true) (water vapour in the refractivity; at most a few
+ * seconds). About 50% more data per refresh, so ask for it only when it is used.
+ *
  * Cost per refresh: two or three requests (forecast for 33 points from the chosen model and from GFS,
  * marine for the sea points); 2-4 MB of JSON (less with compression), roughly 70-140 "calls" of
  * Open-Meteo's free quota of 10,000 a day per user. A model Open-Meteo has not served for a while can
@@ -179,12 +183,13 @@ function toSeries(json, levels = []) {
  * @param {number} latitude @param {number} longitude
  * @param {{ days?: number, distancesKm?: number[], levelsMb?: number[], fetch?: typeof fetch,
  *           forecastUrl?: string, marineUrl?: string, extraParams?: string, models?: string,
- *           fallbackModel?: string | null, retries?: number }} [options]
+ *           fallbackModel?: string | null, retries?: number, humidity?: boolean }} [options]
  *   days: forecast days (default 16, Open-Meteo's maximum).
  *   models: 'auto' (default: chooseOpenMeteoModel), 'best_match', or one Open-Meteo model name.
  *   fallbackModel: used where the chosen model ends (default 'gfs_seamless'; null = none).
  *   levelsMb: pressure levels (default GEM_LEVELS_MB for GEM, else DEFAULT_LEVELS_MB).
  *   retries: retries of a failed request (default 1; see getOpenMeteoJson).
+ *   humidity: also fetch dew point / relative humidity (see the header; default false).
  *   forecastUrl / marineUrl / extraParams: e.g. a paid endpoint and "&apikey=...".
  */
 export async function createOpenMeteoPathAtmosphere(latitude, longitude, options = {}) {
@@ -231,7 +236,8 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 		const fetchModel = async (/** @type {string} */ m) => {
 			const lv = levelsFor(m);
 			const hourly = ['temperature_2m', 'surface_pressure',
-				...lv.map(p => `temperature_${p}hPa`), ...lv.map(p => `geopotential_height_${p}hPa`)];
+				...lv.map(p => `temperature_${p}hPa`), ...lv.map(p => `geopotential_height_${p}hPa`),
+				...(options.humidity ? ['dew_point_2m', ...lv.map(p => `relative_humidity_${p}hPa`)] : [])];
 			const url = `${options.forecastUrl ?? FORECAST_URL}?latitude=${lats}&longitude=${lons}`
 				+ `&hourly=${hourly.join(',')}&past_days=1&forecast_days=${days}&timeformat=unixtime&timezone=GMT`
 				+ '&cell_selection=nearest' + (m === 'best_match' ? '' : `&models=${m}`) + (options.extraParams ?? '');
@@ -296,12 +302,20 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 		const t2 = at(s, 'temperature_2m', t), ps = at(s, 'surface_pressure', t);
 		if (!Number.isFinite(t2) || !Number.isFinite(ps) || !Number.isFinite(s.elevation)) return null;
 		const h0 = s.elevation + 2;
+		/** @type {import('./royzmanim-spa-corrections.js').ProfileLevel[]} */
 		const lv = [{ h: h0, t: t2, p: ps }];
+		// humidity is optional: a missing value never rejects the profile (the calculator fills it in)
+		if (options.humidity) { const td = at(s, 'dew_point_2m', t); if (Number.isFinite(td)) lv[0].td = td; }
 		for (const p of s.levels) {
 			if (p >= ps) continue;                                   // below the ground here
 			const z = at(s, `geopotential_height_${p}hPa`, t), tp = at(s, `temperature_${p}hPa`, t);
 			if (!Number.isFinite(z) || !Number.isFinite(tp)) return null;
-			if (z > h0 + 1) lv.push({ h: z, t: tp, p });
+			if (z > h0 + 1) {
+				/** @type {import('./royzmanim-spa-corrections.js').ProfileLevel} */
+				const l = { h: z, t: tp, p };
+				if (options.humidity) { const rh = at(s, `relative_humidity_${p}hPa`, t); if (Number.isFinite(rh)) l.rh = rh; }
+				lv.push(l);
+			}
 		}
 		/** @type {PathProfile} */
 		const prof = { distanceKm, levels: lv };
@@ -328,7 +342,7 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 				if (!series.length) continue;
 				const path = fan.idx.map((i, n) => profileFrom(series[i], i, t, dists[n]));
 				if (path.every(Boolean)) {
-					res = { path: /** @type {PathProfile[]} */ (path), key: `om|${name}|${stamp}|${k}` };
+					res = { path: /** @type {PathProfile[]} */ (path), key: `om|${name}|${stamp}|${k}${options.humidity ? '|h' : ''}` };
 					usedModel.set(k, name);
 					break;
 				}
@@ -356,5 +370,7 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 		/** number of points on open water (sea-surface temperature used) */
 		get seaPoints() { return marine.size; },
 		source: 'open-meteo-path',
+		/** whether dew point / relative humidity were asked for */
+		humidity: !!options.humidity,
 	};
 }

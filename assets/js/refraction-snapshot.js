@@ -25,7 +25,7 @@ import { chainProviders, monthlyClimate } from "../libraries/kosherZmanim/royzma
  * moon: the composite moonrise / moonset horizon, when it was asked for (loadRefraction's moon option).
  * @typedef {HorizonSet & { area?: AreaInfo | null, areaNote?: string, moon?: MoonHorizon | null }} Horizon
  */
-/** @typedef {{ minC: number[], meanC: number[], pressureMb?: number, heightM?: number }} Normals */
+/** @typedef {{ minC: number[], meanC: number[], pressureMb?: number, heightM?: number, sunriseDewC?: number[], sunsetDewC?: number[] }} Normals */
 
 /**
  * Provider results for a date range, keyed "YYYY-MM-DD|sunrise" / "YYYY-MM-DD|sunset".
@@ -71,6 +71,19 @@ export function snapshotProvider(provider, geo, from, days) {
 		}
 	}
 	return table;
+}
+
+/**
+ * Whether a snapshot carries humidity (dew points / relative humidity) anywhere.
+ * @param {ProviderSnapshot | null | undefined} table
+ */
+export function snapshotHasHumidity(table) {
+	for (const spec of Object.values(table ?? {})) {
+		if ("path" in spec) {
+			if (spec.path.some(p => (p.levels ?? []).some(l => Number.isFinite(l.td) || Number.isFinite(l.rh)))) return true;
+		} else if (Number.isFinite(spec.dewPointC) || Number.isFinite(spec.relativeHumidity)) return true;
+	}
+	return false;
 }
 
 /**

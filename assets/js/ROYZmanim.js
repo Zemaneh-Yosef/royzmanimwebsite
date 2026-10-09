@@ -22,6 +22,9 @@ import TekufahCalculator from "./tekufot.js";
  * @property {Horizon | null} [horizon] terrain horizon set from the refraction server; enables the visible
  *   sunrise in getNetz(). null / omitted = getNetz() returns sea-level sunrise
  * @property {VisibleOptions} [visibleOptions] passed to getVisibleSunrise (e.g. { limb: 'top' })
+ * @property {boolean} [humidity] include water vapour in the refraction where the atmosphere data carry
+ *   humidity (ROYSPACalculator.setHumidity; at most a few seconds). Off unless set; load the data with
+ *   loadRefraction(lat, lon, { humidity: true }) so there is humidity to use
  * @property {(date: Temporal.PlainDate) => void} [deferVisibleSunrise] compute visible sunrises elsewhere
  *   (visible-sunrise-client.js): on a cache miss this is called instead of ray tracing here, and getNetz()
  *   returns sea-level sunrise until setCachedVisibleSunrise() delivers the value. Omit to compute inline
@@ -115,6 +118,7 @@ function calculatorFor(config, geoLocation) {
 		// The provider changes every sunrise / sunset this calendar computes (sea-level and elevated too),
 		// not only the visible sunrise.
 		calc.setAtmosphereProvider(config.atmosphereProvider ?? null);
+		calc.setHumidity(config.humidity === true);
 		calc.configureForLocation(geoLocation);
 		byLatitude.set(latKey, calc);
 	}

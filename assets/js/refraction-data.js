@@ -23,7 +23,7 @@
  */
 
 import { chainProviders } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
-import { providerFromNormals, providerFromSnapshot, snapshotProvider } from "./refraction-snapshot.js";
+import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHasHumidity } from "./refraction-snapshot.js";
 import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
 import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
 import { fetchHorizonForArea } from "../libraries/kosherZmanim/horizon-client.js";
@@ -235,19 +235,25 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  * With a fresh stored forecast (< FORECAST_TTL_MS) no forecast request is made at all.
  *
  * @param {number} lat @param {number} lon
- * @param {{ serverUrl?: string, prefetch?: { from: Temporal.PlainDate, days: number }, force?: boolean, moon?: boolean, signal?: AbortSignal }} [options]
+ * @param {{ serverUrl?: string, prefetch?: { from: Temporal.PlainDate, days: number }, force?: boolean, moon?: boolean,
+ *           signal?: AbortSignal, humidity?: boolean }} [options]
  *   prefetch: also load the server's climatology for this range (e.g. a yearly print). Only the server
  *     is asked for it: a fresh stored forecast still saves the Open-Meteo download.
  *   force: ignore the stored forecast and fetch.
  *   moon: the horizon must include `moon` (the composite moonrise / moonset horizon). A stored horizon
  *     without it is fetched again once; if that fails, the stored one is kept (the sun still has it).
+ *   humidity: also fetch dew points / relative humidity (for ZemanimConfig.humidity). A stored forecast
+ *     or normals without them are fetched again once; if that fails, the stored ones are used dry.
  * @returns {Promise<RefractionData>}
  */
 export async function loadRefraction(lat, lon, options = {}) {
 	const serverUrl = options.serverUrl ?? REFRACTION_SERVER;
 	const id = placeId(lat, lon);
 	const cached = readCachedRefraction(lat, lon);
-	const freshForecast = !options.force && cached?.forecast && forecastStaleIn(cached) > 0 ? cached.forecast : null;
+	const freshForecast = !options.force && cached?.forecast && forecastStaleIn(cached) > 0
+		&& (!options.humidity || snapshotHasHumidity(cached.forecast.table)) ? cached.forecast : null;
+	// normals stored without dew points are fetched again when humidity is wanted
+	const usableNormals = options.humidity && cached?.normals && !cached.normals.sunriseDewC ? null : cached?.normals ?? null;
 	/** @type {string[]} */
 	const notes = [];
 
@@ -292,7 +298,8 @@ export async function loadRefraction(lat, lon, options = {}) {
 	// ── Fetch ──
 	// wait: this page already shows the stored forecast / normals while this runs (resetCalendar), and
 	// what follows needs the complete result (snapshot, normals, gotForecast)
-	const atm = await createAutoAtmosphere(lat, lon, { serverUrl, normals: cached?.normals ?? null, wait: true })
+	const atm = await createAutoAtmosphere(lat, lon, { serverUrl, normals: usableNormals, wait: true,
+		openMeteo: options.humidity ? { humidity: true } : undefined })
 		.catch((/** @type {Error} */ e) => { notes.push(`atmosphere: ${e.message}`); return null; });
 	const horizon = await horizonP;
 	if (atm) notes.push(...atm.notes);

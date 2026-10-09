@@ -68,7 +68,7 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
  *           timeoutMs?: number, pathTimeoutMs?: number, wait?: boolean, interim?: boolean,
  *           onUpdate?: (atm: any, what: UpdateKind) => void,
  *           openMeteo?: { forecastUrl?: string, archiveUrl?: string, marineUrl?: string, extraParams?: string,
- *                         models?: string, fallbackModel?: string | null } }} [options]
+ *                         models?: string, fallbackModel?: string | null, humidity?: boolean } }} [options]
  *   forecast: 'path' (default) as above; 'nws' / 'open-meteo' force a single-temperature forecast.
  *   serverDays: days of server profiles to load at start (default 31; more with atm.paths.prefetch).
  *   normals: pass what a previous run returned (atm.normals): used from the first moment, and the
@@ -82,6 +82,9 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
  *   interim: also fetch the single-temperature forecast right away, to stand in while the path
  *     profiles load (default: true, or false with wait - then it is fetched only if the paths fail).
  *   openMeteo.models: 'auto' (default, by place), 'best_match', or a model name; see open-meteo-path.js.
+ *   openMeteo.humidity: also fetch dew points / relative humidity from Open-Meteo (forecasts and normals),
+ *     for a calculator with setHumidity(true). Default false. The server's profiles and NOAA's carry none,
+ *     so dates they cover stay dry. Saved normals without dew points are still used as they are.
  *
  * Offline (or every source failing) is not an error: the provider keeps the saved normals if you
  * passed them, else the calculator's default model, and atm.notes says what failed. Call
