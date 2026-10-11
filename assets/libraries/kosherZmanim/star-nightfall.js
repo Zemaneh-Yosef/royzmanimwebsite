@@ -391,7 +391,8 @@ export function hazeDelayMs(date, latDeg, lonDeg, options) {
  * @typedef {{ monthly: number[], reference: number, evenings: Record<string, number>, blpCdM2: number | null,
  *             forecastFetchedAt: number | null, normalsRange: [string, string], source: string,
  *             forecastSource?: string, aodScale?: number, monthlyMorning?: number[], referenceMorning?: number,
- *             mornings?: Record<string, number> }} HazeData
+ *             mornings?: Record<string, number>, monthlyNight?: number[], referenceNight?: number,
+ *             nights?: Record<string, number> }} HazeData
  *   monthly: average evening aerosol optical depth (550 nm), January..December. reference: the place's
  *   year-round average (mean of the months): the "average sky". evenings: forecast evening values by ISO
  *   date. blpCdM2: light pollution (the refraction server's blpCdM2), null if unknown. forecastSource:
@@ -400,7 +401,9 @@ export function hazeDelayMs(date, latDeg, lonDeg, options) {
  *   CAMS values (monthly, reference and CAMS forecasts), not a GEFS forecast.
  *   monthlyMorning / referenceMorning / mornings: the same for the morning, read when the Sun is 16 degrees
  *   down before sunrise (open-meteo-haze.js HAZE_DAWN_SUN_ALT), for dawn by the horizon glow
- *   (horizon-glow.js). Absent in data stored before they existed: the evening values stand in.
+ *   (horizon-glow.js); monthlyNight / referenceNight / nights: read when it is 16 degrees down after sunset,
+ *   for Rabbenu Tam's nightfall by the glow. Absent where the Sun doesn't get that low for most of the year,
+ *   and in data stored before they existed: the evening values stand in.
  */
 
 const MID_MONTH_DOY = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5];
@@ -409,17 +412,22 @@ const MID_MONTH_DOY = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5
  * The evening (or morning) aerosol optical depth for a date: the forecast's when it has the date, else the
  * month's average (interpolated between mid-months), plus the reference to compare it with.
  * @param {HazeData} haze @param {{year:number, month:number, day:number}} date
- * @param {'evening' | 'morning'} [when] default 'evening'
+ * @param {'evening' | 'morning' | 'night'} [when] default 'evening' (Sun 7 degrees down, for the stars);
+ *   'morning' / 'night': Sun 16 degrees down before sunrise / after sunset (the horizon glow)
  * @returns {{ aod: number, aodRef: number, forecast: boolean }}
  */
 export function hazeOn(haze, date, when = 'evening') {
 	const iso = `${String(date.year).padStart(4, '0')}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
 	const scale = Number.isFinite(haze.aodScale) && /** @type {number} */ (haze.aodScale) > 0 ? /** @type {number} */ (haze.aodScale) : 1;
-	const morning = when === 'morning';
-	const monthly = morning && Array.isArray(haze.monthlyMorning) && haze.monthlyMorning.length === 12 ? haze.monthlyMorning : haze.monthly;
-	const reference = morning && Number.isFinite(haze.referenceMorning) ? /** @type {number} */ (haze.referenceMorning) : haze.reference;
+	const alt = when === 'morning' ? { monthly: haze.monthlyMorning, reference: haze.referenceMorning, days: haze.mornings }
+		: when === 'night' ? { monthly: haze.monthlyNight, reference: haze.referenceNight, days: haze.nights }
+		: null;
+	const own = alt && Array.isArray(alt.monthly) && alt.monthly.length === 12 && Number.isFinite(alt.reference);
+	const monthly = own ? /** @type {number[]} */ (alt.monthly) : haze.monthly;
+	const reference = own ? /** @type {number} */ (alt.reference) : haze.reference;
 	const aodRef = reference * scale;
-	const f = (morning ? haze.mornings : haze.evenings)?.[iso];
+	// a day's forecast at its own moment, else the evening's for that day (better than a monthly average)
+	const f = alt?.days?.[iso] ?? haze.evenings?.[iso];
 	if (Number.isFinite(f)) return { aod: haze.forecastSource === 'gefs' ? f : f * scale, aodRef, forecast: true };
 	const doy = (Date.UTC(date.year, date.month - 1, date.day) - Date.UTC(date.year, 0, 1)) / 86400000 + 1;
 	const m = monthly, d = doy < MID_MONTH_DOY[0] ? doy + 365 : doy;

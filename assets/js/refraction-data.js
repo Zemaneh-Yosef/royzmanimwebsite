@@ -78,9 +78,11 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
  *             forecastFetchedAt: number | null, forecastSource?: string,
  *             aodScale?: number | null, calibratedAt?: number,
  *             monthlyMorning?: number[] | null, referenceMorning?: number | null,
- *             mornings?: Record<string, number> }} StoredHaze
- *   monthlyMorning / referenceMorning: null where the Sun never gets 16 degrees down (stored so the normals are
- *   not fetched again for them); absent in data stored before they existed (fetched again once).
+ *             mornings?: Record<string, number>, monthlyNight?: number[] | null, referenceNight?: number | null,
+ *             nights?: Record<string, number> }} StoredHaze
+ *   monthlyMorning / referenceMorning, monthlyNight / referenceNight: null where the Sun doesn't get 16 degrees
+ *   down for most of the year (stored so the normals are not fetched again for them); absent in data stored
+ *   before they existed (fetched again once).
  */
 
 // Re-exported so main-thread code has one import
@@ -240,9 +242,12 @@ function hazeFromStored(st) {
 		monthly: st.monthly, reference: st.reference, normalsRange: st.normalsRange, source: st.source,
 		...(Array.isArray(st.monthlyMorning) && st.monthlyMorning.length === 12 && Number.isFinite(st.referenceMorning)
 			? { monthlyMorning: st.monthlyMorning, referenceMorning: /** @type {number} */ (st.referenceMorning) } : {}),
+		...(Array.isArray(st.monthlyNight) && st.monthlyNight.length === 12 && Number.isFinite(st.referenceNight)
+			? { monthlyNight: st.monthlyNight, referenceNight: /** @type {number} */ (st.referenceNight) } : {}),
 		blpCdM2: st.blpCdM2 ?? null,
 		evenings: fresh ? st.evenings ?? {} : {},
 		mornings: fresh ? st.mornings ?? {} : {},
+		nights: fresh ? st.nights ?? {} : {},
 		forecastFetchedAt: fresh ? st.forecastFetchedAt : null,
 		...(fresh && st.forecastSource ? { forecastSource: st.forecastSource } : {}),
 		...(Number.isFinite(st.aodScale) ? { aodScale: /** @type {number} */ (st.aodScale) } : {}),
@@ -277,9 +282,11 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 	/** @type {StoredHaze | null} */
 	const st = storage ? readJSON(storage, key) : null;
 	const now = Date.now();
-	// normals stored before the morning averages existed are fetched again once
-	const normalsOk = st && Array.isArray(st.monthly) && "monthlyMorning" in st && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
-	const forecastOk = options.reference || (!options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS);
+	// normals stored before the dawn / night averages existed are fetched again once
+	const normalsOk = st && Array.isArray(st.monthly) && "monthlyNight" in st && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
+	// so is a forecast stored before the night readings existed
+	const forecastOk = options.reference || (!options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS
+		&& st.nights !== undefined);
 	const calibrationOk = st?.calibratedAt != null && now - st.calibratedAt < HAZE_CALIBRATION_MAX_AGE_MS;
 	const [normals, evenings, blp, scale] = await Promise.all([
 		normalsOk ? null : fetchHazeNormals(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze normals: ${e.message}`); return null; }),
@@ -302,10 +309,12 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 	const out = {
 		monthly: base.monthly, reference: base.reference, normalsRange: base.normalsRange, source: base.source,
 		monthlyMorning: base.monthlyMorning ?? null, referenceMorning: base.referenceMorning ?? null,
+		monthlyNight: base.monthlyNight ?? null, referenceNight: base.referenceNight ?? null,
 		normalsFetchedAt: normals ? now : /** @type {StoredHaze} */ (st).normalsFetchedAt,
 		blpCdM2: blp ?? st?.blpCdM2 ?? null,
 		evenings: evenings?.ev.evenings ?? st?.evenings ?? {},
 		mornings: evenings?.ev.mornings ?? st?.mornings ?? {},
+		nights: evenings?.ev.nights ?? st?.nights ?? {},
 		forecastFetchedAt: evenings ? now : st?.forecastFetchedAt ?? null,
 		forecastSource: evenings?.src ?? st?.forecastSource,
 		aodScale: scale ?? st?.aodScale ?? null,
