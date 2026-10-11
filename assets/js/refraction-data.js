@@ -29,7 +29,7 @@ import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHa
 import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
 import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
 import { fetchHorizonForArea } from "../libraries/kosherZmanim/horizon-client.js";
-import { fetchHazeNormals, fetchHazeForecast, fetchGefsHazeForecast } from "../libraries/kosherZmanim/open-meteo-haze.js";
+import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "../libraries/kosherZmanim/open-meteo-haze.js";
 import { fetchLightPollution } from "../libraries/light-pollution-client.js";
 
 /** Root of the refraction server; its API lives under `${REFRACTION_SERVER}/v1/...`. */
@@ -76,7 +76,11 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
  * @typedef {{ monthly: number[], reference: number, normalsRange: [string, string], source: string,
  *             normalsFetchedAt: number, blpCdM2: number | null, evenings: Record<string, number>,
  *             forecastFetchedAt: number | null, forecastSource?: string,
- *             aodScale?: number | null, calibratedAt?: number }} StoredHaze
+ *             aodScale?: number | null, calibratedAt?: number,
+ *             monthlyMorning?: number[] | null, referenceMorning?: number | null,
+ *             mornings?: Record<string, number> }} StoredHaze
+ *   monthlyMorning / referenceMorning: null where the Sun never gets 16 degrees down (stored so the normals are
+ *   not fetched again for them); absent in data stored before they existed (fetched again once).
  */
 
 // Re-exported so main-thread code has one import
@@ -124,6 +128,12 @@ const staticKey = (id) => `refraction:v${CACHE_VERSION}:${id}:${TERRAIN_VERSION}
 const forecastKey = (id) => `refraction:v${CACHE_VERSION}:${id}:forecast`;
 /** @param {string} id */
 const hazeKey = (id) => `refraction:v${CACHE_VERSION}:${id}:haze`;
+/**
+ * Haze of a reference place (e.g. Jerusalem's average sky, for dawn by the horizon glow): outside the place
+ * index, so it never pushes out one of the user's places. Ends in ":haze", so sweepOldEntries keeps it.
+ * @param {string} id
+ */
+const referenceHazeKey = (id) => `refraction:v${CACHE_VERSION}:reference:${id}:haze`;
 
 /** @param {Storage} storage @param {string} key */
 function readJSON(storage, key) {
@@ -228,8 +238,11 @@ function hazeFromStored(st) {
 	const fresh = st.forecastFetchedAt != null && Date.now() - st.forecastFetchedAt < FORECAST_MAX_AGE_MS;
 	return {
 		monthly: st.monthly, reference: st.reference, normalsRange: st.normalsRange, source: st.source,
+		...(Array.isArray(st.monthlyMorning) && st.monthlyMorning.length === 12 && Number.isFinite(st.referenceMorning)
+			? { monthlyMorning: st.monthlyMorning, referenceMorning: /** @type {number} */ (st.referenceMorning) } : {}),
 		blpCdM2: st.blpCdM2 ?? null,
 		evenings: fresh ? st.evenings ?? {} : {},
+		mornings: fresh ? st.mornings ?? {} : {},
 		forecastFetchedAt: fresh ? st.forecastFetchedAt : null,
 		...(fresh && st.forecastSource ? { forecastSource: st.forecastSource } : {}),
 		...(Number.isFinite(st.aodScale) ? { aodScale: /** @type {number} */ (st.aodScale) } : {}),
@@ -253,28 +266,32 @@ async function fetchHazeCalibration(serverUrl, lat, lon, signal) {
 /**
  * Haze for a place: stored parts reused while fresh, the rest fetched. Never throws.
  * @param {number} lat @param {number} lon @param {string} serverUrl @param {string[]} notes
- * @param {{ force?: boolean, signal?: AbortSignal }} options
+ * @param {{ force?: boolean, signal?: AbortSignal, reference?: boolean }} options
+ *   reference: a reference place (loadReferenceHaze): normals and calibration only - no forecast, no light
+ *   pollution - stored outside the place index.
  * @returns {Promise<HazeData | null>}
  */
 async function loadHaze(lat, lon, serverUrl, notes, options) {
 	const storage = getStorage(), id = placeId(lat, lon);
+	const key = options.reference ? referenceHazeKey(id) : hazeKey(id);
 	/** @type {StoredHaze | null} */
-	const st = storage ? readJSON(storage, hazeKey(id)) : null;
+	const st = storage ? readJSON(storage, key) : null;
 	const now = Date.now();
-	const normalsOk = st && Array.isArray(st.monthly) && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
-	const forecastOk = !options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS;
+	// normals stored before the morning averages existed are fetched again once
+	const normalsOk = st && Array.isArray(st.monthly) && "monthlyMorning" in st && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
+	const forecastOk = options.reference || (!options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS);
 	const calibrationOk = st?.calibratedAt != null && now - st.calibratedAt < HAZE_CALIBRATION_MAX_AGE_MS;
 	const [normals, evenings, blp, scale] = await Promise.all([
 		normalsOk ? null : fetchHazeNormals(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze normals: ${e.message}`); return null; }),
-		forecastOk ? null : fetchHazeForecast(lat, lon)
+		forecastOk ? null : fetchHazeForecastBoth(lat, lon)
 			.then(ev => ({ ev, src: "cams" }))
 			// Open-Meteo down: NOAA's GEFS-Aerosols forecast instead
 			.catch((/** @type {Error} */ e) => {
 				notes.push(`haze forecast (Open-Meteo): ${e.message}`);
-				return fetchGefsHazeForecast(lat, lon).then(ev => ({ ev, src: "gefs" }));
+				return fetchGefsHazeForecastBoth(lat, lon).then(ev => ({ ev, src: "gefs" }));
 			})
 			.catch((/** @type {Error} */ e) => { notes.push(`haze forecast (NOAA GEFS-Aerosols): ${e.message}`); return null; }),
-		st?.blpCdM2 != null ? null : fetchLightPollution(serverUrl, lat, lon, { signal: options.signal })
+		options.reference || st?.blpCdM2 != null ? null : fetchLightPollution(serverUrl, lat, lon, { signal: options.signal })
 			.then(lp => lp.blpCdM2).catch((/** @type {Error} */ e) => { notes.push(`light pollution: ${e.message}`); return null; }),
 		calibrationOk ? null : fetchHazeCalibration(serverUrl, lat, lon, options.signal)
 			.catch((/** @type {Error} */ e) => { notes.push(`haze calibration: ${e.message}`); return null; }),
@@ -284,17 +301,47 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 	/** @type {StoredHaze} */
 	const out = {
 		monthly: base.monthly, reference: base.reference, normalsRange: base.normalsRange, source: base.source,
+		monthlyMorning: base.monthlyMorning ?? null, referenceMorning: base.referenceMorning ?? null,
 		normalsFetchedAt: normals ? now : /** @type {StoredHaze} */ (st).normalsFetchedAt,
 		blpCdM2: blp ?? st?.blpCdM2 ?? null,
-		evenings: evenings?.ev ?? st?.evenings ?? {},
+		evenings: evenings?.ev.evenings ?? st?.evenings ?? {},
+		mornings: evenings?.ev.mornings ?? st?.mornings ?? {},
 		forecastFetchedAt: evenings ? now : st?.forecastFetchedAt ?? null,
 		forecastSource: evenings?.src ?? st?.forecastSource,
 		aodScale: scale ?? st?.aodScale ?? null,
 		// a failed ask is retried on the next load; an answer is kept for HAZE_CALIBRATION_MAX_AGE_MS
 		calibratedAt: scale != null ? now : st?.calibratedAt,
 	};
-	if (normals || evenings || blp != null || scale != null) writeForPlace(id, hazeKey(id), out);
+	if (normals || evenings || blp != null || scale != null) {
+		if (!options.reference) writeForPlace(id, key, out);
+		else if (storage) try { storage.setItem(key, JSON.stringify(out)); } catch { /* used for this page anyway */ }
+	}
 	return hazeFromStored(out);
+}
+
+/**
+ * The average haze of a reference place (monthly evening / morning normals and the AERONET calibration; no
+ * forecast): e.g. Jerusalem's, the sky dawn by the horizon glow is measured against (horizon-glow.js).
+ * Stored apart from the user's places and refreshed as their normals are (yearly). Never throws.
+ * @param {number} lat @param {number} lon
+ * @param {{ serverUrl?: string, signal?: AbortSignal }} [options]
+ * @returns {Promise<HazeData | null>}
+ */
+export async function loadReferenceHaze(lat, lon, options = {}) {
+	/** @type {string[]} */
+	const notes = [];
+	const haze = await loadHaze(lat, lon, options.serverUrl ?? REFRACTION_SERVER, notes, { reference: true, signal: options.signal });
+	if (notes.length) console.info("Reference haze:", notes);
+	return haze;
+}
+
+/**
+ * The stored average haze of a reference place, synchronously (null until loadReferenceHaze has stored it).
+ * @param {number} lat @param {number} lon @returns {HazeData | null}
+ */
+export function readCachedReferenceHaze(lat, lon) {
+	const storage = getStorage();
+	return storage ? hazeFromStored(readJSON(storage, referenceHazeKey(placeId(lat, lon)))) : null;
 }
 
 /**

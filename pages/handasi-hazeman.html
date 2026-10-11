@@ -564,26 +564,48 @@ chaiTable: true
 	 * This page's rulings: a subclass of ZY's ZemanFunctions, handed to zmanimListUpdater.js through
 	 * window.zemanClass (this module runs before it: module scripts run in document order).
 	 *
-	 *  Dawn                16.04 degrees each day (midnight where the Sun never gets that low)
+	 *  Dawn                when the glow over the eastern horizon is as bright as in Jerusalem 72 minutes before
+	 *                      sunrise at the equinox (16.04 degrees) under Jerusalem's average sky: horizon-glow.js,
+	 *                      with the morning's haze (CAMS, read when the Sun is 16 degrees down) and the air's
+	 *                      pressure here against Jerusalem's average morning haze and pressure. A hazier or lower
+	 *                      place sees it later, a clearer or higher one earlier. 16.04 degrees without haze data
+	 *                      (here or for Jerusalem) or with the haze setting off; moved at most the haze delay's
+	 *                      cap (default 15 minutes) from 16.04 degrees; midnight where the Sun never gets that low
 	 *  Sunrise             "Any Peak" (ZY's getNetz) and "Full Reveal" (the whole disk up)
 	 *  Shema, Tefila, Ḥatzot, Minḥa, Sunset   as ZY
-	 *  Ḥametz              as ZY, over the day from 16.04 degrees before sunrise to 16.04 degrees after sunset
+	 *  Ḥametz              as ZY, over the day from dawn to Rabbenu Tam's nightfall (both by the horizon glow)
 	 *  Pelag               Halacha Berura only
 	 *  Nightfall           three medium stars (magnitude 2-3) seen anywhere, by A. Taylor's star-visibility model
 	 *                      (star-nightfall.js) under the default sky (halakhic_calc's extinction for the height,
 	 *                      no light pollution) with the Moon, plus the haze delay of the evening (as ZY's Tzet
 	 *                      by degrees). The threshold margin is calibrated so that the earliest nightfall of the
 	 *                      year in Jerusalem is 18 minutes after sea-level sunset.
-	 *  Rabbenu Tam         16.04 degrees after sunset; only the end of the Ḥametz day, never shown
+	 *  Rabbenu Tam         as dawn, in the evening: the western glow fading to Jerusalem's 72-minute brightness,
+	 *                      with the evening's haze against Jerusalem's average evening haze; only the end of the
+	 *                      Ḥametz day, never shown
 	 *  Candle lighting / Tzet Shabbat / fast ends   sunset / nightfall
 	 */
 	import * as KosherZmanim from "/assets/libraries/kosherZmanim/kosher-zmanim.js";
 	import { ZemanFunctions, zDTFromFunc } from "/assets/js/ROYZmanim.js";
-	import { starNightfall, eveningSunAt, defaultAod, moonFromAstronomy } from "/assets/libraries/kosherZmanim/star-nightfall.js";
+	import { starNightfall, eveningSunAt, defaultAod, moonFromAstronomy, hazeOn } from "/assets/libraries/kosherZmanim/star-nightfall.js";
+	import { glowDepression, jerusalemAir, stationPressure, pressureAt, JERUSALEM } from "/assets/libraries/kosherZmanim/horizon-glow.js";
+	import { loadReferenceHaze, readCachedReferenceHaze } from "/assets/js/refraction-data.js";
 	import { AstronomyImp } from "/assets/libraries/mooncalc/moonRiseSetCalc.js";
 
-	/** Dawn, and the end of the MG"A day (Rabbenu Tam) for Ḥametz, in degrees below the horizon */
+	/**
+	 * Dawn, and the end of the MG"A day (Rabbenu Tam) for Ḥametz, in degrees below the horizon under Jerusalem's
+	 * average sky: 72 minutes before sea-level sunrise in Jerusalem at the equinox (16.04-16.07 in 2025-2026)
+	 */
 	const DAWN_DEGREES = 16.04;
+
+	/**
+	 * Jerusalem's average haze (monthly morning / evening normals, AERONET-calibrated): the sky dawn's 72 minutes
+	 * are measured in. Stored from an earlier visit, else loaded below; until then dawn is plain 16.04 degrees.
+	 * @type {import("/assets/libraries/kosherZmanim/star-nightfall.js").HazeData | null}
+	 */
+	let jerusalemHaze = readCachedReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude);
+	/** bumped when Jerusalem's haze arrives, so cached dawns are worked out again */
+	let jerusalemVersion = jerusalemHaze ? 1 : 0;
 	/**
 	 * Threshold margin of the star model, in magnitudes (halakhic_calc uses 1.0). 0.5 puts the earliest
 	 * nightfall of the year in Jerusalem (754 m, default sky, with the Moon) at 18.00 minutes after SEA-LEVEL
@@ -631,6 +653,31 @@ chaiTable: true
 		}
 	}
 
+	/**
+	 * Station pressure (hPa) here for a sunrise / sunset: the atmosphere provider's air (forecast or normals)
+	 * brought to the observer's height, else the standard atmosphere's.
+	 * @param {any} provider ZemanimConfig.atmosphereProvider @param {Temporal.PlainDate} date
+	 * @param {'sunrise' | 'sunset'} event @param {KosherZmanim.GeoLocation} geo
+	 */
+	function pressureHere(provider, date, event, geo) {
+		const h = Math.max(0, geo.getElevation());
+		let spec = null;
+		try {
+			spec = provider ? provider(date, event, geo) : null;
+		} catch (e) {
+			spec = null;
+		}
+		if (spec && !("path" in spec)) {
+			const tempC = Number.isFinite(spec.temperatureC) ? spec.temperatureC : undefined;
+			const specH = Number.isFinite(spec.heightM) ? spec.heightM : h;
+			if (Number.isFinite(spec.pressureMb))
+				return pressureAt(spec.pressureMb, specH, h, tempC);
+			if (tempC !== undefined)
+				return pressureAt(stationPressure(specH, tempC), specH, h, tempC);
+		}
+		return stationPressure(h);
+	}
+
 	class HandasiHazemanFunctions extends ZemanFunctions {
 		/** zmanimListUpdater.js leaves Rabbenu Tam off the fast cards */
 		static hideRT = true;
@@ -663,10 +710,77 @@ chaiTable: true
 			current.hatzoth = this.coreZC.getSunTransit();
 
 			const zenith = KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH + DAWN_DEGREES;
-			current.dawn = this.coreZC.getSunriseOffsetByDegrees(zenith) ?? this.previousSolarMidnight();
-			current.tzethakokhavim = this.coreZC.getSunsetOffsetByDegrees(zenith) ?? this.getSolarMidnight();
+			const plainDawn = this.coreZC.getSunriseOffsetByDegrees(zenith);
+			const plainNight = this.coreZC.getSunsetOffsetByDegrees(zenith);
+			current.dawn = this.glowTime('morning', plainDawn) ?? plainDawn ?? this.previousSolarMidnight();
+			current.tzethakokhavim = this.glowTime('evening', plainNight) ?? plainNight ?? this.getSolarMidnight();
 			current.ranges.mga = current.dawn.until(current.tzethakokhavim);
 			current.nightfall = null;
+		}
+
+		/**
+		 * The Sun's depression (degrees) at which the horizon glow here matches Jerusalem's at 16.04 degrees,
+		 * or null without the haze of both places (or with the haze setting off).
+		 * @param {'morning' | 'evening'} when
+		 */
+		glowDegrees(when) {
+			const haze = this.config.haze;
+			if (!haze || !jerusalemHaze || this.config.hazeTzet === false)
+				return null;
+			const date = this.coreZC.getDate().withCalendar("iso8601");
+			const cache = cacheFor(this.config, "glow-" + when);
+			const key = isoKey(date) + "|" + jerusalemVersion;
+			let deg = cache.get(key);
+			if (deg === undefined) {
+				try {
+					const d = { year: date.year, month: date.month, day: date.day };
+					const here = hazeOn(haze, d, when);
+					const jlm = hazeOn(jerusalemHaze, d, when);
+					const geo = this.coreZC.getGeoLocation();
+					const pressureMb = pressureHere(this.config.atmosphereProvider, date, when === "morning" ? "sunrise" : "sunset", geo);
+					deg = glowDepression({ aod: here.aod, pressureMb }, jerusalemAir(jlm.aodRef), DAWN_DEGREES);
+				} catch (e) {
+					console.error("Horizon glow failed", e);
+					deg = NaN;
+				}
+				cache.set(key, deg);
+			}
+			return Number.isFinite(deg) ? deg : null;
+		}
+
+		/**
+		 * Dawn ('morning') or Rabbenu Tam's nightfall ('evening') by the horizon glow, kept within the haze
+		 * delay's cap of the plain-degree time; null to use the plain-degree time.
+		 * @param {'morning' | 'evening'} when @param {Temporal.ZonedDateTime | null} plain the time at 16.04 degrees
+		 * @returns {Temporal.ZonedDateTime | null}
+		 */
+		glowTime(when, plain) {
+			// the Sun never 16.04 degrees down: midnight stands in, as without haze (there is no time to cap against)
+			if (!plain)
+				return null;
+			const deg = this.glowDegrees(when);
+			if (deg === null)
+				return null;
+			const zenith = KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH + deg;
+			let time = when === "morning" ? this.coreZC.getSunriseOffsetByDegrees(zenith) : this.coreZC.getSunsetOffsetByDegrees(zenith);
+			const capMin = this.config.hazeMaxDelayMinutes === undefined ? 15 : this.config.hazeMaxDelayMinutes;
+			if (!time) {
+				// a clear sky needs the Sun lower than it gets tonight: the glow never fades to the mark, so
+				// midnight - or as far toward it as the cap allows
+				const midnight = when === "morning" ? this.previousSolarMidnight() : this.getSolarMidnight();
+				if (capMin === null)
+					return midnight;
+				const capped = plain.add({ minutes: (when === "morning" ? -1 : 1) * capMin });
+				return when === "morning"
+					? (Temporal.ZonedDateTime.compare(capped, midnight) < 0 ? midnight : capped)
+					: (Temporal.ZonedDateTime.compare(capped, midnight) > 0 ? midnight : capped);
+			}
+			if (capMin !== null) {
+				const shift = plain.until(time).total("minute");
+				if (Math.abs(shift) > capMin)
+					time = plain.add({ minutes: Math.sign(shift) * capMin });
+			}
+			return time;
 		}
 
 		/** Solar midnight of the night before this date's morning */
@@ -763,6 +877,20 @@ chaiTable: true
 
 	// @ts-ignore
 	window.zemanClass = HandasiHazemanFunctions;
+
+	// Jerusalem's average haze: (re)load it - from storage when fresh, else Open-Meteo - and redraw if it changed
+	loadReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude).then(haze => {
+		if (!haze || (jerusalemHaze && JSON.stringify(haze) === JSON.stringify(jerusalemHaze)))
+			return;
+		jerusalemHaze = haze;
+		jerusalemVersion++;
+		/** @type {any} */
+		const updater = window.zmanimListUpdater2;
+		if (updater?.zmanCalc) {
+			updater.setNextUpcomingZman?.();
+			updater.changeDate(updater.zmanCalc.coreZC.getDate());
+		}
+	});
 
 	// ─── Elevation switch, in the location modal's atmosphere form ────────────────────
 	const atmosphereForm = document.querySelector('[data-zfFind="atmosphereEditForm"]');
