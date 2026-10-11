@@ -13,9 +13,11 @@
  *     hazeOn(haze, date);   // { aod, aodRef } for hazeDelayMs (star-nightfall.js)
  *
  * Every value is the haze in the evening: at the moment the Sun's centre is 7 degrees down, about
- * when medium stars appear. The same hourly series also gives the haze at dawn and at Rabbenu Tam's nightfall,
- * for the horizon glow (horizon-glow.js): the moment the Sun's centre is 16 degrees down before sunrise
- * ("mornings") and after sunset ("nights") - no extra requests.
+ * when medium stars appear (ZY's Tzet). The same hourly series also gives, with no extra requests, the haze at
+ * other moments other rulings need (handasi-hazeman): when the Sun's centre is 4.65 degrees down after sunset
+ * ("dusks": 18 minutes after sea-level sunset in Jerusalem at the equinox, for nightfall by the stars), and 16
+ * degrees down before sunrise and after sunset ("mornings", "nights": dawn and Rabbenu Tam's nightfall, for the
+ * horizon glow, horizon-glow.js).
  *
  * Normals: the CAMS archive Open-Meteo serves starts in August 2022, so the averages cover August 2022
  * to the end of the last full month (three-plus years by now; they firm up as it grows). One request of
@@ -44,6 +46,11 @@ export const HAZE_HISTORY_START = '2022-08-01';
 export const HAZE_SUN_ALT = -7;
 /** the Sun's altitude (deg) at which the haze for the horizon glow is read: dawn, and Rabbenu Tam's nightfall */
 export const HAZE_DAWN_SUN_ALT = -16;
+/**
+ * the Sun's altitude (deg) at which the haze for handasi-hazeman's nightfall is read: 18 minutes after sea-level
+ * sunset (the centre 0.833 degrees down) in Jerusalem at the equinox, geometric
+ */
+export const HAZE_DUSK_SUN_ALT = -4.65;
 
 /** @param {number[]} times unix s @param {(number | null)[]} values @param {number} t epoch ms */
 function valueAt(times, values, t) {
@@ -60,15 +67,19 @@ function valueAt(times, values, t) {
 const isoOf = d => d.toISOString().slice(0, 10);
 
 /**
- * @typedef {{ evenings: Record<string, number>, mornings: Record<string, number>, nights: Record<string, number> }} HazeReadings
- *   aerosol optical depth by ISO date: evenings (Sun HAZE_SUN_ALT, setting), mornings and nights (Sun
- *   HAZE_DAWN_SUN_ALT, rising and setting)
+ * @typedef {{ evenings: Record<string, number>, dusks: Record<string, number>, mornings: Record<string, number>,
+ *             nights: Record<string, number> }} HazeReadings
+ *   aerosol optical depth by ISO date: evenings (Sun HAZE_SUN_ALT, setting), dusks (HAZE_DUSK_SUN_ALT, setting),
+ *   mornings and nights (Sun HAZE_DAWN_SUN_ALT, rising and setting)
  */
+
+/** @typedef {'evening' | 'dusk' | 'morning' | 'night'} HazeMoment */
 
 /** @param {number[]} times @param {(number | null)[]} vals @param {number} lat @param {number} lon @returns {HazeReadings} */
 function readingsFrom(times, vals, lat, lon) {
 	return {
 		evenings: readingsOf(times, vals, lat, lon, 'evening'),
+		dusks: readingsOf(times, vals, lat, lon, 'dusk'),
 		mornings: readingsOf(times, vals, lat, lon, 'morning'),
 		nights: readingsOf(times, vals, lat, lon, 'night'),
 	};
@@ -84,9 +95,10 @@ function readings(j, lat, lon) {
 
 /**
  * Aerosol optical depth per date over a regular series, at the evening's (Sun HAZE_SUN_ALT, setting), the
- * morning's (Sun HAZE_DAWN_SUN_ALT, rising) or the night's (Sun HAZE_DAWN_SUN_ALT, setting) moment.
+ * dusk's (HAZE_DUSK_SUN_ALT, setting), the morning's (Sun HAZE_DAWN_SUN_ALT, rising) or the night's (Sun
+ * HAZE_DAWN_SUN_ALT, setting) moment.
  * @param {number[]} times unix s, evenly spaced @param {(number | null)[]} vals @param {number} lat @param {number} lon
- * @param {'evening' | 'morning' | 'night'} [when] default 'evening'
+ * @param {HazeMoment} [when] default 'evening'
  * @returns {Record<string, number>}
  */
 function readingsOf(times, vals, lat, lon, when = 'evening') {
@@ -97,7 +109,7 @@ function readingsOf(times, vals, lat, lon, when = 'evening') {
 	for (let d = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), first.getUTCDate())); d <= last; d.setUTCDate(d.getUTCDate() + 1)) {
 		const date = { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() };
 		const t = when === 'morning' ? morningSunAt(date, lat, lon, HAZE_DAWN_SUN_ALT)
-			: eveningSunAt(date, lat, lon, when === 'night' ? HAZE_DAWN_SUN_ALT : HAZE_SUN_ALT);
+			: eveningSunAt(date, lat, lon, when === 'night' ? HAZE_DAWN_SUN_ALT : when === 'dusk' ? HAZE_DUSK_SUN_ALT : HAZE_SUN_ALT);
 		const v = Number.isFinite(t) ? valueAt(times, vals, t) : NaN;
 		if (Number.isFinite(v) && v >= 0) out[isoOf(d)] = +v.toFixed(3);
 	}
@@ -121,13 +133,14 @@ function monthlyOf(byDate) {
 }
 
 /**
- * Average evening haze per month and the place's year-round average; the same at dawn and at Rabbenu Tam's
- * nightfall where the Sun gets 16 degrees down for most of the year.
+ * Average evening haze per month and the place's year-round average; the same at dusk (4.65 degrees), and at
+ * dawn and at Rabbenu Tam's nightfall where the Sun gets 16 degrees down for most of the year.
  * @param {number} latitude @param {number} longitude
  * @param {{ fetch?: typeof fetch, url?: string, extraParams?: string, start?: string, end?: string, retries?: number }} [options]
  *   start / end: ISO dates (default August 2022 .. the end of last month).
  * @returns {Promise<{ monthly: number[], reference: number, monthlyMorning?: number[], referenceMorning?: number,
- *   monthlyNight?: number[], referenceNight?: number, normalsRange: [string, string], source: string }>}
+ *   monthlyNight?: number[], referenceNight?: number, monthlyDusk?: number[], referenceDusk?: number,
+ *   normalsRange: [string, string], source: string }>}
  */
 export async function fetchHazeNormals(latitude, longitude, options = {}) {
 	const doFetch = options.fetch ?? globalThis.fetch;
@@ -143,19 +156,20 @@ export async function fetchHazeNormals(latitude, longitude, options = {}) {
 	if (!ev) throw new Error('Open-Meteo returned haze for fewer than 9 months');
 	// mornings / nights: only where the Sun gets 16 degrees down (not high-latitude summers); else the
 	// evenings stand in (hazeOn)
-	const mo = monthlyOf(r.mornings), ni = monthlyOf(r.nights);
+	const mo = monthlyOf(r.mornings), ni = monthlyOf(r.nights), du = monthlyOf(r.dusks);
 	return {
 		monthly: ev.monthly,
 		reference: ev.reference,
 		...(mo ? { monthlyMorning: mo.monthly, referenceMorning: mo.reference } : {}),
 		...(ni ? { monthlyNight: ni.monthly, referenceNight: ni.reference } : {}),
+		...(du ? { monthlyDusk: du.monthly, referenceDusk: du.reference } : {}),
 		normalsRange: [start, end],
 		source: 'CAMS global via Open-Meteo air-quality API',
 	};
 }
 
 /**
- * Forecast haze (evenings, mornings and nights), yesterday to `days` ahead (CAMS reaches ~5 days; Open-Meteo
+ * Forecast haze (evenings, dusks, mornings and nights), yesterday to `days` ahead (CAMS reaches ~5 days; Open-Meteo
  * allows up to 7), from one request.
  * @param {number} latitude @param {number} longitude
  * @param {{ fetch?: typeof fetch, url?: string, extraParams?: string, days?: number, retries?: number }} [options]
@@ -190,7 +204,7 @@ export async function fetchGefsHazeForecast(latitude, longitude, options = {}) {
 }
 
 /**
- * Forecast haze (evenings, mornings and nights) from NOAA's GEFS-Aerosols (the fallback; see the header), same
+ * Forecast haze (evenings, dusks, mornings and nights) from NOAA's GEFS-Aerosols (the fallback; see the header), same
  * shape as fetchHazeForecastBoth. The latest run's ~41 three-hourly values at the nearest 0.25 deg point.
  * @param {number} latitude @param {number} longitude
  * @param {{ fetch?: typeof fetch, url?: string, retries?: number }} [options]

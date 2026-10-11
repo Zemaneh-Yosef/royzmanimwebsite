@@ -1,7 +1,7 @@
 // Builds STAR_MARGIN_TABLE in pages/handasi-hazeman.html. Run with Node or Deno:
 //     node _denoDebug/starMarginTable.mjs
 //
-// For each average evening haze Jerusalem might have (aerosol optical depth at 550 nm), the star model's
+// For each average dusk haze (read when the Sun is 4.65 degrees down) Jerusalem might have (aerosol optical depth at 550 nm), the star model's
 // threshold margin (marginMag) at which the earliest nightfall of the year in Jerusalem (754 m, three medium
 // stars anywhere, no light pollution, no Moon - the earliest evening of the year is a moonless one) comes 18
 // minutes after sea-level sunset (the Sun's centre 0.833 degrees down). The page interpolates it at Jerusalem's

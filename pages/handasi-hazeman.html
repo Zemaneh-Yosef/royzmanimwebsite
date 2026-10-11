@@ -581,9 +581,10 @@ chaiTable: true
 	 *  Ḥametz              as ZY, over the day from dawn to Rabbenu Tam's nightfall (both by the horizon glow)
 	 *  Pelag               Halacha Berura only
 	 *  Nightfall           three medium stars (magnitude 2-3) seen anywhere, by A. Taylor's star-visibility model
-	 *                      (star-nightfall.js) with the Moon and no light pollution, under the evening's haze
-	 *                      here (CAMS, read when the Sun is 7 degrees down). Its threshold margin is calibrated
-	 *                      so that under Jerusalem's average evening haze the earliest nightfall of the year in
+	 *                      (star-nightfall.js) with the Moon and no light pollution, under the haze here at dusk
+	 *                      (CAMS, read when the Sun is 4.65 degrees down: 18 minutes after sea-level sunset in
+	 *                      Jerusalem at the equinox). Its threshold margin is calibrated
+	 *                      so that under Jerusalem's average dusk haze the earliest nightfall of the year in
 	 *                      Jerusalem is 18 minutes after sea-level sunset (STAR_MARGIN_TABLE). Standard: the same
 	 *                      at Jerusalem's average haze
 	 *  Rabbenu Tam         as dawn, in the evening: the western glow fading to Jerusalem's 72-minute brightness,
@@ -605,7 +606,7 @@ chaiTable: true
 	const DAWN_DEGREES = 16.04;
 
 	/**
-	 * Jerusalem's average haze (monthly normals at dawn, at 7 and at 16 degrees after sunset, AERONET-calibrated):
+	 * Jerusalem's average haze (monthly normals at dawn, at 4.65 and at 16 degrees after sunset, AERONET-calibrated):
 	 * the sky the Gemara's 72 and 18 minutes are measured in. Stored from an earlier visit, else loaded below;
 	 * until then dawn is plain 16.04 degrees and nightfall the standard under halakhic_calc's default sky.
 	 * @type {import("/assets/libraries/kosherZmanim/star-nightfall.js").HazeData | null}
@@ -614,7 +615,7 @@ chaiTable: true
 	/** bumped when Jerusalem's haze arrives, so cached dawns are worked out again */
 	let jerusalemVersion = jerusalemHaze ? 1 : 0;
 	/**
-	 * Threshold margin of the star model (magnitudes; halakhic_calc uses 1.0) by Jerusalem's average evening haze
+	 * Threshold margin of the star model (magnitudes; halakhic_calc uses 1.0) by Jerusalem's average dusk haze
 	 * (aerosol optical depth, 550 nm): the margin that puts the earliest nightfall of the year in Jerusalem (754 m,
 	 * no light pollution, moonless) at 18.00 minutes after SEA-LEVEL sunset - late January or mid-September, the
 	 * two come out alike - in every year 2024-2030 (within 0.06 min). From _denoDebug/starMarginTable.mjs.
@@ -866,7 +867,7 @@ chaiTable: true
 
 		/**
 		 * Nightfall by the stars (see the top of this script) on this date: the standard (Jerusalem's average
-		 * evening haze) and today's (the evening's haze here), epoch ms, the latter within the cap of the former.
+		 * dusk haze) and today's (the haze here at dusk), epoch ms, the latter within the cap of the former.
 		 * NaN where the Sun never gets 18 degrees down and the stars aren't seen before.
 		 * @returns {{ standard: number, today: number }}
 		 */
@@ -883,10 +884,10 @@ chaiTable: true
 			const d = { year: date.year, month: date.month, day: date.day };
 			let standard = NaN, today = NaN;
 			try {
-				const refAod = jerusalemHaze ? hazeOn(jerusalemHaze, d, "evening").aodRef : DEFAULT_JERUSALEM_AOD;
+				const refAod = jerusalemHaze ? hazeOn(jerusalemHaze, d, "dusk").aodRef : DEFAULT_JERUSALEM_AOD;
 				const marginMag = starMarginFor(refAod);
 				const haze = this.config.haze;
-				const localAod = haze && jerusalemHaze && this.config.hazeTzet !== false ? hazeOn(haze, d, "evening").aod : refAod;
+				const localAod = haze && jerusalemHaze && this.config.hazeTzet !== false ? hazeOn(haze, d, "dusk").aod : refAod;
 				const at = (/** @type {number} */ aod) => {
 					const result = starNightfall(d, lat, lon, { stars: 'medium', aod, blpCdM2: 0, elevationM, marginMag, moon: moonFor(geo) });
 					// stars not seen before the Sun is 18 degrees down: that moment; never that low: midnight

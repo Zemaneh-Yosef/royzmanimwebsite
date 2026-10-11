@@ -392,7 +392,8 @@ export function hazeDelayMs(date, latDeg, lonDeg, options) {
  *             forecastFetchedAt: number | null, normalsRange: [string, string], source: string,
  *             forecastSource?: string, aodScale?: number, monthlyMorning?: number[], referenceMorning?: number,
  *             mornings?: Record<string, number>, monthlyNight?: number[], referenceNight?: number,
- *             nights?: Record<string, number> }} HazeData
+ *             nights?: Record<string, number>, monthlyDusk?: number[], referenceDusk?: number,
+ *             dusks?: Record<string, number> }} HazeData
  *   monthly: average evening aerosol optical depth (550 nm), January..December. reference: the place's
  *   year-round average (mean of the months): the "average sky". evenings: forecast evening values by ISO
  *   date. blpCdM2: light pollution (the refraction server's blpCdM2), null if unknown. forecastSource:
@@ -402,8 +403,9 @@ export function hazeDelayMs(date, latDeg, lonDeg, options) {
  *   monthlyMorning / referenceMorning / mornings: the same for the morning, read when the Sun is 16 degrees
  *   down before sunrise (open-meteo-haze.js HAZE_DAWN_SUN_ALT), for dawn by the horizon glow
  *   (horizon-glow.js); monthlyNight / referenceNight / nights: read when it is 16 degrees down after sunset,
- *   for Rabbenu Tam's nightfall by the glow. Absent where the Sun doesn't get that low for most of the year,
- *   and in data stored before they existed: the evening values stand in.
+ *   for Rabbenu Tam's nightfall by the glow; monthlyDusk / referenceDusk / dusks: read when it is 4.65 degrees
+ *   down after sunset (handasi-hazeman's nightfall by the stars). Absent where the Sun doesn't get that low for
+ *   most of the year, and in data stored before they existed: the evening values stand in.
  */
 
 const MID_MONTH_DOY = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5];
@@ -412,8 +414,9 @@ const MID_MONTH_DOY = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5
  * The evening (or morning) aerosol optical depth for a date: the forecast's when it has the date, else the
  * month's average (interpolated between mid-months), plus the reference to compare it with.
  * @param {HazeData} haze @param {{year:number, month:number, day:number}} date
- * @param {'evening' | 'morning' | 'night'} [when] default 'evening' (Sun 7 degrees down, for the stars);
- *   'morning' / 'night': Sun 16 degrees down before sunrise / after sunset (the horizon glow)
+ * @param {'evening' | 'dusk' | 'morning' | 'night'} [when] default 'evening' (Sun 7 degrees down: ZY's Tzet);
+ *   'dusk': 4.65 degrees down (handasi-hazeman's nightfall); 'morning' / 'night': 16 degrees down before sunrise /
+ *   after sunset (the horizon glow)
  * @returns {{ aod: number, aodRef: number, forecast: boolean }}
  */
 export function hazeOn(haze, date, when = 'evening') {
@@ -421,6 +424,7 @@ export function hazeOn(haze, date, when = 'evening') {
 	const scale = Number.isFinite(haze.aodScale) && /** @type {number} */ (haze.aodScale) > 0 ? /** @type {number} */ (haze.aodScale) : 1;
 	const alt = when === 'morning' ? { monthly: haze.monthlyMorning, reference: haze.referenceMorning, days: haze.mornings }
 		: when === 'night' ? { monthly: haze.monthlyNight, reference: haze.referenceNight, days: haze.nights }
+		: when === 'dusk' ? { monthly: haze.monthlyDusk, reference: haze.referenceDusk, days: haze.dusks }
 		: null;
 	const own = alt && Array.isArray(alt.monthly) && alt.monthly.length === 12 && Number.isFinite(alt.reference);
 	const monthly = own ? /** @type {number[]} */ (alt.monthly) : haze.monthly;
