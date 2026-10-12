@@ -573,7 +573,8 @@ chaiTable: true
 	 *  Dawn                when the glow over the eastern horizon is as bright as in Jerusalem 72 minutes before
 	 *                      sunrise at the equinox (16.04 degrees) under Jerusalem's average sky: horizon-glow.js,
 	 *                      with the morning's haze (CAMS, read when the Sun is 16 degrees down) and the air's
-	 *                      pressure here against Jerusalem's average morning haze and pressure. A hazier or lower
+	 *                      pressure here against Jerusalem's average morning haze (as in the Gemara's time:
+	 *                      GEMARA_SKY_FACTOR) and pressure. A hazier or lower
 	 *                      place sees it later, a clearer or higher one earlier. Standard: 16.04 degrees;
 	 *                      midnight where the Sun never gets that low
 	 *  Sunrise             "Any Peak" (ZY's getNetz) and "Full Reveal" (the whole disk up)
@@ -584,12 +585,13 @@ chaiTable: true
 	 *                      (star-nightfall.js) with the Moon and no light pollution, under the haze here at dusk
 	 *                      (CAMS, read when the Sun is 4.65 degrees down: 18 minutes after sea-level sunset in
 	 *                      Jerusalem at the equinox). Its threshold margin is calibrated
-	 *                      so that under Jerusalem's average dusk haze the earliest nightfall of the year in
+	 *                      so that under Jerusalem's average dusk haze in the Gemara's time (GEMARA_SKY_FACTOR)
+	 *                      the earliest nightfall of the year in
 	 *                      Jerusalem is 18 minutes after sea-level sunset (STAR_MARGIN_TABLE). Standard: the same
-	 *                      at Jerusalem's average haze
+	 *                      at that haze
 	 *  Rabbenu Tam         as dawn, in the evening: the western glow fading to Jerusalem's 72-minute brightness,
 	 *                      with the haze when the Sun is 16 degrees down after sunset against Jerusalem's average
-	 *                      then; only the end of the Ḥametz day, never shown
+	 *                      then (in the Gemara's time, as dawn); only the end of the Ḥametz day, never shown
 	 *  Candle lighting / Tzet Shabbat / fast ends   sunset / nightfall
 	 */
 	import * as KosherZmanim from "/assets/libraries/kosherZmanim/kosher-zmanim.js";
@@ -601,7 +603,7 @@ chaiTable: true
 
 	/**
 	 * Dawn, and the end of the MG"A day (Rabbenu Tam) for Ḥametz, in degrees below the horizon under Jerusalem's
-	 * average sky: 72 minutes before sea-level sunrise in Jerusalem at the equinox (16.04-16.07 in 2025-2026)
+	 * average sky in the Gemara's time (GEMARA_SKY_FACTOR): 72 minutes before sea-level sunrise in Jerusalem at the equinox (16.04-16.07 in 2025-2026)
 	 */
 	const DAWN_DEGREES = 16.04;
 
@@ -614,6 +616,19 @@ chaiTable: true
 	let jerusalemHaze = readCachedReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude);
 	/** bumped when Jerusalem's haze arrives, so cached dawns are worked out again */
 	let jerusalemVersion = jerusalemHaze ? 1 : 0;
+
+	/**
+	 * The Gemara's sky: the part of Jerusalem's average haze that is not man-made today. The 72 and 18 minutes were
+	 * fixed before industry, traffic and power plants; the desert dust and the natural fine particles were there
+	 * then too. Over the Eastern Mediterranean's land, 2000-2012, anthropogenic aerosol is ~51% of the optical depth,
+	 * dust ~34% and natural fine-mode ~15% (Georgoulias et al. 2016, ACP 16:13853, from MODIS), so 0.49 of today's
+	 * average. Antiquity's own smoke (wood and dung fires, kilns, burning fields) is left out: there are no numbers
+	 * for it. Applies to every twilight time on the page - dawn, nightfall, Rabbenu Tam - wherever Jerusalem's
+	 * measured average is the reference. 1 = today's sky.
+	 */
+	const GEMARA_SKY_FACTOR = 0.49;
+	/** Jerusalem's average haze (a measured aodRef) as it was in the Gemara's time @param {number} aodRef */
+	const gemaraAod = (aodRef) => aodRef * GEMARA_SKY_FACTOR;
 	/**
 	 * Threshold margin of the star model (magnitudes; halakhic_calc uses 1.0) by Jerusalem's average dusk haze
 	 * (aerosol optical depth, 550 nm): the margin that puts the earliest nightfall of the year in Jerusalem (754 m,
@@ -777,7 +792,7 @@ chaiTable: true
 					const jlm = hazeOn(jerusalemHaze, d, reading);
 					const geo = this.coreZC.getGeoLocation();
 					const pressureMb = pressureHere(this.config.atmosphereProvider, date, when === "morning" ? "sunrise" : "sunset", geo);
-					deg = glowDepression({ aod: here.aod, pressureMb }, jerusalemAir(jlm.aodRef), DAWN_DEGREES);
+					deg = glowDepression({ aod: here.aod, pressureMb }, jerusalemAir(gemaraAod(jlm.aodRef)), DAWN_DEGREES);
 				} catch (e) {
 					console.error("Horizon glow failed", e);
 					deg = NaN;
@@ -884,7 +899,8 @@ chaiTable: true
 			const d = { year: date.year, month: date.month, day: date.day };
 			let standard = NaN, today = NaN;
 			try {
-				const refAod = jerusalemHaze ? hazeOn(jerusalemHaze, d, "dusk").aodRef : DEFAULT_JERUSALEM_AOD;
+				// the Gemara's sky: calibrates the margin (18 minutes in Jerusalem) and is the standard the cap is kept from
+				const refAod = jerusalemHaze ? gemaraAod(hazeOn(jerusalemHaze, d, "dusk").aodRef) : DEFAULT_JERUSALEM_AOD;
 				const marginMag = starMarginFor(refAod);
 				const haze = this.config.haze;
 				const localAod = haze && jerusalemHaze && this.config.hazeTzet !== false ? hazeOn(haze, d, "dusk").aod : refAod;
