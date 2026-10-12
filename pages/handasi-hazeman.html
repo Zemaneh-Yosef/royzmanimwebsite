@@ -128,6 +128,7 @@ chaiTable: true
 						<span class="lang lang-hb">העתק ללוח</span>
 					</button>
 				</div>
+				<div class="alert alert-info py-2 small mb-2" role="status" data-zfFind="twilightNotice" style="display: none;"></div>
 				<div class="accordian loading" data-zfFind="calendarFormatter">
 					{% for item in site.data.handasi-hazeman.zmanim %}
 						{% if item.shitot %}
@@ -926,6 +927,51 @@ chaiTable: true
 			return { standard, today };
 		}
 
+		/**
+		 * How the air here moves each twilight time from its time under Jerusalem's sky in the Gemara's time (the
+		 * notice above the zemanim). Empty without haze data (here or for Jerusalem) or with the haze setting off.
+		 * @returns { { kind: 'dawn' | 'nightfall' | 'rt', minutes: number, standard: Temporal.ZonedDateTime,
+		 *   aod: number, refAod: number, forecast: boolean, capped: boolean }[] }
+		 */
+		twilightShifts() {
+			const haze = this.config.haze;
+			if (!haze || !jerusalemHaze || this.config.hazeTzet === false)
+				return [];
+			const date = this.coreZC.getDate().withCalendar("iso8601");
+			const d = { year: date.year, month: date.month, day: date.day };
+			const tz = this.coreZC.getGeoLocation().getTimeZone();
+			const capMin = this.config.hazeMaxDelayMinutes === undefined ? 15 : this.config.hazeMaxDelayMinutes;
+			const zenith = KosherZmanim.AstronomicalCalendar.GEOMETRIC_ZENITH + DAWN_DEGREES;
+			const toZDT = (/** @type {number} */ ms) => Temporal.Instant.fromEpochMilliseconds(Math.round(ms)).toZonedDateTimeISO(tz);
+
+			/** @type {ReturnType<HandasiHazemanFunctions["twilightShifts"]>} */
+			const out = [];
+			/**
+			 * @param {'dawn' | 'nightfall' | 'rt'} kind @param {'morning' | 'dusk' | 'night'} reading
+			 * @param {Temporal.ZonedDateTime | null} standard @param {Temporal.ZonedDateTime | null} actual
+			 */
+			const add = (kind, reading, standard, actual) => {
+				if (!standard || !actual)
+					return;
+				const here = hazeOn(haze, d, reading), jlm = hazeOn(jerusalemHaze, d, reading);
+				const minutes = standard.until(actual).total("minute");
+				out.push({
+					kind, minutes, standard, aod: here.aod, refAod: gemaraAod(jlm.aodRef), forecast: here.forecast,
+					capped: capMin !== null && Math.abs(minutes) >= capMin - 0.01
+				});
+			};
+			try {
+				add("dawn", "morning", this.coreZC.getSunriseOffsetByDegrees(zenith), this.timeRange.current.dawn);
+				const { standard, today } = this.nightfallTimes();
+				if (Number.isFinite(standard) && Number.isFinite(today))
+					add("nightfall", "dusk", toZDT(standard), toZDT(today));
+				add("rt", "night", this.coreZC.getSunsetOffsetByDegrees(zenith), this.timeRange.current.tzethakokhavim);
+			} catch (e) {
+				console.error("Twilight shifts failed", e);
+			}
+			return out;
+		}
+
 		/** Nightfall by the stars (see the top of this script) */
 		getTzet() {
 			const { today } = this.nightfallTimes();
@@ -979,6 +1025,63 @@ chaiTable: true
 			updater.setNextUpcomingZman?.();
 			updater.changeDate(updater.zmanCalc.coreZC.getDate());
 		}
+	});
+
+	// ─── Notice above the zemanim: today's air moving the twilight times ──────────────
+	/** smallest shift (minutes) the notice mentions */
+	const NOTICE_MIN_MINUTES = 1;
+	const NOTICE_TEXT = {
+		dawn: { hb: "עלות השחר", et: "Alot Ha'Shaḥar", en: "Dawn" },
+		nightfall: { hb: "צאת הכוכבים", et: "Tzet Ha'Kokhavim", en: "Nightfall" },
+		rt: { hb: 'צאת ר"ת (סוף יום החמץ)', et: "Rabbenu Tam (end of the Ḥametz day)", en: "Rabbenu Tam (end of the Ḥametz day)" }
+	};
+	document.addEventListener("zmanimRendered", (event) => {
+		/** @type {any} */
+		const updater = /** @type {CustomEvent} */ (event).detail;
+		const box = /** @type {HTMLElement | null} */ (document.querySelector('[data-zfFind="twilightNotice"]'));
+		if (!box || !updater?.zmanCalc?.twilightShifts)
+			return;
+
+		const erevPesach = updater.jCal.getYomTovIndex() === KosherZmanim.JewishCalendar.EREV_PESACH;
+		/** @type {ReturnType<HandasiHazemanFunctions["twilightShifts"]>} */
+		const shifts = updater.zmanCalc.twilightShifts()
+			.filter((/** @type {any} */ s) => Math.abs(s.minutes) >= NOTICE_MIN_MINUTES && (s.kind !== "rt" || erevPesach));
+		if (!shifts.length) {
+			box.style.display = "none";
+			box.replaceChildren();
+			return;
+		}
+
+		// to the second: the rows round to the minute, each in its own direction
+		/** @type {[string | string[], Intl.DateTimeFormatOptions]} */
+		const tf = [updater.dtF[0], { ...updater.dtF[1], second: "2-digit" }];
+		const n = (/** @type {number} */ x) => x.toFixed(2);
+
+		/** @param {'hb' | 'et' | 'en'} lang */
+		const lines = (lang) => shifts.map(s => {
+			// half minutes: the rows round to the minute in their own direction, so whole minutes can look off by one
+			const half = Math.round(Math.abs(s.minutes) * 2) / 2;
+			const min = `${Math.floor(half)}${half % 1 ? "½" : ""}`;
+			const earlier = s.minutes < 0;
+			const clearer = s.aod < s.refAod;
+			const time = s.standard.toLocaleString(...tf);
+			if (lang === "hb") {
+				const source = s.forecast ? "לפי תחזית האובך" : "לפי ממוצע האובך החודשי";
+				return `<b>${NOTICE_TEXT[s.kind].hb}</b>: ${min} דק' ${earlier ? "מוקדם" : "מאוחר"} יותר מאשר בשמי זמן הגמרא (${time}) - `
+					+ `${source} (${n(s.aod)}) האוויר כאן ${clearer ? "צלול" : "עכור"} יותר משמי ירושלים אז (${n(s.refAod)})`
+					+ (s.capped ? `; נעצר בגבול ההזזה` : "");
+			}
+			const source = s.forecast ? "the haze forecast here" : "the month's average haze here";
+			return `<b>${NOTICE_TEXT[s.kind][lang]}</b>: ${min} min ${earlier ? "earlier" : "later"} than under the Gemara's sky (${time}) - `
+				+ `${source} (${n(s.aod)}) is ${clearer ? "clearer" : "hazier"} than Jerusalem's then (${n(s.refAod)})`
+				+ (s.capped ? "; held at the largest-shift limit" : "");
+		}).join("<br>");
+
+		box.innerHTML =
+			`<span class="lang lang-hb">${lines("hb")}</span>`
+			+ `<span class="lang lang-et">${lines("et")}</span>`
+			+ `<span class="lang lang-en">${lines("en")}</span>`;
+		box.style.removeProperty("display");
 	});
 
 	// ─── Elevation switch, in the location modal's atmosphere form ────────────────────

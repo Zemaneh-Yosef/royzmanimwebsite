@@ -885,6 +885,9 @@ export default class zmanimListUpdater {
 		this._renderShaotZmaniyot();
 
 		this.renderHiloulot();
+
+		// for pages that draw more from the same calculator (e.g. /handasi-hazeman's twilight notice)
+		document.dispatchEvent(new CustomEvent("zmanimRendered", { detail: this }));
 	}
 
 	// ─── Render: Tefilah-rule sub-renders ─────────────────────────────────────
