@@ -7,6 +7,7 @@ import { settings } from "./settings/handler.js";
 import ChaiTables from "./features/chaiTables.js";
 import LocationModal from "./location-modal.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
+import { showListLoadingAfterDelay } from "./list-loading.js";
 import VisibleSunriseClient from "./visible-sunrise-client.js";
 
 /** Floor for the next refraction check, so a clock or storage oddity can't cause a request loop. */
@@ -44,6 +45,10 @@ export default class zmanimListUpdater {
 		this._shownForecastAt = null;
 		/** Bumped on every location change, so a slow load for an old location is dropped. */
 		this._refractionToken = 0;
+		/** Bumped on every resetCalendar, so a slow read of stored data for an old location is dropped. */
+		this._resetGen = 0;
+		/** Cancels the pending loading shimmer of the last resetCalendar. */
+		this._stopListLoading = () => {};
 		/** Next check for a newer forecast. @type {ReturnType<typeof setTimeout> | null} */
 		this._refractionRefresh = null;
 		/** @type {null|ReturnType<typeof setTimeout>} */
@@ -118,7 +123,8 @@ export default class zmanimListUpdater {
 			.then(res => res.json())
 			.catch(e => { console.error("Failed to load makamObj.json", e); return null; });
 
-		this.resetCalendar(geoLocation);
+		/** Settles once the first location is rendered (from stored data, or without it). */
+		this.ready = this.resetCalendar(geoLocation);
 	}
 
 	// ─── Location Modal ───────────────────────────────────────────────────────
@@ -169,28 +175,65 @@ export default class zmanimListUpdater {
 	// ─── Calendar Reset ───────────────────────────────────────────────────────
 
 	/**
-	 * Reset calendar for a new location. Renders right away from what previous visits stored (forecast
-	 * snapshot, terrain horizon, monthly normals); fetches a new forecast only if the stored one is stale.
+	 * Reset calendar for a new location. Renders as soon as what previous visits stored (forecast
+	 * snapshot, terrain horizon, monthly normals) is read; fetches a new forecast only if the stored one is
+	 * stale. For the same place (a setting changed) the data already on screen is reused, with no wait.
+	 * Never rejects. `zmanCalc` is for the new place as soon as this is called; the list is rendered when
+	 * the returned promise settles (a newer call before then takes over, and this one renders nothing).
 	 * @param {KosherZmanim.GeoLocation} [geoLocation]
+	 * @returns {Promise<void>}
 	 */
-	resetCalendar(geoLocation = this.geoLocation) {
+	async resetCalendar(geoLocation = this.geoLocation) {
+		const gen = ++this._resetGen;
+		this._stopListLoading();
 		if (this.timeoutToChangeDate !== null)
 			clearTimeout(this.timeoutToChangeDate);
 		this.timeoutToChangeDate = null;
+
+		const previous = this.geoLocation;
+		const loaded = this.refraction;
+		const samePlace = loaded !== null && previous !== undefined
+			&& previous.getLatitude() === geoLocation.getLatitude() && previous.getLongitude() === geoLocation.getLongitude();
 		this.geoLocation = geoLocation;
 
 		this._teardownLocationModal();
-
-		const cached = readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
-		this.refraction = null;
-		this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
-		this._setupZmanCalc({
-			atmosphereProvider: providerFromCache(cached),
-			horizon: cached?.horizon ?? null,
-			haze: cached?.haze ?? null
-		});
+		if (!samePlace) {
+			// drop a load still running for the old place (it would apply the old place's data)
+			this._refractionToken++;
+			if (this._refractionRefresh !== null) {
+				clearTimeout(this._refractionRefresh);
+				this._refractionRefresh = null;
+			}
+			this.refraction = null;
+			// a calculator for the new place right away (no refraction yet), so nothing that runs while the
+			// stored data is read computes for the old place
+			this._setupZmanCalc({ atmosphereProvider: null, horizon: null, haze: null });
+		}
 		this._updateLocationDisplay();
 		this._setupLocaleFormat();
+
+		/** @type {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} */
+		let refraction;
+		if (samePlace) {
+			const data = /** @type {import("./refraction-data.js").RefractionData} */ (loaded);
+			this._shownForecastAt = data.forecastFetchedAt;
+			refraction = { atmosphereProvider: data.provider, horizon: data.horizon, haze: data.haze };
+		} else {
+			const stopLoading = this._stopListLoading = showListLoadingAfterDelay();
+			const cached = await readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
+			stopLoading();
+			if (gen !== this._resetGen)
+				return; // another location (or setting) came in while this was read
+
+			this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
+			refraction = {
+				atmosphereProvider: providerFromCache(cached),
+				horizon: cached?.horizon ?? null,
+				haze: cached?.haze ?? null
+			};
+		}
+		// same place: its visible sunrises stay on screen until the worker computes them again
+		this._setupZmanCalc(refraction, samePlace ? this.zmanCalc.config : undefined);
 		this.locationModalUI.refresh({ redrawMap: true });
 
 		// TODO: ChaiTables' scraped sunrises are no longer read (getNetz() computes the visible sunrise

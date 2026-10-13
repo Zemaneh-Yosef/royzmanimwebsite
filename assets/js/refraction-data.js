@@ -2,26 +2,33 @@
 /**
  * refraction-data.js — loads the refraction server's data on the MAIN THREAD and turns it into plain,
  * structured-cloneable values that ROYZmanim.js (and the print workers) can use without network or
- * localStorage.
+ * storage.
  *
- *   Web page / print page (main thread, localStorage OK):
- *     const cached = readCachedRefraction(lat, lon);              // instant, for the first render
+ *   Web page / print page (main thread):
+ *     const cached = await readCachedRefraction(lat, lon);        // from IndexedDB, for the first render
  *     const ref = await loadRefraction(lat, lon);                 // { provider, horizon, normals, ... }
  *     new ZemanFunctions(geo, { ...config, atmosphereProvider: ref.provider, horizon: ref.horizon });
  *
- *   Print page -> workers (no localStorage, no closures across postMessage):
+ *   Print page -> workers (no closures across postMessage):
  *     const table = snapshotProvider(ref.provider, geo, firstDate, days);   // plain JSON
  *     worker.postMessage({ type: 'refraction', table, normals: ref.normals, horizon: ref.horizon });
  *   Worker (import from refraction-snapshot.js, NOT this file, so the forecast modules stay out of it):
  *     const provider = providerFromSnapshot(table, normals);
  *
- * localStorage, per location (the last MAX_LOCATIONS places; older ones are evicted):
+ * IndexedDB (database DB_NAME, one key-value store), per location (the last MAX_LOCATIONS places; older
+ * ones are evicted, and more of them if the browser's quota is hit):
  *   - horizon set + monthly normals: kept until evicted (they don't change for a place)
  *   - forecast snapshot: the provider's results for yesterday .. +FORECAST_DAYS, stamped with when it
  *     was fetched. Fresh (< FORECAST_TTL_MS) -> used with no network at all; older but within
  *     FORECAST_MAX_AGE_MS -> shown at once while a fresh one loads (stale-while-revalidate).
  *   - haze (for Tzet by the stars' haze delay, star-nightfall.js): monthly averages + reference (refetched
  *     after HAZE_NORMALS_MAX_AGE_MS), light pollution, and the evening forecast (HAZE_TTL_MS).
+ * Settings stay in localStorage (small, and read synchronously before the page renders). This cache used
+ * to live there too (capped at 3 places by localStorage's ~5 MB); what a browser still has there is moved
+ * into IndexedDB once and removed from localStorage.
+ *
+ * Every read and write is best-effort: where IndexedDB is missing or blocked (some private modes,
+ * sandboxed iframes) reads come back empty and writes do nothing, and the data is fetched each visit.
  */
 
 import { chainProviders } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
@@ -47,8 +54,17 @@ export const HAZE_TTL_MS = 6 * 60 * 60 * 1000;
 const HAZE_CALIBRATION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 /** Monthly haze averages are rebuilt after this (the archive grows by a year). */
 const HAZE_NORMALS_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000;
-/** Places kept in localStorage (a vantage horizon set alone can be a few hundred KB). */
-const MAX_LOCATIONS = 3;
+/**
+ * Places kept (a vantage horizon set alone can be a few hundred KB). IndexedDB's quota is a share of the
+ * free disk, so this is about tidiness, not space; a quota error still evicts the oldest places early.
+ */
+const MAX_LOCATIONS = 30;
+/** IndexedDB database and store of the cache. */
+const DB_NAME = "royzmanim-refraction";
+const DB_VERSION = 1;
+const STORE = "entries";
+/** Give up on IndexedDB if opening it takes longer than this (an old Safari bug can leave it hanging). */
+const DB_OPEN_TIMEOUT_MS = 3000;
 
 /** Bump when the cached shape changes, so old entries are ignored. */
 const CACHE_VERSION = 2;
@@ -112,16 +128,7 @@ export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./r
  * @property {string[]} notes               what could not be loaded, for logging
  */
 
-// ─── localStorage plumbing ───────────────────────────────────────────────────
-
-/** localStorage, or null where it does not exist / is blocked (workers, private mode, sandboxed iframes). */
-function getStorage() {
-	try {
-		return typeof localStorage !== "undefined" ? localStorage : null;
-	} catch {
-		return null;
-	}
-}
+// ─── IndexedDB plumbing ──────────────────────────────────────────────────────
 
 /** @param {number} lat @param {number} lon */
 const placeId = (lat, lon) => `${lat.toFixed(5)},${lon.toFixed(5)}`;
@@ -137,97 +144,259 @@ const hazeKey = (id) => `refraction:v${CACHE_VERSION}:${id}:haze`;
  * @param {string} id
  */
 const referenceHazeKey = (id) => `refraction:v${CACHE_VERSION}:reference:${id}:haze`;
+/** Keys this module ever wrote, in any version (localStorage before, IndexedDB now). */
+const OUR_KEY = /^refraction:v\d+:/;
 
-/** @param {Storage} storage @param {string} key */
-function readJSON(storage, key) {
+/**
+ * Whether a key belongs to an older CACHE_VERSION or TERRAIN_VERSION (a stored horizon can be a few
+ * hundred KB, and nothing else would ever remove it).
+ * @param {string} key
+ */
+function isStaleKey(key) {
+	return !key.startsWith(`refraction:v${CACHE_VERSION}:`)
+		|| (!key.endsWith(":forecast") && !key.endsWith(":haze") && key !== INDEX_KEY && !key.endsWith(`:${TERRAIN_VERSION}`));
+}
+
+/**
+ * @template T
+ * @param {IDBRequest<T>} req
+ * @returns {Promise<T>}
+ */
+const requestDone = (req) => new Promise((resolve, reject) => {
+	req.onsuccess = () => resolve(req.result);
+	req.onerror = () => reject(req.error);
+});
+
+/** @param {IDBTransaction} tx @returns {Promise<void>} */
+const transactionDone = (tx) => new Promise((resolve, reject) => {
+	tx.oncomplete = () => resolve();
+	tx.onabort = tx.onerror = () => reject(tx.error ?? new DOMException("Transaction aborted", "AbortError"));
+});
+
+/**
+ * Put a value; one that can't be structured-cloned (shouldn't happen: it's all plain data) is stored as
+ * its JSON round trip instead, as the localStorage cache did.
+ * @param {IDBObjectStore} store @param {string} key @param {unknown} value
+ */
+function putValue(store, key, value) {
 	try {
-		const raw = storage.getItem(key);
-		return raw ? JSON.parse(raw) : null;
-	} catch {
-		return null;
+		store.put(value, key);
+	} catch (e) {
+		if (/** @type {DOMException} */ (e)?.name !== "DataCloneError") throw e;
+		store.put(JSON.parse(JSON.stringify(value)), key);
 	}
 }
 
-/** @param {Storage} storage @returns {string[]} most recent first */
-function readIndex(storage) {
-	const index = readJSON(storage, INDEX_KEY);
-	return Array.isArray(index) ? index : [];
-}
+/** @type {Promise<IDBDatabase | null> | null} */
+let dbPromise = null;
 
-let swept = false;
 /**
- * Once per page: drop entries an older CACHE_VERSION or TERRAIN_VERSION left behind (a stored horizon
- * can be a few hundred KB, and nothing else would ever remove them).
- * @param {Storage} storage
+ * The cache database, opened once per page (and swept / migrated then); null where IndexedDB is missing,
+ * blocked, or doesn't answer within DB_OPEN_TIMEOUT_MS.
+ * @returns {Promise<IDBDatabase | null>}
  */
-function sweepOldEntries(storage) {
-	if (swept) return;
-	swept = true;
-	try {
-		const current = `refraction:v${CACHE_VERSION}:`;
-		for (let i = storage.length - 1; i >= 0; i--) {
-			const key = storage.key(i);
-			if (!key || !/^refraction:v\d+:/.test(key)) continue;
-			const stale = !key.startsWith(current)
-				|| (!key.endsWith(":forecast") && !key.endsWith(":haze") && key !== INDEX_KEY && !key.endsWith(`:${TERRAIN_VERSION}`));
-			if (stale) storage.removeItem(key);
+function openDB() {
+	if (dbPromise) return dbPromise;
+	dbPromise = new Promise((/** @type {(db: IDBDatabase | null) => void} */ resolve) => {
+		/** @type {IDBOpenDBRequest} */
+		let req;
+		try {
+			if (typeof indexedDB === "undefined") return resolve(null);
+			req = indexedDB.open(DB_NAME, DB_VERSION);
+		} catch {
+			return resolve(null);
 		}
-	} catch { /* best-effort */ }
-}
-
-/** @param {Storage} storage @param {string} id */
-function removePlace(storage, id) {
-	try {
-		storage.removeItem(staticKey(id));
-		storage.removeItem(forecastKey(id));
-		storage.removeItem(hazeKey(id));
-	} catch { /* nothing to do */ }
+		const timer = setTimeout(() => resolve(null), DB_OPEN_TIMEOUT_MS);
+		req.onupgradeneeded = () => {
+			if (!req.result.objectStoreNames.contains(STORE))
+				req.result.createObjectStore(STORE);
+		};
+		req.onsuccess = () => {
+			clearTimeout(timer);
+			const db = req.result;
+			// a newer version of the page (in another tab) wants to upgrade: step aside, reopen on next use
+			db.onversionchange = () => { db.close(); dbPromise = null; };
+			resolve(db);
+		};
+		req.onerror = () => { clearTimeout(timer); resolve(null); };
+	}).then(async (db) => {
+		if (db) {
+			await migrateFromLocalStorage(db).catch(() => { /* best-effort */ });
+			await sweepOldEntries(db).catch(() => { /* best-effort */ });
+		}
+		return db;
+	});
+	return dbPromise;
 }
 
 /**
- * Write, keeping only the last MAX_LOCATIONS places. If the quota is hit, evict the oldest other
- * places and try again; if it still doesn't fit, give up quietly (the data is used for this page anyway).
+ * Once: move what the old localStorage cache holds (current-version entries) into IndexedDB, so the
+ * places a user already has don't download again, then remove every cache key from localStorage.
+ * Entries IndexedDB already has are newer and kept.
+ * @param {IDBDatabase} db
+ */
+async function migrateFromLocalStorage(db) {
+	/** @type {Storage | null} */
+	let storage = null;
+	try { storage = typeof localStorage !== "undefined" ? localStorage : null; } catch { /* blocked */ }
+	if (!storage) return;
+
+	/** @type {[string, string | null][]} */
+	const entries = [];
+	for (let i = 0; i < storage.length; i++) {
+		const key = storage.key(i);
+		if (key && OUR_KEY.test(key)) entries.push([key, storage.getItem(key)]);
+	}
+	if (!entries.length) return;
+
+	const tx = db.transaction(STORE, "readwrite");
+	const store = tx.objectStore(STORE);
+	const done = transactionDone(tx);
+	for (const [key, raw] of entries) {
+		if (!raw || isStaleKey(key)) continue;
+		/** @type {unknown} */
+		let value;
+		try { value = JSON.parse(raw); } catch { continue; }
+		const has = store.getKey(key);
+		has.onsuccess = () => {
+			if (has.result === undefined) putValue(store, key, value);
+		};
+	}
+	try {
+		await done;
+	} catch {
+		return; // e.g. quota: leave localStorage as it is and try again next page
+	}
+	for (const [key] of entries)
+		try { storage.removeItem(key); } catch { /* nothing to do */ }
+}
+
+/**
+ * Once per page: drop entries an older CACHE_VERSION or TERRAIN_VERSION left behind.
+ * @param {IDBDatabase} db
+ */
+async function sweepOldEntries(db) {
+	const tx = db.transaction(STORE, "readwrite");
+	const store = tx.objectStore(STORE);
+	const done = transactionDone(tx);
+	const keys = store.getAllKeys();
+	keys.onsuccess = () => {
+		for (const key of keys.result)
+			if (typeof key === "string" && OUR_KEY.test(key) && isStaleKey(key))
+				store.delete(key);
+	};
+	await done;
+}
+
+/**
+ * Read several keys in one transaction. Missing keys, and every key when the database can't be used,
+ * come back null.
+ * @param {string[]} keys
+ * @returns {Promise<any[]>}
+ */
+async function readMany(keys) {
+	const db = await openDB();
+	if (!db) return keys.map(() => null);
+	try {
+		const store = db.transaction(STORE, "readonly").objectStore(STORE);
+		const values = await Promise.all(keys.map(key => requestDone(store.get(key))));
+		return values.map(v => v ?? null);
+	} catch {
+		return keys.map(() => null);
+	}
+}
+
+/** @param {string} key */
+const readOne = async (key) => (await readMany([key]))[0];
+
+/** @param {IDBObjectStore} store @param {string} id */
+function removePlace(store, id) {
+	store.delete(staticKey(id));
+	store.delete(forecastKey(id));
+	store.delete(hazeKey(id));
+}
+
+/** Writes run one after another, so two of them never update the place index from the same old copy. */
+let writeQueue = Promise.resolve();
+
+/**
+ * Write, keeping only the last MAX_LOCATIONS places. If the quota is hit, keep fewer of the older
+ * places and try again; if even this place alone doesn't fit, give up quietly (the data is used for this
+ * page anyway). Never rejects.
  * @param {string} id @param {string} key @param {unknown} value
+ * @returns {Promise<void>}
  */
 function writeForPlace(id, key, value) {
-	const storage = getStorage();
-	if (!storage) return;
-	sweepOldEntries(storage);
+	const run = writeQueue.then(() => writeForPlaceNow(id, key, value)).catch(() => { /* best-effort */ });
+	writeQueue = run;
+	return run;
+}
 
-	const index = [id, ...readIndex(storage).filter(other => other !== id)];
-	for (const old of index.splice(MAX_LOCATIONS))
-		removePlace(storage, old);
+/** @param {string} id @param {string} key @param {unknown} value */
+async function writeForPlaceNow(id, key, value) {
+	const db = await openDB();
+	if (!db) return;
 
-	const json = JSON.stringify(value);
+	let keep = MAX_LOCATIONS;
 	for (;;) {
+		let placesBefore = 0;
+		const tx = db.transaction(STORE, "readwrite");
+		const store = tx.objectStore(STORE);
+		const done = transactionDone(tx);
+		// callbacks, not await, inside the transaction: it must not see an empty event loop turn
+		const indexReq = store.get(INDEX_KEY);
+		indexReq.onsuccess = () => {
+			/** @type {string[]} */
+			const old = Array.isArray(indexReq.result) ? indexReq.result : [];
+			const index = [id, ...old.filter(other => other !== id)];
+			placesBefore = index.length;
+			for (const evicted of index.splice(keep))
+				removePlace(store, evicted);
+			putValue(store, key, value);
+			store.put(index, INDEX_KEY);
+		};
 		try {
-			storage.setItem(key, json);
-			break;
-		} catch {
-			const victim = index.length > 1 ? index.pop() : undefined;
-			if (!victim) return;
-			removePlace(storage, victim);
+			await done;
+			return;
+		} catch (e) {
+			if (/** @type {DOMException} */ (e)?.name !== "QuotaExceededError") return;
+			keep = Math.min(keep, placesBefore) - 1;
+			if (keep < 1) return;
 		}
 	}
-	try { storage.setItem(INDEX_KEY, JSON.stringify(index)); } catch { /* index is best-effort */ }
 }
 
 /**
- * Synchronously read what previous visits stored for this spot. Use it to render instantly.
- * @param {number} lat @param {number} lon
- * @returns {CachedRefraction | null}
+ * Write a reference place's entry (outside the place index). Never rejects.
+ * @param {string} key @param {unknown} value
  */
-export function readCachedRefraction(lat, lon) {
-	const storage = getStorage();
-	if (!storage) return null;
+function writeReference(key, value) {
+	const run = writeQueue.then(async () => {
+		const db = await openDB();
+		if (!db) return;
+		const tx = db.transaction(STORE, "readwrite");
+		const done = transactionDone(tx);
+		putValue(tx.objectStore(STORE), key, value);
+		await done;
+	}).catch(() => { /* used for this page anyway */ });
+	writeQueue = run;
+	return run;
+}
+
+/**
+ * Read what previous visits stored for this spot. Use it to render before anything is fetched.
+ * @param {number} lat @param {number} lon
+ * @returns {Promise<CachedRefraction | null>}
+ */
+export async function readCachedRefraction(lat, lon) {
 	const id = placeId(lat, lon);
-	const stat = readJSON(storage, staticKey(id));
+	const [stat, storedForecast, storedHaze] = await readMany([staticKey(id), forecastKey(id), hazeKey(id)]);
 	/** @type {CachedForecast | null} */
-	let forecast = readJSON(storage, forecastKey(id));
+	let forecast = storedForecast;
 	if (!forecast || typeof forecast.fetchedAt !== "number" || !forecast.table
 		|| Date.now() - forecast.fetchedAt > FORECAST_MAX_AGE_MS)
 		forecast = null;
-	const haze = hazeFromStored(readJSON(storage, hazeKey(id)));
+	const haze = hazeFromStored(storedHaze);
 	if (!stat && !forecast && !haze) return null;
 	return { horizon: stat?.horizon ?? null, normals: stat?.normals ?? null, forecast, haze };
 }
@@ -281,10 +450,10 @@ async function fetchHazeCalibration(serverUrl, lat, lon, signal) {
  * @returns {Promise<HazeData | null>}
  */
 async function loadHaze(lat, lon, serverUrl, notes, options) {
-	const storage = getStorage(), id = placeId(lat, lon);
+	const id = placeId(lat, lon);
 	const key = options.reference ? referenceHazeKey(id) : hazeKey(id);
 	/** @type {StoredHaze | null} */
-	const st = storage ? readJSON(storage, key) : null;
+	const st = await readOne(key);
 	const now = Date.now();
 	// normals stored before the dawn / night / dusk averages existed are fetched again once
 	const normalsOk = st && Array.isArray(st.monthly) && "monthlyDusk" in st && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
@@ -328,8 +497,9 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 		calibratedAt: scale != null ? now : st?.calibratedAt,
 	};
 	if (normals || evenings || blp != null || scale != null) {
+		// not awaited: the page uses `out` now, storing it can finish in the background
 		if (!options.reference) writeForPlace(id, key, out);
-		else if (storage) try { storage.setItem(key, JSON.stringify(out)); } catch { /* used for this page anyway */ }
+		else writeReference(key, out);
 	}
 	return hazeFromStored(out);
 }
@@ -351,12 +521,11 @@ export async function loadReferenceHaze(lat, lon, options = {}) {
 }
 
 /**
- * The stored average haze of a reference place, synchronously (null until loadReferenceHaze has stored it).
- * @param {number} lat @param {number} lon @returns {HazeData | null}
+ * The stored average haze of a reference place (null until loadReferenceHaze has stored it).
+ * @param {number} lat @param {number} lon @returns {Promise<HazeData | null>}
  */
-export function readCachedReferenceHaze(lat, lon) {
-	const storage = getStorage();
-	return storage ? hazeFromStored(readJSON(storage, referenceHazeKey(placeId(lat, lon)))) : null;
+export async function readCachedReferenceHaze(lat, lon) {
+	return hazeFromStored(await readOne(referenceHazeKey(placeId(lat, lon))));
 }
 
 /**
@@ -394,7 +563,7 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
 // ─── Loading ─────────────────────────────────────────────────────────────────
 
 /**
- * Load everything for one spot. Main thread only (uses fetch and, when available, localStorage).
+ * Load everything for one spot. Main thread only (uses fetch and, when available, IndexedDB).
  * Never throws for network failures: missing pieces come back null and are listed in `notes`.
  *
  * With a fresh stored forecast (< FORECAST_TTL_MS) no forecast request is made at all.
@@ -415,7 +584,7 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
 export async function loadRefraction(lat, lon, options = {}) {
 	const serverUrl = options.serverUrl ?? REFRACTION_SERVER;
 	const id = placeId(lat, lon);
-	const cached = readCachedRefraction(lat, lon);
+	const cached = await readCachedRefraction(lat, lon);
 	const freshForecast = !options.force && cached?.forecast && forecastStaleIn(cached) > 0
 		&& (!options.humidity || snapshotHasHumidity(cached.forecast.table)) ? cached.forecast : null;
 	// normals stored without dew points are fetched again when humidity is wanted

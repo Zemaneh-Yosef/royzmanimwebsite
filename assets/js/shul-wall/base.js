@@ -54,9 +54,9 @@ jCal.setInIsrael(['israel', 'ישראל'].some(isrName => (geoLocation.getLocati
 // The screen reloads itself daily (reload.js), and this module runs again each time, so each day starts
 // with current data. Start from what's stored (instant, works offline); give the network a few seconds
 // to bring something fresher. If it's slower than that, it keeps loading in the background and fills
-// localStorage, so the next reload gets it.
+// the stored data (IndexedDB), so the next reload gets it.
 const lat = geoLocation.getLatitude(), lon = geoLocation.getLongitude();
-const cachedRefraction = readCachedRefraction(lat, lon);
+const cachedRefraction = await readCachedRefraction(lat, lon);
 /** @type {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} */
 let refraction = {
 	atmosphereProvider: providerFromCache(cachedRefraction),

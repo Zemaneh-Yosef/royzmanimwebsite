@@ -23,3 +23,43 @@ body.lang-en .lang:not(.lang-en) {
         display: none !important;
     }
 }
+/*
+ * Loading shimmer over a zemanim list while its stored data is read (list-loading.js adds the class after a
+ * short delay; rendering the list removes it). The accordian list has its own in accordian.css.
+ */
+[data-zfFind="calendarFormatter"].loading:not(.accordian) {
+	position: relative;
+}
+
+[data-zfFind="calendarFormatter"].loading:not(.accordian)::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+	background-size: 40px 100%;
+	background-repeat: no-repeat;
+	background-position: left -40px top 0;
+	animation: zy-list-shine 1s ease infinite;
+	border-radius: inherit;
+	pointer-events: none;
+	z-index: 2;
+	opacity: .25;
+}
+
+/* the times still on screen belong to the previous place until the list renders */
+[data-zfFind="calendarFormatter"].loading .timeDisplay {
+	opacity: .45;
+	transition: opacity .15s;
+}
+
+@keyframes zy-list-shine {
+	to {
+		background-position: right -40px top 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-zfFind="calendarFormatter"].loading::before {
+		animation: none;
+	}
+}

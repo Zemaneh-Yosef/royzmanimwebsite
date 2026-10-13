@@ -6,6 +6,7 @@ import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
 import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
+import { showListLoadingAfterDelay } from "./list-loading.js";
 
 /** Floor for the next refraction check (e.g. when offline), so a failure doesn't loop. */
 const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
@@ -83,14 +84,16 @@ export default class zmanimListUpdater {
 		this.jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
 		this.jCal.setUseModernHolidays(true);
 
-		matLocSelect.addEventListener('change', (chngEvnt) => {
-			let sameDayEnsure = this.jCal.getDate().equals(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
-			this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
+		matLocSelect.addEventListener('change', async (chngEvnt) => {
+			const newLocation = locationGeoList[matLocSelect.selectedIndex];
+			let sameDayEnsure = this.jCal.getDate().equals(Temporal.Now.plainDateISO(newLocation.getTimeZone()));
 			localStorage.setItem('hycal-selectedLocation', matLocSelect.options[matLocSelect.selectedIndex].textContent.trim());
 			updateURLParameters({ "hycal-selectedLocation": matLocSelect.options[matLocSelect.selectedIndex].textContent.trim() });
 
-			if (sameDayEnsure)
-				this.changeDate(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
+			// renders once the stored data for the new place is read
+			await this.resetCalendar(newLocation);
+			if (sameDayEnsure && this.geoLocation === newLocation)
+				this.changeDate(Temporal.Now.plainDateISO(newLocation.getTimeZone()));
 		});
 
 		//this.weekPlainDate = getStartOfWeek(Temporal.Now.plainDateISO(locationGeoList[matLocSelect.selectedIndex].getTimeZone()));
@@ -167,13 +170,24 @@ export default class zmanimListUpdater {
 			alert("קוד הטמעה הועתק ללוח");
 		});
 
-		this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
+		/** Bumped on every resetCalendar, so a slow read of stored data for an old location is dropped. */
+		this._resetGen = 0;
+		/** Cancels the pending loading shimmer of the last resetCalendar. */
+		this._stopListLoading = () => {};
+		/** Settles once the first location is rendered (from stored data, or without it). */
+		this.ready = this.resetCalendar(locationGeoList[matLocSelect.selectedIndex]);
 	}
 
 	/**
+	 * Reset the calendar for a location. `zmanCalc` is for it as soon as this is called; the list is
+	 * rendered once what previous visits stored is read (a newer call before then takes over, and this one
+	 * renders nothing). Never rejects.
 	 * @param {KosherZmanim.GeoLocation} geoLocation
+	 * @returns {Promise<void>}
 	 */
-	resetCalendar(geoLocation = this.geoLocation) {
+	async resetCalendar(geoLocation = this.geoLocation) {
+		const gen = ++this._resetGen;
+		this._stopListLoading();
 		/** @type {import('@material/web/select/outlined-select.js').MdOutlinedSelect} */
 		// @ts-ignore
 		const matLocSelect = document.getElementById("locationSelector");
@@ -202,12 +216,15 @@ export default class zmanimListUpdater {
 
 		this.jCal.setInIsrael(geoLocation.getTimeZone() == 'Asia/Jerusalem');
 
-		// Render at once from what previous visits stored (forecast, terrain horizon, normals); fresh data
-		// follows in _loadRefraction(). getNetz() computes the visible sunrise from the horizon (this
-		// replaces the ChaiTables files in /assets/hazon-yosef-data/).
-		const cached = readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
-		this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
-		this._setupZmanCalc(providerFromCache(cached), cached?.horizon ?? null);
+		// drop a load still running for the old place (it would apply the old place's data)
+		this._refractionToken = (this._refractionToken ?? 0) + 1;
+		if (this._refractionRefresh) {
+			clearTimeout(this._refractionRefresh);
+			this._refractionRefresh = null;
+		}
+		// a calculator for the new place right away (no refraction yet), so nothing that runs while the
+		// stored data is read computes for the old place
+		this._setupZmanCalc(null, null);
 
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 		this.dtF = ['he', {
@@ -227,6 +244,17 @@ export default class zmanimListUpdater {
 			'hamah': undefined,
 			'levana': undefined
 		}
+
+		// Render from what previous visits stored (forecast, terrain horizon, normals); fresh data follows
+		// in _loadRefraction(). getNetz() computes the visible sunrise from the horizon (this replaces the
+		// ChaiTables files in /assets/hazon-yosef-data/).
+		const stopLoading = this._stopListLoading = showListLoadingAfterDelay();
+		const cached = await readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
+		stopLoading();
+		if (gen !== this._resetGen)
+			return; // another location came in while this was read
+		this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
+		this._setupZmanCalc(providerFromCache(cached), cached?.horizon ?? null);
 
 		this.setNextUpcomingZman();
 		this.changeDate(this.jCal.getDate());

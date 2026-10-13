@@ -610,13 +610,13 @@ chaiTable: true
 
 	/**
 	 * Jerusalem's average haze (monthly normals at dawn, at 4.65 and at 16 degrees after sunset, AERONET-calibrated):
-	 * the sky the Gemara's 72 and 18 minutes are measured in. Stored from an earlier visit, else loaded below;
+	 * the sky the Gemara's 72 and 18 minutes are measured in. Read from an earlier visit's store, else loaded below;
 	 * until then dawn is plain 16.04 degrees and nightfall the standard under halakhic_calc's default sky.
 	 * @type {import("/assets/libraries/kosherZmanim/star-nightfall.js").HazeData | null}
 	 */
-	let jerusalemHaze = readCachedReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude);
+	let jerusalemHaze = null;
 	/** bumped when Jerusalem's haze arrives, so cached dawns are worked out again */
-	let jerusalemVersion = jerusalemHaze ? 1 : 0;
+	let jerusalemVersion = 0;
 
 	/**
 	 * The Gemara's sky: the part of Jerusalem's average haze that is not man-made today. The 72 and 18 minutes were
@@ -1013,19 +1013,34 @@ chaiTable: true
 	// @ts-ignore
 	window.zemanClass = HandasiHazemanFunctions;
 
-	// Jerusalem's average haze: (re)load it - from storage when fresh, else Open-Meteo - and redraw if it changed
-	loadReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude).then(haze => {
+	/**
+	 * Use Jerusalem's haze if it differs from what is in use, and redraw.
+	 * @param {import("/assets/libraries/kosherZmanim/star-nightfall.js").HazeData | null} haze
+	 */
+	function applyJerusalemHaze(haze) {
 		if (!haze || (jerusalemHaze && JSON.stringify(haze) === JSON.stringify(jerusalemHaze)))
 			return;
 		jerusalemHaze = haze;
 		jerusalemVersion++;
 		/** @type {any} */
 		const updater = window.zmanimListUpdater2;
-		if (updater?.zmanCalc) {
-			updater.setNextUpcomingZman?.();
-			updater.changeDate(updater.zmanCalc.coreZC.getDate());
-		}
-	});
+		// before the list's first render (it reads the stored data for its place first), that render picks
+		// this up by itself: redraw only after it, never over the shimmer with a half-loaded calculator
+		Promise.resolve(updater?.ready).then(() => {
+			if (updater?.zmanCalc) {
+				updater.setNextUpcomingZman?.();
+				updater.changeDate(updater.zmanCalc.coreZC.getDate());
+			}
+		});
+	}
+
+	// Jerusalem's average haze: what an earlier visit stored first (a quick IndexedDB read), then (re)load
+	// it - from storage when fresh, else Open-Meteo - and redraw if it changed. Not awaited: window.zemanClass
+	// must be set before zmanimListUpdater.js runs; until the haze arrives dawn is plain 16.04 degrees.
+	readCachedReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude)
+		.then(applyJerusalemHaze)
+		.then(() => loadReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude))
+		.then(applyJerusalemHaze);
 
 	// ─── Notice above the zemanim: today's air moving the twilight times ──────────────
 	/** smallest shift (minutes) the notice mentions */
