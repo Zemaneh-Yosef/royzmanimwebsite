@@ -279,7 +279,7 @@ for (const d8Displ of document.querySelectorAll(['', 'Formal', 'Y', 'SY', 'S'].m
 
 	console.log(entryFound, d8jCal.getDate().toLocaleString('en', { month: 'long', day: 'numeric', year: 'numeric' }), d8Displ)
 
-	const [dateRender] = entryFound[0].split(/(?<![A-Z])(?=[A-Z])/);
+	const dateRender = entryFound[0].split(/[A-Z]/)[0];
 
 	if (dateRender.endsWith('formal')) {
 		d8Displ.innerHTML = d8jCal.dateRenderer('en').primary.text;
@@ -389,7 +389,7 @@ for (const elem of elems) {
 					continue;
 				}
 
-				const [functionName, prefOrSuf] = attr.split(/(?<![A-Z])(?=[A-Z])/);
+				const [functionName, prefOrSuf] = attr.split(/(?=[A-Z])/);
 				if (!functionName.startsWith('get') || prefOrSuf !== 'Prefix')
 					continue;
 

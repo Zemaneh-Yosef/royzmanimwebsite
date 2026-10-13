@@ -9,7 +9,7 @@ for (const d8Displ of document.querySelectorAll(['', 'Formal', 'Y', 'SY', 'S', '
     const attributes = d8Displ.dataset;
     const entryFound = Object.entries(attributes).find(attr => attr[0].startsWith('daterender'));
 
-    const [dateRender] = entryFound[0].split(/(?<![A-Z])(?=[A-Z])/);
+    const dateRender = entryFound[0].split(/[A-Z]/)[0];
 
     const d8jCal = (dateRender.includes('shabbat') ? jCal.shabbat() : jCal.clone());
     d8jCal.setDate(d8jCal.getDate()[parseInt(entryFound[1]) < 0 ? 'add' : 'subtract']({ days: Math.abs(parseInt(entryFound[1])) }));
