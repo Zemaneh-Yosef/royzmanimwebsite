@@ -1,8 +1,8 @@
 // @ts-check
 /**
  * print-refraction.js — main-thread refraction setup shared by the print pages that weren't built around
- * it (monthly print, Yonah print, weekly print from a JSON config). Same steps as
- * weeklyPrint/print-export-url-param.js:
+ * it (monthly print, Yonah print). Same steps as
+ * weeklyPrint/print-export-weekly.js:
  *
  *   const { refraction, refractionInit } = await loadPrintRefraction(geo, firstDate, lastDate);
  *   new ZemanFunctions(geo, { ...config, atmosphereProvider: refraction.provider, horizon: refraction.horizon, haze: refraction.haze });

@@ -1,0 +1,11 @@
+---
+title: Weekly-Print Calendar
+permalink: /print/weekly-json-multi
+layout: nothing
+---
+{% comment %}
+	Multi-location weekly print: ?config=<name> loads assets/weeklyConfig/<name>.json, whose "location" array lists
+	several nearby places. The zemanim are averaged across them; the right-hand pages carry a visible-sunrise table
+	(days x locations) in place of the learning cycles, and the Sunrise row is left off the zemanim grid.
+{% endcomment %}
+{% include printcal/weekly.html multi=true %}

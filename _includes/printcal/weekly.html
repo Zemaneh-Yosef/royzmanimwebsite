@@ -1,0 +1,1808 @@
+
+{% assign dayNames = "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday" | split: "," %}
+{% assign hebrewDays = "יום ראשון,יום שני,יום שלישי,יום רביעי,יום חמישי,יום שישי,יום שבת" | split: "," %}
+
+<link rel="stylesheet" href="/assets/fonts/polin/stylesheet.css">
+<style>
+	/* =========================================================
+   Zmanim Weekly Print CSS
+   4" x 6" | B&W interior | Cream 50lb | One week per page
+   ========================================================= */
+
+	/* ---------- Variables ---------- */
+	:root {
+		--margin-top: 0.35in;
+		--margin-bottom: 0.35in;
+		--margin-outer: 0.35in;
+		--margin-inner: 0.5in;
+		--page-bg: #f7f3e7;
+		--ink-color: #1a1a1a;
+		--body-font: 'EB Garamond', "SBL Hebrew", 'Times New Roman', serif;
+		--divider-color: #b3b3b3;
+	}
+
+	.page .fw-600 {
+		font-weight: 600;
+	}
+
+	.page .fw-bold {
+		font-weight: bold;
+	}
+
+	.page .mb-0 {
+		margin-bottom: 0;
+	}
+
+	/* =========================================================
+   @page — print page size and margins
+   ========================================================= */
+	@page {
+		size: 4in 6in;
+		margin: 0;
+	}
+
+	/* =========================================================
+   PRINT — flow-based multi-page output
+   ========================================================= */
+	@media print {
+		:root {
+			--page-bg: #fff
+		}
+
+		html,
+		body {
+			height: auto !important;
+			min-height: 0 !important;
+			margin: 0 !important;
+			padding: 0 !important;
+			background: var(--page-bg);
+			font-family: var(--body-font);
+			-webkit-print-color-adjust: exact;
+			print-color-adjust: exact;
+		}
+
+		/* Remove preceding layout elements so page 1 starts at y:0 */
+		#languageSelector {
+			display: none !important;
+		}
+
+		/* Zero out the anonymous wrapper div containing the pages */
+		body>div:has(.page) {
+			margin: 0 !important;
+			padding: 0 !important;
+			display: block !important;
+		}
+
+		/* Each .page breaks to its own physical page */
+		.page {
+			break-after: page;
+			page-break-after: always;
+			overflow: hidden;
+			box-shadow: none !important;
+			border: none !important;
+			background: var(--page-bg);
+		}
+
+		.page:last-child {
+			break-after: auto;
+			page-break-after: auto;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		.no-print {
+			display: none !important;
+		}
+	}
+
+	/* =========================================================
+   SCREEN — centered page preview
+   ========================================================= */
+	@media screen {
+		body {
+			background: #e9e9e9;
+			font-family: var(--body-font);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 24px;
+			padding: 40px 0;
+			margin: 0;
+		}
+
+		.page {
+			box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+			border: 1px solid #d8d2bd;
+			background: var(--page-bg) !important;
+		}
+	}
+
+	/* =========================================================
+   .page — fixed 4x6in box, identical in screen and print
+   (browsers treat 1in = 96px on screen, so 4in = 384px,
+    6in = 576px — no unit translation needed)
+   ========================================================= */
+	.page {
+		width: 4in;
+		height: 6in;
+		box-sizing: border-box;
+		color: var(--ink-color);
+		overflow: hidden;
+		position: relative;
+
+		/* Recto (right-hand page): gutter on left */
+		padding: var(--margin-top) var(--margin-outer) var(--margin-bottom) var(--margin-inner);
+
+		/* 7 day rows divide available height equally */
+		display: flex;
+		flex-direction: column;
+		gap: 0.05in;
+	}
+
+	/* Verso (left-hand / even pages): gutter on right —
+   add class="page verso" to alternate pages */
+	.page.verso {
+		padding: var(--margin-top) var(--margin-inner) var(--margin-bottom) var(--margin-outer);
+	}
+
+	.page.fullBleed {
+		padding: 0;
+	}
+
+	#cover {
+		display: grid;
+	}
+
+	#cover>* {
+		grid-area: 1/1;
+	}
+
+	/* =========================================================
+   Day rows — each gets exactly 1/7 of the content area
+   ========================================================= */
+	.templateZmanimWeekDay {
+		flex: 1;
+		min-height: 0;
+		display: flex;
+		align-items: stretch;
+		margin: 0;
+		gap: 0.1in;
+		justify-content: space-between;
+	}
+
+	/* Divider between each day's row (not before the first day) */
+	.templateZmanimWeekDay:not(:first-child) {
+		border-top: 0.75pt solid var(--divider-color);
+		padding-top: 0.035in;
+	}
+
+	/* =========================================================
+   Date circle
+   ========================================================= */
+	.templateDate {
+		flex-shrink: 0;
+		aspect-ratio: 1;
+		height: 100%;
+		width: auto;
+		overflow: visible;
+		position: relative;
+		/* drop shadow moved to the <circle> element via filter above */
+	}
+
+	.templateDateInner {
+		font-size: 12px;
+		line-height: 1.3;
+		font-weight: 600;
+		text-align: center;
+		color: var(--ink-color);
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		align-content: center;
+	}
+
+	.templateDate text {
+		font-family: var(--body-font);
+		font-size: 10px;
+		fill: var(--ink-color);
+		text-anchor: middle;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		font-weight: 500;
+	}
+
+	.templateDate path,
+	.templateDate circle {
+		shape-rendering: geometricPrecision;
+	}
+
+	/* =========================================================
+   Zmanim grid — fills remaining row width
+   ========================================================= */
+	.templateZmanimDayGrid {
+		min-width: 0;
+		display: grid;
+		grid-auto-flow: column;
+		grid-template-rows: repeat(7, 1fr);
+		grid-template-columns: 1fr 1fr;
+		column-gap: .5em;
+		font-size: 0.42em;
+		align-content: stretch;
+		line-height: 1.3;
+	}
+
+	.templateZmanimDayGrid>*:not(.disableRowFormat),
+	.templateZmanimDayGrid .rowFormat {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		min-height: auto;
+		white-space: nowrap;
+		gap: .1in
+	}
+
+	.zman-time {
+		font-weight: 600;
+	}
+
+	/* Divider between each zman row within the grid */
+	.templateZmanimDayGrid>* {
+		border-bottom: 0.5pt dotted var(--divider-color);
+	}
+
+	/* No trailing divider after the very last zman in the grid */
+	.templateZmanimDayGrid>.disableRowFormat {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	/* ==============
+	Second Page
+	================= */
+
+	.secondPageHeader {
+		display: flex;
+		justify-content: space-between;
+		border-top: 2px solid black;
+		border-bottom: 2px solid black;
+		margin-top: .5rem;
+		align-items: center;
+
+		line-height: 1.3;
+		font-size: 14px;
+	}
+
+	.secondPageHeader>*:not(img) {
+		flex: 1 1;
+	}
+
+	.secondPageHeader img {
+		border-radius: 100%;
+		corner-shape: squircle;
+		height: 3ch;
+		transform: scale(1.8);
+		margin-left: .75rem;
+		margin-right: .75rem;
+	}
+
+	.learningCycles {
+		display: flex;
+		flex-wrap: wrap;
+		text-align: center;
+		row-gap: .5rem;
+		line-height: 1.3;
+	}
+
+	.learningCycles h4 {
+		width: 100%;
+		font-size: 1.15rem;
+		margin-bottom: 0;
+	}
+
+	.learningCycles div.mainCycle {
+		width: 50%;
+		font-size: .85em;
+	}
+
+	.learningCycles div.extraCycle {
+		width: 33%;
+	}
+
+	.learningCycles .fw-bold {
+		font-size: .65em;
+		font-weight: bold;
+	}
+
+	.whiteTekufotMonths {
+		display: flex;
+		justify-content: space-around;
+		font-size: .5rem;
+		text-align: center;
+		align-items: center;
+
+		gap: .05in;
+	}
+
+	.whiteTekufotMonths[data-events="3"] {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: auto auto;
+		justify-items: center;
+		column-gap: .115in;
+		row-gap: .065in;
+	}
+
+	.whiteTekufotMonths[data-events="3"]>div:first-child {
+		grid-column: 1 / span 2;
+	}
+
+	.page .omerDesc {
+		font-size: 7px;
+		margin-bottom: 0;
+		justify-self: start;
+		align-self: start;
+	}
+
+	.whiteTekufotMonths h5 {
+		font-size: .7rem;
+		margin-bottom: 0;
+		font-weight: 600;
+	}
+
+	.whiteTekufotMonths p {
+		line-height: 1.2;
+		text-align: center;
+	}
+
+	.whiteTekufotMonths>* {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.whiteTekufotMonths ul {
+		padding-left: 0;
+		list-style: none;
+		width: fit-content;
+		text-align: left;
+		margin-bottom: 0;
+
+		display: flex;
+		flex-direction: column;
+	}
+
+	.whiteTekufotMonths ul .rec {
+		align-self: center;
+		font-size: .8em;
+		font-weight: 600;
+	}
+
+	hr {
+		margin: .5rem 0;
+	}
+
+	.whiteTekufotMonths hr {
+		width: 100%;
+		margin: .25rem 0;
+	}
+
+	/* =========================================================
+   Typography
+   ========================================================= */
+	.page h1,
+	.page h2,
+	.page h3 {
+		font-family: var(--body-font);
+		font-weight: 600;
+		color: var(--ink-color);
+		margin: 0 0 0.15in 0;
+	}
+
+	.page h1 {
+		font-size: 16pt;
+		text-align: center;
+	}
+
+	.page h2 {
+		font-size: 13pt;
+	}
+
+	.page h3 {
+		font-size: 11pt;
+	}
+
+	.page p, .page ul, .page ol {
+		margin: 0 0 0.12in 0;
+		text-align: justify;
+	}
+
+	.page:not(.fullBleed) img {
+		max-width: 100%;
+		filter: grayscale(100%);
+	}
+
+	.text-strike {
+		text-decoration: line-through;
+	}
+
+	/* Keep superscript ordinals from widening the line spacing */
+	.page sup {
+		line-height: 0;
+	}
+
+	/* ==============
+	Cover Page
+	================== */
+	#cover .plaque {
+		width: fit-content;
+		height: min-content;
+		padding: 3px 9.5px;
+		background: radial-gradient(circle at center, #3a5e78, hsl(205, 35%, 25%));
+		border: 3px solid #d4af37;
+		/* gold border */
+		border-radius: 12px;
+		position: relative;
+		text-align: center;
+		color: white;
+		box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.75), 1px 2px 2px rgba(98, 98, 98, .33), 2px 4px 4px rgba(98, 98, 98, .33), 3px 6px 6px rgba(98, 98, 98, .33);
+		corner-shape: scoop;
+		line-height: 1;
+		z-index: 5;
+		align-self: center;
+		justify-self: center;
+		margin-bottom: .75rem;
+		unicode-bidi: plaintext;
+	}
+
+	.page.fullBleed img.fullImageBG {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		margin: 0;
+		padding: 0;
+		/* object-view-box: inset(0% 0% 45% 7%);
+		object-position: left center; */
+		z-index: 1;
+	}
+
+	.page.fullBleed>*:not(img.fullImageBG) {
+		z-index: 2;
+	}
+
+	.explanation p {
+		font-size: 9pt;
+		margin: 0 0 0.08in 0;
+		line-height: 1.4;
+	}
+
+	/* Base text outline effect using CSS variables */
+	.text-outline {
+		paint-order: stroke fill;
+		-webkit-text-stroke: var(--base) black;
+		text-shadow:
+			calc(var(--base) * 3) calc(var(--base) * 3) 0 #000,
+			calc(var(--base) * -1) calc(var(--base) * -1) 0 #000,
+			calc(var(--base) * 1) calc(var(--base) * -1) 0 #000,
+			calc(var(--base) * -1) calc(var(--base) * 1) 0 #000,
+			calc(var(--base) * 1) calc(var(--base) * 1) 0 #000;
+	}
+
+	/* Heading variant */
+	.page h1.text-outline--heading {
+		--base: 0.33px;
+		font-size: 25pt;
+		color: white;
+		text-decoration: underline;
+		text-decoration-color: white;
+		font-weight: 800;
+		filter: drop-shadow(0px 2.5px 2px rgba(0, 0, 0, .5));
+	}
+
+	/* Subtitle variant */
+	.text-outline--subtitle {
+		--base: 0.5px;
+		font-size: 1.35em;
+		line-height: 1.3;
+		font-weight: 700;
+	}
+
+	/* Caption variant */
+	.text-outline--caption {
+		--base: 0.375px;
+		font-size: .9em;
+	}
+
+	#technicalInfoGrid {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		column-gap: .5rem;
+	}
+
+	[data-zyFind="adjustmentsTable"] p {
+		margin-bottom: 6px;
+	}
+
+	[data-zyFind="adjustmentsTable"] p:last-child {
+		margin-bottom: 0;
+	}
+
+	[data-monthPrefix],
+	.explanation {
+		gap: 0;
+	}
+
+	[data-monthPrefix] p {
+		font-size: .84em;
+	}
+
+	[data-monthPrefix] h1 {
+		margin-bottom: .075in;
+	}
+
+	.fs-sm,
+	.rabbenuTamAppend {
+		font-size: .75em;
+	}
+
+	.hiloulot {
+		font-size: 10px;
+		gap: 0;
+	}
+
+	.hiloulot>h1 {
+		font-weight: 700;
+	}
+
+	.hiloulot>h2 {
+		text-align: center;
+	}
+
+	.hiloulot>div {
+		margin-bottom: .75em;
+	}
+
+	.hiloulot .nameRow {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+	}
+
+	.hiloulot .nameRow>span:last-child {
+		text-align: right;
+		white-space: nowrap;
+	}
+</style>
+<style>
+	/* Zemanim Table Wrapper */
+	.zemanim-table-wrapper {
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		overflow: hidden;
+		background: white;
+		page-break-inside: avoid;
+	}
+
+	/* Zemanim Table Title */
+	.zemanim-table-title {
+		padding: 8px 12px;
+		background: #f5f5f5;
+		font-weight: bold;
+		font-size: 14px;
+		border-bottom: 1px solid #ddd;
+		text-align: center;
+	}
+
+	/* Zemanim Table */
+	.zemanim-table {
+		border-collapse: collapse;
+		width: 100%;
+		font-size: 7px;
+	}
+
+	/* Table Header Cells */
+	.zemanim-table th {
+		border: 1px solid #ccc;
+		padding: 4px 6px;
+		background: #f5f5f5;
+		font-weight: bold;
+		text-align: center;
+		min-width: 40px;
+	}
+
+	/* Corner Cell (Day) */
+	.zemanim-table th.corner-cell {
+		min-width: 25px;
+	}
+
+	/* Table Data Cells */
+	.zemanim-table td {
+		border: 1px solid #ccc;
+		text-align: center;
+	}
+
+	/* Day Column */
+	.zemanim-table td.day-cell {
+		font-weight: bold;
+		background: #fafafa;
+	}
+
+	/* Empty Date Cell */
+	.zemanim-table td.empty-cell {
+		background-color: #f9f9f9;
+	}
+
+	/* Data Cell with Value */
+	.zemanim-table td.data-cell {
+		background-color: #e8f5e9;
+		font-weight: 500;
+	}
+
+	/* Empty Data Cell (no value for date) */
+	.zemanim-table td.no-data-cell {
+		color: #bbb;
+	}
+
+	.page.birkatLevanaMoonPage {
+		display: block;          /* one month per page, so the 2x2 grid is gone */
+		font-size: 0.95em;
+		line-height: 1.3;
+	}
+
+	.moonMonthCard .moonPageTitle {
+		text-align: center;
+		text-transform: uppercase;
+		font-weight: 900;
+		font-size: 1.1rem;
+		margin: 0 0 0.08in 0;
+	}
+
+	/* Two days per row. Each half is [day number | rise | set]. */
+	.moonGrid {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+		column-gap: 0.15in;
+		row-gap: 0;
+	}
+
+	.moonDay {
+		padding: 0.03in 0;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.moonDay .dayNum {
+		align-self: center;
+		text-align: center;
+		font-size: 1rem;
+		font-weight: 500;
+	}
+
+	.moonCell { text-align: center; }
+
+	.moonGlyph {
+		display: flex;
+		justify-content: center;
+		height: 0.4in;           /* reserved even when the event is missing, so rows stay aligned */
+		line-height: 0;
+	}
+	.moonGlyph svg { display: block; width: 0.4in; height: 0.4in; }
+
+	.earlyMoonTable .moonGlyph {
+		height: 0.22in;
+		margin-right: 3.5px;
+		display: inline;
+	}
+	.earlyMoonTable .moonGlyph svg {
+		width: 0.22in;
+		height: 0.22in;
+		display: unset;
+	}
+
+	.earlyMoonTable {
+		font-size: .625rem;
+		text-align: center;
+	}
+
+	.dateHint { font-size: 0.55rem; color: #777; }
+	.timeVal  { font-size: 0.7rem; }
+
+	.whiteTekufotMonths ul {
+		margin-bottom: 0;
+	}
+
+	.moonBothTime { display: block; white-space: nowrap; }
+</style>
+<style>
+	.goldPlaqueImg { display: block; margin: 0 auto; }
+</style>
+<div class="page fullBleed" id="cover">
+	<img src="/assets/images/print/57b90297-9375-4a6e-9fbf-416f95ed9074.png" class="fullImageBG">
+	<div style="justify-self: center; margin-top: 22px; text-align: center; color: white;">
+		<img src="/assets/images/print/logo.png" style="width: 90%; margin-bottom: 0.3rem;">
+		<div class="plaque">
+			<span class="goldPlaqueSourceText" hidden data-zyLocationText></span>
+			<img class="goldPlaqueImg">
+		</div>
+	</div>
+	<div
+		style="color: white; justify-self: center; text-align: center; font-weight: 600; margin-bottom: 1.25rem; align-self: end;">
+		<div class="text-outline text-outline--subtitle">The pocket-sized print calendar<br>of Sephardic Halakhic Times
+		</div>
+		<div class="text-outline text-outline--caption">adapted from the לוח המאור calendar <span class="fs-sm"
+				style="font-weight: 400;">(Yeshivat Ohr Hachaim)</span></div>
+	</div>
+</div>
+<div class="page fullBleed"
+	style="background: url('/assets/images/shul-wall/sbm-la/ptrn.png') 90px/90px !important; opacity: 10%;"></div>
+<div class="page">
+	<div style="font-weight: 900; text-align: center; font-size: 1.35em;"><span data-zyLocationText></span> edition
+	</div>
+	<div style="flex: 1 1; text-align: center;"><img src="/assets/images/print/B&W-icon.png" style="width: 80%;"></div>
+	<div style="text-align: center;">
+		<div style="font-weight: 400; font-style:italic; font-size: .9em;">Updated as of <span
+				data-zydategenerated></span></div>
+		<div style="font-size: .95em; line-height: 1.4;">Presented by Maor Na'im & Elyahu Jacobi,<br>
+			using formulas from R' Leeor Betzalel Dahan<br>
+			based on the Halakhic rulings of R' 'Ovadia Yosef zt"l</div>
+	</div>
+</div>
+<div class="page verso" style="gap:0; font-size: .85em;">
+	<p style="line-height: 1.15;">Contact email: neimmaor@gmail.com<br>Phone number provided on request</p>
+	<h5 style="text-decoration: underline; font-size: 1.15em; font-weight: 700; text-align: center;">Special Thanks</h5>
+	<ul class="mb-0" style="text-align: left;">
+		<li><strong class="fw-600">Moreshet Maran, R' Nachum Hanon</strong>: Representing Ha'Rav Yitzḥak Yosef</li>
+		<li><strong class="fw-600">R' Leeor Betzalel Dahan</strong>: Adapting the Ḥakham 'Ovadia rulings to other locales
+		</li>
+		<li><strong class="fw-600">R' Meir Gavriel Elbaz</strong>: Halakhic Research</li>
+		<li><strong class="fw-600">R' Avraham Soleimani</strong>: Halakhic Composition Assistance</li>
+		<li><strong class="fw-600">Eliyahu Hershfeld</strong>: The original KosherJava library used</li>
+		<li><strong class="fw-600">Chaim Keller, ChaiTables/לוח בכורי יוסף</strong>: Visual Sunrise Research</li>
+		<li>
+			<strong class="fw-600">Sephardic Heritage Foundation, Sam Kassin</strong>: Source of Makamat used, as
+			represented in שיר ושבחה הלל וזמרה
+		</li>
+		<li><strong class="fw-600">hamichlol.org.il, hyomi.org.il</strong>: Hiloulot Assistance</li>
+	</ul>
+	<hr style="margin: .5rem 0">
+	<p class="fs-sm">All of the work here is open-source. This calendar in particular was generated via HTML, CSS &
+		JavaScript, and we also provide classes/methods for Java & Swift (for our Android and iOS apps respectively).
+		View our GitHub organization for more information.</p>
+</div>
+<div class="page" style="gap:0; font-size: .85em;">
+	<h1>Contents</h1>
+	<ul style="text-align: left;">
+		<li>
+			<div class="fw-600" style="font-size: 1.15em;">Introduction</div>About Us, Approbations
+		</li>
+		<li>
+			<div class="fw-600" style="font-size: 1.15em;">Weekly Zemanim</div>Month Introduction (Description +
+			Hiloulot), Zemanim on the left, Shabbat/Yom Tov on the right
+		</li>
+		<li>
+			<div class="fw-600" style="font-size: 1.15em;">Guide to the Calendar</div>Seasonal Minutes Explanation,
+			Daily Schedules, Seasonal/Holiday Schedules
+		</li>
+		<li>
+			<div class="fw-600" style="font-size: 1.15em;">Additional Time Tables</div>Full Solar-Sphere Sunrise, Pelag
+			Ha'Minḥa – Ma'amar Mordekhi, Full-Length Rabbenu Tam List
+		</li>
+	</ul>
+	<hr>
+	<div
+		style="display: flex; justify-content: space-evenly; gap: 6px; align-items: center; font-weight: 700; text-align: center; font-size: 1.1em;">
+		<img id="qrCodeDigitalView" style="width: 75px">
+		<div>Digital Equivalent of these times (on our website)</div>
+	</div>
+</div>
+<style>
+	.numberTable {
+		display: grid;
+		grid-template-columns: auto auto;
+		column-gap: 6px;
+		font-size: 10.5px;
+		line-height: 1.3;
+		width: fit-content;
+	}
+
+	.numberTable>*:first-child {
+		text-align: center;
+		font-weight: 800;
+		grid-column: span 2;
+		font-size: 1.2em;
+	}
+
+	.numberTable>*:nth-child(even) {
+		text-align: right;
+		font-weight: 700;
+	}
+</style>
+<div class="page verso">
+	<div style="flex: 1 1;"></div>
+	{% if include.multi %}
+	<div class="vsMultiTable" data-zyFind="vsTableMulti">
+		<div class="vsTitle">Visual Sunrise Details</div>
+		<div class="vsHead">Location</div>
+		<div class="vsHead">Earliest Offset<div>(Visual Sunrise <i>earlier</i> than sea-level)</div></div>
+		<div class="vsHead">Latest Offset<div>(Visual Sunrise <i>later</i> than sea-level)</div></div>
+	</div>
+	{% else %}
+	<div style="display: flex; column-gap: 6px; align-items: center;">
+		<img id="qrCodeVisualSunrise" class="qrCode" style="aspect-ratio: 1/1;">
+		<div class="numberTable" data-zyFind="vsTable">
+			<div>Visual Sunrise Details</div>
+			<div>Radius</div>
+			<div data-zyReplace="sunriseRadius"></div>
+			<div>Earliest Offset<div style="font-size: .7em; font-weight: 400;">(When Visual Sunrise is <i>earlier</i>
+					than sea-level sunrise)</div>
+			</div>
+			<div data-zyReplace="earliestOffset"></div>
+			<div>Latest Offset<div style="font-size: .7em; font-weight: 400;">(When Visual Sunrise is <i>later</i> than
+					sea-level sunrise)</div>
+			</div>
+			<div data-zyReplace="latestOffset"></div>
+		</div>
+	</div>
+	{% endif %}
+	<div data-zyFind="adjustmentsTable" class="fs-sm" style="line-height: 1.4;">
+		<h5 style="text-decoration: underline; font-size: 1.15em; font-weight: 700;">Technical Specifications</h5>
+		<p style="text-align: left;">
+			The <i>18-seasonal-minute mil</i> of Israel translates to a <i data-zylengthofmil></i> for <span
+				data-zylocationname></span>.
+		</p>
+
+		<div id="technicalInfoGrid">
+			<div class="fw-600">
+				Translation of "4 mil"
+				<div style="font-weight: 500; font-size: .8em; font-style: italic;">Dawn & Nightfall of Rabbenu Tam
+				</div>
+			</div>
+			<div data-zyReplace="dawn"> seasonal minutes</div>
+			<p class="fw-600">
+				Translation of "¾ mil"
+				<span style="display: block; font-weight: 500; font-size: .8em; font-style: italic;">End of Ben
+					Ha'Shemashot/Nightfall</span>
+			</p>
+			<div data-zyReplace="nightfall"> seasonal minutes</div>
+			<p style="grid-column-end: span 2;">
+				These stringent times for Shabbat & Yom Tov use the fixed minute formula. They can be found on the
+				right-side pages of the calendar.
+			</p>
+			<div class="fw-600">Candle Lighting</div>
+			<div data-zyReplace="candleLighting"></div>
+			<div class="fw-600">Tzet Melakha</div>
+			<p data-zyReplace="tzetShabbat"></p>
+			<p style="grid-column-end: span 2;">
+				Finally, "Stringent Nightfall" represents the <b>strictest</b> permutation of Geonic Nightfall through
+				our
+				methodologies <span style="font-size: .8em;">(the <i>24-minute mil</i> of the Rambam, the
+					half-second of <i>R' Yose</i>, with slight increases beyond that)</span> – the length of <b
+					data-zyReplace="stringentNightfall"> seasonal
+					minutes</b> for <span data-zylocationname></span>.
+			</p>
+		</div>
+	</div>
+</div>
+<div class="page">
+	<h1 style="font-weight: 800; margin-bottom: 0; font-size: 2.25rem;"><span data-zylocationname></span></h1>
+	<div style="flex: 1 1; align-content: center;">
+		<div data-zyFind="locationMap"
+			style="aspect-ratio: 1/1; width: 100%; corner-shape: squircle; border-radius: 30%; overflow: hidden;"></div>
+	</div>
+	<div style="display: flex; justify-content: space-between; font-size: .6em; line-height: 1.3;">
+		{% if include.multi %}
+		<ul class="locationList" data-zyFind="locationList"></ul>
+		{% else %}
+		<div>
+			Latitude: <span data-zyReplace="latitude"></span><br>
+			Longitude: <span data-zyReplace="longitude"></span><br>
+			Elevation: <span data-zyReplace="elevation"></span>
+		</div>
+		{% endif %}
+		<div style="text-align: right;">
+			© Stadia Maps <span style="font-size: .9em;">stadiamaps.com</span><br>
+			© Stamen Design <span style="font-size: .9em;">stamen.com</span><br>
+			© OpenStreetMap <span style="font-size: .9em;">openstreetmap.org/copyright</span>
+		</div>
+	</div>
+	<hr>
+	<div style="text-align: center; font-size: .785em; line-height: 1.4;">
+		Light Pollution: <span data-zyReplace="light-pollution"></span>
+		<div style="margin-bottom: .05in;" class="fs-sm">(artificial skyglow overhead; natural sky not included)</div>
+		We <span data-zyFind="timeZoneOutlier">switch to Daylight Saving Time|return to Standard Time</span> from <span
+			data-zyReplace="timezoneStartDate"></span> until <span data-zyReplace="timezoneEndDate"></span><br>
+		Direction of prayer toward Jerusalem: <span data-zy-prayer-angle></span>
+	</div>
+</div>
+<style>
+		.monthGrid {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: 2px;
+		margin-bottom: .08in;
+		font-size: 6.5px;
+		line-height: 1.15;
+	}
+
+	.monthGrid .mgLabel {
+		text-align: center;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: .04em;
+		padding-bottom: 1px;
+		border-bottom: .75pt solid var(--ink-color);
+	}
+
+	.monthGrid .mgCell {
+		height: .36in;
+		border: .5pt solid var(--divider-color);
+		border-radius: 22%;
+		corner-shape: squircle;
+		padding: 2px;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		overflow: hidden;
+	}
+
+	.monthGrid .mgCell.empty {
+		border: none;
+		background: repeating-linear-gradient(135deg, transparent, transparent 3px, rgba(0, 0, 0, .05) 3px, rgba(0, 0, 0, .05) 6px);
+	}
+
+	.monthGrid .mgCell.shabbat { background: rgba(0, 0, 0, .06); }
+	.monthGrid .mgTop { display: flex; justify-content: space-between; align-items: baseline; }
+	.monthGrid .mgHeb { font-weight: 500; font-size: 1.15em; }
+	.monthGrid .mgCell.bold .mgHeb { font-weight: 800; }
+	.monthGrid .mgGreg { font-size: .8em; color: #666; }
+	.monthGrid .mgTitles { align-self: center; text-align: center; font-size: .85em; font-weight: 600; line-height: 1.05; }
+	.monthGrid .mgTitles.many { font-size: .7em; }
+	.monthGrid .mgTimes { text-align: end; font-size: .85em; font-weight: 600; white-space: nowrap; }
+	.monthGrid .mgTimes svg { height: 1em; width: .4em; vertical-align: -.1em; }
+
+	/* Moon grid shrinks when the month grid shares its page */
+	.moonMonthCard:has(.monthGrid) .moonGlyph { height: .28in; }
+	.moonMonthCard:has(.monthGrid) .moonGlyph svg { width: .28in; height: .28in; }
+	.moonMonthCard:has(.monthGrid) .timeVal { font-size: .62rem; }
+	.moonMonthCard:has(.monthGrid) .moonDay { padding: .015in 0; }
+</style>
+<div class="page" data-monthPrefix="7">
+	<h1 style="margin-top: -0.075in;">The Month of Tishri</h1>
+	<div style="text-align: center; margin-bottom: .08in; font-size: .785em;">
+		<div style="unicode-bidi: plaintext;">בֶּחֳדָשִׁים הַשְּׁבִיעִי חָבִיב, "בַחֹדֶשׁ הַשְּׁבִיעִי בְּאֶחָד
+			לַחֹדֶשׁ"</div>
+		<div style="line-height: 1.3;">Of the months, the seventh is beloved; "In the seventh month, on the first
+			day"</div>
+		<div class="fs-sm">Yalkut Shimoni, Parashat Yitro 276</div>
+	</div>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;"><strong>Tishri</strong> starts several cycles – <em>Shemitta</em>, vows, planting
+		(<em>'Orla</em>) and vegetation (tithes, <em>terumot</em>) – and per R' Eliezer, the world (determined by mankind)
+		was created in this month, or at least creation as a concept occurred for God then <span class="fs-sm">(Rabbenu
+			Tam, Rosh Hashana 27a; cf. Ḥagiga 12a, Rashi on Bereshit 1:1, Bereshit Rabba 12:4)</span>. Fittingly, its name derives from the Akkadian <em>tašrītu</em> ("beginning"), from
+		<em>šurrū</em> (to begin or open).</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">Its holidays center on judgment, repentance and God's kingship: <strong>Rosh
+			Hashana</strong> (shofar) and <strong>Yom Kippur</strong> (a full fast), joined by the <strong>'Aseret Yemei
+			Teshuva</strong>, focus on our judgment; <strong>Sukkot</strong> (sukka and four species) turns to the
+		judgment of rain (cf. the month's old name, איתנים – I Melakhim 8:2), culminating in <strong>Shemini
+			'Atzeret</strong>, when (in Israel) we also complete the Torah cycle.</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">Its history opens with the <strong>'Akeida</strong> <span class="fs-sm">(2085/1677 BCE
+			by tradition)</span> – on the 1<sup>st</sup> <span class="fs-sm">(Peshat; serves as an explanation to various practices of Rosh
+			Hashana)</span>, or the 10<sup>th</sup> <span class="fs-sm">(Zohar)</span>. The Midrashim link this event with Sara's passing, culmunating with the purchase of מערת המכפלה <span class="fs-sm">(Rashi, Bereshit 23:2;
+			Shadal does not necessarily connect the two)</span>. Later came the First Temple's
+		dedication, celebrated through Sukkot <span class="fs-sm">(I Melakhim 8:65; 2936/826 BCE by tradition<!--; c. 959
+			BCE by historians-->)</span>, and, after its destruction, the murder of <em>Gedalya ben Aḥikam</em>, ending
+		Jewish self-rule – mourned with <strong>Tzom Gedalya</strong> on the 3<sup>rd</sup> <span
+			class="fs-sm">(II Melakhim 25:25; 3339/423 BCE by tradition<!-- ; 586/582 BCE by historians-->)</span>.</p>
+</div>
+<div class="page" data-monthPrefix="8">
+	<h1>The Month of Marḥeshvan</h1>
+	<p>In the Tanakh (I Melakhim 6:38), this month is referred to as <strong>Yeraḥ Bul</strong>, a name rooted in seasonal
+		shifts: the withering of grass (<em>baleh</em>), the mixing of fodder (<em>bolelin</em>), and the
+		harvesting of produce (<em>yevul</em>). The name is also associated with the onset of rain – forming clods of
+		earth (<em>bolot</em>) and recalling the Great Flood (<em>mabul</em>), which began on the 17<sup>th</sup> of this
+		month <span class="fs-sm">(Bereshit 7:11; 1656/2106 BCE by tradition)</span>. This mirrors the practice in Israel
+		of requesting rain in ברך עלינו from the 7<sup>th</sup> of the month <span class="fs-sm">(elsewhere, from early
+			December)</span>, with fasts once held if none fell by the 17<sup>th</sup>.</p>
+
+	<p>The name <strong>Marḥeshvan</strong> (often shortened to <strong>Ḥeshvan</strong>) instead denotes the
+		month's numerical order, deriving from the Akkadian <em>warḫu samnu</em> ("eighth month").
+		Linguistically, <em>warḫu</em> corresponds to <em>yeraḥ</em> (month) and <em>samnu</em> to
+		<em>shemona</em> (eight). While the prefix <strong>Mar</strong> is often interpreted as "bitter" due
+		to the month's lack of festivals, it also means "drop" (as in Yesha'yahu 40:15), signifying the welcome
+		arrival of the autumn rains. Conversely, the Aramaic definition behind the prefix "Mar" is
+		"master", alluding to the First Temple, which King Shelomo completed in this month <span class="fs-sm">(2935/827
+			BCE by tradition; c. 959 BCE by historians)</span> – despite the bitter delay of its dedication, the month
+		will eventually be repaid with future celebration.
+	</p>
+</div>
+<div class="page" data-monthPrefix="9">
+	<h1 style="margin-top: -0.075in;">The Month of Kislev</h1>
+	<p style="font-size: .785em;">The strength of <strong>Kislev</strong> appears as early as Ḥaggai, who encouraged the nation to rebuild the Temple, promising prosperity and victory over its era's enemies <span class="fs-sm">(Ḥaggai 2:10; 24<sup>th</sup> of Kislev, 3408/354 BCE by tradition; 520 BCE by historians)</span>. The later scribe <em>'Ezra</em> showed further strength, gathering the nation within three days to strengthen Torah observance and dissolve interfaith marriages <span class="fs-sm">('Ezra 10:9; 20<sup>th</sup> of Kislev, 3414/348 BCE by tradition; 458 BCE by historians)</span>.</p>
+	<p style="font-size: .785em;">The month's most famous display of strength was the war against the Greek empire, celebrated as <strong>Ḥanukka</strong> – by lighting candles for eight nights, reciting the full Hallel, and adding <em>'Al Ha'Nissim</em>. Although the story spanned several years, its milestones fell in this month:</p>
+	<ul style="font-size: .785em;">
+		<li style="text-align: justify;">On the 15<sup>th</sup>, the "abomination of desolation" was set on the altar and idols were set in the streets of Judea; on the 25<sup>th</sup>, idolatrous sacrifices were offered on the altar <span class="fs-sm">(3619/143 BCE by tradition; 167 BCE by historians)</span>.</li>
+		<li style="text-align: justify;">Three years later, on the 25<sup>th</sup>, the <i>Kohanim</i> resumed their service, and the only sealed oil jug found lit the Menorah for eight days <span class="fs-sm">(3622/140 BCE by tradition; 164 BCE by historians)</span>.</li>
+	</ul>
+	<p style="font-size: .785em;">The name <strong>Kislev</strong> itself may echo this theme of strength. Some derive it from the Akkadian root <em>kislu</em> (<em>kaslu</em>), meaning "inner strength."</p>
+</div>
+<div class="page" data-monthPrefix="10">
+	<h1 style="margin-top: -0.075in;">The Month of Tevet</h1>
+	<p style="font-size: .785em;">Following <em>Ḥanukka</em>, <strong>Tevet</strong> serves as the representative of the winter season, whether as its climax or beginning <span class="fs-sm">(see Bava Metzia 106b)</span>. The winter solstice found in this month (as titled in the Hebrew – <em>Tekufat Tevet</em>) brings the northern hemisphere's shortest days, as the sun takes its lowest path across the sky. This detail could be reflected in the original name of the month, which is derived from Akkadian <em>ṭebētu</em> ("sunk").</p>
+	<p style="font-size: .785em;">Spiritually, this solar gloom reflects a deeper Kabbalistic theme. According to the Zohar <span class="fs-sm">(Yitro 13:241)</span> and <em>Ma'aseh
+			Roke'aḥ</em> <span class="fs-sm">(commentary to Mishna Ta'anit 4:6)</span>, Tevet is one of three months governed by stern judgment (<em>Dina Kasya</em>). In the division
+		of the months between <em>Ya'akov</em> and <em>'Esav</em>, Tevet fell into the portion of <em>'Esav</em>, temporarily giving power to
+		the <em>Sitra Aḥara</em> (the side of impurity).</p>
+	<p style="font-size: .785em;">Within the month itself, this spiritual vulnerability manifests on the 8<sup>th</sup>–10<sup>th</sup> days, known for the tragedies
+		that befell – namely the translation of the Torah into Greek <span class="fs-sm">(c. 3<sup>rd</sup> century BCE by historians)</span>, the passing of <em>'Ezra</em> (and with it, the
+		leadership he represented), and the siege of Jerusalem <span class="fs-sm">(II Melakhim 25:1; 3336/425 BCE by tradition; 588 BCE by historians)</span>, marked by the fast of צום העשירי from dawn until nightfall. It was also in this month, decades after the siege, that <em>King Aḥashverosh</em> took <em>Esther</em> as his wife <span class="fs-sm">(Megillat
+		Esther 2:16; 3399/362 BCE by tradition; 478 BCE by historians)</span>, setting in motion the Purim story and the redemption that followed.</p>
+</div>
+<div class="page" data-monthPrefix="11">
+	<h1>The Month of Shevat</h1>
+	<div style="text-align: center; margin-bottom: .12in;">
+		<h2 style="font-weight: 500; margin-bottom: 0;"><b>ש</b>נשמע <b>ב</b>שורות <b>ט</b>ובות</h2>
+		<div style="line-height: 1.3; font-size: .875em;">That we may hear good tidings</div>
+	</div>
+	<p>The agricultural influence of <strong>Shevat</strong> is found as early as its name, with its Akkadian source (<em>šabāṭu</em>) referring to the harsh rains that come with the solar season of this month. We also know <span class="fs-sm">(from R' Hai Gaon, Teshuvot Ha'Geonim [Harkavy], §243)</span> that the solar season coincides with the Arabic <em>al-jamra al-thāniya</em> (the second ember/coal) period, where the trees become moist and begin to absorb water, thus reviving them. Hence, it is fitting for the New Year of the Trees to fall in this season, celebrated on the 15<sup>th</sup> day known as <strong>ט"ו בשבט</strong>. <span class="fs-sm">(The exact date follows the ruling of בית הלל; see Mishna Rosh Hashana 1:1 for the full discussion, including the opinion of בית שמאי.)</span></p>
+	<p>On the 1<sup>st</sup> of this month, Moshe began his final speech, addressing the nation before <em>Yehoshua</em> replaced his leadership <span class="fs-sm">(Devarim 1:3; 2488/1273 BCE by tradition)</span>. These teachings would ultimately be written in the form of <strong>Sefer Devarim</strong>, often called <strong>Mishneh Torah</strong>.</p>
+</div>
+<div class="page" data-monthPrefix="12">
+	<h1>The Month of Adar I</h1>
+	<p>The months of the year are determined by the lunar cycle, and the lunar year falls about 11 days short of the
+		solar year. This desync causes a problem for Jewish holidays, which have seasonal placements despite their dates
+		being set by the lunar month. Thus, in leap years, we add the month of <strong>Adar I</strong> to the calendar.
+		With Hillel's calendar cycle originating in 358–9 CE, the institution of this month was no longer dependent on
+		agricultural concerns and astronomical calculations <span class="fs-sm">(which required a <em>Sanhedrin</em>)</span>,
+		instead following a fixed pattern of seven leap years and twelve "ordinary" years, collectively becoming a
+		<em>nineteen-year cycle</em>.</p>
+	<p>We've kept the month of <em>Adar II</em> for the respective festival of <em>Purim</em> <span class="fs-sm">(to
+			keep the redemption of Purim close to the redemption from Egypt)</span> and the recital of the <em>Arba
+			Parashiot</em> <span class="fs-sm">(which are dependent on <em>Purim</em>)</span>. Nevertheless, the
+		14<sup>th</sup> and 15<sup>th</sup> of Adar I are called <strong>[Shushan-]Purim Katan</strong>, observed by
+		refraining from <em>Taḥanun</em>, eulogies, or fasts. The name <strong>Adar</strong> itself derives from the
+		Akkadian <em>addaru</em>; in Hebrew, the root אדר denotes might and glory (as in אדיר).</p>
+	<p>The ramifications of this month affect <em>Hiloulot</em>, <em>vows</em>, and birthdays (affecting Jewish
+		adulthood – the bar mitzvah status). <span class="fs-sm">(See the discussion in Talmud Yerushalmi, Megilla
+			7a–7b.)</span></p>
+</div>
+<div class="page" data-monthPrefix="13" style="line-height: 1.4;">
+	<h1 style="margin-top: -0.075in;">The Month of Adar (II)</h1>
+	<div style="text-align: center; margin-bottom: .12in; font-size: .785em;">
+		<div dir="rtl" lang="he" style="unicode-bidi: plaintext;">מִשֶּׁנִּכְנַס אֲדָר מַרְבִּין בְּשִׂמְחָה</div>
+		<div style="line-height: 1.3;">When <span class="fs-sm">[the month of]</span> Adar begins, one increases
+			rejoicing.</div>
+		<div class="fs-sm">Talmud Bavli, Ta'anit 29a</div>
+	</div>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">
+		The glory of Adar comes from <strong>Purim</strong>, when Haman's decree to annihilate Persian Jewry was overturned <span class="fs-sm">(3405/356 BCE by tradition; 473 BCE by historians)</span>. Though Haman had been hanged eleven months earlier <span class="fs-sm">(16 Nisan)</span>, his decree still stood; the Jews were thus <em>permitted</em> to defend themselves, and did so on the 13<sup>th</sup> <span class="fs-sm">(in Shushan, the 14<sup>th</sup> as well)</span>. These events are recorded in <strong>Megillat Esther</strong>, read on the holiday.</p>
+		<p style="font-size: 8.85pt; margin-bottom: .075in;">Purim falls on the day the Jews rested: the 15<sup>th</sup> in <em>Shushan</em> [and cities walled since <em>Yehoshua</em>'s day], the 14<sup>th</sup> elsewhere. Besides the <em>Megillah</em>, it is marked by gifts to the poor, food gifts to friends, and a festive meal <span class="fs-sm">(with wine – a little more than usual, short of drunkenness; B"Y, O"Ḥ 695)</span>. <strong>Ta'anit Esther</strong>, beforehand, recalls the fasting and prayer that preceded the battle.</p>
+		<p style="font-size: 8.85pt; margin-bottom: .075in;">Adar's story begins long before Shushan. Early in the month, on the 7<sup>th</sup>, <strong>Moshe Rabbenu</strong> was born – and on that same date, 120 years later, he passed away <span class="fs-sm">(Megilla 13b; 2368/1393 and 2488/1273 BCE by tradition)</span>. Egypt, too, felt Adar's hand: if each plague followed 24 days' warning and lasted 7, as R. Yehuda reckons <span class="fs-sm">(Tanchuma, Va'era 13)</span>, then the <strong>plague of darkness</strong> descended in Adar <span class="fs-sm">(2448/1313 BCE by tradition)</span> – yet "all the Children of Israel had light in their dwellings" <span class="fs-sm">(Shemot 10:23)</span>, much as the Jews of Shushan would one day have "light and gladness" <span class="fs-sm">(Esther 8:16)</span>. The pattern of victory held through both Temple eras: <em>Nevukhadnetzar</em>, who destroyed the First Temple, died on the 25<sup>th</sup> <span class="fs-sm">(Rashi, II Melakhim 25:27; 3364/397 BCE by tradition; 562 BCE by historians)</span>; and during the Second, Yehuda the Maccabee routed Nikanor at <strong>Adasa</strong> on the 13<sup>th</sup> of Adar, long celebrated as <strong>Yom Nikanor</strong> <span class="fs-sm">(I Maccabees 7:26–50; 161 BCE by historians)</span>.</p>
+</div>
+<div class="page" data-monthPrefix="1" style="line-height: 1.4;">
+	<h1 style="margin-top: -0.075in;">The Month of Nisan</h1>
+	<div style="text-align: center; margin-bottom: .12in; font-size: .785em;">
+		<div style="unicode-bidi: plaintext;">הַחֹ֧דֶשׁ הַזֶּ֛ה לָכֶ֖ם רֹ֣אשׁ חֳדָשִׁ֑ים רִאשׁ֥וֹן הוּא֙ לָכֶ֔ם
+			לְחָדְשֵׁ֖י הַשָּׁנָֽה:</div>
+		<div style="line-height: 1.3;">This month shall be to you the head of the months; to you it shall be the first
+			of the months of the year.
+		</div>
+		<div class="fs-sm">Shemot 12:2</div>
+	</div>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;"><strong>Nisan</strong> is a month of new beginnings. Its name derives from the Akkadian <em>Nisānu</em>, and it marks several fresh starts:</p>
+	<ul style="font-size: 8.85pt; margin-bottom: .075in;">
+		<li>It opens spring (hence its biblical name, חודש האביב), ending winter and allowing new produce to grow.</li>
+		<li>Kings' reigns are counted from this month when dating official documents. <span class="fs-sm">(Mishna Rosh Hashana 1:1)</span></li>
+	</ul>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">
+		Most significant is the Jewish nation's own beginning of freedom from the Egyptian slavery, commemorated as <strong>Pesaḥ</strong> <span class="fs-sm">(2448/1313 BCE by tradition)</span>. The month surrounded (and was defined) through the climax of the redemption – midnight of the 15<sup>th</sup>, when God struck all the Egyptian firstborns, and <em>Par'oh</em> – himself a firstborn – sent the Jews out. This preparation started on the 10<sup>th</sup>, after the Jews tied a lamb to their bedpost <span class="fs-sm">(alarming Egyptian firstborns into an internal quarrel)</span>. It then continued on the 14<sup>th</sup>, through their slaughtering of the lamb and marking their doorposts with its blood. God then drowned the Egyptian military at the seas of <em>Yam Suf</em> <span class="fs-sm">while splitting it with a great wind for the Jews just moments before</span> on the 21<sup>st</sup> – just four days after the Jews drew their attention, neutralizing the threat for good.
+	</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">The recurrance of the month's redemptive pattern is shown through its later generations, which will eventually result in the final redemption <span class="fs-sm">(Talmud Bavli, Rosh Hashana 11a)</span>. History's example is <em>Yehoshua</em>'s leadership, from the 7<sup>th</sup> of Nisan <span class="fs-sm">(30 days after <em>Moshe's</em> death; 2488/1273 BCE by tradition)</span> by the spies' mission of <em>Yeriḥo</em> and the nation's crossing of the <em>Yarden</em> three days later.</p>
+</div>
+<div class="page" data-monthPrefix="2">
+	<h1>The Month of Iyar</h1>
+	<p>The month of <strong>Iyar</strong> is traditionally associated with blossoming. This has its basis in its
+		Akkadian name, <em>ajjāru</em>, which refers to a "blossom" or "rosette", as well as its biblical name
+		<em>Ziv</em>, meaning "radiance", reflecting the brilliance of spring flowers <span class="fs-sm">(I Melakhim
+			6:1)</span>.</p>
+	<p>This month may also be known for its sustenance and opportunity. In the first year after the Exodus, the
+		<em>Manna</em> began to fall after the Jews complained about the lack of food on the 15<sup>th</sup> of Iyar
+		<span class="fs-sm">(Shemot 16:1; 2448/1313 BCE by tradition)</span>. In the second year of wandering the desert,
+		the 14<sup>th</sup> of this month was designated to give Jews another opportunity to bring the <em>Korban
+			Pesaḥ</em> if they couldn't do so the month before <span class="fs-sm">(Bamidbar 9:11; 2449/1312 BCE by
+			tradition)</span>, known today as <strong>Pesaḥ Sheni</strong>. Perhaps
+		we have a hint of said sustenance this month as well: the new crop becomes permitted on the 16<sup>th</sup> of
+		Nisan (after the <em>'Omer</em>), making Iyar the first full month in which the new harvest may be eaten. The
+		entire month falls within the <em>'Omer</em> count, which continues each night.
+	</p>
+	<p>Historically, this is also the month in which King Shelomo began construction of the First Temple <span
+			class="fs-sm">(I Melakhim 6:1; 2928/833 BCE by tradition; c. 966 BCE by historians)</span>.</p>
+</div>
+<div class="page" data-monthPrefix="3">
+	<h1 style="margin-top: -0.075in;">The Month of Sivan</h1>
+	<p style="font-size: 9pt;"><strong>Sivan</strong> means "season" or "appointed time" (from Akkadian <em>simānu</em>), fitting its place in the agricultural wheat harvest; it is named only once in Tanakh <span class="fs-sm">(Esther 8:9)</span>. This is reflected in <strong>Shavu'ot</strong>, associated with the <em>Festival of the Harvest</em> and <em>first fruits of the wheat harvest</em>. The events of <em>Matan Torah</em> fall within this period <span class="fs-sm">(2448/1313 BCE by tradition)</span>, though as the <em>Abarbanel</em> explains (Vayikra 23), the Torah established <em>Shavu'ot</em> for the wheat harvest rather than as an explicit commemoration of <em>Matan Torah</em>.</p>
+	<p style="font-size: 9pt;">When calendar months were determined by witnesses, the flexibility of Nisan and Iyar permitted <em>Shavu'ot</em> <span class="fs-sm">(which was specifically the day after the full 7 weeks of the 'Omer)</span> to fall on the 5<sup>th</sup>–7<sup>th</sup> of Sivan <span class="fs-sm">(Teshuvot Ha'Ribash 96:1)</span>. This is an interesting parallel to the historical date of <em>Matan Torah</em> itself, which could fall on two of those three days <span class="fs-sm">(Shabbat 86b)</span>: either the 6<sup>th</sup> of Sivan <span class="fs-sm">(the Sages)</span> or the 7<sup>th</sup> <span class="fs-sm">(R' Yose)</span>. Under today's fixed calendar, <em>Shavu'ot</em> consistently falls on the 6<sup>th</sup> of Sivan.</p>
+	<p style="font-size: 9pt;">The discrepancy between these two dates is explained <span class="fs-sm">(per the Ben Aryeh, Shabbat 87a)</span> through the two-day <em>perisha</em> (separation) period commanded during the daytime of the 4<sup>th</sup> of Sivan. For <strong>Bnei Noaḥ</strong> (night follows day), the 4<sup>th</sup> and 5<sup>th</sup> formed the two days of <em>perisha</em>, placing <em>Matan Torah</em> on the 6<sup>th</sup>. However, for <strong>Bnei Yisrael</strong> (night precedes day), Moshe began the two-day count from Wednesday night, making the 5<sup>th</sup> and 6<sup>th</sup> the <em>perisha</em> days and placing <em>Matan Torah</em> on the 7<sup>th</sup>.</p>
+</div>
+<!-- TO ADD: Conditional Hiloulot, so we could add Flood stop & Moshe River-->
+<div class="page" data-monthPrefix="4" style="line-height: 1.4;">
+	<h1 style="margin-top: -0.075in;">The Month of Tammuz</h1>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">Long before adopting present names, the "fourth month" held a solemn weight tied to the sin of the <strong>Golden Calf</strong>. Centuries later, during the Babylonian exile, the name <strong>Tammuz</strong> was adopted – derived from Assyrian <em>tammūzu</em> (referencing the deity <strong>Dumuzi</strong>). Jewish awareness of this rite preceded the name, as <strong>Yeḥezkel</strong>'s vision showed women at the Sanctuary's north gate "weeping for the Tammuz" <span class="fs-sm">(Yeḥezkel 8:14)</span>.</p>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">Though the deity and the fast share no intrinsic connection, the common thread is weeping – their weeping served as idolatrous worship <span class="fs-sm">(Radak, Rashi & Rambam)</span>, whereas ours expresses mourning for the Temple during this period called <em>Bein Ha'Metzarim</em> (בין המצרים). Spanning three weeks from the 17<sup>th</sup> of Tammuz until <em>Tisha B'Av</em> (תשעה באב), this period commemorates the breach of Jerusalem's walls <span class="fs-sm">(3829/69 CE by tradition; 70 CE by historians; the Yerushalmi includes the First Temple breach – cf. Yirmeyahu 39:2, the 9<sup>th</sup>)</span>. Four other tragedies occurred on the 17<sup>th</sup>:</p>
+	<ul style="font-size: 8.85pt; margin-bottom: .075in;">
+		<li>Forty days post-Matan Torah <span class="fs-sm">(2448/1313 BCE by tradition)</span>, Moshe shattered the Tablets upon the Golden Calf's creation and dispatched the Levi'im against the idolaters <span class="fs-sm">(Midrashim add that the 'Erev Rav murdered Ḥur then)</span>.</li>
+		<li>Apostomos burned a Torah scroll.</li>
+		<li>An idol was set up in the Temple Sanctuary.</li>
+		<li>The daily sacrifices (<em>Korban Ha'Tamid</em>) ceased during the siege <span class="fs-sm">(from either priestly impurity or lack of sheep)</span>.</li>
+	</ul>
+	<p style="font-size: 8.85pt; margin-bottom: .075in;">The theme of Tammuz is mishandled responsibility and its consequences – echoing the prophetic rebukes read during this season.</p>
+</div>
+<!-- END TAMMUZ -->
+<div class="page" data-monthPrefix="5">
+	<h1>The Month of Av</h1>
+	<div style="text-align: center; margin-bottom: .12in; font-size: .875em;">
+		<div style="unicode-bidi: plaintext;">מִשֶּׁנִּכְנַס אָב, מְמַעֲטִין בְּשִׂמְחָה</div>
+		<div style="line-height: 1.3;">When <span class="fs-sm">[the month of]</span> Av begins, one diminishes
+			rejoicing.</div>
+		<div class="fs-sm">Mishna Ta'anit 4:6</div>
+	</div>
+	<p style="font-size: .785em;"><strong>Av</strong> holds the year's saddest and happiest days, only six days
+		apart <span class="fs-sm">(maybe even five)</span>. Its name, from the Akkadian <em>abu</em>, matches the
+		Hebrew for "father"; we call it <em>Menaḥem Av</em>, looking toward consolation.</p>
+	<p style="font-size: .785em;">The sadness began in the desert: when the spies returned, the nation wept through the
+		night of the 9<sup>th</sup> <span class="fs-sm">(2449/1312 BCE by tradition)</span>. Since that weeping was for
+		nothing, God set the night aside for weeping for generations <span class="fs-sm">(Ta'anit 29a)</span>, as
+		the Mishna records:</p>
+	<ul style="font-size: .785em;">
+		<li>Both Temples were destroyed – the First by the Babylonians, burning into the 10<sup>th</sup> <span
+				class="fs-sm">(3338/423 BCE by tradition; 586 BCE by historians)</span>, and the Second by the Romans
+			<span class="fs-sm">(3829/69 CE by tradition; 70 CE by historians)</span>.</li>
+		<li>Betar fell, ending the <strong>Bar Kokhba revolt</strong> in a massacre of its residents <span
+				class="fs-sm">(3881/121 CE by tradition; 135 CE by historians)</span>; a year later, Jerusalem was
+			plowed over.</li>
+	</ul>
+	<p style="font-size: .785em;">The list since is too long, and too painful, to print. Mourning builds from Rosh Ḥodesh
+		until the fast (sunset to nightfall). Then, on the 15<sup>th</sup>, the mood turns: <strong>Tu B'Av</strong>
+		ended the desert generation's dying, and the Mishna counts it among the year's happiest days, a day of
+		matchmaking <span class="fs-sm">(Mishna Ta'anit 4:8; Ta'anit 30b)</span>.</p>
+</div>
+<div class="page" data-monthPrefix="6">
+	<h1 style="margin-top: -0.075in;">The Month of Elul</h1>
+	<div style="text-align: center; margin-bottom: .1in; font-size: .8em;">
+		<div style="unicode-bidi: plaintext;"><b>אֲ</b>נִי <b>לְ</b>דוֹדִי <b>וְ</b>דוֹדִי <b>לִ</b>י</div>
+		<div style="line-height: 1.3;">I am my beloved's, and my beloved is mine.</div>
+		<div class="fs-sm">Shir Ha'Shirim 6:3</div>
+	</div>
+	<p style="font-size: .785em;">On Rosh Ḥodesh <strong>Elul</strong>, after 40 days of pleading for the nation to be
+		forgiven, God commanded Moshe to ascend <em>Har Sinai</em> for the second tablets, which he brought down on Yom
+		Kippur <span class="fs-sm">(Shemot 34; 2448/1313 BCE by tradition)</span>. This is the mindset of the month: recognizing
+		the chances God gave us and preparing for mercy. Its name reflects this: the Akkadian
+		<em>ulūlu</em> may relate to purification, while in Aramaic, אלל means "to search", as Onkelos renders the spies'
+		scouting <span class="fs-sm">(ויאללון, Bamidbar 13:2)</span> – a month for searching our deeds. Its letters are
+		also the initials of the verse above.</p>
+	<p style="font-size: .785em;">Our custom is to recite <em>Seliḥot</em> starting after <em>Rosh Ḥodesh</em> (a
+		minority also blow the shofar during the 13 attributes); Ashkenazim blow the shofar all month (except the eve of
+		Rosh Hashana), reciting <em>Seliḥot</em> only at its end. The 25<sup>th</sup> is significant for two historical
+		reasons:</p>
+	<ul style="font-size: .785em;">
+		<li>Assuming the world was <i>not</i> created in Nisan, Rosh Hashana marks man's creation on the 6<sup>th</sup>
+			day; counting back six days inclusively arrives at this day, when God started to give each item of the world
+			its form.</li>
+		<li>Neḥemya finished rebuilding the walls of Jerusalem <span class="fs-sm">(Neḥemya 6:15; 3426/335 BCE by
+				tradition; 445 BCE by historians)</span>.</li>
+	</ul>
+</div>
+<div id="templateZmanim" class="page verso">
+	{% for day in (0..6) %}
+	<div class="templateZmanimWeekDay" data-day-index="{{ day }}" data-arc-top-text="">
+		<svg class="templateDate" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+			<defs>
+				<!-- Print-safe multi-layer drop shadow matching original CSS -->
+				<filter id="dropShadow-{{ day }}" x="-50%" y="-50%" width="200%" height="200%">
+					<!-- Layer 1: 1px 2px 2px -->
+					<feGaussianBlur in="SourceAlpha" stdDeviation="0.667" />
+					<feOffset dx="1" dy="2" result="offsetblur1" />
+					<feComponentTransfer in="offsetblur1">
+						<feFuncA type="linear" slope="0.33" />
+					</feComponentTransfer>
+					<feFlood flood-color="rgba(98,98,98,1)" result="color1" />
+					<feComposite in="color1" in2="offsetblur1" operator="in" result="shadow1" />
+
+					<!-- Layer 2: 2px 4px 4px -->
+					<feGaussianBlur in="SourceAlpha" stdDeviation="1.333" />
+					<feOffset dx="2" dy="4" result="offsetblur2" />
+					<feComponentTransfer in="offsetblur2">
+						<feFuncA type="linear" slope="0.33" />
+					</feComponentTransfer>
+					<feFlood flood-color="rgba(98,98,98,1)" result="color2" />
+					<feComposite in="color2" in2="offsetblur2" operator="in" result="shadow2" />
+
+					<!-- Layer 3: 3px 6px 6px -->
+					<feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+					<feOffset dx="3" dy="6" result="offsetblur3" />
+					<feComponentTransfer in="offsetblur3">
+						<feFuncA type="linear" slope="0.33" />
+					</feComponentTransfer>
+					<feFlood flood-color="rgba(98,98,98,1)" result="color3" />
+					<feComposite in="color3" in2="offsetblur3" operator="in" result="shadow3" />
+
+					<!-- Composite all shadows together -->
+					<feMerge>
+						<feMergeNode in="shadow1" />
+						<feMergeNode in="shadow2" />
+						<feMergeNode in="shadow3" />
+						<feMergeNode in="SourceGraphic" />
+					</feMerge>
+				</filter>
+			</defs>
+
+			<!-- Circle background with filter -->
+			<circle cx="50" cy="50" r="48" fill="var(--page-bg)" filter="url(#dropShadow-{{ day }})" />
+
+			<!-- Top arc path (clockwise) -->
+			<path id="arcTop-{{ day }}" d="M 10,50 A 40,40 0 1,1 90,50" fill="none" />
+
+			<!-- Weekday along top arc -->
+			<text font-size="9" fill="var(--ink-color)">
+				<textPath href="#arcTop-{{ day }}" startOffset="50%" text-anchor="middle">
+					{{ dayNames[day] }} / {{ hebrewDays[day] }}
+				</textPath>
+			</text>
+
+			<!-- Container for special days (populated by JavaScript) -->
+			<text font-size="9" fill="var(--ink-color)" class="specialDaysText"></text>
+
+			<!-- Middle content: date centered via foreignObject -->
+			<foreignObject width="100" height="100">
+				<div xmlns="http://www.w3.org/1999/xhtml" class="templateDateInner">
+					<!-- Date goes here -->
+				</div>
+			</foreignObject>
+		</svg>
+		<div class="templateZmanimDayGrid">
+			{% for z in site.data.print.weekly.zemanim %}
+			{% if include.multi %}
+			{% comment %} Several locations: no Sunrise row (each location's is on the right-hand page), and Minḥa
+				Gedola & Ketana share one row, so both columns keep the same number of rows {% endcomment %}
+			{% if z.id == 'sunrise' or z.id == 'minhaKetana' %}{% continue %}{% endif %}
+			{% if z.id == 'minhaGedola' %}
+			{% assign ketana = site.data.print.weekly.zemanim | where: "id", "minhaKetana" | first %}
+			<div class="zman-row mergedRow" data-round="{{ z.round }}" data-zyData="{{ z.timeGetter }}"
+				data-zyDataSecond="{{ ketana.timeGetter }}" data-roundSecond="{{ ketana.round }}">
+				<span class="zman-name">
+					<span class="lang lang-hb">{{ z.names.he }} / {{ ketana.names.he | remove_first: "מנחה " }}</span>
+					<span class="lang lang-et">{{ z.names.en }} / {{ ketana.names.en | remove_first: "Minḥa " }}</span>
+					<span class="lang lang-en">{{ z.names.en }} / {{ ketana.names.en | remove_first: "Minḥa " }}</span>
+				</span>
+				<span></span>
+			</div>
+			{% continue %}
+			{% endif %}
+			{% endif %}
+			<div class="zman-row {% if z.id == 'midday'%}disableRowFormat{% endif %}" {% if z.round
+				%}data-round="{{ z.round }}" {% endif %} data-zyData="{{ z.timeGetter }}" {% if z.id == 'midday'
+				%}style="text-align: center; grid-column: span 2;" {% elsif z.id == 'nightfall' %}data-zyTzetStrict{%
+				endif %}>
+				<span class="zman-name">
+					<span class="lang lang-hb">{{ z.names.he }}</span>
+					<span class="lang lang-et">{{ z.names.en }}</span>
+					<span class="lang lang-en">{{ z.names.en }}</span>
+				</span>
+				<span></span>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+<style>
+	.shabbatCards {
+		flex: 1 1;
+		display: flex;
+		flex-direction: column;
+		padding-top: .5rem;
+		gap: .5rem;
+	}
+
+	.shabbat-card {
+		width: 100%;
+		aspect-ratio: 5.5/3;
+		display: grid;
+		grid-template-columns: 40% 60%;
+		grid-template-rows: auto 1fr auto;
+		grid-template-areas:
+			'title topNotice'
+			'title mainTimes'
+			'title bottomNotice';
+
+		align-items: center;
+		text-align: center;
+
+		padding: .35rem .65rem;
+		gap: .325rem;
+
+		/* Background: soft silver */
+		background: linear-gradient(135deg, #f5f5f7 0%, #d9d9dd 40%, #f0f0f2 100%);
+
+		/* Border + corners */
+		border: 1px solid rgba(180, 180, 190, 0.9);
+		border-radius: 18px;
+	}
+
+	.shabbatCards:not([data-scard-amount="3"]) .shabbat-card.fastCard {
+		aspect-ratio: 2.75 / 1;
+	}
+
+	.shabbatCards[data-scard-amount="3"] .shabbat-card,
+	.shabbatCards.hasChanuka .shabbat-card,
+	.shabbatCards.hasOmer .shabbat-card {
+		aspect-ratio: unset;
+	}
+
+	.parshaName {
+		font-family: "Guttman Mantova", "Cinzel", var(--bs-body-font-family);
+		font-size: 50px;
+		font-weight: bold;
+		line-height: 1.2;
+	}
+
+	.titleSection {
+		grid-area: title;
+		border-right: 1px solid black;
+		padding-right: .325rem;
+	}
+
+	.topNotice {
+		grid-area: topNotice;
+		font-size: .575em;
+		line-height: 1.2;
+	}
+
+	.bottomNotice {
+		grid-area: bottomNotice;
+		font-size: .65em;
+		line-height: 1.2;
+	}
+
+	.mainTimes {
+		grid-area: mainTimes;
+		display: flex;
+	}
+
+	.mainTimes:not([data-item-count="1"]):not([data-item-count="2"]):not([data-item-count="3"]) {
+		flex-direction: column;
+		font-size: 12px;
+	}
+
+	.mainTimes[data-item-count="1"] .zmanRow,
+	.mainTimes[data-item-count="2"] .zmanRow,
+	.mainTimes[data-item-count="3"] .zmanRow {
+		flex: 1 1;
+		text-align: center;
+	}
+
+	.mainTimes svg {
+		width: 2em;
+		height: 2em;
+	}
+
+	.mainTimes[data-item-count="3"] .zmanRow {
+		font-size: 12px;
+	}
+
+	.mainTimes[data-item-count="1"] svg use,
+	.mainTimes[data-item-count="1"] .bi::before,
+	.mainTimes[data-item-count="2"] svg use,
+	.mainTimes[data-item-count="2"] .bi::before,
+	.mainTimes[data-item-count="3"] svg use,
+	.mainTimes[data-item-count="3"] .bi::before {
+		display: block;
+		width: 2rem;
+		height: 2rem;
+		font-size: 1.75em;
+	}
+
+	.mainTimes[data-item-count="1"] svg,
+	.mainTimes[data-item-count="1"] .bi,
+	.mainTimes[data-item-count="2"] svg,
+	.mainTimes[data-item-count="2"] .bi,
+	.mainTimes[data-item-count="3"] svg,
+	.mainTimes[data-item-count="3"] .bi {
+		display: flex;
+		justify-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+
+	.mainTimes[data-item-count="8"] {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+		grid-template-rows: auto auto;
+		gap: .025in;
+		line-height: 1.2;
+		font-size: 8.75px;
+	}
+
+	.mainTimes[data-item-count="8"] .rabbenuTamAppend {
+		display: block;
+		font-size: .6em;
+	}
+
+	.mainTimes[data-item-count="8"] img {
+		width: 100%;
+	}
+
+	.titleSection .extras {
+		font-size: 8pt;
+	}
+
+	.cardDate {
+		font-size: 7.25pt;
+	}
+</style>
+{% if include.multi %}
+<style>
+	/* ---------- Several locations ---------- */
+	/* No Sunrise row and one Minḥa row: six rows a column */
+	.templateZmanimDayGrid {
+		grid-template-rows: repeat(6, 1fr);
+	}
+
+	.templateZmanimDayGrid>.mergedRow .zman-name {
+		white-space: normal;
+		line-height: 1.1;
+	}
+
+	.templateZmanimDayGrid>.mergedRow>span:last-child {
+		white-space: nowrap;
+		text-align: end;
+	}
+
+	.sunriseTableWrap {
+		text-align: center;
+		line-height: 1.2;
+	}
+
+	.sunriseTableWrap h4 {
+		font-size: 1.15rem;
+		margin-bottom: .1rem;
+	}
+
+	.sunriseTable {
+		width: 100%;
+		table-layout: fixed;
+		border-collapse: collapse;
+		font-size: 6.5pt;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.sunriseTable th,
+	.sunriseTable td {
+		padding: 1px 1px;
+		border-bottom: .5pt dotted var(--divider-color);
+	}
+
+	.sunriseTable thead th {
+		font-weight: 700;
+		border-bottom: .75pt solid var(--ink-color);
+		line-height: 1.1;
+	}
+
+	.sunriseTable thead th:first-child,
+	.sunriseTable tbody th {
+		width: 24%;
+	}
+
+	.sunriseTable tbody th {
+		font-weight: 600;
+		text-align: start;
+		overflow-wrap: anywhere;
+		line-height: 1.1;
+	}
+
+	.sunriseTable tbody tr:last-child>* {
+		border-bottom: none;
+	}
+
+	.sunriseTable td {
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.sunriseTable td.seaLevelSunrise {
+		font-weight: 400;
+		font-style: italic;
+	}
+
+	.sunriseTableNote {
+		font-size: 5.5pt;
+		font-style: italic;
+		text-align: start;
+	}
+
+	/* The info page: one dot per location on the map, and a line per location below it */
+	[data-zyFind="locationMap"] {
+		position: relative;
+	}
+
+	.locationDot {
+		position: absolute;
+		width: 9px;
+		height: 9px;
+		margin: -4.5px 0 0 -4.5px;
+		border-radius: 50%;
+		background: #b91c1c;
+		border: 1.5px solid white;
+		box-shadow: 0 0 2px rgba(0, 0, 0, .6);
+		pointer-events: none;
+		z-index: 2;
+	}
+
+	.page .locationList {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		text-align: start;
+		text-align-last: auto;
+	}
+
+	.vsMultiTable {
+		display: grid;
+		grid-template-columns: auto auto auto;
+		column-gap: 8px;
+		font-size: 9.5px;
+		line-height: 1.3;
+		width: fit-content;
+		align-items: center;
+	}
+
+	.vsMultiTable>.vsTitle {
+		grid-column: 1 / -1;
+		text-align: center;
+		font-weight: 800;
+		font-size: 1.2em;
+	}
+
+	.vsMultiTable>.vsHead {
+		font-weight: 700;
+		text-align: center;
+		border-bottom: .75pt solid var(--ink-color);
+	}
+
+	.vsMultiTable>.vsHead div {
+		font-size: .7em;
+		font-weight: 400;
+	}
+
+	.vsMultiTable>.vsName {
+		font-weight: 600;
+	}
+
+	.vsMultiTable>.vsValue {
+		text-align: right;
+		font-weight: 700;
+	}
+
+	.vsMultiTable>.vsValue div {
+		font-size: .8em;
+		font-weight: 400;
+	}
+</style>
+{% endif %}
+<div id="templateSecondPage" class="page">
+	<div class="secondPageHeader">
+		<div></div>
+		<img src="/assets/images/app-icon-full.jpeg">
+		<div dir="rtl"></div>
+	</div>
+	<div class="shabbatCards">
+		<div class="shabbat-card">
+			<div class="titleSection">
+				<div class="cardDate"></div>
+				<div class="parshaName">במדבר</div>
+				<div class="extras"></div>
+			</div>
+			<div class="topNotice">Stop work at 9:00 PM</div>
+			<div class="mainTimes"></div>
+			<div class="bottomNotice">PELAG:</div>
+		</div>
+	</div>
+	<div class="whiteTekufotMonths"></div>
+	{% if include.multi %}
+	<div class="sunriseTableWrap">
+		<h4>
+			<span class="lang lang-hb">הנץ החמה הנראה</span>
+			<span class="lang lang-et">Visual Sunrise</span>
+			<span class="lang lang-en">Visual Sunrise</span>
+		</h4>
+		<table class="sunriseTable" data-zyFind="sunriseTable">
+			<thead>
+				<tr><th></th></tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+		<div class="sunriseTableNote" data-zyFind="sunriseTableNote">
+			<span class="lang lang-hb">* הנץ בגובה פני הים (אין נתוני אופק)</span>
+			<span class="lang lang-et">* Sea-level sunrise (no horizon data)</span>
+			<span class="lang lang-en">* Sea-level sunrise (no horizon data)</span>
+		</div>
+	</div>
+	{% else %}
+	<div class="learningCycles">
+		<h4>Learning Cycles</h4>
+		{% for z in site.data.print.weekly.learnings %}
+		<div class="{{ z.class }}" data-learningInsert="{{ z.id }}">
+			<div class="fw-bold lang lang-hb">{{ z.names.he }}</div>
+			<div class="fw-bold lang lang-et">{{ z.names.en }}</div>
+			<div class="fw-bold lang lang-en">{{ z.names.en }}</div>
+		</div>
+		{% endfor %}
+		<!-- Bavli, Yerushalmi, Mishna & Halacha are from the Ohr HaChaim calendar; they should be bigger.
+		 The others should be their own below-->
+	</div>
+	{% endif %}
+</div>
+<div data-insertBefore></div>
+<div class="page verso explanation">
+	<h2>Full Solar-Sphere Sunrise</h2>
+	<p>The ideal form of the Halakhic day does not start until the uppermost edge of the solar sphere appears over the
+		horizon. This moment is called הנץ החמה, and is sourced from the similar language in שיר השירים. Any significant time
+		beforehand is considered less than ideal, although there is no requirement to be precise to the second – the rising of the sun is itself a range, so we are lenient within a window around it (on average, two minutes, both preceding and following).</p>
+	<p>This is best exemplified by prayer, where the transition between שמע and the עמידה is timed around the rising of
+		the sun. It is this context, though, that demands the most precision for sunrise: do we time שמע itself to
+		sunrise? Or is it the עמידה that's timed accordingly? Furthermore, this is assuming we're using the
+		traditional definition for sunrise, as a contrast to the minority of later authorities who rule that the <em>end</em> of sunrise is
+		to be used instead.</p>
+	<p>These disputes combine into several permutations – from the perspective of law, only one sunrise was meant, and it was for
+		either the שמע or the עמידה. However, the gap between the two points provides enough time for the text of שמע and its following blessing to be said. Thus, one can fulfill two separate permutations – reciting the שמע when the sun's <em>uppermost edge</em> is above the horizon, and waiting until the <em>full solar-sphere reveal</em> to recite the עמידה. The other permutations are accommodated through the window range of sunrise.</p>
+</div>
+<div class="page explanation" data-zmanToCapture="testSunriseHBWorking|noRound">
+	<p>This compromise is attributed to Ha'Rav Matzliaḥ Mazuz <span class="fs-sm">(סולת נקיה, עמוד רע"ג)</span>, but has received mixed receptions in the family of Ḥakham 'Ovadia. Although the idea was met warmly at first by both sons <span class="fs-sm">(including the 5764 printing of the Yalkut Yosef, siman 89 and all editions of the Halacha Berura, siman 58)</span>, it eventually became another point of contention between the brothers. The reason is that the Yalkut Yosef eventually returned to the standard practice of using the uppermost edge only, without being stringent for this second time. (The original לוח המאור from Yeshivat Ohr Hachaim presents only the uppermost-edge peak time, in accordance with the later Y"Y guidelines.)</p>
+	<p>To present these rulings here, we use several justifications: on top of representing the Halacha Berura's concluded ruling, even R' Yitzḥak Yosef would consider this time eligible for the "תפילה בהנץ" status since it's still close in time to the initial time for sunrise (and minute-level precision was never intended). However, since its use is disputed (and one would need to use the main time anyway for שמע), we've chosen to place these times separately from the main listing.</p>
+</div>
+<div class="page verso explanation">
+	<h2>Pelag Ha'Minḥa – Ma'amar Mordekhi</h2>
+	<p>Pelag Ha'Minḥa is defined as the midpoint of the time span from מנחה קטנה until the end of the day
+		(ערב), occurring at 10¾ hours into the day. Since the day spans 12 hours, a shorter way of expressing
+		this time is the inverse – 1¼ hours before the end of the day.</p>
+	<p>The dispute between the Halacha Berura and Yalkut Yosef is over the definition of ערב – is it sunset, or is it
+		nightfall? The ramifications depend on how long Ben Ha'Shemashot lasts in that location.</p>
+	<p>On the surface, the Yalkut Yosef looks like a simple stringency – a way to be concerned for later opinions
+		regarding blessings. However, almost every opinion the Yalkut Yosef relied on maintained compliance with the
+		12-hour structure the Talmud expected. In this structure, Ben Ha'Shemashot wasn't a gap following the day's end
+		at sunset; rather, its conclusion was the day's endpoint. The other end of the day was extended as well, beginning
+		at Dawn rather than sunrise.</p>
+	<p>If this detail was compromised, that means the seasonal minutes no longer correspond to the length of the day, of
+		which a portion was assigned for Pelag purposes. These are the authorities who ruled accordingly <span
+			class="fs-sm">(such as the Ramban, the Ra'ah, the Ritva &amp; R' Ya'akov Emden)</span>, and there is a precedent
+		for this legal re-evaluation <span class="fs-sm">(Peri Ḥadash, Kuntress Debei Shimsha, end of ספר מים
+			חיים)</span>. Nevertheless, the vast majority agreed on the structure of the day being uncompromised.</p>
+</div>
+<div class="page explanation" data-zmanToCapture="getPlagHaminhaMaamarMordechi|later">
+	<p>The wording of the Yalkut Yosef indicates that the "later Pelag" was subject to this debate on the
+		structure of the day. Following the precedent of those later authorities, one can even calculate it using the Geonic
+		Nightfall rather than the proportional Nightfall of Rabbenu Tam (see the Ben Ish Ḥai, Year I, Vayakhel VIII; see
+		also Ohr Letzion vol. 2 pg. 147 &amp; the responsa of the Ma'amar Mordekhi vol. 4 siman 12).</p>
+	<p>The contrast to this structure, though, was the one implemented in the לוח המאור. It only considers the
+		difference between sunset and nightfall as a gap, without the adjusted structure to come with it. Because of
+		that, the difference between the two Pelag times depends on how long Ben Ha'Shemashot is for that day.
+		For those looking to be ideal in their conduct regarding Pelag (such as avoiding תרתי דסתרי), this makes the stringency overbearing
+		depending on the time of year.</p>
+	<p>Thus, although we've put the official לוח המאור time as the primary representative of the Y"Y
+		opinion, we've included this alternative calculation in these back pages. To avoid confusion with any other
+		delay to nightfall, we've named this after the Ma'amar Mordekhi, which spelled out this opinion with
+		all its implications (such as midday not being equal to the solar midday).</p>
+</div>
+<div class="page verso explanation">
+	<h2>Full-Length Rabbenu Tam List</h2>
+	<p>The transition from day to night is the same for Rabbenu Tam as it is for everyone; after "sunset",
+		wait ¾ of a <em>mil</em> and Nightfall occurs. However, <em>sunset</em> itself is redefined –
+		occurring 3¼ <em>mil</em> after our sunset.</p>
+	<p>Considering each <em>mil</em> is 18 minutes, this makes Rabbenu Tam's Nightfall as late as
+		<em>seventy-two</em> minutes after our sunset at baseline level. To stay consistent with how Talmudic time is
+		defined, this length changes based on the location's latitude and the day's length.
+	</p>
+	<p>Our interpretation of these later Nightfall opinions is only for their stringent aspects (such as waiting
+		to perform the new commandments of the following day, or performing acts that would have been forbidden on the
+		previous day); <em>leniencies</em> (relative to our standard Halakha) coming with this calculation are
+		<strong>forbidden</strong> to be practiced.<br>(There is also no need to be stringent on Rabbinic times.)
+	</p>
+	<p>However, compliance with such a standard is taxing – one day's sunset to the next day's nightfall is no
+		longer 24 hours with the length of Ben Ha'Shemashot, but rather an additional <em>58.5</em> minutes (with the
+		same adjustments indicated above). If we're to be consistent with our standards of adjustments, this length
+		could very well exceed what most would consider "reasonable" for a stringency.</p>
+</div>
+<div class="page explanation" data-zmanToCapture="get72Seasonal">
+	<p>Thus, there are compromise calculations suggested, that still accommodate the Talmudic numbers and the
+		alternative application. The first method is to rule leniently during Rabbenu Tam's Ben Ha'Shemashot, using
+		the principle of "majority opinions" – from 58.5 [adjusted-seasonal] minutes onwards, everyone (with
+		the 18-minute mil) holds it is either certain night or doubtful night, which combine for leniency. The
+		alternative (implemented in our calendar's weekly pages) is to limit the 72 minutes to clock minutes, and
+		only use the seasonal result when they're shorter. (Other forms of providing lenient times for Rabbenu Tam
+		are contrary to our ideology of Zemanim being a baseline from Israel and increasing when moving north.)</p>
+	<p>This was chosen for the main calendar based on the following Y"Y excerpt: "במקומות שאם יורו להם לחשב לפי
+		שעות זמניות לא יוכלו להתעכב כל כך עד שיגיע זמן רבינו תם...שאז יש להקל לחשב לפי השעון הרגיל".<br>The
+		following table is the original, without these leniencies.</p>
+</div>
+<div class="page verso fs-sm" style="text-align: justify; text-align-last: center;">
+	<div style="flex: 1 1;"></div>
+	<p>This work may be freely copied for redistribution or personal use.<br>
+		We advise that any alterations be marked explicitly, and adhere to the level-of-the-law as specified in the
+		back.</p>
+	<p>The layout of this work was made with the pocket-use case in mind, which may not work for alternative forms of
+		display. Feel free to email as needed for potential alternatives.</p>
+</div>
+<div class="page fullBleed"
+	style="background: url('/assets/images/shul-wall/sbm-la/ptrn.png') 90px/90px !important; opacity: 10%;"></div>
+
+<style>
+	#backCoverPage {
+		font-family: 'Polin', var(--bs-body-font-family);
+	}
+
+	#backCoverPage #footer {
+		align-self: end;
+		width: 100%;
+		background-image: url('/assets/images/heb_ad/or-hachaim-background.jpg');
+		background-position: center;
+
+		color: white;
+	}
+
+	#backCoverPage #footerContents {
+		padding: 1rem;
+		background-color: rgba(68, 76, 107, .75);
+		width: 100%;
+
+		display: flex;
+		justify-content: space-evenly;
+		align-items: center;
+	}
+
+	#backCoverPage #footerContents>* {
+		max-width: 35%;
+	}
+</style>
+<div class="page fullBleed" id="backCoverPage" style="background: radial-gradient(#FFFFFF, #e5e7eb) !important;">
+	<div style="flex: 1 1; padding: 0.15in 0.15in 0 0.15in;">
+		<img src="/assets/images/print/logo.png"
+			style="width: 100%; margin-bottom: 0.15rem; filter: drop-shadow(0px 2.5px 2px rgba(0,0,0,.20))">
+		<p style="font-weight: 700; font-size: 1.15em; text-align: center;">All Halakhic scheduling needs,<br>in one
+			pocket-sized calendar!</p>
+		<ul style="margin-bottom: 3.25rem;">
+			<li>Introduction to each month<div style="font-size: .8em;">(Featuring holiday details, history and
+					<i>Hiloulot</i>)</div>
+			</li>
+			<li>Pages grouped into weeks<div style="font-size: .8em;">(Zemanim on the left, special events on the right
+					side)</div>
+			</li>
+			<li>Complimentary digital equivalent<div style="font-size: .8em;">(QR code inside the book)</div>
+			</li>
+		</ul>
+
+		<p style="font-weight: 700; font-size: 1.25em; text-align: center; margin-bottom: 0;">ROYZMANIM.COM</p>
+		<p style="font-size: .7em; text-align: center; margin-bottom: 0;">To receive a calendar for other locations,
+			reach out: neimmaor@gmail.com</p>
+	</div>
+	<div id="footer">
+		<div id="footerContents">
+			<img src="/assets/images/heb_ad/ohr_hachaim_logo.png">
+			<div style="background: white; padding: .5rem; border-radius: 8px; corner-shape: scoop;">
+				<img src="/assets/images/moreshet-maran.svg" style="width: 100%;">
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/assets/js/features/weeklyPrint/print-export-weekly.js" type="module"></script>
+<script src="/assets/js/features/weeklyPrint/hiloulot-add.js" type="module"></script>
+<script type="module">
+	import { printConfig } from "/assets/js/features/weeklyPrint/print-config.js";
+	if ((await printConfig).language == 'en') {
+		const style = document.createElement('style');
+		document.head.appendChild(style);
+		style.sheet.insertRule('.templateZmanimDayGrid { flex: 1 1; }', 0);
+	}
+</script>

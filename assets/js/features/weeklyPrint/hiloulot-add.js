@@ -1,5 +1,6 @@
 // @ts-check
 import WebsiteCalendar from "../../WebsiteCalendar.js";
+import { printConfig, printHebrewYear } from "./print-config.js";
 
 /**
  * @typedef {Object} Hiloula
@@ -210,21 +211,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	// --------------------------------------------------------------
-	// 5. Leap year (5787)
+	// 5. Print config (JSON file or URL params, see print-config.js)
 	// --------------------------------------------------------------
-	const TARGET_HEBREW_YEAR = 5787;
+	const config = await printConfig;
+	const TARGET_HEBREW_YEAR = printHebrewYear(config);
 	const isLeapYear = [0, 3, 6, 8, 11, 14, 17].includes(TARGET_HEBREW_YEAR % 19);
 
 	// --------------------------------------------------------------
-	// 6. URL params
+	// 6. Options
 	// --------------------------------------------------------------
 	const urlParams = new URLSearchParams(window.location.search);
-	const preferredNationality = urlParams.has('nationality')
-		? new Set([urlParams.get('nationality')])
+	const preferredNationality = config.weeklyPrint.nationality
+		? new Set([config.weeklyPrint.nationality])
 		: new Set();
-	const extraPagesCount = Math.max(0, parseInt(urlParams.get('addExtraHiloulot') ?? '0', 10) || 0);
+	const extraPagesCount = Math.max(0, Math.trunc(Number(config.weeklyPrint.addExtraHiloulot)) || 0);
 
-	const skipMonthPages = urlParams.has('skipMonthPages');
+	const skipMonthPages = !!config.weeklyPrint.skipMonthPages || urlParams.has('skipMonthPages');
 
 	// --------------------------------------------------------------
 	// 7. Process containers

@@ -1,8 +1,20 @@
 //@ts-check
 
+/**
+ * print-export-weekly.js — builds the weekly print from a print config (see print-config.js): a JSON file
+ * (?config=<name>) or, failing that, the site settings / URL params the old URL-param page read.
+ *
+ * The config may list several nearby locations. Then:
+ *  - the zemanim are computed for every location and averaged (the workers do this, see multi-zeman.js)
+ *  - everything that needs one point (map, prayer direction, light pollution, moon pages, technical
+ *    specifications) uses their centre
+ *  - the page's sunrise table (if it has one) lists each location's visible sunrise
+ * With one location, the centre is that location and the print is what the URL-param page made.
+ */
+
 import { insertMonthGrids } from "./month-grid.js";
 import { GeoLocation } from "../../../libraries/kosherZmanim/kosher-zmanim.js";
-import { settings } from "../../settings/handler.js";
+import { handleLanguage } from "../../settings/handler.js";
 import { getOrdinal, HebrewNumberFormatter } from "../../WebsiteCalendar.js";
 import fitty from "../../../libraries/fitty.js";
 import QrCode from "../../../libraries/qrCode.js";
@@ -16,38 +28,55 @@ import * as ol from "../../../libraries/OpenLayers/ol.js"
 import { fetchLightPollution } from "../../../libraries/light-pollution-client.js";
 import MoonRender from "./moon-render.js";
 import { spawnWorker } from "../../misc/worker.js";
+import { printConfig, printCalendar } from "./print-config.js";
 
 const WORKER_URL = '/assets/js/features/weeklyPrint/print-web-worker.js';
 
-const printParam = new URLSearchParams(window.location.search);
+const config = await printConfig;
+
+// A JSON config's language wins over the visitor's stored one (docLoad.js applied that on DOMContentLoaded)
+if (config.source == 'json') {
+	const applyLanguage = () => handleLanguage(config.language);
+	if (document.readyState == 'loading')
+		document.addEventListener('DOMContentLoaded', () => setTimeout(applyLanguage), { once: true });
+	else
+		applyLanguage();
+}
+
 /** @type {'iso8601'|'hebrew'} */
-// @ts-expect-error
-const cal = printParam.has('yearType') && ['iso8601', 'hebrew'].includes(printParam.get('yearType')) ? printParam.get('yearType') : settings.language() == 'en' ? 'iso8601' : 'hebrew';
+const cal = printCalendar(config);
 
 /** @type {{month: number; year: number}} */
-const dateForCal = {
-	month: undefined,
-	year: (printParam.has('year') ? parseInt(printParam.get('year')) : Temporal.Now.plainDateISO().withCalendar(cal).year),
-}
+const dateForCal = (() => {
+	const now = Temporal.Now.plainDateISO().withCalendar(cal);
+	const { year, month } = config.weeklyPrint;
+	return {
+		year: typeof year == "number" ? year : now.year,
+		month: typeof month == "number" ? month : month == "current" ? now.month : 1
+	};
+})();
+const continueToNext = !!config.weeklyPrint.continueToNext;
 
-if (printParam.has("month"))
-	dateForCal.month = parseInt(printParam.get('month'))
-else if (printParam.has('currentMonth') && !printParam.has('year'))
-	dateForCal.month = Temporal.Now.plainDateISO().withCalendar(cal).month
-else
-	dateForCal.month = 1
+// ─── Locations ───────────────────────────────────────────────────────────────
+const locations = config.location;
+const multiLocation = locations.length > 1;
+const timeZone = locations[0].timezone;
 
-if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
-	window.location.href = "/"
-}
+/** @param {(loc: import('./print-config.js').LocationConfig) => number} pick */
+const mean = (pick) => locations.reduce((sum, loc) => sum + pick(loc), 0) / locations.length;
 
-/** @type {[string, number, number, number, string]} */
-// @ts-ignore
-const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
+/** Each location, as GeoLocation arguments. @type {[string, number, number, number, string][]} */
+const locationArgs = locations.map(loc => [loc.name, loc.lat, loc.long, loc.elevation, timeZone]);
+
+/** Their centre (the location itself when there is one), named with the print's title. @type {[string, number, number, number, string]} */
+const glArgs = multiLocation
+	? [config.title, mean(loc => loc.lat), mean(loc => loc.long), mean(loc => loc.elevation), timeZone]
+	: [config.title, ...locationArgs[0].slice(1)];
 const geoLocation = new GeoLocation(...glArgs);
 
-const inIsrael = ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName));
-const useOhrHachaim = inIsrael || settings.calendarToggle.forceSunSeasonal()
+const inIsrael = config.israel
+	?? [config.title, ...locations.map(loc => loc.name)].some(name => ['israel', 'ישראל'].some(isrName => (name || "").toLowerCase().includes(isrName)));
+const useOhrHachaim = inIsrael || config.calendarToggle.forceSunSeasonal
 const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')];
 const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')];
 if (useOhrHachaim) {
@@ -60,19 +89,25 @@ if (useOhrHachaim) {
 const baseTable = document.getElementById('templateZmanim');
 baseTable.removeAttribute("id")
 
-if (useOhrHachaim || printParam.has('noTzetStrict')) {
+if (useOhrHachaim || config.weeklyPrint.noTzetStrict) {
 	const humraTzetList = baseTable.querySelectorAll('[data-zyTzetStrict]');
 	for (const humraTzet of humraTzetList)
 		humraTzet.removeAttribute("data-zyTzetStrict")
 }
 
-
-let local = settings.language() == 'hb' ? 'he' : 'en'
+let local = config.language == 'hb' ? 'he' : 'en'
 if (navigator.languages.find(lang => lang.startsWith(local)))
 	local = navigator.languages.find(lang => lang.startsWith(local));
 
 const degreeFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "degree", unitDisplay: "narrow", maximumFractionDigits: 5 });
 const meterFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "meter", maximumFractionDigits: 0 });
+
+/** "(lat, long, ↑elevation)" for one location @param {number} lat @param {number} long @param {number} elevation */
+const coordinateText = (lat, long, elevation) => `(${[
+	degreeFormatter.format(lat),
+	degreeFormatter.format(long),
+	useOhrHachaim ? "↑" + meterFormatter.format(elevation) : ""
+].filter(Boolean).join(", ")})`;
 
 if (document.querySelector('[data-zyReplace="latitude"]'))
 	document.querySelector('[data-zyReplace="latitude"]')
@@ -90,7 +125,20 @@ if (elevation) {
 	));
 }
 
-// Not awaited: nothing else depends on it, so it no longer holds up the rest of the page
+// Several locations: one line each under the map
+const locationList = document.querySelector('[data-zyFind="locationList"]');
+if (locationList) {
+	for (const loc of locations) {
+		const li = document.createElement("li");
+		const name = document.createElement("strong");
+		name.appendChild(document.createTextNode(loc.name));
+		li.appendChild(name);
+		li.appendChild(document.createTextNode(" " + coordinateText(loc.lat, loc.long, loc.elevation)));
+		locationList.appendChild(li);
+	}
+}
+
+// Not awaited: nothing else depends on it, so it doesn't hold up the rest of the page
 const lightPol = document.querySelector('[data-zyReplace="light-pollution"]')
 if (lightPol)
 	fetchLightPollution("https://hanetz.royzmanim.com/selfhost", geoLocation.getLatitude(), geoLocation.getLongitude())
@@ -106,27 +154,49 @@ if (locationMapElem) {
 		retina: true,
 	});
 
-	new ol.Map({
+	const view = new ol.View({
+		center: ol.fromLonLat([geoLocation.getLongitude(), geoLocation.getLatitude()]),
+		zoom: 11
+	});
+	const map = new ol.Map({
 		controls: [],
 		target: locationMapElem,
 		layers: [new ol.layer.Tile({ source: stadiaSource })],
-		view: new ol.View({
-			center: ol.fromLonLat([geoLocation.getLongitude(), geoLocation.getLatitude()]),
-			zoom: 11
-		})
+		view
 	});
+
+	if (multiLocation) {
+		// Zoom to show every location, each marked with a dot (the bundled OpenLayers has no vector layers)
+		const points = locations.map(loc => ol.fromLonLat([loc.long, loc.lat]));
+		const extent = [
+			Math.min(...points.map(p => p[0])), Math.min(...points.map(p => p[1])),
+			Math.max(...points.map(p => p[0])), Math.max(...points.map(p => p[1]))
+		];
+		const size = [locationMapElem.clientWidth || 300, locationMapElem.clientHeight || 300];
+		view.fit(extent, { size, padding: [40, 40, 40, 40], maxZoom: 14 });
+
+		const dots = points.map(() => {
+			const dot = document.createElement("div");
+			dot.className = "locationDot";
+			locationMapElem.appendChild(dot);
+			return dot;
+		});
+		map.on('postrender', () => points.forEach((point, index) => {
+			const pixel = map.getPixelFromCoordinate(point);
+			if (!pixel) return;
+			dots[index].style.left = pixel[0] + "px";
+			dots[index].style.top = pixel[1] + "px";
+		}));
+	}
 }
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];
 if (footer) {
 	const geoCoordinates = footer.querySelector("[data-geoCoordinates]");
 	if (geoCoordinates)
-		geoCoordinates
-			.appendChild(document.createTextNode(`(${[
-				degreeFormatter.format(geoLocation.getLatitude()),
-				degreeFormatter.format(geoLocation.getLongitude()),
-				useOhrHachaim ? "↑" + meterFormatter.format(geoLocation.getElevation()) : ""
-			].filter(Boolean).join(", ")})`));
+		geoCoordinates.appendChild(document.createTextNode(multiLocation
+			? locations.map(loc => loc.name + " " + coordinateText(loc.lat, loc.long, loc.elevation)).join("; ")
+			: coordinateText(geoLocation.getLatitude(), geoLocation.getLongitude(), geoLocation.getElevation())));
 	const tz = footer.querySelector("[data-timeZone]")
 	if (tz)
 		tz.appendChild(document.createTextNode(geoLocation.getTimeZone()))
@@ -147,15 +217,17 @@ const baseDateForLoop = baseDate.subtract({ days: baseDate.dayOfWeek % 7 })
 
 const endDate = Temporal.Now.plainDateISO()
 	.withCalendar(cal)
-	.with({ month: 1, day: 1, year: dateForCal.year + (printParam.has('continueToNext') ? 2 : 1) })
+	.with({ month: 1, day: 1, year: dateForCal.year + (continueToNext ? 2 : 1) })
 	.subtract({ days: 1 })
 const endDateForLoop = endDate.add({ days: (7 - endDate.dayOfWeek) % 7 })
 
-// Workers start once the refraction data is in (mRender.start below)
+const hourCalculator = config.calendarToggle.forceSunSeasonal ? "seasonal" : "degrees";
+
+// Workers start once the refraction data is in (mRender.start below). Moon pages are for the centre.
 const mRender = new MoonRender(geoLocation, {
-	language: settings.language(),
-	timeFormat: settings.timeFormat(),
-	hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
+	language: config.language,
+	timeFormat: config.timeFormat,
+	hourCalculator,
 }, baseDate, endDate);
 
 const weeksForLoop = baseDateForLoop.until(endDateForLoop).total({ unit: 'week', relativeTo: baseDateForLoop });
@@ -180,8 +252,11 @@ pool.forEach(worker => worker.addEventListener('error', recordEarlyWorkerError))
 // This page is the main thread, so loadRefraction() can use localStorage (horizon + normals are
 // shared with the web page's cache). Workers can't receive the provider (a closure), so we evaluate it
 // here for every sunrise / sunset in range and post the plain results; dates outside the snapshot fall
-// back to the monthly normals inside the worker. The moon workers get the same snapshot, so it also spans
-// their nights: the first Hebrew month can start up to a month before the printed range.
+// back to the monthly normals inside the worker. The moon workers get the centre's snapshot, so it also
+// spans their nights: the first Hebrew month can start up to a month before the printed range.
+//
+// Every location gets its own (its horizon is what makes its visible sunrise); with several, the centre
+// gets one too, for the moon pages and the technical specifications.
 const SNAPSHOT_MARGIN_DAYS = 14; // holiday boxes look a few days before / after their week
 const moonNights = mRender.nightRange();
 const earlier = (/** @type {Temporal.PlainDate} */ a, /** @type {Temporal.PlainDate | undefined} */ b) => b && Temporal.PlainDate.compare(b, a) < 0 ? b : a;
@@ -190,34 +265,52 @@ const snapshotStart = earlier(baseDateForLoop.withCalendar("iso8601").subtract({
 const snapshotEnd = later(endDateForLoop.withCalendar("iso8601").add({ days: SNAPSHOT_MARGIN_DAYS }), moonNights?.to);
 const snapshotDays = snapshotStart.until(snapshotEnd, { largestUnit: "day" }).days + 1;
 
-const refraction = await loadRefraction(geoLocation.getLatitude(), geoLocation.getLongitude(), {
-	prefetch: { from: snapshotStart, days: snapshotDays },
-	moon: true // the moon pages' visible moonrise / moonset (horizon.moon); the sun's part is unchanged
-});
-if (refraction.notes.length)
-	console.info("Refraction:", refraction.notes);
+const locationGeos = multiLocation ? locationArgs.map(args => new GeoLocation(...args)) : [geoLocation];
 
-/** @type {import('./print-web-worker.js').RefractionInit} */
-const refractionInit = {
-	type: "refraction",
-	table: snapshotProvider(refraction.provider, geoLocation, snapshotStart, snapshotDays),
-	normals: refraction.normals,
-	horizon: refraction.horizon,
-	haze: refraction.haze
-};
+/**
+ * @param {GeoLocation} geo
+ * @param {boolean} moon also fetch the moon's horizon (the centre, for the moon pages)
+ */
+async function refractionFor(geo, moon) {
+	const loaded = await loadRefraction(geo.getLatitude(), geo.getLongitude(), {
+		prefetch: { from: snapshotStart, days: snapshotDays },
+		moon
+	});
+	if (loaded.notes.length)
+		console.info(`Refraction (${geo.getLocationName()}):`, loaded.notes);
+
+	/** @type {import('./print-web-worker.js').RefractionInit} */
+	const init = {
+		type: "refraction",
+		table: snapshotProvider(loaded.provider, geo, snapshotStart, snapshotDays),
+		normals: loaded.normals,
+		horizon: loaded.horizon,
+		haze: loaded.haze
+	};
+	return { refraction: loaded, init };
+}
+
+const [centreRefraction, ...perLocationRefraction] = await Promise.all([
+	refractionFor(geoLocation, true),
+	...(multiLocation ? locationGeos.map(geo => refractionFor(geo, false)) : [])
+]);
+/** One per location, in order (with one location, the centre's). */
+const locationRefractions = multiLocation ? perLocationRefraction : [centreRefraction];
+
+const refraction = centreRefraction.refraction;
 
 // The moon workers take the same message as the weekly ones
-mRender.start(refractionInit);
+mRender.start(centreRefraction.init);
 
 const yearsForDisplay = [dateForCal.year];
-if (printParam.has('continueToNext')) {
+if (continueToNext) {
 	yearsForDisplay.push(dateForCal.year + 1);
 	if (baseDate.month == baseDate.monthsInYear)
 		yearsForDisplay.shift();
 }
 const displayYears = yearsForDisplay.map(year => year > 3000 ? new HebrewNumberFormatter().formatHebrewNumber(year) : year)
 
-const title = geoLocation.getLocationName() + ` (${displayYears.join('-')})`
+const title = config.title + ` (${displayYears.join('-')})`
 document.title = title + " - " + document.title;
 for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 	locName.appendChild(document.createTextNode(title))
@@ -297,7 +390,7 @@ async function readyThenRender() {
 readyThenRender();
 
 for (const locName of document.querySelectorAll('[data-zylocationname]'))
-	locName.appendChild(document.createTextNode(geoLocation.getLocationName()))
+	locName.appendChild(document.createTextNode(config.title))
 
 const prayerAngle = document.querySelector('[data-zy-prayer-angle]')
 if (prayerAngle) {
@@ -326,14 +419,15 @@ const weekInit = {
 	type: "init",
 	israel: inIsrael,
 	geoCoordinates: glArgs,
+	locations: multiLocation ? locationArgs : [glArgs],
 	htmlElems: baseTable.outerHTML + secondSide.outerHTML,
 	calendar: cal,
-	hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
-	rtKulah: settings.calendarToggle.rtKulah(),
-	tzetMelakha: settings.customTimes.tzeithIssurMelakha(),
-	timeFormat: settings.timeFormat(),
-	lang: settings.language(),
-	candleTime: settings.customTimes.candleLighting(),
+	hourCalculator,
+	rtKulah: config.calendarToggle.rtKulah,
+	tzetMelakha: config.customTimes.tzeithIssurMelakha,
+	timeFormat: config.timeFormat,
+	lang: config.language,
+	candleTime: config.customTimes.candleLighting,
 	addedZemanim: [...document.querySelectorAll('[data-zmanToCapture]')].map(elem => elem.getAttribute('data-zmantocapture'))
 };
 
@@ -343,6 +437,7 @@ const arrayOfFuncParams = Array.from({ length: weeksForLoop }, (_, week) => ({
 	date: baseDateForLoop.add({ weeks: week }).toString()
 }));
 
+// The technical specifications are for the centre
 const fundamentalTable = document.querySelector('[data-zyFind="adjustmentsTable"]');
 if (fundamentalTable) {
 	if (useOhrHachaim) {
@@ -351,9 +446,9 @@ if (fundamentalTable) {
 		const zmanCalc = new ZemanFunctions(geoLocation, {
 			elevation: weekInit.israel,
 			melakha: weekInit.tzetMelakha,
-			fixedMil: weekInit.israel || settings.calendarToggle.forceSunSeasonal(),
-			candleLighting: settings.customTimes.candleLighting(),
-			rtKulah: settings.calendarToggle.rtKulah(),
+			fixedMil: weekInit.israel || config.calendarToggle.forceSunSeasonal,
+			candleLighting: config.customTimes.candleLighting,
+			rtKulah: config.calendarToggle.rtKulah,
 			atmosphereProvider: refraction.provider,
 			horizon: refraction.horizon,
 			haze: refraction.haze
@@ -376,7 +471,7 @@ if (fundamentalTable) {
 				))
 
 		const minuteFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "minute", maximumFractionDigits: 0 });
-		fundamentalTable.querySelector('[data-zyReplace="candleLighting"]').innerHTML = settings.customTimes.candleLighting().toString()
+		fundamentalTable.querySelector('[data-zyReplace="candleLighting"]').innerHTML = config.customTimes.candleLighting.toString()
 		fundamentalTable.querySelector('[data-zyReplace="tzetShabbat"]').innerHTML = [
 			equinox.getShkiya().until(zDTFromFunc(equinox.getTzetMelakha())).total("minutes"),
 			winterSolstice.getShkiya().until(zDTFromFunc(winterSolstice.getTzetMelakha())).total("minutes"),
@@ -391,8 +486,8 @@ if (fundamentalTable) {
 /** @type {Record<string, Record<string, Record<string, string>>>} */
 const addedZemanim = {};
 
-/** Visible minus sea-level sunrise per date (ms), reported by the workers for the sunrise table. @type {Record<string, number>} */
-const sunriseOffsets = {};
+/** Per location: visible minus sea-level sunrise per date (ms), reported by the workers. @type {Record<string, number>[]} */
+const sunriseOffsets = weekInit.locations.map(() => ({}));
 
 /** Month-grid day contents from the workers. @type {Record<string, import('./print-web-worker.js').GridDay>} */
 const monthGridDays = {};
@@ -421,8 +516,8 @@ await new Promise((resolve, reject) => {
 		worker.removeEventListener('error', recordEarlyWorkerError);
 		worker.addEventListener('error', failAll);
 
-		// Once per worker, before any week: messages are handled in order, so both are in place in time
-		worker.postMessage(refractionInit);
+		// Once per worker, before any week: messages are handled in order, so all are in place in time
+		locationRefractions.forEach((loc, index) => worker.postMessage({ ...loc.init, index }));
 		worker.postMessage(weekInit);
 
 		const dispatch = () => {
@@ -439,7 +534,8 @@ await new Promise((resolve, reject) => {
 			weekResults[msg.data.week] = msg.data;
 			addedZemanim[msg.data.week] = msg.data.addedZemanim;
 			Object.assign(monthGridDays, msg.data.monthGridDays);
-			Object.assign(sunriseOffsets, msg.data.sunriseOffsets);
+			msg.data.sunriseOffsets.forEach((/** @type {Record<string, number>} */ offsets, /** @type {number} */ index) =>
+				Object.assign(sunriseOffsets[index], offsets));
 
 			if (++completed === arrayOfFuncParams.length)
 				resolve();
@@ -483,7 +579,7 @@ for (const weekData of weekResults) {
 }
 
 await mRender.monthPagesReady;
-insertMonthGrids(settings.language(), monthGridDays);
+insertMonthGrids(config.language, monthGridDays);
 
 // A static list, so the copies inserted below are never picked up again
 for (const page of document.querySelectorAll('[data-monthPrefix]')) {
@@ -533,7 +629,7 @@ function insertBackZemanim() {
 	}, /** @type {Record<string, Map<Temporal.PlainDate, any>>} */({}));
 
 	// Month names in the calendar the columns are actually in (Gregorian columns used to get Hebrew names)
-	const monthNameLocale = (settings.language() == 'hb' ? 'he' : 'en') + '-u-ca-' + (cal == 'hebrew' ? 'hebrew' : 'gregory');
+	const monthNameLocale = (config.language == 'hb' ? 'he' : 'en') + '-u-ca-' + (cal == 'hebrew' ? 'hebrew' : 'gregory');
 
 	// Get all unique zeman names
 	const zemanNames = Object.keys(formattedBackZemanim);
@@ -674,6 +770,39 @@ function insertBackZemanim() {
 	});
 }
 
+/**
+ * The earliest and latest visible-minus-sea-level sunrise over the printed range
+ * @param {Record<string, number>} offsets
+ */
+function offsetExtremes(offsets) {
+	/** @type {{ earliest: { msDiff: number, date: string | null }, latest: { msDiff: number, date: string | null } }} */
+	const diffs = {
+		earliest: { msDiff: 0, date: null },
+		latest: { msDiff: 0, date: null }
+	};
+
+	for (const [date, msDiff] of Object.entries(offsets)) {
+		const plainDate = Temporal.PlainDate.from(date);
+		if (Temporal.PlainDate.compare(plainDate, baseDate) < 0 || Temporal.PlainDate.compare(plainDate, endDate) > 0)
+			continue;
+
+		if (msDiff < 0 && (diffs.earliest.date === null || msDiff < diffs.earliest.msDiff))
+			diffs.earliest = { msDiff, date };
+		else if (msDiff > 0 && (diffs.latest.date === null || msDiff > diffs.latest.msDiff))
+			diffs.latest = { msDiff, date };
+	}
+
+	return diffs;
+}
+
+/** @param {{ msDiff: number, date: string | null }} slot */
+function offsetHTML(slot) {
+	if (slot.date === null)
+		return "N/A";
+	const dur = Temporal.Duration.from({ milliseconds: Math.abs(slot.msDiff) }).round({ smallestUnit: "second" });
+	return formatDuration(dur) + `<div style='font-size:.8em;'>(${slot.date})</div>`;
+}
+
 async function preparePrint() {
 	await sleep();
 
@@ -743,17 +872,13 @@ async function preparePrint() {
 	// Visible-sunrise summary: the extremes of (visible - sea-level sunrise) over the printed range,
 	// from the offsets the workers reported. Replaces the ChaiTables-based table and its QR code.
 	const vsTable = document.querySelector('[data-zyFind="vsTable"]');
-	const offsetEntries = Object.entries(sunriseOffsets)
-		.filter(([date]) => {
-			const plainDate = Temporal.PlainDate.from(date);
-			return Temporal.PlainDate.compare(plainDate, baseDate) >= 0
-				&& Temporal.PlainDate.compare(plainDate, endDate) <= 0;
-		});
+	const firstHorizon = locationRefractions[0].refraction.horizon;
+	const diffs = offsetExtremes(sunriseOffsets[0]);
 
-	if (vsTable && refraction.horizon && offsetEntries.length) {
+	if (vsTable && firstHorizon && (diffs.earliest.date || diffs.latest.date)) {
 		// "radius" now describes the area the server searched for the best vantage points
 		const radiusElem = vsTable.querySelector('[data-zyReplace="sunriseRadius"]');
-		const areaRadius = refraction.horizon.area?.radiusKm;
+		const areaRadius = firstHorizon.area?.radiusKm;
 		if (radiusElem && areaRadius) {
 			radiusElem.innerHTML = new Intl.NumberFormat(local, { style: "unit", unit: "kilometer", maximumFractionDigits: 1 })
 				.format(areaRadius);
@@ -762,46 +887,73 @@ async function preparePrint() {
 			radiusElem.remove();
 		}
 
-		/** @type {{ earliest: { msDiff: number, date: string | null }, latest: { msDiff: number, date: string | null } }} */
-		const diffs = {
-			earliest: { msDiff: 0, date: null },
-			latest: { msDiff: 0, date: null }
-		};
-
-		for (const [date, msDiff] of offsetEntries) {
-			if (msDiff < 0 && (diffs.earliest.date === null || msDiff < diffs.earliest.msDiff))
-				diffs.earliest = { msDiff, date };
-			else if (msDiff > 0 && (diffs.latest.date === null || msDiff > diffs.latest.msDiff))
-				diffs.latest = { msDiff, date };
-		}
-
 		for (const [which, slot] of /** @type {const} */ ([['earliestOffset', diffs.earliest], ['latestOffset', diffs.latest]])) {
 			const cell = vsTable.querySelector(`[data-zyReplace="${which}"]`);
-			if (!cell) continue;
-			if (slot.date === null) {
-				cell.innerHTML = "N/A";
-			} else {
-				const dur = Temporal.Duration.from({ milliseconds: Math.abs(slot.msDiff) }).round({ smallestUnit: "second" });
-				cell.innerHTML = formatDuration(dur) + `<div style='font-size:.8em;'>(${slot.date})</div>`;
-			}
+			if (cell)
+				cell.innerHTML = offsetHTML(slot);
 		}
 	} else if (vsTable) {
 		vsTable.remove();
 	}
 
+	// Several locations: the same summary, a row per location
+	const vsTableMulti = document.querySelector('[data-zyFind="vsTableMulti"]');
+	if (vsTableMulti) {
+		let rows = 0;
+		weekInit.locations.forEach((args, index) => {
+			const locDiffs = offsetExtremes(sunriseOffsets[index]);
+			if (!locDiffs.earliest.date && !locDiffs.latest.date)
+				return;
+			rows++;
+
+			const name = document.createElement("div");
+			name.className = "vsName";
+			name.appendChild(document.createTextNode(args[0]));
+			vsTableMulti.appendChild(name);
+
+			for (const slot of [locDiffs.earliest, locDiffs.latest]) {
+				const cell = document.createElement("div");
+				cell.className = "vsValue";
+				cell.innerHTML = offsetHTML(slot);
+				vsTableMulti.appendChild(cell);
+			}
+		});
+		if (!rows)
+			vsTableMulti.remove();
+	}
+
 	// The ChaiTables QR code has nothing to point to any more
 	document.getElementById('qrCodeVisualSunrise')?.remove();
 
-	const currentPage = new URL(location.href);
-	currentPage.pathname = '/calendar';
-	currentPage.hostname = 'royzmanim.com';
-	currentPage.port = '';
-	console.log(currentPage.toString());
-
 	const qrCodeDigitalView = document.getElementById('qrCodeDigitalView');
 	if (qrCodeDigitalView) {
+		const currentPage = digitalViewURL();
+		console.log(currentPage.toString());
 		qrCodeDigitalView.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(currentPage.toString())));
 	}
+}
+
+/**
+ * The website's calendar for the same place. A URL-param print passes its own params on; a JSON config's
+ * are spelled out (for several locations, their centre).
+ */
+function digitalViewURL() {
+	const url = new URL(location.href);
+	url.protocol = 'https:';
+	url.hostname = 'royzmanim.com';
+	url.port = '';
+	url.pathname = '/calendar';
+
+	if (config.source == 'json') {
+		url.search = '';
+		url.searchParams.set('locationName', config.title);
+		url.searchParams.set('lat', geoLocation.getLatitude().toString());
+		url.searchParams.set('long', geoLocation.getLongitude().toString());
+		url.searchParams.set('elevation', geoLocation.getElevation().toString());
+		url.searchParams.set('timeZone', geoLocation.getTimeZone());
+	}
+
+	return url;
 }
 
 async function sleep() {

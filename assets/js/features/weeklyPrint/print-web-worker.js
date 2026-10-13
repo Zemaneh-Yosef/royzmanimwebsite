@@ -10,6 +10,7 @@ import { providerFromSnapshot } from '../../refraction-snapshot.js';
 import n2wordsOrdinal from '../../misc/n2wordsOrdinal.js';
 import makamObj from '../../makamObj.js';
 import { loadWorkerPolyfills } from '../../misc/worker-polyfills.js';
+import { mergeCalcs, roundAcrossLocations } from './multi-zeman.js';
 
 const icons = {
 	havdalah: '<svg viewBox="0 0 108.81511 287.75458" class="flipImageRTL"><use href="/assets/images/havdala.svg#layer1"/></svg>',
@@ -29,12 +30,17 @@ hNum.setUseFinalFormLetters(true);
 /** @typedef {{ week: number; date: string; }} singlePageParams One week; "date" is the week's first day (in the print calendar) */
 
 /**
- * Sent once per worker, after the RefractionInit and before any week (see print-export-url-param.js).
+ * Sent once per worker, after the RefractionInit(s) and before any week (see print-export-weekly.js).
  * Everything in it is the same for every week.
+ *
+ * `locations` are the places the zemanim are computed for: with more than one, every zeman is averaged
+ * across them (multi-zeman.js) and the sunrise table, when the page has one, lists each one's sunrise.
+ * `geoCoordinates` is their centre (time zone, molad...); with one location it is that location.
  * @typedef {{
 	type: 'init';
 	israel: boolean;
 	geoCoordinates: [string, number, number, number, string];
+	locations: [string, number, number, number, string][];
 	htmlElems: string;
 	calendar: 'iso8601'|'hebrew';
 	hourCalculator: "seasonal"|"degrees";
@@ -50,10 +56,13 @@ hNum.setUseFinalFormLetters(true);
   }} WorkerInit */
 
 /**
- * Sent once per worker, before any week (see print-export-url-param.js). Workers have no localStorage
- * and can't receive the provider closure, so they get the provider's plain results instead.
+ * Sent once per worker and location, before any week (see print-export-weekly.js). Workers have no
+ * localStorage and can't receive the provider closure, so they get the provider's plain results instead.
+ * `index` is the location's position in WorkerInit.locations (0 when omitted; the moon workers take the
+ * same message without it).
  * @typedef {{
 	type: 'refraction';
+	index?: number;
 	table: import('../../refraction-snapshot.js').ProviderSnapshot;
 	normals: import('../../refraction-snapshot.js').Normals | null;
 	horizon: import('../../refraction-snapshot.js').Horizon | null;
@@ -71,8 +80,13 @@ hNum.setUseFinalFormLetters(true);
 	bold: boolean;
   }} GridDay */
 
-/** Set by the RefractionInit message. @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null, haze: import('../../../libraries/kosherZmanim/star-nightfall.js').HazeData | null }} */
-const refraction = { provider: null, horizon: null, haze: null };
+/** @typedef {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null, haze: import('../../../libraries/kosherZmanim/star-nightfall.js').HazeData | null }} LocationRefraction */
+
+/** Set by the RefractionInit messages, one per location. @type {LocationRefraction[]} */
+const refractions = [];
+
+/** @param {number} index @returns {LocationRefraction} */
+const refractionFor = (index) => refractions[index] ?? { provider: null, horizon: null, haze: null };
 
 // ─── Per-worker state, set once by the WorkerInit message ─────────────────────
 /** @type {WorkerInit} */
@@ -126,14 +140,17 @@ function fmt(zdt, tf) {
 /** @type {Map<string, Intl.DateTimeFormat | null>} */
 const shortFormatterCache = new Map();
 
-/** @param {Temporal.ZonedDateTime} zdt */
-function fmtShort(zdt) {
-	const key = zdt.timeZoneId;
+/**
+ * A time without AM/PM (the month grid; the sunrise table, with seconds)
+ * @param {Temporal.ZonedDateTime} zdt
+ */
+function fmtShort(zdt, seconds = false) {
+	const key = zdt.timeZoneId + (seconds ? "|s" : "");
 	let formatter = shortFormatterCache.get(key);
 	if (formatter === undefined) {
 		try {
 			formatter = new Intl.DateTimeFormat(workerInit.lang == 'hb' ? 'he' : 'en',
-				{ hourCycle: workerInit.timeFormat, hour: 'numeric', minute: '2-digit', timeZone: key });
+				{ hourCycle: workerInit.timeFormat, hour: 'numeric', minute: '2-digit', ...(seconds ? { second: '2-digit' } : {}), timeZone: zdt.timeZoneId });
 		} catch {
 			formatter = null;
 		}
@@ -344,16 +361,24 @@ function messageHandler(x) {
 	jCal.setDate(baseDate.withCalendar("iso8601"))
 	jCal.setInIsrael(x.data.israel);
 
-	const zmanCalc = new ZemanFunctions(geoLocation, {
-		elevation: x.data.israel,
-		melakha: x.data.tzetMelakha,
-		fixedMil: x.data.israel || x.data.hourCalculator == "seasonal",
-		candleLighting: x.data.candleTime,
-		rtKulah: x.data.rtKulah,
-		atmosphereProvider: refraction.provider,
-		horizon: refraction.horizon,
-		haze: refraction.haze
+	// One calculator per location (each with its own air and horizon); zmanCalc stands for all of them,
+	// averaging what they return (see multi-zeman.js). With one location it is that location's calculator.
+	const locationArgs = x.data.locations?.length ? x.data.locations : [x.data.geoCoordinates];
+	const calcs = locationArgs.map((args, index) => {
+		const locRefraction = refractionFor(index);
+		return new ZemanFunctions(new KosherZmanim.GeoLocation(...args), {
+			elevation: x.data.israel,
+			melakha: x.data.tzetMelakha,
+			fixedMil: x.data.israel || x.data.hourCalculator == "seasonal",
+			candleLighting: x.data.candleTime,
+			rtKulah: x.data.rtKulah,
+			atmosphereProvider: locRefraction.provider,
+			horizon: locRefraction.horizon,
+			haze: locRefraction.haze
+		});
 	});
+	const multiLocation = calcs.length > 1;
+	const zmanCalc = mergeCalcs(calcs);
 	zmanCalc.setDate(jCal.getDate())
 
 	/** zmanCalc.chainDate, memoized per date for this week (the holiday boxes ask for the same day many times) */
@@ -367,8 +392,11 @@ function messageHandler(x) {
 		return calc;
 	};
 
-	/** Visible minus sea-level sunrise (ms) per ISO date, for the summary table on the main page. @type {Record<string, number>} */
-	const sunriseOffsets = {};
+	/** Per location: visible minus sea-level sunrise (ms) per ISO date, for the summary table on the main page. @type {Record<string, number>[]} */
+	const sunriseOffsets = calcs.map(() => ({}));
+
+	/** Per location, per day of the week: the sunrise-table cell. @type {{ text: string; seaLevel: boolean }[][]} */
+	const sunriseCells = calcs.map(() => []);
 
 	/** Per-day contents for the month grids on the moon pages, keyed by ISO date. @type {Record<string, GridDay>} */
 	const monthGridDays = {};
@@ -384,10 +412,20 @@ function messageHandler(x) {
 		if (round === 'noRound')
 			return zDT;
 
+		// An averaged time is rounded per location first, then averaged (see multi-zeman.js)
+		return roundAcrossLocations(zDT, round, roundOne);
+	}
+
+	/**
+	 * @param {Temporal.ZonedDateTime} zDT
+	 * @param {'earlier'|'later'} round
+	 */
+	function roundOne(zDT, round) {
+		const minute = zDT.with({ second: 0, millisecond: 0, microsecond: 0, nanosecond: 0 });
 		if (zDT.second > 40 || (zDT.second >= 20 && round == 'later'))
-			return zDT.add({ minutes: 1 }).with({ second: 0 });
+			return minute.add({ minutes: 1 });
 		else
-			return zDT.with({ second: 0 });
+			return minute;
 	}
 
 	function handleShita(/** @type {Element} */zmanRow) {
@@ -490,6 +528,19 @@ function messageHandler(x) {
 						throw e;
 				}
 				renderZmanInDiv(time, round)
+		}
+
+		// Two zemanim in one row ("[Gedola] / [Ketana]"): data-zyDataSecond / data-roundSecond
+		const secondShita = zmanRow.getAttribute("data-zydatasecond");
+		if (secondShita) {
+			if (!methodNames.includes(secondShita))
+				throw new Error("Unknown zman " + secondShita);
+			/** @type {'earlier'|'later'} */
+			// @ts-expect-error
+			const secondRound = zmanRow.getAttribute("data-roundsecond") || round;
+			div.appendChild(document.createTextNode(" / "));
+			// @ts-ignore
+			renderZmanInDiv(zmanCalc[secondShita](), secondRound);
 		}
 	}
 
@@ -1087,10 +1138,22 @@ function messageHandler(x) {
 		jCal.setDate(plainDate.withCalendar("iso8601"))
 		zmanCalc.setDate(plainDate.withCalendar("iso8601"));
 
-		const netz = zmanCalc.getNetz();
-		if (!(netz instanceof Temporal.ZonedDateTime))
-			sunriseOffsets[plainDate.withCalendar("iso8601").toString({ calendarName: "never" })] =
-				netz.time.epochMilliseconds - zmanCalc.coreZC.getSeaLevelSunrise().epochMilliseconds;
+		// Each location's own sunrise: the offsets for the main page's summary, and the sunrise table's cells.
+		// A visible sunrise keeps its seconds; a location without one shows sea-level sunrise, rounded like
+		// the Sunrise row (no seconds) and marked.
+		calcs.forEach((calc, index) => {
+			const netz = calc.getNetz();
+			const seaLevel = calc.coreZC.getSeaLevelSunrise();
+			if (netz instanceof Temporal.ZonedDateTime) {
+				sunriseCells[index].push({ text: fmtShort(roundOne(netz, 'later')), seaLevel: true });
+			} else if (netz) {
+				sunriseOffsets[index][plainDate.withCalendar("iso8601").toString({ calendarName: "never" })] =
+					netz.time.epochMilliseconds - seaLevel.epochMilliseconds;
+				sunriseCells[index].push({ text: fmtShort(netz.time, true), seaLevel: false });
+			} else {
+				sunriseCells[index].push({ text: "—", seaLevel: false });
+			}
+		});
 
 		// ─── Month grid (moon pages) ───
 		{
@@ -1249,6 +1312,45 @@ function messageHandler(x) {
 				addedZemanim[shita][plainDate.toString()] = fmt(handleRound(zmanCalc[shita](), round), round == "noRound" ? sunriseTF : defaulTF)
 		}
 	})
+
+	// ─── Sunrise table (pages that have one, in place of the learning cycles) ───
+	// Columns are the days of the week, rows the locations.
+	const sunriseTable = document.querySelector('[data-zyFind="sunriseTable"]');
+	if (sunriseTable) {
+		const locale = x.data.lang == 'hb' ? 'he' : 'en';
+		const headRow = sunriseTable.querySelector('thead tr');
+		weekdayList.forEach((_, index) => {
+			const day = baseDate.add({ days: index }).withCalendar("iso8601");
+			const th = document.createElement("th");
+			th.innerHTML = day.toLocaleString(locale, { weekday: 'short' }) + "<br>"
+				+ (x.data.lang == 'hb' ? hNum.formatHebrewNumber(day.withCalendar("hebrew").day) : day.day);
+			headRow.appendChild(th);
+		});
+
+		const tbody = sunriseTable.querySelector('tbody');
+		locationArgs.forEach((args, index) => {
+			const row = document.createElement("tr");
+			const name = document.createElement("th");
+			name.setAttribute("scope", "row");
+			name.appendChild(document.createTextNode(args[0]));
+			row.appendChild(name);
+
+			for (const cell of sunriseCells[index]) {
+				const td = document.createElement("td");
+				td.appendChild(document.createTextNode(cell.text));
+				if (cell.seaLevel) {
+					td.classList.add("seaLevelSunrise");
+					td.insertAdjacentHTML('beforeend', "<sup>*</sup>");
+				}
+				row.appendChild(td);
+			}
+			tbody.appendChild(row);
+		});
+
+		// The footnote is only for weeks that need it
+		if (!sunriseCells.some(cells => cells.some(cell => cell.seaLevel)))
+			document.querySelector('[data-zyFind="sunriseTableNote"]')?.remove();
+	}
 
 	const dateRangeHeaderElem = document.getElementsByClassName('secondPageHeader')[0]
 
@@ -1939,6 +2041,13 @@ function messageHandler(x) {
 			let candleLightIndex = 1;
 			for (const zmanOfDay of allTimes) {
 				for (const [zmanName, zmanTime] of Object.entries(zmanOfDay)) {
+					// Sunrise isn't averaged across locations: the sunrise table lists each one's
+					if (zmanName == 'netz' && multiLocation) {
+						if (!x.data.israel || allCandleLightings.length > 1)
+							timesBox.appendChild(document.createElement("hr"));
+						continue;
+					}
+
 					if (zmanName == 'rabbenuTam') {
 						const rtElem = document.createElement("span");
 						rtElem.innerHTML = ` (${x.data.lang == 'hb' ? 'ר"ת' : 'R"T'}: ${fmt(zmanTime, defaulTF)})`;
@@ -2076,9 +2185,11 @@ if (typeof window === 'undefined') {
 		// Both init messages are handled before any await, so they are in place before the first week runs
 		if ('type' in data) {
 			if (data.type === 'refraction') {
-				refraction.provider = providerFromSnapshot(data.table, data.normals);
-				refraction.horizon = data.horizon;
-				refraction.haze = data.haze ?? null;
+				refractions[data.index ?? 0] = {
+					provider: providerFromSnapshot(data.table, data.normals),
+					horizon: data.horizon,
+					haze: data.haze ?? null
+				};
 			} else if (data.type === 'init') {
 				initWorker(data);
 			}
