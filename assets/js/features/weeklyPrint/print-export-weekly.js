@@ -34,6 +34,31 @@ const WORKER_URL = '/assets/js/features/weeklyPrint/print-web-worker.js';
 
 const config = await printConfig;
 
+/**
+ * A status line pinned to the top of the screen (never printed) while the print is built: a multi-location
+ * year can take minutes, and a failure would otherwise only be in the console.
+ */
+const progress = (() => {
+	const bar = document.createElement("div");
+	bar.setAttribute("data-zyFind", "printProgress");
+	bar.style.cssText = "position:fixed;top:0;inset-inline:0;z-index:9999;padding:.4rem .8rem;"
+		+ "font:600 13px/1.4 system-ui,sans-serif;background:#1f2937;color:white;text-align:center";
+	const style = document.createElement("style");
+	style.textContent = "@media print { [data-zyFind=printProgress] { display: none !important; } }";
+	document.head.appendChild(style);
+	const attach = () => document.body.appendChild(bar);
+	if (document.body) attach(); else document.addEventListener("DOMContentLoaded", attach, { once: true });
+
+	return {
+		/** @param {string} text */
+		set(text) { bar.textContent = text; },
+		/** @param {string} text */
+		fail(text) { bar.style.background = "#b91c1c"; bar.textContent = text; },
+		done() { bar.remove(); style.remove(); }
+	};
+})();
+progress.set("Loading the horizon and weather data…");
+
 // A JSON config's language wins over the visitor's stored one (docLoad.js applied that on DOMContentLoaded)
 if (config.source == 'json') {
 	const applyLanguage = () => handleLanguage(config.language);
@@ -503,6 +528,9 @@ const properPaging = document.querySelector('[data-insertBefore]');
 /** @type {ReturnType<import('./print-web-worker.js').default>[]} */
 const weekResults = new Array(arrayOfFuncParams.length);
 
+const weeksStarted = performance.now();
+progress.set(`Calculating weeks: 0 / ${arrayOfFuncParams.length}`);
+
 await new Promise((resolve, reject) => {
 	let nextTask = 0;
 	let completed = 0;
@@ -512,6 +540,11 @@ await new Promise((resolve, reject) => {
 		if (failed) return;
 		failed = true;
 		pool.forEach(w => w.terminate());
+		// A worker's ErrorEvent says little in the console; spell it out on the page too
+		const message = err instanceof ErrorEvent
+			? `${err.message || "Worker failed to load"} (${err.filename || "worker"}${err.lineno ? ":" + err.lineno : ""})`
+			: err instanceof Error ? err.message : String(err);
+		progress.fail("The weekly pages could not be calculated: " + message.split("\n")[0]);
 		reject(err);
 	};
 
@@ -543,8 +576,16 @@ await new Promise((resolve, reject) => {
 			msg.data.sunriseOffsets.forEach((/** @type {Record<string, number>} */ offsets, /** @type {number} */ index) =>
 				Object.assign(sunriseOffsets[index], offsets));
 
-			if (++completed === arrayOfFuncParams.length)
+			completed++;
+			const seconds = (performance.now() - weeksStarted) / 1000;
+			const left = seconds / completed * (arrayOfFuncParams.length - completed);
+			progress.set(`Calculating weeks: ${completed} / ${arrayOfFuncParams.length}`
+				+ (completed < arrayOfFuncParams.length ? ` (about ${Math.ceil(left / 60)} min left)` : ""));
+
+			if (completed === arrayOfFuncParams.length) {
+				console.info(`Weekly pages: ${arrayOfFuncParams.length} weeks for ${weekInit.locations.length} location(s) in ${seconds.toFixed(1)} s`);
 				resolve();
+			}
 			dispatch();
 		});
 
@@ -584,6 +625,7 @@ for (const weekData of weekResults) {
 	properPaging.insertAdjacentHTML('beforebegin', weekData.htmlContent.join(''));
 }
 
+progress.set("Finishing the moon pages…");
 await mRender.monthPagesReady;
 insertMonthGrids(config.language, monthGridDays);
 
@@ -615,6 +657,7 @@ baseTable.remove();
 
 insertBackZemanim();
 await preparePrint();
+progress.done();
 
 function insertBackZemanim() {
 	/**
