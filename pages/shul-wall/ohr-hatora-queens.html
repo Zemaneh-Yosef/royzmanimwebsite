@@ -9,6 +9,30 @@ layout: nothing
 <link href="/assets/css/shul-wall/clock.css" rel="stylesheet">
 
 <style>
+	/*
+	 * VIEWPORT SCALING
+	 * The whole layout is sized in rem/em, and 1rem is derived from the viewport.
+	 * The design reference is a 1920x1080 screen: at that size 1rem = 16px (browser default),
+	 * so the page looks exactly as it was designed. On any other screen everything scales
+	 * proportionally, using whichever dimension (width or height) is the tighter fit,
+	 * so nothing overflows on unusual aspect ratios.
+	 * If the board was designed on a different screen, just change these two numbers.
+	 */
+	:root {
+		--design-w: 1920;
+		--design-h: 1080;
+		--bs-body-color: white;
+	}
+
+	html {
+		font-size: min(calc(100vw / var(--design-w) * 16), calc(100vh / var(--design-h) * 16));
+	}
+
+	html, body {
+		margin: 0;
+		overflow: hidden;
+	}
+
 	#content {
 		width: 100vw;
 		height: 100vh;
@@ -20,6 +44,8 @@ layout: nothing
 
 	#content > * {
 		grid-area: 1 / 1;
+		min-width: 0;
+		min-height: 0;
 	}
 
 	.centerLeftgrid svg {
@@ -47,19 +73,27 @@ layout: nothing
 	}
 
 	#dataGrid {
-		margin-left: 1vw;
-		margin-right: 1vw;
-		margin-top: 2vh;
+		margin: 1.35rem 1.2rem 0;
 		z-index: 5;
 		display: grid;
 
 		grid-template-areas:
-			"logo building bsd"
-			"zmanim building weekday";
-		grid-template-columns: 28% auto 28%;
+			"logo    building bsd"
+			"zmanim  building weekday";
+		/* Side tablets shrink-wrap their content (capped so long text wraps instead of
+		   taking over the screen); the middle tablet gets whatever is left.
+		   minmax(0, 1fr) stops the middle column's content from pushing it wider,
+		   which is what lets the Parasha name fit to the column instead of the reverse. */
+		/* --side is set by the script at the bottom to the wider of the two side tablets,
+		   so both sides are always the same width. Before it runs, fall back to shrink-wrap. */
+		grid-template-columns:
+			var(--side, fit-content(32%))
+			minmax(0, 1fr)
+			var(--side, fit-content(32%));
+		position: relative; /* containing block for the logo's grid area */
 		grid-template-rows: auto 1fr;
 		align-items: center;
-		gap: 1.75vw;
+		gap: 2.1rem;
 	}
 
 	#dataGrid .templeBG {
@@ -68,13 +102,14 @@ layout: nothing
 		border-top-left-radius: 50% 7%;
 		border-top-right-radius: 50% 7%;
 		padding: 1rem;
-		box-shadow: 0 0 7px 5px rgba(33, 31, 32, .9);
+		box-shadow: 0 0 .4375rem .3125rem rgba(33, 31, 32, .9);
 		padding-top: 3rem;
 	}
 
 	.schedule-entry-grid {
 		display: grid;
 		grid-template-columns: 1fr auto;
+		column-gap: 1em;
 	}
 
 	.schedule-entry-grid > *:first-child {
@@ -87,10 +122,17 @@ layout: nothing
 	}
 
 	#gne {
+		grid-area: logo;
+		/* Absolutely positioned inside its grid area: the logo no longer influences
+		   the column width (or row height). It just scales down to fit whatever
+		   cell the tablets and בס"ד define. */
+		position: absolute;
+		inset: 0;
 		width: 100%;
+		height: 100%;
+		object-fit: contain;
 		z-index: 3;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
-		grid-area: "logo";
+		filter: drop-shadow(0 .3125rem .25rem rgba(0,0,0,1));
 	}
 
 	.wideView {
@@ -103,6 +145,7 @@ layout: nothing
 		display: flex;
 		font-size: 2em;
 		justify-content: space-between;
+		gap: 1em; /* keeps name and time apart when the tablet shrink-wraps */
 	}
 
 	.wideView > *:first-child {
@@ -114,7 +157,7 @@ layout: nothing
 	}
 
 	.wideView > *:not(:last-child) {
-		border-bottom:1px solid rgba(255,255,255,.5);
+		border-bottom: 1px solid rgba(255,255,255,.5);
 	}
 
 	article > .langTV {
@@ -125,12 +168,12 @@ layout: nothing
 	#poweredBy {
 		justify-self: center;
 		align-self: end;
-		padding-bottom: 2vh;
+		padding-top: 1.35rem;
+		padding-bottom: 1.35rem;
 		text-align: center;
 		line-height: 1.2;
 		color: white;
 		width: 100%;
-		padding-top: 2vh;
 		background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.5) 25%, rgba(0,0,0,1) 100%);
 		z-index: 20;
 	}
@@ -138,8 +181,8 @@ layout: nothing
 	#dataGrid .list-group-item {
 		--bs-list-group-item-padding-y: .35rem;
 		--bs-list-group-border-color: transparent;
-        --bs-list-group-bg: transparent;
-        --bs-list-group-color: #dee2e6;
+		--bs-list-group-bg: transparent;
+		--bs-list-group-color: #dee2e6;
 		--bs-list-group-item-padding-x: .75rem;
 		font-size: 2.3em;
 	}
@@ -151,10 +194,6 @@ layout: nothing
 	.card {
 		--bs-card-bg: transparent;
 		border: none;
-	}
-
-	:root {
-		--bs-body-color: white;
 	}
 
 	#physicalLocation {
@@ -182,7 +221,7 @@ layout: nothing
 		width: min-content;
 		justify-self: end;
 
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		filter: drop-shadow(0 .3125rem .25rem rgba(0,0,0,1));
 	}
 
 	#weekday {
@@ -192,10 +231,11 @@ layout: nothing
 	#shulScheduling {
 		grid-area: building;
 		background: #b99f6e;
-		border: 5px groove #72603b;
+		border: .3125rem groove #72603b;
 		border-bottom: none;
 		align-self: end;
 		width: 100%;
+		min-width: 0;
 	}
 
 	#dates {
@@ -224,9 +264,9 @@ layout: nothing
 	}
 
 	#boardContentCont {
-		padding-left: .5vw;
-		padding-right: 1vw;
-		padding-top: 2.5vh;
+		padding-left: .6rem;
+		padding-right: 1.2rem;
+		padding-top: 1.6875rem;
 
 		display: flex;
 		width: 100%;
@@ -235,18 +275,20 @@ layout: nothing
 	#boardContent {
 		background: rgb(33, 31, 32);
 		padding: 1rem;
+		padding-bottom: 4rem;
 		color: white;
 		flex: 1 1;
-		padding-bottom: 6vh;
+		min-width: 0; /* lets fitty measure the real available width */
 		width: 100%;
 		text-align: center;
 	}
 
 	#boardContentCont::after {
 		content: "";
-		width: 25px;
+		flex: none;
+		width: 1.5625rem;
 		background: white;
-		margin-left: 20px;
+		margin-left: 1.25rem;
 	}
 
 	hr {
@@ -257,28 +299,33 @@ layout: nothing
 		font-size: 0.75em;
 	}
 
-	#content[data-current-page="2"] .timeDisplayWide.nextDay::before {
+	/*
+	 * Language pages. Normally driven by data-current-page; while the width script
+	 * is measuring, data-measure-page temporarily takes over so every language
+	 * can be measured without touching the real page flip.
+	 */
+	#content:is([data-measure-page="2"], :not([data-measure-page])[data-current-page="2"]) .timeDisplayWide.nextDay::before {
 		content: "מחר, ";
 		unicode-bidi: isolate;
 	}
 
-	#content[data-current-page="1"] .timeDisplayWide.nextDay::before {
+	#content:is([data-measure-page="1"], :not([data-measure-page])[data-current-page="1"]) .timeDisplayWide.nextDay::before {
 		content: "Tom., ";
 	}
 
-	#content[data-current-page="3"] .timeDisplayWide.nextDay::before {
+	#content:is([data-measure-page="3"], :not([data-measure-page])[data-current-page="3"]) .timeDisplayWide.nextDay::before {
 		content: "Завтра, ";
 	}
 
-	#content[data-current-page="1"] .langTV:not(.lang-en) {
+	#content:is([data-measure-page="1"], :not([data-measure-page])[data-current-page="1"]) .langTV:not(.lang-en) {
 		display: none;
 	}
 
-	#content[data-current-page="2"] .langTV:not(.lang-hb) {
+	#content:is([data-measure-page="2"], :not([data-measure-page])[data-current-page="2"]) .langTV:not(.lang-hb) {
 		display: none;
 	}
 
-	#content[data-current-page="3"] .langTV:not(.lang-ru) {
+	#content:is([data-measure-page="3"], :not([data-measure-page])[data-current-page="3"]) .langTV:not(.lang-ru) {
 		display: none;
 	}
 
@@ -287,14 +334,14 @@ layout: nothing
 	}
 
 	[data-parasha] {
-		font-size: .1rem;
+		font-size: .1rem; /* starting size only; fitty overrides it to fill the width */
 		margin-bottom: 0;
 		font-family: 'Frank Ruhl Libre';
 		font-weight: 800;
 		line-height: 1;
 
 		display: inline-block;
-    	white-space: nowrap;
+		white-space: nowrap;
 	}
 </style>
 
@@ -328,7 +375,7 @@ layout: nothing
 		<div id="dailZmanim" class="templeBG">
 			<h3 style="text-align: center; margin-bottom: 0;">
 				<span class="langTV lang-hb">זמני היום</span>
-				<span class="langTV lang-ru">Галахические времена</span>
+				<span class="langTV lang-ru">Зманим дня</span>
 				<span class="langTV lang-en">Halachic Times</span>
 			</h3>
 			{% include clockCountdown.html %}
@@ -366,10 +413,10 @@ layout: nothing
 						<div data-zfFind="SefirathHaomer">
 							<div class="lang lang-hb" style="display: block !important;">
 								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
-								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
+								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
 									<b>הלילה:</b>
-									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
+									<span data-zfReplace="completeCount" data-omerDay="tomorrow"></span> לָעֹמֶר<span>, שֶׁהֵם
 									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
 								</p>
 							</div>
@@ -451,8 +498,52 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
 <script type="module">
 	import fitty from "/assets/libraries/fitty.js";
+	// fitty's default maxSize is 512px, which caps the Parasha on large/4K screens.
 	// @ts-ignore
-	window.fittyElem = fitty([document.querySelector('[data-parasha]')], { multiLine: false })
+	window.fittyElem = fitty([document.querySelector('[data-parasha]')], { multiLine: false, maxSize: 4000 });
+	// Refit once web fonts finish loading, since glyph widths change.
+	document.fonts?.ready.then(() => window.fittyElem.forEach(f => f.fit()));
+</script>
+<script type="module">
+	// Keep both side tablets at the same width: the widest natural width of either
+	// side, across EVERY language page (not just the one currently showing), so the
+	// layout never shifts when the page flips and the longest language always fits.
+	// All measuring happens synchronously in one frame, so nothing flickers on screen.
+	const grid = document.getElementById('dataGrid');
+	const content = document.getElementById('content');
+	const pageCount = parseInt(content.dataset.pageCount) || 1;
+	let queued = false;
+
+	function equalizeSides() {
+		queued = false;
+		grid.style.removeProperty('--side'); // let the sides shrink-wrap for measuring
+		let maxSide = 0;
+		for (let page = 1; page <= pageCount; page++) {
+			content.dataset.measurePage = page;
+			const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').map(parseFloat);
+			maxSide = Math.max(maxSide, cols[0], cols[2]);
+		}
+		delete content.dataset.measurePage;
+		grid.style.setProperty('--side', `${maxSide}px`);
+
+		// The middle column may have changed width; refit the Parasha name to it.
+		// @ts-ignore
+		window.fittyElem?.forEach(f => f.fit());
+	}
+
+	function queue() {
+		if (queued) return;
+		queued = true;
+		requestAnimationFrame(equalizeSides);
+	}
+
+	const watch = new MutationObserver(queue);
+	for (const id of ['dailZmanim', 'weekday', 'bsD'])
+		watch.observe(document.getElementById(id), { childList: true, subtree: true, characterData: true, attributes: true });
+
+	window.addEventListener('resize', queue);
+	document.fonts?.ready.then(queue);
+	queue();
 </script>
 <script type="module">
 	import { validNetzAssert } from '/assets/js/shul-wall/generateChaiTables.js';

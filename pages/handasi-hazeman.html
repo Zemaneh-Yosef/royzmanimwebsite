@@ -884,7 +884,7 @@ chaiTable: true
 		 * Nightfall by the stars (see the top of this script) on this date: the standard (Jerusalem's average
 		 * dusk haze) and today's (the haze here at dusk), epoch ms, the latter within the cap of the former.
 		 * NaN where the Sun never gets 18 degrees down and the stars aren't seen before.
-		 * @returns {{ standard: number, today: number }}
+		 * @returns { { standard: number, today: number } }
 		 */
 		nightfallTimes() {
 			const geo = this.coreZC.getGeoLocation();
