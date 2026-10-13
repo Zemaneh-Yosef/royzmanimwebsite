@@ -11,6 +11,7 @@ import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 import { loadPrintRefraction, fillVisibleSunriseTable } from "./print-refraction.js";
 
 import * as ol from "../../libraries/OpenLayers/ol.js"
+import { spawnWorker } from "../misc/worker.js";
 
 const printParam = new URLSearchParams(window.location.search);
 if (printParam.has('lessContrast')) {
@@ -242,7 +243,7 @@ if (fundamentalTable) {
 }
 
 for (const monthData of arrayOfFuncParams) {
-	const webWorker = new Worker('/assets/js/features/print-web-worker.js', { type: 'module' });
+	const webWorker = spawnWorker('/assets/js/features/print-web-worker.js');
 	// Before the month: messages are handled in order, so it's in place in time
 	webWorker.postMessage(refractionInit);
 	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {

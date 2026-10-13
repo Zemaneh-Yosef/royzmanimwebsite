@@ -9,6 +9,7 @@ import { ZemanFunctions, methodNames, zDTFromFunc } from '../ROYZmanim.js';
 import { providerFromSnapshot } from '../refraction-snapshot.js';
 import n2wordsOrdinal from '../misc/n2wordsOrdinal.js';
 import makamObj from '../makamObj.js';
+import { loadWorkerPolyfills } from '../misc/worker-polyfills.js';
 
 const icons = {
 	havdalah: '<svg viewBox="0 0 100 100" class="flipImageRTL"><use href="/assets/images/havdalah.svg#Layer_1"/></svg>',
@@ -2145,10 +2146,7 @@ if (Worker) {
 			return;
 		}
 
-		if (!('Temporal' in globalThis)) {
-			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
-			globalThis.Temporal = Temporal;
-		}
+		await loadWorkerPolyfills();
 		postMessage(messageHandler(message))
 	})
 	addEventListener('error', (e) => console.error(e));

@@ -17,6 +17,7 @@
 import { GeoLocation } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import ROYSPACalculator from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
 import { providerFromSnapshot } from "./refraction-snapshot.js";
+import { loadWorkerPolyfills } from "./misc/worker-polyfills.js";
 
 /** @typedef {import("./refraction-snapshot.js").Horizon} Horizon */
 /** @typedef {import("./refraction-snapshot.js").ProviderSnapshot} ProviderSnapshot */
@@ -151,14 +152,6 @@ export function createVisibleSunriseQueue(engine, post, defer = (fn) => setTimeo
 
 // Worker wiring (skipped when this module is imported for tests)
 if ("WorkerGlobalScope" in globalThis && !("document" in globalThis)) {
-	/** @type {Promise<void> | null} */
-	let temporalReady = null;
-	const ready = async () => {
-		if ("Temporal" in globalThis) return;
-		// @ts-ignore -- URL import: no type declarations
-		temporalReady ??= import("https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm").then(m => { globalThis.Temporal = m.Temporal; });
-		await temporalReady;
-	};
-	const queue = createVisibleSunriseQueue(createVisibleSunriseEngine(), (r) => postMessage(r), undefined, ready);
+	const queue = createVisibleSunriseQueue(createVisibleSunriseEngine(), (r) => postMessage(r), undefined, loadWorkerPolyfills);
 	addEventListener("message", (/** @type {MessageEvent<WorkerMessage>} */ event) => queue.receive(event.data));
 }

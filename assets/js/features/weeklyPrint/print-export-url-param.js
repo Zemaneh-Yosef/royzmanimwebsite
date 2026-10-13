@@ -15,6 +15,7 @@ import * as ol from "../../../libraries/OpenLayers/ol.js"
 
 import { fetchLightPollution } from "../../../libraries/light-pollution-client.js";
 import MoonRender from "./moon-render.js";
+import { spawnWorker } from "../../misc/worker.js";
 
 const WORKER_URL = '/assets/js/features/weeklyPrint/print-web-worker.js';
 
@@ -169,7 +170,7 @@ const poolSize = Math.max(1, Math.min(
 ));
 
 /** @type {Worker[]} */
-const pool = Array.from({ length: poolSize }, () => new Worker(WORKER_URL, { type: 'module' }));
+const pool = Array.from({ length: poolSize }, () => spawnWorker(WORKER_URL));
 /** @type {ErrorEvent | null} */
 let earlyWorkerError = null;
 const recordEarlyWorkerError = (/** @type {ErrorEvent} */ e) => { earlyWorkerError ??= e; };

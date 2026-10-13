@@ -6,6 +6,7 @@ import { ZemanFunctions, zDTFromFunc } from '../../ROYZmanim.js';
 import { providerFromSnapshot } from '../../refraction-snapshot.js';
 import { moonHorizonTarget } from '../../moon-refraction.js';
 import { createVisibleMoon } from '../../moon-visible.js';
+import { loadWorkerPolyfills } from '../../misc/worker-polyfills.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -380,10 +381,7 @@ addEventListener('message', async (/** @type {MessageEvent<birkatWorkerParam | R
 	}
 
 	try {
-		if (!('Temporal' in globalThis)) {
-			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
-			globalThis.Temporal = Temporal;
-		}
+		await loadWorkerPolyfills();
 		postMessage(messageHandler(/** @type {birkatWorkerParam} */ (message.data)));
 	} catch (err) {
 		console.error('moon-birkat-worker failed:', err);

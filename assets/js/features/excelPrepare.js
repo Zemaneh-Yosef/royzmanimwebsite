@@ -4,6 +4,7 @@ import { ZemanFunctions } from "../ROYZmanim.js";
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { providerFromSnapshot } from "../refraction-snapshot.js";
+import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
 
 /**
  * Refraction data for an export worker (see workerCalcInputs in export.js).
@@ -80,9 +81,6 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 
 if (Worker)
 	addEventListener('message', async (message) => {
-		if (!('Temporal' in globalThis)) {
-			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
-			globalThis.Temporal = Temporal;
-		}
+		await loadWorkerPolyfills();
 		postMessage(spreadSheetExport.apply(spreadSheetExport, message.data))
 	})

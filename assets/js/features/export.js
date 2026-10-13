@@ -3,6 +3,7 @@
 import { settings } from "../settings/handler.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
 import { snapshotProvider } from "../refraction-snapshot.js";
+import { spawnWorker } from "../misc/worker.js";
 
 /**
  * The calculator setup for the export workers. postMessage can't carry the page's config as-is (its
@@ -183,7 +184,7 @@ export default class exportFriendly {
 		for (const monthICSData of giveData) {
 			if (window.Worker) {
 				console.log('activate thread')
-				const myWorker = new Worker("/assets/js/features/icsPrepare.js", { type: "module" });
+				const myWorker = spawnWorker("/assets/js/features/icsPrepare.js");
 				myWorker.postMessage(monthICSData)
 				myWorker.addEventListener("message", async (message) => {
 					console.log("received message from other thread");
@@ -319,7 +320,7 @@ export default class exportFriendly {
 
 		for (const monthExcelData of giveData) {
 			if (window.Worker) {
-				const myWorker = new Worker("/assets/js/features/excelPrepare.js", { type: "module" });
+				const myWorker = spawnWorker("/assets/js/features/excelPrepare.js");
 				myWorker.postMessage(monthExcelData)
 				myWorker.addEventListener("message", async (message) => {
 					workerData.push(message.data);

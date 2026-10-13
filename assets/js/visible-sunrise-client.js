@@ -13,6 +13,7 @@
 
 import { setCachedVisibleSunrise } from "./ROYZmanim.js";
 import { snapshotProvider } from "./refraction-snapshot.js";
+import { spawnWorker } from "./misc/worker.js";
 
 /** @typedef {import("./ROYZmanim.js").ZemanimConfig} ZemanimConfig */
 /** @typedef {import("./visible-sunrise-worker.js").ResultMessage} ResultMessage */
@@ -25,7 +26,7 @@ export default class VisibleSunriseClient {
 	 * @param {(date: Temporal.PlainDate) => void} onResult called on the main thread after a result is cached
 	 * @param {() => Worker} [createWorker] override for tests
 	 */
-	constructor(onResult, createWorker = () => new Worker(new URL("./visible-sunrise-worker.js", import.meta.url), { type: "module" })) {
+	constructor(onResult, createWorker = () => spawnWorker(new URL("./visible-sunrise-worker.js", import.meta.url))) {
 		this.onResult = onResult;
 		/** @type {Worker} */
 		this.worker = createWorker();

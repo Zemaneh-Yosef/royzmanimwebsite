@@ -9,6 +9,7 @@ import { ZemanFunctions, methodNames, zDTFromFunc } from '../../ROYZmanim.js';
 import { providerFromSnapshot } from '../../refraction-snapshot.js';
 import n2wordsOrdinal from '../../misc/n2wordsOrdinal.js';
 import makamObj from '../../makamObj.js';
+import { loadWorkerPolyfills } from '../../misc/worker-polyfills.js';
 
 const icons = {
 	havdalah: '<svg viewBox="0 0 108.81511 287.75458" class="flipImageRTL"><use href="/assets/images/havdala.svg#layer1"/></svg>',
@@ -2085,11 +2086,7 @@ if (typeof window === 'undefined') {
 		}
 
 		try {
-			if (!('Temporal' in globalThis)) {
-				// @ts-ignore -- URL import: no type declarations
-				const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
-				globalThis.Temporal = Temporal;
-			}
+			await loadWorkerPolyfills();
 			postMessage(messageHandler({ data: { ...workerInit, ...data } }));
 		} catch (err) {
 			// The main thread reports this with the week number instead of a bare ErrorEvent

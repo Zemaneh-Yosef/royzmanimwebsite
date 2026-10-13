@@ -8,6 +8,7 @@ import { providerFromSnapshot } from "../refraction-snapshot.js";
 import { HebrewNumberFormatter as hebNumFormat } from "../WebsiteCalendar.js"
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { he as n2heWords } from "../../libraries/n2words.esm.js";
+import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
 
 /**
  * @param {Temporal.PlainDate|Temporal.ZonedDateTime} date
@@ -374,9 +375,6 @@ function romanize (num) {
 
 if (Worker)
 	addEventListener('message', async (message) => {
-		if (!('Temporal' in globalThis)) {
-			const { Temporal } = await import('https://cdn.jsdelivr.net/npm/temporal-polyfill@0.3.2/+esm');
-			globalThis.Temporal = Temporal;
-		}
+		await loadWorkerPolyfills();
 		postMessage(await icsExport.apply(icsExport, message.data))
 	})

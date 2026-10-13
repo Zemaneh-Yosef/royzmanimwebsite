@@ -66,6 +66,7 @@ import { ZemanFunctions, zDTFromFunc } from "../../ROYZmanim.js";
 import { loadPrintRefraction, fillVisibleSunriseTable } from "../print-refraction.js";
 import * as ol from "../../../libraries/OpenLayers/ol.js"
 import { lightPollution } from "../../../libraries/lightPollution/lightPollution.js";
+import { spawnWorker } from "../../misc/worker.js";
 
 const printConfigParam = new URLSearchParams(window.location.search);
 /** @type {ZmanimConfig} */
@@ -300,7 +301,7 @@ const addedZemanim = {};
 const properPaging = document.querySelector('[data-insertBefore]');
 
 for (const monthData of arrayOfFuncParams) {
-	const webWorker = new Worker('/assets/js/features/weeklyPrint/print-web-worker.js', { type: 'module' });
+	const webWorker = spawnWorker('/assets/js/features/weeklyPrint/print-web-worker.js');
 	// Before the week: messages are handled in order, so it's in place in time
 	webWorker.postMessage(refractionInit);
 	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {

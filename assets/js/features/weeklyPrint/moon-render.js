@@ -2,6 +2,7 @@
 
 import { moonGlyphSvg } from "../../../libraries/mooncalc/moonRiseSetCalc.js";
 import WebsiteCalendar, { getOrdinal, HebrewNumberFormatter } from "../../WebsiteCalendar.js";
+import { spawnWorker } from "../../misc/worker.js";
 
 const MOON_GLYPH_SIZE = 40;
 const MONTHS_PER_PAGE = 1;
@@ -154,7 +155,7 @@ export default class MoonRender {
 
         for (let w = 0; w < poolSize; w++) {
             const indices = months.map((_, i) => i).filter(i => i % poolSize === w);
-            const worker = new Worker('/assets/js/features/weeklyPrint/moon-birkat-worker.js', { type: 'module' });
+            const worker = spawnWorker('/assets/js/features/weeklyPrint/moon-birkat-worker.js');
 
             let finished = false;
             const finish = () => {
