@@ -1,0 +1,16 @@
+<script>
+	// Polyfills for older browsers. document.write keeps them blocking (like a plain <script src>), so
+	// everything after can rely on them, while browsers that already have the features skip the
+	// download. The checks match assets/js/misc/worker-polyfills.js; the files are built by
+	// scripts/legacy/build-polyfills.mjs.
+	(function () {
+		var needsCore = !Array.prototype.at || !String.prototype.at || !Array.prototype.flat || !Object.fromEntries
+			|| !Object.hasOwn || !Promise.allSettled || !String.prototype.replaceAll || typeof globalThis === "undefined"
+			|| typeof Iterator === "undefined" || !Iterator.prototype.toArray || typeof Intl.Locale === "undefined";
+		var needsDom = !HTMLElement.prototype.attachInternals || !Element.prototype.replaceChildren;
+
+		if (needsCore) document.write('<script src="/assets/libraries/polyfills/core.min.js"><\/script>');
+		if (needsDom) document.write('<script src="/assets/libraries/polyfills/dom.min.js"><\/script>');
+		if (!("Temporal" in window)) document.write('<script src="/assets/libraries/temporal-polyfill/global.min.js"><\/script>');
+	})();
+</script>

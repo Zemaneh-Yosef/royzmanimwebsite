@@ -1,6 +1,7 @@
 // @ts-check
 
-if (typeof BigInt !== "function" || !("Intl" in window) || typeof Intl.supportedValuesOf !== "function" || !Intl.supportedValuesOf('calendar').includes('hebrew')) {
+// Things no polyfill can supply (see _includes/polyfills.html for the ones that can)
+if (typeof BigInt !== "function" || !("noModule" in HTMLScriptElement.prototype) || !("Intl" in window) || typeof Intl.supportedValuesOf !== "function" || !Intl.supportedValuesOf('calendar').includes('hebrew')) {
     var modal = document.getElementById("unsupportedModal");
     if (modal) {
         modal.classList.add("show");
