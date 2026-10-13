@@ -788,7 +788,7 @@
 			Daily Schedules, Seasonal/Holiday Schedules
 		</li>
 		<li>
-			<div class="fw-600" style="font-size: 1.15em;">Additional Time Tables</div>Full Solar-Sphere Sunrise, Pelag
+			<div class="fw-600" style="font-size: 1.15em;">Additional Time Tables</div>{% unless include.multi %}Full Solar-Sphere Sunrise, {% endunless %}Pelag
 			Ha'Minḥa – Ma'amar Mordekhi, Full-Length Rabbenu Tam List
 		</li>
 	</ul>
@@ -1462,12 +1462,15 @@
 
 	.sunriseTableWrap {
 		text-align: center;
-		line-height: 1.2;
+		line-height: 1.05;
 	}
 
-	.sunriseTableWrap h4 {
-		font-size: 1.15rem;
-		margin-bottom: .1rem;
+	/* The table's corner cell carries its title (a heading above it cost a line the page doesn't have) */
+	.sunriseTable thead th.sunriseTableTitle {
+		font-size: 1.15em;
+		font-weight: 800;
+		text-align: start;
+		line-height: 1;
 	}
 
 	.sunriseTable {
@@ -1480,7 +1483,7 @@
 
 	.sunriseTable th,
 	.sunriseTable td {
-		padding: 1px 1px;
+		padding: .5px 1px;
 		border-bottom: .5pt dotted var(--divider-color);
 	}
 
@@ -1509,6 +1512,13 @@
 	.sunriseTable td {
 		font-weight: 600;
 		white-space: nowrap;
+	}
+
+	.sunriseTable td .fullSphereSunrise {
+		display: block;
+		font-size: .75em;
+		font-weight: 400;
+		line-height: 1;
 	}
 
 	.sunriseTable td.seaLevelSunrise {
@@ -1616,21 +1626,26 @@
 	<div class="whiteTekufotMonths"></div>
 	{% if include.multi %}
 	<div class="sunriseTableWrap">
-		<h4>
-			<span class="lang lang-hb">הנץ החמה הנראה</span>
-			<span class="lang lang-et">Visual Sunrise</span>
-			<span class="lang lang-en">Visual Sunrise</span>
-		</h4>
 		<table class="sunriseTable" data-zyFind="sunriseTable">
 			<thead>
-				<tr><th></th></tr>
+				<tr><th class="sunriseTableTitle">
+					<span class="lang lang-hb">הנץ החמה הנראה</span>
+					<span class="lang lang-et">Visual Sunrise</span>
+					<span class="lang lang-en">Visual Sunrise</span>
+				</th></tr>
 			</thead>
 			<tbody></tbody>
 		</table>
-		<div class="sunriseTableNote" data-zyFind="sunriseTableNote">
-			<span class="lang lang-hb">* הנץ בגובה פני הים (אין נתוני אופק)</span>
-			<span class="lang lang-et">* Sea-level sunrise (no horizon data)</span>
-			<span class="lang lang-en">* Sea-level sunrise (no horizon data)</span>
+		<div class="sunriseTableNote">
+			<span class="lang lang-hb">קטן: הנץ כל גלגל החמה (הלכה ברורה)</span>
+			<span class="lang lang-et">Smaller: Full Solar-Sphere Sunrise (H"B)</span>
+			<span class="lang lang-en">Smaller: Full Solar-Sphere Sunrise (H"B)</span>
+			<span data-zyFind="sunriseTableNote">
+				·
+				<span class="lang lang-hb">* הנץ בגובה פני הים (אין נתוני אופק)</span>
+				<span class="lang lang-et">* Sea-level sunrise (no horizon data)</span>
+				<span class="lang lang-en">* Sea-level sunrise (no horizon data)</span>
+			</span>
 		</div>
 	</div>
 	{% else %}
@@ -1649,6 +1664,8 @@
 	{% endif %}
 </div>
 <div data-insertBefore></div>
+{% unless include.multi %}
+{% comment %} With several locations each one's full solar-sphere sunrise is in the right-hand pages' sunrise table {% endcomment %}
 <div class="page verso explanation">
 	<h2>Full Solar-Sphere Sunrise</h2>
 	<p>The ideal form of the Halakhic day does not start until the uppermost edge of the solar sphere appears over the
@@ -1666,6 +1683,7 @@
 	<p>This compromise is attributed to Ha'Rav Matzliaḥ Mazuz <span class="fs-sm">(סולת נקיה, עמוד רע"ג)</span>, but has received mixed receptions in the family of Ḥakham 'Ovadia. Although the idea was met warmly at first by both sons <span class="fs-sm">(including the 5764 printing of the Yalkut Yosef, siman 89 and all editions of the Halacha Berura, siman 58)</span>, it eventually became another point of contention between the brothers. The reason is that the Yalkut Yosef eventually returned to the standard practice of using the uppermost edge only, without being stringent for this second time. (The original לוח המאור from Yeshivat Ohr Hachaim presents only the uppermost-edge peak time, in accordance with the later Y"Y guidelines.)</p>
 	<p>To present these rulings here, we use several justifications: on top of representing the Halacha Berura's concluded ruling, even R' Yitzḥak Yosef would consider this time eligible for the "תפילה בהנץ" status since it's still close in time to the initial time for sunrise (and minute-level precision was never intended). However, since its use is disputed (and one would need to use the main time anyway for שמע), we've chosen to place these times separately from the main listing.</p>
 </div>
+{% endunless %}
 <div class="page verso explanation">
 	<h2>Pelag Ha'Minḥa – Ma'amar Mordekhi</h2>
 	<p>Pelag Ha'Minḥa is defined as the midpoint of the time span from מנחה קטנה until the end of the day

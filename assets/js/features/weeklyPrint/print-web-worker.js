@@ -395,7 +395,10 @@ function messageHandler(x) {
 	/** Per location: visible minus sea-level sunrise (ms) per ISO date, for the summary table on the main page. @type {Record<string, number>[]} */
 	const sunriseOffsets = calcs.map(() => ({}));
 
-	/** Per location, per day of the week: the sunrise-table cell. @type {{ text: string; seaLevel: boolean }[][]} */
+	/** The multi-location pages' sunrise table (only they compute its cells) */
+	const sunriseTable = document.querySelector('[data-zyFind="sunriseTable"]');
+
+	/** Per location, per day of the week: the sunrise-table cell (sunrise, and the full solar sphere under it). @type {{ text: string; full: string; seaLevel: boolean }[][]} */
 	const sunriseCells = calcs.map(() => []);
 
 	/** Per-day contents for the month grids on the moon pages, keyed by ISO date. @type {Record<string, GridDay>} */
@@ -1141,18 +1144,35 @@ function messageHandler(x) {
 		// Each location's own sunrise: the offsets for the main page's summary, and the sunrise table's cells.
 		// A visible sunrise keeps its seconds; a location without one shows sea-level sunrise, rounded like
 		// the Sunrise row (no seconds) and marked.
+		// The full solar sphere (H"B) goes under it, in the same form: seconds when traced over the terrain.
 		calcs.forEach((calc, index) => {
 			const netz = calc.getNetz();
 			const seaLevel = calc.coreZC.getSeaLevelSunrise();
-			if (netz instanceof Temporal.ZonedDateTime) {
-				sunriseCells[index].push({ text: fmtShort(roundOne(netz, 'later')), seaLevel: true });
-			} else if (netz) {
+			if (netz && !(netz instanceof Temporal.ZonedDateTime))
 				sunriseOffsets[index][plainDate.withCalendar("iso8601").toString({ calendarName: "never" })] =
 					netz.time.epochMilliseconds - seaLevel.epochMilliseconds;
-				sunriseCells[index].push({ text: fmtShort(netz.time, true), seaLevel: false });
-			} else {
-				sunriseCells[index].push({ text: "—", seaLevel: false });
+
+			if (!sunriseTable)
+				return;
+
+			if (!netz) {
+				sunriseCells[index].push({ text: "—", full: "", seaLevel: false });
+				return;
 			}
+			const visible = !(netz instanceof Temporal.ZonedDateTime);
+			/** @type {Temporal.ZonedDateTime | null} */
+			let full = null;
+			try {
+				full = calc.testSunriseHBWorking();
+			} catch (e) {
+				console.error("Full solar-sphere sunrise failed", e);
+			}
+			const show = (/** @type {Temporal.ZonedDateTime} */ zdt) => visible ? fmtShort(zdt, true) : fmtShort(roundOne(zdt, 'later'));
+			sunriseCells[index].push({
+				text: show(zDTFromFunc(netz)),
+				full: full ? show(full) : "",
+				seaLevel: !visible
+			});
 		});
 
 		// ─── Month grid (moon pages) ───
@@ -1315,14 +1335,14 @@ function messageHandler(x) {
 
 	// ─── Sunrise table (pages that have one, in place of the learning cycles) ───
 	// Columns are the days of the week, rows the locations.
-	const sunriseTable = document.querySelector('[data-zyFind="sunriseTable"]');
 	if (sunriseTable) {
 		const locale = x.data.lang == 'hb' ? 'he' : 'en';
 		const headRow = sunriseTable.querySelector('thead tr');
 		weekdayList.forEach((_, index) => {
 			const day = baseDate.add({ days: index }).withCalendar("iso8601");
 			const th = document.createElement("th");
-			th.innerHTML = day.toLocaleString(locale, { weekday: 'short' }) + "<br>"
+			// One line ("Sun 6"), to keep the table short
+			th.innerHTML = day.toLocaleString(locale, { weekday: 'short' }) + " "
 				+ (x.data.lang == 'hb' ? hNum.formatHebrewNumber(day.withCalendar("hebrew").day) : day.day);
 			headRow.appendChild(th);
 		});
@@ -1341,6 +1361,12 @@ function messageHandler(x) {
 				if (cell.seaLevel) {
 					td.classList.add("seaLevelSunrise");
 					td.insertAdjacentHTML('beforeend', "<sup>*</sup>");
+				}
+				if (cell.full) {
+					const full = document.createElement("span");
+					full.className = "fullSphereSunrise";
+					full.appendChild(document.createTextNode(cell.full));
+					td.appendChild(full);
 				}
 				row.appendChild(td);
 			}
