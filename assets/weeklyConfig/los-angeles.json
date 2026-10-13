@@ -1,0 +1,60 @@
+{
+    "seconds": false,
+    "timeFormat": "h12",
+    "language": "en",
+    "title": "Los Angeles",
+    "calendarToggle": {
+        "rtKulah": true,
+        "tekufaMidpoint": "hatzoth",
+        "tekufaCalc": "shemuel",
+        "forceSunSeasonal": false
+    },
+    "customTimes": {
+        "candleLighting": 18,
+        "tzeithIssurMelakha": {
+            "minutes": 30,
+            "degree": 7.165
+        }
+    },
+    "weeklyPrint": {
+        "year": 5787,
+        "addExtraHiloulot": 2
+    },
+    "location": [
+        {
+            "name": "Beverly Hills",
+            "lat": 34.07306,
+            "long": -118.39944,
+            "elevation": 78.48,
+            "timezone": "America/Los_Angeles"
+        },
+        {
+            "name": "Encino",
+            "lat": 34.15917,
+            "long": -118.50028,
+            "elevation": 234.41,
+            "timezone": "America/Los_Angeles"
+        },
+        {
+            "name": "Pico-Robertson",
+            "lat": 34.054947,
+            "long": -118.383925,
+            "elevation": 41.26,
+            "timezone": "America/Los_Angeles"
+        },
+        {
+            "name": "Tarzana",
+            "lat": 34.17333,
+            "long": -118.55306,
+            "elevation": 244.14,
+            "timezone": "America/Los_Angeles"
+        },
+        {
+            "name": "Valley Village",
+            "lat": 34.16488,
+            "long": -118.3965,
+            "elevation": 196.97,
+            "timezone": "America/Los_Angeles"
+        }
+    ]
+}

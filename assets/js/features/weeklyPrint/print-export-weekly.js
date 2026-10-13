@@ -102,10 +102,16 @@ if (navigator.languages.find(lang => lang.startsWith(local)))
 const degreeFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "degree", unitDisplay: "narrow", maximumFractionDigits: 5 });
 const meterFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "meter", maximumFractionDigits: 0 });
 
-/** "(lat, long, ↑elevation)" for one location @param {number} lat @param {number} long @param {number} elevation */
-const coordinateText = (lat, long, elevation) => `(${[
-	degreeFormatter.format(lat),
-	degreeFormatter.format(long),
+/** 4 decimals (~11 m) is plenty where several locations share the space of one */
+const shortDegreeFormatter = new Intl.NumberFormat(local, { style: "unit", unit: "degree", unitDisplay: "narrow", maximumFractionDigits: 4 });
+
+/**
+ * "(lat, long, ↑elevation)" for one location
+ * @param {number} lat @param {number} long @param {number} elevation
+ */
+const coordinateText = (lat, long, elevation, formatter = degreeFormatter) => `(${[
+	formatter.format(lat),
+	formatter.format(long),
 	useOhrHachaim ? "↑" + meterFormatter.format(elevation) : ""
 ].filter(Boolean).join(", ")})`;
 
@@ -133,7 +139,7 @@ if (locationList) {
 		const name = document.createElement("strong");
 		name.appendChild(document.createTextNode(loc.name));
 		li.appendChild(name);
-		li.appendChild(document.createTextNode(" " + coordinateText(loc.lat, loc.long, loc.elevation)));
+		li.appendChild(document.createTextNode(" " + coordinateText(loc.lat, loc.long, loc.elevation, shortDegreeFormatter)));
 		locationList.appendChild(li);
 	}
 }
