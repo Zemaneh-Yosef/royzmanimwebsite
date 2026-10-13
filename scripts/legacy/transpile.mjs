@@ -6,6 +6,7 @@
 // 2. Newer syntax (?., ??, ??=, class fields, …) is lowered with esbuild, in .js files and in inline
 //    <script>s. Files that don't need it are left byte-for-byte alone.
 // 3. Each module worker in WORKERS gets a self-contained classic copy, "name.classic.js".
+// 4. CSS using dvh/svh/lvh (and the like) gets a vh/vw fallback line before it (css.mjs).
 // Anything that can't be made to work (e.g. a regex lookbehind) fails the build with its location.
 //
 // Source files are always read from the site source, never from the output, so running this again
@@ -20,14 +21,15 @@ import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { TARGETS, MODERN_ONLY_PAGES, WORKERS, CLASSIC_WORKER_POLYFILLS } from "./config.mjs";
+import { TARGETS, MODERN_ONLY_PAGES, LEAVE_AS_IS, WORKERS, CLASSIC_WORKER_POLYFILLS } from "./config.mjs";
+import { addViewportFallbacks } from "./css.mjs";
 import { lowerTopLevelAwait } from "./tla.mjs";
 
 const siteDir = path.resolve(process.argv[2] ?? "_site");
 const sourceDir = path.resolve(process.argv[3] ?? ".");
 const cacheDir = path.join(sourceDir, ".jekyll-cache", "legacy-build");
 // Cached results are only reused by the same version of these scripts (and the same dependencies).
-const buildId = hash((await Promise.all(["transpile.mjs", "tla.mjs", "config.mjs"].map((f) =>
+const buildId = hash((await Promise.all(["transpile.mjs", "tla.mjs", "css.mjs", "config.mjs"].map((f) =>
 	readFile(new URL(f, import.meta.url), "utf8")))).join("\0") + await readFile(path.join(sourceDir, "pnpm-lock.yaml"), "utf8").catch(() => ""));
 const started = Date.now();
 const problems = [];
@@ -49,7 +51,13 @@ const pages = new Map();
 
 for (const file of await listFiles(siteDir)) {
 	const name = toPosix(path.relative(siteDir, file));
-	if (/\.m?js$/.test(name) && !name.endsWith(".classic.js")) {
+	if (LEAVE_AS_IS.some((prefix) => name.startsWith(prefix))) continue;
+	if (name.endsWith(".css")) {
+		const sourceFile = path.join(sourceDir, name);
+		const css = await readFile(existsSync(sourceFile) ? sourceFile : file, "utf8");
+		const fixed = addViewportFallbacks(css, name);
+		if (fixed !== css) await writeIfChanged(file, fixed);
+	} else if (/\.m?js$/.test(name) && !name.endsWith(".classic.js")) {
 		const sourceFile = path.join(sourceDir, name);
 		const code = await readFile(existsSync(sourceFile) ? sourceFile : file, "utf8");
 		const info = await analyze(code);
@@ -68,6 +76,14 @@ for (const file of await listFiles(siteDir)) {
 		const text = await readFile(file, "utf8");
 		const page = { text, edits: [] };
 		const modernOnly = MODERN_ONLY_PAGES.includes(name);
+		if (!modernOnly)
+			for (const match of text.matchAll(/<style\b([^>]*)>([\s\S]*?)<\/style>/gi)) {
+				const [whole, , body] = match;
+				const fixed = addViewportFallbacks(body, name);
+				if (fixed === body) continue;
+				const start = match.index + whole.indexOf(">") + 1;
+				page.edits.push({ start, end: start + body.length, tagStart: -1, code: fixed });
+			}
 		let index = 0;
 		for (const match of text.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
 			const [whole, attributes, body] = match;
@@ -134,13 +150,14 @@ for (const script of scripts) {
 	if (lowered) await script.write(lowered.code, lowered.map);
 }
 
-// Inline scripts: splice the new bodies in, marking each tag as done.
+// Inline scripts and styles: splice the new bodies in, marking each script tag as done.
 for (const [file, page] of pages) {
 	if (!page.edits.length) continue;
 	let text = page.text;
 	for (const edit of page.edits.sort((a, b) => b.start - a.start)) {
 		text = text.slice(0, edit.start) + edit.code + text.slice(edit.end);
-		text = text.slice(0, edit.tagStart) + text.slice(edit.tagStart).replace(/^<script\b/i, "<script data-legacy-build");
+		if (edit.tagStart >= 0)
+			text = text.slice(0, edit.tagStart) + text.slice(edit.tagStart).replace(/^<script\b/i, "<script data-legacy-build");
 	}
 	await writeIfChanged(file, text);
 }

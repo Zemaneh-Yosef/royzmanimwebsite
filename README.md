@@ -15,7 +15,8 @@ pnpm install
 bundle exec jekyll serve
 ```
 
-Write JavaScript as usual; the build takes care of newer syntax, top-level `await` and module workers.
+Write JavaScript and CSS as usual; the build takes care of newer syntax, top-level `await`, module workers
+and fallbacks for `dvh`-style viewport units. PDF.js is left as shipped (modern browsers only).
 Two things it can't fix: a regex literal using lookbehind (`(?<=…)`, `(?<!…)`) or the `d`/`v` flags fails
 the build (patterns built with `new RegExp(…)` aren't checked), and browser APIs newer than those browsers
 need a polyfill in `scripts/legacy/polyfills/` (then run `pnpm build:polyfills`).

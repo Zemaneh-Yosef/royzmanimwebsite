@@ -10,11 +10,17 @@
  */
 export const TARGETS = ["chrome67", "edge79", "firefox78", "safari14.1", "ios14.5"];
 
-/** Pages built for modern browsers only: their inline scripts are not lowered. Paths are relative to _site. */
+/** Pages built for modern browsers only: their inline scripts and styles are not lowered. Paths are relative to _site. */
 export const MODERN_ONLY_PAGES = ["handasi-hazeman.html"];
 
 /**
- * Module workers created through createWorker() (assets/js/misc/worker.js). For each one the build
+ * Third-party code served exactly as shipped. PDF.js only runs in newer browsers; the haskamot modal
+ * falls back to showing the PDF itself where it doesn't start (_includes/modals/haskamot.html).
+ */
+export const LEAVE_AS_IS = ["assets/libraries/pdfviewer/"];
+
+/**
+ * Module workers started through spawnWorker() (assets/js/misc/worker.js). For each one the build
  * also writes a self-contained "*.classic.js" copy for browsers without module workers.
  */
 export const WORKERS = [

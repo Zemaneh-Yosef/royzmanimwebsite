@@ -17,3 +17,13 @@
 		</div>
 	</div>
 </div>
+<script>
+	// PDF.js only runs in newer browsers. Where its viewer didn't start, show the PDF itself instead.
+	document.querySelectorAll('#haskamotModal iframe[src*="/pdfviewer/"]').forEach(function (frame) {
+		frame.addEventListener("load", function () {
+			var viewer;
+			try { viewer = frame.contentWindow.PDFViewerApplication; } catch (e) { /* not reachable: leave it */ return; }
+			if (!viewer) frame.src = new URL(frame.src, location.href).searchParams.get("file");
+		}, { once: true });
+	});
+</script>
