@@ -13,3 +13,17 @@ defaults:
     values:
       permalink: /:basename:output_ext
       layout: "default"
+
+# Jekyll's defaults, plus the build scripts for older browsers (see _plugins/legacy-browsers.rb)
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - scripts/

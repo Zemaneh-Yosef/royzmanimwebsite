@@ -39,6 +39,18 @@ jobs:
           ruby-version: '4.0' # Latest stable Ruby 4.0
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           cache-version: 0 # Increment this number if you need to re-download cached gems
+      # The build lowers the site's JavaScript for older browsers (_plugins/legacy-browsers.rb), which needs Node
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install Node packages
+        run: pnpm install --frozen-lockfile
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v6
