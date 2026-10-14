@@ -28,6 +28,7 @@ import * as ol from "../../../libraries/OpenLayers/ol.js"
 import { fetchLightPollution } from "../../../libraries/light-pollution-client.js";
 import MoonRender from "./moon-render.js";
 import { spawnWorker } from "../../misc/worker.js";
+import { detectJit } from "../../misc/detect-jit.js";
 import { printConfig, printCalendar } from "./print-config.js";
 
 const WORKER_URL = '/assets/js/features/weeklyPrint/print-web-worker.js';
@@ -43,6 +44,12 @@ const progress = (() => {
 	bar.setAttribute("data-zyFind", "printProgress");
 	bar.style.cssText = "position:fixed;top:0;inset-inline:0;z-index:9999;padding:.4rem .8rem;"
 		+ "font:600 13px/1.4 system-ui,sans-serif;background:#1f2937;color:white;text-align:center";
+	const status = document.createElement("div");
+	/** a second line that stays while the status changes (see warn) */
+	const warning = document.createElement("div");
+	warning.style.cssText = "font-weight:400;color:#fde68a;margin-top:.2rem";
+	warning.hidden = true;
+	bar.append(status, warning);
 	const style = document.createElement("style");
 	style.textContent = "@media print { [data-zyFind=printProgress] { display: none !important; } }";
 	document.head.appendChild(style);
@@ -51,13 +58,34 @@ const progress = (() => {
 
 	return {
 		/** @param {string} text */
-		set(text) { bar.textContent = text; },
+		set(text) { status.textContent = text; },
 		/** @param {string} text */
-		fail(text) { bar.style.background = "#b91c1c"; bar.textContent = text; },
+		fail(text) { bar.style.background = "#b91c1c"; status.textContent = text; },
+		/** @param {string} text */
+		warn(text) { warning.textContent = text; warning.hidden = false; },
 		done() { bar.remove(); style.remove(); }
 	};
 })();
 progress.set("Loading the horizon and weather data…");
+
+// Some browsers run the site without their JavaScript optimizer (Edge's "Enhance your security on the web",
+// for sites in Strict mode or that Balanced mode doesn't know), which makes the visible-sunrise ray tracing
+// ~30x slower: a multi-location year can then take many minutes. Measured once, while the data loads.
+// Only in Chromium browsers: the check is calibrated on their engine (V8), and that's where the setting is.
+// @ts-ignore -- userAgentData isn't in the TS lib in use
+if (navigator.userAgentData?.brands?.some((/** @type {{ brand: string }} */ b) => b.brand === "Chromium")) setTimeout(() => {
+	try {
+		const { jit, ratio } = detectJit();
+		if (!jit) {
+			console.warn(`JavaScript optimization seems to be off in this browser (loop/sort ratio ${ratio})`);
+			progress.warn("Your browser has JavaScript optimization turned off for this site (for example, Microsoft Edge's "
+				+ "“Enhance your security on the web”), so this calendar will take much longer to calculate. "
+				+ "Adding royzmanim.com to the browser's exceptions for that setting fixes it.");
+		}
+	} catch (e) {
+		console.error("JIT check failed", e);
+	}
+});
 
 // A JSON config's language wins over the visitor's stored one (docLoad.js applied that on DOMContentLoaded)
 if (config.source == 'json') {
