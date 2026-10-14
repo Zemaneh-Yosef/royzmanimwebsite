@@ -74,6 +74,15 @@ export default class MoonRender {
      */
     monthPagesReady = new Promise(resolve => { this.resolveMonthPages = resolve; });
 
+    /** Moon workers still computing. The page gives their cores to the weekly pool as they finish. */
+    running = 0;
+
+    /**
+     * Called each time a moon worker finishes (or fails), after `running` has gone down.
+     * @type {(() => void) | null}
+     */
+    onWorkerExit = null;
+
     /**
      * Collects the months to print. Nothing is computed until start(): the workers need the refraction
      * data, which the page loads after constructing this (see nightRange()).
@@ -152,6 +161,8 @@ export default class MoonRender {
 
         const poolSize = Math.min(months.length, Math.min(4, navigator.hardwareConcurrency || 2));
         let remainingWorkers = poolSize;
+        this.running = poolSize;
+        const started = performance.now();
 
         for (let w = 0; w < poolSize; w++) {
             const indices = months.map((_, i) => i).filter(i => i % poolSize === w);
@@ -162,13 +173,17 @@ export default class MoonRender {
                 if (finished) return;
                 finished = true;
                 worker.terminate();
-                if (--remainingWorkers === 0) {
+                this.running = --remainingWorkers;
+                if (remainingWorkers === 0) {
+                    console.info(`Moon pages: ${months.length} month(s) on ${poolSize} worker(s) in ${((performance.now() - started) / 1000).toFixed(1)} s`);
                     this.resolveMonthPages();
                     this.buildEarlyPages(
                         /** @type {MonthResult[]} */ (earlyResults.filter(Boolean)),
                         earlyPlaceholder
                     );
                 }
+                // its core is free now (the weekly pool may take it); a failure there mustn't stop the moon pages
+                try { this.onWorkerExit?.(); } catch (e) { console.error(e); }
             };
 
             worker.addEventListener('message', ({ data }) => {

@@ -299,6 +299,13 @@ const poolSize = Math.max(1, Math.min(
 	weeksForLoop,
 	(navigator.hardwareConcurrency || 4) - 2
 ));
+/**
+ * Workers the whole print may run at once (moon and weeks together); one core stays with this thread.
+ * The weekly pool starts at poolSize and, as moon workers finish, takes their cores up to this.
+ */
+const workerBudget = Math.max(1, (navigator.hardwareConcurrency || 4) - 1);
+/** Don't start a worker for fewer weeks than this: loading it and its data would cost more than it saves */
+const MIN_WEEKS_FOR_NEW_WORKER = 2;
 
 /** @type {Worker[]} */
 const pool = Array.from({ length: poolSize }, () => spawnWorker(WORKER_URL));
@@ -572,6 +579,10 @@ await new Promise((resolve, reject) => {
 	let nextTask = 0;
 	let completed = 0;
 	let failed = false;
+	/** week workers not yet terminated */
+	let liveWorkers = 0;
+	/** week workers started on cores the moon workers freed */
+	let addedWorkers = 0;
 
 	const failAll = (/** @type {any} */ err) => {
 		if (failed) return;
@@ -588,8 +599,9 @@ await new Promise((resolve, reject) => {
 	if (earlyWorkerError)
 		return failAll(earlyWorkerError);
 
-	for (const worker of pool) {
-		worker.removeEventListener('error', recordEarlyWorkerError);
+	/** @param {Worker} worker */
+	const startWorker = worker => {
+		liveWorkers++;
 		worker.addEventListener('error', failAll);
 
 		// Once per worker, before any week: messages are handled in order, so all are in place in time
@@ -599,8 +611,10 @@ await new Promise((resolve, reject) => {
 		const dispatch = () => {
 			if (nextTask < arrayOfFuncParams.length)
 				worker.postMessage(arrayOfFuncParams[nextTask++]);
-			else
+			else {
 				worker.terminate(); // queue drained, free the thread
+				liveWorkers--;
+			}
 		};
 
 		worker.addEventListener('message', (/** @type {MessageEvent<any>} */ msg) => {
@@ -620,14 +634,35 @@ await new Promise((resolve, reject) => {
 				+ (completed < arrayOfFuncParams.length ? ` (about ${Math.ceil(left / 60)} min left)` : ""));
 
 			if (completed === arrayOfFuncParams.length) {
-				console.info(`Weekly pages: ${arrayOfFuncParams.length} weeks for ${weekInit.locations.length} location(s) in ${seconds.toFixed(1)} s`);
+				mRender.onWorkerExit = null;
+				console.info(`Weekly pages: ${arrayOfFuncParams.length} weeks for ${weekInit.locations.length} location(s) in ${seconds.toFixed(1)} s`
+					+ ` on ${poolSize} worker(s)` + (addedWorkers ? ` (+${addedWorkers} on cores the moon pages no longer needed)` : ""));
 				resolve();
 			}
 			dispatch();
 		});
 
 		dispatch();
+	};
+
+	for (const worker of pool) {
+		worker.removeEventListener('error', recordEarlyWorkerError);
+		startWorker(worker);
 	}
+
+	// Cores the moon workers have freed (all of them if there are no moon pages) go to the weeks, while
+	// enough weeks are left to be worth a new worker's start-up
+	const grow = () => {
+		while (!failed && liveWorkers + mRender.running < workerBudget
+			&& arrayOfFuncParams.length - nextTask >= MIN_WEEKS_FOR_NEW_WORKER) {
+			const worker = spawnWorker(WORKER_URL);
+			pool.push(worker);
+			addedWorkers++;
+			startWorker(worker);
+		}
+	};
+	mRender.onWorkerExit = grow;
+	grow();
 });
 
 // Results are already indexed by week, so no string-key sorting is needed
