@@ -185,7 +185,7 @@ function buildYomTovObj(israel) {
 		},
 		[KosherZmanim.JewishCalendar.CHOL_HAMOED_PESACH]: {
 			en: "Intermediary",
-			"en-et": "Ḥol HaMoedh",
+			"en-et": "Ḥol Hamo'ed",
 			hb: "חול המועד"
 		},
 		[KosherZmanim.JewishCalendar.SHAVUOS]: {
@@ -205,7 +205,7 @@ function buildYomTovObj(israel) {
 		},
 		[KosherZmanim.JewishCalendar.CHOL_HAMOED_SUCCOS]: {
 			hb: "חול המועד",
-			"en-et": "Ḥol Ha'Moed",
+			"en-et": "Ḥol Hamo'ed",
 			en: "Intermediary"
 		},
 		[KosherZmanim.JewishCalendar.HOSHANA_RABBA]: {
@@ -644,7 +644,8 @@ function messageHandler(x) {
 						highlightPesah.extra = "Eruv Tavshilin is made before the holiday";
 						highlightPesah.title = yomTovObj[WebsiteLimudCalendar.PESACH][x.data.lang]
 							+ "<br>+ "
-							+ (x.data.lang == 'hb' ? "שבת חול המועד" : "Shabbat Chol Hamoed");
+							+ (x.data.lang == 'hb' ? "שבת " : "Shabbat ")
+							+ yomTovObj[WebsiteLimudCalendar.CHOL_HAMOED_PESACH][x.data.lang];
 						highlightPesah.datesToZman.set(pesahDate.add({ days: 2 }), {
 							tzetMelakha: handleRound(zDTFromFunc(zc(pesahDate.add({ days: 2 })).getTzetMelakha()), 'later'),
 							rabbenuTam: handleRound(zc(pesahDate.add({ days: 2 })).getTzetRT(), 'later')
@@ -666,8 +667,12 @@ function messageHandler(x) {
 
 				highlightZmanim.push({
 					ytI: WebsiteLimudCalendar.YOM_KIPPUR,
+					topNotice: [
+						`On Erev ${yomTovObj[WebsiteLimudCalendar.YOM_KIPPUR][x.data.lang]}:`,
+						"Omit Taḥanun after " + handleRound(zDTFromFunc(zc(ykDate.subtract({ days: 1 })).getNetz()), 'later'),
+						"Immerse in a Mikva after " + handleRound(zc(ykDate.subtract({ days: 1 })).getSofZemanBiurHametz(), 'later')
+					].join('<br>'),
 					datesToZman: new Map([[ykDate.subtract({ days: 1 }), {
-						mikva: handleRound(zc(ykDate.subtract({ days: 1 })).getSofZemanBiurHametz(), 'later'),
 						candleLighting: handleRound(zc(ykDate.subtract({ days: 1 })).getCandleLighting(), 'earlier'),
 					}], [ykDate, {
 						musaf: handleRound(zc(ykDate).getHatzoth(), 'earlier'),
@@ -690,13 +695,17 @@ function messageHandler(x) {
 				ytI: WebsiteLimudCalendar.ROSH_HASHANA,
 				datesToZman: new Map([
 					[erevRoshHashanaDate, {
-						mikva: handleRound(zc(erevRoshHashanaDate).getSofZemanBiurHametz(), 'later'),
 						candleLighting: handleRound(zc(erevRoshHashanaDate).getCandleLighting(), 'earlier')
 					}],
 					[roshHashanaDate, {
 						candleLighting: handleRound(zc(roshHashanaDate).getTzetHumra(), 'later')
 					}]
-				])
+				]),
+				topNotice: [
+					`On Erev ${yomTovObj[WebsiteLimudCalendar.ROSH_HASHANA][x.data.lang]}:`,
+					"Omit Taḥanun after " + handleRound(zDTFromFunc(zc(erevRoshHashanaDate).getNetz()), 'later'),
+					"Immerse in a Mikva after " + handleRound(zc(erevRoshHashanaDate).getSofZemanBiurHametz(), 'later')
+				].join('<br>'),
 			};
 
 			if (erevRoshHashanaDate.dayOfWeek == 3) {
@@ -893,7 +902,8 @@ function messageHandler(x) {
 					sukkothObj.extra = "Eruv Tavshilin is made before the holiday";
 					sukkothObj.title = yomTovObj[WebsiteLimudCalendar.SUCCOS][x.data.lang]
 						+ "<br>+ "
-						+ (x.data.lang == 'hb' ? "שבת חול המועד" : "Shabbat Chol Hamoed");
+						+ (x.data.lang == 'hb' ? "שבת " : "Shabbat ")
+						+ yomTovObj[WebsiteLimudCalendar.CHOL_HAMOED_SUCCOS][x.data.lang];
 
 					sukkothObj.datesToZman.set(sukkothDate.add({ days: 1 }), {
 						candleLighting: handleRound(zc(sukkothDate.add({ days: 1 })).getCandleLighting(), 'earlier')
