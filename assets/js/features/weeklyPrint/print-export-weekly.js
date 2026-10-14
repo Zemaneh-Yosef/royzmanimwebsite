@@ -528,6 +528,15 @@ const properPaging = document.querySelector('[data-insertBefore]');
 /** @type {ReturnType<import('./print-web-worker.js').default>[]} */
 const weekResults = new Array(arrayOfFuncParams.length);
 
+// A year of path profiles per location is a large object graph, and postMessage clones it once for every
+// worker, all on this thread before the first week is sent. As one JSON string (made once, parsed in the
+// worker) it is copied, not walked. The snapshot is plain JSON (refraction-snapshot.js), so nothing is lost.
+/** @type {import('./print-web-worker.js').RefractionInit[]} */
+const refractionMessages = locationRefractions.map(({ init }, index) => {
+	const { table, ...rest } = init;
+	return { ...rest, index, tableJson: JSON.stringify(table) };
+});
+
 const weeksStarted = performance.now();
 progress.set(`Calculating weeks: 0 / ${arrayOfFuncParams.length}`);
 
@@ -556,7 +565,7 @@ await new Promise((resolve, reject) => {
 		worker.addEventListener('error', failAll);
 
 		// Once per worker, before any week: messages are handled in order, so all are in place in time
-		locationRefractions.forEach((loc, index) => worker.postMessage({ ...loc.init, index }));
+		refractionMessages.forEach(message => worker.postMessage(message));
 		worker.postMessage(weekInit);
 
 		const dispatch = () => {

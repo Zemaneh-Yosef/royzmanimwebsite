@@ -468,22 +468,39 @@ function buildColumn(prof, surfaceLayer, humidity = false) {
 	};
 	// Tabulate for speed: 2 m steps to 3 km, 20 m steps to the top. The lowest few metres (the
 	// surface layer over water) stay exact; elsewhere linear interpolation is far below 0.01".
+	// The table is filled as the rays reach it: a medium serves one date and event, and its rays touch only
+	// a fraction of the ~4,500 heights, so tabulating them all up front was most of the medium's cost.
 	const Z1 = 3000, D1 = 2, D2 = 20, ZEXACT = 3;
 	const n1 = Z1 / D1, n2 = Math.ceil((PATH_TOP_M + 2000 - Z1) / D2);
-	const tN = new Float64Array(n1 + n2 + 2), tD = new Float64Array(n1 + n2 + 2);
-	for (let i = 0; i <= n1 + n2 + 1; i++) {
+	const tN = new Float64Array(n1 + n2 + 2), tD = new Float64Array(n1 + n2 + 2), filled = new Uint8Array(n1 + n2 + 2);
+	/** @param {number} i */
+	const fill = i => {
 		const z = i <= n1 ? i * D1 : Z1 + (i - n1) * D2;
 		const v = exact(z);
-		tN[i] = v[0]; tD[i] = v[1];
-	}
-	return (/** @type {number} */ z) => {
-		if (z < ZEXACT) return exact(z);
+		tN[i] = v[0]; tD[i] = v[1]; filled[i] = 1;
+	};
+	/**
+	 * N and dN/dz at z written to out[o], out[o + 1] (no allocation: the ray tracer's inner loop)
+	 * @param {number} z @param {Float64Array} out @param {number} o
+	 */
+	const into = (z, out, o) => {
+		if (z < ZEXACT) { const v = exact(z); out[o] = v[0]; out[o + 1] = v[1]; return; }
 		const x = z < Z1 ? z / D1 : n1 + (z - Z1) / D2;
 		const i = Math.floor(x);
-		if (i >= n1 + n2 + 1) return exact(z);
+		if (i >= n1 + n2 + 1) { const v = exact(z); out[o] = v[0]; out[o + 1] = v[1]; return; }
+		if (!filled[i]) fill(i);
+		if (!filled[i + 1]) fill(i + 1);
 		const f = x - i;
-		return [tN[i] + (tN[i + 1] - tN[i]) * f, tD[i] + (tD[i + 1] - tD[i]) * f];
+		out[o] = tN[i] + (tN[i + 1] - tN[i]) * f;
+		out[o + 1] = tD[i] + (tD[i + 1] - tD[i]) * f;
 	};
+	const pair = new Float64Array(2);
+	/** @type {((z: number) => [number, number]) & { into: typeof into }} */
+	const column = Object.assign((/** @type {number} */ z) => {
+		into(z, pair, 0);
+		return /** @type {[number, number]} */ ([pair[0], pair[1]]);
+	}, { into });
+	return column;
 }
 
 /** small string hash for cache keys @param {string} s */
@@ -511,16 +528,26 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 	const ds = sorted.map(p => p.distanceKm * 1000);
 	const cols = sorted.map(p => buildColumn(p, surfaceLayer, humidity));
 	const moist = humidity && sorted.some(p => (p.levels ?? []).some(l => Number.isFinite(l.td) || Number.isFinite(l.rh)));
-	/** N, dN/dz, dN/dd at height z and ground distance d @param {number} z @param {number} d @returns {[number, number, number]} */
-	const field = (z, d) => {
-		if (cols.length === 1 || d <= ds[0]) { const c = cols[0](z); return [c[0], c[1], 0]; }
+	/** N, dN/dz, dN/dd: the field at the point fieldAt() was last asked for */
+	const F = new Float64Array(3);
+	/** the two neighbouring columns' N, dN/dz */
+	const ab = new Float64Array(4);
+	/**
+	 * N, dN/dz, dN/dd at height z and ground distance d, written to F (it runs four times per RK4 step, so
+	 * it allocates nothing)
+	 * @param {number} z @param {number} d
+	 */
+	const fieldAt = (z, d) => {
+		if (cols.length === 1 || d <= ds[0]) { cols[0].into(z, F, 0); F[2] = 0; return; }
 		const last = ds.length - 1;
-		if (d >= ds[last]) { const c = cols[last](z); return [c[0], c[1], 0]; }
+		if (d >= ds[last]) { cols[last].into(z, F, 0); F[2] = 0; return; }
 		let j = 0;
 		while (ds[j + 1] < d) j++;
 		const w = (d - ds[j]) / (ds[j + 1] - ds[j]);
-		const a = cols[j](z), b = cols[j + 1](z);
-		return [a[0] + (b[0] - a[0]) * w, a[1] + (b[1] - a[1]) * w, (b[0] - a[0]) / (ds[j + 1] - ds[j])];
+		cols[j].into(z, ab, 0); cols[j + 1].into(z, ab, 2);
+		F[0] = ab[0] + (ab[2] - ab[0]) * w;
+		F[1] = ab[1] + (ab[3] - ab[1]) * w;
+		F[2] = (ab[2] - ab[0]) / (ds[j + 1] - ds[j]);
 	};
 
 	/**
@@ -534,7 +561,8 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 		let dr = 0, dth = 0, db = 0;
 		/** derivatives d/ds into dr, dth, db @param {number} r @param {number} th @param {number} b */
 		const f = (r, th, b) => {
-			const F = field(r - R, R * th), cb = Math.cos(b), sb = Math.sin(b);
+			fieldAt(r - R, R * th);
+			const cb = Math.cos(b), sb = Math.sin(b);
 			dr = sb; dth = cb / r; db = cb / r + (F[1] * cb - (R / r) * F[2] * sb) / (1 + F[0]);
 		};
 		let r = R + ho, th = 0, b = aDeg * DEG;
@@ -775,6 +803,8 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._horizonCache = new Cache(256);
 		/** @type {Cache<{a0:number, step:number, refr:Float64Array}>} */
 		this._refrTableCache = new Cache(64);
+		/** horizon thresholds per profile (see _horizonThresholds) @type {WeakMap<object, Cache<{ azimuthDeg: number[], apparentDeg: number[], thresholdDeg: number[] }>>} */
+		this._thresholdCache = new WeakMap();
 		this._seaSurfaceLayer = false;
 		this._humidity = false;
 	}
@@ -1041,9 +1071,19 @@ export default class ROYSPACalculator extends SPACalculator {
 		const opts = { ...options, maxGapDeg: options.maxGapDeg ?? 0.5 };
 		let pts = set.points.filter(p => p[event]?.length);
 		if (set.mode === 'vantage' && pts.length > 1) {
-			// only points that win near today's rise / set direction need tracing
-			const t = this._utcToEpochMs(date, geo, event === 'sunrise' ? this.getUTCSunrise(date, geo, 90, true)
-				: this.getUTCSunset(date, geo, 90, true), event);
+			// only points that win near today's rise / set direction need tracing. The direction comes from the
+			// default horizon model rather than the day's air: the windows have 3 degrees to spare and the two
+			// differ by seconds (hundredths of a degree), while a ray-traced horizon at this height (its sea
+			// horizon found by bisection) cost as much as all the points' refraction tables together.
+			const provider = this._atmosphereProvider;
+			this._atmosphereProvider = null;
+			let t;
+			try {
+				t = this._utcToEpochMs(date, geo, event === 'sunrise' ? this.getUTCSunrise(date, geo, 90, true)
+					: this.getUTCSunset(date, geo, 90, true), event);
+			} finally {
+				this._atmosphereProvider = provider;
+			}
 			if (Number.isFinite(t)) {
 				const az0 = this._sunTrue(t / 86400000 + JD_UNIX_EPOCH, geo)[1];
 				const near = pts.filter(p => (p.wins?.[event] ?? []).some(([lo, hi]) =>
@@ -1075,6 +1115,21 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * @returns {{ azimuthDeg: number[], apparentDeg: number[], thresholdDeg: number[] }}
 	 */
 	getHorizonThresholds(date, geoLocation, profile, event, observer = {}) {
+		const th = this._horizonThresholds(date, geoLocation, profile, event, observer);
+		// the cached arrays are shared; callers get their own
+		return { azimuthDeg: [...th.azimuthDeg], apparentDeg: [...th.apparentDeg], thresholdDeg: [...th.thresholdDeg] };
+	}
+
+	/**
+	 * getHorizonThresholds, cached: the visible sunrise for each limb option ('any', 'full', ...) needs the
+	 * same thresholds, and finding the sea horizon alone takes dozens of ray traces through a path medium.
+	 * The result depends only on the profile, the medium (its key covers the date's air), the observer's
+	 * height and floor, the Earth radius and, without a provider, the refraction constant. Read-only.
+	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {HorizonPoint[]} profile @param {'sunrise'|'sunset'} event
+	 * @param {{ heightM?: number, groundM?: number }} [observer]
+	 * @returns {{ azimuthDeg: number[], apparentDeg: number[], thresholdDeg: number[] }}
+	 */
+	_horizonThresholds(date, geoLocation, profile, event, observer = {}) {
 		const ho = Number.isFinite(observer.heightM) ? /** @type {number} */ (observer.heightM) : Math.max(0, geoLocation.getElevation());
 		// Rays can reach down to sea level, or in a depression to the basin floor: the lowest of the
 		// observer's ground and the terrain heights in the profile (which include the lake where the
@@ -1091,6 +1146,21 @@ export default class ROYSPACalculator extends SPACalculator {
 		// sea-level horizon refraction equals getRefraction() (34.48' by default), as Sweer's ratio is.
 		const scale = provided ? 1 : this.getRefraction() / this._horizonCache.get('isa0|' + R,
 			() => ({ dip: 0, refr: atm.refraction(0, 0, R) })).refr;
+
+		let byProfile = this._thresholdCache.get(profile);
+		if (!byProfile) {
+			byProfile = new Cache(64);
+			this._thresholdCache.set(profile, byProfile);
+		}
+		return byProfile.get([atm.key, scale, ho, floorM, R].join('|'),
+			() => this._computeThresholds(profile, atm, ho, floorM, R, scale));
+	}
+
+	/**
+	 * @param {HorizonPoint[]} profile @param {Medium} atm @param {number} ho @param {number} floorM
+	 * @param {number} R @param {number} scale see _horizonThresholds
+	 */
+	_computeThresholds(profile, atm, ho, floorM, R, scale) {
 		const seaAlt = atm.seaHorizon(ho, R, floorM);
 		const pts = profile.map(p => {
 			let app;
@@ -1174,7 +1244,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * @param {{ heightM?: number, groundM?: number }} [observer] see getHorizonThresholds
 	 */
 	_visibleEvent(date, geo, profile, event, options, observer = { heightM: options.observerHeightM }) {
-		const th = this.getHorizonThresholds(date, geo, profile, event, observer);
+		const th = this._horizonThresholds(date, geo, profile, event, observer);
 		const sd = this.getApparentSolarRadius(date);
 		const limb = options.limb ?? 'any';
 		if (!['any', 'top', 'bottom', 'full'].includes(limb)) throw new Error(`Unknown limb option '${limb}'`);
@@ -1229,8 +1299,22 @@ export default class ROYSPACalculator extends SPACalculator {
 		const coarse = 5 / 1440, margin = 1.5;            // the Sun moves < 1.25 deg in 5 min
 		let jd = jdNoon - dir * 0.5;
 		if (visible(jd)) return NaN;                     // never sets that night / day
-		// coarse: advance while the Sun's centre is clearly below every threshold
-		while (dir * (jdNoon - jd) > 0 && this._sunTrue(jd + dir * coarse, geo)[0] < minThr - sd - margin) jd += dir * coarse;
+		// coarse: advance in 5-minute steps while the Sun's centre is clearly below every threshold.
+		// From (about) the lower culmination towards noon the Sun only climbs, so "still clearly below" holds
+		// for a run of steps and then never again: a binary search over the same steps finds where the walk
+		// would stop with ~8 solar positions instead of one per step (~70). The steps are accumulated just as
+		// the walk adds them, so the fine scan starts from the identical Julian day.
+		const stillBelow = (/** @type {number} */ x) => dir * (jdNoon - x) > 0 && this._sunTrue(x + dir * coarse, geo)[0] < minThr - sd - margin;
+		const steps = [jd];
+		while (dir * (jdNoon - steps[steps.length - 1]) > 0) steps.push(steps[steps.length - 1] + dir * coarse);
+		if (stillBelow(steps[0])) {
+			let lo = 0, hi = steps.length - 1;             // stillBelow(steps[lo]); not at hi (past noon)
+			while (hi - lo > 1) {
+				const mid = (lo + hi) >> 1;
+				if (stillBelow(steps[mid])) lo = mid; else hi = mid;
+			}
+			jd = steps[hi];
+		}
 		// fine scan
 		let prev = jd;
 		for (jd = prev + dir * fine; dir * (jdNoon - jd) > 0; prev = jd, jd += dir * fine) {

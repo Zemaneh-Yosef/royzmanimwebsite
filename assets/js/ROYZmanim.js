@@ -94,6 +94,12 @@ const hazeDelayCache = new WeakMap();
 const visiblePlaceholders = new WeakMap();
 
 /**
+ * durationOfEquinoxDegreeSeasonalHour results per config, shared by every instance chainDate() makes from it
+ * @type {WeakMap<ZemanimConfig, Map<string, Temporal.Duration>>}
+ */
+const equinoxHourCache = new WeakMap();
+
+/**
  * When a config replaces another for the same place (e.g. fresh forecast data), keep showing the old
  * visible sunrises until the new ones arrive, so netz doesn't flick to sea level and back.
  * Copies plain numbers: the old config (and the forecast data it holds) can be garbage-collected.
@@ -247,6 +253,30 @@ class ZemanimMathBase {
 	 * @returns {Temporal.Duration}
 	 */
 	durationOfEquinoxDegreeSeasonalHour(degree, sunset) {
+		// The same for every date of a year, but asked for by every instance chainDate() makes (five times
+		// in setGeoLocation), each a full sunrise / sunset / offset solve: cached per config, place and year
+		const geo = this.coreZC.getGeoLocation();
+		const key = [geo.getLatitude(), geo.getLongitude(), geo.getElevation(), geo.getTimeZone(),
+			this.coreZC.isUseElevation(), this.coreZC.getDate().calendarId, this.coreZC.getDate().year, degree, sunset].join('|');
+		let cache = equinoxHourCache.get(this.config);
+		if (!cache) {
+			cache = new Map();
+			equinoxHourCache.set(this.config, cache);
+		}
+		let duration = cache.get(key);
+		if (!duration) {
+			duration = this.computeEquinoxDegreeSeasonalHour(degree, sunset);
+			cache.set(key, duration);
+		}
+		return duration;
+	}
+
+	/**
+	 * durationOfEquinoxDegreeSeasonalHour, uncached
+	 * @param {number} degree @param {boolean} sunset
+	 * @returns {Temporal.Duration}
+	 */
+	computeEquinoxDegreeSeasonalHour(degree, sunset) {
 		// Cannot use chainDate here - gets called internally, thus creating a loop;
 		// instead, we use the coreZC directly, change its date, and then revert
 		// to the original date

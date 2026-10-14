@@ -59,11 +59,13 @@ hNum.setUseFinalFormLetters(true);
  * Sent once per worker and location, before any week (see print-export-weekly.js). Workers have no
  * localStorage and can't receive the provider closure, so they get the provider's plain results instead.
  * `index` is the location's position in WorkerInit.locations (0 when omitted; the moon workers take the
- * same message without it).
+ * same message without it). The weekly workers may get the table as `tableJson` instead (see
+ * print-export-weekly.js): one string is far cheaper to post than the same table as objects.
  * @typedef {{
 	type: 'refraction';
 	index?: number;
-	table: import('../../refraction-snapshot.js').ProviderSnapshot;
+	table?: import('../../refraction-snapshot.js').ProviderSnapshot;
+	tableJson?: string;
 	normals: import('../../refraction-snapshot.js').Normals | null;
 	horizon: import('../../refraction-snapshot.js').Horizon | null;
 	haze?: import('../../../libraries/kosherZmanim/star-nightfall.js').HazeData | null;
@@ -322,9 +324,40 @@ function buildTaanitNames(lang) {
 	}
 }
 
+/**
+ * Each location's calculator config, made once per worker rather than once per week: ROYZmanim.js keys
+ * its caches by the config object (the shared astronomical calculator with its ray traces, the visible
+ * sunrises, the equinox hours, the haze delays), so a config kept for the worker's lifetime lets every
+ * week reuse what earlier weeks computed (the holiday boxes reach into neighbouring weeks), and saves
+ * setting up a calculator per location per week.
+ * @type {import('../../ROYZmanim.js').ZemanimConfig[]}
+ */
+let locationConfigs = [];
+
+/**
+ * @param {WorkerInit} init @param {number} index the location's position in init.locations
+ * @returns {import('../../ROYZmanim.js').ZemanimConfig}
+ */
+function locationConfig(init, index) {
+	return locationConfigs[index] ??= (() => {
+		const locRefraction = refractionFor(index);
+		return {
+			elevation: init.israel,
+			melakha: init.tzetMelakha,
+			fixedMil: init.israel || init.hourCalculator == "seasonal",
+			candleLighting: init.candleTime,
+			rtKulah: init.rtKulah,
+			atmosphereProvider: locRefraction.provider,
+			horizon: locRefraction.horizon,
+			haze: locRefraction.haze
+		};
+	})();
+}
+
 /** @param {WorkerInit} init */
 function initWorker(init) {
 	workerInit = init;
+	locationConfigs = [];
 
 	templateDoc = parseHTML(init.htmlElems).document;
 	pristineNodes = [...templateDoc.childNodes].map(node => node.cloneNode(true));
@@ -364,19 +397,8 @@ function messageHandler(x) {
 	// One calculator per location (each with its own air and horizon); zmanCalc stands for all of them,
 	// averaging what they return (see multi-zeman.js). With one location it is that location's calculator.
 	const locationArgs = x.data.locations?.length ? x.data.locations : [x.data.geoCoordinates];
-	const calcs = locationArgs.map((args, index) => {
-		const locRefraction = refractionFor(index);
-		return new ZemanFunctions(new KosherZmanim.GeoLocation(...args), {
-			elevation: x.data.israel,
-			melakha: x.data.tzetMelakha,
-			fixedMil: x.data.israel || x.data.hourCalculator == "seasonal",
-			candleLighting: x.data.candleTime,
-			rtKulah: x.data.rtKulah,
-			atmosphereProvider: locRefraction.provider,
-			horizon: locRefraction.horizon,
-			haze: locRefraction.haze
-		});
-	});
+	const calcs = locationArgs.map((args, index) =>
+		new ZemanFunctions(new KosherZmanim.GeoLocation(...args), locationConfig(x.data, index)));
 	const multiLocation = calcs.length > 1;
 	const zmanCalc = mergeCalcs(calcs);
 	zmanCalc.setDate(jCal.getDate())
@@ -2212,10 +2234,11 @@ if (typeof window === 'undefined') {
 		if ('type' in data) {
 			if (data.type === 'refraction') {
 				refractions[data.index ?? 0] = {
-					provider: providerFromSnapshot(data.table, data.normals),
+					provider: providerFromSnapshot(data.tableJson ? JSON.parse(data.tableJson) : data.table, data.normals),
 					horizon: data.horizon,
 					haze: data.haze ?? null
 				};
+				locationConfigs = [];
 			} else if (data.type === 'init') {
 				initWorker(data);
 			}
