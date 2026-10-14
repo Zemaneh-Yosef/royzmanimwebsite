@@ -154,15 +154,36 @@ function calculatorFor(config, geoLocation) {
 const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdleCallback(() => fn(), { timeout: 2000 }) : setTimeout(fn, 50));
 
 /**
- * Sort durations in descending order
- * @param {string | Temporal.Duration | Temporal.DurationLike} a
- * @param {string | Temporal.Duration | Temporal.DurationLike} b
- * @returns {number}
+ * Length of the 12-hour day that fixed durations are given against (fixedToSeasonal), in nanoseconds.
+ * A plain number rather than Duration.from({ hours: 12 }): workers load the Temporal polyfill after their
+ * imports, so nothing here may use Temporal while the module loads. (Exactly the value total() gives.)
  */
-function durationSort(a, b) {
-	const pSort = Temporal.Duration.compare(a, b);
-	return pSort * -1;
+const TWELVE_HOURS_NS = 12 * 60 * 60 * 1e9;
+
+/**
+ * The time `zdt` moved by `nanoseconds` (whole, may be negative), computed on its Instant. The same moment,
+ * time zone and calendar as zdt.add({ nanoseconds }), without building a Duration for it.
+ * @param {Temporal.ZonedDateTime} zdt
+ * @param {number} nanoseconds
+ * @returns {Temporal.ZonedDateTime}
+ */
+function shiftedBy(zdt, nanoseconds) {
+	const moved = Temporal.Instant.fromEpochNanoseconds(zdt.toInstant().epochNanoseconds + BigInt(nanoseconds))
+		.toZonedDateTimeISO(zdt.timeZoneId);
+	return zdt.calendarId === 'iso8601' ? moved : moved.withCalendar(zdt.calendarId);
 }
+
+/**
+ * The later of two times (the first when they are equal)
+ * @param {Temporal.ZonedDateTime} a @param {Temporal.ZonedDateTime} b
+ */
+const later = (a, b) => Temporal.ZonedDateTime.compare(b, a) > 0 ? b : a;
+
+/**
+ * The earlier of two times (the first when they are equal)
+ * @param {Temporal.ZonedDateTime} a @param {Temporal.ZonedDateTime} b
+ */
+const earlier = (a, b) => Temporal.ZonedDateTime.compare(b, a) < 0 ? b : a;
 
 class ZemanimMathBase {
 	/**
@@ -330,31 +351,31 @@ class ZemanimMathBase {
 		this.coreZC.setDate(plainDate);
 		this.tekufaCalc.setYear(this.coreZC.getDate().withCalendar("hebrew").year)
 
-		this.timeRange.current.sunrise = (this.coreZC.isUseElevation() ? this.coreZC.getSunrise() : this.coreZC.getSeaLevelSunrise());
-		this.timeRange.current.sunset = (this.coreZC.isUseElevation() ? this.coreZC.getSunset() : this.coreZC.getSeaLevelSunset());
-		this.timeRange.current.ranges.gra = this.timeRange.current.sunrise.until(this.timeRange.current.sunset);
+		const { current, equinox } = this.timeRange;
+		current.sunrise = (this.coreZC.isUseElevation() ? this.coreZC.getSunrise() : this.coreZC.getSeaLevelSunrise());
+		current.sunset = (this.coreZC.isUseElevation() ? this.coreZC.getSunset() : this.coreZC.getSeaLevelSunset());
+		current.ranges.gra = current.sunrise.until(current.sunset);
 
-		this.timeRange.current.hatzoth = this.coreZC.getSunTransit();
+		current.hatzoth = this.coreZC.getSunTransit();
 
-		const dawnMinTimeRange = maxDuration(
-			this.fixedToSeasonal(this.timeRange.equinox.dawn),
-			this.config.fixedMil
-				? this.fixedToSeasonal(this.timeRange.equinox.dawn)
-				: this.timeRange.current.sunrise.since(this.coreZC.getSunriseOffsetByDegrees(98.5))
-		);
+		// Dawn: the equinox offset in seasonal time before sunrise, and with degrees never later than the
+		// Sun at 8.5 degrees below the horizon (the longer of the two offsets)
+		const seasonalDawn = this.seasonalBefore(current.sunrise, equinox.dawn);
+		current.dawn = this.config.fixedMil
+			? seasonalDawn
+			: earlier(seasonalDawn, current.sunrise.subtract(current.sunrise.since(this.coreZC.getSunriseOffsetByDegrees(98.5))));
 
-		const tzetMinTimeRange = maxDuration(
-			this.fixedToSeasonal(this.timeRange.equinox.TzetHakokhavim),
-			this.config.fixedMil
-				? this.fixedToSeasonal(this.timeRange.equinox.TzetHakokhavim)
-				: this.timeRange.current.sunrise.since(this.coreZC.getSunsetOffsetByDegrees(98.5))
-		);
+		current.nightfall = this.seasonalAfter(current.sunset, equinox.nightfall);
 
-		this.timeRange.current.dawn = this.timeRange.current.sunrise.subtract(dawnMinTimeRange);
-		this.timeRange.current.nightfall = this.timeRange.current.sunset.add(this.fixedToSeasonal(this.timeRange.equinox.nightfall));
-		this.timeRange.current.tzethakokhavim = this.timeRange.current.sunset.add(tzetMinTimeRange);
+		// Tzet HaKokhavim: the equinox offset in seasonal time after sunset, with degrees the longer of that and
+		// the second offset. NOTE: that second offset is measured from sunrise to the evening's 8.5 degrees, so
+		// it is negative and the seasonal offset always applies (kept as it was; probably meant from sunset)
+		const seasonalTzet = this.seasonalAfter(current.sunset, equinox.TzetHakokhavim);
+		current.tzethakokhavim = this.config.fixedMil
+			? seasonalTzet
+			: later(seasonalTzet, current.sunset.add(current.sunrise.since(this.coreZC.getSunsetOffsetByDegrees(98.5))));
 
-		this.timeRange.current.ranges.mga = this.timeRange.current.dawn.until(this.timeRange.current.tzethakokhavim);
+		current.ranges.mga = current.dawn.until(current.tzethakokhavim);
 	}
 
 	/**
@@ -536,11 +557,42 @@ class ZemanimMathBase {
 	 * @returns {Temporal.Duration}
 	 */
 	fixedToSeasonal(portion, fullDay = this.timeRange.current.ranges.gra) {
-		const inputPortionOfDay = portion.total("nanoseconds") / Temporal.Duration.from({ hours: 12 }).total('nanoseconds'); // Length of 12
+		return Temporal.Duration.from({ nanoseconds: this.seasonalNanoseconds(portion, fullDay) });
+	}
 
-		return Temporal.Duration.from({
-			nanoseconds: Math.trunc(fullDay.total("nanoseconds") * inputPortionOfDay)
-		});
+	/**
+	 * fixedToSeasonal's length in whole nanoseconds (the one place the scaling is done)
+	 * @param {Temporal.Duration} portion - Fixed duration, out of a 12-hour day
+	 * @param {Temporal.Duration} [fullDay] - Full day duration (defaults to GRA range)
+	 * @returns {number}
+	 */
+	seasonalNanoseconds(portion, fullDay = this.timeRange.current.ranges.gra) {
+		const inputPortionOfDay = portion.total("nanoseconds") / TWELVE_HOURS_NS;
+		return Math.trunc(fullDay.total("nanoseconds") * inputPortionOfDay);
+	}
+
+	/**
+	 * The time `portion` of seasonal time after `start`: the same as
+	 * start.add(this.fixedToSeasonal(portion, fullDay)), computed on the Instant
+	 * @param {Temporal.ZonedDateTime} start
+	 * @param {Temporal.Duration} portion - Fixed duration, out of a 12-hour day
+	 * @param {Temporal.Duration} [fullDay] - Full day duration (defaults to GRA range)
+	 * @returns {Temporal.ZonedDateTime}
+	 */
+	seasonalAfter(start, portion, fullDay = this.timeRange.current.ranges.gra) {
+		return shiftedBy(start, this.seasonalNanoseconds(portion, fullDay));
+	}
+
+	/**
+	 * The time `portion` of seasonal time before `end`: the same as
+	 * end.subtract(this.fixedToSeasonal(portion, fullDay)), computed on the Instant
+	 * @param {Temporal.ZonedDateTime} end
+	 * @param {Temporal.Duration} portion - Fixed duration, out of a 12-hour day
+	 * @param {Temporal.Duration} [fullDay] - Full day duration (defaults to GRA range)
+	 * @returns {Temporal.ZonedDateTime}
+	 */
+	seasonalBefore(end, portion, fullDay = this.timeRange.current.ranges.gra) {
+		return shiftedBy(end, -this.seasonalNanoseconds(portion, fullDay));
 	}
 
 	/**
@@ -549,7 +601,7 @@ class ZemanimMathBase {
 	 * @returns {Temporal.ZonedDateTime}
 	 */
 	plagHaminchaCore(time) {
-		return time.subtract(this.fixedToSeasonal(Temporal.Duration.from({ hours: 1, minutes: 15 })));
+		return this.seasonalBefore(time, Temporal.Duration.from({ hours: 1, minutes: 15 }));
 	}
 
 	/**
@@ -569,11 +621,9 @@ class ZemanimMathBase {
 class ZemanFunctions extends ZemanimMathBase {
 	customDawn(timeBack={minutes:90, degree:19.8}) {
 		if (this.config.fixedMil)
-			return this.timeRange.current.sunrise
-				.subtract(this.fixedToSeasonal(Temporal.Duration.from({ minutes: timeBack.minutes })));
+			return this.seasonalBefore(this.timeRange.current.sunrise, Temporal.Duration.from({ minutes: timeBack.minutes }));
 		else
-			return this.timeRange.current.sunrise
-				.subtract(this.fixedToSeasonal(this.durationOfEquinoxDegreeSeasonalHour(timeBack.degree, false)));
+			return this.seasonalBefore(this.timeRange.current.sunrise, this.durationOfEquinoxDegreeSeasonalHour(timeBack.degree, false));
 	}
 
 	getAlotHashahar() {
@@ -582,8 +632,7 @@ class ZemanFunctions extends ZemanimMathBase {
 
 	getMisheyakir(percentageForMisheyakir=(5/6)) {
 		const alotDuration = this.timeRange.current.dawn.until(this.timeRange.current.sunrise)
-		return this.timeRange.current.sunrise
-			.subtract({ nanoseconds: Math.trunc(alotDuration.total("nanoseconds") * percentageForMisheyakir) })
+		return shiftedBy(this.timeRange.current.sunrise, -Math.trunc(alotDuration.total("nanoseconds") * percentageForMisheyakir))
 	}
 
 	getEarlyMisheyakir() {
@@ -617,28 +666,23 @@ class ZemanFunctions extends ZemanimMathBase {
 	}
 
 	getSofZemanShemaMGA() {
-		return this.timeRange.current.dawn
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 3 }), this.timeRange.current.ranges.mga));
+		return this.seasonalAfter(this.timeRange.current.dawn, Temporal.Duration.from({ hours: 3 }), this.timeRange.current.ranges.mga);
 	}
 
 	getSofZemanShemaGRA() {
-		return this.timeRange.current.sunrise
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 3 })));
+		return this.seasonalAfter(this.timeRange.current.sunrise, Temporal.Duration.from({ hours: 3 }));
     }
 
 	getSofZemanBerakhothShema() {
-		return this.timeRange.current.sunrise
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 4 })));
+		return this.seasonalAfter(this.timeRange.current.sunrise, Temporal.Duration.from({ hours: 4 }));
     }
 
 	getSofZemanAhilathHametz() {
-		return this.timeRange.current.dawn
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 4 }), this.timeRange.current.ranges.mga));
+		return this.seasonalAfter(this.timeRange.current.dawn, Temporal.Duration.from({ hours: 4 }), this.timeRange.current.ranges.mga);
 	}
 
 	getSofZemanBiurHametz() {
-		return this.timeRange.current.dawn
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 5 }), this.timeRange.current.ranges.mga));
+		return this.seasonalAfter(this.timeRange.current.dawn, Temporal.Duration.from({ hours: 5 }), this.timeRange.current.ranges.mga);
 	}
 
 	/**
@@ -670,15 +714,13 @@ class ZemanFunctions extends ZemanimMathBase {
      *         explanation on top of the {@link AstronomicalCalendar} documentation.
      */
 	getMinhaGedolah() {
-		return this.timeRange.current.hatzoth.add([
-			Temporal.Duration.from({ minutes: 30 }),
-			this.fixedToSeasonal(Temporal.Duration.from({ minutes: 30 }))
-		].sort(durationSort)[0]);
+		const { hatzoth } = this.timeRange.current;
+		// the later of half an hour and half a seasonal hour after midday
+		return later(hatzoth.add({ minutes: 30 }), this.seasonalAfter(hatzoth, Temporal.Duration.from({ minutes: 30 })));
 	}
 
 	getMinhaGedolahIkar() {
-		return this.timeRange.current.sunrise
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 6, minutes: 30 })));
+		return this.seasonalAfter(this.timeRange.current.sunrise, Temporal.Duration.from({ hours: 6, minutes: 30 }));
 	}
 
 	/**
@@ -699,8 +741,7 @@ class ZemanFunctions extends ZemanimMathBase {
 	 *         returned. See detailed explanation on top of the {@link AstronomicalCalendar} documentation.
 	 */
 	getMinchaKetana() {
-		return this.timeRange.current.sunrise
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 9, minutes: 30 })));
+		return this.seasonalAfter(this.timeRange.current.sunrise, Temporal.Duration.from({ hours: 9, minutes: 30 }));
 	}
 
 	getPlagHaminhaHalachaBrurah() {
@@ -712,8 +753,7 @@ class ZemanFunctions extends ZemanimMathBase {
 	}
 
 	getPlagHaminhaMaamarMordechi() {
-		return this.timeRange.current.nightfall
-			.subtract(this.fixedToSeasonal(Temporal.Duration.from({ hours: 1, minutes: 15 }), this.timeRange.current.dawn.until(this.timeRange.current.nightfall)));
+		return this.seasonalBefore(this.timeRange.current.nightfall, Temporal.Duration.from({ hours: 1, minutes: 15 }), this.timeRange.current.dawn.until(this.timeRange.current.nightfall));
 	}
 
 	getCandleLighting() {
@@ -729,11 +769,9 @@ class ZemanFunctions extends ZemanimMathBase {
 	}
 
 	getTzetHumra() {
-		return this.timeRange.current.sunset.add(
-			this.config.fixedMil
-				? { minutes: 20 }
-				: this.fixedToSeasonal(this.timeRange.equinox.stringentNightfall)
-		);
+		return this.config.fixedMil
+			? this.timeRange.current.sunset.add({ minutes: 20 })
+			: this.seasonalAfter(this.timeRange.current.sunset, this.timeRange.equinox.stringentNightfall);
 	}
 
 	/**
@@ -875,15 +913,13 @@ class ZemanFunctions extends ZemanimMathBase {
 	}
 
 	getSofZemanSeuda() {
-		return this.timeRange.current.sunrise
-			.add(this.fixedToSeasonal(Temporal.Duration.from({ hours: 9, minutes: 0 })));
+		return this.seasonalAfter(this.timeRange.current.sunrise, Temporal.Duration.from({ hours: 9, minutes: 0 }));
 	}
 
 	getSofZemanMelakha() {
-		return this.timeRange.current.sunset.subtract([
-			Temporal.Duration.from({ hours: 2, minutes: 30 }),
-			this.fixedToSeasonal(Temporal.Duration.from({ hours: 2, minutes: 30 }))
-		].sort(durationSort)[0]);
+		const { sunset } = this.timeRange.current;
+		// the earlier of two and a half hours and two and a half seasonal hours before sunset
+		return earlier(sunset.subtract({ hours: 2, minutes: 30 }), this.seasonalBefore(sunset, Temporal.Duration.from({ hours: 2, minutes: 30 })));
 	}
 }
 
@@ -976,14 +1012,4 @@ export {
 function dropHundredths(num) {
 	const factor = Math.pow(10, 2);
 	return Math.floor(num * factor) / factor;
-}
-
-/**
- * Return the longer of two durations
- * @param {Temporal.Duration} a
- * @param {Temporal.Duration} b
- * @returns {Temporal.Duration}
- */
-function maxDuration(a, b) {
-	return a.total("nanoseconds") >= b.total("nanoseconds") ? a : b;
 }
