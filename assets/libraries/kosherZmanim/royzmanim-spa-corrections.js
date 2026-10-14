@@ -240,6 +240,8 @@ export function createAtmosphere(temperatureC, pressureMb, heightM, vapourMb = 0
 			key: T0.toFixed(4) + '|' + P0.toFixed(4),
 			nm1(h) { const s = state(h); return GLADSTONE_A * (s[1] / 1013.25) * (288.15 / s[0]); },
 			dndh(h) { const s = state(h); return GLADSTONE_A * (s[1] / 1013.25) * (288.15 / s[0]) * s[2]; },
+			/** [nm1(h), dndh(h)] from one evaluation of the state (same values) @param {number} h @returns {[number, number]} */
+			both(h) { const s = state(h), N = GLADSTONE_A * (s[1] / 1013.25) * (288.15 / s[0]); return [N, N * s[2]]; },
 		};
 	}
 	/** T, P, dT/dh, dP/dh, e, de/dh @param {number} h @returns {[number, number, number, number, number, number]} */
@@ -258,6 +260,11 @@ export function createAtmosphere(temperatureC, pressureMb, heightM, vapourMb = 0
 		dndh(h) {
 			const [T, P, dT, dP, e, de] = moist(h);
 			return REFR_K * ((dP - VAPOUR_BETA * de) / T - (P - VAPOUR_BETA * e) * dT / (T * T));
+		},
+		/** [nm1(h), dndh(h)] from one evaluation of the state (same values) @param {number} h @returns {[number, number]} */
+		both(h) {
+			const [T, P, dT, dP, e, de] = moist(h);
+			return [REFR_K * (P - VAPOUR_BETA * e) / T, REFR_K * ((dP - VAPOUR_BETA * de) / T - (P - VAPOUR_BETA * e) * dT / (T * T))];
 		},
 	};
 }
@@ -449,8 +456,8 @@ function buildColumn(prof, surfaceLayer, humidity = false) {
 	const zs = pts.map(q => q.z);
 	/** N = n - 1 and dN/dz at height z (exact for this column model) @param {number} z @returns {[number, number]} */
 	const exact = z => {
-		if (z >= top.z) return [above.nm1(z), above.dndh(z)];
-		if (z <= bottom.z) return [below.nm1(z), below.dndh(z)];
+		if (z >= top.z) return above.both(z);
+		if (z <= bottom.z) return below.both(z);
 		let lo = 0, hi = zs.length - 1;
 		while (hi - lo > 1) { const m = (lo + hi) >> 1; if (zs[m] <= z) lo = m; else hi = m; }
 		const a = pts[lo], b = pts[hi], dz = b.z - a.z, f = (z - a.z) / dz;
@@ -466,41 +473,59 @@ function buildColumn(prof, surfaceLayer, humidity = false) {
 		const N = REFR_K * (P - VAPOUR_BETA * e) / T;
 		return [N, REFR_K * (P * dlp - VAPOUR_BETA * e * dle) / T - N * dT / T];
 	};
-	// Tabulate for speed: 2 m steps to 3 km, 20 m steps to the top. The lowest few metres (the
-	// surface layer over water) stay exact; elsewhere linear interpolation is far below 0.01".
+	// Tabulate for speed: 2 m steps to 3 km, 20 m steps to the top (COL_* below). The lowest few metres
+	// (the surface layer over water) stay exact; elsewhere linear interpolation is far below 0.01".
 	// The table is filled as the rays reach it: a medium serves one date and event, and its rays touch only
 	// a fraction of the ~4,500 heights, so tabulating them all up front was most of the medium's cost.
-	const Z1 = 3000, D1 = 2, D2 = 20, ZEXACT = 3;
-	const n1 = Z1 / D1, n2 = Math.ceil((PATH_TOP_M + 2000 - Z1) / D2);
-	const tN = new Float64Array(n1 + n2 + 2), tD = new Float64Array(n1 + n2 + 2), filled = new Uint8Array(n1 + n2 + 2);
-	/** @param {number} i */
-	const fill = i => {
-		const z = i <= n1 ? i * D1 : Z1 + (i - n1) * D2;
-		const v = exact(z);
-		tN[i] = v[0]; tD[i] = v[1]; filled[i] = 1;
-	};
-	/**
-	 * N and dN/dz at z written to out[o], out[o + 1] (no allocation: the ray tracer's inner loop)
-	 * @param {number} z @param {Float64Array} out @param {number} o
-	 */
-	const into = (z, out, o) => {
-		if (z < ZEXACT) { const v = exact(z); out[o] = v[0]; out[o + 1] = v[1]; return; }
-		const x = z < Z1 ? z / D1 : n1 + (z - Z1) / D2;
-		const i = Math.floor(x);
-		if (i >= n1 + n2 + 1) { const v = exact(z); out[o] = v[0]; out[o + 1] = v[1]; return; }
-		if (!filled[i]) fill(i);
-		if (!filled[i + 1]) fill(i + 1);
-		const f = x - i;
-		out[o] = tN[i] + (tN[i + 1] - tN[i]) * f;
-		out[o + 1] = tD[i] + (tD[i + 1] - tD[i]) * f;
+	const size = COL_N1 + COL_N2 + 2;
+	/** @type {ColumnTable} */
+	const table = {
+		tN: new Float64Array(size), tD: new Float64Array(size), filled: new Uint8Array(size), exact,
+		/** @param {number} i */
+		fill(i) {
+			const z = i <= COL_N1 ? i * COL_D1 : COL_Z1 + (i - COL_N1) * COL_D2;
+			const v = exact(z);
+			table.tN[i] = v[0]; table.tD[i] = v[1]; table.filled[i] = 1;
+		},
 	};
 	const pair = new Float64Array(2);
-	/** @type {((z: number) => [number, number]) & { into: typeof into }} */
+	/** @type {((z: number) => [number, number]) & { table: ColumnTable }} */
 	const column = Object.assign((/** @type {number} */ z) => {
-		into(z, pair, 0);
+		columnInto(table, z, pair, 0);
 		return /** @type {[number, number]} */ ([pair[0], pair[1]]);
-	}, { into });
+	}, { table });
 	return column;
+}
+
+// Column tables: 2 m steps to 3 km, 20 m steps to the top (see buildColumn)
+const COL_Z1 = 3000, COL_D1 = 2, COL_D2 = 20, COL_ZEXACT = 3;
+const COL_N1 = COL_Z1 / COL_D1, COL_N2 = Math.ceil((PATH_TOP_M + 2000 - COL_Z1) / COL_D2);
+
+/**
+ * A column's lazily filled table of N and dN/dz, plus the exact model for what the table doesn't cover.
+ * Plain data rather than a closure per column, so the ray tracer's lookups all go through one function
+ * (columnInto) that the engine can inline: a closure per column made that call site see one function per
+ * column, too many to inline.
+ * @typedef {{ tN: Float64Array, tD: Float64Array, filled: Uint8Array,
+ *             exact: (z: number) => [number, number], fill: (i: number) => void }} ColumnTable
+ */
+
+/**
+ * N and dN/dz at z written to out[o], out[o + 1] (no allocation: the ray tracer's inner loop).
+ * The lowest few metres (the surface layer over water) and anything above the table stay exact.
+ * @param {ColumnTable} t @param {number} z @param {Float64Array} out @param {number} o
+ */
+function columnInto(t, z, out, o) {
+	if (z < COL_ZEXACT) { const v = t.exact(z); out[o] = v[0]; out[o + 1] = v[1]; return; }
+	const x = z < COL_Z1 ? z / COL_D1 : COL_N1 + (z - COL_Z1) / COL_D2;
+	const i = Math.floor(x);
+	if (i >= COL_N1 + COL_N2 + 1) { const v = t.exact(z); out[o] = v[0]; out[o + 1] = v[1]; return; }
+	const filled = t.filled;
+	if (!filled[i]) t.fill(i);
+	if (!filled[i + 1]) t.fill(i + 1);
+	const f = x - i, tN = t.tN, tD = t.tD;
+	out[o] = tN[i] + (tN[i + 1] - tN[i]) * f;
+	out[o + 1] = tD[i] + (tD[i + 1] - tD[i]) * f;
 }
 
 /** small string hash for cache keys @param {string} s */
@@ -527,6 +552,7 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 	if (!sorted.length) throw new Error('No path profiles');
 	const ds = sorted.map(p => p.distanceKm * 1000);
 	const cols = sorted.map(p => buildColumn(p, surfaceLayer, humidity));
+	const tabs = cols.map(c => c.table);
 	const moist = humidity && sorted.some(p => (p.levels ?? []).some(l => Number.isFinite(l.td) || Number.isFinite(l.rh)));
 	/** N, dN/dz, dN/dd: the field at the point fieldAt() was last asked for */
 	const F = new Float64Array(3);
@@ -538,50 +564,99 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 	 * @param {number} z @param {number} d
 	 */
 	const fieldAt = (z, d) => {
-		if (cols.length === 1 || d <= ds[0]) { cols[0].into(z, F, 0); F[2] = 0; return; }
+		if (tabs.length === 1 || d <= ds[0]) { columnInto(tabs[0], z, F, 0); F[2] = 0; return; }
 		const last = ds.length - 1;
-		if (d >= ds[last]) { cols[last].into(z, F, 0); F[2] = 0; return; }
+		if (d >= ds[last]) { columnInto(tabs[last], z, F, 0); F[2] = 0; return; }
 		let j = 0;
 		while (ds[j + 1] < d) j++;
 		const w = (d - ds[j]) / (ds[j + 1] - ds[j]);
-		cols[j].into(z, ab, 0); cols[j + 1].into(z, ab, 2);
+		columnInto(tabs[j], z, ab, 0); columnInto(tabs[j + 1], z, ab, 2);
 		F[0] = ab[0] + (ab[2] - ab[0]) * w;
 		F[1] = ab[1] + (ab[3] - ab[1]) * w;
 		F[2] = (ab[2] - ab[0]) / (ds[j + 1] - ds[j]);
 	};
 
+	/** derivatives d/ds of the ray state (r, th, b), written by deriv() */
+	const D = new Float64Array(3);
+	/**
+	 * Ray equations in polar coordinates: dr/ds, dth/ds, db/ds into D[0..2]. One function shared by every
+	 * trace (rather than a closure per trace writing captured variables), so it stays inlined.
+	 * @param {number} R @param {number} r @param {number} th @param {number} b
+	 */
+	const deriv = (R, r, th, b) => {
+		fieldAt(r - R, R * th);
+		const cb = Math.cos(b), sb = Math.sin(b);
+		D[0] = sb; D[1] = cb / r; D[2] = cb / r + (F[1] * cb - (R / r) * F[2] * sb) / (1 + F[0]);
+	};
+	/**
+	 * Lowest height from which a climbing ray past the last column can never come back down, for this
+	 * Earth radius (see `run`), or Infinity if there is none. Cached per radius.
+	 * @type {Map<number, number>}
+	 */
+	const climbSafeFrom = new Map();
+	/** @param {number} R */
+	const safeHeight = R => {
+		let z = climbSafeFrom.get(R);
+		if (z !== undefined) return z;
+		// Past the last column there is no sideways gradient, so a ray at elevation b in (0, pi/2) has
+		// db/ds = cos b ((1 + N) + r dN/dz) / (r (1 + N)). With (1 + N) + rMax dN/dz >= 0 at every table node
+		// from a height up (rMax: the top of the table), it holds at every interpolated point there too
+		// (it is linear in N and dN/dz, and r <= rMax only helps when dN/dz < 0), so b never decreases and
+		// the ray only climbs. Checked on the table's own values, from the top down to the first node
+		// where it fails.
+		const t = tabs[tabs.length - 1], rMax = R + COL_Z1 + (COL_N2 + 1) * COL_D2;
+		let i = COL_N1 + COL_N2 + 1;
+		for (; i >= 0; i--) {
+			if (!t.filled[i]) t.fill(i);
+			if (!(1 + t.tN[i] + rMax * t.tD[i] >= 0)) break;
+		}
+		const lowest = i + 1;
+		z = lowest > COL_N1 + COL_N2 + 1 ? Infinity
+			: Math.max(COL_ZEXACT, lowest <= COL_N1 ? lowest * COL_D1 : COL_Z1 + (lowest - COL_N1) * COL_D2);
+		climbSafeFrom.set(R, z);
+		return z;
+	};
+	/** ground distance from which only the last column applies (no sideways gradient), as fieldAt() does it */
+	const dLast = tabs.length === 1 ? -Infinity : ds[ds.length - 1];
+
+	/**
+	 * The ray integration. With `probe`, the caller only needs to know whether the ray comes down to the
+	 * surface (NaN) or not, so it stops as soon as the ray provably can't come down any more: climbing
+	 * (0 < b < 1 rad), past the last column and above safeHeight(R), where b only grows and r only
+	 * increases (the integration steps add only non-negative db and positive dr there). It then returns 0
+	 * instead of the refraction. Whether the result is NaN is exactly what the full trace would give.
+	 * @param {number} ho @param {number} aDeg @param {number} R @param {number} floorM @param {boolean} probe
+	 */
+	const run = (ho, aDeg, R, floorM, probe) => {
+		const zSafe = probe ? safeHeight(R) : Infinity;
+		// state: r (radius), th (central angle travelled), b (ray elevation above the local horizontal)
+		let r = R + ho, th = 0, b = aDeg * DEG;
+		for (let i = 0; i < 200000 && r - R <= PATH_TOP_M; i++) {
+			const s = Math.min(2000, 80 + 0.3 * (r - R));
+			deriv(R, r, th, b); const r1 = D[0], t1 = D[1], b1 = D[2];
+			deriv(R, r + s / 2 * r1, th + s / 2 * t1, b + s / 2 * b1); const r2 = D[0], t2 = D[1], b2 = D[2];
+			deriv(R, r + s / 2 * r2, th + s / 2 * t2, b + s / 2 * b2); const r3 = D[0], t3 = D[1], b3 = D[2];
+			deriv(R, r + s * r3, th + s * t3, b + s * b3);
+			r += s / 6 * (r1 + 2 * r2 + 2 * r3 + D[0]);
+			th += s / 6 * (t1 + 2 * t2 + 2 * t3 + D[1]);
+			b += s / 6 * (b1 + 2 * b2 + 2 * b3 + D[2]);
+			// blocked below the surface: the basin floor, else the wave crests over water (0 when no column
+			// is over water, so the nearest-column search is skipped then)
+			if (r - R < (floorM < 0 ? floorM : anyWater ? clearance(R * th) : 0)) return NaN;
+			if (b > 0 && b < 1 && r - R >= zSafe && R * th >= dLast) return 0;
+		}
+		return aDeg - (b - th) / DEG;
+	};
 	/**
 	 * Trace a ray from height ho with apparent altitude aDeg. Returns the refraction (degrees), or NaN
 	 * if the ray comes down to the surface (sea level, or floorM in a basin below sea level).
 	 * @param {number} ho @param {number} aDeg @param {number} R @param {number} [floorM]
 	 */
-	const trace = (ho, aDeg, R, floorM = 0) => {
-		const blockedBelow = floorM < 0 ? () => floorM : clearance;
-		// state: r (radius), th (central angle travelled), b (ray elevation above the local horizontal)
-		let dr = 0, dth = 0, db = 0;
-		/** derivatives d/ds into dr, dth, db @param {number} r @param {number} th @param {number} b */
-		const f = (r, th, b) => {
-			fieldAt(r - R, R * th);
-			const cb = Math.cos(b), sb = Math.sin(b);
-			dr = sb; dth = cb / r; db = cb / r + (F[1] * cb - (R / r) * F[2] * sb) / (1 + F[0]);
-		};
-		let r = R + ho, th = 0, b = aDeg * DEG;
-		for (let i = 0; i < 200000 && r - R <= PATH_TOP_M; i++) {
-			const s = Math.min(2000, 80 + 0.3 * (r - R));
-			f(r, th, b); const r1 = dr, t1 = dth, b1 = db;
-			f(r + s / 2 * r1, th + s / 2 * t1, b + s / 2 * b1); const r2 = dr, t2 = dth, b2 = db;
-			f(r + s / 2 * r2, th + s / 2 * t2, b + s / 2 * b2); const r3 = dr, t3 = dth, b3 = db;
-			f(r + s * r3, th + s * t3, b + s * b3);
-			r += s / 6 * (r1 + 2 * r2 + 2 * r3 + dr);
-			th += s / 6 * (t1 + 2 * t2 + 2 * t3 + dth);
-			b += s / 6 * (b1 + 2 * b2 + 2 * b3 + db);
-			if (r - R < blockedBelow(R * th)) return NaN;
-		}
-		return aDeg - (b - th) / DEG;
-	};
+	const trace = (ho, aDeg, R, floorM = 0) => run(ho, aDeg, R, floorM, false);
 
 	// without the surface layer the sea is a smooth surface at sea level: no wave crests, no mirage
 	const water = sorted.map(p => surfaceLayer && !!p.water);
+	const anyWater = water.some(w => w);
 	// an inferior mirage needs water warmer than the air above it
 	const warmWater = surfaceLayer && sorted.some(p => p.water && Number.isFinite(p.skinC) && p.levels?.length
 		&& /** @type {number} */ (p.skinC) > p.levels[0].t);
@@ -603,7 +678,15 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 		// at the apparent altitude whose ray reaches the lowest true altitude (the "vanishing line").
 		seaHorizon(ho, R, floorM = 0) {
 			if (ho <= floorM) return 0;
-			const tr = (/** @type {number} */ a) => trace(ho, a, R, floorM);
+			// Only whether each ray reaches the surface (NaN) matters here, so the rays are probes (see run),
+			// and a direction already traced isn't traced again (the bracket loops end on one)
+			/** @type {Map<number, number>} */
+			const seen = new Map();
+			const tr = (/** @type {number} */ a) => {
+				let v = seen.get(a);
+				if (v === undefined) { v = run(ho, a, R, floorM, true); seen.set(a, v); }
+				return v;
+			};
 			// bracket around the estimate for an atmosphere like the observer's column, widening if needed
 			const n0 = 1 + near(floorM)[0], no = 1 + near(ho)[0];
 			const est = -Math.acos(Math.min(1, n0 * (R + floorM) / (no * (R + ho)))) / DEG;
