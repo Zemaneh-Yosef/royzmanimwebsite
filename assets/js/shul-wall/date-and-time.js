@@ -47,8 +47,10 @@ function updateTime() {
 		minute: '2-digit'
 	}];
 
-	const [time, AMPM] = curTime.toLocaleString(...dtF).split(' ');
-	const [hourStr, minuteStr] = time.split(':');
+	const timeParts = new Intl.DateTimeFormat(dtF[0], { ...dtF[1], timeZone: curTime.timeZoneId })
+		.formatToParts(curTime.epochMilliseconds);
+	const partOf = (/** @type {string} */ type) => timeParts.find(part => part.type.toLowerCase() == type)?.value ?? '';
+	const [hourStr, minuteStr, AMPM] = ['hour', 'minute', 'dayperiod'].map(partOf);
 
 	hourElem.childNodes.forEach(node => node.remove())
 	minuteElem.childNodes.forEach(node => node.remove());
