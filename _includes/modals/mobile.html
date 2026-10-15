@@ -25,6 +25,18 @@
                         </a>
                     </div>
                 </div>
+				<div id="pwaInstall" class="d-none text-center mt-4 pt-3 border-top">
+					<div data-pwa-state="prompt" class="d-none">
+						<p>Or install this website as an app, with no download from a store needed:</p>
+						<button type="button" class="btn btn-primary" id="pwaInstallButton"><i class="bi bi-download"></i> Install web app</button>
+					</div>
+					<div data-pwa-state="ios" class="d-none">
+						<p class="mb-0">Or add this website to your Home Screen as an app: tap <i class="bi bi-box-arrow-up"></i> <b>Share</b>, then <b>Add to Home Screen</b>.</p>
+					</div>
+					<div data-pwa-state="installed" class="d-none">
+						<p class="mb-0"><i class="bi bi-check-circle-fill"></i> You're using the installed web app.</p>
+					</div>
+				</div>
     		</div>
     	</div>
     </div>

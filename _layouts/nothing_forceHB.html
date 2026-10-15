@@ -9,13 +9,12 @@
 		<title>{% if page.title and site.title != page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
 		<meta name="description" content="The online Zemanim (Halachic Times) calendar according to Rabbi Ovadiah Yosef Zt'l for everywhere in the world." />
 		<meta name="keywords" content="Shema, Amidah, Hatzot, Midday, Plag, Mincha, Misheyakir, Alot Hashachar, Maran, Shulchan Aruch, Ben Ish Hai, Ohr Letzion, Rambam, Maimonides, Rabbi, Ovadia, Ovadiah, Yosef, Calendar, Zmanim, Daven, Davening, Zemaneh, Zemanim, זמנים, זמני, יוסף" />
-		<meta name="mobile-web-app-capable" content="yes" />
 
 		<link rel="stylesheet" href="/assets/css/core.css" />
 		<link id="bsr" rel="stylesheet" href="/assets/libraries/bootstrap/css/bootstrap-reboot.min.css">
 		<link rel="stylesheet" href="/assets/libraries/bsicon/bootstrap-icons.min.css">
 		<link href="/favicon.ico" rel="icon" type="image/x-icon" />
-		<link rel="manifest" href="/manifest.json" />
+{% include pwa.html %}
 	</head>
 	<body>
 		{% include polyfills.html %}
