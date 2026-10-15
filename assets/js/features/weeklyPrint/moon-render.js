@@ -87,7 +87,7 @@ export default class MoonRender {
      * Collects the months to print. Nothing is computed until start(): the workers need the refraction
      * data, which the page loads after constructing this (see nightRange()).
      * @param {import('../../../libraries/kosherZmanim/kosher-zmanim').GeoLocation} geoLocation
-     * @param {{language: "en" | "hb" | "en-et";timeFormat: 'h11' | 'h12' | 'h23' | 'h24';hourCalculator: "seasonal" | "degrees";}} settings
+     * @param {{language: "en" | "hb" | "en-et";timeFormat: 'h11' | 'h12' | 'h23' | 'h24';hourCalculator: "seasonal" | "degrees";israel: boolean;}} settings
      * @param {Temporal.PlainDate} baseDate
      * @param {Temporal.PlainDate} endDate
      */
@@ -102,7 +102,7 @@ export default class MoonRender {
             geoLocation.getTimeZone()
         ];
 
-        this.israel = ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName));
+        this.israel = settings.israel;
     }
 
     /**

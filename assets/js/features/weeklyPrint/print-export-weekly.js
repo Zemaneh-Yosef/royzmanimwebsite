@@ -28,6 +28,7 @@ import * as ol from "../../../libraries/OpenLayers/ol.js"
 import { fetchLightPollution } from "../../../libraries/light-pollution-client.js";
 import MoonRender from "./moon-render.js";
 import { spawnWorker } from "../../misc/worker.js";
+import { isInIsrael } from "../../misc/israel.js";
 import { detectJit } from "../../misc/detect-jit.js";
 import { printConfig, printCalendar } from "./print-config.js";
 
@@ -127,8 +128,7 @@ const glArgs = multiLocation
 	: [config.title, ...locationArgs[0].slice(1)];
 const geoLocation = new GeoLocation(...glArgs);
 
-const inIsrael = config.israel
-	?? [config.title, ...locations.map(loc => loc.name)].some(name => ['israel', 'ישראל'].some(isrName => (name || "").toLowerCase().includes(isrName)));
+const inIsrael = config.israel ?? locations.some(loc => isInIsrael(loc.lat, loc.long));
 const useOhrHachaim = inIsrael || config.calendarToggle.forceSunSeasonal
 const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')];
 const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')];
@@ -287,6 +287,7 @@ const mRender = new MoonRender(geoLocation, {
 	language: config.language,
 	timeFormat: config.timeFormat,
 	hourCalculator,
+	israel: inIsrael,
 }, baseDate, endDate);
 
 const weeksForLoop = baseDateForLoop.until(endDateForLoop).total({ unit: 'week', relativeTo: baseDateForLoop });

@@ -12,6 +12,7 @@ import { loadPrintRefraction, fillVisibleSunriseTable } from "./print-refraction
 
 import * as ol from "../../libraries/OpenLayers/ol.js"
 import { spawnWorker } from "../misc/worker.js";
+import { isInIsrael } from "../misc/israel.js";
 
 const printParam = new URLSearchParams(window.location.search);
 if (printParam.has('lessContrast')) {
@@ -34,7 +35,8 @@ if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 const geoLocation = new GeoLocation(...glArgs);
 
-const useOhrHachaim = ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)) || settings.calendarToggle.forceSunSeasonal()
+const inIsrael = isInIsrael(geoLocation.getLatitude(), geoLocation.getLongitude());
+const useOhrHachaim = inIsrael || settings.calendarToggle.forceSunSeasonal()
 const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')].filter(elem => elem instanceof HTMLElement);
 const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')].filter(elem => elem instanceof HTMLElement);
 if (useOhrHachaim) {
@@ -181,7 +183,7 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal;
 
 	expectedReceive += 1;
 	arrayOfFuncParams.push({
-		israel: ['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)),
+		israel: inIsrael,
 		geoCoordinates: glArgs,
 		htmlElems: baseTable.outerHTML + (footer ? footer.outerHTML : "") + (secondSide ? secondSide.outerHTML : ""),
 		calendar: cal,

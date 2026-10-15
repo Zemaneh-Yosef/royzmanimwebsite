@@ -64,7 +64,7 @@
  * @property {LocationConfig[]} location - One or more nearby locations. With several, the zemanim are
  *   averaged across them and the visible sunrise is listed per location.
  * @property {string} [title] - Printed name; defaults to the location names joined.
- * @property {boolean} [israel] - Overrides the "Israel" detection from the location names.
+ * @property {boolean} [israel] - Overrides the "Israel" detection from the coordinates.
  * @property {'json'|'url'} source - Where the config came from (set by the loader).
  */
 
