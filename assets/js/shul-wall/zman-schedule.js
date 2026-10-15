@@ -112,7 +112,7 @@ const localizedIndividual = {
 
 const intervalTokens = ["05", "10", "15", "30"];
 const methodPattern = methodNames.filter(m => m.startsWith("get")).join("|");
-const typePattern = ["we", "sh", "eSh", "nWe", "uCh"].join("|");
+const typePattern = ["we", "sh", "eSh", "nWe", "uCh", "sUM"].join("|");
 
 const regex = new RegExp(
 	`^(?<type>${typePattern})\\|` +
