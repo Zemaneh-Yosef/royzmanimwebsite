@@ -2,6 +2,7 @@
 
 import { JewishDate } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import { zDTFromFunc } from "../ROYZmanim.js";
 import { scheduleSettings, geoLocation, jCal, zmanCalc, dtF } from "./base.js";
 
 /** @param {HTMLElement} [fastContainer] */
@@ -67,10 +68,8 @@ function renderFastIndex(fastContainer) {
 		if (yomTzom.lastChild.nodeType == Node.TEXT_NODE)
 			yomTzom.lastChild.remove();
 
-		if (jCal.isYomKippur()) {
-			yomTzom.appendChild(document.createTextNode(
-				fastCalc.getTzetMelakha().toLocaleString(...dtF) + ` (R"T: ${fastCalc.getTzetRT().toLocaleString(...dtF)})`
-			));
+		if (fastJCal.isYomKippur()) {
+			yomTzom.appendChild(document.createTextNode(zDTFromFunc(fastCalc.getTzetMelakha()).toLocaleString(...dtF)));
 		} else {
 			yomTzom.appendChild(document.createTextNode(fastCalc.getTzetHumra().toLocaleString(...dtF)))
 		}
