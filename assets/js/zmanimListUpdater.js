@@ -4,7 +4,6 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions, methodNamesOf, zDTFromFunc, seedVisiblePlaceholders, hasCachedVisibleSunrise } from "./ROYZmanim.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
-import ChaiTables from "./features/chaiTables.js";
 import LocationModal, { isValidTimeZone } from "./location-modal.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
 import { showListLoadingAfterDelay } from "./list-loading.js";
@@ -250,10 +249,6 @@ export default class zmanimListUpdater {
 		// same place: its visible sunrises stay on screen until the worker computes them again
 		this._setupZmanCalc(refraction, samePlace ? this.zmanCalc.config : undefined);
 		this.locationModalUI.refresh({ redrawMap: true });
-
-		// TODO: ChaiTables' scraped sunrises are no longer read (getNetz() computes the visible sunrise
-		// from the refraction server's horizon). Remove this and its UI once nothing else depends on it.
-		this.chaiTableInfo = new ChaiTables(this);
 
 		this.lastData = {
 			parsha: undefined,
