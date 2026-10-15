@@ -65,7 +65,7 @@ export default class exportFriendly {
 				// @ts-ignore
 				language: settings.language(),
 				timeFormat: settings.timeFormat(), seconds: settings.seconds(),
-				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
+				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha(zmanLister.jCal.getInIsrael())],
 				fasts: Object.fromEntries([...document.querySelector('[data-zfFind="FastDays"]').getElementsByTagName("h5")]
 					.map(ogHeading => {
 						/** @type {HTMLHeadingElement} */
@@ -275,7 +275,7 @@ export default class exportFriendly {
 			{
 				// @ts-ignore
 				language: settings.language(),
-				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
+				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha(zmanLister.jCal.getInIsrael())],
 				seconds: settings.seconds(),
 				timeFormat: settings.timeFormat(),
 				refraction: calcInputs.refraction

@@ -23,7 +23,7 @@ const calc = new ZemanFunctions(geoLocation, {
 	...refractionFor(geoLocation),
 	elevation: jCal.getInIsrael(),
 	fixedMil: settings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael(),
-	melakha: settings.customTimes.tzeithIssurMelakha(),
+	melakha: settings.customTimes.tzeithIssurMelakha(jCal.getInIsrael()),
 	candleLighting: settings.customTimes.candleLighting(),
 	rtKulah: settings.calendarToggle.rtKulah()
 })

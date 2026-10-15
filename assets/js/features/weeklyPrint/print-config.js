@@ -141,7 +141,7 @@ async function configFromSettings() {
 		},
 		customTimes: {
 			candleLighting: settings.customTimes.candleLighting(),
-			tzeithIssurMelakha: settings.customTimes.tzeithIssurMelakha()
+			tzeithIssurMelakha: settings.customTimes.tzeithIssurMelakha(isInIsrael(lat, long))
 		},
 		weeklyPrint,
 		location: [{

@@ -125,15 +125,14 @@ const settings = Object.freeze({
 	},
 	customTimes: {
 		candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
-		tzeithIssurMelakha: () => {
+		tzeithIssurMelakha: (/** @type {boolean} */ inIsrael) => {
 			if (!(settingsURLOverride("tzeithIMmin") || "").trim() || isNaN(parseInt(settingsURLOverride("tzeithIMmin")))) {
 				const retObj = {
 					minutes: 30,
 					degree: 7.165
 				};
 
-				// @ts-ignore
-				if (settings.calendarToggle.forceSunSeasonal() && "zmanimListUpdater2" in window && !window.zmanimListUpdater2.jCal.getInIsrael())
+				if (settings.calendarToggle.forceSunSeasonal() && !inIsrael)
 					retObj.minutes = 40;
 				return retObj;
 			}

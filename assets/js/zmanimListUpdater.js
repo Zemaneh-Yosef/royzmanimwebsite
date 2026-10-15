@@ -390,7 +390,7 @@ export default class zmanimListUpdater {
 			fixedMil,
 			rtKulah: settings.calendarToggle.rtKulah(),
 			candleLighting: settings.customTimes.candleLighting(),
-			melakha: settings.customTimes.tzeithIssurMelakha(),
+			melakha: settings.customTimes.tzeithIssurMelakha(this.jCal.getInIsrael()),
 			atmosphereProvider: refraction.atmosphereProvider,
 			horizon: refraction.horizon,
 			haze: refraction.haze ?? null,
@@ -1181,7 +1181,7 @@ export default class zmanimListUpdater {
 				if (timeSlot.hasAttribute('data-specialDropdownContent')) {
 					const description = timeSlot.querySelector('.accordianContent');
 					description.innerHTML = description.innerHTML
-						.split('${getAteretTorahSunsetOffset()}').join(settings.customTimes.tzeithIssurMelakha().minutes.toString())
+						.split('${getAteretTorahSunsetOffset()}').join(settings.customTimes.tzeithIssurMelakha(this.jCal.getInIsrael()).minutes.toString())
 						.split('${getCandleLightingOffset()}').join(this.zmanCalc.coreZC.getCandleLightingOffset().toString());
 				}
 			}
