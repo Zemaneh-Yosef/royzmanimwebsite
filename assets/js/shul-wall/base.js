@@ -3,6 +3,7 @@
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import { isInIsrael } from "../misc/israel.js";
 import { loadRefraction, readCachedRefraction, providerFromCache } from "../refraction-data.js";
 
 /** How long the first render waits for fresh refraction data before using what's stored (offline TVs). */
@@ -48,7 +49,7 @@ const geoLocation = new GeoLocation(...glArgs);
 const currentZDT = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone);
 
 const jCal = new WebsiteLimudCalendar(currentZDT.toPlainDate());
-jCal.setInIsrael(['israel', 'ישראל'].some(isrName => (geoLocation.getLocationName() || "").toLowerCase().includes(isrName)))
+jCal.setInIsrael(isInIsrael(geoLocation.getLatitude(), geoLocation.getLongitude()))
 
 // ─── Refraction (forecast air + terrain horizon), same source as the website and weekly print ───
 // The screen reloads itself daily (reload.js), and this module runs again each time, so each day starts
