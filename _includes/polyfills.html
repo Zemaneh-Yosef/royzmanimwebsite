@@ -11,6 +11,10 @@
 
 		if (needsCore) document.write('<script src="/assets/libraries/polyfills/core.min.js"><\/script>');
 		if (needsDom) document.write('<script src="/assets/libraries/polyfills/dom.min.js"><\/script>');
-		if (!("Temporal" in window)) document.write('<script src="/assets/libraries/temporal-polyfill/global.min.js"><\/script>');
+		if (!("Temporal" in window)) {
+			// Tells spawnWorker() (assets/js/misc/worker.js) to start the classic workers, which preload it
+			window.temporalPolyfilled = true;
+			document.write('<script src="/assets/libraries/temporal-polyfill/global.min.js"><\/script>');
+		}
 	})();
 </script>
