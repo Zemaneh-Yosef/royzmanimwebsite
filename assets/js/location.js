@@ -310,19 +310,7 @@ async function updateList(event) {
 			}
 
 			if (!geoName || errorAlert) {
-				elements.searchBar.disabled = false;
-				elements.icons.error.style.removeProperty("display");
-				elements.icons.search.style.display = "none";
-				elements.icons.loading.style.display = "none";
-				elements.icons.container.style.paddingLeft = "1rem";
-				elements.icons.container.style.paddingRight = "1rem";
-
-				if ("bootstrap" in window) {
-					const toastBootstrap = window.bootstrap.Toast.getOrCreateInstance(
-						document.getElementById(errorAlert ? "zipToast" : "inaccessibleToast")
-					);
-					toastBootstrap.show();
-				}
+				showSearchError(errorAlert ? "zipToast" : "inaccessibleToast");
 				return;
 			}
 
@@ -345,8 +333,24 @@ async function updateList(event) {
 
 		} catch (e) {
 			console.error(e);
+			if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent)
+				showSearchError("inaccessibleToast");
 		}
 	}
+}
+
+/** @param {string} toastId */
+function showSearchError(toastId) {
+	elements.searchBar.disabled = false;
+	elements.icons.error.style.removeProperty("display");
+	elements.icons.search.style.display = "none";
+	elements.icons.loading.style.display = "none";
+	elements.icons.container.style.paddingLeft = "1rem";
+	elements.icons.container.style.paddingRight = "1rem";
+
+	const toast = document.getElementById(toastId);
+	if ("bootstrap" in window && toast)
+		window.bootstrap.Toast.getOrCreateInstance(toast).show();
 }
 
 /**
