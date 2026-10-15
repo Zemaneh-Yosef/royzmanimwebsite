@@ -2146,8 +2146,13 @@ if (Worker) {
 			return;
 		}
 
-		await loadWorkerPolyfills();
-		postMessage(messageHandler(message))
+		try {
+			await loadWorkerPolyfills();
+			postMessage(messageHandler(message))
+		} catch (err) {
+			console.error(err);
+			postMessage({ month: message.data.month, error: err instanceof Error ? (err.stack || err.message) : String(err) });
+		}
 	})
 	addEventListener('error', (e) => console.error(e));
 }

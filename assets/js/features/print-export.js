@@ -242,14 +242,36 @@ if (fundamentalTable) {
 	}
 }
 
+/** @type {Worker[]} */
+const monthWorkers = [];
+let printFailed = false;
+/** @param {string} message */
+function failPrint(message) {
+	if (printFailed) return;
+	printFailed = true;
+	monthWorkers.forEach(worker => worker.terminate());
+
+	const bar = document.createElement("div");
+	bar.setAttribute("data-zyFind", "printProgress");
+	bar.style.cssText = "position:fixed;top:0;inset-inline:0;z-index:9999;padding:.4rem .8rem;"
+		+ "font:600 13px/1.4 system-ui,sans-serif;background:#b91c1c;color:white;text-align:center";
+	bar.textContent = "The calendar could not be calculated: " + message.split("\n")[0];
+	document.body.appendChild(bar);
+}
+
 for (const monthData of arrayOfFuncParams) {
 	const webWorker = spawnWorker('/assets/js/features/print-web-worker.js');
+	monthWorkers.push(webWorker);
 	// Before the month: messages are handled in order, so it's in place in time
 	webWorker.postMessage(refractionInit);
 	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {
+		if (printFailed) return;
 		actualReceive += 1;
 
 		const respData = await msg.data;
+		if ('error' in respData)
+			return failPrint(`Month ${respData.month}: ${respData.error}`);
+
 		receiveData[respData.month] = respData.htmlContent
 		Object.assign(sunriseOffsets, respData.sunriseOffsets);
 		if (actualReceive == expectedReceive) {
@@ -272,6 +294,7 @@ for (const monthData of arrayOfFuncParams) {
 	})
 	webWorker.addEventListener("error", (err) => {
 		console.error(err);
+		failPrint(`${err.message || "Worker failed to load"} (${err.filename || "worker"}${err.lineno ? ":" + err.lineno : ""})`);
 	})
 
 	webWorker.postMessage(monthData)
