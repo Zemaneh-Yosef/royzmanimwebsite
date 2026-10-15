@@ -330,6 +330,21 @@ chaiTable: true
 			</div>
 		</div>
 	</div>
+	<div id="levana" data-zfFind="LevanaCard" style="display: none;">
+		<div class="card mt-2 mt-lg-0">
+			<div class="card-header text-center">
+				<h5 class="mb-0" data-zfReplace="levanaTitle"></h5>
+				<small class="levanaMolad" data-zfReplace="levanaMolad"></small>
+			</div>
+			<div class="levanaBody">
+				<div class="levanaMoon">
+					<div class="levanaTonight" data-zfFind="levanaTonight"></div>
+					<div class="levanaNightInfo" data-zfFind="levanaNightInfo"></div>
+				</div>
+				<ul class="list-group list-group-flush levanaTimesList" data-zfFind="levanaTimes"></ul>
+			</div>
+		</div>
+	</div>
 	<div id="special">
 		<div class="card mb-2 mt-2 mt-lg-0">
 			<ul class="list-group list-group-flush">
@@ -443,23 +458,6 @@ chaiTable: true
 					<span class="lang lang-hb">ברכת החמה!</span>
 					<span class="lang lang-et">Birchath Hachama!</span>
 					<span class="lang lang-en">Blessing of the sun!</span>
-				</li>
-				<li class="list-group-item" data-zfFind="BirchatHalevana">
-					<span class="lang lang-hb">
-						ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
-						<span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
-						<span data-zfFind="ends-tonight"> - נגמר בלילה</span>
-					</span>
-					<span class="lang lang-et">
-						Birkath Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
-						<span data-zfFind="starts-tonight"> - Starts tonight</span>
-						<span data-zfFind="ends-tonight"> - Ends tonight</span>
-					</span>
-					<span class="lang lang-en">
-						Blessing of the moon (until the night of <span data-zfReplace="date-en-end"></span>)
-						<span data-zfFind="starts-tonight"> - Starts tonight</span>
-						<span data-zfFind="ends-tonight"> - Ends tonight</span>
-					</span>
 				</li>
 				<li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
 				<li class="list-group-item" data-zfReplace="Ulchaparat" style="display: none;"></li>

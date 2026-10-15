@@ -59,6 +59,7 @@ body {
 		grid-template-areas:
 			"crucial zmanim"
 			"shabbat zmanim"
+			"levana zmanim"
 			"extra zmanim";
 		grid-template-rows: auto;
 		grid-template-columns: 40% 60%;
@@ -81,6 +82,13 @@ body {
 		grid-area: extra;
 		margin-inline-end: .5rem;
 		margin-top: .5rem;
+	}
+
+	#wideGrid > #levana {
+		grid-area: levana;
+		margin-inline-end: .5rem;
+		margin-top: .5rem;
+		margin-bottom: .5rem;
 	}
 
 	#wideGrid > #shabbat {
@@ -261,3 +269,53 @@ li[data-zfFind="FastDays"] h5 {
 	display: inline-block;
 	margin: 0;
 }
+/* ─── Birkat Halevana card (/calendar) ─── */
+.levanaTimesList .list-group-item {
+	display: flex;
+	justify-content: space-between;
+	gap: .5rem;
+	padding-top: .35rem;
+	padding-bottom: .35rem;
+}
+.levanaTimesList .levanaRec { font-size: .875em; color: var(--bs-secondary-color); }
+.levanaTimesList .levanaLabel { font-weight: 600; }
+.levanaTimesList .levanaRec .levanaLabel { font-weight: 400; }
+.levanaTimesList .levanaValue { text-align: end; }
+.levanaStruck { opacity: .7; }
+.levanaStruck.small { font-size: .8em; }
+
+.levanaMolad { color: var(--bs-secondary-color); }
+
+/* Tonight's moon on the inline-start side, spanning every time row */
+.levanaBody { display: flex; align-items: stretch; }
+.levanaMoon {
+	flex: 0 0 8.5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	gap: .2rem;
+	padding: .5rem .375rem;
+	border-inline-end: var(--bs-border-width) solid var(--bs-border-color);
+	line-height: 1.2;
+}
+.levanaTonight, .levanaNightInfo {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: .2rem;
+}
+.levanaNightInfo { font-size: .72rem; gap: .25rem; }
+.levanaWait { color: var(--bs-warning-text-emphasis); }
+.levanaRange { display: flex; flex-direction: column; color: var(--bs-secondary-color); }
+.levanaBody > .levanaTimesList { flex: 1 1 auto; min-width: 0; }
+.levanaGlyph { height: 48px; line-height: 0; }
+.levanaGlyph svg { width: 48px; height: 48px; }
+.levanaTimes { display: flex; flex-direction: column; font-size: .85rem; }
+.levanaTimeLabel { font-size: .72rem; color: var(--bs-secondary-color); }
+.levanaTime { white-space: nowrap; font-weight: 600; }
+.levanaTags { display: flex; flex-direction: column; align-items: center; gap: .15rem; font-size: .68rem; }
+.levanaTags .badge { font-weight: 500; }
+.levanaTag { color: var(--bs-secondary-color); font-style: italic; }
+.levanaMessage { font-size: .8rem; color: var(--bs-secondary-color); text-align: center; }

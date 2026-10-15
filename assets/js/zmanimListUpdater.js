@@ -119,6 +119,20 @@ export default class zmanimListUpdater {
 		/** The location modal: direction & map, technical details, editing */
 		this.locationModalUI = new LocationModal(this);
 
+		/**
+		 * The Birkat Halevana card (/calendar only): loaded on demand, since it pulls in the moon library.
+		 * @type {import("./features/levanaWeb.js").default | null}
+		 */
+		this.levanaCard = null;
+		const levanaRoot = /** @type {HTMLElement | null} */ (document.querySelector('[data-zfFind="LevanaCard"]'));
+		if (levanaRoot)
+			import("./features/levanaWeb.js")
+				.then(({ default: LevanaCard }) => {
+					this.levanaCard = new LevanaCard(levanaRoot);
+					if (this.zmanCalc) this.levanaCard.render(this);
+				})
+				.catch(e => console.error("Birkat Halevana card failed to load", e));
+
 		this._makamObjPromise = fetch("/assets/js/makamObj.json")
 			.then(res => res.json())
 			.catch(e => { console.error("Failed to load makamObj.json", e); return null; });
@@ -294,6 +308,8 @@ export default class zmanimListUpdater {
 			|| (data.haze?.forecastFetchedAt ?? null) !== (shownHaze?.forecastFetchedAt ?? null);
 		if (changed)
 			this._applyRefraction();
+		else
+			this.levanaCard?.onRefraction(this); // it may still want the moon's horizon
 		this.locationModalUI.refresh();
 
 		// Next look: when this forecast turns stale (another tab may have refreshed storage by then,
@@ -922,6 +938,7 @@ export default class zmanimListUpdater {
 		this._renderTachanun();
 		this._renderHallel();
 		this._renderTekufa();
+		this.levanaCard?.render(this);
 		this._renderCalendarFormatter();
 		this._renderDafYomi();
 		this._renderSeasonalPrayers();
