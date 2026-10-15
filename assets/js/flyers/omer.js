@@ -92,7 +92,7 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 			minute: '2-digit'
 		}];
 
-		const times = ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) ? [zDTFromFunc(currentCalc.getTzetMelakha())] : [elem.hasAttribute('data-shkiya') ? currentCalc.getShkiya() : currentCalc.getTzet()])
+		const times = ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) ? [zDTFromFunc(currentCalc.getTzetMelakha()), ...(jCal.getDate().dayOfWeek == 6 ? [currentCalc.getTzetRT()] : [])] : [elem.hasAttribute('data-shkiya') ? currentCalc.getShkiya() : currentCalc.getTzet()])
 			.map(time => time.add({ minutes: (!elem.hasAttribute('data-humra') ? 0 : parseInt(elem.getAttribute('data-humra')) )}));
 
 		const timeElem = elem.lastElementChild;
