@@ -1,15 +1,18 @@
 ---
 - timeGetter: getAlotHashahar
+  round: earlier
   names:
     he: עלות
     et: Alot
     en: Dawn
 - timeGetter: getMisheyakir
+  round: later
   names:
     he: משיכיר
     et: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
+  round: later
   names:
     he: הנץ
     et: HaNetz
@@ -20,11 +23,13 @@
     et: Zeman Shema
     en: Latest Shema
 - timeGetter: getSofZemanBerakhothShema
+  round: earlier
   names:
     he: זמן שחרית
     et: Zeman Shaḥarit
     en: Latest Shaḥarit
 - timeGetter: getHatzoth
+  round: earlier
   names:
     he: חצות
     et: Ḥatsoth
@@ -40,6 +45,7 @@
     et: Early Arvit<br>("Pelag")
     en: Early Arvit<br>("Pelag")
 - timeGetter: getShkiya
+  round: earlier
   names:
     he: שקיעה
     et: Sheqi'a

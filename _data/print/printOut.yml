@@ -1,15 +1,18 @@
 ---
 - timeGetter: getAlotHashahar
+  round: earlier
   names:
     he: עלות <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
     et: Alot <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
     en: Dawn <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
 - timeGetter: getMisheyakir
+  round: later
   names:
     he: משיכיר
     et: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
+  round: later
   names:
     he: הנץ
     et: HaNetz
@@ -20,23 +23,27 @@
         en: MG'A
         et: MG'A
       timeGetter: getSofZemanShemaMGA
+      round: earlier
       id: mga
     - names:
         he: גר'א
         en: GR'A
         et: GR'A
       timeGetter: getSofZemanShemaGRA
+      round: earlier
       id: gra
   names:
     he: זמן שמע
     et: Zeman Shema
     en: Latest Shema
 - timeGetter: getSofZemanBerakhothShema
+  round: earlier
   names:
     he: זמן שחרית
     et: Zeman Shaḥarit
     en: Latest Shaḥarit
 - timeGetter: getHatzoth
+  round: earlier
   names:
     he: חצות
     et: Ḥatsoth
@@ -47,12 +54,14 @@
         en: Early
         et: Early
       timeGetter: getMinhaGedolah
+      round: later
       id: gedolah
     - names:
         he: קטנה
         en: Pref.
         et: Pref.
       timeGetter: getMinchaKetana
+      round: later
       id: ketanah
   names:
     he: זמן מנחה
@@ -64,18 +73,21 @@
         en: H"B
         et: H"B
       timeGetter: getPlagHaminhaHalachaBrurah
+      round: later
       id: hb
     - names:
         he: י"י
         en: Y"Y
         et: Y"Y
       timeGetter: getPlagHaminhaYalkutYosef
+      round: later
       id: yy
   names:
     he: פלג המנחה
     et: Pelag Ha'Minḥa
     en: Pelag Ha'Minḥa
 - timeGetter: getShkiya
+  round: earlier
   names:
     he: שקיעה
     et: Sheqi'a
@@ -86,12 +98,14 @@
         en: Reg.
         et: Reg.
       timeGetter: getTzet
+      round: later
       id: regular
     - names:
         he: לחומרה
         et: Ḥumra
         en: Strict
       timeGetter: getTzetHumra
+      round: later
       id: humra
   names:
     he: לילה <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
@@ -103,6 +117,7 @@
     et: Candles & Tzet Melakha
     en: Candles & Tzet Melakha
 - timeGetter: getTzetRT
+  round: later
   names:
     he: ר״ת
     et: Rabbenu Tam
