@@ -31,6 +31,7 @@ import { spawnWorker } from "../../misc/worker.js";
 import { isInIsrael } from "../../misc/israel.js";
 import { detectJit } from "../../misc/detect-jit.js";
 import { printConfig, printCalendar } from "./print-config.js";
+import { setHiloulotYear } from "./hiloulot-add.js";
 
 const WORKER_URL = '/assets/js/features/weeklyPrint/print-web-worker.js';
 
@@ -723,6 +724,8 @@ for (const page of document.querySelectorAll('[data-monthPrefix]')) {
 			placed.querySelectorAll('[id]').forEach(elem => elem.removeAttribute('id'));
 		}
 		slot.marker.before(placed); // after the month's pages already placed, so document order is kept
+		if (placed.classList.contains('hiloulot'))
+			setHiloulotYear(placed, slot.year);
 	});
 }
 

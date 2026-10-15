@@ -27,6 +27,30 @@ function hiloulahDateText(year, month, day) {
 	return `${entryCal.getDate().withCalendar('hebrew').toLocaleString('en-u-ca-hebrew', { month: 'short', day: 'numeric' })} | ${entryCal.formatFancyDate().en}`;
 }
 
+/**
+ * @param {number} year
+ * @param {number} month
+ */
+function hiloulotTitle(year, month) {
+	return `Hiloulot of ${new WebsiteCalendar(year, month, 1).getDate().withCalendar('hebrew').toLocaleString('en-u-ca-hebrew', { month: 'long' })}`;
+}
+
+/**
+ * Re-dates a month's hiloulot page for the Hebrew year of the slot it is placed in: the book can hold
+ * the same month twice, in different years
+ * @param {Element} page
+ * @param {number} year
+ */
+export function setHiloulotYear(page, year) {
+	const h1 = page.querySelector('h1[data-hiloulotMonth]');
+	if (h1)
+		h1.textContent = hiloulotTitle(year, Number(h1.getAttribute('data-hiloulotMonth')));
+	for (const date of page.querySelectorAll('[data-hiloulahDate]')) {
+		const [month, day] = date.getAttribute('data-hiloulahDate').split('/').map(Number);
+		date.innerHTML = hiloulahDateText(year, month, day);
+	}
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
 	let hiloulotCount = 0;
 
@@ -177,6 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 		const right = document.createElement('span');
 		right.innerHTML = rightText;
+		right.setAttribute('data-hiloulahDate', `${entry.month}/${entry.day}`);
 
 		row.appendChild(left);
 		row.appendChild(right);
@@ -294,8 +319,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 		newDiv.classList.add('page', 'hiloulot');
 
 		const h1 = document.createElement('h1');
-		const jCal = new WebsiteCalendar(TARGET_HEBREW_YEAR, monthNum, 1);
-		h1.textContent = `Hiloulot of ${jCal.getDate().withCalendar('hebrew').toLocaleString('en-u-ca-hebrew', { month: 'long' })}`;
+		h1.setAttribute('data-hiloulotMonth', String(monthNum));
+		h1.textContent = hiloulotTitle(TARGET_HEBREW_YEAR, monthNum);
 		newDiv.appendChild(h1);
 
 		container.parentNode.insertBefore(newDiv, container.nextSibling);
@@ -305,9 +330,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		const selected = [];
 
 		for (const entry of finalCandidates) {
-			jCal.setJewishDayOfMonth(entry.day);
-			const rightText = `${jCal.getDate().withCalendar('hebrew').toLocaleString('en-u-ca-hebrew', { month: 'short', day: 'numeric' })} | ${jCal.formatFancyDate().en}`;
-			const entryDiv = createEntryElement(entry, rightText);
+			const entryDiv = createEntryElement(entry, hiloulahDateText(TARGET_HEBREW_YEAR, entry.month, entry.day));
 
 			// Append to test height
 			newDiv.appendChild(entryDiv);
