@@ -1273,7 +1273,7 @@
 				data-zyDataSecond="{{ ketana.timeGetter }}" data-roundSecond="{{ ketana.round }}">
 				<span class="zman-name">
 					<span class="lang lang-hb">{{ z.names.he }} / {{ ketana.names.he | remove_first: "מנחה " }}</span>
-					<span class="lang lang-et">{{ z.names.en }} / {{ ketana.names.en | remove_first: "Minḥa " }}</span>
+					<span class="lang lang-et">{{ z.names.et | default: z.names.en }} / {{ ketana.names.et | default: ketana.names.en | remove_first: "Minḥa " }}</span>
 					<span class="lang lang-en">{{ z.names.en }} / {{ ketana.names.en | remove_first: "Minḥa " }}</span>
 				</span>
 				<span></span>
@@ -1287,7 +1287,7 @@
 				endif %}>
 				<span class="zman-name">
 					<span class="lang lang-hb">{{ z.names.he }}</span>
-					<span class="lang lang-et">{{ z.names.en }}</span>
+					<span class="lang lang-et">{{ z.names.et | default: z.names.en }}</span>
 					<span class="lang lang-en">{{ z.names.en }}</span>
 				</span>
 				<span></span>
@@ -1654,7 +1654,7 @@
 		{% for z in site.data.print.weekly.learnings %}
 		<div class="{{ z.class }}" data-learningInsert="{{ z.id }}">
 			<div class="fw-bold lang lang-hb">{{ z.names.he }}</div>
-			<div class="fw-bold lang lang-et">{{ z.names.en }}</div>
+			<div class="fw-bold lang lang-et">{{ z.names.et | default: z.names.en }}</div>
 			<div class="fw-bold lang lang-en">{{ z.names.en }}</div>
 		</div>
 		{% endfor %}
