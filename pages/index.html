@@ -401,10 +401,10 @@ Location Name instead." %}
 	});
 
 	function updateParallax() {
-		const container = document.getElementsByClassName('m3carcontainer');
+		const container = document.getElementsByClassName('m3carcontainer')[0];
 		const scrollPosition = container.scrollLeft;
 
-		for (const item of items.children) {
+		for (const item of items) {
 			const backgroundPosition = scrollPosition * 0.5;
 			item.style.backgroundPositionX = `${backgroundPosition}px`;
 		}
