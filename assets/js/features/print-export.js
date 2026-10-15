@@ -348,6 +348,8 @@ async function preparePrint() {
 		childFromExtract.splice(childFromExtract.indexOf(selectedLangChild), 1); // Deletes the elem from the array
 		for (const otherLang of childFromExtract)
 			otherLang.remove();
+		if (selectedLangChild.dir)
+			toExtract.dir = selectedLangChild.dir;
 
 		while (selectedLangChild.firstChild) {
 			if ((!(selectedLangChild.firstChild instanceof HTMLParagraphElement)
