@@ -48,7 +48,7 @@ export default class zmanimListUpdater {
     setNextUpcomingZman() {
         /** @type {Temporal.ZonedDateTime[]} */
         const zmanim = [];
-        const currentSelectedDate = zmanCalc.coreZC.getDate();
+        const currentSelectedDate = Temporal.Now.plainDateISO(scheduleSettings.location.timezone);
 
         for (const days of [0, 1]) {
             this.changeDate(Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).toPlainDate().add({ days }), true);

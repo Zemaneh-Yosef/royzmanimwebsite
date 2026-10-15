@@ -53,10 +53,10 @@ export default async function autoSchedule(nodes) {
 		/** @type {WebsiteCalendar} */
 		// @ts-ignore
 		const jCal = mapJCalTypeToDate[type];
-		zmanCalc.setDate(jCal.getDate());
+		const dayCalc = zmanCalc.chainDate(jCal.getDate());
 
 		// @ts-ignore
-		let autoScheduleTime = zDTFromFunc(zmanCalc[method]())
+		let autoScheduleTime = zDTFromFunc(dayCalc[method]())
 			[(sign == '+' ? 'add' : 'subtract')]({
 				hours,
 				minutes
