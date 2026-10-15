@@ -35,6 +35,7 @@ const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melak
 let calendars = [];
 const jCal = new WebsiteLimudCalendar();
 let shabbatDate = jCal.getDate();
+let shabbatAfterYomTov = false;
 
 switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 	case 'shabbat': {
@@ -62,6 +63,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			tempJcal = tempJcal.tomorrow();
 
 		shabbatDate = tempJcal.getDate();
+		shabbatAfterYomTov = tempJcal.tomorrow().getDayOfWeek() == 7;
 		jCal.setDate(shabbatDate);
 		break;
 	} case 'fast': {
@@ -261,6 +263,11 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 	}
 }
 
+// Yom Tov's last day is followed by Shabbat: the closing column (backday 0) is Motzaei Shabbat
+const concludesDate = shabbatAfterYomTov ? shabbatDate.add({ days: 1 }) : shabbatDate;
+/** @param {string} shitotDay */
+const columnDate = shitotDay => shitotDay == 'data-functions-backday-0' ? concludesDate : shabbatDate;
+
 if (['shovavim', 'fast'].includes(document.getElementById('gridElement')?.getAttribute('data-flyerType')) && document.getElementById('calSubtitle'))
 	document.getElementById("calSubtitle").innerHTML = calendars.map(text=> `<span style="unicode-bidi: isolate;">${text}</span>`).join(" • ")
 
@@ -275,7 +282,7 @@ for (const d8Displ of document.querySelectorAll(['', 'Formal', 'Y', 'SY', 'S'].m
 	const entryFound = Object.entries(attributes).find(attr => attr[0].startsWith('daterender'));
 
 	const d8jCal = jCal.clone();
-	d8jCal.setDate(shabbatDate[parseInt(entryFound[1]) < 0 ? 'add' : 'subtract']({ days: Math.abs(parseInt(entryFound[1])) }));
+	d8jCal.setDate((d8Displ.hasAttribute('data-yomtov-concludes') ? concludesDate : shabbatDate)[parseInt(entryFound[1]) < 0 ? 'add' : 'subtract']({ days: Math.abs(parseInt(entryFound[1])) }));
 
 	console.log(entryFound, d8jCal.getDate().toLocaleString('en', { month: 'long', day: 'numeric', year: 'numeric' }), d8Displ)
 
@@ -338,7 +345,7 @@ for (const elem of elems) {
 
 	for (const shitotDay of shitotOptions) {
 		const backday = shitotDay.startsWith('data-functions-backday-');
-		currentCalc.setDate(shabbatDate[backday ? 'subtract' : 'add']
+		currentCalc.setDate(columnDate(shitotDay)[backday ? 'subtract' : 'add']
 			({ days: Math.abs(parseInt(shitotDay.replace(backday ? 'data-functions-backday-' : 'data-functions-frontday-', ''))) })
 		);
 		const plag = currentCalc.getPlagHaminhaHalachaBrurah();
@@ -446,10 +453,10 @@ for (const elem of elems) {
 				editElem = elem;
 				for (const shitotDay of shitotOptions) {
 					const backday = shitotDay.startsWith('data-functions-backday-');
-					currentCalc.setDate(shabbatDate[backday ? 'subtract' : 'add']
+					currentCalc.setDate(columnDate(shitotDay)[backday ? 'subtract' : 'add']
 						({ days: parseInt(shitotDay.replace(backday ? 'data-functions-backday-' : 'data-functions-frontday-', '')) })
 					);
-					baseCalc.setDate(shabbatDate[backday ? 'subtract' : 'add']
+					baseCalc.setDate(columnDate(shitotDay)[backday ? 'subtract' : 'add']
 						({ days: parseInt(shitotDay.replace(backday ? 'data-functions-backday-' : 'data-functions-frontday-', '')) })
 					);
 					const plag = currentCalc.getPlagHaminhaHalachaBrurah();
