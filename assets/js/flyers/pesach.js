@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
-import { ZemanFunctions } from "../ROYZmanim.js";
+import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import WebsiteLimudCalendar from "../WebsiteCalendar.js"
 import { isInIsrael } from "../misc/israel.js";
@@ -81,7 +81,7 @@ for (const locationTitleElem of elems) {
 		.map(([zmanName, zmanDetails]) => {
 			/** @type {Temporal.ZonedDateTime} */
 			// @ts-ignore
-			let time = currentCalc.chainDate(zmanDetails.date)[zmanDetails.method]()
+			let time = zDTFromFunc(currentCalc.chainDate(zmanDetails.date)[zmanDetails.method]())
 			if (locationTitleElem.hasAttribute('data-humra'))
 				time = time[(zmanDetails.method.startsWith("getTzet") ? "add" : "subtract")]({
 					minutes: parseInt(locationTitleElem.getAttribute('data-humra'))

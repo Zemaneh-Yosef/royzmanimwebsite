@@ -471,7 +471,7 @@ for (const elem of elems) {
 						const [curCalcTime, baseCalcTime] = [currentCalc, baseCalc].map((calc, index) => {
 							/** @type {Temporal.ZonedDateTime} */
 							// @ts-ignore
-							let time = calc[timeFunc]()
+							let time = zDTFromFunc(calc[timeFunc]())
 
 							if ((index == 0 ? elem : baseLocation).hasAttribute('data-humra')) {
 								const LeKhumra = shitotOptions.length >= 2 ?
