@@ -170,16 +170,17 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 		}
 
 		if (jCal.getDayOfWeek() == Calendar.FRIDAY && !jCal.tomorrow().isYomTovAssurBemelacha() && !jCal.tomorrow().isYomKippur()) {
+			const shabbat = jCal.tomorrow();
 			let shabTitle = "שבת";
-			if (jCal.getSpecialShabbos() in YihudCalendar.hebrewParshaMap && jCal.getSpecialShabbos() != Parsha.NONE)
-				shabTitle += " " + YihudCalendar.hebrewParshaMap[jCal.getSpecialShabbos()];
-			else if (jCal.isShabbosMevorchim())
-				shabTitle += " מברכים " + jCal.getDate().withCalendar('hebrew').add({ months: 1 }).toLocaleString('he-u-ca-hebrew', { month: 'long' });
-			else if (jCal.getYomTovIndex() in yomTovObj)
-				shabTitle += " " + yomTovObj[jCal.getYomTovIndex()].he;
+			if (shabbat.getSpecialShabbos() in YihudCalendar.hebrewParshaMap && shabbat.getSpecialShabbos() != Parsha.NONE)
+				shabTitle += " " + YihudCalendar.hebrewParshaMap[shabbat.getSpecialShabbos()];
+			else if (shabbat.isShabbosMevorchim())
+				shabTitle += " מברכים " + shabbat.getDate().withCalendar('hebrew').add({ months: 1 }).toLocaleString('he-u-ca-hebrew', { month: 'long' });
+			else if (shabbat.getYomTovIndex() in yomTovObj)
+				shabTitle += " " + yomTovObj[shabbat.getYomTovIndex()].he;
 
-			if (jCal.getParshah() in YihudCalendar.hebrewParshaMap && jCal.getParshah() != Parsha.NONE)
-				shabTitle += " | פרשת " + YihudCalendar.hebrewParshaMap[jCal.getParshah()];
+			if (shabbat.getParshah() in YihudCalendar.hebrewParshaMap && shabbat.getParshah() != Parsha.NONE)
+				shabTitle += " | פרשת " + YihudCalendar.hebrewParshaMap[shabbat.getParshah()];
 
 			if (jCal.tomorrow().isChanukah())
 				shabTitle += " | " + {
