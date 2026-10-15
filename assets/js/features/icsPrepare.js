@@ -216,7 +216,9 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 		if (!jCal.isCholHamoed() && jCal.tomorrow().isCholHamoed()) {
 			let endHolHamoed = jCal.tomorrow();
 			let holHamoedDay = 1;
-			let dateList = [getOrdinal(1, false) + " day: " + endHolHamoed.formatFancyDate({ ordinal: false, monthLength: "long", dayLength: "long" })]
+			const fancyDate = (/** @type {YihudCalendar} */ cal) =>
+				cal.formatFancyDate({ ordinal: false, monthLength: "long", dayLength: "long" })[funcSettings.language == "he" ? "hb" : funcSettings.language];
+			let dateList = [getOrdinal(1, false) + " day: " + fancyDate(endHolHamoed)]
 			do {
 				endHolHamoed = endHolHamoed.tomorrow();
 				holHamoedDay++;
@@ -224,7 +226,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 				dateList.push(
 					(endHolHamoed.isHoshanaRabba() ? yomTovObj[YihudCalendar.HOSHANA_RABBA][funcSettings.language] + " - " : "")
 					+ getOrdinal(holHamoedDay, false) + " day"
-					+ ": " + endHolHamoed.formatFancyDate()
+					+ ": " + fancyDate(endHolHamoed)
 				)
 			} while (endHolHamoed.tomorrow().isCholHamoed())
 
