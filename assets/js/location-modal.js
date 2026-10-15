@@ -644,8 +644,10 @@ export default class LocationModal {
 			btn.disabled = true;
 			this._setNodes("atmosphereStatus", tri({ hb: "טוען…", et: "Loading…" }));
 			try {
-				await this.updater._loadRefraction({ force: true });
-				this._setNodes("atmosphereStatus", tri({ hb: "התחזית עודכנה", et: "Forecast updated" }));
+				const updated = await this.updater._loadRefraction({ force: true });
+				this._setNodes("atmosphereStatus", tri(updated
+					? { hb: "התחזית עודכנה", et: "Forecast updated" }
+					: { hb: "עדכון התחזית נכשל", et: "Forecast update failed" }));
 			} finally {
 				btn.disabled = false;
 			}

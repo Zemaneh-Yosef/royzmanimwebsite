@@ -275,6 +275,7 @@ export default class zmanimListUpdater {
 	 * Failures are logged, never thrown: the page keeps the stored / default model.
 	 * @param {{ force?: boolean }} [options] force: download a new forecast even if the stored one is fresh
 	 *   (the location modal's "Refresh forecast")
+	 * @returns {Promise<boolean>} whether a new forecast was downloaded
 	 */
 	async _loadRefraction(options = {}) {
 		const token = ++this._refractionToken;
@@ -292,10 +293,10 @@ export default class zmanimListUpdater {
 			});
 		} catch (e) {
 			console.error("Refraction data failed to load", e);
-			return;
+			return false;
 		}
 		if (token !== this._refractionToken)
-			return; // the location changed while we were loading
+			return false; // the location changed while we were loading
 
 		if (data.notes.length)
 			console.info("Refraction:", data.notes);
@@ -319,6 +320,7 @@ export default class zmanimListUpdater {
 			? data.forecastFetchedAt + FORECAST_TTL_MS - Date.now()
 			: FORECAST_TTL_MS;
 		this._refractionRefresh = setTimeout(() => this._loadRefraction(), Math.max(MIN_REFRACTION_RECHECK_MS, staleIn));
+		return !data.fromCache && data.forecastFetchedAt !== null;
 	}
 
 	/**
