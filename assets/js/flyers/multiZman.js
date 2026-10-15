@@ -172,6 +172,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 			hebrewDate += `-${formatHebNum(lastHebFastDay.day)} ב${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})}`
 
 		calendars.push(englishDate, hebrewDate);
+		break;
 	} case 'hanuka': {
 		if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
 			window.location.href = "/"
