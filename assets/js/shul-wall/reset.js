@@ -7,9 +7,9 @@ if (!('timers' in window))
     // @ts-ignore
     window.timers = {}
 
-// Computed live (not imported from base.js) so this stays correct even after
-// a soft DOM-swap reload, where base.js's own currentZDT never re-runs and
-// would otherwise stay frozen at the page's original load time forever.
+// Computed live rather than imported from base.js, whose currentZDT only
+// changes when refreshBase() runs (on load, and before each soft DOM-swap
+// reload in reload.js).
 const now = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone);
 const tomTime = now.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 })
 
