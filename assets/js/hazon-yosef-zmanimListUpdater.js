@@ -103,6 +103,9 @@ export default class zmanimListUpdater {
 		/** @type {null|Temporal.ZonedDateTime} */
 		this.nextUpcomingZman = null;
 
+		/** @type {null|ReturnType<typeof setTimeout>} */
+		this.nextUpcomingZmanTimeout = null;
+
 		this.buttonsInit = false;
 		this.midDownload = false;
 
@@ -199,6 +202,8 @@ export default class zmanimListUpdater {
 		/** @type {Temporal.PlainDate} */
 		this.startZman = null;
 
+		if (this.timeoutToChangeDate)
+			clearTimeout(this.timeoutToChangeDate);
 		this.timeoutToChangeDate = null;
 		this.geoLocation = geoLocation;
 
@@ -490,6 +495,8 @@ export default class zmanimListUpdater {
 		this.jCal.setDate(date);
 
 		if (!internal) {
+			if (this.timeoutToChangeDate)
+				clearTimeout(this.timeoutToChangeDate);
 			this.updateWeekListing();
 			this.updateZmanimList();
 			this.updateSpecialZmanim();
@@ -1063,6 +1070,9 @@ export default class zmanimListUpdater {
 	}
 
 	setNextUpcomingZman() {
+		if (this.nextUpcomingZmanTimeout !== null)
+			clearTimeout(this.nextUpcomingZmanTimeout);
+
 		/** @type {Temporal.ZonedDateTime[]} */
 		const zmanim = [];
 		const currentSelectedDate = this.zmanCalc.coreZC.getDate();
@@ -1077,7 +1087,7 @@ export default class zmanimListUpdater {
 		zmanim.sort(Temporal.ZonedDateTime.compare);
 		this.nextUpcomingZman = zmanim.find(zman => Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(zman).total({ unit: "milliseconds" }) > 0)
 
-		setTimeout(
+		this.nextUpcomingZmanTimeout = setTimeout(
 			() => { this.setNextUpcomingZman(); this.updateZmanimList() },
 			Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(this.nextUpcomingZman).total({ unit: "milliseconds" })
 		);
