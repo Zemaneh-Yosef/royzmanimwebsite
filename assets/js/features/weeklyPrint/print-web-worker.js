@@ -669,8 +669,8 @@ function messageHandler(x) {
 					ytI: WebsiteLimudCalendar.YOM_KIPPUR,
 					topNotice: [
 						`On Erev ${yomTovObj[WebsiteLimudCalendar.YOM_KIPPUR][x.data.lang]}:`,
-						"Omit Taḥanun after " + handleRound(zDTFromFunc(zc(ykDate.subtract({ days: 1 })).getNetz()), 'later'),
-						"Immerse in a Mikva after " + handleRound(zc(ykDate.subtract({ days: 1 })).getSofZemanBiurHametz(), 'later')
+						"Omit Taḥanun after " + fmt(handleRound(zDTFromFunc(zc(ykDate.subtract({ days: 1 })).getNetz()), 'later'), defaulTF),
+						"Immerse in a Mikva after " + fmt(handleRound(zc(ykDate.subtract({ days: 1 })).getSofZemanBiurHametz(), 'later'), defaulTF)
 					].join('<br>'),
 					datesToZman: new Map([[ykDate.subtract({ days: 1 }), {
 						candleLighting: handleRound(zc(ykDate.subtract({ days: 1 })).getCandleLighting(), 'earlier'),
@@ -703,8 +703,8 @@ function messageHandler(x) {
 				]),
 				topNotice: [
 					`On Erev ${yomTovObj[WebsiteLimudCalendar.ROSH_HASHANA][x.data.lang]}:`,
-					"Omit Taḥanun after " + handleRound(zDTFromFunc(zc(erevRoshHashanaDate).getNetz()), 'later'),
-					"Immerse in a Mikva after " + handleRound(zc(erevRoshHashanaDate).getSofZemanBiurHametz(), 'later')
+					"Omit Taḥanun after " + fmt(handleRound(zDTFromFunc(zc(erevRoshHashanaDate).getNetz()), 'later'), defaulTF),
+					"Immerse in a Mikva after " + fmt(handleRound(zc(erevRoshHashanaDate).getSofZemanBiurHametz(), 'later'), defaulTF)
 				].join('<br>'),
 			};
 
