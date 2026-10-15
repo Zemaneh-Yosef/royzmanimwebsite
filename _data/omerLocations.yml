@@ -56,7 +56,7 @@ central:
     # Location: Young Israel of Pheonix
     lat: 33.528400
     lng: -112.065002
-    timezone: America/Denver
+    timezone: America/Phoenix
     humra: 0
     timeFormat: h12
   - name: Toronto, ON

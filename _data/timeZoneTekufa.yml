@@ -20,8 +20,10 @@
 - timezone: America/Denver
   locations:
     - Colorado
+- timezone: America/Phoenix
+  locations:
     - Arizona
-- timezone: America/Log_Angeles
+- timezone: America/Los_Angeles
   locations:
     - Nevada
     - California
