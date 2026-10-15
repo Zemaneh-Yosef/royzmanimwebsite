@@ -5,6 +5,7 @@ import { zDTFromFunc, ZemanFunctions } from "../ROYZmanim.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
+import { isInIsrael } from "../misc/israel.js";
 
 const jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO());
 jCal.setInIsrael(false);
@@ -70,7 +71,7 @@ if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.locati
 		elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0,
 		elem.getAttribute('data-timezone'))));
 	for (const elem of elems) {
-		let currentCalc = (elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal);
+		let currentCalc = (isInIsrael(parseFloat(elem.getAttribute("data-lat")), parseFloat(elem.getAttribute('data-lng'))) ? ohrHachaimCal : amudehHoraahCal);
 		const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
 
 		const geoLocationsParams = [

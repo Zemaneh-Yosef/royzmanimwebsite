@@ -4,6 +4,7 @@ import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions } from "../ROYZmanim.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import WebsiteLimudCalendar from "../WebsiteCalendar.js"
+import { isInIsrael } from "../misc/israel.js";
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
 if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
@@ -50,7 +51,7 @@ await preloadFlyerRefraction([...elems].map(elem => new KosherZmanim.GeoLocation
 	elem.getAttribute('data-timezone'))));
 for (const locationTitleElem of elems) {
 	let currentCalc = amudehHoraahCal;
-	if (locationTitleElem.getAttribute('data-timezone') == 'Asia/Jerusalem') {
+	if (isInIsrael(parseFloat(locationTitleElem.getAttribute("data-lat")), parseFloat(locationTitleElem.getAttribute('data-lng')))) {
 		currentCalc = ohrHachaimCal;
 		anyIsrael = true;
 	}

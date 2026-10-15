@@ -4,6 +4,7 @@ import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions, zDTFromFunc, methodNames } from "../ROYZmanim.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import { settings } from "../settings/handler.js"
+import { isInIsrael } from "../misc/israel.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js"
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
@@ -184,7 +185,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 
 		await preloadFlyerRefraction([geoLocation]);
-		const calc = calcFor(settings.location.timezone() == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal, geoLocation);
+		const calc = calcFor(isInIsrael(settings.location.lat(), settings.location.long()) ? ohrHachaimCal : amudehHoraahCal, geoLocation);
 
 		jCal.setJewishDate(jCal.getJewishYear(), KosherZmanim.JewishCalendar.KISLEV, 24);
 		calc.setDate(jCal.getDate());
@@ -319,7 +320,7 @@ await preloadFlyerRefraction([...elems].map(elem => new KosherZmanim.GeoLocation
 	elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0,
 	elem.getAttribute('data-timezone'))));
 for (const elem of elems) {
-	let currentCalc = elem.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal;
+	let currentCalc = isInIsrael(parseFloat(elem.getAttribute("data-lat")), parseFloat(elem.getAttribute('data-lng'))) ? ohrHachaimCal : amudehHoraahCal;
 	const elevation = (elem.hasAttribute('data-elevation') ? parseInt(elem.getAttribute('data-elevation')) : 0);
 
 	const geoLocationsParams = [
@@ -429,7 +430,7 @@ for (const elem of elems) {
 		if (stateLoc in dupLocs) {
 			const baseLocation = dupLocs[stateLoc].elem;
 
-			const baseCalc = calcFor(baseLocation.getAttribute('data-timezone') == 'Asia/Jerusalem' ? ohrHachaimCal : amudehHoraahCal,
+			const baseCalc = calcFor(isInIsrael(dupLocs[stateLoc].geo.getLatitude(), dupLocs[stateLoc].geo.getLongitude()) ? ohrHachaimCal : amudehHoraahCal,
 				dupLocs[stateLoc].geo)
 			baseCalc.setDate(shabbatDate);
 
