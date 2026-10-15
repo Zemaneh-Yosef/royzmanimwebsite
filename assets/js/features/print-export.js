@@ -168,7 +168,10 @@ let actualReceive = 0;
 let receiveData = {}
 /** @type {import('./print-web-worker.js').singlePageParams[]} */
 const arrayOfFuncParams = [];
-for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal; (printParam.has('shabbatOnly') ? mIndex += 2 : mIndex++)) {
+const firstYearMonths = plainDateForLoop.monthsInYear;
+for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal;
+	mIndex = !printParam.has('shabbatOnly') ? mIndex + 1
+		: mIndex <= firstYearMonths && mIndex + 2 > firstYearMonths + 1 ? firstYearMonths + 1 : mIndex + 2) {
 	const jewishYear = plainDateForLoop.with({ month: 1 }).add({ months: mIndex - 1 }).withCalendar('hebrew').year.toString();
 
 	if (!(jewishYear in jewishYears))
