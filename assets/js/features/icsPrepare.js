@@ -323,7 +323,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 				events.push({
 					start: calc.getCandleLighting().epochMilliseconds,
 					end: zDTFromFunc(calc.tomorrow().getTzetMelakha()).epochMilliseconds,
-					title: funcSettings.fasts[jCal.tomorrow().getYomTovIndex().toString()][funcSettings.language],
+					title: funcSettings.fasts[jCal.tomorrow().getYomTovIndex().toString()],
 					description: (funcSettings.language == "he" ? 'ר"ת: ' : 'R"T: ') + calc.tomorrow().getTzetRT().toLocaleString(...dtF)
 				})
 			else
@@ -333,7 +333,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 							? calc.getShkiya()
 							: calc.tomorrow().getAlotHashahar()).epochMilliseconds,
 					end: calc.tomorrow().getTzetHumra().epochMilliseconds,
-					title: funcSettings.fasts[jCal.tomorrow().getYomTovIndex().toString()][funcSettings.language]
+					title: funcSettings.fasts[jCal.tomorrow().getYomTovIndex().toString()]
 				})
 		}
 
