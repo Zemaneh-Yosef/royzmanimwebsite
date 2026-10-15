@@ -62,6 +62,10 @@ export async function reload() {
 		await sleep();
 
 		const pageText = await pageFetch.text();
+		const newDoc = new DOMParser().parseFromString(pageText, "text/html");
+
+		const { refreshBase } = await import('./base.js');
+		await refreshBase(newDoc.getElementById('zy-scheduleScreen-config').textContent);
 
 		if ('timers' in window) {
 			Object.entries(window.timers).forEach(([key, timeout]) => {
@@ -71,7 +75,6 @@ export async function reload() {
 			window.timers = {};
 		}
 
-		const newDoc = new DOMParser().parseFromString(pageText, "text/html");
 		const newScrs = [];
 
 		const oldScripts = newDoc.getElementsByTagName('script');
@@ -79,6 +82,8 @@ export async function reload() {
 			const baseScript = oldScripts.item(0);
 
 			const newScript = document.createElement('script');
+			if (baseScript.id)
+				newScript.id = baseScript.id;
 			if (baseScript.type)
 				newScript.type = baseScript.type;
 
@@ -89,7 +94,9 @@ export async function reload() {
 				newScript.src = scrUrl.href;
 			}
 
-			if (baseScript.textContent) {
+			if (baseScript.type == 'application/json') {
+				newScript.textContent = baseScript.textContent;
+			} else if (baseScript.textContent) {
 				newScript.textContent = '// ' + new Date().toString() + '\n' + baseScript.textContent;
 			}
 

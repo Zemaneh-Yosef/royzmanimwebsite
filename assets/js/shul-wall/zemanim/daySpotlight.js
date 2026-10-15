@@ -5,6 +5,10 @@ import { methodNames } from "../../ROYZmanim.js";
 import { reload } from "../reload.js";
 import { jCal, zmanCalc, dtF, scheduleSettings } from "../base.js";
 
+if (!('timers' in window))
+	// @ts-ignore
+	window.timers = {}
+
 export default class zmanimListUpdater {
 	constructor() {
 		/** @type {null|Temporal.ZonedDateTime} */
@@ -63,7 +67,8 @@ export default class zmanimListUpdater {
         zmanim.sort(Temporal.ZonedDateTime.compare);
         this.nextUpcomingZman = zmanim.find(zman => Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(zman).total({ unit: "milliseconds" }) > 0)
 
-        setTimeout(() => {
+        // @ts-ignore
+        window.timers.spotlightNextZman = setTimeout(() => {
             this.setNextUpcomingZman();
             this.updateZmanimList()
         }, Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(this.nextUpcomingZman).total({ unit: "milliseconds" }));
@@ -82,7 +87,8 @@ export default class zmanimListUpdater {
 			if (date.equals(Temporal.Now.plainDateISO(scheduleSettings.location.timezone))) {
 				const tomorrow = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone)
 					.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-				this.timeoutToChangeDate = setTimeout(async () => await reload(), Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(tomorrow).total('milliseconds'));
+				// @ts-ignore
+				this.timeoutToChangeDate = window.timers.spotlightDayChange = setTimeout(async () => await reload(), Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(tomorrow).total('milliseconds'));
 			} else {
 				this.timeoutToChangeDate = null
 			}
