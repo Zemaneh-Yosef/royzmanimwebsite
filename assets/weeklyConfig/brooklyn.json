@@ -18,7 +18,8 @@
     "weeklyPrint": {
         "year": 5787,
         "nationality": "Syrian",
-        "addExtraHiloulot": 2
+        "addExtraHiloulot": 6,
+        "skipMonthPages": true
     },
     "location": [
         {

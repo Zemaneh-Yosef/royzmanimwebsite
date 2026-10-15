@@ -10,7 +10,7 @@
         "forceSunSeasonal": false
     },
     "customTimes": {
-        "candleLighting": 18,
+        "candleLighting": 20,
         "tzeithIssurMelakha": {
             "minutes": 30,
             "degree": 7.165
