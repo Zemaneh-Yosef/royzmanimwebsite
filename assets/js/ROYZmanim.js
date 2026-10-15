@@ -361,9 +361,12 @@ class ZemanimMathBase {
 		// Dawn: the equinox offset in seasonal time before sunrise, and with degrees never later than the
 		// Sun at 8.5 degrees below the horizon (the longer of the two offsets)
 		const seasonalDawn = this.seasonalBefore(current.sunrise, equinox.dawn);
+		const dawnOffset = this.config.fixedMil ? null : this.coreZC.getSunriseOffsetByDegrees(98.5);
 		current.dawn = this.config.fixedMil
 			? seasonalDawn
-			: earlier(seasonalDawn, current.sunrise.subtract(current.sunrise.since(this.coreZC.getSunriseOffsetByDegrees(98.5))));
+			: earlier(seasonalDawn, dawnOffset
+				? current.sunrise.subtract(current.sunrise.since(dawnOffset))
+				: this.getSolarMidnight().subtract({ hours: 24 }));
 
 		current.nightfall = this.seasonalAfter(current.sunset, equinox.nightfall);
 
@@ -371,9 +374,12 @@ class ZemanimMathBase {
 		// the second offset. NOTE: that second offset is measured from sunrise to the evening's 8.5 degrees, so
 		// it is negative and the seasonal offset always applies (kept as it was; probably meant from sunset)
 		const seasonalTzet = this.seasonalAfter(current.sunset, equinox.TzetHakokhavim);
+		const tzetOffset = this.config.fixedMil ? null : this.coreZC.getSunsetOffsetByDegrees(98.5);
 		current.tzethakokhavim = this.config.fixedMil
 			? seasonalTzet
-			: later(seasonalTzet, current.sunset.add(current.sunrise.since(this.coreZC.getSunsetOffsetByDegrees(98.5))));
+			: later(seasonalTzet, tzetOffset
+				? current.sunset.add(current.sunrise.since(tzetOffset))
+				: this.getSolarMidnight());
 
 		current.ranges.mga = current.dawn.until(current.tzethakokhavim);
 	}
