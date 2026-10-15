@@ -25,7 +25,13 @@ layout: nothing
 	}
 
 	html {
-		font-size: min(calc(100vw / var(--design-w) * 16), calc(100vh / var(--design-h) * 16));
+		font-size: calc(100vw / var(--design-w) * 16);
+	}
+
+	@supports (width: min(1px, 2px)) {
+		html {
+			font-size: min(calc(100vw / var(--design-w) * 16), calc(100vh / var(--design-h) * 16));
+		}
 	}
 
 	html, body {
