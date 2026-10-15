@@ -9,6 +9,7 @@ import LocationModal from "./location-modal.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
 import { showListLoadingAfterDelay } from "./list-loading.js";
 import VisibleSunriseClient from "./visible-sunrise-client.js";
+import { isInIsrael } from "./misc/israel.js";
 
 /** Floor for the next refraction check, so a clock or storage oddity can't cause a request loop. */
 const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
@@ -374,9 +375,7 @@ export default class zmanimListUpdater {
 		const amudehHoraahIndicators = queryAllElements('[data-zfFind="luachAmudehHoraah"]');
 		const ohrHachaimIndicators = queryAllElements('[data-zfFind="luachOhrHachaim"]');
 
-		this.jCal.setInIsrael(['israel', 'ישראל'].some(isrName =>
-			(this.geoLocation.getLocationName() || '').toLowerCase().includes(isrName)
-		));
+		this.jCal.setInIsrael(isInIsrael(this.geoLocation.getLatitude(), this.geoLocation.getLongitude()));
 
 		let fixedMil = false;
 		if (this.jCal.getInIsrael() || settings.calendarToggle.forceSunSeasonal()) {

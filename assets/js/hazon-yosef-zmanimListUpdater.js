@@ -7,6 +7,7 @@ import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
 import { showListLoadingAfterDelay } from "./list-loading.js";
+import { isInIsrael } from "./misc/israel.js";
 
 /** Floor for the next refraction check (e.g. when offline), so a failure doesn't loop. */
 const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
@@ -214,7 +215,7 @@ export default class zmanimListUpdater {
 			shareIcon.style.display = 'none';
 		}
 
-		this.jCal.setInIsrael(geoLocation.getTimeZone() == 'Asia/Jerusalem');
+		this.jCal.setInIsrael(isInIsrael(geoLocation.getLatitude(), geoLocation.getLongitude()));
 
 		// drop a load still running for the old place (it would apply the old place's data)
 		this._refractionToken = (this._refractionToken ?? 0) + 1;

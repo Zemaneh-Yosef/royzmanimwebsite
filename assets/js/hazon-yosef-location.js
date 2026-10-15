@@ -478,7 +478,7 @@ async function setLatLong(position, manual = false) {
 					day: '2-digit'
 				}).format(new Date(position.timestamp)),
 				adminName1: "",
-				country: ""
+				countryName: ""
 			}
 		}
 	}
@@ -487,7 +487,7 @@ async function setLatLong(position, manual = false) {
 		geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 	if (!geoLocation.locationName)
-		await setLocation(location.name, location.adminName1, location.country,
+		await setLocation(location.name, location.adminName1, location.countryName,
 			parseFloat(position.coords.latitude.toFixed(5)), parseFloat(position.coords.longitude.toFixed(5))
 		);
 

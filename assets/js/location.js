@@ -31,6 +31,7 @@
 
 import * as leaflet from "../libraries/leaflet/leaflet.js"
 import { settings } from "./settings/handler.js";
+import { isInIsrael } from "./misc/israel.js";
 /** @type {leaflet.Map} */
 let leafletInit;
 
@@ -485,7 +486,7 @@ async function setLatLong(position, manual = false) {
 					day: '2-digit'
 				}).format(new Date(position.timestamp)),
 				adminName1: "",
-				country: ""
+				countryName: ""
 			}
 		}
 	}
@@ -494,7 +495,7 @@ async function setLatLong(position, manual = false) {
 		geoLocation.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 	if (!geoLocation.locationName)
-		await setLocation(location.name, location.adminName1, location.country,
+		await setLocation(location.name, location.adminName1, location.countryName,
 			parseFloat(position.coords.latitude.toFixed(5)), parseFloat(position.coords.longitude.toFixed(5))
 		);
 
@@ -579,7 +580,7 @@ async function getAverageElevation(lat, long) {
 }
 
 function openCalendarWithLocationInfo() {
-	if (!['israel', 'ישראל'].some(isrName => geoLocation.locationName.toLowerCase().includes(isrName))) {
+	if (!isInIsrael(geoLocation.lat, geoLocation.long)) {
 		localStorage.setItem("hourCalculators", "degrees");
 		localStorage.setItem("rtKulah", "true");
 		localStorage.setItem("tzeitTaanitHumra", "false");
