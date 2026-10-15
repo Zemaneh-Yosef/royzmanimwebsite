@@ -505,10 +505,9 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/netzCountdown.js"></script>
 <script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
 <script type="module">
-	import WebsiteCalendar from '/assets/js/WebsiteCalendar.js'
+	import { jCal } from '/assets/js/shul-wall/base.js'
 
-	const dayCal = new WebsiteCalendar();
-	if (!dayCal.hasCandleLighting() && !dayCal.isAssurBemelacha()) {
+	if (!jCal.hasCandleLighting() && !jCal.isAssurBemelacha()) {
 		(async () => {const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
 			.split('\n')
 			.filter(str => str.startsWith('./shaare-tefila-marquee/'))
