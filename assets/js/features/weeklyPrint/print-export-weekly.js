@@ -278,7 +278,7 @@ const endDate = Temporal.Now.plainDateISO()
 	.withCalendar(cal)
 	.with({ month: 1, day: 1, year: dateForCal.year + (continueToNext ? 2 : 1) })
 	.subtract({ days: 1 })
-const endDateForLoop = endDate.add({ days: (7 - endDate.dayOfWeek) % 7 })
+const endDateForLoop = endDate.add({ days: 7 - (endDate.dayOfWeek % 7) })
 
 const hourCalculator = config.calendarToggle.forceSunSeasonal ? "seasonal" : "degrees";
 
