@@ -68,6 +68,7 @@ for (let index = 0; index < 3; index++) {
 	jCal.setDate(jCal.getDate().add({ days: 1 }));
 }
 jCal.setDate(currentZDT.toPlainDate());
+zmanCalc.setDate(currentZDT.toPlainDate());
 
 for (const elem of Array.from(calList.children)) {
 	elem.remove()
