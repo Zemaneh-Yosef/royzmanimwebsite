@@ -36,7 +36,7 @@ const settings = Object.freeze({
 		if (navigator.languages.find(lang => lang.startsWith(local)))
 			local = navigator.languages.find(lang => lang.startsWith(local));
 
-		return (new Intl.Locale(local)).hourCycle;
+		return new Intl.DateTimeFormat(local, { hour: "numeric" }).resolvedOptions().hourCycle;
 	},
 	/** @returns {'hb'|'en'|'en-et'} */
 	language: () => {

@@ -47,6 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById('languageSelector').addEventListener('click', () => {
             handleLanguage(document.getElementById('hebrew').checked ? 'hb' : (document.getElementById('enet').checked ? 'en-et' : 'en'), true);
+            if (window.zmanimListUpdater2) {
+                window.zmanimListUpdater2.resetCalendar();
+            }
         })
 
         document.getElementById('timeFormatter').addEventListener('click', () => {
