@@ -62,14 +62,18 @@ const wallFolder = carouselFolder[wallPage]
 /** undefined until the first poll answers; then the value to compare against. */
 let lastAsked
 let reloadingNow = false
+let pollInFlight = false
 
 const checkRefresh = async () => {
-    if (reloadingNow || !navigator.onLine) return
+    if (reloadingNow || pollInFlight || !navigator.onLine) return
 
+    pollInFlight = true
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
     try {
         // Pages caches hard, and the point is to notice within seconds, so
         // the URL has to differ every time.
-        const response = await fetch(REFRESH_SOURCE + "?t=" + Date.now(), { cache: "no-store" })
+        const response = await fetch(REFRESH_SOURCE + "?t=" + Date.now(), { cache: "no-store", signal: controller.signal })
         if (!response.ok) return
 
         const asked = await response.json()
@@ -92,6 +96,9 @@ const checkRefresh = async () => {
         }
     } catch {
         // Offline, or a deploy in flight. Try again on the next tick.
+    } finally {
+        clearTimeout(timeoutId)
+        pollInFlight = false
     }
 }
 
