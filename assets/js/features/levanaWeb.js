@@ -486,8 +486,8 @@ export default class LevanaCard {
 
 	/** @param {boolean} visible */
 	setVisible(visible) {
-		if (visible) this.root.style.removeProperty('display');
-		else this.root.style.display = 'none';
+		if (visible) this.root.firstElementChild.style.removeProperty('display');
+		else this.root.firstElementChild.style.display = 'none';
 	}
 
 	/** @param {string} text */

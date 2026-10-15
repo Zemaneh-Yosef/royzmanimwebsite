@@ -934,7 +934,6 @@ export default class zmanimListUpdater {
 
 		this._renderUlchaparat();
 		this._renderChamah();
-		this._renderBirchatHalevana();
 		this._renderTachanun();
 		this._renderHallel();
 		this._renderTekufa();
@@ -970,41 +969,6 @@ export default class zmanimListUpdater {
 				chamah.style.removeProperty("display");
 			else
 				chamah.style.display = "none";
-		});
-	}
-
-	_renderBirchatHalevana() {
-		queryAllElements('[data-zfFind="BirchatHalevana"]').forEach((birchatHalevana) => {
-			const birLev = this.jCal.birkathHalevanaCheck(this.zmanCalc);
-			if (!birLev.current) {
-				birchatHalevana.style.display = "none";
-				return;
-			}
-
-			birchatHalevana.style.removeProperty("display");
-			birchatHalevana.querySelectorAll('[data-zfReplace="date-en-end"]').forEach(
-				endDate => endDate.innerHTML = birLev.data.end.toLocaleString("en", {day: 'numeric', month: 'short'})
-			);
-			birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]').innerHTML =
-				birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'});
-
-			/** @type {NodeListOf<HTMLElement>} */ (birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]')).forEach(
-				startsToday => {
-					if (birLev.data.start.dayOfYear == this.jCal.getDate().dayOfYear)
-						startsToday.style.removeProperty("display");
-					else
-						startsToday.style.display = "none";
-				}
-			);
-
-			/** @type {NodeListOf<HTMLElement>} */ (birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]')).forEach(
-				endsToday => {
-					if (birLev.data.end.dayOfYear == this.jCal.getDate().dayOfYear)
-						endsToday.style.removeProperty("display");
-					else
-						endsToday.style.display = "none";
-				}
-			);
 		});
 	}
 
