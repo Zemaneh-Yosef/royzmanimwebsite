@@ -103,6 +103,8 @@ const settings = Object.freeze({
 		tekufaCalc: () => ['shemuel', 'adabaravah'].includes(settingsURLOverride("tekufaCalc")) ? settingsURLOverride("tekufaCalc") : 'shemuel',
 		// @ts-ignore
 		forceSunSeasonal: () => defaultSettings("forceSunSeasonal") == "true",
+		/** use the location's elevation for sunrise / sunset; on by default in Israel */
+		useElevation: (/** @type {boolean} */ inIsrael) => defaultSettings("useElevation", inIsrael.toString()) == "true",
 	},
 	/** Atmosphere-model options, edited from the location modal (assets/js/location-modal.js) */
 	refraction: {

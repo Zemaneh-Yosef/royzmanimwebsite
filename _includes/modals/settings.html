@@ -50,6 +50,44 @@
                     </div>
                 </div>
             </div>
+            <hr>
+            <div class="d-lg-flex">
+                <div style="flex: 1 1;">
+                    <h4>
+                        <span class="lang lang-he">גובה</span>
+                        <span class="lang lang-he-Latn">Elevation</span>
+                        <span class="lang lang-en">Elevation</span>
+                    </h4>
+                    <ul>
+                        <li>
+                            <b><span class="lang lang-he">מופעל:</span><span class="lang lang-he-Latn">On:</span><span class="lang lang-en">On:</span></b>
+                            <span class="lang lang-he">השקיעה, הדלקת נרות, השעות הזמניות וכל מה שנגזר מהן מחושבים לפי גובה המקום. ברירת המחדל בארץ ישראל.</span>
+                            <span class="lang lang-he-Latn">Shekia, candle lighting, the seasonal hours and everything derived from them use the location's elevation. The default in Eretz Yisrael.</span>
+                            <span class="lang lang-en">Sunset, candle lighting, the seasonal hours and everything derived from them use the location's elevation. The default in Israel.</span>
+                        </li>
+                        <li>
+                            <b><span class="lang lang-he">כבוי:</span><span class="lang lang-he-Latn">Off:</span><span class="lang lang-en">Off:</span></b>
+                            <span class="lang lang-he">הכל מחושב בגובה פני הים. ברירת המחדל בחוץ לארץ.</span>
+                            <span class="lang lang-he-Latn">Everything is calculated at sea level. The default outside Eretz Yisrael.</span>
+                            <span class="lang lang-en">Everything is calculated at sea level. The default outside Israel.</span>
+                        </li>
+                    </ul>
+                    <p>
+                        <span class="lang lang-he">כשאין נתוני אופק לזריחה הנראית, הנץ הוא תמיד הזריחה בגובה פני הים. בחירת מיקום חדש מחזירה את ברירת המחדל.</span>
+                        <span class="lang lang-he-Latn">When there is no horizon data for the visible sunrise, Netz is always sea-level sunrise. Picking a new location restores the default.</span>
+                        <span class="lang lang-en">When there is no horizon data for the visible sunrise, sunrise is always at sea level. Picking a new location restores the default.</span>
+                    </p>
+                </div>
+                <div>
+                    <div class="btn-group" id="elevationToggle">
+                        <input type="radio" class="btn-check" name="useElevation" id="elevationOn" autocomplete="off" />
+                        <label class="btn btn-secondary" for="elevationOn"><span class="lang lang-he">מופעל</span><span class="lang lang-he-Latn">On</span><span class="lang lang-en">On</span></label>
+
+                        <input type="radio" class="btn-check" name="useElevation" id="elevationOff" autocomplete="off" />
+                        <label class="btn btn-secondary" for="elevationOff"><span class="lang lang-he">כבוי</span><span class="lang lang-he-Latn">Off</span><span class="lang lang-en">Off</span></label>
+                    </div>
+                </div>
+            </div>
             <!-- <hr>
             <div class="d-lg-flex">
                 <div style="flex: 1 1;">

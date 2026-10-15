@@ -58,8 +58,8 @@ export function isInIsrael(lat, lng) {
  */
 export function applyLocationDefaults(inIsrael, url) {
 	const defaults = inIsrael
-		? { hourCalculators: "seasonal", rtKulah: "false", tzeitTaanitHumra: "true", tekufa: "arbitrary" }
-		: { hourCalculators: "degrees", rtKulah: "true", tzeitTaanitHumra: "false", tekufa: "hatzoth" };
+		? { hourCalculators: "seasonal", rtKulah: "false", tzeitTaanitHumra: "true", tekufa: "arbitrary", useElevation: "true" }
+		: { hourCalculators: "degrees", rtKulah: "true", tzeitTaanitHumra: "false", tekufa: "hatzoth", useElevation: "false" };
 
 	for (const [key, value] of Object.entries(defaults)) {
 		localStorage.setItem(key, value);

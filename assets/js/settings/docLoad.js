@@ -1,4 +1,5 @@
-import { handleLanguage, settings } from "./handler.js";
+import { handleLanguage, settings, saveSetting } from "./handler.js";
+import { isInIsrael } from "../misc/israel.js";
 import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.js"
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -43,6 +44,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById('showSeconds').checked = false;
                 document.getElementById('onHoverSeconds').checked = true;
             }
+        }
+
+        if (document.getElementById('elevationToggle')) {
+            const useElevation = settings.calendarToggle.useElevation(isInIsrael(settings.location.lat(), settings.location.long()));
+            document.getElementById('elevationOn').checked = useElevation;
+            document.getElementById('elevationOff').checked = !useElevation;
+
+            document.getElementById('elevationToggle').addEventListener('click', () => {
+                saveSetting("useElevation", document.getElementById("elevationOn").checked ? "true" : "false");
+                if (window.zmanimListUpdater2) {
+                    window.zmanimListUpdater2.resetCalendar();
+                }
+            })
         }
 
         document.getElementById('languageSelector').addEventListener('click', () => {
