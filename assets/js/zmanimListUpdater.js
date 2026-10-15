@@ -786,13 +786,8 @@ export default class zmanimListUpdater {
 			if (yomTzom.lastChild.nodeType == Node.TEXT_NODE)
 				yomTzom.lastChild.remove();
 
-			if (this.jCal.isYomKippur()) {
-				yomTzom.appendChild(document.createTextNode(
-					zDTFromFunc(fastCalc.getTzetMelakha()).toLocaleString(...this.dtF)
-					// a calculator class can keep Rabbenu Tam off the page (static hideRT)
-					// @ts-ignore
-					+ (this.ZemanClass.hideRT ? "" : ` (R"T: ${fastCalc.getTzetRT().toLocaleString(...this.dtF)})`)
-				));
+			if (fastJCal.isYomKippur()) {
+				yomTzom.appendChild(document.createTextNode(zDTFromFunc(fastCalc.getTzetMelakha()).toLocaleString(...this.dtF)));
 			} else {
 				yomTzom.appendChild(document.createTextNode(fastCalc.getTzetHumra().toLocaleString(...this.dtF)));
 			}
