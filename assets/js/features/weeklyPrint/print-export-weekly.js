@@ -468,16 +468,20 @@ if (prayerAngle) {
 const timezoneTrans = analyzeTimeZoneCycle(baseDate.withCalendar("iso8601"), endDate.withCalendar("iso8601"), geoLocation.getTimeZone());
 const dstText = document.querySelector('[data-zyFind="timeZoneOutlier"]');
 
-dstText.innerHTML = dstText.innerHTML.split("|")[timezoneTrans.bracketing.isDST ? 1 : 0];
-document.querySelector('[data-zyReplace="timezoneStartDate"]').innerHTML =
-	timezoneTrans.outlier.start.toLocaleString(undefined, { 'month': "short" })
-	+ ". "
-	+ getOrdinal(timezoneTrans.outlier.start.day, true)
+if (!timezoneTrans.hasTransition || !timezoneTrans.outlier.start) {
+	document.querySelector('[data-zyFind="timeZoneSentence"]').remove();
+} else {
+	dstText.innerHTML = dstText.innerHTML.split("|")[timezoneTrans.bracketing.isDST ? 1 : 0];
+	document.querySelector('[data-zyReplace="timezoneStartDate"]').innerHTML =
+		timezoneTrans.outlier.start.toLocaleString(undefined, { 'month': "short" })
+		+ ". "
+		+ getOrdinal(timezoneTrans.outlier.start.day, true)
 
-document.querySelector('[data-zyReplace="timezoneEndDate"]').innerHTML =
-	timezoneTrans.outlier.end.toLocaleString(undefined, { 'month': "short" })
-	+ ". "
-	+ getOrdinal(timezoneTrans.outlier.end.day, true)
+	document.querySelector('[data-zyReplace="timezoneEndDate"]').innerHTML =
+		timezoneTrans.outlier.end.toLocaleString(undefined, { 'month': "short" })
+		+ ". "
+		+ getOrdinal(timezoneTrans.outlier.end.day, true)
+}
 
 // Everything that is the same for every week goes to each worker once; the weeks only carry their date.
 // Built here (not earlier) so the template HTML includes the location / date text filled in above.
