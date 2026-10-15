@@ -9,6 +9,7 @@ import { HebrewNumberFormatter as hebNumFormat } from "../WebsiteCalendar.js"
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { he as n2heWords } from "../../libraries/n2words.esm.js";
 import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
+import { levanaWindow, strictLabel as levanaStrictLabel, TEXT as levanaText } from "./levanaWindow.js";
 
 /**
  * @param {Temporal.PlainDate|Temporal.ZonedDateTime} date
@@ -105,6 +106,8 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 
 	/** @type {import('ics').EventAttributes[]} */
 	const events = [];
+	/** @type {import('./levanaWindow.js').LevanaWindow | undefined} */
+	let levana;
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
 		const dailyZmanim = Object.values(jCal.getZmanimInfo(true, calc, zmanList, dtF))
 			.filter(entry => entry.display == 1)
@@ -138,15 +141,28 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 				.join('\n\n')
 		})
 
-		const birkLev = jCal.birkathHalevanaCheck(calc)
-		if (birkLev.data.start.dayOfYear == jCal.getDate().dayOfYear) {
-			const jMonth = jCal.formatJewishMonth()
-			events.push({
-				start: calc.getShkiya().epochMilliseconds,
-				end: calc.chainDate(jCal.getDate().withCalendar("hebrew").with({ day: 15 }).withCalendar("iso8601")).getAlotHashahar().epochMilliseconds,
-				title: funcSettings.language == "he" ? "ברכת הלבנה - חדש " + jMonth.he : "Birkat Halevana - Month of " + jMonth.en,
-				description: "End-time of the Rama (Stringent): " + birkLev.data.end.toLocaleString()
-			})
+		if (jCal.getJewishDayOfMonth() <= 15) {
+			if (levana?.month !== jCal.getJewishMonth())
+				levana = levanaWindow(jCal, calc);
+
+			const validFrom = levana.recommendedStart ?? levana.start;
+			if (Temporal.PlainDate.compare(validFrom.toPlainDate(), jCal.getDate()) == 0) {
+				const t = levanaText[funcSettings.language == "he" ? "hb" : funcSettings.language];
+				/** @param {Temporal.ZonedDateTime} zDT */
+				const fmt = zDT => zDT.toLocaleString(dtF[0], { weekday: 'short', month: 'short', day: 'numeric', ...dtF[1] });
+				const strictLine = levanaStrictLabel(levana, t) + ": " + fmt(levana.endStrict);
+				const earlyLine = t.earlyEnd(levana.fifteenthIsShabbat) + ": " + fmt(levana.endEarlyIkar);
+				const endLines = !levana.useEarlyTimes ? [t.ends + ": " + fmt(levana.endIkar), strictLine]
+					: Temporal.ZonedDateTime.compare(levana.endStrict, levana.endEarlyIkar) < 0 ? [earlyLine, strictLine]
+					: [earlyLine];
+
+				events.push({
+					start: levana.validFromMs,
+					end: levana.effectiveEndMs,
+					title: t.title(funcSettings.language == "he" ? levana.monthNames.he : levana.monthNames.en),
+					description: [t.molad + ": " + fmt(levana.molad), ...endLines].join('\n')
+				})
+			}
 		}
 
 		const count = jCal.tomorrow().getDayOfOmer();

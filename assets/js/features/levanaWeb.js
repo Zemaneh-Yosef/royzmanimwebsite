@@ -10,80 +10,34 @@
  * print's handleSingleBL() (features/weeklyPrint/print-web-worker.js).
  */
 
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { moonGlyphSvg } from "../../libraries/mooncalc/moonRiseSetCalc.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import { spawnWorker } from "../misc/worker.js";
 import { settings } from "../settings/handler.js";
 import { loadRefraction, snapshotProvider } from "../refraction-data.js";
+import { EN, TEXT, levanaWindow, strictLabel as levanaStrictLabel } from "./levanaWindow.js";
 
 /** @typedef {import('./weeklyPrint/moon-birkat-worker.js').MonthResult} MonthResult */
 /** @typedef {import('./weeklyPrint/moon-birkat-worker.js').BirkatRow} BirkatRow */
 /** @typedef {import('./weeklyPrint/moon-birkat-worker.js').MoonEvent} MoonEvent */
 /** @typedef {import('./weeklyPrint/print-web-worker.js').RefractionInit} RefractionInit */
 /** @typedef {import('../zmanimListUpdater.js').default} ZmanimListUpdater */
-/** @typedef {'hb'|'en'|'en-et'} Lang */
+/** @typedef {import('./levanaWindow.js').Lang} Lang */
 
 const WORKER_URL = '/assets/js/features/weeklyPrint/moon-birkat-worker.js';
 const GLYPH_SIZE = 40;
 /** Results kept per location / month / refraction state; a page visit rarely needs more than a few. */
 const MAX_CACHED = 12;
 
-const EN = {
-	title: (/** @type {string} */ m) => `Blessing of the Moon - Month of ${m}`,
-	ends: 'End', strict: 'Strict', rema: 'Rema',
-	earlyEnd: (/** @type {boolean} */ shabbat) => `Early End (${shabbat ? 'Shabbat' : 'Yom Tov'})`, molad: 'Molad',
-	wait: 'Recommended to wait until', nightRange: 'Nightfall – dawn',
-	lastNight: 'Last night', twilight: 'Twilight only',
-	from: 'Visible from', until: 'Visible until', upTo: 'until', all: 'Visible all night', rises: 'Rises', sets: 'Sets',
-	failed: 'The moon times could not be calculated.',
-	twilightNote: 'Twilight only: the moon is up only between sunset and nightfall, or between dawn and sunrise.'
-};
-
-/** @type {Record<Lang, typeof EN>} */
-const TEXT = {
-	en: EN,
-	'en-et': {
-		...EN,
-		title: m => `Birkath Ha'Levana - Ḥodesh ${m}`,
-		earlyEnd: shabbat => `Early End (${shabbat ? 'Shabbat' : 'Yom Tov'})`,
-		nightRange: 'Tzet – Alot',
-		twilightNote: 'Twilight only: the moon is up only between Sheqi\'a and Tzet, or between Alot and Hanetz.'
-	},
-	hb: {
-		title: m => `ברכת הלבנה - חודש ${m}`,
-		ends: 'סוף', strict: 'סוף לחומרא', rema: 'סוף לרמ״א',
-		earlyEnd: shabbat => `סוף מוקדם (מפני ${shabbat ? 'שבת' : 'יום טוב'})`, molad: 'מולד',
-		wait: 'מומלץ להמתין עד', nightRange: 'צאת הכוכבים – עלות השחר',
-		lastNight: 'לילה אחרון', twilight: 'בין השמשות בלבד',
-		from: 'נראית משעה', until: 'נראית עד', upTo: 'עד', all: 'נראית כל הלילה', rises: 'זורחת', sets: 'שוקעת',
-		failed: 'לא ניתן לחשב את זמני הלבנה.',
-		twilightNote: 'בין השמשות בלבד: הלבנה נראית רק בין השקיעה לצאת הכוכבים, או בין עלות השחר להנץ.'
-	}
-};
-
 /**
- * @typedef {Object} MonthContext
- * @property {number} year
- * @property {number} month
+ * @typedef {Object} TonightContext
  * @property {string} monthName
- * @property {Temporal.ZonedDateTime} molad
- * @property {Temporal.ZonedDateTime} start          7 days after the molad
- * @property {Temporal.ZonedDateTime | null} recommendedStart  after Tisha Be'Av / Yom Kippur
- * @property {Temporal.ZonedDateTime} endIkar        alot of the 15th
- * @property {Temporal.ZonedDateTime} endStretch     sunrise of the 15th
- * @property {Temporal.ZonedDateTime} endStrict      half-way between moladot
- * @property {Temporal.ZonedDateTime} endEarlyIkar   alot of the 14th (15th is Shabbat / Yom Tov)
- * @property {Temporal.ZonedDateTime} endEarlyStretch
- * @property {boolean} useEarlyTimes                 the 15th is Shabbat / Yom Tov
- * @property {number} effectiveEndMs                 the end people go by (lechatchila)
  * @property {number} tonightDay                     Hebrew day the night beginning this evening belongs to
  * @property {boolean} lastNight                     tonight is the last night
  * @property {number} tonightTzet                    nightfall this evening
  * @property {number} tonightAlot                    dawn the next morning
- * @property {number} validFromMs                    7 days after the molad, or the Av / Tishrei recommendation
- * @property {boolean} fifteenthIsShabbat            why the early end applies (else Yom Tov)
  */
+/** @typedef {import('./levanaWindow.js').LevanaWindow & TonightContext} MonthContext */
 
 export default class LevanaCard {
 	hNum = new HebrewNumberFormatter();
@@ -188,30 +142,9 @@ export default class LevanaCard {
 		if (day > 15)
 			return null;
 
-		const tz = updater.geoLocation.getTimeZone();
+		const win = levanaWindow(jCal, updater.zmanCalc);
+		const { month, effectiveEndMs, validFromMs } = win;
 		const zc = (/** @type {Temporal.PlainDate} */ d) => updater.zmanCalc.chainDate(d.withCalendar('iso8601'));
-		const year = jCal.getJewishYear(), month = jCal.getJewishMonth();
-		const monthCal = jCal.chainJewishDate(year, month, 1);
-		const blCal = jCal.chainJewishDate(year, month, 15);
-		const date15 = blCal.getDate();
-
-		/** @type {Temporal.ZonedDateTime | null} */
-		let recommendedStart = null;
-		if (month == KosherZmanim.JewishCalendar.AV) {
-			const tishaBeav = jCal.chainJewishDate(year, month, 9);
-			const fast = tishaBeav.getDayOfWeek() == 7 ? jCal.chainJewishDate(year, month, 10) : tishaBeav;
-			recommendedStart = zc(fast.getDate()).getTzetHumra();
-		} else if (month == KosherZmanim.JewishCalendar.TISHREI) {
-			recommendedStart = zc(jCal.chainJewishDate(year, month, 10).getDate()).getTzetHumra();
-		}
-
-		const endIkar = zc(date15).getAlotHashahar();
-		const endEarlyIkar = zc(date15.subtract({ days: 1 })).getAlotHashahar();
-		const useEarlyTimes = blCal.isAssurBemelacha();
-
-		const effectiveEndMs = (useEarlyTimes ? endEarlyIkar : endIkar).epochMilliseconds;
-		const start = monthCal.getTchilasZmanKidushLevana7Days().withTimeZone(tz);
-		const validFromMs = (recommendedStart ?? start).epochMilliseconds;
 
 		// Tonight: the selected date's sunset to the next sunrise
 		const selected = jCal.getDate().withCalendar('iso8601');
@@ -226,19 +159,8 @@ export default class LevanaCard {
 		const tonightAlot = zc(selected.add({ days: 1 })).getAlotHashahar().epochMilliseconds;
 
 		return {
-			year, month, tonightDay, lastNight, tonightTzet, tonightAlot, validFromMs,
-			fifteenthIsShabbat: blCal.getDayOfWeek() == 7,
-			monthName: settings.language() == 'hb' ? monthCal.formatJewishMonth().he : monthCal.formatJewishMonth().en,
-			molad: monthCal.getMoladAsDate().withTimeZone(tz).withCalendar('iso8601'),
-			start,
-			recommendedStart,
-			endIkar,
-			endStretch: zc(date15).timeRange.current.sunrise,
-			endStrict: monthCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(tz),
-			endEarlyIkar,
-			endEarlyStretch: zc(date15.subtract({ days: 1 })).timeRange.current.sunrise,
-			useEarlyTimes,
-			effectiveEndMs
+			...win, tonightDay, lastNight, tonightTzet, tonightAlot,
+			monthName: settings.language() == 'hb' ? win.monthNames.he : win.monthNames.en
 		};
 	}
 
@@ -422,7 +344,7 @@ export default class LevanaCard {
 	 * @param {typeof EN} t
 	 */
 	strictLabel(ctx, t) {
-		return Temporal.ZonedDateTime.compare(ctx.endStrict, ctx.endIkar) > 0 ? t.rema : t.strict;
+		return levanaStrictLabel(ctx, t);
 	}
 
 	/**
