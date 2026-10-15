@@ -37,6 +37,7 @@ const geoLocation = new GeoLocation(...glArgs);
 
 const inIsrael = isInIsrael(geoLocation.getLatitude(), geoLocation.getLongitude());
 const useOhrHachaim = inIsrael || settings.calendarToggle.forceSunSeasonal()
+const useElevation = settings.calendarToggle.useElevation(inIsrael);
 const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')].filter(elem => elem instanceof HTMLElement);
 const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')].filter(elem => elem instanceof HTMLElement);
 if (useOhrHachaim) {
@@ -102,7 +103,7 @@ if (document.querySelector('[data-zyReplace="longitude"]'))
 const elevation = document.querySelector('[data-zyReplace="elevation"]');
 if (elevation) {
 	elevation.appendChild(document.createTextNode(
-		geoLocation.getElevation() == 0 || !useOhrHachaim
+		geoLocation.getElevation() == 0 || !useElevation
 			? "Disabled"
 			: meterFormatter.format(geoLocation.getElevation())
 	));
@@ -135,7 +136,7 @@ if (footer) {
 		.appendChild(document.createTextNode(`(${[
 			degreeFormatter.format(geoLocation.getLatitude()),
 			degreeFormatter.format(geoLocation.getLongitude()),
-			useOhrHachaim ? "↑" + meterFormatter.format(geoLocation.getElevation()) : ""
+			useElevation ? "↑" + meterFormatter.format(geoLocation.getElevation()) : ""
 		].filter(Boolean).join(", ")})`));
 	const tz = footer.querySelector("[data-timeZone]")
 	if (tz)
@@ -184,6 +185,7 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal;
 	expectedReceive += 1;
 	arrayOfFuncParams.push({
 		israel: inIsrael,
+		elevation: useElevation,
 		geoCoordinates: glArgs,
 		htmlElems: baseTable.outerHTML + (footer ? footer.outerHTML : "") + (secondSide ? secondSide.outerHTML : ""),
 		calendar: cal,
@@ -219,7 +221,7 @@ if (fundamentalTable) {
 		fundamentalTable.remove();
 	} else {
 		const zmanCalc = new ZemanFunctions(geoLocation, {
-			elevation: arrayOfFuncParams[0].israel,
+			elevation: useElevation,
 			melakha: arrayOfFuncParams[0].tzetMelakha,
 			fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal(),
 			candleLighting: settings.customTimes.candleLighting(),

@@ -30,6 +30,7 @@
  * @property {'hatzoth'|'arbitrary'} [tekufaMidpoint] - Tekufa clock: "hatzoth" (−20m56s) or "arbitrary" (fixed); defaults by Israel.
  * @property {string} [tekufaCalc] - Calculation method used for season changes (e.g., "shemuel").
  * @property {boolean} forceSunSeasonal - Forces seasonal calculations based directly on the sun.
+ * @property {boolean} [elevation] - Use the locations' elevation for sunrise / sunset; defaults by Israel.
  */
 
 /**
@@ -135,7 +136,8 @@ async function configFromSettings() {
 			rtKulah: settings.calendarToggle.rtKulah(),
 			tekufaMidpoint: settings.calendarToggle.tekufaMidpoint(),
 			tekufaCalc: settings.calendarToggle.tekufaCalc(),
-			forceSunSeasonal: settings.calendarToggle.forceSunSeasonal()
+			forceSunSeasonal: settings.calendarToggle.forceSunSeasonal(),
+			elevation: settings.calendarToggle.useElevation(isInIsrael(lat, long))
 		},
 		customTimes: {
 			candleLighting: settings.customTimes.candleLighting(),
@@ -179,6 +181,7 @@ function normalize(config) {
 		throw new Error(`Every location must share one timezone; found ${zones.join(", ")}`);
 
 	const language = languageTag(config.language) ?? 'en';
+	const israel = config.israel ?? locations.some(loc => isInIsrael(loc.lat, loc.long));
 
 	return {
 		...config,
@@ -188,7 +191,8 @@ function normalize(config) {
 		calendarToggle: {
 			rtKulah: true,
 			forceSunSeasonal: false,
-			tekufaMidpoint: (config.israel ?? locations.some(loc => isInIsrael(loc.lat, loc.long))) ? 'arbitrary' : 'hatzoth',
+			tekufaMidpoint: israel ? 'arbitrary' : 'hatzoth',
+			elevation: israel,
 			...config.calendarToggle
 		},
 		customTimes: {

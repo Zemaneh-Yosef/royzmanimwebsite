@@ -386,7 +386,7 @@ export default class zmanimListUpdater {
 
 		/** @type {import("./ROYZmanim.js").ZemanimConfig} */
 		const config = {
-			elevation: fixedMil,
+			elevation: settings.calendarToggle.useElevation(this.jCal.getInIsrael()),
 			fixedMil,
 			rtKulah: settings.calendarToggle.rtKulah(),
 			candleLighting: settings.customTimes.candleLighting(),

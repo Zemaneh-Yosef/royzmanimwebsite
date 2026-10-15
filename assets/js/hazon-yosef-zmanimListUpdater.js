@@ -274,7 +274,7 @@ export default class zmanimListUpdater {
 	 */
 	_setupZmanCalc(atmosphereProvider, horizon) {
 		this.zmanCalc = new ZemanFunctions(this.geoLocation, {
-			elevation: true,
+			elevation: (urlParams.get("useElevation") || this.jCal.getInIsrael().toString()) == "true",
 			fixedMil: true,
 			rtKulah: false,
 			candleLighting: 20,

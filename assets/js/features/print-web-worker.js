@@ -25,6 +25,7 @@ const hNum = new HebrewNumberFormatter();
 
 /** @typedef {{
 	israel: boolean;
+	elevation: boolean;
 	geoCoordinates: [string, number, number, number, string];
 	htmlElems: string;
 	calendar: 'iso8601'|'hebrew';
@@ -92,7 +93,7 @@ function messageHandler(x) {
 	jCal.setInIsrael(x.data.israel);
 
 	const zmanCalc = new ZemanFunctions(geoLocation, {
-		elevation: x.data.israel,
+		elevation: x.data.elevation,
 		melakha: x.data.tzetMelakha,
 		fixedMil: x.data.israel || x.data.hourCalculator == "seasonal",
 		candleLighting: x.data.candleTime,

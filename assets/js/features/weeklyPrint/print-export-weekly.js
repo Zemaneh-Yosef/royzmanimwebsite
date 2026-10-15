@@ -131,6 +131,7 @@ const geoLocation = new GeoLocation(...glArgs);
 
 const inIsrael = config.israel ?? locations.some(loc => isInIsrael(loc.lat, loc.long));
 const useOhrHachaim = inIsrael || config.calendarToggle.forceSunSeasonal
+const useElevation = config.calendarToggle.elevation;
 const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')];
 const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')];
 if (useOhrHachaim) {
@@ -166,7 +167,7 @@ const shortDegreeFormatter = new Intl.NumberFormat(local, { style: "unit", unit:
 const coordinateText = (lat, long, elevation, formatter = degreeFormatter) => `(${[
 	formatter.format(lat),
 	formatter.format(long),
-	useOhrHachaim ? "↑" + meterFormatter.format(elevation) : ""
+	useElevation ? "↑" + meterFormatter.format(elevation) : ""
 ].filter(Boolean).join(", ")})`;
 
 if (document.querySelector('[data-zyReplace="latitude"]'))
@@ -179,7 +180,7 @@ if (document.querySelector('[data-zyReplace="longitude"]'))
 const elevation = document.querySelector('[data-zyReplace="elevation"]');
 if (elevation) {
 	elevation.appendChild(document.createTextNode(
-		geoLocation.getElevation() == 0 || !useOhrHachaim
+		geoLocation.getElevation() == 0 || !useElevation
 			? "Disabled"
 			: meterFormatter.format(geoLocation.getElevation())
 	));
@@ -289,6 +290,7 @@ const mRender = new MoonRender(geoLocation, {
 	timeFormat: config.timeFormat,
 	hourCalculator,
 	israel: inIsrael,
+	elevation: useElevation,
 }, baseDate, endDate);
 
 const weeksForLoop = baseDateForLoop.until(endDateForLoop).total({ unit: 'week', relativeTo: baseDateForLoop });
@@ -490,6 +492,7 @@ if (!timezoneTrans.hasTransition || !timezoneTrans.outlier.start) {
 const weekInit = {
 	type: "init",
 	israel: inIsrael,
+	elevation: useElevation,
 	geoCoordinates: glArgs,
 	locations: multiLocation ? locationArgs : [glArgs],
 	htmlElems: baseTable.outerHTML + secondSide.outerHTML,
@@ -517,7 +520,7 @@ if (fundamentalTable) {
 		fundamentalTable.remove();
 	} else {
 		const zmanCalc = new ZemanFunctions(geoLocation, {
-			elevation: weekInit.israel,
+			elevation: weekInit.elevation,
 			melakha: weekInit.tzetMelakha,
 			fixedMil: weekInit.israel || config.calendarToggle.forceSunSeasonal,
 			candleLighting: config.customTimes.candleLighting,

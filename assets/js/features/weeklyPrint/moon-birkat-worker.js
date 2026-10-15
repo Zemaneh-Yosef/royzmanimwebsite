@@ -107,7 +107,7 @@ function findMoonUp(events, winStart, winEnd) {
 	return { rise: nextRise, set: events.set(nextRise) };
 }
 
-/** @typedef {{geoCoordinates: [string, number, number, number, string]; months: {year: number; month: number}[]; israel: boolean; hourCalculator: "seasonal"|"degrees";}} birkatWorkerParam */
+/** @typedef {{geoCoordinates: [string, number, number, number, string]; months: {year: number; month: number}[]; israel: boolean; elevation: boolean; hourCalculator: "seasonal"|"degrees";}} birkatWorkerParam */
 
 /** Same message the weekly print workers get. @typedef {import('./print-web-worker.js').RefractionInit} RefractionInit */
 
@@ -185,9 +185,9 @@ function messageHandler(x) {
 	// Moonrise / moonset refraction from the same air as the sun's (falls back to calc's standard air)
 	const horizonTarget = moonHorizonTarget(refraction.provider, tz, calc.horizonTarget, geoLocation);
 
-	// Flat horizon: the same convention as the printed sun times. With elevation on (Israel), a sea-level
+	// Flat horizon: the same convention as the printed sun times. With elevation on, a sea-level
 	// horizon seen from the elevation (the dip included); otherwise an observer at sea level.
-	const elevationM = x.israel ? Math.max(0, geoLocation.getElevation()) : 0;
+	const elevationM = x.elevation ? Math.max(0, geoLocation.getElevation()) : 0;
 	const flatObserver = new AstronomyImp.Observer(geoLocation.getLatitude(), geoLocation.getLongitude(), elevationM);
 	/** @type {{mode: 'lit', limitDays: number, metersAboveGround: number, horizonTarget: ReturnType<typeof moonHorizonTarget>}} */
 	const flatOpts = { mode: 'lit', limitDays: 2, metersAboveGround: elevationM, horizonTarget };
@@ -208,7 +208,7 @@ function messageHandler(x) {
 		? { rise: visible.nextRise, set: visible.nextSet }
 		: { rise: at => flat(1, at), set: at => flat(-1, at) };
 	const dayCalc = new ZemanFunctions(geoLocation, {
-		elevation: x.israel,
+		elevation: x.elevation,
 		fixedMil: x.israel || x.hourCalculator == "seasonal",
 		// Same atmosphere and horizon as the weekly pages, so shkiya / netz here match the printed times
 		atmosphereProvider: refraction.provider,

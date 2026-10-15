@@ -177,6 +177,7 @@ export default class LevanaCard {
 		const placeKey = `${geo.getLatitude()},${geo.getLongitude()}`;
 		const config = updater.zmanCalc.config;
 		const israel = updater.jCal.getInIsrael();
+		const elevation = config.elevation;
 		const hourCalculator = settings.calendarToggle.forceSunSeasonal() ? 'seasonal' : 'degrees';
 
 		const horizon = this.moonHorizons.get(placeKey) ?? updater.refraction?.horizon ?? config.horizon ?? null;
@@ -186,7 +187,7 @@ export default class LevanaCard {
 		const forecastAt = updater._shownForecastAt ?? null;
 
 		const sig = [
-			placeKey, geo.getElevation(), geo.getTimeZone(), israel, hourCalculator, ctx.year, ctx.month,
+			placeKey, geo.getElevation(), geo.getTimeZone(), israel, elevation, hourCalculator, ctx.year, ctx.month,
 			forecastAt, provider ? 'p' : '-', normals ? 'n' : '-',
 			horizon ? (horizon.moon ? 'moon' : 'sun') : 'none', haze?.forecastFetchedAt ?? (haze ? 'h' : '-')
 		].join('|');
@@ -208,7 +209,7 @@ export default class LevanaCard {
 			const geoCoordinates = [geo.getLocationName(), geo.getLatitude(), geo.getLongitude(), geo.getElevation(), geo.getTimeZone()];
 			return {
 				init,
-				params: { geoCoordinates, months: [{ year: ctx.year, month: ctx.month }], israel, hourCalculator }
+				params: { geoCoordinates, months: [{ year: ctx.year, month: ctx.month }], israel, elevation, hourCalculator }
 			};
 		};
 

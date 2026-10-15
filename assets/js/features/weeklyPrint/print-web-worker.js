@@ -39,6 +39,7 @@ hNum.setUseFinalFormLetters(true);
  * @typedef {{
 	type: 'init';
 	israel: boolean;
+	elevation: boolean;
 	geoCoordinates: [string, number, number, number, string];
 	locations: [string, number, number, number, string][];
 	htmlElems: string;
@@ -343,7 +344,7 @@ function locationConfig(init, index) {
 	return locationConfigs[index] ??= (() => {
 		const locRefraction = refractionFor(index);
 		return {
-			elevation: init.israel,
+			elevation: init.elevation,
 			melakha: init.tzetMelakha,
 			fixedMil: init.israel || init.hourCalculator == "seasonal",
 			candleLighting: init.candleTime,
