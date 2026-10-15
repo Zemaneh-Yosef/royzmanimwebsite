@@ -54,6 +54,11 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v6
+      - name: Leave out flyers that need the local-only location list
+        run: |
+          if [ ! -f _data/designLocationList.yml ]; then
+            grep -rl 'site.data.designLocationList' pages | xargs -r rm --
+          fi
       - name: Build with Jekyll
         # Outputs to the './_site' directory by default
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
