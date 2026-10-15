@@ -649,41 +649,6 @@ export default class zmanimListUpdater {
 		parashaBar.querySelector('[data-zfReplace="Haftara"]').innerHTML
 			= `<b>${haftara.text}</b> (${haftara.source})`;
 
-		// FIX: Properly await the fetch chain so errors are caught by the outer try/catch
-		const makamObj = await this._makamObjPromise;
-
-		const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
-		const shabbatMakam = makamIndex.getTodayMakam(this.jCal.shabbat());
-
-		const makamElems = {
-			"summaryResult": parashaBar.querySelector('[data-zfReplace="makamot"]'),
-			"summaryTitle": parashaBar.querySelector('[data-zfReplace="makamot"]').previousElementSibling,
-			"details": parashaBar.querySelector('[data-zfFind="makamot"]')
-		};
-
-		makamElems.summaryResult.innerHTML =
-			shabbatMakam.makam
-				.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
-				.join(" / ");
-
-		if (makamElems.summaryTitle.lastChild.nodeType == Node.TEXT_NODE)
-			makamElems.summaryTitle.lastChild.remove();
-
-		makamElems.summaryTitle.appendChild(document.createTextNode(" (" + shabbatMakam.title + ")"));
-
-		makamElems.details.classList.remove("noContent");
-		makamElems.details.classList.add("smallContent");
-
-		if (!makamElems.details.lastElementChild.classList.contains("accordianContent")) {
-			makamElems.details.appendChild(document.createElement("dl")).classList.add("accordianContent");
-		}
-
-		makamElems.details.lastElementChild.innerHTML = Object.entries(KosherZmanim.Makam.getMakamData(this.jCal.shabbat()))
-			.map(([key, value]) => {
-				return `<dt>${key}</dt><dd>${(value.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
-					.join(" / "))}</dd>`;
-			}).join('');
-
 		switch (this.jCal.getDate().dayOfWeek) {
 			case 5:
 			case 6: {
@@ -720,6 +685,42 @@ export default class zmanimListUpdater {
 				break;
 			}
 		}
+
+		const makamObj = await this._makamObjPromise;
+		if (!makamObj)
+			return;
+
+		const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
+		const shabbatMakam = makamIndex.getTodayMakam(this.jCal.shabbat());
+
+		const makamElems = {
+			"summaryResult": parashaBar.querySelector('[data-zfReplace="makamot"]'),
+			"summaryTitle": parashaBar.querySelector('[data-zfReplace="makamot"]').previousElementSibling,
+			"details": parashaBar.querySelector('[data-zfFind="makamot"]')
+		};
+
+		makamElems.summaryResult.innerHTML =
+			shabbatMakam.makam
+				.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
+				.join(" / ");
+
+		if (makamElems.summaryTitle.lastChild.nodeType == Node.TEXT_NODE)
+			makamElems.summaryTitle.lastChild.remove();
+
+		makamElems.summaryTitle.appendChild(document.createTextNode(" (" + shabbatMakam.title + ")"));
+
+		makamElems.details.classList.remove("noContent");
+		makamElems.details.classList.add("smallContent");
+
+		if (!makamElems.details.lastElementChild.classList.contains("accordianContent")) {
+			makamElems.details.appendChild(document.createElement("dl")).classList.add("accordianContent");
+		}
+
+		makamElems.details.lastElementChild.innerHTML = Object.entries(KosherZmanim.Makam.getMakamData(this.jCal.shabbat()))
+			.map(([key, value]) => {
+				return `<dt>${key}</dt><dd>${(value.map(mak => (typeof mak == "number" ? makamObj.makamNameMapEng[mak] : mak))
+					.join(" / "))}</dd>`;
+			}).join('');
 	}
 
 	// ─── Render: Fast Index ───────────────────────────────────────────────────
