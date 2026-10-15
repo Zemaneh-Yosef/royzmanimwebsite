@@ -226,7 +226,7 @@ async function updateList(event) {
 			const addLangIfHebrew = params => {
 				console.log(detectLanguageIntent(q));
 				if (detectLanguageIntent(q) == "english") return;
-				if (detectLanguageIntent(q) == "neutral" && settings.language() != "hb") return;
+				if (detectLanguageIntent(q) == "neutral" && settings.language() != "he") return;
 
 				params.set("lang", "he");
 			};
@@ -471,7 +471,7 @@ async function setLatLong(position, manual = false) {
 				'style': 'FULL'
 			});
 
-			if (settings.language() == 'hb') {
+			if (settings.language() == 'he') {
 				params.set("lang", "he");
 			}
 			const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);

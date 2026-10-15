@@ -17,7 +17,7 @@ import WebsiteCalendar, { HebrewNumberFormatter } from "../../WebsiteCalendar.js
 
 const DAY_LABELS = {
 	en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-	hb: ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'שבת']
+	he: ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'שבת']
 };
 
 const ICONS = {
@@ -27,7 +27,7 @@ const ICONS = {
 
 const TIME_LABELS = {
 	en: { fastStart: 'Fast ', fastEnd: 'Ends ' },
-	hb: { fastStart: 'צום ', fastEnd: 'סוף ' }
+	he: { fastStart: 'צום ', fastEnd: 'סוף ' }
 };
 
 const hNum = new HebrewNumberFormatter();
@@ -53,7 +53,7 @@ function timeHtml(entry, labels) {
  * @param {Record<string, GridDay>} days  keyed by ISO date
  */
 export function buildMonthGrid(year, month, lang, days) {
-	const l = lang == 'hb' ? 'hb' : 'en';
+	const l = lang == 'he' ? 'he' : 'en';
 	const first = new WebsiteCalendar().chainJewishDate(year, month, 1).getDate().withCalendar('iso8601');
 	const daysInMonth = first.withCalendar('hebrew').daysInMonth;
 	const offset = first.dayOfWeek % 7; // Sunday first
@@ -72,7 +72,7 @@ export function buildMonthGrid(year, month, lang, days) {
 		if (date.dayOfWeek == 6) classes.push('shabbat');
 		if (data?.bold) classes.push('bold');
 
-		const hebDay = l == 'hb' ? hNum.formatHebrewNumber(d) : d;
+		const hebDay = l == 'he' ? hNum.formatHebrewNumber(d) : d;
 		// Month name on the first cell and wherever the Gregorian month changes
 		const gregDay = d == 1 || date.day == 1
 			? date.toLocaleString('en', { month: 'short', day: 'numeric' })
@@ -90,7 +90,7 @@ export function buildMonthGrid(year, month, lang, days) {
 
 	html += '<div class="mgCell empty"></div>'.repeat((7 - (offset + daysInMonth) % 7) % 7);
 
-	return `<div class="monthGrid" dir="${l == 'hb' ? 'rtl' : 'ltr'}">${html}</div>`;
+	return `<div class="monthGrid" dir="${l == 'he' ? 'rtl' : 'ltr'}">${html}</div>`;
 }
 
 /**

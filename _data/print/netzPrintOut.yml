@@ -2,30 +2,30 @@
 - timeGetter: getAlotHashahar
   names:
     he: עלות
-    et: Aloth
+    he-Latn: Aloth
     en: Dawn
 - shitot:
     - names:
         he: עיקר הדין
         en: Letter of the Law
-        et: Letter of the law
+        he-Latn: Letter of the law
       timeGetter: misheyakir-66/72
     - names:
         he: לכתחילה
         en: Recommended
-        et: Recommended
+        he-Latn: Recommended
       timeGetter: misheyakir-60/72
   names:
     he: משיכיר
-    et: Misheyakir
+    he-Latn: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
   names:
     he: הנץ
-    et: HaNetz
+    he-Latn: HaNetz
     en: Sunrise
 - timeGetter: getMolad
   names:
     he: זמני הלבנה
-    et: Levana Times
+    he-Latn: Levana Times
     en: Levana Times

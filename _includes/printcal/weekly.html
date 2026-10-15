@@ -1272,8 +1272,8 @@
 			<div class="zman-row mergedRow" data-round="{{ z.round }}" data-zyData="{{ z.timeGetter }}"
 				data-zyDataSecond="{{ ketana.timeGetter }}" data-roundSecond="{{ ketana.round }}">
 				<span class="zman-name">
-					<span class="lang lang-hb">{{ z.names.he }} / {{ ketana.names.he | remove_first: "מנחה " }}</span>
-					<span class="lang lang-et">{{ z.names.et | default: z.names.en }} / {{ ketana.names.et | default: ketana.names.en | remove_first: "Minḥa " }}</span>
+					<span class="lang lang-he">{{ z.names.he }} / {{ ketana.names.he | remove_first: "מנחה " }}</span>
+					<span class="lang lang-he-Latn">{{ z.names.he-Latn | default: z.names.en }} / {{ ketana.names.he-Latn | default: ketana.names.en | remove_first: "Minḥa " }}</span>
 					<span class="lang lang-en">{{ z.names.en }} / {{ ketana.names.en | remove_first: "Minḥa " }}</span>
 				</span>
 				<span></span>
@@ -1286,8 +1286,8 @@
 				%}style="text-align: center; grid-column: span 2;" {% elsif z.id == 'nightfall' %}data-zyTzetStrict{%
 				endif %}>
 				<span class="zman-name">
-					<span class="lang lang-hb">{{ z.names.he }}</span>
-					<span class="lang lang-et">{{ z.names.et | default: z.names.en }}</span>
+					<span class="lang lang-he">{{ z.names.he }}</span>
+					<span class="lang lang-he-Latn">{{ z.names.he-Latn | default: z.names.en }}</span>
 					<span class="lang lang-en">{{ z.names.en }}</span>
 				</span>
 				<span></span>
@@ -1629,21 +1629,21 @@
 		<table class="sunriseTable" data-zyFind="sunriseTable">
 			<thead>
 				<tr><th class="sunriseTableTitle">
-					<span class="lang lang-hb">הנץ החמה הנראה</span>
-					<span class="lang lang-et">Visual Sunrise</span>
+					<span class="lang lang-he">הנץ החמה הנראה</span>
+					<span class="lang lang-he-Latn">Visual Sunrise</span>
 					<span class="lang lang-en">Visual Sunrise</span>
 				</th></tr>
 			</thead>
 			<tbody></tbody>
 		</table>
 		<div class="sunriseTableNote">
-			<span class="lang lang-hb">קטן: הנץ כל גלגל החמה (הלכה ברורה)</span>
-			<span class="lang lang-et">Smaller: Full Solar-Sphere Sunrise (H"B)</span>
+			<span class="lang lang-he">קטן: הנץ כל גלגל החמה (הלכה ברורה)</span>
+			<span class="lang lang-he-Latn">Smaller: Full Solar-Sphere Sunrise (H"B)</span>
 			<span class="lang lang-en">Smaller: Full Solar-Sphere Sunrise (H"B)</span>
 			<span data-zyFind="sunriseTableNote">
 				·
-				<span class="lang lang-hb">* הנץ בגובה פני הים (אין נתוני אופק)</span>
-				<span class="lang lang-et">* Sea-level sunrise (no horizon data)</span>
+				<span class="lang lang-he">* הנץ בגובה פני הים (אין נתוני אופק)</span>
+				<span class="lang lang-he-Latn">* Sea-level sunrise (no horizon data)</span>
 				<span class="lang lang-en">* Sea-level sunrise (no horizon data)</span>
 			</span>
 		</div>
@@ -1653,8 +1653,8 @@
 		<h4>Learning Cycles</h4>
 		{% for z in site.data.print.weekly.learnings %}
 		<div class="{{ z.class }}" data-learningInsert="{{ z.id }}">
-			<div class="fw-bold lang lang-hb">{{ z.names.he }}</div>
-			<div class="fw-bold lang lang-et">{{ z.names.et | default: z.names.en }}</div>
+			<div class="fw-bold lang lang-he">{{ z.names.he }}</div>
+			<div class="fw-bold lang lang-he-Latn">{{ z.names.he-Latn | default: z.names.en }}</div>
 			<div class="fw-bold lang lang-en">{{ z.names.en }}</div>
 		</div>
 		{% endfor %}

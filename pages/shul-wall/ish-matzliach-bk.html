@@ -144,7 +144,7 @@ layout: nothing
 		display: none;
 	}
 
-	#content[data-current-page="2"] .langTV.lang-hb {
+	#content[data-current-page="2"] .langTV.lang-he {
 		display: none;
 	}
 
@@ -260,7 +260,7 @@ layout: nothing
 		<div>
 			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
 				<div class="list-group-item d-flex justify-content-between">
-					<dt class="langTV lang-hb">תלמוד בבלי</dt>
+					<dt class="langTV lang-he">תלמוד בבלי</dt>
 					<dt class="langTV lang-en">Talmud Bavli</dt>
 					<dd class="m-0" data-zfReplace="dafBavli"></dd>
 				</div>
@@ -293,7 +293,7 @@ layout: nothing
 				</zman-schedule>
 			</div>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en">
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="he en">
 			{% for item in site.data.tv.listTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
@@ -303,9 +303,9 @@ layout: nothing
 					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
-					<span class="langTV lang-hb">{{ item.names.he }}</span>
+					<span class="langTV lang-he">{{ item.names.he }}</span>
 					<span class="langTV lang-en">{{ item.names.en }}</span>
-					<span class="langTV lang-et">{{ item.names.et }}</span>
+					<span class="langTV lang-he-Latn">{{ item.names.he-Latn }}</span>
 					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>
 				</article>

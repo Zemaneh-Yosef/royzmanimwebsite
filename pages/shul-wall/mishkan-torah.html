@@ -79,7 +79,7 @@ layout: nothing
 		grid-column: 1 / span 3;
 	}
 
-	#content[data-current-page="1"] .langTV:not(.lang-hb) {
+	#content[data-current-page="1"] .langTV:not(.lang-he) {
 		display: none;
 	}
 
@@ -228,7 +228,7 @@ layout: nothing
 		</div>
 		<div style="grid-row-end: span 2;">
 			<div data-en-date class="langTV lang-en text-center"></div>
-			<div data-hb-date class="langTV lang-hb text-center"></div>
+			<div data-hb-date class="langTV lang-he text-center"></div>
 			<hr style="margin: .15rem 0; width: 78%; margin-left: auto; margin-right: auto;">
 			<div id="clock" class="text-center"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
 			<div class="card mb-2 mt-3" style="font-size: .75rem;">
@@ -246,7 +246,7 @@ layout: nothing
 					</li>
 					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
 						<div data-zfFind="SefirathHaomer">
-							<div class="lang lang-hb" style="display: block !important;">
+							<div class="lang lang-he" style="display: block !important;">
 								<h5 class="mb-0" style="font-size: 1.15rem;">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
 								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
@@ -281,7 +281,7 @@ layout: nothing
 			</div>
 		</div>
 		<div style="line-height: 1.3;">
-			<h2 style="text-align: center;" data-parasha data-prefix="en-hb"></h2>
+			<h2 style="text-align: center;" data-parasha data-prefix="en-he"></h2>
 			<div class="centerLeftgrid">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
@@ -314,20 +314,20 @@ layout: nothing
 			</span>
 			<span data-zfReplace="Tachanun">
 				<span data-zfFind="0">
-					<span class="langTV lang-hb">לוח-תחנון יום</span>
-					<span class="langTV lang-en-et">Calendar-Taḥanun Day</span>
+					<span class="langTV lang-he">לוח-תחנון יום</span>
+					<span class="langTV lang-he-Latn">Calendar-Taḥanun Day</span>
 					<span class="langTV lang-en">Calendar-Taḥanun Day</span>
 					<span class="langTV lang-ru">Календарь — День Тахануна</span>
 				</span>
 				<span data-zfFind="1">
-					<span class="langTV lang-hb">תחנון רק בשחרית</span>
-					<span class="langTV lang-en-et">Only Taḥanun by Shaḥarith</span>
+					<span class="langTV lang-he">תחנון רק בשחרית</span>
+					<span class="langTV lang-he-Latn">Only Taḥanun by Shaḥarith</span>
 					<span class="langTV lang-en">Only Taḥanun by Shaḥarith</span>
 					<span class="langTV lang-ru">Только Таханун от Шахарит</span>
 				</span>
 				<span data-zfFind="2">
-					<span class="langTV lang-hb">אין תחנון היום</span>
-					<span class="langTV lang-en-et">No Taḥanun</span>
+					<span class="langTV lang-he">אין תחנון היום</span>
+					<span class="langTV lang-he-Latn">No Taḥanun</span>
 					<span class="langTV lang-en">No Taḥanun</span>
 					<span class="langTV lang-ru">Нет Тахануна</span>
 				</span>
@@ -341,15 +341,15 @@ layout: nothing
 			</span>
 		</div>
 		<div class="marquee marqueeHorizontal" id="flyerForBusiness" style="grid-column: 1 / span 3; --length: 45s">
-			<section class="wideView marquee__content" data-zfFind="calendarFormatter" data-langPull="hb en">
+			<section class="wideView marquee__content" data-zfFind="calendarFormatter" data-langPull="he en">
 				<article
 					data-zmanid="customDawn"
 					data-round="later"
 					data-timeGetter="customDawn"
 				>
-					<span class="langTV lang-hb">עלות (חומרה)</span>
+					<span class="langTV lang-he">עלות (חומרה)</span>
 					<span class="langTV lang-en">Stringent Dawn</span>
-					<span class="langTV lang-et">Stringent Dawn</span>
+					<span class="langTV lang-he-Latn">Stringent Dawn</span>
 					<span class="langTV lang-ru"></span>
 					<span class="timeDisplay"></span>
 				</article>
@@ -362,9 +362,9 @@ layout: nothing
 						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 						{% if item.attributes.condition and item.id != "alot" %}data-condition="{{ item.attributes.condition }}"{% endif %}
 					>
-						<span class="langTV lang-hb">{{ item.names.he }}</span>
+						<span class="langTV lang-he">{{ item.names.he }}</span>
 						<span class="langTV lang-en">{{ item.names.en }}</span>
-						<span class="langTV lang-et">{{ item.names.et }}</span>
+						<span class="langTV lang-he-Latn">{{ item.names.he-Latn }}</span>
 						<span class="langTV lang-ru">{{ item.names.ru }}</span>
 						<span class="timeDisplay"></span>
 					</article>
@@ -374,9 +374,9 @@ layout: nothing
 					data-round="later"
 					data-timeGetter="getMinchaKetana"
 				>
-					<span class="langTV lang-hb">מנחה קטנה</span>
+					<span class="langTV lang-he">מנחה קטנה</span>
 					<span class="langTV lang-en">Mincha Ketana</span>
-					<span class="langTV lang-et">Mincha Ketana</span>
+					<span class="langTV lang-he-Latn">Mincha Ketana</span>
 					<span class="langTV lang-ru"></span>
 					<span class="timeDisplay"></span>
 				</article>
@@ -385,9 +385,9 @@ layout: nothing
 					data-round="later"
 					data-timeGetter="getTzetRT"
 				>
-					<span class="langTV lang-hb">רבינו תם</span>
+					<span class="langTV lang-he">רבינו תם</span>
 					<span class="langTV lang-en">Rabbenu Tam</span>
-					<span class="langTV lang-et">Rabbenu Tam</span>
+					<span class="langTV lang-he-Latn">Rabbenu Tam</span>
 					<span class="langTV lang-ru"></span>
 					<span class="timeDisplay"></span>
 				</article>

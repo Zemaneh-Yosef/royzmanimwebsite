@@ -19,7 +19,7 @@ const TEXT = {
 		legendRise: '↑ moon rises', legendSet: '↓ moon sets',
 		onlyRise: 'Times shown are moonrise', onlySet: 'Times shown are moonset'
 	},
-	hb: {
+	he: {
 		rises: 'זורחת', sets: 'שוקעת', from: 'נראית משעה', until: 'נראית עד', all: 'נראית כל הלילה',
 		earlyTitle: 'ברכת הלבנה: מג׳ עד ז׳ ימים למולד', month: 'חודש', allShort: 'כל הלילה',
 		legendRise: '↑ הלבנה זורחת', legendSet: '↓ הלבנה שוקעת',
@@ -87,7 +87,7 @@ export default class MoonRender {
      * Collects the months to print. Nothing is computed until start(): the workers need the refraction
      * data, which the page loads after constructing this (see nightRange()).
      * @param {import('../../../libraries/kosherZmanim/kosher-zmanim').GeoLocation} geoLocation
-     * @param {{language: "en" | "hb" | "en-et";timeFormat: 'h11' | 'h12' | 'h23' | 'h24';hourCalculator: "seasonal" | "degrees";israel: boolean;}} settings
+     * @param {{language: "en" | "he" | "he-Latn";timeFormat: 'h11' | 'h12' | 'h23' | 'h24';hourCalculator: "seasonal" | "degrees";israel: boolean;}} settings
      * @param {Temporal.PlainDate} baseDate
      * @param {Temporal.PlainDate} endDate
      */
@@ -227,7 +227,7 @@ export default class MoonRender {
     formatTime(ms, lang, timeFormat) {
         return Temporal.Instant.fromEpochMilliseconds(ms)
             .toZonedDateTimeISO(this.geoLocation.getTimeZone())
-            .toLocaleString(lang == 'hb' ? 'he' : 'en', { hourCycle: timeFormat, hour: 'numeric', minute: '2-digit' });
+            .toLocaleString(lang == 'he' ? 'he' : 'en', { hourCycle: timeFormat, hour: 'numeric', minute: '2-digit' });
     }
 
     /**
@@ -274,9 +274,9 @@ export default class MoonRender {
      * @param {'h11'|'h12'|'h23'|'h24'} timeFormat
      */
     buildMoonDay(row, lang, timeFormat) {
-        const t = TEXT[lang == 'hb' ? 'hb' : 'en'];
+        const t = TEXT[lang == 'he' ? 'he' : 'en'];
         const { rise, set, mid } = row.events;
-        const dayLabel = lang == 'hb' ? this.hNum.formatHebrewNumber(row.jewishDay) : row.jewishDay;
+        const dayLabel = lang == 'he' ? this.hNum.formatHebrewNumber(row.jewishDay) : row.jewishDay;
 
         let cells;
         switch (row.coverage) {
@@ -302,7 +302,7 @@ export default class MoonRender {
     buildMoonMonthCard(monthResult) {
         const lang = this.settings.language;
         const timeFormat = this.settings.timeFormat;
-        const title = lang == 'hb' ? monthResult.titleHe : monthResult.titleEn;
+        const title = lang == 'he' ? monthResult.titleHe : monthResult.titleEn;
 
         const daysHtml = monthResult.rows.map(row => this.buildMoonDay(row, lang, timeFormat)).join('');
 
@@ -345,7 +345,7 @@ export default class MoonRender {
     buildEarlyCell(row, lang, timeFormat) {
         if (!row) return `<td class="earlyCell empty">–</td>`;
 
-        const t = TEXT[lang == 'hb' ? 'hb' : 'en'];
+        const t = TEXT[lang == 'he' ? 'he' : 'en'];
         const { rise, set } = row.events;
         const shownRise = row.coverage === 'both' || row.coverage === 'from' ? rise : null;
         const shownSet = row.coverage === 'both' || row.coverage === 'until' ? set : null;
@@ -381,7 +381,7 @@ export default class MoonRender {
      * @param {'h11'|'h12'|'h23'|'h24'} timeFormat
      */
     moonBothCell(rise, set, lang, timeFormat) {
-        const t = TEXT[lang == 'hb' ? 'hb' : 'en'];
+        const t = TEXT[lang == 'he' ? 'he' : 'en'];
         const tz = this.geoLocation.getTimeZone();
         const toDate = (/** @type {number} */ ms) => Temporal.Instant.fromEpochMilliseconds(ms).toZonedDateTimeISO(tz).toPlainDate();
         const rd = toDate(rise.ms), sd = toDate(set.ms);
@@ -419,7 +419,7 @@ export default class MoonRender {
 
         const lang = this.settings.language;
         const timeFormat = this.settings.timeFormat;
-        const t = TEXT[lang == 'hb' ? 'hb' : 'en'];
+        const t = TEXT[lang == 'he' ? 'he' : 'en'];
 
         const months = monthResults.filter(m => m.earlyRows && m.earlyRows.length);
         if (!months.length) {
@@ -444,14 +444,14 @@ export default class MoonRender {
                 const glyph = ev ? moonGlyphSvg(ev.thetaDeg, ev.phaseAngleDeg, {
                     size: MOON_GLYPH_SIZE, horizon: false, label: 'Moon in the night sky'
                 }) : '';
-                const dayLabel = lang == 'hb' ? this.hNum.formatHebrewNumber(day) : day;
+                const dayLabel = lang == 'he' ? this.hNum.formatHebrewNumber(day) : day;
                 return `<th class="dayHead"><div class="moonGlyph">${glyph}</div>${dayLabel}</th>`;
             }).join('')
             + `</tr></thead>`;
 
         const rowsHtml = months.map(m => {
             const byDay = new Map(m.earlyRows.map(r => [r.jewishDay, r]));
-            const name = lang == 'hb' ? m.titleHe : m.titleEn;
+            const name = lang == 'he' ? m.titleHe : m.titleEn;
             return `<tr><th class="monthName" scope="row">${name}</th>`
                 + days.map(day => this.buildEarlyCell(byDay.get(day), lang, timeFormat)).join('')
                 + `</tr>`;

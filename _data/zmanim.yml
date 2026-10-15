@@ -3,7 +3,7 @@
   timeGetter: getAlotHashahar
   names:
     he: עלות השחר
-    et: Alot Ha'Shaḥar
+    he-Latn: Alot Ha'Shaḥar
     en: Dawn
   round: earlier
   descriptionIncludeArray:
@@ -15,7 +15,7 @@
   extraZmanim:
     - titles:
         he: עלות השחר (5 מיל/שמינית מהיום)
-        et: Alot Hashachar (5 mil/⅛<sup>th</sup> of the day)
+        he-Latn: Alot Hashachar (5 mil/⅛<sup>th</sup> of the day)
         en: Dawn (5 mil/⅛<sup>th</sup> of the day)
       timeGetter:
         functionCall: getAlotHashahar
@@ -24,7 +24,7 @@
   timeGetter: getMisheyakir
   names:
     he: טלית ותפילין
-    et: Earliest Tallit and Tefilin
+    he-Latn: Earliest Tallit and Tefilin
     en: Earliest Tallit and Tefilin
   descriptionInclude: zmanDescription/misheyakir.md
   round: later
@@ -36,7 +36,7 @@
   timeGetter: getNetz
   names:
     he: הנץ (משור)
-    et: HaNetz (Mishor)
+    he-Latn: HaNetz (Mishor)
     en: Sunrise (Sea Level)
   descriptionInclude: zmanDescription/hanetz.md
   round: later
@@ -45,20 +45,20 @@
     - names:
         he: מג'א
         en: MG'A
-        et: MG'A
+        he-Latn: MG'A
       timeGetter: getSofZemanShemaMGA
       id: mga
       round: earlier
     - names:
         he: גר'א
         en: GR'A
-        et: GR'A
+        he-Latn: GR'A
       timeGetter: getSofZemanShemaGRA
       id: gra
       round: earlier
   names:
     he: סוף זמן שמע
-    et: Sof Zeman Shema
+    he-Latn: Sof Zeman Shema
     en: Latest Shema
   descriptionInclude: zmanDescription/kriatShema.md
 - id: SofZmanChametz
@@ -66,7 +66,7 @@
     - names:
         he: אכילת
         en: Eating
-        et: Akhilath
+        he-Latn: Akhilath
       timeGetter: getSofZemanAhilathHametz
       id: eating
       attributes:
@@ -75,7 +75,7 @@
     - names:
         he: ביעור
         en: Burning
-        et: Biur
+        he-Latn: Biur
       timeGetter: getSofZemanBiurHametz
       id: burning
       attributes:
@@ -83,14 +83,14 @@
       round: earlier
   names:
     he: זמני חמץ
-    et: Ḥametz Times
+    he-Latn: Ḥametz Times
     en: Ḥametz Times
   descriptionInclude: zmanDescription/hametz.md
 - id: latestBrachotShmaGRA
   timeGetter: getSofZemanBerakhothShema
   names:
     he: סוף זמן ברכות שמע
-    et: Sof Zeman Berakhoth Shema
+    he-Latn: Sof Zeman Berakhoth Shema
     en: Latest Berakhoth Shema
   description: |-
     <p>
@@ -113,7 +113,7 @@
   timeGetter: getHatzoth
   names:
     he: חצות
-    et: Ḥatzot Hayom
+    he-Latn: Ḥatzot Hayom
     en: Midday
   description: |-
     <p>
@@ -144,20 +144,20 @@
     - names:
         he: גדולה
         en: Gedola
-        et: Earliest
+        he-Latn: Earliest
       timeGetter: getMinhaGedolah
       id: gedolah
       round: later
     - names:
         he: קטנה
         en: Ketana
-        et: Preferable
+        he-Latn: Preferable
       timeGetter: getMinchaKetana
       id: ketanah
       round: later
   names:
     he: זמן מנחה
-    et: Zeman Minḥa
+    he-Latn: Zeman Minḥa
     en: Times for Minḥa
   descriptionInclude: zmanDescription/mincha.md
 - id: plagHaminha
@@ -165,20 +165,20 @@
     - names:
         he: ה"ב
         en: H"B
-        et: H"B
+        he-Latn: H"B
       timeGetter: getPlagHaminhaHalachaBrurah
       id: hb
       round: later
     - names:
         he: י"י
         en: Y"Y
-        et: Y"Y
+        he-Latn: Y"Y
       timeGetter: getPlagHaminhaYalkutYosef
       id: yy
       round: later
   names:
     he: פלג המנחה
-    et: Pelag Ha'Minḥa
+    he-Latn: Pelag Ha'Minḥa
     en: Pelag Ha'Minḥa
   descriptionInclude: zmanDescription/plagHamincha.md
 - id: candleLighting
@@ -189,7 +189,7 @@
   timeGetter:
   names:
     he: הדלקת נרות
-    et: Candle Lighting
+    he-Latn: Candle Lighting
     en: Candle Lighting
   description: |-
     <p>
@@ -216,7 +216,7 @@
   timeGetter: getShkiya
   names:
     he: שקיעה
-    et: Sheqi'a
+    he-Latn: Sheqi'a
     en: Sunset
   description: |-
     <p>
@@ -248,20 +248,20 @@
     - names:
         he: שיטת מרן
         en: Regular
-        et: Regular
+        he-Latn: Regular
       timeGetter: getTzet
       id: regular
       round: later
     - names:
         he: חומרה
-        et: Ḥumra
+        he-Latn: Ḥumra
         en: Stringent
       timeGetter: getTzetHumra
       id: humra
       round: later
   names:
     he: צאת הכוכבים
-    et: Tzet Ha'Kokhavim
+    he-Latn: Tzet Ha'Kokhavim
     en: Nightfall
   description: |-
     <p>
@@ -293,7 +293,7 @@
   timeGetter: getTzetMelakha
   names:
     he: צאת שבת
-    et: Tzet Shabbat
+    he-Latn: Tzet Shabbat
     en: Shabbat Ends
   descriptionInclude: zmanDescription/tzetShabbat.md
   specialDropdownContent: True
@@ -306,7 +306,7 @@
   timeGetter: getTzetRT
   names:
     he: ר״ת
-    et: Rabbenu Tam
+    he-Latn: Rabbenu Tam
     en: Rabbenu Tam
   description: |-
     <p>
@@ -346,7 +346,7 @@
   timeGetter: getSolarMidnight
   names:
     he: חצות לילה
-    et: Hatzot Layla
+    he-Latn: Hatzot Layla
     en: Midnight
   description: |-
     <p>

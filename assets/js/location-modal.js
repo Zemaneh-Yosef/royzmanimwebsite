@@ -22,8 +22,8 @@ import { isInIsrael, applyLocationDefaults } from "./misc/israel.js";
 /** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeData} HazeData */
 
 /**
- * Text in the site's three languages. `en` falls back to `et`.
- * @typedef {{ hb: string, et: string, en?: string }} Tri
+ * Text in the site's three languages. `en` falls back to `he-Latn`.
+ * @typedef {{ he: string, "he-Latn": string, en?: string }} Tri
  */
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
@@ -47,7 +47,7 @@ const KEYS = Object.freeze({
  */
 function tri(t) {
 	const frag = document.createDocumentFragment();
-	for (const [cls, text] of /** @type {[string, string][]} */ ([["lang-hb", t.hb], ["lang-et", t.et], ["lang-en", t.en ?? t.et]])) {
+	for (const [cls, text] of /** @type {[string, string][]} */ ([["lang-he", t.he], ["lang-he-Latn", t["he-Latn"]], ["lang-en", t.en ?? t["he-Latn"]]])) {
 		const span = document.createElement("span");
 		span.className = "lang " + cls;
 		span.textContent = text;
@@ -104,18 +104,18 @@ const fmt = (n, digits = 0) => n.toLocaleString(undefined, { maximumFractionDigi
 /** Elapsed time since an epoch-ms stamp. @param {number} at @returns {Tri} */
 function ago(at) {
 	const min = Math.max(0, Math.round((Date.now() - at) / 60000));
-	if (min < 1) return { hb: "זה עתה", et: "just now" };
-	if (min < 90) return { hb: `לפני ${min} דק'`, et: `${min} min ago` };
+	if (min < 1) return { he: "זה עתה", "he-Latn": "just now" };
+	if (min < 90) return { he: `לפני ${min} דק'`, "he-Latn": `${min} min ago` };
 	const h = Math.round(min / 60);
-	return { hb: `לפני ${h} שע'`, et: `${h} h ago` };
+	return { he: `לפני ${h} שע'`, "he-Latn": `${h} h ago` };
 }
 
 /** @param {number} deg 0..360 @returns {Tri} */
 function cardinal(deg) {
 	const i = Math.round(((deg % 360) + 360) % 360 / 45) % 8;
 	return [
-		{ hb: "צפון", et: "N" }, { hb: "צפון-מזרח", et: "NE" }, { hb: "מזרח", et: "E" }, { hb: "דרום-מזרח", et: "SE" },
-		{ hb: "דרום", et: "S" }, { hb: "דרום-מערב", et: "SW" }, { hb: "מערב", et: "W" }, { hb: "צפון-מערב", et: "NW" }
+		{ he: "צפון", "he-Latn": "N" }, { he: "צפון-מזרח", "he-Latn": "NE" }, { he: "מזרח", "he-Latn": "E" }, { he: "דרום-מזרח", "he-Latn": "SE" },
+		{ he: "דרום", "he-Latn": "S" }, { he: "דרום-מערב", "he-Latn": "SW" }, { he: "מערב", "he-Latn": "W" }, { he: "צפון-מערב", "he-Latn": "NW" }
 	][i];
 }
 
@@ -131,12 +131,12 @@ function fmtShift(ms) {
  * @param {number} ratio @returns {Tri}
  */
 function lightClass(ratio) {
-	if (ratio < 0.01) return { hb: "שמיים טבעיים", et: "pristine sky" };
-	if (ratio < 0.08) return { hb: "פגיעה קלה באופק", et: "degraded near the horizon" };
-	if (ratio < 0.5) return { hb: "פגיעה עד לזנית", et: "degraded to the zenith" };
-	if (ratio < 3) return { hb: "השמיים הטבעיים אבדו", et: "natural sky lost" };
-	if (ratio < 30) return { hb: "שביל החלב אינו נראה", et: "Milky Way not visible" };
-	return { hb: "עיר מוארת מאוד", et: "very bright city sky" };
+	if (ratio < 0.01) return { he: "שמיים טבעיים", "he-Latn": "pristine sky" };
+	if (ratio < 0.08) return { he: "פגיעה קלה באופק", "he-Latn": "degraded near the horizon" };
+	if (ratio < 0.5) return { he: "פגיעה עד לזנית", "he-Latn": "degraded to the zenith" };
+	if (ratio < 3) return { he: "השמיים הטבעיים אבדו", "he-Latn": "natural sky lost" };
+	if (ratio < 30) return { he: "שביל החלב אינו נראה", "he-Latn": "Milky Way not visible" };
+	return { he: "עיר מוארת מאוד", "he-Latn": "very bright city sky" };
 }
 
 /**
@@ -169,18 +169,18 @@ function surfaceOf(spec) {
 
 /** @param {AtmosphereSpec | null | undefined} spec */
 function describeAir(spec) {
-	if (!spec) return val(tri({ hb: "אטמוספרה תקנית", et: "standard atmosphere" }));
+	if (!spec) return val(tri({ he: "אטמוספרה תקנית", "he-Latn": "standard atmosphere" }));
 	const air = surfaceOf(spec);
 	if (!Number.isFinite(air.t)) return val("—");
 	const parts = [fmtTemp(air.t)];
 	if (air.p !== null) parts.push(`${fmt(air.p)} mb`);
 	const out = val(ltr(parts.join(" · ")));
 	if (air.td !== null)
-		out.append(" · ", tri({ hb: "נקודת טל", et: "dew point" }), " ", ltr(fmtTemp(air.td)));
+		out.append(" · ", tri({ he: "נקודת טל", "he-Latn": "dew point" }), " ", ltr(fmtTemp(air.td)));
 	else if (air.rh !== null)
-		out.append(" · ", tri({ hb: "לחות", et: "humidity" }), " ", ltr(`${fmt(air.rh)}%`));
+		out.append(" · ", tri({ he: "לחות", "he-Latn": "humidity" }), " ", ltr(`${fmt(air.rh)}%`));
 	if (air.path !== null)
-		out.append(note({ hb: `פרופילים לאורך ${air.path} נקודות בכיוון השמש`, et: `profiles at ${air.path} points towards the sun` }));
+		out.append(note({ he: `פרופילים לאורך ${air.path} נקודות בכיוון השמש`, "he-Latn": `profiles at ${air.path} points towards the sun` }));
 	return out;
 }
 
@@ -267,7 +267,7 @@ export default class LocationModal {
 		this._setText("locationBearing", `${bearing.toFixed(2)}°`);
 		this._setNodes("locationBearingCardinal", tri(cardinal(bearing)));
 		const km = `${fmt(distanceKm)} km`;
-		this._setNodes("locationDistance", tri({ hb: km, et: `${km} (${fmt(distanceKm * 0.621371)} mi)` }));
+		this._setNodes("locationDistance", tri({ he: km, "he-Latn": `${km} (${fmt(distanceKm * 0.621371)} mi)` }));
 
 		const needle = this.root.querySelector('[data-zfFind="locationCompassNeedle"]');
 		needle?.setAttribute("transform", `rotate(${bearing.toFixed(2)})`);
@@ -317,7 +317,7 @@ export default class LocationModal {
 
 		const ground = this._groundHeight();
 		this._setNodes("locationGroundHeight", ground === null
-			? val(tri({ hb: "לא זמין", et: "not available" }))
+			? val(tri({ he: "לא זמין", "he-Latn": "not available" }))
 			: val(`${ground.toFixed(1)} m`));
 	}
 
@@ -360,12 +360,12 @@ export default class LocationModal {
 		try {
 			// via Date: a Temporal.PlainDate only formats in a locale whose calendar matches its own
 			dateText = new Date(Date.UTC(date.year, date.month - 1, date.day))
-				.toLocaleDateString(settings.language() == "hb" ? "he" : "en", { dateStyle: "medium", timeZone: "UTC" });
+				.toLocaleDateString(settings.language() == "he" ? "he" : "en", { dateStyle: "medium", timeZone: "UTC" });
 		} catch { /* ISO is fine */ }
 
 		const nodes = [
 			el("p", "small text-body-secondary mt-3 mb-0",
-				tri({ hb: "נתוני האטמוספרה לתאריך הנבחר: ", et: "Atmosphere for the selected date: " }), ltr(dateText)),
+				tri({ he: "נתוני האטמוספרה לתאריך הנבחר: ", "he-Latn": "Atmosphere for the selected date: " }), ltr(dateText)),
 			this._climateSection(sunrise, sunset, date.month),
 			this._humiditySection(sunrise, sunset),
 			this._hazeSection(date),
@@ -384,35 +384,35 @@ export default class LocationModal {
 		/** @type {HTMLElement} */
 		let source;
 		if (forecastAt != null) {
-			source = val(tri({ hb: "תחזית מזג אוויר", et: "Weather forecast" }),
+			source = val(tri({ he: "תחזית מזג אוויר", "he-Latn": "Weather forecast" }),
 				note(ago(forecastAt)));
 			source.appendChild(el("div", "text-body-secondary",
-				tri({ hb: "כשבועיים קדימה; אחר כך ממוצעים אקלימיים.", et: "About two weeks ahead; later dates use climate averages." })));
+				tri({ he: "כשבועיים קדימה; אחר כך ממוצעים אקלימיים.", "he-Latn": "About two weeks ahead; later dates use climate averages." })));
 		} else if (provider) {
-			source = val(tri({ hb: "ממוצעים חודשיים (אין תחזית)", et: "Monthly averages (no forecast)" }));
+			source = val(tri({ he: "ממוצעים חודשיים (אין תחזית)", "he-Latn": "Monthly averages (no forecast)" }));
 		} else {
-			source = val(tri({ hb: "אטמוספרה תקנית (34.48′) — אין נתונים", et: "Standard atmosphere (34.48′) — no data" }));
+			source = val(tri({ he: "אטמוספרה תקנית (34.48′) — אין נתונים", "he-Latn": "Standard atmosphere (34.48′) — no data" }));
 		}
 
 		/** @type {[Tri, Node][]} */
 		const rows = [
-			[{ hb: "מקור", et: "Source" }, source],
-			[{ hb: "אוויר בזריחה", et: "Air at sunrise" }, describeAir(sunrise)],
-			[{ hb: "אוויר בשקיעה", et: "Air at sunset" }, describeAir(sunset)]
+			[{ he: "מקור", "he-Latn": "Source" }, source],
+			[{ he: "אוויר בזריחה", "he-Latn": "Air at sunrise" }, describeAir(sunrise)],
+			[{ he: "אוויר בשקיעה", "he-Latn": "Air at sunset" }, describeAir(sunset)]
 		];
 
 		/** @type {Normals | null} */
 		const normals = this.updater.refraction?.normals ?? null;
 		if (normals?.meanC?.length === 12 && normals.minC?.length === 12) {
 			const m = month - 1;
-			const v = val(ltr(`${fmtTemp(normals.meanC[m])}`), " ", tri({ hb: "ממוצע", et: "average" }),
-				" · ", ltr(fmtTemp(normals.minC[m])), " ", tri({ hb: "מינימום", et: "low" }));
+			const v = val(ltr(`${fmtTemp(normals.meanC[m])}`), " ", tri({ he: "ממוצע", "he-Latn": "average" }),
+				" · ", ltr(fmtTemp(normals.minC[m])), " ", tri({ he: "מינימום", "he-Latn": "low" }));
 			if (Number.isFinite(normals.pressureMb))
 				v.append(" · ", ltr(`${fmt(normals.pressureMb)} mb`));
-			rows.push([{ hb: "אקלים החודש", et: "This month's climate" }, v]);
+			rows.push([{ he: "אקלים החודש", "he-Latn": "This month's climate" }, v]);
 		}
 
-		return section({ hb: "אקלים ומזג אוויר", et: "Climate & weather" }, rows);
+		return section({ he: "אקלים ומזג אוויר", "he-Latn": "Climate & weather" }, rows);
 	}
 
 	/** @param {AtmosphereSpec | null} sunrise @param {AtmosphereSpec | null} sunset */
@@ -423,14 +423,14 @@ export default class LocationModal {
 		/** @type {HTMLElement} */
 		let status;
 		if (on && data)
-			status = val(tri({ hb: "פעיל", et: "On" }));
+			status = val(tri({ he: "פעיל", "he-Latn": "On" }));
 		else if (on)
-			status = val(tri({ hb: "פעיל", et: "On" }), note({ hb: "אין נתוני לחות לתאריך זה", et: "no humidity data for this date" }));
+			status = val(tri({ he: "פעיל", "he-Latn": "On" }), note({ he: "אין נתוני לחות לתאריך זה", "he-Latn": "no humidity data for this date" }));
 		else
-			status = val(tri({ hb: "כבוי", et: "Off" }), note({ hb: "אוויר יבש", et: "dry air" }));
+			status = val(tri({ he: "כבוי", "he-Latn": "Off" }), note({ he: "אוויר יבש", "he-Latn": "dry air" }));
 
-		return section({ hb: "לחות", et: "Humidity" }, [
-			[{ hb: "בחישוב השבירה", et: "In the refraction" }, status]
+		return section({ he: "לחות", "he-Latn": "Humidity" }, [
+			[{ he: "בחישוב השבירה", "he-Latn": "In the refraction" }, status]
 		]);
 	}
 
@@ -440,56 +440,56 @@ export default class LocationModal {
 		/** @type {HazeData | null} */
 		const haze = zc.config.haze ?? null;
 		if (!haze)
-			return section({ hb: "אובך וזיהום אור", et: "Haze & light pollution" }, [
-				[{ hb: "נתונים", et: "Data" }, val(tri({ hb: "לא זמינים (עדיין)", et: "not available (yet)" }))]
+			return section({ he: "אובך וזיהום אור", "he-Latn": "Haze & light pollution" }, [
+				[{ he: "נתונים", "he-Latn": "Data" }, val(tri({ he: "לא זמינים (עדיין)", "he-Latn": "not available (yet)" }))]
 			]);
 
 		const { aod, aodRef, forecast } = hazeOn(haze, date);
 		const evening = val(ltr(`AOD ${aod.toFixed(2)}`));
 		if (forecast)
 			evening.append(note(haze.forecastSource === "gefs"
-				? { hb: "תחזית NOAA GEFS", et: "NOAA GEFS forecast" }
-				: { hb: "תחזית CAMS", et: "CAMS forecast" }));
+				? { he: "תחזית NOAA GEFS", "he-Latn": "NOAA GEFS forecast" }
+				: { he: "תחזית CAMS", "he-Latn": "CAMS forecast" }));
 		else
-			evening.append(note({ hb: "ממוצע חודשי", et: "monthly average" }));
+			evening.append(note({ he: "ממוצע חודשי", "he-Latn": "monthly average" }));
 
-		const comparison = aod > aodRef * 1.15 ? { hb: "אובך מהרגיל", et: "hazier than usual" }
-			: aod < aodRef * 0.85 ? { hb: "צלול מהרגיל", et: "clearer than usual" }
-			: { hb: "כרגיל", et: "about usual" };
+		const comparison = aod > aodRef * 1.15 ? { he: "אובך מהרגיל", "he-Latn": "hazier than usual" }
+			: aod < aodRef * 0.85 ? { he: "צלול מהרגיל", "he-Latn": "clearer than usual" }
+			: { he: "כרגיל", "he-Latn": "about usual" };
 
 		/** @type {[Tri, Node][]} */
 		const rows = [
-			[{ hb: "הערב", et: "This evening" }, evening],
-			[{ hb: "ממוצע המקום", et: "Place's average" }, val(ltr(`AOD ${aodRef.toFixed(2)}`), note(comparison))]
+			[{ he: "הערב", "he-Latn": "This evening" }, evening],
+			[{ he: "ממוצע המקום", "he-Latn": "Place's average" }, val(ltr(`AOD ${aodRef.toFixed(2)}`), note(comparison))]
 		];
 
 		if (Number.isFinite(haze.aodScale) && haze.aodScale !== 1)
-			rows.push([{ hb: "כיול AERONET", et: "AERONET calibration" }, val(ltr(`× ${haze.aodScale.toFixed(2)}`))]);
+			rows.push([{ he: "כיול AERONET", "he-Latn": "AERONET calibration" }, val(ltr(`× ${haze.aodScale.toFixed(2)}`))]);
 
 		/** @type {HTMLElement} */
 		let effect;
 		if (zc.config.hazeTzet === false) {
-			effect = val(tri({ hb: "כבוי", et: "Off" }));
+			effect = val(tri({ he: "כבוי", "he-Latn": "Off" }));
 		} else {
 			const delay = zc.getHazeDelay();
 			const ms = delay ? delay.total({ unit: "milliseconds" }) : 0;
 			effect = val(ltr(fmtShift(ms)));
 			const cap = zc.config.hazeMaxDelayMinutes === undefined ? 15 : zc.config.hazeMaxDelayMinutes;
 			if (cap !== null && Math.abs(ms) >= cap * 60000 - 1)
-				effect.append(note({ hb: `הגיע לגבול של ${cap} דק'`, et: `at the ${cap}-minute limit` }));
+				effect.append(note({ he: `הגיע לגבול של ${cap} דק'`, "he-Latn": `at the ${cap}-minute limit` }));
 		}
-		rows.push([{ hb: "השפעה על צאת הכוכבים במעלות", et: "Effect on Tzet by degrees" }, effect]);
+		rows.push([{ he: "השפעה על צאת הכוכבים במעלות", "he-Latn": "Effect on Tzet by degrees" }, effect]);
 
 		if (Number.isFinite(haze.blpCdM2)) {
 			const ucd = haze.blpCdM2 * 1e6;
 			const ratio = ucd / NATURAL_SKY_UCD;
-			rows.push([{ hb: "זיהום אור", et: "Light pollution" },
+			rows.push([{ he: "זיהום אור", "he-Latn": "Light pollution" },
 				val(ltr(`${fmt(ucd, ucd < 10 ? 1 : 0)} µcd/m² (×${fmt(ratio, ratio < 1 ? 2 : 1)})`), note(lightClass(ratio)))]);
 		} else {
-			rows.push([{ hb: "זיהום אור", et: "Light pollution" }, val(tri({ hb: "לא ידוע", et: "unknown" }))]);
+			rows.push([{ he: "זיהום אור", "he-Latn": "Light pollution" }, val(tri({ he: "לא ידוע", "he-Latn": "unknown" }))]);
 		}
 
-		return section({ hb: "אובך וזיהום אור", et: "Haze & light pollution" }, rows);
+		return section({ he: "אובך וזיהום אור", "he-Latn": "Haze & light pollution" }, rows);
 	}
 
 	/** @param {AtmosphereSpec | null} sunrise @param {AtmosphereSpec | null} sunset */
@@ -500,36 +500,36 @@ export default class LocationModal {
 		/** @type {HTMLElement} */
 		let terrain;
 		if (horizon) {
-			terrain = val(tri({ hb: "זריחה נראית מחושבת לפי פני השטח", et: "Visible sunrise from the terrain" }));
+			terrain = val(tri({ he: "זריחה נראית מחושבת לפי פני השטח", "he-Latn": "Visible sunrise from the terrain" }));
 			const spots = horizon.points?.length ?? 0;
 			if (horizon.area?.radiusKm > 0)
 				terrain.append(note({
-					hb: `${spots} נקודות ברדיוס ${fmt(horizon.area.radiusKm, 1)} ק"מ`,
-					et: `${spots} spots within ${fmt(horizon.area.radiusKm, 1)} km`
+					he: `${spots} נקודות ברדיוס ${fmt(horizon.area.radiusKm, 1)} ק"מ`,
+					"he-Latn": `${spots} spots within ${fmt(horizon.area.radiusKm, 1)} km`
 				}));
 		} else {
-			terrain = val(tri({ hb: "לא זמין — הנץ לפי גובה פני הים", et: "Not available — netz at sea level" }));
+			terrain = val(tri({ he: "לא זמין — הנץ לפי גובה פני הים", "he-Latn": "Not available — netz at sea level" }));
 		}
 
 		const overWater = [sunrise, sunset].some(spec => spec && "path" in spec && spec.path.some(p => p.water));
-		const sea = val(tri(config.seaSurfaceLayer ? { hb: "פעיל", et: "On" } : { hb: "כבוי", et: "Off" }));
+		const sea = val(tri(config.seaSurfaceLayer ? { he: "פעיל", "he-Latn": "On" } : { he: "כבוי", "he-Latn": "Off" }));
 		if (overWater)
-			sea.append(note({ hb: "השמש עולה או שוקעת מעל מים", et: "the sun rises or sets over water" }));
+			sea.append(note({ he: "השמש עולה או שוקעת מעל מים", "he-Latn": "the sun rises or sets over water" }));
 
 		/** @type {[Tri, Node][]} */
 		const rows = [
-			[{ hb: "אופק", et: "Horizon" }, terrain],
-			[{ hb: "שכבת פני הים", et: "Sea surface layer" }, sea]
+			[{ he: "אופק", "he-Latn": "Horizon" }, terrain],
+			[{ he: "שכבת פני הים", "he-Latn": "Sea surface layer" }, sea]
 		];
 
 		const notes = this.updater.refraction?.notes ?? [];
 		if (notes.length) {
 			const details = el("details", undefined, el("summary", undefined, ltr(String(notes.length))));
 			details.append(el("ul", "mb-0 ps-3", ...notes.map(n => el("li", undefined, ltr(n)))));
-			rows.push([{ hb: "הערות טעינה", et: "Loading notes" }, details]);
+			rows.push([{ he: "הערות טעינה", "he-Latn": "Loading notes" }, details]);
 		}
 
-		return section({ hb: "אחר", et: "Other" }, rows);
+		return section({ he: "אחר", "he-Latn": "Other" }, rows);
 	}
 
 	// ─── Tab 3: edit ───────────────────────────────────────────────────────
@@ -589,13 +589,13 @@ export default class LocationModal {
 			/** @type {Tri | null} */
 			let error = null;
 			if (!(Number.isFinite(lat) && Math.abs(lat) <= 90))
-				error = { hb: "קו הרוחב חייב להיות בין ‎-90 ל-90.", et: "Latitude must be between -90 and 90." };
+				error = { he: "קו הרוחב חייב להיות בין ‎-90 ל-90.", "he-Latn": "Latitude must be between -90 and 90." };
 			else if (!(Number.isFinite(long) && Math.abs(long) <= 180))
-				error = { hb: "קו האורך חייב להיות בין ‎-180 ל-180.", et: "Longitude must be between -180 and 180." };
+				error = { he: "קו האורך חייב להיות בין ‎-180 ל-180.", "he-Latn": "Longitude must be between -180 and 180." };
 			else if (!Number.isFinite(elevation))
-				error = { hb: "הגובה אינו מספר.", et: "Elevation is not a number." };
+				error = { he: "הגובה אינו מספר.", "he-Latn": "Elevation is not a number." };
 			else if (!isValidTimeZone(timeZone))
-				error = { hb: "אזור הזמן אינו מוכר.", et: "Unknown timezone." };
+				error = { he: "אזור הזמן אינו מוכר.", "he-Latn": "Unknown timezone." };
 
 			if (error) {
 				this._setNodes("locationEditError", tri(error));
@@ -629,25 +629,25 @@ export default class LocationModal {
 			saveSetting(KEYS.hazeMaxDelay, noCap ? "none" : Number.isFinite(cap) && cap >= 0 ? String(cap) : null);
 			saveSetting(KEYS.humidity, String(this._input(form, "humidity").checked));
 			saveSetting(KEYS.seaSurfaceLayer, String(this._input(form, "seaSurfaceLayer").checked));
-			this._applyAtmosphere({ hb: "נשמר", et: "Saved" });
+			this._applyAtmosphere({ he: "נשמר", "he-Latn": "Saved" });
 		});
 
 		form.querySelector('[data-zfFind="atmosphereDefaults"]')?.addEventListener("click", () => {
 			for (const key of Object.values(KEYS))
 				saveSetting(key, null);
 			this.fillEditForms();
-			this._applyAtmosphere({ hb: "הוחזר לברירת המחדל", et: "Back to defaults" });
+			this._applyAtmosphere({ he: "הוחזר לברירת המחדל", "he-Latn": "Back to defaults" });
 		});
 
 		form.querySelector('[data-zfFind="atmosphereRefresh"]')?.addEventListener("click", async (event) => {
 			const btn = /** @type {HTMLButtonElement} */ (event.currentTarget);
 			btn.disabled = true;
-			this._setNodes("atmosphereStatus", tri({ hb: "טוען…", et: "Loading…" }));
+			this._setNodes("atmosphereStatus", tri({ he: "טוען…", "he-Latn": "Loading…" }));
 			try {
 				const updated = await this.updater._loadRefraction({ force: true });
 				this._setNodes("atmosphereStatus", tri(updated
-					? { hb: "התחזית עודכנה", et: "Forecast updated" }
-					: { hb: "עדכון התחזית נכשל", et: "Forecast update failed" }));
+					? { he: "התחזית עודכנה", "he-Latn": "Forecast updated" }
+					: { he: "עדכון התחזית נכשל", "he-Latn": "Forecast update failed" }));
 			} finally {
 				btn.disabled = false;
 			}

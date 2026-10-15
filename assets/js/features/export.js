@@ -63,7 +63,7 @@ export default class exportFriendly {
 			true,
 			{
 				// @ts-ignore
-				language: settings.language() == "hb" ? "he" : settings.language(),
+				language: settings.language(),
 				timeFormat: settings.timeFormat(), seconds: settings.seconds(),
 				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
 				fasts: Object.fromEntries([...document.querySelector('[data-zfFind="FastDays"]').getElementsByTagName("h5")]
@@ -71,7 +71,7 @@ export default class exportFriendly {
 						/** @type {HTMLHeadingElement} */
 						// @ts-ignore
 						const heading = ogHeading.cloneNode(true);
-						const [ hb, et, en ] = [...heading.children]
+						const [ he, heLatn, en ] = [...heading.children]
 							.map(langElem => {
 								while (langElem.querySelector('[data-zfFind="erevTzom"]'))
 									langElem.querySelector('[data-zfFind="erevTzom"]').remove()
@@ -79,7 +79,7 @@ export default class exportFriendly {
 								return langElem.innerHTML.replace(/<.*?>/gm, '');
 							})
 
-						return [heading.getAttribute("data-zfFind"), { hb, "en-et": et, en }[settings.language()]]
+						return [heading.getAttribute("data-zfFind"), { he, "he-Latn": heLatn, en }[settings.language()]]
 					})),
 				tahanun: Object.fromEntries([...document.querySelector('[data-zfFind="Tachanun"]').children]
 					.map(/** @returns {[string, string]} */
@@ -90,14 +90,14 @@ export default class exportFriendly {
 							? tachObj.innerHTML
 							: [...tachObj.children]
 								.find(langElem =>
-									[...langElem.classList].find(cl => cl.startsWith('lang-')).replace('lang-', '') == settings.language().replace('en-et', 'et'))
+									[...langElem.classList].find(cl => cl.startsWith('lang-')).replace('lang-', '') == settings.language())
 								.innerHTML
 						]
 				)),
 				refraction: calcInputs.refraction,
 				learningTitle: Object.fromEntries(
 					Object.keys(zmanLister.jCal.getAllLearning())
-					.map(/** @returns {[string, {"he": string; "en-et": string; "en": string}]} */
+					.map(/** @returns {[string, {"he": string; "he-Latn": string; "en": string}]} */
 						learnFind =>
 						[learnFind,
 							// @ts-ignore
@@ -105,7 +105,7 @@ export default class exportFriendly {
 							.parentElement
 							.getElementsByTagName("dt")]
 							.map(titleElem => [
-								[...titleElem.classList].find(cl => cl.startsWith('lang-')).replace('lang-', '').replace('hb', 'he').replace(/^et$/, 'en-et'),
+								[...titleElem.classList].find(cl => cl.startsWith('lang-')).replace('lang-', ''),
 								titleElem.innerHTML
 							]))
 						]
@@ -143,9 +143,9 @@ export default class exportFriendly {
 						start: time.subtract({ minutes: 30 }).epochMilliseconds,
 						end: time.add({ minutes: 30 }).epochMilliseconds,
 						title: {
-							hb: "תקופת " + tekufaMonth.he,
+							he: "תקופת " + tekufaMonth.he,
 							en: tekufaMonth.en + " Season",
-							"en-et": "Tekufath " + tekufaMonth.en
+							"he-Latn": "Tekufath " + tekufaMonth.en
 						}[settings.language()]
 					})
 				})
@@ -226,7 +226,7 @@ export default class exportFriendly {
 	/** @param {unknown} error */
 	reportFailure(error) {
 		console.error("Export failed:", error);
-		alert(settings.language() == "hb" ? "הייצוא נכשל. נא לנסות שוב." : "The export failed. Please try again.");
+		alert(settings.language() == "he" ? "הייצוא נכשל. נא לנסות שוב." : "The export failed. Please try again.");
 	}
 
 
@@ -274,7 +274,7 @@ export default class exportFriendly {
 				.filter(learn => document.getElementById(`exportlimudid-${learn}`).checked),
 			{
 				// @ts-ignore
-				language: settings.language() == "hb" ? "he" : settings.language(),
+				language: settings.language(),
 				calcConfig: [settings.calendarToggle.rtKulah(), settings.customTimes.tzeithIssurMelakha()],
 				seconds: settings.seconds(),
 				timeFormat: settings.timeFormat(),
@@ -293,12 +293,12 @@ export default class exportFriendly {
 			const { utils, writeFile } = (await import('../../libraries/xlsx.js'));
 			const wb = utils.book_new();
 
-			if (settings.language() === 'hb') {
+			if (settings.language() === 'he') {
 				wb.Workbook = { Views: [{ RTL: true }] };
 			}
 
 			const headerZemanimRow = Object.fromEntries(
-				[['DATE', {'hb': "יום", en: 'DATE', "en-et": "DATE"}[settings.language()]]]
+				[['DATE', {'he': "יום", en: 'DATE', "he-Latn": "DATE"}[settings.language()]]]
 					.concat(Object.entries(exportZmanList).map(entry => [entry[0], entry[1].title[settings.language()]]))
 			);
 
@@ -314,11 +314,11 @@ export default class exportFriendly {
 			utils.book_append_sheet(wb, zemanimWs, "Zemanim");
 
 			const limudimHeaders = Object.fromEntries(
-				[['DATE', {'hb': "יום", en: 'DATE', "en-et": "DATE"}[settings.language()]]]
+				[['DATE', {'he': "יום", en: 'DATE', "he-Latn": "DATE"}[settings.language()]]]
 				.concat([...document.querySelector('[data-zffind="DafYomi"]').children]
 				.map(limud => [
 					limud.querySelector('[data-zfreplace]').getAttribute('data-zfreplace'),
-					limud.querySelector(`.lang-${settings.language().replace('en-et', 'et')}`).innerHTML
+					limud.querySelector(`.lang-${settings.language()}`).innerHTML
 				])
 				.filter(learn => document.getElementById(`exportlimudid-${learn[0]}`).checked))
 			)

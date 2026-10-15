@@ -139,7 +139,7 @@ layout: nothing
 		display: block;
     }
 
-	#content[data-current-page="1"] .langTV:not(.lang-hb) {
+	#content[data-current-page="1"] .langTV:not(.lang-he) {
 		display: none;
 	}
 
@@ -241,7 +241,7 @@ layout: nothing
 	<img id="gne" src="/assets/images/shul-wall/shaarehTefilah.svg" />
 	<div id="poweredBy">
         <span class="langTV lang-en">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
-		<span class="langTV lang-hb">הובה עליכם ממאור נעים והלוח זמני יוסף, שהולך על פי שיטת מרן עובדיה זצ"ל</span>
+		<span class="langTV lang-he">הובה עליכם ממאור נעים והלוח זמני יוסף, שהולך על פי שיטת מרן עובדיה זצ"ל</span>
         <span class="langTV lang-ru">Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.</span>
 	</div>
 	<div id="dataGrid">
@@ -257,7 +257,7 @@ layout: nothing
 			<div id="dateContainer">
 				<div><span data-hb-date></span>
 				<hr style="margin: .25rem 0">
-				<span class="langTV lang-en lang-hb" data-en-date></span>
+				<span class="langTV lang-en lang-he" data-en-date></span>
 				<span class="langTV lang-ru" data-ru-date></span></div>
 			</div>
 			<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
@@ -267,26 +267,26 @@ layout: nothing
 					<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
 						{% for fast in site.data.events.fasts %}
 						<h5 data-zfFind="{{ fast.yomTovIndex }}">
-							<span class="lang lang-hb">{{ fast.text.he }}</span>
-							<span class="lang lang-et">{{ fast.text.et }}</span>
+							<span class="lang lang-he">{{ fast.text.he }}</span>
+							<span class="lang lang-he-Latn">{{ fast.text.he-Latn }}</span>
 							<span class="lang lang-en">{{ fast.text.en }}</span>
 						</h5>
 						{% endfor %}
 						<span data-zfFind="oneDayTimes">
 							<b class="lang lang-en">Fast Times: </b>
-							<b class="lang lang-et">Fast Times: </b>
-							<b class="lang lang-hb">שעות הצום: </b>
+							<b class="lang lang-he-Latn">Fast Times: </b>
+							<b class="lang lang-he">שעות הצום: </b>
 						</span>
 						<ul data-zfFind="twoDayTimes">
 							<li>
 								<b class="lang lang-en">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-et">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-hb">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+								<b class="lang lang-he-Latn">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+								<b class="lang lang-he">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
 							</li>
 							<li>
 								<b class="lang lang-en">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-et">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-								<b class="lang lang-hb">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+								<b class="lang lang-he-Latn">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+								<b class="lang lang-he">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
 							</li>
 						</ul>
 					</li>
@@ -301,7 +301,7 @@ layout: nothing
 									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
 								</p>
 							</div>
-							<div class="lang lang-et">
+							<div class="lang lang-he-Latn">
 								<h5 class="mb-0">Today is <span data-zfReplace="completeCount"></span> of the Omer</h5>
 								<p>which <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
@@ -310,7 +310,7 @@ layout: nothing
 									<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
 								</p>
 							</div>
-							<div class="lang lang-hb">
+							<div class="lang lang-he">
 								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
 								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
@@ -323,12 +323,12 @@ layout: nothing
 						</div>
 						<div data-zfFind="ThreeWeeksHeader">
 							<h5>
-								<span class="lang lang-hb">
+								<span class="lang lang-he">
 									<span data-zfFind="threeWeeks">שלושה שבועות</span>
 									<span data-zfFind="nineDays">תשעה ימים</span>
 									<span data-zfFind="weekOf">שבוע שחל בו</span>
 								</span>
-								<span class="lang lang-et">
+								<span class="lang lang-he-Latn">
 									<span data-zfFind="threeWeeks">Three Weeks</span>
 									<span data-zfFind="nineDays">Nine Days</span>
 									<span data-zfFind="weekOf">The week of Tisha Beav</span>
@@ -344,8 +344,8 @@ layout: nothing
 							<ul class="marquee__content">
 								{% for minhag in site.data.mourningMinhag %}
 								<li data-zfFind="{{ minhag.topic }}">
-									<span class="lang lang-hb">{{ minhag.text.he }}</span>
-									<span class="lang lang-et">{{ minhag.text.en }}</span>
+									<span class="lang lang-he">{{ minhag.text.he }}</span>
+									<span class="lang lang-he-Latn">{{ minhag.text.en }}</span>
 									<span class="lang lang-en">{{ minhag.text.en }}</span>
 								</li>
 								{% endfor %}
@@ -353,8 +353,8 @@ layout: nothing
 							<ul class="marquee__content">
 								{% for minhag in site.data.mourningMinhag %}
 								<li aria-hidden="true" data-zfFind="{{ minhag.topic }}">
-									<span class="lang lang-hb">{{ minhag.text.he }}</span>
-									<span class="lang lang-et">{{ minhag.text.en }}</span>
+									<span class="lang lang-he">{{ minhag.text.he }}</span>
+									<span class="lang lang-he-Latn">{{ minhag.text.en }}</span>
 									<span class="lang lang-en">{{ minhag.text.en }}</span>
 								</li>
 								{% endfor %}
@@ -363,20 +363,20 @@ layout: nothing
 					</li>
 					<li class="list-group-item" data-zfReplace="Tachanun">
 						<span data-zfFind="0">
-							<span class="langTV lang-hb">לוח-תחנון יום</span>
-							<span class="langTV lang-en-et">Calendar-Taḥanun Day</span>
+							<span class="langTV lang-he">לוח-תחנון יום</span>
+							<span class="langTV lang-he-Latn">Calendar-Taḥanun Day</span>
 							<span class="langTV lang-en">Calendar-Taḥanun Day</span>
 							<span class="langTV lang-ru">Календарь — День Тахануна</span>
 						</span>
 						<span data-zfFind="1">
-							<span class="langTV lang-hb">תחנון רק בשחרית</span>
-							<span class="langTV lang-en-et">Only Taḥanun by Shaḥarith</span>
+							<span class="langTV lang-he">תחנון רק בשחרית</span>
+							<span class="langTV lang-he-Latn">Only Taḥanun by Shaḥarith</span>
 							<span class="langTV lang-en">Only Taḥanun by Shaḥarith</span>
 							<span class="langTV lang-ru">Только Таханун от Шахарит</span>
 						</span>
 						<span data-zfFind="2">
-							<span class="langTV lang-hb">אין תחנון היום</span>
-							<span class="langTV lang-en-et">No Taḥanun</span>
+							<span class="langTV lang-he">אין תחנון היום</span>
+							<span class="langTV lang-he-Latn">No Taḥanun</span>
 							<span class="langTV lang-en">No Taḥanun</span>
 							<span class="langTV lang-ru">Нет Тахануна</span>
 						</span>
@@ -384,17 +384,17 @@ layout: nothing
 						<span data-zfFind="4">יהי שם</span>
 					</li>
 					<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
-						<span class="lang lang-hb">ברכת החמה!</span>
-						<span class="lang lang-et">Birchath Hachama!</span>
+						<span class="lang lang-he">ברכת החמה!</span>
+						<span class="lang lang-he-Latn">Birchath Hachama!</span>
 						<span class="lang lang-en">Blessing of the sun!</span>
 					</li>
 					<li class="list-group-item" data-zfFind="BirchatHalevana">
-						<span class="lang lang-hb">
+						<span class="lang lang-he">
 							ברכת הלבנה (עד הלילה של <span data-zfReplace="date-hb-end"></span>)
 							<span data-zfFind="starts-tonight"> - מתחיל הלילה</span>
 							<span data-zfFind="ends-tonight"> - נגמר בלילה</span>
 						</span>
-						<span class="lang lang-et">
+						<span class="lang lang-he-Latn">
 							Birkath Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
 							<span data-zfFind="starts-tonight"> - Starts tonight</span>
 							<span data-zfFind="ends-tonight"> - Ends tonight</span>
@@ -411,11 +411,11 @@ layout: nothing
 						<span data-zfReplace="SeasonalPrayers"></span>
 					</li>
 					<li class="list-group-item" data-zfFind="Tekufa" style="display: none;">
-						<span class="lang lang-hb">
+						<span class="lang lang-he">
 							<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
 							<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
 						</span>
-						<span class="lang lang-et">
+						<span class="lang lang-he-Latn">
 							<b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
 							<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
 						</span>
@@ -428,7 +428,7 @@ layout: nothing
 			</div>
 		</div>
 		<div>
-			<h1 style="text-align: center;" data-parasha data-prefix="hb-en-ru"></h1>
+			<h1 style="text-align: center;" data-parasha data-prefix="he-en-ru"></h1>
 			<div id="quickTimes">
 				<div style="text-align: left; width: fit-content; line-height: 1;">
 					<div data-lightingCandles><i class="bi bi-fire"></i> </div>
@@ -444,7 +444,7 @@ layout: nothing
 			<div class="marquee__content"></div>
 			<div aria-hidden="true" class="marquee__content"></div>
 		</div>
-		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb ru en">
+		<section class="wideView" data-zfFind="calendarFormatter" data-langPull="he ru en">
 			{% for item in site.data.tv.listTVZman %}
 				<article
 					data-zmanid="{{ item.id }}"
@@ -454,7 +454,7 @@ layout: nothing
 					{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 					{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 				>
-					<span class="langTV lang-hb">{{ item.names.he }}</span>
+					<span class="langTV lang-he">{{ item.names.he }}</span>
 					<span class="langTV lang-en">{{ item.names.en }}</span>
 					<span class="langTV lang-ru">{{ item.names.ru }}</span>
 					<span class="timeDisplay"></span>

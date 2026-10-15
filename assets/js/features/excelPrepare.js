@@ -24,7 +24,7 @@ import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
  * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} isTimelyView
  * @param {string[]} selectedLimudim
- * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; refraction?: ExportRefraction }} funcSettings
+ * @param {{ language: "he-Latn" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; refraction?: ExportRefraction }} funcSettings
  */
 export default function spreadSheetExport(plainDateParams, geoLocationData, config, isIsrael, zmanList, isTimelyView, selectedLimudim, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)

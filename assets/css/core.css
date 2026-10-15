@@ -1,8 +1,8 @@
-body.lang-hb .lang:not(.lang-hb) {
+body.lang-he .lang:not(.lang-he) {
     display: none !important;
 }
 
-body.lang-en-et .lang:not(.lang-et) {
+body.lang-he-Latn .lang:not(.lang-he-Latn) {
     display: none !important;
 }
 
@@ -11,7 +11,7 @@ body.lang-en .lang:not(.lang-en) {
 }
 
 @media (min-width: 768px) {
-    body.lang-hb .d-md-hb-none {
+    body.lang-he .d-md-he-none {
         display: none !important;
     }
 
@@ -19,7 +19,7 @@ body.lang-en .lang:not(.lang-en) {
         display: none !important;
     }
 
-    body.lang-en-et .d-md-en-et-none {
+    body.lang-he-Latn .d-md-he-Latn-none {
         display: none !important;
     }
 }

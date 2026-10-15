@@ -160,7 +160,7 @@ layout: nothing
 		display: none;
 	}
 
-	#content[data-current-page="2"] .langTV:not(.lang-hb) {
+	#content[data-current-page="2"] .langTV:not(.lang-he) {
 		display: none;
 	}
 
@@ -470,12 +470,12 @@ layout: nothing
 						<span data-zfFind="starts-tonight"> - Starts tonight</span>
 						<span data-zfFind="ends-tonight"> - Ends tonight</span>
 					</span>
-					<span class="langTV lang-en-et">
+					<span class="langTV lang-he-Latn">
 						Birkat Ha'Levana (until the night of <span data-zfReplace="date-en-end"></span>)
 						<span data-zfFind="starts-tonight"> - Starts tonight</span>
 						<span data-zfFind="ends-tonight"> - Ends tonight</span>
 					</span>
-					<span class="langTV lang-hb">
+					<span class="langTV lang-he">
 						ברכת הלבנה (עד ליל <span data-zfReplace="date-hb-end"></span>)
 						<span data-zfFind="starts-tonight"> - מתחיל בלילה</span>
 						<span data-zfFind="ends-tonight"> - מסיים בלילה</span>
@@ -488,20 +488,20 @@ layout: nothing
 				</span>
 				<span data-zfReplace="Tachanun">
 					<span data-zfFind="0">
-						<span class="langTV lang-hb">לוח-תחנון יום</span>
-						<span class="langTV lang-en-et">Calendar-Taḥanun Day</span>
+						<span class="langTV lang-he">לוח-תחנון יום</span>
+						<span class="langTV lang-he-Latn">Calendar-Taḥanun Day</span>
 						<span class="langTV lang-en">Calendar-Taḥanun Day</span>
 						<span class="langTV lang-ru">Календарь — День Тахануна</span>
 					</span>
 					<span data-zfFind="1">
-						<span class="langTV lang-hb">תחנון רק בשחרית</span>
-						<span class="langTV lang-en-et">Only Taḥanun by Shaḥarith</span>
+						<span class="langTV lang-he">תחנון רק בשחרית</span>
+						<span class="langTV lang-he-Latn">Only Taḥanun by Shaḥarith</span>
 						<span class="langTV lang-en">Only Taḥanun by Shaḥarith</span>
 						<span class="langTV lang-ru">Только Таханун от Шахарит</span>
 					</span>
 					<span data-zfFind="2">
-						<span class="langTV lang-hb">אין תחנון היום</span>
-						<span class="langTV lang-en-et">No Taḥanun</span>
+						<span class="langTV lang-he">אין תחנון היום</span>
+						<span class="langTV lang-he-Latn">No Taḥanun</span>
 						<span class="langTV lang-en">No Taḥanun</span>
 						<span class="langTV lang-ru">Нет Тахануна</span>
 					</span>
@@ -517,11 +517,11 @@ layout: nothing
 		</div>
 		<div id="zemanehHayom">
 			<h1 style="text-align: center; margin-bottom: .75rem;">
-				<span class="langTV lang-hb">זמני היום</span>
+				<span class="langTV lang-he">זמני היום</span>
 				<span class="langTV lang-ru">Галахические времена</span>
 				<span class="langTV lang-en">Halachic Times</span>
 			</h1>
-			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en ru">
+			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="he en ru">
 				{% for item in site.data.tv.listTVZman %}
 					<article
 						data-zmanid="{{ item.id }}"
@@ -531,7 +531,7 @@ layout: nothing
 						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 						{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 					>
-						<span class="langTV lang-hb">{{ item.names.he }}</span>
+						<span class="langTV lang-he">{{ item.names.he }}</span>
 						<span class="langTV lang-en">{{ item.names.en }}</span>
 						<span class="langTV lang-ru">{{ item.names.ru }}</span>
 						<span class="timeDisplay"></span>
@@ -553,7 +553,7 @@ layout: nothing
 					</li>
 					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
 						<div data-zfFind="SefirathHaomer">
-							<div class="lang lang-hb" style="display: block !important;">
+							<div class="lang lang-he" style="display: block !important;">
 								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
 								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
@@ -594,7 +594,7 @@ layout: nothing
 		<div id="shulScheduling">
 			<h1 style="text-align: center; padding-top: .75rem; margin-bottom: .75rem;">
 				<span class="langTV lang-en">Weekday Schedule</span>
-				<span class="langTV lang-hb">לוח יומי</span>
+				<span class="langTV lang-he">לוח יומי</span>
 				<span class="langTV lang-ru">Расписание на будни</span>
 			</h1>
 			<div class="card" style="flex: .35 0 0;">
@@ -603,7 +603,7 @@ layout: nothing
 			</div>
 			<h1 style="text-align: center; padding-top: .75rem; margin-bottom: .75rem;">
 				<span class="langTV lang-en">Shabbat Schedule</span>
-				<span class="langTV lang-hb">לוח שבת</span>
+				<span class="langTV lang-he">לוח שבת</span>
 				<span class="langTV lang-ru">Расписание Шаббата</span>
 			</h1>
 			<div class="card">

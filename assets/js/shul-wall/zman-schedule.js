@@ -5,107 +5,107 @@ import autoSchedule from "./auto-schedule.js";
 
 const STYLED_SPAN_RE = /^<span data-zy-inserted-style style="([^"]*)">([\s\S]*)<\/span>$/;
 
-/** @type {Record<string, Partial<{ ru: string; et: string; en: string; hb: string; }>>} */
+/** @type {Record<string, Partial<{ ru: string; "he-Latn": string; en: string; he: string; }>>} */
 const localizedIndividual = {
 	"selihot": {
-		hb: "סליחות",
+		he: "סליחות",
 		en: "Selichot",
-		et: "Seliḥot",
+		"he-Latn": "Seliḥot",
 		ru: "Селихот"
 	},
 	"shacharit": {
-		hb: "שחרית",
+		he: "שחרית",
 		en: "Shacharit",
-		et: "Shaḥarit",
+		"he-Latn": "Shaḥarit",
 		ru: "Шахарит"
 	},
 	"mincha": {
-		hb: "מנחה",
+		he: "מנחה",
 		en: "Mincha",
-		et: "Minḥa",
+		"he-Latn": "Minḥa",
 		ru: "Минха"
 	},
 	"minchaArvit": {
-		hb: "מנחה וערבית",
+		he: "מנחה וערבית",
 		en: "Mincha & Arvit",
-		et: "Minḥa & Arvit",
+		"he-Latn": "Minḥa & Arvit",
 		ru: "Минха и Арвит"
 	},
 	"arvit": {
-		hb: "ערבית",
+		he: "ערבית",
 		en: "Arvit",
-		et: "Arvit",
+		"he-Latn": "Arvit",
 		ru: "Арвит"
 	},
 
 	"seudatShlishitMincha": {
-		hb: "מנחה + סעודת שלישית",
+		he: "מנחה + סעודת שלישית",
 		en: "Mincha + Seudat Shelishit",
-		et: "Minḥa + Seudat Shelishit",
+		"he-Latn": "Minḥa + Seudat Shelishit",
 		ru: "Минха + Сеудат Шелишит"
 	},
 	"hachnasatShabbat": {
-		hb: "הכנסת שבת<br>(מנחה, קבלת שבת וערבית)",
+		he: "הכנסת שבת<br>(מנחה, קבלת שבת וערבית)",
 		en: "Hakhnasat Shabbat<br>(Mincha, Kabbalat Shabbat & Arvit)",
-		et: "Hakhnasat Shabbat<br>(Minḥa, Kabbalat Shabbat & Arvit)",
+		"he-Latn": "Hakhnasat Shabbat<br>(Minḥa, Kabbalat Shabbat & Arvit)",
 		ru: "Встреча Шаббата<br>(Минха, Каббалат Шаббат и Арвит)"
 	},
 
 	"earlyMincha": {
-		hb: "מנחה מוקדמת",
+		he: "מנחה מוקדמת",
 		en: "Early Mincha",
-		et: "Early Minḥa",
+		"he-Latn": "Early Minḥa",
 		ru: "Ранняя Минха"
 	},
 
 	"afternoonShiur": {
-		hb: "שיעור אחר הצהריים",
+		he: "שיעור אחר הצהריים",
 		en: "Afternoon Shiur",
-		et: "Afternoon Shiur",
+		"he-Latn": "Afternoon Shiur",
 		ru: "Послеполуденный Шиур"
 	},
 	"morningShiur": {
-		hb: "שיעור בוקר",
+		he: "שיעור בוקר",
 		en: "Morning Shiur",
-		et: "Morning Shiur",
+		"he-Latn": "Morning Shiur",
 		ru: "Утренний Шиур"
 	},
 
 	"mainShaharit": {
-		hb: "שחרית ראשית",
+		he: "שחרית ראשית",
 		en: "Main Shacharit",
-		et: "Main Shaḥarit",
+		"he-Latn": "Main Shaḥarit",
 		ru: "Основной Шахарит"
 	},
 	"youthShaharit": {
-		hb: "שחרית לנערים",
+		he: "שחרית לנערים",
 		en: "Youth Shacharit",
-		et: "Youth Shaḥarit",
+		"he-Latn": "Youth Shaḥarit",
 		ru: "Шахарит для молодежи"
 	},
 
 	"selichot1": {
-		hb: "סליחות ראשונות",
+		he: "סליחות ראשונות",
 		en: "1st Selichot",
-		et: "1st Seliḥot",
+		"he-Latn": "1st Seliḥot",
 		ru: "1-й Селихот"
 	},
 	"shacharit1": {
-		hb: "שחרית ראשונה",
+		he: "שחרית ראשונה",
 		en: "1st Shacharit",
-		et: "1st Shaḥarit",
+		"he-Latn": "1st Shaḥarit",
 		ru: "1-й Шахарит"
 	},
 	"selichot2": {
-		hb: "סליחות שניות",
+		he: "סליחות שניות",
 		en: "2nd Selichot",
-		et: "2nd Seliḥot",
+		"he-Latn": "2nd Seliḥot",
 		ru: "2-й Селихот"
 	},
 	"shacharit2": {
-		hb: "שחרית שנייה",
+		he: "שחרית שנייה",
 		en: "2nd Shacharit",
-		et: "2nd Shaḥarit",
+		"he-Latn": "2nd Shaḥarit",
 		ru: "2-й Шахарит"
 	}
 }

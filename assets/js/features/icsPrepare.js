@@ -32,7 +32,7 @@ const monViewNight = (monthView, calc) =>
  * @param {boolean} isIsrael
  * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} monthView
- * @param {{ language: "en-et" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; fasts: Record<string, string>; tahanun: Record<string, string>; refraction?: import("./excelPrepare.js").ExportRefraction; learningTitle: Record<string, { "en-et": string; en: string; he: string; }>; }} funcSettings
+ * @param {{ language: "he-Latn" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; fasts: Record<string, string>; tahanun: Record<string, string>; refraction?: import("./excelPrepare.js").ExportRefraction; learningTitle: Record<string, { "he-Latn": string; en: string; he: string; }>; }} funcSettings
  */
 export default async function icsExport (plainDateParams, geoLocationData, config, isIsrael, zmanList, monthView=true, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
@@ -49,7 +49,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 	calc.setDate(baseDate);
 
 	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-	const dtF = [funcSettings.language, {
+	const dtF = [funcSettings.language == "he" ? "he" : "en", {
 		hourCycle: funcSettings.timeFormat,
 		hour: 'numeric',
 		minute: '2-digit'
@@ -63,27 +63,27 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 		// Holidays
 		[YihudCalendar.PESACH]: {
 			he: "פסח",
-			"en-et": "Pesaḥ",
+			"he-Latn": "Pesaḥ",
 			en: "Passover",
 		},
 		[YihudCalendar.SHAVUOS]: {
 			en: "Shavu'oth",
 			he: "שבועות",
-			"en-et": "Shavu'oth"
+			"he-Latn": "Shavu'oth"
 		},
 		[YihudCalendar.ROSH_HASHANA]: {
 			he: "ראש השנה",
 			en: "Rosh Hashana",
-			"en-et": "Rosh Hashana"
+			"he-Latn": "Rosh Hashana"
 		},
 		[YihudCalendar.SUCCOS]: {
 			he: "סוכות",
 			en: "Sukkoth",
-			"en-et": "Sukkoth"
+			"he-Latn": "Sukkoth"
 		},
 		[YihudCalendar.HOSHANA_RABBA]: {
 			he: "הושענא רבה",
-			"en-et": "Hosh'ana Rabba",
+			"he-Latn": "Hosh'ana Rabba",
 			en: "Hosh'ana Rabba"
 		},
 
@@ -92,12 +92,12 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 		[YihudCalendar.SHEMINI_ATZERES]: {
 			he: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
 			en: "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
-			"en-et": "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
+			"he-Latn": "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
 		},
 		[YihudCalendar.SIMCHAS_TORAH]: {
 			he: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
 			en: (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simḥath Torah",
-			"en-et": (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simḥath Torah"
+			"he-Latn": (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simḥath Torah"
 		},
 	})
 
@@ -111,7 +111,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
 		const dailyZmanim = Object.values(jCal.getZmanimInfo(true, calc, zmanList, dtF))
 			.filter(entry => entry.display == 1)
-			.map(entry => `${entry.title[funcSettings.language == "he" ? "hb" : funcSettings.language]}: ${entry.zDTObj.toLocaleString(...entry.dtF)}`)
+			.map(entry => `${entry.title[funcSettings.language]}: ${entry.zDTObj.toLocaleString(...entry.dtF)}`)
 			.join('\n')
 
 		const tachanun = funcSettings.tahanun[jCal.tefilahRules().tachanun.toString()];
@@ -147,7 +147,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 
 			const validFrom = levana.recommendedStart ?? levana.start;
 			if (Temporal.PlainDate.compare(validFrom.toPlainDate(), jCal.getDate()) == 0) {
-				const t = levanaText[funcSettings.language == "he" ? "hb" : funcSettings.language];
+				const t = levanaText[funcSettings.language];
 				/** @param {Temporal.ZonedDateTime} zDT */
 				const fmt = zDT => zDT.toLocaleString(dtF[0], { weekday: 'short', month: 'short', day: 'numeric', ...dtF[1] });
 				const strictLine = levanaStrictLabel(levana, t) + ": " + fmt(levana.endStrict);
@@ -174,13 +174,13 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 				title: {
 					"he": "ספירת העומר - ליל " + (count in n2wordsOrdinal ? n2wordsOrdinal[count] : n2heWords(count)),
 					"en": "Sefirath Ha'Omer - Night " + count,
-					"en-et": "Sefirath Ha'Omer - Night " + count
+					"he-Latn": "Sefirath Ha'Omer - Night " + count
 				}[funcSettings.language],
-				description: `היום ${omerInfo.title.hb.mainCount} לעומר`
+				description: `היום ${omerInfo.title.he.mainCount} לעומר`
 			};
 
 			if (count >= 7)
-				calendarEvent.description += `, שהם ${omerInfo.title.hb.subCount.toString()}`;
+				calendarEvent.description += `, שהם ${omerInfo.title.he.subCount.toString()}`;
 
 			events.push(calendarEvent)
 		}
@@ -202,7 +202,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 				shabTitle += " | " + {
 					"he": "ליל " + n2wordsOrdinal[jCal.tomorrow().getDayOfChanukah()] + " של חנוכה",
 					"en": getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night of Ḥanuka",
-					"en-et": getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night of Ḥanuka"
+					"he-Latn": getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night of Ḥanuka"
 				}[funcSettings.language];
 
 			events.push({
@@ -217,7 +217,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 			let endHolHamoed = jCal.tomorrow();
 			let holHamoedDay = 1;
 			const fancyDate = (/** @type {YihudCalendar} */ cal) =>
-				cal.formatFancyDate({ ordinal: false, monthLength: "long", dayLength: "long" })[funcSettings.language == "he" ? "hb" : funcSettings.language];
+				cal.formatFancyDate({ ordinal: false, monthLength: "long", dayLength: "long" })[funcSettings.language];
 			let dateList = [getOrdinal(1, false) + " day: " + fancyDate(endHolHamoed)]
 			do {
 				endHolHamoed = endHolHamoed.tomorrow();
@@ -235,7 +235,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 				end: calc.chainDate(endHolHamoed.getDate()).getShkiya().epochMilliseconds,
 				title: {
 					"he": "חול המועד " + (jCal.isPesach() ? "פסח" : "סוכות"),
-					"en-et": "Ḥol HaMoedh " + (jCal.isPesach() ? "Pesah" : "Sukkot"),
+					"he-Latn": "Ḥol HaMoedh " + (jCal.isPesach() ? "Pesah" : "Sukkot"),
 					"en": (jCal.isPesach() ? "Passover" : "Sukkoth") + " - Intermediate Days"
 				}[funcSettings.language],
 				description: dateList.join('\n')
@@ -246,7 +246,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 			const title = {
 				"he": "חנוכה - ליל " + n2wordsOrdinal[jCal.tomorrow().getDayOfChanukah()],
 				"en": "Ḥanuka - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night",
-				"en-et": "Ḥanuka - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night"
+				"he-Latn": "Ḥanuka - " + getOrdinal(jCal.tomorrow().getDayOfChanukah()) + " night"
 			}[funcSettings.language];
 
 			if (jCal.getDayOfWeek() == Calendar.SATURDAY) {
@@ -271,7 +271,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 				title: {
 					"he": "ראש חודש " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'}),
 					"en": "Rosh Ḥodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'}),
-					"en-et": "Rosh Ḥodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'})
+					"he-Latn": "Rosh Ḥodesh " + definiteDayOfNextMonth.coreZC.getDate().toLocaleString('en-u-ca-hebrew', {month: 'long'})
 				}[funcSettings.language]
 			});
 		}
@@ -311,7 +311,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 						title: yomTovObj[jCal.tomorrow().getYomTovIndex()][funcSettings.language] + " - " + {
 							he: "יום " + new hebNumFormat().formatHebrewNumber(calOfTheHag.getDate().until(jCal.tomorrow().getDate()).total('days')),
 							en: "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().getDate()).total('days')),
-							"en-et": "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().getDate()).total('days'))
+							"he-Latn": "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().getDate()).total('days'))
 						}[funcSettings.language]
 					},
 					{
@@ -320,7 +320,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 						title: yomTovObj[jCal.tomorrow().getYomTovIndex()][funcSettings.language] + " - " + {
 							he: "יום " + new hebNumFormat().formatHebrewNumber(calOfTheHag.getDate().until(jCal.tomorrow().tomorrow().getDate()).total('days')),
 							en: "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().tomorrow().getDate()).total('days')),
-							"en-et": "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().tomorrow().getDate()).total('days'))
+							"he-Latn": "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().tomorrow().getDate()).total('days'))
 						}[funcSettings.language]
 					})
 				}
@@ -331,7 +331,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 					title: yomTovObj[jCal.tomorrow().getYomTovIndex()][funcSettings.language] + (jCal.tomorrow().isPesach() ? " - " + {
 						he: "יום " + new hebNumFormat().formatHebrewNumber(calOfTheHag.getDate().until(jCal.tomorrow().getDate()).total('days')),
 						en: "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().getDate()).total('days')),
-						"en-et": "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().getDate()).total('days'))
+						"he-Latn": "Day " + romanize(calOfTheHag.getDate().until(jCal.tomorrow().getDate()).total('days'))
 					}[funcSettings.language] : "")
 				})
 			}
@@ -362,7 +362,7 @@ export default async function icsExport (plainDateParams, geoLocationData, confi
 				end: calc.getSofZemanShemaGRA().epochMilliseconds,
 				title: {
 					'he': "ברכת החמה",
-					"en-et": "Birkath Haḥama",
+					"he-Latn": "Birkath Haḥama",
 					'en': "Blessing of the Sun"
 				}[funcSettings.language]
 			})

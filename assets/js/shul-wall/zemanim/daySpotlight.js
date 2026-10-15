@@ -25,7 +25,7 @@ export default class zmanimListUpdater {
 				luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
 				condition: timeSlot.getAttribute('data-condition'),
 				round: timeSlot.getAttribute('data-round'),
-				title: Object.fromEntries(['hb', 'en', 'en-et', 'ru'].map(lang => {
+				title: Object.fromEntries(['he', 'en', 'he-Latn', 'ru'].map(lang => {
 					if (!timeSlot.querySelector(`span.langTV.lang-${lang}`))
 						return null;
 
@@ -106,13 +106,13 @@ export default class zmanimListUpdater {
             todOrTomJCal = jCal.tomorrow();
             todOrTomZmanCalc = zmanCalc.tomorrow();
             document.querySelector('[data-zfFind="whichZemanimDay"]').innerHTML =
-                `<span class="langTV lang-hb">זמנים של מחר</span>
+                `<span class="langTV lang-he">זמנים של מחר</span>
                 <span class="langTV lang-en">Tomorrow's Zemanim</span>`;
         } else {
             todOrTomJCal = jCal;
             todOrTomZmanCalc = zmanCalc;
             document.querySelector('[data-zfFind="whichZemanimDay"]').innerHTML =
-                `<span class="langTV lang-hb">זמנים של היום</span>
+                `<span class="langTV lang-he">זמנים של היום</span>
                 <span class="langTV lang-en">Today's Zemanim</span>`;
         }
 		const zmanInfo = todOrTomJCal.getZmanimInfo(false, todOrTomZmanCalc, this.zmanimList, dtF);
@@ -141,14 +141,14 @@ export default class zmanimListUpdater {
 
 				timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].zDTObj.toLocaleString(...zmanInfo[zmanId].dtF)
 
-                if (zmanInfo[zmanId].title.hb)
-                    timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb
+                if (zmanInfo[zmanId].title.he)
+                    timeSlot.querySelector('.lang-he').innerHTML = zmanInfo[zmanId].title.he
 
                 if (zmanInfo[zmanId].title.en)
                     timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en
 
-                if (zmanInfo[zmanId].title["en-et"])
-                    timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[zmanId].title["en-et"];
+                if (zmanInfo[zmanId].title["he-Latn"])
+                    timeSlot.querySelector('.lang-he-Latn').innerHTML = zmanInfo[zmanId].title["he-Latn"];
 
 				// Calculate but hide! Can be derived via Inspect Element
 				if (!zmanInfo[zmanId].display)

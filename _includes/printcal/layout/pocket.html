@@ -187,9 +187,9 @@
 	<div id="title">
 		<img src="/assets/images/logo.png" id="logo" />
 		<br><div data-zyLocationText></div>
-		<span class="lang lang-hb">זמנים הלכתיים לפי המסורת הספרדית</span>
+		<span class="lang lang-he">זמנים הלכתיים לפי המסורת הספרדית</span>
 		<span class="lang lang-en">Halachic times according to Sepharadic tradition</span>
-		<span class="lang lang-et">Halachic times according to Sepharadic tradition</span>
+		<span class="lang lang-he-Latn">Halachic times according to Sepharadic tradition</span>
 	</div>
 	<img src="/assets/images/splash.jpg" id="bgCover" />
 	<div id="credits">
@@ -393,7 +393,7 @@
         <div id="intTitle">
             <img src="/assets/images/print/ZY-b&w-banner.png">
             <p id="intTitleLocation">
-				<span class="lang lang-hb">לוח נייד ל</span><span class="lang lang-et">Portable Print calendar for </span><span class="lang lang-et">Portable Print calendar for </span><span data-zyLocationText></span>
+				<span class="lang lang-he">לוח נייד ל</span><span class="lang lang-he-Latn">Portable Print calendar for </span><span class="lang lang-he-Latn">Portable Print calendar for </span><span data-zyLocationText></span>
 			</p>
         </div>
         <div id="intCredits">By Maor Na'im & Elyahu Jacobi<br>(Full credits on the back cover)</div>
@@ -466,21 +466,21 @@
 		{% for item in site.data.print.pocket-printOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyHeaderContainer style="grid-column-end: span 2;">
-			<span class="lang lang-hb">{{ item.names.he }}</span>
-			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-he">{{ item.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% for shita in item.shitot %}
 		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
-			<span class="lang lang-hb">{{ shita.names.he }}</span>
-			<span class="lang lang-et">{{ shita.names.et }}</span>
+			<span class="lang lang-he">{{ shita.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ shita.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ shita.names.en }}</span>
 		</div>
 		{% endfor %}
 		{% else %}
 		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}" {% if item.round %}data-round="{{ item.round }}"{% endif %}>
-			<span class="lang lang-hb">{{ item.names.he }}</span>
-			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-he">{{ item.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% endif %}

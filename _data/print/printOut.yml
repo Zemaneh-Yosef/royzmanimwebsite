@@ -3,122 +3,122 @@
   round: earlier
   names:
     he: עלות <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
-    et: Alot <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
+    he-Latn: Alot <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
     en: Dawn <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
 - timeGetter: getMisheyakir
   round: later
   names:
     he: משיכיר
-    et: Misheyakir
+    he-Latn: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
   round: later
   names:
     he: הנץ
-    et: HaNetz
+    he-Latn: HaNetz
     en: Sunrise
 - shitot:
     - names:
         he: מג'א
         en: MG'A
-        et: MG'A
+        he-Latn: MG'A
       timeGetter: getSofZemanShemaMGA
       round: earlier
       id: mga
     - names:
         he: גר'א
         en: GR'A
-        et: GR'A
+        he-Latn: GR'A
       timeGetter: getSofZemanShemaGRA
       round: earlier
       id: gra
   names:
     he: זמן שמע
-    et: Zeman Shema
+    he-Latn: Zeman Shema
     en: Latest Shema
 - timeGetter: getSofZemanBerakhothShema
   round: earlier
   names:
     he: זמן שחרית
-    et: Zeman Shaḥarit
+    he-Latn: Zeman Shaḥarit
     en: Latest Shaḥarit
 - timeGetter: getHatzoth
   round: earlier
   names:
     he: חצות
-    et: Ḥatsoth
+    he-Latn: Ḥatsoth
     en: Midday
 - shitot:
     - names:
         he: גדולה
         en: Early
-        et: Early
+        he-Latn: Early
       timeGetter: getMinhaGedolah
       round: later
       id: gedolah
     - names:
         he: קטנה
         en: Pref.
-        et: Pref.
+        he-Latn: Pref.
       timeGetter: getMinchaKetana
       round: later
       id: ketanah
   names:
     he: זמן מנחה
-    et: Zeman Minḥa
+    he-Latn: Zeman Minḥa
     en: Minḥa Times
 - shitot:
     - names:
         he: ה"ב
         en: H"B
-        et: H"B
+        he-Latn: H"B
       timeGetter: getPlagHaminhaHalachaBrurah
       round: later
       id: hb
     - names:
         he: י"י
         en: Y"Y
-        et: Y"Y
+        he-Latn: Y"Y
       timeGetter: getPlagHaminhaYalkutYosef
       round: later
       id: yy
   names:
     he: פלג המנחה
-    et: Pelag Ha'Minḥa
+    he-Latn: Pelag Ha'Minḥa
     en: Pelag Ha'Minḥa
 - timeGetter: getShkiya
   round: earlier
   names:
     he: שקיעה
-    et: Sheqi'a
+    he-Latn: Sheqi'a
     en: Sunset
 - shitot:
     - names:
         he: שיטת מרן
         en: Reg.
-        et: Reg.
+        he-Latn: Reg.
       timeGetter: getTzet
       round: later
       id: regular
     - names:
         he: לחומרה
-        et: Ḥumra
+        he-Latn: Ḥumra
         en: Strict
       timeGetter: getTzetHumra
       round: later
       id: humra
   names:
     he: לילה <span data-zfFind="luachAmudehHoraah">(מוּתאָם)</span>
-    et: Night <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
+    he-Latn: Night <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
     en: Nightfall <span data-zfFind="luachAmudehHoraah">(Adj.)</span>
 - timeGetter: candleLighting
   names:
     he: נרות וצאת מלכה
-    et: Candles & Tzet Melakha
+    he-Latn: Candles & Tzet Melakha
     en: Candles & Tzet Melakha
 - timeGetter: getTzetRT
   round: later
   names:
     he: ר״ת
-    et: Rabbenu Tam
+    he-Latn: Rabbenu Tam
     en: Rabbenu Tam

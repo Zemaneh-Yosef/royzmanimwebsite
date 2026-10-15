@@ -149,7 +149,7 @@ if (useOhrHachaim || config.weeklyPrint.noTzetStrict) {
 		humraTzet.removeAttribute("data-zyTzetStrict")
 }
 
-let local = config.language == 'hb' ? 'he' : 'en'
+let local = config.language == 'he' ? 'he' : 'en'
 if (navigator.languages.find(lang => lang.startsWith(local)))
 	local = navigator.languages.find(lang => lang.startsWith(local));
 
@@ -759,7 +759,7 @@ function insertBackZemanim() {
 	}, /** @type {Record<string, Map<Temporal.PlainDate, any>>} */({}));
 
 	// Month names in the calendar the columns are actually in (Gregorian columns used to get Hebrew names)
-	const monthNameLocale = (config.language == 'hb' ? 'he' : 'en') + '-u-ca-' + (cal == 'hebrew' ? 'hebrew' : 'gregory');
+	const monthNameLocale = (config.language == 'he' ? 'he' : 'en') + '-u-ca-' + (cal == 'hebrew' ? 'hebrew' : 'gregory');
 
 	// Get all unique zeman names
 	const zemanNames = Object.keys(formattedBackZemanim);

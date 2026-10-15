@@ -3,68 +3,68 @@
   round: earlier
   names:
     he: עלות
-    et: עלות
+    he-Latn: עלות
     en: עלות
 - timeGetter: getMisheyakir
   round: later
   names:
     he: משיכיר
-    et: משיכיר
+    he-Latn: משיכיר
     en: משיכיר
 - shitot:
     - names:
         he: מישור
         en: מישור
-        et: מישור
+        he-Latn: מישור
       timeGetter: forceSeaLevelSunrise
       round: later
       id: seaLevel
     - names:
         he: כל השמש
         en: כל השמש
-        et: כל השמש
+        he-Latn: כל השמש
       timeGetter: testSunriseHBWorking
       round: later
       id: shemesh
   names:
     he: הנץ
-    et: הנץ
+    he-Latn: הנץ
     en: הנץ
 - shitot:
     - names:
         he: מג'א
         en: מג'א
-        et: מג'א
+        he-Latn: מג'א
       timeGetter: getSofZemanShemaMGA
       round: earlier
       id: mga
     - names:
         he: גר'א
         en: גר'א
-        et: גר'א
+        he-Latn: גר'א
       timeGetter: getSofZemanShemaGRA
       round: earlier
       id: gra
   names:
     he: זמן שמע
-    et: זמן שמע
+    he-Latn: זמן שמע
     en: זמן שמע
 - names:
     he: זמן תפילה
-    et: זמן תפילה
+    he-Latn: זמן תפילה
     en: זמן תפילה
   shitot:
     - names:
         he: שחרית ("מג'א")
         en: שחרית ("מג'א")
-        et: שחרית ("מג'א")
+        he-Latn: שחרית ("מג'א")
       timeGetter: getSofZemanAhilathHametz
       round: earlier
       id: mga
     - names:
         he: שמע ("גר'א")
         en: שמע ("גר'א")
-        et: שמע ("גר'א")
+        he-Latn: שמע ("גר'א")
       timeGetter: getSofZemanBerakhothShema
       round: earlier
       id: gra
@@ -72,80 +72,80 @@
   round: earlier
   names:
     he: חצות
-    et: חצות
+    he-Latn: חצות
     en: חצות
 - shitot:
     - names:
         he: גדולה
         en: גדולה
-        et: גדולה
+        he-Latn: גדולה
       timeGetter: netaneli-minhaGedola
       round: later
       id: gedolah
     - names:
         he: קטנה
         en: קטנה
-        et: קטנה
+        he-Latn: קטנה
       timeGetter: getMinchaKetana
       round: later
       id: ketanah
   names:
     he: זמן מנחה
-    et: זמן מנחה
+    he-Latn: זמן מנחה
     en: זמן מנחה
 - shitot:
     - names:
         he: גר"א
         en: גר"א
-        et: גר"א
+        he-Latn: גר"א
       timeGetter: getPlagHaminhaHalachaBrurah
       round: later
       id: hb
     - names:
         he: תד"ש
         en: תד"ש
-        et: תד"ש
+        he-Latn: תד"ש
       timeGetter: getPlagHaminhaTT
       round: later
       id: yy
   names:
     he: פלג המנחה
-    et: פלג המנחה
+    he-Latn: פלג המנחה
     en: פלג המנחה
 - timeGetter: getShkiya
   round: earlier
   names:
     he: שקיעה
-    et: שקיעה
+    he-Latn: שקיעה
     en: שקיעה
 - shitot:
     - names:
         he: עיקר הדין
         en: עיקר הדין
-        et: עיקר הדין
+        he-Latn: עיקר הדין
       timeGetter: getTzet
       round: later
       id: regular
     - names:
         he: לחומרה
-        et: לחומרה
+        he-Latn: לחומרה
         en: לחומרה
       timeGetter: getTzetHumra
       round: later
       id: humra
   names:
     he: לילה
-    et: לילה
+    he-Latn: לילה
     en: לילה
 - timeGetter: netaneli-candleLighting
   round: later
   names:
     he: נרות וצאת מלכה
-    et: נרות וצאת מלכה
+    he-Latn: נרות וצאת מלכה
     en: נרות וצאת מלכה
 - timeGetter: netaneli-rt
   round: later
   names:
     he: ר״ת
-    et: ר״ת
+    he-Latn: ר״ת
     en: ר״ת

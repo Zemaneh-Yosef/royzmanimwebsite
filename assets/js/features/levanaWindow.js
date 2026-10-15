@@ -7,7 +7,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
 
-/** @typedef {'hb'|'en'|'en-et'} Lang */
+/** @typedef {'he'|'en'|'he-Latn'} Lang */
 
 export const EN = {
 	title: (/** @type {string} */ m) => `Blessing of the Moon - Month of ${m}`,
@@ -23,14 +23,14 @@ export const EN = {
 /** @type {Record<Lang, typeof EN>} */
 export const TEXT = {
 	en: EN,
-	'en-et': {
+	'he-Latn': {
 		...EN,
 		title: m => `Birkath Ha'Levana - Ḥodesh ${m}`,
 		earlyEnd: shabbat => `Early End (${shabbat ? 'Shabbat' : 'Yom Tov'})`,
 		nightRange: 'Tzet – Alot',
 		twilightNote: 'Twilight only: the moon is up only between Sheqi\'a and Tzet, or between Alot and Hanetz.'
 	},
-	hb: {
+	he: {
 		title: m => `ברכת הלבנה - חודש ${m}`,
 		ends: 'סוף', strict: 'סוף לחומרא', rema: 'סוף לרמ״א',
 		earlyEnd: shabbat => `סוף מוקדם (מפני ${shabbat ? 'שבת' : 'יום טוב'})`, molad: 'מולד',

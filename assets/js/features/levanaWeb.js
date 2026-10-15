@@ -160,7 +160,7 @@ export default class LevanaCard {
 
 		return {
 			...win, tonightDay, lastNight, tonightTzet, tonightAlot,
-			monthName: settings.language() == 'hb' ? win.monthNames.he : win.monthNames.en
+			monthName: settings.language() == 'he' ? win.monthNames.he : win.monthNames.en
 		};
 	}
 
@@ -359,7 +359,7 @@ export default class LevanaCard {
 	formatDateTime(z, lang, updater, cardMonth) {
 		const f = this.formats(updater);
 		const time = z.toLocaleString(f.locale, f.time);
-		if (lang != 'hb')
+		if (lang != 'he')
 			return `${z.toLocaleString(f.locale, f.date)}, ${time}`;
 
 		const civil = z.toPlainDate().withCalendar('iso8601');

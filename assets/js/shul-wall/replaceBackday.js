@@ -15,7 +15,7 @@ for (const d8Displ of document.querySelectorAll(['', 'Formal', 'Y', 'SY', 'S', '
     d8jCal.setDate(d8jCal.getDate()[parseInt(entryFound[1]) < 0 ? 'add' : 'subtract']({ days: Math.abs(parseInt(entryFound[1])) }));
 
     if (dateRender.endsWith('jewishformal')) {
-        d8Displ.innerHTML = d8jCal.dateRenderer('en-et').primary.text;
+        d8Displ.innerHTML = d8jCal.dateRenderer('he-Latn').primary.text;
     } else if (dateRender.endsWith('formal')) {
         d8Displ.innerHTML = d8jCal.dateRenderer('en').primary.text;
     } else {

@@ -318,8 +318,8 @@ layout: nothing
 	</div>
 	<img src="/assets/images/print/cover.png" id="bgCover" />
 	<div data-zyLocationText>
-		<span class="lang lang-hb">זמנים של</span>
-		<span class="lang lang-et">For:</span>
+		<span class="lang lang-he">זמנים של</span>
+		<span class="lang lang-he-Latn">For:</span>
 		<span class="lang lang-en">For:</span>
 	</div>
 	<div id="credits">
@@ -343,8 +343,8 @@ layout: nothing
 <div class="zyCalFooter">
 	<div class="sides">
 		<h5 data-zyLocationText>
-			<span class="lang lang-hb">זמנים של</span>
-			<span class="lang lang-et">For:</span>
+			<span class="lang lang-he">זמנים של</span>
+			<span class="lang lang-he-Latn">For:</span>
 			<span class="lang lang-en">For:</span>
 		</h5>
 		<div data-geoCoordinates></div>
@@ -370,21 +370,21 @@ layout: nothing
 		{% for item in site.data.print.printOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
-			<span class="lang lang-hb">{{ item.names.he }}</span>
-			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-he">{{ item.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% for shita in item.shitot %}
 		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
-			<span class="lang lang-hb">{{ shita.names.he }}</span>
-			<span class="lang lang-et">{{ shita.names.et }}</span>
+			<span class="lang lang-he">{{ shita.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ shita.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ shita.names.en }}</span>
 		</div>
 		{% endfor %}
 		{% else %}
 		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}" {% if item.round %}data-round="{{ item.round }}"{% endif %}>
-			<span class="lang lang-hb">{{ item.names.he }}</span>
-			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-he">{{ item.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% endif %}
@@ -450,12 +450,12 @@ layout: nothing
 				<p style="text-align: center;">This section of the calendar aims to briefly explain every Halachic time for both calculation and concept.<br>For further research, please visit our website, royzmanim.com - we give additional sources from the Talmud onwards.</p>
 				<h5 style="text-align: center; margin-bottom: .125rem;">Daily Halachic Times Explanations</h5>
 				<div class="columnSplit" data-lang-extract>
-					<div class="lang lang-hb">
+					<div class="lang lang-he">
 						{{ dayExpl | markdownify }}
 						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
 						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
 					</div>
-					<div class="lang lang-et">
+					<div class="lang lang-he-Latn">
 						{{ dayExpl | markdownify }}
 						<div data-rt-text>{{ nightRTExpl | markdownify }}</div>
 						<div data-nort-text>{{ nightNORTExpl | markdownify }}</div>
@@ -468,8 +468,8 @@ layout: nothing
 				</div>
 				<h5 style="text-align: center; margin-bottom: .125rem;">Misc. Zemanim Explanations</h5>
 				<div class="columnSplit" style="--description-columns: 3;" data-lang-extract>
-					<div class="lang lang-hb">{{ miscExpl | markdownify }}</div>
-					<div class="lang lang-et">{{ miscExpl | markdownify }}</div>
+					<div class="lang lang-he">{{ miscExpl | markdownify }}</div>
+					<div class="lang lang-he-Latn">{{ miscExpl | markdownify }}</div>
 					<div class="lang lang-en">{{ miscExpl | markdownify }}</div>
 				</div>
 				<div class="advert" style="text-align: center;">

@@ -327,7 +327,7 @@ layout: nothing
 		display: none;
 	}
 
-	#content:is([data-measure-page="2"], :not([data-measure-page])[data-current-page="2"]) .langTV:not(.lang-hb) {
+	#content:is([data-measure-page="2"], :not([data-measure-page])[data-current-page="2"]) .langTV:not(.lang-he) {
 		display: none;
 	}
 
@@ -357,13 +357,13 @@ layout: nothing
 		<div id="shulScheduling">
 			<div id="dates">
 				<div class="langTV lang-en" data-en-date></div>
-				<div class="langTV lang-hb" data-hb-date></div>
+				<div class="langTV lang-he" data-hb-date></div>
 				<div class="langTV lang-ru" data-ru-date></div>
 			</div>
 			<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
 			<div id="boardContentCont">
 				<div id="boardContent">
-					<h1 data-parasha data-prefix="hb"></h1>
+					<h1 data-parasha data-prefix="he"></h1>
 					<div class="centerLeftgrid">
 						<div style="text-align: left; width: fit-content;">
 							<div data-lightingCandles><i class="bi bi-fire"></i> </div>
@@ -380,12 +380,12 @@ layout: nothing
 		<div id="bsD">בס"ד</div>
 		<div id="dailZmanim" class="templeBG">
 			<h3 style="text-align: center; margin-bottom: 0;">
-				<span class="langTV lang-hb">זמני היום</span>
+				<span class="langTV lang-he">זמני היום</span>
 				<span class="langTV lang-ru">Зманим дня</span>
 				<span class="langTV lang-en">Halachic Times</span>
 			</h3>
 			{% include clockCountdown.html %}
-			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="hb en ru">
+			<section class="wideView" data-zfFind="calendarFormatter" data-langPull="he en ru">
 				{% for item in site.data.tv.listTVZman %}
 					<article
 						data-zmanid="{{ item.id }}"
@@ -395,7 +395,7 @@ layout: nothing
 						{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 						{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 					>
-						<span class="langTV lang-hb">{{ item.names.he }}</span>
+						<span class="langTV lang-he">{{ item.names.he }}</span>
 						<span class="langTV lang-en">{{ item.names.en }}</span>
 						<span class="langTV lang-ru">{{ item.names.ru }}</span>
 						<span class="timeDisplay"></span>
@@ -417,7 +417,7 @@ layout: nothing
 					</li>
 					<li class="list-group-item" data-zfFind="MourningPeriod" style="display: none;">
 						<div data-zfFind="SefirathHaomer">
-							<div class="lang lang-hb" style="display: block !important;">
+							<div class="lang lang-he" style="display: block !important;">
 								<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
 								<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 								<p class="mb-0">
@@ -460,7 +460,7 @@ layout: nothing
 	</div>
 	<div id="poweredBy">
 		<span class="langTV lang-en">Powered using זמני יוסף, developed by Maor Na'im. All Halachic times based on Maran Ovadia Yosef zt"l</span>
-		<span class="langTV lang-hb">הובה עליכם ממאור נעים והלוח זמני יוסף, שהולך על פי שיטת מרן עובדיה זצ"ל</span>
+		<span class="langTV lang-he">הובה עליכם ממאור נעים והלוח זמני יוסף, שהולך על פי שיטת מרן עובדיה זצ"ל</span>
 		<span class="langTV lang-ru">Работает на основе "זמני יוסף", разработан Маором Наимом. Все галахические времена основаны на учении Марана Овадьи Йосефа, зт"л.</span>
 	</div>
 </div>

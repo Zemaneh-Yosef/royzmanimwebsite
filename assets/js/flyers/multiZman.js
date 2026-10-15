@@ -148,7 +148,7 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		//    .replace(/4/g, '٤').replace(/5/g, '٥').replace(/6/g, '٦').replace(/7/g, '۷').replace(/8/g, '۸').replace(/9/g, '۹')
 
 		if (hebrewLocale.addToCalendars) {
-			calendars.push(`${jCal.getDayOfTheWeek().hb}, `
+			calendars.push(`${jCal.getDayOfTheWeek().he}, `
 			+ (!hebrewLocale.titleYear
 				? jCal.formatJewishFullDate().hebrew
 				: `${hnF.formatHebrewNumber(jCal.getJewishDayOfMonth())} ${jCal.getDate().toLocaleString('he-u-ca-hebrew', {month: 'long'})}`))
@@ -523,8 +523,8 @@ for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) 
 			.getTzet()
 			.toLocaleString('en', { hourCycle: "h12", hour: "numeric", minute: "2-digit"})}`;
 
-	const sefiraText = "הַיּוֹם " +  omerJCal.getOmerInfo().title.hb.mainCount + ` לָעֹמֶר` +
-	(omerJCal.getDayOfOmer() >= 7 ? (`, שֶׁהֵם ` + omerJCal.getOmerInfo().title.hb.subCount.toString()) : '');
+	const sefiraText = "הַיּוֹם " +  omerJCal.getOmerInfo().title.he.mainCount + ` לָעֹמֶר` +
+	(omerJCal.getDayOfOmer() >= 7 ? (`, שֶׁהֵם ` + omerJCal.getOmerInfo().title.he.subCount.toString()) : '');
 
 	sefiraElement.firstElementChild.appendChild(document.createTextNode(headerText));
 	sefiraElement.appendChild(document.createTextNode(sefiraText))

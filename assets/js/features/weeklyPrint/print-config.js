@@ -57,7 +57,7 @@
  * @typedef {Object} PrintConfig
  * @property {boolean} seconds
  * @property {'h11'|'h12'|'h23'|'h24'} timeFormat
- * @property {'hb'|'en'|'en-et'} language
+ * @property {'he'|'en'|'he-Latn'} language
  * @property {CalendarToggle} calendarToggle
  * @property {CustomTimes} customTimes
  * @property {WeeklyPrint} weeklyPrint
@@ -69,6 +69,7 @@
  */
 
 import { isInIsrael } from "../../misc/israel.js";
+import { languageTag } from "../../misc/language.js";
 
 const params = new URLSearchParams(window.location.search);
 
@@ -177,7 +178,7 @@ function normalize(config) {
 	if (zones.length > 1)
 		throw new Error(`Every location must share one timezone; found ${zones.join(", ")}`);
 
-	const language = ['hb', 'en', 'en-et'].includes(config.language) ? config.language : 'en';
+	const language = languageTag(config.language) ?? 'en';
 
 	return {
 		...config,

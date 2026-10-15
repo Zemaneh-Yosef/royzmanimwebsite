@@ -5,7 +5,7 @@
   timeGetter: getAlotHashahar
   names:
     he: עלות השחר
-    et: Alot Ha'Shaḥar
+    he-Latn: Alot Ha'Shaḥar
     en: Dawn
   round: earlier
 - id: sunrise
@@ -13,26 +13,26 @@
     - names:
         he: ראשית הנץ
         en: Any Peak
-        et: Any Peak
+        he-Latn: Any Peak
       timeGetter: getNetz
       id: anyPeak
       round: later
     - names:
         he: גילוי מלא
         en: Full Reveal
-        et: Full Reveal
+        he-Latn: Full Reveal
       timeGetter: getNetzFullReveal
       id: fullReveal
       round: later
   names:
     he: הנץ
-    et: HaNetz
+    he-Latn: HaNetz
     en: Sunrise
 - id: latestShma
   timeGetter: getSofZemanShemaGRA
   names:
     he: סוף זמן שמע
-    et: Sof Zeman Shema
+    he-Latn: Sof Zeman Shema
     en: Latest Shema
   round: earlier
 - id: SofZmanChametz
@@ -40,7 +40,7 @@
     - names:
         he: אכילת
         en: Eating
-        et: Akhilath
+        he-Latn: Akhilath
       timeGetter: getSofZemanAhilathHametz
       id: eating
       attributes:
@@ -49,7 +49,7 @@
     - names:
         he: ביעור
         en: Burning
-        et: Biur
+        he-Latn: Biur
       timeGetter: getSofZemanBiurHametz
       id: burning
       attributes:
@@ -57,20 +57,20 @@
       round: earlier
   names:
     he: זמני חמץ
-    et: Ḥametz Times
+    he-Latn: Ḥametz Times
     en: Ḥametz Times
 - id: latestBrachotShmaGRA
   timeGetter: getSofZemanBerakhothShema
   names:
     he: סוף זמן ברכות שמע
-    et: Sof Zeman Berakhoth Shema
+    he-Latn: Sof Zeman Berakhoth Shema
     en: Latest Berakhoth Shema
   round: earlier
 - id: hatzoth
   timeGetter: getHatzoth
   names:
     he: חצות
-    et: Ḥatzot Hayom
+    he-Latn: Ḥatzot Hayom
     en: Midday
   round: earlier
 - id: minha
@@ -78,46 +78,46 @@
     - names:
         he: גדולה
         en: Gedola
-        et: Earliest
+        he-Latn: Earliest
       timeGetter: getMinhaGedolah
       id: gedolah
       round: later
     - names:
         he: קטנה
         en: Ketana
-        et: Preferable
+        he-Latn: Preferable
       timeGetter: getMinchaKetana
       id: ketanah
       round: later
   names:
     he: זמן מנחה
-    et: Zeman Minḥa
+    he-Latn: Zeman Minḥa
     en: Times for Minḥa
 - id: plagHaminha
   timeGetter: getPlagHaminhaHalachaBrurah
   names:
     he: פלג המנחה
-    et: Pelag Ha'Minḥa
+    he-Latn: Pelag Ha'Minḥa
     en: Pelag Ha'Minḥa
   round: later
 - id: sunset
   timeGetter: getShkiya
   names:
     he: שקיעה
-    et: Sheqi'a
+    he-Latn: Sheqi'a
     en: Sunset
   round: earlier
 - id: tzeit
   timeGetter: getTzet
   names:
     he: צאת הכוכבים
-    et: Tzet Ha'Kokhavim
+    he-Latn: Tzet Ha'Kokhavim
     en: Nightfall
   round: later
 - id: chatzotLayla
   timeGetter: getSolarMidnight
   names:
     he: חצות לילה
-    et: Hatzot Layla
+    he-Latn: Hatzot Layla
     en: Midnight
   round: later

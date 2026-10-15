@@ -212,8 +212,8 @@ layout: nothing
 <div class="zyCalFooter">
 	<div class="sides">
 		<h5 data-zyLocationText>
-			<span class="lang lang-hb">זמנים של</span>
-			<span class="lang lang-et">For:</span>
+			<span class="lang lang-he">זמנים של</span>
+			<span class="lang lang-he-Latn">For:</span>
 			<span class="lang lang-en">For:</span>
 		</h5>
 	</div>
@@ -231,21 +231,21 @@ layout: nothing
 		{% for item in site.data.print.minimal-printOut %}
 		{% if item.shitot %}
 		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
-			<span class="lang lang-hb">{{ item.names.he }}</span>
-			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-he">{{ item.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% for shita in item.shitot %}
 		<div class="tableHeader" {% if shita.round %}data-round="{{ shita.round }}"{% endif %} data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
-			<span class="lang lang-hb">{{ shita.names.he }}</span>
-			<span class="lang lang-et">{{ shita.names.et }}</span>
+			<span class="lang lang-he">{{ shita.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ shita.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ shita.names.en }}</span>
 		</div>
 		{% endfor %}
 		{% else %}
 		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}" {% if item.round %}data-round="{{ item.round }}"{% endif %}>
-			<span class="lang lang-hb">{{ item.names.he }}</span>
-			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-he">{{ item.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% endif %}

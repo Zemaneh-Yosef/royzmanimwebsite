@@ -4,7 +4,7 @@ preHatzot:
     timeGetter: getAlotHashahar
     names:
       he: עלות השחר
-      et: Alot Ha'Shaḥar
+      he-Latn: Alot Ha'Shaḥar
       en: Dawn
     round: earlier
   - id: misheyakir
@@ -12,7 +12,7 @@ preHatzot:
     timeGetter: getMisheyakir
     names:
       he: משיכיר
-      et: Misheyakir
+      he-Latn: Misheyakir
       en: Misheyakir
     round: later
   - id: sunrise
@@ -20,7 +20,7 @@ preHatzot:
     timeGetter: getNetz
     names:
       he: הנץ (משור)
-      et: HaNetz (Mishor)
+      he-Latn: HaNetz (Mishor)
       en: Sunrise (Sea Level)
     round: later
   - id: latestShmaMGA
@@ -28,21 +28,21 @@ preHatzot:
     names:
       he: זמן שמע מג'א
       en: Latest Shema (MG"A)
-      et: Latest Shema (MG"A)
+      he-Latn: Latest Shema (MG"A)
     round: earlier
   - id: latestShmaGRA
     timeGetter: getSofZemanShemaGRA
     names:
       he: זמן שמע גר'א
       en: Latest Shema (GR"A)
-      et: Latest Shema (GR"A)
+      he-Latn: Latest Shema (GR"A)
     round: earlier
   - id: latestBrachotShmaGRA
     timeGetter: getSofZemanBerakhothShema
     names:
       he: זמן ברכות שמע
       en: Latest Berakhot Shema
-      et: Latest Berakhot Shema
+      he-Latn: Latest Berakhot Shema
     round: earlier
 postHatzot:
   - id: minhaGedola
@@ -50,21 +50,21 @@ postHatzot:
     names:
       he: מנחה גדולה
       en: Early Mincha
-      et: Minḥa Gedola
+      he-Latn: Minḥa Gedola
     round: later
   - id: minhaKetana
     timeGetter: getMinchaKetana
     names:
       he: מנחה קטנה
       en: Mincha Ketana
-      et: Minḥa Ketana
+      he-Latn: Minḥa Ketana
     round: later
   - id: plagHaminhaYY
     timeGetter: getPlagHaminhaYalkutYosef
     names:
       he: פלג המנחה
       en: Pelag Ha'Mincha
-      et: Pelag Ha'Minḥa
+      he-Latn: Pelag Ha'Minḥa
     round: later
   - id: sunset
     icon: sunset
@@ -72,7 +72,7 @@ postHatzot:
     names:
       he: שקיעה
       en: Sunset
-      et: Sheq'a
+      he-Latn: Sheq'a
     round: earlier
   - id: tzeit
     icon: nightfall
@@ -80,7 +80,7 @@ postHatzot:
     names:
       he: צאת הכוכבים
       en: Nightfall
-      et: Tzet Ha'Kokhavim
+      he-Latn: Tzet Ha'Kokhavim
     round: later
   - id: rtNoRename
     icon: rabbenuTam
@@ -88,5 +88,5 @@ postHatzot:
     names:
       he: רבינו תם
       en: Rabbenu Tam
-      et: Rabbenu Tam
+      he-Latn: Rabbenu Tam
     round: later

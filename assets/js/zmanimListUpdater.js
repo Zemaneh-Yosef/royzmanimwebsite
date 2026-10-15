@@ -26,7 +26,7 @@ const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
  * @property {boolean} luachInclusive - Include if in Hebrew calendar
  * @property {string|null} condition - Custom condition
  * @property {string|null} round - Rounding strategy
- * @property {{hb: string; en: string; 'en-et': string}} title - Display titles
+ * @property {{he: string; en: string; 'he-Latn': string}} title - Display titles
  */
 
 export default class zmanimListUpdater {
@@ -101,9 +101,9 @@ export default class zmanimListUpdater {
 				condition: timeSlot.getAttribute('data-condition'),
 				round: timeSlot.getAttribute('data-round'),
 				title: {
-					'hb': timeSlot.querySelector('span.lang.lang-hb').innerHTML,
+					'he': timeSlot.querySelector('span.lang.lang-he').innerHTML,
 					'en': timeSlot.querySelector('span.lang.lang-en').innerHTML,
-					'en-et': timeSlot.querySelector('span.lang.lang-et').innerHTML
+					'he-Latn': timeSlot.querySelector('span.lang.lang-he-Latn').innerHTML
 				}
 			})])
 			.filter(
@@ -435,23 +435,23 @@ export default class zmanimListUpdater {
 		const pageTitleName = this.geoLocation.getLocationName() || "No location name provided";
 
 		document.title = {
-			"hb": "זמנים ל" + locationName + " - זמני יוסף",
+			"he": "זמנים ל" + locationName + " - זמני יוסף",
 			"en": "Halachic Times for " + locationName + " - Zemaneh Yosef/זמני יוסף",
-			"en-et": "Zemanim for " + locationName + " - Zemaneh Yosef/זמני יוסף"
+			"he-Latn": "Zemanim for " + locationName + " - Zemaneh Yosef/זמני יוסף"
 		}[settings.language()];
 
 		const shareIcon = document.createElement('i');
 		shareIcon.classList.add("fa", "fa-share-alt");
 		const shareData = {
 			title: {
-				"hb": "זמנים ל",
+				"he": "זמנים ל",
 				"en": "Halachic Times for ",
-				"en-et": "Zemanim for "
+				"he-Latn": "Zemanim for "
 			}[settings.language()] + locationName,
 			text: {
-				"hb": "כל הזמנים לפי שיטת מרן עובדיה יוסף זצ'ל, רק על זמני יוסף",
+				"he": "כל הזמנים לפי שיטת מרן עובדיה יוסף זצ'ל, רק על זמני יוסף",
 				"en": "Get all the Halachic times according to Rav Ovadia Yosef ZT'L, only on Zemaneh Yosef",
-				"en-et": "Get all the Zemanim according to Rav Ovadia Yosef ZT'L, only on Zemaneh Yosef"
+				"he-Latn": "Get all the Zemanim according to Rav Ovadia Yosef ZT'L, only on Zemaneh Yosef"
 			}[settings.language()],
 			url: window.location.href
 		};
@@ -513,7 +513,7 @@ export default class zmanimListUpdater {
 	 * Extracted from resetCalendar for readability.
 	 */
 	_setupLocaleFormat() {
-		let local = settings.language() == 'hb' ? 'he' : 'en';
+		let local = settings.language() == 'he' ? 'he' : 'en';
 		if (navigator.languages.find(lang => lang.startsWith(local)))
 			local = navigator.languages.find(lang => lang.startsWith(local));
 
@@ -900,7 +900,7 @@ export default class zmanimListUpdater {
 		for (const parashaElem of queryAllElements('[data-zfFind="Parasha"]'))
 			this.renderParashaBar(parashaElem);
 
-		const dayText = /** @type {('en'|'hb')[]} */ (['en', 'hb'])
+		const dayText = /** @type {('en'|'he')[]} */ (['en', 'he'])
 			.map((lang) => this.jCal.getDayOfTheWeek()[lang]).join(" / ");
 		if (this.lastData.day !== dayText) {
 			this.lastData.day = dayText;
@@ -1102,20 +1102,20 @@ export default class zmanimListUpdater {
 						shita.lastElementChild.innerHTML = zmanInfo[completeName].zDTObj.toLocaleString(...zmanInfo[completeName].dtF);
 
 						const validMergeTitle = 'merge_title' in zmanInfo[completeName];
-						if (validMergeTitle && zmanInfo[completeName].merge_title.hb)
-							timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[completeName].merge_title.hb;
-						else if (zmanInfo[completeName].title.hb)
-							timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[completeName].title.hb;
+						if (validMergeTitle && zmanInfo[completeName].merge_title.he)
+							timeSlot.querySelector('.lang-he').innerHTML = zmanInfo[completeName].merge_title.he;
+						else if (zmanInfo[completeName].title.he)
+							timeSlot.querySelector('.lang-he').innerHTML = zmanInfo[completeName].title.he;
 
 						if (validMergeTitle && zmanInfo[completeName].merge_title.en)
 							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].merge_title.en;
 						else if (zmanInfo[completeName].title.en)
 							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].title.en;
 
-						if (validMergeTitle && zmanInfo[completeName].merge_title["en-et"])
-							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].merge_title["en-et"];
-						else if (zmanInfo[completeName].title["en-et"])
-							timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[completeName].title["en-et"];
+						if (validMergeTitle && zmanInfo[completeName].merge_title["he-Latn"])
+							timeSlot.querySelector('.lang-he-Latn').innerHTML = zmanInfo[completeName].merge_title["he-Latn"];
+						else if (zmanInfo[completeName].title["he-Latn"])
+							timeSlot.querySelector('.lang-he-Latn').innerHTML = zmanInfo[completeName].title["he-Latn"];
 
 						if (!zmanInfo[completeName].display) {
 							shita.style.setProperty('display', 'none', 'important');
@@ -1163,14 +1163,14 @@ export default class zmanimListUpdater {
 
 					timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].zDTObj.toLocaleString(...zmanInfo[zmanId].dtF);
 
-					if (zmanInfo[zmanId].title.hb)
-						timeSlot.querySelector('.lang-hb').innerHTML = zmanInfo[zmanId].title.hb;
+					if (zmanInfo[zmanId].title.he)
+						timeSlot.querySelector('.lang-he').innerHTML = zmanInfo[zmanId].title.he;
 
 					if (zmanInfo[zmanId].title.en)
 						timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en;
 
-					if (zmanInfo[zmanId].title["en-et"])
-						timeSlot.querySelector('.lang-et').innerHTML = zmanInfo[zmanId].title["en-et"];
+					if (zmanInfo[zmanId].title["he-Latn"])
+						timeSlot.querySelector('.lang-he-Latn').innerHTML = zmanInfo[zmanId].title["he-Latn"];
 
 					if (!zmanInfo[zmanId].display)
 						timeSlot.style.setProperty('display', 'none', 'important');

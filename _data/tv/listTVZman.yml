@@ -4,7 +4,7 @@
   round: earlier
   names:
     he: עלות
-    et: Alot
+    he-Latn: Alot
     en: Dawn
     ru: Рассвет
   attributes:
@@ -14,7 +14,7 @@
   round: later
   names:
     he: משיכיר
-    et: Misheyakir
+    he-Latn: Misheyakir
     en: Misheyakir
     ru: Мишеякир
 - id: sunrise
@@ -22,7 +22,7 @@
   round: later
   names:
     he: הנץ
-    et: Ha'Netz
+    he-Latn: Ha'Netz
     en: Sunrise
     ru: Восход
 - id: latestShmaMGA
@@ -32,7 +32,7 @@
     he: שמע מג'א
     ru: Шма МГ"А
     en: Shema MG"A
-    et: Shema MG"A
+    he-Latn: Shema MG"A
 - id: latestShmaGRA
   timeGetter: getSofZemanShemaGRA
   round: earlier
@@ -40,7 +40,7 @@
     he: שמע גר'א
     ru: шма Гр"а
     en: Shema GR"A
-    et: Shema GR"A
+    he-Latn: Shema GR"A
 - id: SofZmanAchilatChametz
   attributes:
     yomTovInclusive: EREV_PESACH
@@ -50,7 +50,7 @@
     he: סוף אכילת חמץ
     ru: время для поедания хамеца
     en: Eat Hametz until
-    et: Eat Ḥametz until
+    he-Latn: Eat Ḥametz until
 - id: SofZmanBiurChametz
   attributes:
     yomTovInclusive: EREV_PESACH
@@ -60,7 +60,7 @@
     he: סוף ביעור חמץ
     ru: время для сжигание хамеца
     en: Dispose Hametz by
-    et: Dispose Ḥametz by
+    he-Latn: Dispose Ḥametz by
 - id: latestBrachotShmaGRA
   timeGetter: getSofZemanBerakhothShema
   round: earlier
@@ -68,13 +68,13 @@
     he: זמן תפילה
     ru: Шахарит
     en: Latest prayer
-    et: Sof Zeman Tefila
+    he-Latn: Sof Zeman Tefila
 - id: hatzoth
   timeGetter: getHatzoth
   round: earlier
   names:
     he: חצות
-    et: Ḥatzot
+    he-Latn: Ḥatzot
     en: Midday
     ru: Полдень
 - id: minhaGedola
@@ -83,7 +83,7 @@
   names:
     he: מנחה מוקדם
     en: Early Mincha
-    et: Early Minḥa
+    he-Latn: Early Minḥa
     ru: Ранняя Минха
 - id: plagHaminhaHB
   timeGetter: getPlagHaminhaHalachaBrurah
@@ -91,7 +91,7 @@
   names:
     he: פלג המנחה
     en: Plag Hamincha
-    et: Pelag HaMinḥa
+    he-Latn: Pelag HaMinḥa
     ru: Плаг минха
 - id: sunset
   timeGetter: getShkiya
@@ -99,7 +99,7 @@
   names:
     he: שקיעה
     en: Sunset
-    et: Sheqi'a
+    he-Latn: Sheqi'a
     ru: Закат
 - id: tzeit
   timeGetter: getTzet
@@ -107,7 +107,7 @@
   names:
     he: לילה
     en: Nightfall
-    et: Tzet Ha'Kokhavim
+    he-Latn: Tzet Ha'Kokhavim
     ru: Ночь
 - id: chatzotLayla
   attributes:
@@ -118,4 +118,4 @@
     he: חצות לילה
     ru: Полдень
     en: Midnight
-    et: Ḥatzot Layla
+    he-Latn: Ḥatzot Layla

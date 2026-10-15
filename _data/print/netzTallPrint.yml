@@ -2,20 +2,20 @@
 - timeGetter: getTallAlotHashacharWKorbanot
   names:
     he: עלות
-    et: Aloth
+    he-Latn: Aloth
     en: Dawn
 - timeGetter: getTallMisheyakir
   names:
     he: משיכיר
-    et: Misheyakir
+    he-Latn: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
   names:
     he: הנץ
-    et: HaNetz
+    he-Latn: HaNetz
     en: Sunrise
 - timeGetter: getMolad
   names:
     he: זמני הלבנה
-    et: Levana Times
+    he-Latn: Levana Times
     en: Levana Times

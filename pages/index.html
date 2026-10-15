@@ -18,8 +18,8 @@ layout: landing
 		</div>
 		<ul class="navbar-nav ms-auto py-4 py-lg-0 d-none d-lg-flex">
 			<li class="nav-item"><a class="nav-link" data-bs-toggle="modal" data-bs-target="#settingsModal">
-				<span class="lang lang-hb">תְצוּרָה</span>
-				<span class="lang lang-et">Settings</span>
+				<span class="lang lang-he">תְצוּרָה</span>
+				<span class="lang lang-he-Latn">Settings</span>
 				<span class="lang lang-en">Settings</span>
 			</a></li>
 			<li class="nav-item"><a class="nav-link" href="https://github.com/Zemaneh-Yosef/royzmanimwebsite">Source Code</a></li>
@@ -33,11 +33,11 @@ layout: landing
 		<div id="fakeLogo"></div>
 		<div>
 			<h2 id="subtitle">
-				<span class="lang lang-en lang-et">
+				<span class="lang lang-en lang-he-Latn">
 					Worldwide Halachic Times<br>
 					according to our Sepharadic Tradition.
 				</span>
-				<span class="lang lang-hb">את כל זמני הלכתי, בכול העולם - על פי מרן זצ"ל</span>
+				<span class="lang lang-he">את כל זמני הלכתי, בכול העולם - על פי מרן זצ"ל</span>
 			</h2>
 			<a class="btn btn-primary btn-xl mt-3" data-mdb-ripple-init href="#getStarted">Get Started!</a>
 		</div>
@@ -56,8 +56,8 @@ layout: landing
 			<div class="modal-body">
 				{% capture hebrewLocationText %}{% include location-find/hebrew.md %}{% endcapture %}
 				{% capture englishLocationText %}{% include location-find/english.md %}{% endcapture %}
-				<span class="lang lang-hb">{{ hebrewLocationText | markdownify }}</span>
-				<span class="lang lang-et">{{ englishLocationText | markdownify }}</span>
+				<span class="lang lang-he">{{ hebrewLocationText | markdownify }}</span>
+				<span class="lang lang-he-Latn">{{ englishLocationText | markdownify }}</span>
 				<span class="lang lang-en">{{ englishLocationText | markdownify }}</span>
 				<div id="manualHelp" class="container pb-3 d-none">
 					<div id="leafletMap" style="aspect-ratio: 16 / 9; margin-bottom: .5rem;"></div>
@@ -105,10 +105,10 @@ layout: landing
 				</button>
 				<md-menu id="locationMenu" anchor="Main" positioning="popover"> <md-list id="locationList"></md-list>
 				</md-menu>
-				<span class="lang lang-hb"><b>כתב ויתור</b>: התוצאות של סרגל חיפוש זה מבוססות על אתר אינטרנט של צד
+				<span class="lang lang-he"><b>כתב ויתור</b>: התוצאות של סרגל חיפוש זה מבוססות על אתר אינטרנט של צד
 					שלישי, ואינן מובטחות להתאים למה שאתה מחפש. אם אינך בטוח לגבי התוצאות, אנא השתמש בלחצן המיקום
 					הידני.</span>
-				<span class="lang lang-et"><b>Disclaimer</b>: The results of this search bar are based on a
+				<span class="lang lang-he-Latn"><b>Disclaimer</b>: The results of this search bar are based on a
 					3<sup>rd</sup> party website and are not guaranteed to match what you are looking for. If you are
 					not sure about the results, please use the manual location button.</span>
 				<span class="lang lang-en"><b>Disclaimer</b>: The results of this search bar are based on a
@@ -130,13 +130,13 @@ layout: landing
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<span class="lang lang-hb">
+				<span class="lang lang-he">
 					{{ tekufaHeb | markdownify }}
 					<hr>
 					אתה יכול להשתמש ב-<b>זמני יוסף</b> כדי ללמוד עוד על התקופות ומידע אחר של זמנים!
 					יציאה ממודל זה כדי להשתמש בגרסת האתר, או להוריד את האפליקציה שלנו ל-iOS ו-Android בחנויות המתאימות.
 				</span>
-				<span class="lang lang-et">
+				<span class="lang lang-he-Latn">
 					{{ tekufaEng | markdownify }}
 					<hr>
 					You can use <b>Zemaneh Yosef</b> to learn more about the Tekufot & other Zemanim information!
@@ -192,8 +192,8 @@ layout: landing
 				</video></div>
 			{% capture englishAboutText %}{% include about/english.md %}{% endcapture %}
 			{% capture hebrewAboutText %}{% include about/hebrew.md %}{% endcapture %}
-			<div class="lang lang-hb">{{ hebrewAboutText | markdownify }}</div>
-			<div class="lang lang-et">{{ englishAboutText | markdownify }}</div>
+			<div class="lang lang-he">{{ hebrewAboutText | markdownify }}</div>
+			<div class="lang lang-he-Latn">{{ englishAboutText | markdownify }}</div>
 			<div class="lang lang-en">{{ englishAboutText | markdownify }}</div>
 		</div>
 		<div class="g-col-12 g-col-lg-5" style="align-content: center;">

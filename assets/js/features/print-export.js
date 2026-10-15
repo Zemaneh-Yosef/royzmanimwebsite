@@ -85,7 +85,7 @@ baseTable.style.gridTemplateColumns = Array.from(document.getElementsByClassName
 	})
 	.join(" ");
 
-let local = settings.language() == 'hb' ? 'he' : 'en'
+let local = settings.language() == 'he' ? 'he' : 'en'
 if (navigator.languages.find(lang => lang.startsWith(local)))
 	local = navigator.languages.find(lang => lang.startsWith(local));
 
@@ -153,7 +153,7 @@ let plainDateForLoop = Temporal.Now.plainDateISO()
 	.with({ month: dateForCal.month, day: 1, year: dateForCal.year })
 const monthsForCal = plainDateForLoop.monthsInYear + (printParam.has('continueToNext') ? plainDateForLoop.add({ years: 1 }).monthsInYear : 0);
 const yearsForDisplay = [...new Set([plainDateForLoop.year, plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal - 1 }).year])]
-	.map(year => settings.language() == "hb" ? new HebrewNumberFormatter().formatHebrewNumber(year) : year)
+	.map(year => settings.language() == "he" ? new HebrewNumberFormatter().formatHebrewNumber(year) : year)
 	.join(" - ")
 
 const title = geoLocation.getLocationName() + ` (${yearsForDisplay})`
@@ -344,7 +344,7 @@ async function preparePrint() {
 	for (const toExtract of document.querySelectorAll('[data-lang-extract]')) {
 		const childFromExtract = Array.from(toExtract.children);
 		const selectedLangChild = childFromExtract
-			.find(langElem => langElem.classList.contains(`lang-${settings.language().replace('en-et', 'et')}`))
+			.find(langElem => langElem.classList.contains(`lang-${settings.language()}`))
 
 		childFromExtract.splice(childFromExtract.indexOf(selectedLangChild), 1); // Deletes the elem from the array
 		for (const otherLang of childFromExtract)
@@ -444,7 +444,7 @@ async function preparePrint() {
 		selectedLangChild.remove()
 	}
 
-	if (settings.language() == 'hb') {
+	if (settings.language() == 'he') {
 		document.body.removeAttribute('dir');
 		document.getElementsByTagName('main')[0].setAttribute('dir', 'rtl');
 	}
@@ -525,7 +525,7 @@ async function preparePrint() {
 
 	await sleep();
 
-	if (settings.language() == 'hb') {
+	if (settings.language() == 'he') {
 		Array.from(document.getElementsByClassName('pagedjs_area')).forEach(pageArea => pageArea.setAttribute('dir', 'rtl'));
 		await sleep();
 	}

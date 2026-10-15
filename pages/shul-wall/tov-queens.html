@@ -148,8 +148,8 @@ layout: nothing
 		font-size: .75em;
 	}
 
-	#content[data-current-page="1"] .langTV:not(.lang-hb),
-	#content[data-current-page="3"] .langTV:not(.lang-hb) {
+	#content[data-current-page="1"] .langTV:not(.lang-he),
+	#content[data-current-page="3"] .langTV:not(.lang-he) {
 		display: none;
 	}
 
@@ -339,7 +339,7 @@ layout: nothing
 <div id="content" data-current-page="1" data-page-count="4">
 	<div id="dateTimeCont">
 		<div data-en-date class="langTV lang-en text-center"></div>
-		<div data-hb-date class="langTV lang-hb text-center"></div>
+		<div data-hb-date class="langTV lang-he text-center"></div>
 		<div id="clock" class="text-center"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
 	</div>
 	<div id="logoPos">
@@ -366,12 +366,12 @@ layout: nothing
 	</div>
 	<div id="shabbat" class="templeBG">
 		<div class="templeBGInner">
-			<h1 data-parasha data-prefix="hb"></h1>
+			<h1 data-parasha data-prefix="he"></h1>
 			<div class="list-group list-group-flush lh-sm">
 				<div class="list-group-item d-flex justify-content-between shabIconElm">
 					<div data-lightingCandles data-onlyRegShab data-timeInsert="insertAdjacent">
 						<i class="bi bi-fire"></i>
-						<span class="langTV lang-hb fw-bold">הדלקת נרות</span>
+						<span class="langTV lang-he fw-bold">הדלקת נרות</span>
 						<span class="langTV lang-en fw-bold">Candle Lighting</span>
 					</div>
 				</div>
@@ -382,7 +382,7 @@ layout: nothing
 			</zman-schedule>
 			<div class="list-group list-group-flush lh-sm">
 				<div class="list-group-item d-flex justify-content-between shabIconElm">
-					<div class="langTV lang-hb">
+					<div class="langTV lang-he">
 						<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg> <b>צאת מלאכה</b>
 						<div class="fs-sm"><span style="unicode-bidi: isolate;">ר"ת</span>: <span data-autoschedule-type="sUM" data-autoschedule-function="getTzetRT" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></span></div>
 					</div>
@@ -395,7 +395,7 @@ layout: nothing
 			</div>
 		</div>
 	</div>
-	<div id="times" class="wideView" data-zfFind="calendarFormatter" data-langPull="hb" dir="rtl">
+	<div id="times" class="wideView" data-zfFind="calendarFormatter" data-langPull="he" dir="rtl">
 		{% for item in site.data.tv.listTVZman %}
 			<article
 				data-zmanid="{{ item.id }}"
@@ -405,7 +405,7 @@ layout: nothing
 				{% if item.attributes.yomTovInclusive %}data-yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 				{% if item.attributes.condition %}data-condition="{{ item.attributes.condition }}"{% endif %}
 			>
-				<span class="langTV lang-hb">{{ item.names.he }}</span>
+				<span class="langTV lang-he">{{ item.names.he }}</span>
 				<span class="timeDisplay"></span>
 			</article>
 		{% endfor %}

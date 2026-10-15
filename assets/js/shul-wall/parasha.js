@@ -15,54 +15,54 @@ for (const loopJCal = jCal.clone(); !loopJCal.getDate().equals(melakhaJCal.getDa
 const yomTovObj = {
 	// Holidays
 	[WebsiteLimudCalendar.PESACH]: {
-		hb: "פסח",
-		"en-et": "Pesaḥ",
+		he: "פסח",
+		"he-Latn": "Pesaḥ",
 		en: "Passover",
 	},
 	[WebsiteLimudCalendar.CHOL_HAMOED_PESACH]: {
 		en: "Shabbat Intermediary",
-		"en-et": "Shabbath Ḥol HaMoedh",
-		hb: "שבת חול המועד"
+		"he-Latn": "Shabbath Ḥol HaMoedh",
+		he: "שבת חול המועד"
 	},
 	[WebsiteLimudCalendar.SHAVUOS]: {
 		en: "Shavuoth",
-		hb: "שבועות",
-		"en-et": "Shavuoth"
+		he: "שבועות",
+		"he-Latn": "Shavuoth"
 	},
 	[WebsiteLimudCalendar.ROSH_HASHANA]: {
-		hb: "ראש השנה",
+		he: "ראש השנה",
 		en: "Rosh Hashana",
-		"en-et": "Rosh Hashana"
+		"he-Latn": "Rosh Hashana"
 	},
 	[WebsiteLimudCalendar.SUCCOS]: {
-		hb: "סוכות",
+		he: "סוכות",
 		en: "Sukkoth",
-		"en-et": "Sukkoth"
+		"he-Latn": "Sukkoth"
 	},
 	[WebsiteLimudCalendar.CHOL_HAMOED_SUCCOS]: {
-		hb: "שבת חול המועד",
-		"en-et": "Shabbath Ḥol HaMoedh",
+		he: "שבת חול המועד",
+		"he-Latn": "Shabbath Ḥol HaMoedh",
 		en: "Shabbath Intermediary"
 	},
 
 	// This is interesting, because I would assume it would take after the first one, thereby the second case doesn't need to be implemented
 	// I will leave the logic the same, though, only going as far as to fix the obvious misinfo (Simcha Torah would return Shmini Atzereth in Shmutz Laaretz pre-my edits)
 	[WebsiteLimudCalendar.SHEMINI_ATZERES]: {
-		hb: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
+		he: "שמיני עצרת" + (jCal.getInIsrael() ? " & שמחת תורה" : ""),
 		en: "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : ""),
-		"en-et": "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
+		"he-Latn": "Shemini 'Atzereth" + (jCal.getInIsrael() ? " & Simḥath Torah" : "")
 	},
 	[WebsiteLimudCalendar.SIMCHAS_TORAH]: {
-		hb: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
+		he: (jCal.getInIsrael() ? "שמיני עצרת & " : "") + "שמחת תורה",
 		en: (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simchath Torah",
-		"en-et": (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simchath Torah"
+		"he-Latn": (jCal.getInIsrael() ? "Shemini 'Atzereth & " : "") + "Simchath Torah"
 	},
 
 	// YK is the only Fast considered a YT
 	[WebsiteLimudCalendar.YOM_KIPPUR]: {
-		"hb": "יום כיפור",
+		"he": "יום כיפור",
 		"en": "Yom Kippur",
-		"en-et": "Yom Kippur"
+		"he-Latn": "Yom Kippur"
 	}
 }
 
@@ -71,35 +71,35 @@ if (melakhaJCal.isYomTov() && melakhaJCal.getYomTovIndex() in yomTovObj) {
 	if (titleElem.hasAttribute('data-prefix')) {
 		titleElem.innerHTML = {
 			"en-ru": `<span class="langTV lang-en">${yomTovObj[melakhaJCal.getYomTovIndex()]["en"]}</span>
-			<span class="langTV lang-ru">${yomTovObj[melakhaJCal.getYomTovIndex()]["hb"]}</span> - `,
-			"en-et-hb":
-				`<span class="langTV lang-en-et">${yomTovObj[melakhaJCal.getYomTovIndex()]["en-et"]}</span>
-				<span class="langTV lang-hb">${yomTovObj[melakhaJCal.getYomTovIndex()]["hb"]}</span>`,
-			"en-hb":
+			<span class="langTV lang-ru">${yomTovObj[melakhaJCal.getYomTovIndex()]["he"]}</span> - `,
+			"he-Latn-he":
+				`<span class="langTV lang-he-Latn">${yomTovObj[melakhaJCal.getYomTovIndex()]["he-Latn"]}</span>
+				<span class="langTV lang-he">${yomTovObj[melakhaJCal.getYomTovIndex()]["he"]}</span>`,
+			"en-he":
 				`<span class="langTV lang-en">${yomTovObj[melakhaJCal.getYomTovIndex()]["en"]}</span>
-				<span class="langTV lang-hb">${yomTovObj[melakhaJCal.getYomTovIndex()]["hb"]}</span>`,
-			"hb": yomTovObj[melakhaJCal.getYomTovIndex()]["hb"]
+				<span class="langTV lang-he">${yomTovObj[melakhaJCal.getYomTovIndex()]["he"]}</span>`,
+			"he": yomTovObj[melakhaJCal.getYomTovIndex()]["he"]
 		}[titleElem.getAttribute('data-prefix')]
 	} else
 		titleElem.innerHTML = yomTovObj[melakhaJCal.getYomTovIndex()][scheduleSettings.language]
 } else if (titleElem.hasAttribute('data-prefix')) {
 	titleElem.innerHTML = {
-		"hb-ru": `<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>
+		"he-ru": `<span class="langTV lang-he">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>
 		<span class="langTV lang-ru">Шаббат ${melakhaJCal.isChanukah() ? "Ханука" : ""} ${jCal.getHebrewParasha().join(" / ")}</span>`,
 		"en-ru": `<span class="langTV lang-en">Shabbat ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Ḥanuka" : ""}</span>
 		<span class="langTV lang-ru">Шаббат ${melakhaJCal.isChanukah() ? "Ханука" : ""}</span> - `
 			+ jCal.getHebrewParasha().join(" / "),
-		"hb-en-ru": `
-			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>
+		"he-en-ru": `
+			<span class="langTV lang-he">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>
 			<span class="langTV lang-en">Shabbat ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Chanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
 			<span class="langTV lang-ru">Шаббат ${melakhaJCal.isChanukah() ? "Ханука" : ""} ${jCal.getHebrewParasha().join(" / ")}</span>`,
-		"en-et-hb":
-			`<span class="langTV lang-en-et">Shabbath ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Ḥanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
-			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>`,
-		"en-hb":
+		"he-Latn-he":
+			`<span class="langTV lang-he-Latn">Shabbath ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Ḥanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
+			<span class="langTV lang-he">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>`,
+		"en-he":
 			`<span class="langTV lang-en">Shabbat ${melakhaJCal.isRoshChodesh() ? "R\"Ḥ" : ""} ${melakhaJCal.isChanukah() ? "Chanuka" : ""} - ${jCal.getHebrewParasha().join(" / ")}</span>
-			<span class="langTV lang-hb">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>`,
-		"hb": `שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}`
+			<span class="langTV lang-he">שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}</span>`,
+		"he": `שבת ${jCal.getHebrewParasha().join(" / ")} ${melakhaJCal.isChanukah() ? "(חנוכה)" : ""}`
 	}[titleElem.getAttribute('data-prefix')]
 } else
 	titleElem.innerHTML = jCal.getHebrewParasha().join(" / ") + (melakhaJCal.isChanukah() ? " (חנוכה)" : "");

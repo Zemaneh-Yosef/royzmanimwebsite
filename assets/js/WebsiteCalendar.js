@@ -5,9 +5,9 @@ import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js
 import { zDTFromFunc } from "./ROYZmanim.js";
 import n2wordsOrdinal from './misc/n2wordsOrdinal.js';
 
-/** @typedef {{ hb?: string, en?: string, "en-et"?: string; "ru"?: string; }} langType */
+/** @typedef {{ he?: string, en?: string, "he-Latn"?: string; "ru"?: string; }} langType */
 /** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
-/** @typedef {{ function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "en-et": string; en: string; hb: string; ru?: string; }; round: "earlier"|"later"|"exact"; ignoreNextUpcoming?: boolean}} zmanInfoList */
+/** @typedef {{ function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "he-Latn": string; en: string; he: string; ru?: string; }; round: "earlier"|"later"|"exact"; ignoreNextUpcoming?: boolean}} zmanInfoList */
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
@@ -69,8 +69,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		const hNum = new HebrewNumberFormatter();
 		return {
 			en: `${daysForLocale('en', config.dayLength)[temporalDate.dayOfWeek]}, ${temporalDate.toLocaleString('en', { month: config.monthLength })} ${config.ordinal ? getOrdinal(temporalDate.day, true) : temporalDate.day}`.trim(),
-			"en-et": `${daysForLocale('en')[hebCal.dayOfWeek]}, ${temporalDate.toLocaleString('en-u-ca-hebrew', { month: config.monthLength })} ${config.ordinal ? getOrdinal(hebCal.day, true) : hebCal.day}`.trim(),
-			hb: `${n2hebDateOrdinal(temporalDate.dayOfWeek)}, ${hNum.formatHebrewNumber(hebCal.day)} ${hebCal.toLocaleString('he-u-ca-hebrew', { month: 'long' })}`
+			"he-Latn": `${daysForLocale('en')[hebCal.dayOfWeek]}, ${temporalDate.toLocaleString('en-u-ca-hebrew', { month: config.monthLength })} ${config.ordinal ? getOrdinal(hebCal.day, true) : hebCal.day}`.trim(),
+			he: `${n2hebDateOrdinal(temporalDate.dayOfWeek)}, ${hNum.formatHebrewNumber(hebCal.day)} ${hebCal.toLocaleString('he-u-ca-hebrew', { month: 'long' })}`
 		}
 	}
 
@@ -82,7 +82,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	/**
-	 * @param {'hb'|'en'|'en-et'|'fr'} lang
+	 * @param {'he'|'en'|'he-Latn'|'fr'} lang
 	 */
 	dateRenderer(lang) {
 		const en = {
@@ -104,11 +104,11 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 
 		let date;
 		switch (lang) {
-			case 'hb':
+			case 'he':
 			default:
 				date = { primary: hb, secondary: en, other: et }
 				break;
-			case 'en-et':
+			case 'he-Latn':
 				date = { primary: et, secondary: en, other: hb }
 				break;
 			case 'en':
@@ -126,7 +126,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		return {
 			en: daysForLocale('en')[this.getDate().dayOfWeek],
 			fr: daysForLocale('fr')[this.getDate().dayOfWeek],
-			hb: daysForLocale('he-u-ca-hebrew')[this.getDate().dayOfWeek]
+			he: daysForLocale('he-u-ca-hebrew')[this.getDate().dayOfWeek]
 		}
 	}
 
@@ -172,9 +172,9 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			}
 
 			if (independent) {
-				calculatedZman.title.hb = zmanInfo.title.hb
+				calculatedZman.title.he = zmanInfo.title.he
 				calculatedZman.title.en = zmanInfo.title.en
-				calculatedZman.title['en-et'] = zmanInfo.title['en-et']
+				calculatedZman.title['he-Latn'] = zmanInfo.title['he-Latn']
 				calculatedZman.title.ru = zmanInfo.title.ru
 			}
 
@@ -206,13 +206,13 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			/* Hardcoding below - Thankfully managed to condense this entire project away from the 2700 lines of JS it was before, but some of it still needed to stay */
 			switch (zmanId) {
 				case 'sunrise':
-					calculatedZman.title.hb = 'הנץ';
-					calculatedZman.title['en-et'] = 'HaNetz';
+					calculatedZman.title.he = 'הנץ';
+					calculatedZman.title['he-Latn'] = 'HaNetz';
 					calculatedZman.title.en = 'Sunrise';
 
 					if (calculatedZman.funcRet instanceof Temporal.ZonedDateTime) {
-						calculatedZman.title.hb += ' (משור)';
-						calculatedZman.title['en-et'] += ' (Mishor)';
+						calculatedZman.title.he += ' (משור)';
+						calculatedZman.title['he-Latn'] += ' (Mishor)';
 						calculatedZman.title.en += ' (Sea Level)';
 					} else {
 						calculatedZman.dtF[1].second = '2-digit'
@@ -242,18 +242,18 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					}
 
 					if (this.isYomTovAssurBemelacha() && this.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
-						calculatedZman.title.hb = `צאת שבת וחג`;
-						calculatedZman.title['en-et'] = `Tzet Shabbat & Yom Tov`;
+						calculatedZman.title.he = `צאת שבת וחג`;
+						calculatedZman.title['he-Latn'] = `Tzet Shabbat & Yom Tov`;
 						calculatedZman.title.en = `Shabbat & Yom Tov Ends`;
 						calculatedZman.title.ru = `Конец Шаббата и Праздника`;
 					} else if (this.getDayOfWeek() == KosherZmanim.Calendar.SATURDAY) {
-						calculatedZman.title.hb = `צאת שבת`;
-						calculatedZman.title['en-et'] = `Tzet Shabbat`;
+						calculatedZman.title.he = `צאת שבת`;
+						calculatedZman.title['he-Latn'] = `Tzet Shabbat`;
 						calculatedZman.title.en = `Shabbat Ends`;
 						calculatedZman.title.ru = `Конец Шаббата`;
 					} else {
-						calculatedZman.title.hb = `צאת חג`;
-						calculatedZman.title['en-et'] = `Tzet Yom Tov`;
+						calculatedZman.title.he = `צאת חג`;
+						calculatedZman.title['he-Latn'] = `Tzet Yom Tov`;
 						calculatedZman.title.en = `Yom Tov Ends`;
 						calculatedZman.title.ru = `Конец Праздника`;
 					}
@@ -269,8 +269,8 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 							elements.push(calculatedZman.funcRet.degree + "°");
 
 						if (elements.length)
-							['hb', 'en-et', 'en']
-								.forEach((/** @type {'hb'|'en-et'|'en'} */lang) =>
+							['he', 'he-Latn', 'en']
+								.forEach((/** @type {'he'|'he-Latn'|'en'} */lang) =>
 									calculatedZman.title[lang] += ` (${elements.join('/')})`
 								)
 					}
@@ -283,20 +283,20 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					break;
 				case 'tzeit-humra':
 					if (this.isTaanis() && !this.isYomKippur()) {
-						calculatedZman.merge_title.hb = "צאת תענית (צאת הכוכבים)";
-						calculatedZman.merge_title['en-et'] = "Tzet Ta'anit (Tzet Ha'Kokhavim)";
+						calculatedZman.merge_title.he = "צאת תענית (צאת הכוכבים)";
+						calculatedZman.merge_title['he-Latn'] = "Tzet Ta'anit (Tzet Ha'Kokhavim)";
 						calculatedZman.merge_title.en = "Fast Ends (Nightfall)";
 
-						calculatedZman.title.hb = calculatedZman.merge_title.hb
-						calculatedZman.title['en-et'] = calculatedZman.merge_title['en-et']
+						calculatedZman.title.he = calculatedZman.merge_title.he
+						calculatedZman.title['he-Latn'] = calculatedZman.merge_title['he-Latn']
 						calculatedZman.title.en = calculatedZman.merge_title.en
 					} else {
-						calculatedZman.merge_title.hb = "צאת הכוכבים";
-						calculatedZman.merge_title['en-et'] = "Tzet Ha'Kokhavim";
+						calculatedZman.merge_title.he = "צאת הכוכבים";
+						calculatedZman.merge_title['he-Latn'] = "Tzet Ha'Kokhavim";
 						calculatedZman.merge_title.en = "Nightfall";
 
-						calculatedZman.title.hb = calculatedZman.merge_title.hb + " - חומרא";
-						calculatedZman.title['en-et'] = calculatedZman.merge_title['en-et'] + " - Ḥumra";
+						calculatedZman.title.he = calculatedZman.merge_title.he + " - חומרא";
+						calculatedZman.title['he-Latn'] = calculatedZman.merge_title['he-Latn'] + " - Ḥumra";
 						calculatedZman.title.en = calculatedZman.merge_title.en + " - Stringent";
 
 						if (zmanCalc.config.fixedMil) {
@@ -307,12 +307,12 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 					break;
 				case 'rt':
 					if (Temporal.ZonedDateTime.compare(calculatedZman.zDTObj, zmanCalc.timeRange.current.tzethakokhavim) == 0) {
-						calculatedZman.title.hb = 'ר"ת (זמנית)';
-						calculatedZman.title['en-et'] = "Rabbenu Tam (Zemanit)";
+						calculatedZman.title.he = 'ר"ת (זמנית)';
+						calculatedZman.title['he-Latn'] = "Rabbenu Tam (Zemanit)";
 						calculatedZman.title.en = "Rabbenu Tam (Seasonal)";
 					} else {
-						calculatedZman.title.hb = 'ר"ת (קבוע)';
-						calculatedZman.title['en-et'] = "Rabbenu Tam (Kavuah)";
+						calculatedZman.title.he = 'ר"ת (קבוע)';
+						calculatedZman.title['he-Latn'] = "Rabbenu Tam (Kavuah)";
 						calculatedZman.title.en = "Rabbenu Tam (Fixed)";
 					}
 			}
@@ -618,7 +618,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						toString: function () { return fullSubCount(this, " • "); }
 					}
 				},
-				et: {
+				"he-Latn": {
 					mainCount: this.getDayOfOmer() + " day" + (this.getDayOfOmer() >= 2 ? "s" : ''),
 					subCount: {
 						days: (days == 1 ? "a day" : days + " days"),
@@ -626,7 +626,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						toString: function () { return fullSubCount(this, " and "); }
 					}
 				},
-				hb: {
+				he: {
 					mainCount: hbTitle.join(" "),
 					subCount: {
 						days: hbDayCount.join(" "),

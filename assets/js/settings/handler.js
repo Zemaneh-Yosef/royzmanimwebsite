@@ -2,6 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { Input } from "../../libraries/mdbootstrap/mdb.js"
+import { languageTag } from "../misc/language.js"
 const urlParams = new URLSearchParams(window.location.search);
 
 /** @param {string} param */
@@ -32,26 +33,25 @@ const settings = Object.freeze({
 			// @ts-ignore
 			return settingsURLOverride("timeFormat");
 
-		let local = this.language() == 'hb' ? 'he' : 'en'
+		let local = this.language() == 'he' ? 'he' : 'en'
 		if (navigator.languages.find(lang => lang.startsWith(local)))
 			local = navigator.languages.find(lang => lang.startsWith(local));
 
 		return new Intl.DateTimeFormat(local, { hour: "numeric" }).resolvedOptions().hourCycle;
 	},
-	/** @returns {'hb'|'en'|'en-et'} */
+	/** @returns {'he'|'en'|'he-Latn'} */
 	language: () => {
-		if (['hb', 'en-et', 'en'].includes(settingsURLOverride("zmanimLanguage")))
-			// @ts-ignore
-			return settingsURLOverride("zmanimLanguage")
+		if (languageTag(settingsURLOverride("zmanimLanguage")))
+			return languageTag(settingsURLOverride("zmanimLanguage"))
 
 		if (window.navigator && window.navigator.languages) {
-			const languagePartOfOptions = window.navigator.languages.find(language => language.includes('hb') || language.includes('en'))
+			const languagePartOfOptions = window.navigator.languages.find(language => /^(he|iw|en)(-|$)/i.test(language))
 			if (languagePartOfOptions) {
-				return languagePartOfOptions.includes('en') ? 'en' : 'hb'
+				return /^en/i.test(languagePartOfOptions) ? 'en' : 'he'
 			}
 		}
 
-		return 'hb';
+		return 'he';
 	},
 	location: {
 		name: () => settingsURLOverride("locationName"),
@@ -166,10 +166,10 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
 	const langSelectors = Array.from(document.getElementById('languageSelector').getElementsByTagName('input'));
 
 	switch (zmanimLanguage) {
-		case 'hb':
+		case 'he':
 		default: {
-			document.body.classList.remove("lang-en", "lang-en-et");
-			document.body.classList.add("lang-hb");
+			document.body.classList.remove("lang-en", "lang-he-Latn");
+			document.body.classList.add("lang-he");
 
 			const bsCSSLink = document.getElementById("bs");
 			if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
@@ -190,9 +190,9 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
 				langSelectors.find(btnOfGroup=>btnOfGroup.id == 'hebrew').checked = true;
 			}
 			break;
-		} case 'en-et': {
-			document.body.classList.remove("lang-hb", "lang-en");
-			document.body.classList.add("lang-en-et");
+		} case 'he-Latn': {
+			document.body.classList.remove("lang-he", "lang-en");
+			document.body.classList.add("lang-he-Latn");
 
 			const bsCSSLink = document.getElementById("bs");
 			if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
@@ -214,7 +214,7 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
 			}
 			break;
 		} case 'en': {
-			document.body.classList.remove("lang-hb", "lang-en-et");
+			document.body.classList.remove("lang-he", "lang-he-Latn");
 			document.body.classList.add("lang-en");
 
 			const bsCSSLink = document.getElementById("bs");
@@ -241,7 +241,7 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
 
 	Array.from(document.getElementsByClassName('form-outline')).forEach((formOutline) => {
 		new Input(formOutline).update();
-		if (zmanimLanguage == "hb") {
+		if (zmanimLanguage == "he") {
 			const formLabels = [...formOutline.getElementsByTagName('label')].filter(label => label.classList.contains('form-label'));
 			for (const formLabel of formLabels) {
 				formLabel.style.marginRight = formLabel.style.marginLeft;

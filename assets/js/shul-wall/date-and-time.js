@@ -22,7 +22,7 @@ function updateTime() {
 		minutePassed = false;
 	}
 
-	let local = scheduleSettings.language == 'hb' ? 'he' : 'en'
+	let local = scheduleSettings.language == 'he' ? 'he' : 'en'
 	if (navigator.languages.find(lang => lang.startsWith(local)))
 		local = navigator.languages.find(lang => lang.startsWith(local));
 

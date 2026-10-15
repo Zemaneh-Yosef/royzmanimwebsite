@@ -3,60 +3,60 @@
   round: earlier
   names:
     he: עלות
-    et: Alot
+    he-Latn: Alot
     en: Dawn
 - timeGetter: getMisheyakir
   round: later
   names:
     he: משיכיר
-    et: Misheyakir
+    he-Latn: Misheyakir
     en: Misheyakir
 - timeGetter: getNetz
   round: later
   names:
     he: הנץ
-    et: HaNetz
+    he-Latn: HaNetz
     en: Sunrise
 - timeGetter: min-shema
   names:
     he: זמן שמע
-    et: Zeman Shema
+    he-Latn: Zeman Shema
     en: Latest Shema
 - timeGetter: getSofZemanBerakhothShema
   round: earlier
   names:
     he: זמן שחרית
-    et: Zeman Shaḥarit
+    he-Latn: Zeman Shaḥarit
     en: Latest Shaḥarit
 - timeGetter: getHatzoth
   round: earlier
   names:
     he: חצות
-    et: Ḥatsoth
+    he-Latn: Ḥatsoth
     en: Midday
 - timeGetter: min-minha
   names:
     he: זמן מנחה
-    et: Zeman Minḥa
+    he-Latn: Zeman Minḥa
     en: Minḥa Ketana
 - timeGetter: min-pelag
   names:
     he: פלג המנחה
-    et: Early Arvit<br>("Pelag")
+    he-Latn: Early Arvit<br>("Pelag")
     en: Early Arvit<br>("Pelag")
 - timeGetter: getShkiya
   round: earlier
   names:
     he: שקיעה
-    et: Sheqi'a
+    he-Latn: Sheqi'a
     en: Sunset
 - timeGetter: min-tzet
   names:
     he: לילה
-    et: Night
+    he-Latn: Night
     en: Nightfall
 - timeGetter: blank
   names:
-    hb:
-    et:
+    he:
+    he-Latn:
     en:

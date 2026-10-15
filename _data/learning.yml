@@ -10,7 +10,7 @@ weekday:
       en:
         short: Babylonian
         full: Babylonian Talmud
-      et:
+      he-Latn:
         short: Bavli
         full: Talmud Bavli
   - limud: DafYerushalmi
@@ -24,7 +24,7 @@ weekday:
       en:
         short: Jerusalemite-V
         full: Jerusalemite Talmud (Vilna)
-      et:
+      he-Latn:
         short: Yerushalmi-V
         full: Talmud Yerushalmi (Vilna)
   - limud: MishnaYomi
@@ -38,7 +38,7 @@ weekday:
       en:
         short: Mishna
         full: Daily Mishna
-      et:
+      he-Latn:
         short: Mishna
         full: Mishna Yomi
   - limud: DailyHalacha
@@ -52,7 +52,7 @@ weekday:
       en:
         short: Halacha
         full: Daily Halacha
-      et:
+      he-Latn:
         short: Halakha
         full: Daily Halakha
   - limud: ccYomi
@@ -66,7 +66,7 @@ weekday:
       en:
         short: Ḥafes Ḥayim
         full: Daily Ḥafes Ḥayim
-      et:
+      he-Latn:
         short: Ḥafes Ḥayim
         full: Ḥafes Ḥayim Yomi
   - limud: TehilimHodshi
@@ -80,7 +80,7 @@ weekday:
       en:
         short: Psalms (Monthly)
         full: Daily Psalms (Monthly)
-      et:
+      he-Latn:
         short: Tehilim (Monthly)
         full: Tehilim Yomi (Monthly)
   - limud: TehilimShvui
@@ -94,7 +94,7 @@ weekday:
       en:
         short: Psalms (Weekly)
         full: Daily Psalms (Weekly)
-      et:
+      he-Latn:
         short: Tehilim (Weekly)
         full: Tehilim Yomi (Weekly)
 shabbat:
@@ -109,7 +109,7 @@ shabbat:
       en:
         short: Haftara
         full: Haftara
-      et:
+      he-Latn:
         short: Haftara
         full: Haftara
   - limud: makamot
@@ -123,6 +123,6 @@ shabbat:
       en:
         short: Makam
         full: Makam
-      et:
+      he-Latn:
         short: Makam
         full: Makam

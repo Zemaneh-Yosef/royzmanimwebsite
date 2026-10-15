@@ -16,17 +16,17 @@ if (new URLSearchParams(window.location.search).has('sefiraDay')) {
 }
 
 for (const dateRender of document.querySelectorAll("[data-zfDateRender]")) {
-	/** @type {'en'|'hb'} */
+	/** @type {'en'|'he'} */
 	// @ts-ignore
 	const lang = dateRender.getAttribute('data-zfDateRender');
-	dateRender.innerHTML += (lang !== "hb" ? jCal.getDayOfTheWeek()[lang] + ", " : "") + jCal.dateRenderer(lang).primary.text
+	dateRender.innerHTML += (lang !== "he" ? jCal.getDayOfTheWeek()[lang] + ", " : "") + jCal.dateRenderer(lang).primary.text
 }
 
 const omerjCal = jCal.tomorrow();
 //document.getElementById("omerCount").appendChild(document.createTextNode(omerjCal.getDayOfOmer().toString().padStart(2, "0")));
 
 for (const omerElem of document.querySelectorAll("[data-omer-count]")) {
-	/** @type {'en'|'hb'|'fr'} */
+	/** @type {'en'|'he'|'fr'} */
 	// @ts-ignore
 	const lang = omerElem.getAttribute('data-omer-count');
 

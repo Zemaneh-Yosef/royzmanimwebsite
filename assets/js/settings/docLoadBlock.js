@@ -22,29 +22,32 @@ if (typeof BigInt !== "function" || !("noModule" in HTMLScriptElement.prototype)
     var settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
 
     var settings = Object.freeze({
-        /** @returns {'hb'|'en'|'en-et'} */
+        /** @returns {'he'|'en'|'he-Latn'} */
         language: function () {
-            if (['hb', 'en-et', 'en'].includes(settingsURLOverride("zmanimLanguage")))
+            // a classic script, so it can't import misc/language.js: the same old-value map as legacyLanguages there
+            var savedLanguage = settingsURLOverride("zmanimLanguage");
+            savedLanguage = { hb: 'he', 'en-et': 'he-Latn' }[savedLanguage] || savedLanguage;
+            if (['he', 'he-Latn', 'en'].includes(savedLanguage))
                 // @ts-ignore
-                return settingsURLOverride("zmanimLanguage")
+                return savedLanguage
 
             if (window.navigator && window.navigator.languages) {
-                const languagePartOfOptions = window.navigator.languages.find(language => language.includes('hb') || language.includes('en'))
+                const languagePartOfOptions = window.navigator.languages.find(language => /^(he|iw|en)(-|$)/i.test(language))
                 if (languagePartOfOptions) {
-                    return languagePartOfOptions.includes('en') ? 'en' : 'hb'
+                    return /^en/i.test(languagePartOfOptions) ? 'en' : 'he'
                 }
             }
 
-            return 'hb';
+            return 'he';
         }
     })
 
     function handleLanguage(zmanimLanguage = settings.language()) {
         switch (zmanimLanguage) {
-            case 'hb':
+            case 'he':
             default: {
-                document.body.classList.remove("lang-en", "lang-en-et");
-                document.body.classList.add("lang-hb");
+                document.body.classList.remove("lang-en", "lang-he-Latn");
+                document.body.classList.add("lang-he");
 
                 var bsCSSLink = document.getElementById("bs");
                 if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.rtl.min.css")
@@ -60,9 +63,9 @@ if (typeof BigInt !== "function" || !("noModule" in HTMLScriptElement.prototype)
 
                 document.body.dir = "rtl";
                 break;
-            } case 'en-et': {
-                document.body.classList.remove("lang-hb", "lang-en");
-                document.body.classList.add("lang-en-et");
+            } case 'he-Latn': {
+                document.body.classList.remove("lang-he", "lang-en");
+                document.body.classList.add("lang-he-Latn");
 
                 var bsCSSLink = document.getElementById("bs");
                 if (bsCSSLink && bsCSSLink.getAttribute("href") !== "/assets/libraries/bootstrap/css/bootstrap.min.css")
@@ -79,7 +82,7 @@ if (typeof BigInt !== "function" || !("noModule" in HTMLScriptElement.prototype)
                 document.body.dir = "ltr"
                 break;
             } case 'en': {
-                document.body.classList.remove("lang-hb", "lang-en-et");
+                document.body.classList.remove("lang-he", "lang-he-Latn");
                 document.body.classList.add("lang-en");
 
                 var bsCSSLink = document.getElementById("bs");

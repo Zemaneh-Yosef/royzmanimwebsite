@@ -355,8 +355,8 @@ layout: nothing
 	</div>
 	<img src="/assets/images/print/netz_cover.png" id="bgCover" />
 	<div data-zyLocationText>
-		<span class="lang lang-hb">זמנים של</span>
-		<span class="lang lang-et">For:</span>
+		<span class="lang lang-he">זמנים של</span>
+		<span class="lang lang-he-Latn">For:</span>
 		<span class="lang lang-en">For:</span>
 	</div>
 	<div id="credits">
@@ -373,14 +373,14 @@ layout: nothing
 <div class="zyCalFooter">
 	<div class="sides">
 		<h5 data-zyLocationText>
-			<span class="lang lang-hb">זמנים של</span>
-			<span class="lang lang-et">For:</span>
+			<span class="lang lang-he">זמנים של</span>
+			<span class="lang lang-he-Latn">For:</span>
 			<span class="lang lang-en">For:</span>
 		</h5>
 		<div data-geoCoordinates></div>
 		<div data-calendar>
-			<span class="lang lang-hb">לוח </span>
-			<span class="lang lang-et">Current Calendar:</span>
+			<span class="lang lang-he">לוח </span>
+			<span class="lang lang-he-Latn">Current Calendar:</span>
 			<span class="lang lang-en">Current Calendar:</span>
 		</div>
 		<div data-timeZone>
@@ -402,21 +402,21 @@ layout: nothing
 		{% for item in site.data.print.netzTallPrint %}
 		{% if item.shitot %}
 		<div class="tableHeader" data-zyHeaderContainer style="grid-column-end: span 2;">
-			<span class="lang lang-hb">{{ item.names.he }}</span>
-			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-he">{{ item.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% for shita in item.shitot %}
 		<div class="tableHeader" data-zyData="{{ shita.timeGetter }}" style="grid-row: 2;">
-			<span class="lang lang-hb">{{ shita.names.he }}</span>
-			<span class="lang lang-et">{{ shita.names.et }}</span>
+			<span class="lang lang-he">{{ shita.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ shita.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ shita.names.en }}</span>
 		</div>
 		{% endfor %}
 		{% else %}
 		<div class="tableHeader" style="grid-row: 1 / span 2;" data-zyData="{{ item.timeGetter }}">
-			<span class="lang lang-hb">{{ item.names.he }}</span>
-			<span class="lang lang-et">{{ item.names.et }}</span>
+			<span class="lang lang-he">{{ item.names.he }}</span>
+			<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 			<span class="lang lang-en">{{ item.names.en }}</span>
 		</div>
 		{% endif %}
@@ -492,18 +492,18 @@ layout: nothing
 				<p style="text-align: center;">The benefits of תפילה בהנץ החמה, calculating, leniencies, so on and so forth...</p>
 				<div class="columnSplit" style="font-size: .9rem;" data-lang-extract>
 					<span class="lang lang-en">{{ netzExpl | markdownify }}</span>
-					<span class="lang lang-et">{{ netzExpl | markdownify }}</span>
-					<span class="lang lang-hb">{{ netzHbExpl | markdownify }}</span>
+					<span class="lang lang-he-Latn">{{ netzExpl | markdownify }}</span>
+					<span class="lang lang-he">{{ netzHbExpl | markdownify }}</span>
 				</div>
 				<h5 style="text-align: center;">
 					<span class="lang lang-en">Sun-Times</span>
-					<span class="lang lang-et">Zemaneh Hashemesh</span>
-					<span class="lang lang-hb">זמני השמש</span>
+					<span class="lang lang-he-Latn">Zemaneh Hashemesh</span>
+					<span class="lang lang-he">זמני השמש</span>
 				</h5>
 				<div class="columnSplit" style="font-size: .74rem;" data-lang-extract>
 					<span class="lang lang-en">{{ timesExpl | markdownify }}</span>
-					<span class="lang lang-et">{{ timesExpl | markdownify }}</span>
-					<span class="lang lang-hb" dir="ltr">{{ timesHbExpl | markdownify }}</span>
+					<span class="lang lang-he-Latn">{{ timesExpl | markdownify }}</span>
+					<span class="lang lang-he" dir="ltr">{{ timesHbExpl | markdownify }}</span>
 				</div>
 				<div class="advert" style="margin-top: .5rem; text-align: center;">
 					We hope you enjoyed the preview of קונטרס כי יזרח השמש! Look forward for the full version and other times from...<br>

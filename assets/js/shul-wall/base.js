@@ -4,6 +4,7 @@ import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
+import { languageTag } from "../misc/language.js";
 import { loadRefraction, readCachedRefraction, providerFromCache } from "../refraction-data.js";
 
 /** How long the first render waits for fresh refraction data before using what's stored (offline TVs). */
@@ -12,7 +13,7 @@ const REFRACTION_WAIT_MS = 8000;
 /** @typedef {{
     seconds: boolean;
     timeFormat: "h11" | "h12" | "h23" | "h24";
-    language: "hb" | "en" | "en-et";
+    language: "he" | "en" | "he-Latn";
     location: {
         name: string;
         lat: number;
@@ -57,6 +58,7 @@ let dtF;
  */
 async function refreshBase(configText = document.getElementById("zy-scheduleScreen-config").textContent) {
 	scheduleSettings = JSON.parse(configText)
+	scheduleSettings.language = languageTag(scheduleSettings.language) ?? "en";
 
 	/** @type {[string, number, number, number, string]} */
 	// @ts-ignore
@@ -107,7 +109,7 @@ async function refreshBase(configText = document.getElementById("zy-scheduleScre
 	})
 	zmanCalc.setDate(currentZDT.toPlainDate());
 
-	dtF = [scheduleSettings.language == 'hb' ? 'he' : 'en', {
+	dtF = [scheduleSettings.language == 'he' ? 'he' : 'en', {
 		hourCycle: scheduleSettings.timeFormat,
 		hour: 'numeric',
 		minute: '2-digit'

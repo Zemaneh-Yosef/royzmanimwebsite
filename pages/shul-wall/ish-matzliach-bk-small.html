@@ -106,7 +106,7 @@ layout: nothing
 		display: none;
 	}
 
-	#content[data-current-page="2"] .langTV:not(.lang-hb) {
+	#content[data-current-page="2"] .langTV:not(.lang-he) {
 		display: none;
 	}
 
@@ -264,7 +264,7 @@ layout: nothing
 	</div> -->
 	<div id="topBar">
 		<div data-en-date class="langTV lang-en text-center"></div>
-		<div data-hb-date class="langTV lang-hb text-center"></div>
+		<div data-hb-date class="langTV lang-he text-center"></div>
 		<div id="clock"><span data-sw-hour></span><span class="blink">:</span><span data-sw-minute></span> <span data-sw-portion></span></div>
 		<img src="/assets/images/shul-wall/ish-matzliach/heb_text_two.png" style="height: 1.75ch;">
 		<img src="/assets/images/shul-wall/ish-matzliach/emblem.png" style="height:4ch">
@@ -274,7 +274,7 @@ layout: nothing
 		<div>
 			<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
 				<div class="list-group-item d-flex justify-content-between">
-					<dt class="langTV lang-hb">תלמוד בבלי</dt>
+					<dt class="langTV lang-he">תלמוד בבלי</dt>
 					<dt class="langTV lang-en">Talmud Bavli</dt>
 					<dd class="m-0" data-zfReplace="dafBavli"></dd>
 				</div>
@@ -297,9 +297,9 @@ layout: nothing
 						{% if item.icon %} <img src="/assets/images/icons/{{ item.icon }}.png" alt="{{ item.name | escape }}"
 							style="width: 18px; height: 18px;"> {% endif %}
 						<div class="zmanTitleText">
-							<span class="langTV lang-hb">{{ item.names.he }}</span>
+							<span class="langTV lang-he">{{ item.names.he }}</span>
 							<span class="langTV lang-en">{{ item.names.en }}</span>
-							<span class="langTV lang-et">{{ item.names.et }}</span>
+							<span class="langTV lang-he-Latn">{{ item.names.he-Latn }}</span>
 						</div>
 						<span class="timeDisplay" dir="ltr">
 							<div class="upNextText" style="display: none;">הבא...</div>
@@ -315,9 +315,9 @@ layout: nothing
 					data-ampm="false">
 					<div class="card-body">
 						<div class="zmanTitleText">
-							<span class="langTV lang-hb">חצות</span>
+							<span class="langTV lang-he">חצות</span>
 							<span class="langTV lang-en">Midday/Midnight</span>
-							<span class="langTV lang-et">Midday/Midnight</span>
+							<span class="langTV lang-he-Latn">Midday/Midnight</span>
 						</div>
 						<span class="timeDisplay" dir="ltr">
 							<div class="upNextText" style="display: none;">הבא...</div>
@@ -341,9 +341,9 @@ layout: nothing
 						{% if item.icon %} <img src="/assets/images/icons/{{ item.icon }}.png" alt="{{ item.name | escape }}"
 							style="width: 18px; height: 18px;"> {% endif %}
 						<div class="zmanTitleText">
-							<span class="langTV lang-hb">{{ item.names.he }}</span>
+							<span class="langTV lang-he">{{ item.names.he }}</span>
 							<span class="langTV lang-en">{{ item.names.en }}</span>
-							<span class="langTV lang-et">{{ item.names.et }}</span>
+							<span class="langTV lang-he-Latn">{{ item.names.he-Latn }}</span>
 						</div>
 						<span class="timeDisplay" dir="ltr">
 							<div class="upNextText" style="display: none;">הבא...</div>
@@ -359,7 +359,7 @@ layout: nothing
 			</div>
 		</div>
 		<div>
-			<h1 class="text-center" data-parasha data-prefix="en-hb"></h1>
+			<h1 class="text-center" data-parasha data-prefix="en-he"></h1>
 			<!-- <h3 class="text-center" style="font-size: 2rem;">
 				<span data-zfReplace="Haftara"><img src="/assets/images/shabbat-abstract/megila-icon.png" style="filter: invert(); height: 1.5ch; vertical-align: inherit;"> Haftara: </span>
 				<span id="makam" data-zfReplace="makamot">🎵Makam </span>
@@ -368,7 +368,7 @@ layout: nothing
 				<div class="list-group-item d-flex justify-content-between" id="havdalaElem">
 					<div data-lightingCandles data-onlyRegShab data-timeInsert="insertAdjacent">
 						<i class="bi bi-fire"></i>
-						<span class="langTV lang-hb">הדלקת נרות</span>
+						<span class="langTV lang-he">הדלקת נרות</span>
 						<span class="langTV lang-en">Candle Lighting</span>
 					</div>
 				</div>
@@ -379,7 +379,7 @@ layout: nothing
 			</div>
 			<div class="list-group list-group-flush lh-sm">
 				<div class="list-group-item d-flex justify-content-between" id="havdalaElem">
-					<div class="langTV lang-hb">
+					<div class="langTV lang-he">
 						<svg viewBox="0 0 100 100"><use href="/assets/images/havdalah.svg#Layer_1"/></svg><b>צאת מלאכה</b>
 						<div class="fs-sm"><span style="unicode-bidi: isolate;">ר"ת</span>: <span data-autoschedule-type="sUM" data-autoschedule-function="getTzetRT" data-autoschedule-plusorminus="+" data-autoschedule-hours="00" data-autoschedule-minutes="00" data-autoschedule-roundmode="ex"></span></div>
 					</div>

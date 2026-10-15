@@ -31,7 +31,7 @@ function zmanListToFormat (timeSlot) {
 			yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
 			luachInclusive: luach,
 			condition: timeSlot.getAttribute('data-condition'),
-			title: Object.fromEntries(['hb', 'en', 'en-et', 'ru'].map(lang => {
+			title: Object.fromEntries(['he', 'en', 'he-Latn', 'ru'].map(lang => {
 				if (!timeSlot.querySelector(`span.langTV.lang-${lang}`))
 					return null;
 
@@ -99,7 +99,7 @@ for (const timeListing of sortedTimes) {
 
 	artElem.appendChild(artTime);
 
-	const curTimeIsShema = (/** @type {typeof timeData} */row) => ("hb" in row.title && row.title.hb) ? row.title.hb.startsWith("שמע")
+	const curTimeIsShema = (/** @type {typeof timeData} */row) => ("he" in row.title && row.title.he) ? row.title.he.startsWith("שמע")
 		: row.title.en.startsWith("Shema");
 	if (curTimeIsShema(timeData) && calList.hasAttribute('data-primaryShema')) {
 		const shemaTimes = sortedTimes
@@ -116,7 +116,7 @@ for (const timeListing of sortedTimes) {
 
 			const secondShemaZmanObj = sortedTimes
 				.map(arrayEntry => arrayEntry[1])
-				.find(zmanObj => zmanObj.title.hb.startsWith("שמע") && zmanObj.function !== calList.getAttribute('data-primaryShema'));
+				.find(zmanObj => zmanObj.title.he.startsWith("שמע") && zmanObj.function !== calList.getAttribute('data-primaryShema'));
 			const secondShemaElem = document.createElement('div');
 			secondShemaElem.classList.add('secondShemaDispl');
 			secondShemaElem.appendChild(document.createTextNode('('))

@@ -4,8 +4,8 @@ accordian: true
 ---
 
 <div class="alert alert-warning text-center mb-2" role="alert" id="handasiHazemanWarning">
-	<span class="lang lang-hb">דף זה מיועד לבדיקות בלבד. לזמנים, השתמשו <a href="/calendar" class="alert-link">בלוח הראשי</a>.</span>
-	<span class="lang lang-et">This page is for debugging purposes only. Please use the <a href="/calendar" class="alert-link">main calendar</a> instead.</span>
+	<span class="lang lang-he">דף זה מיועד לבדיקות בלבד. לזמנים, השתמשו <a href="/calendar" class="alert-link">בלוח הראשי</a>.</span>
+	<span class="lang lang-he-Latn">This page is for debugging purposes only. Please use the <a href="/calendar" class="alert-link">main calendar</a> instead.</span>
 	<span class="lang lang-en">This page is for debugging purposes only. Please use the <a href="/calendar" class="alert-link">main calendar</a> instead.</span>
 </div>
 <script>
@@ -35,7 +35,7 @@ accordian: true
 				</div>
 				<div class="d-lg-none">
 					<span data-zfReplace="Parasha"></span>
-					<ul class="lang lang-hb">
+					<ul class="lang lang-he">
 						<li>הדלקת נרות: <span data-zfReplace="CandleLighting"></span></li>
 						<li>צאת שבת: <span data-zfReplace="TzetShabbat"></span></li>
 					</ul>
@@ -43,7 +43,7 @@ accordian: true
 						<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
 						<li>Shabbat Ends: <span data-zfReplace="TzetShabbat"></span></li>
 					</ul>
-					<ul class="lang lang-et">
+					<ul class="lang lang-he-Latn">
 						<li>Candle Lighting: <span data-zfReplace="CandleLighting"></span></li>
 						<li>Tzet Shabbat: <span data-zfReplace="TzetShabbat"></span></li>
 					</ul>
@@ -55,8 +55,8 @@ accordian: true
 			<details class="noContent" data-zfFind="{{ learning.limud }}">
 				<summary>
 					<div class="accordianText">
-						<span class="lang lang-hb">{{ learning.text.he.full }}</span>
-						<span class="lang lang-et">{{ learning.text.et.full }}</span>
+						<span class="lang lang-he">{{ learning.text.he.full }}</span>
+						<span class="lang lang-he-Latn">{{ learning.text.he-Latn.full }}</span>
 						<span class="lang lang-en">{{ learning.text.en.full }}</span>
 					</div>
 					<span data-zfReplace="{{ learning.limud }}"></span>
@@ -69,16 +69,16 @@ accordian: true
 		<h3 class="text-center mb-0" data-zfReplace="LocationName"></h3>
 		<p class="text-center" data-zfFind="LocationYerushalayimLine">
 			<a data-bs-toggle="modal" data-bs-target="#locationModal"><i class="bi bi-info-circle-fill"></i></a>
-			<span class="lang lang-hb">כיוון תפילה: </span>
-			<span class="lang lang-et">Tefilah Direction: </span>
+			<span class="lang lang-he">כיוון תפילה: </span>
+			<span class="lang lang-he-Latn">Tefilah Direction: </span>
 			<span class="lang lang-en">Prayer Direction: </span>
 		</p>
 		<div class="card mb-2">
 			<ul class="list-group list-group-flush">
 				<li class="list-group-item" id="cardDateContainer" data-zfFind="dateContainer">
 					<button data-dateAlter="-1" style="grid-column: 1;">
-						<span class="lang lang-hb"><i class="bi bi-arrow-right"></i></span>
-						<span class="lang lang-et"><i class="bi bi-arrow-left"></i></span>
+						<span class="lang lang-he"><i class="bi bi-arrow-right"></i></span>
+						<span class="lang lang-he-Latn"><i class="bi bi-arrow-left"></i></span>
 						<span class="lang lang-en"><i class="bi bi-arrow-left"></i></span>
 					</button>
 					<div id="dateBox">
@@ -86,16 +86,16 @@ accordian: true
 						<h2 data-zfReplace="primaryDate" style="margin-bottom: .25rem;"></h2>
 						<div id="nonPrimaryDateRow">
 							<h5 data-zfReplace="secondaryDate"></h5>
-							<input type="button" value="&#xF1FD;" id="inDateBoxCalBtn" class="bi btn btn-primary d-none d-md-block lang lang-en lang-en-et">
-							<h5 data-zfReplace="otherDate" class="lang lang-en lang-en-et"></h5>
+							<input type="button" value="&#xF1FD;" id="inDateBoxCalBtn" class="bi btn btn-primary d-none d-md-block lang lang-en lang-he-Latn">
+							<h5 data-zfReplace="otherDate" class="lang lang-en lang-he-Latn"></h5>
 						</div>
 					</div>
 					<button data-dateAlter="1" style="grid-column: 3;">
-						<span class="lang lang-hb"><i class="bi bi-arrow-left"></i></span>
-						<span class="lang lang-et"><i class="bi bi-arrow-right"></i></span>
+						<span class="lang lang-he"><i class="bi bi-arrow-left"></i></span>
+						<span class="lang lang-he-Latn"><i class="bi bi-arrow-right"></i></span>
 						<span class="lang lang-en"><i class="bi bi-arrow-right"></i></span>
 					</button>
-					<input type="button" value="&#xF1FD; Select a date" style="font-family: bootstrap-icons, var(--bs-body-font-family) !important;" class="bi inputRow d-md-en-et-none d-md-en-none btn btn-primary">
+					<input type="button" value="&#xF1FD; Select a date" style="font-family: bootstrap-icons, var(--bs-body-font-family) !important;" class="bi inputRow d-md-he-Latn-none d-md-en-none btn btn-primary">
 				</li>
 			</ul>
 		</div>
@@ -105,15 +105,15 @@ accordian: true
 			<li class="nav-item" role="presentation">
 				<button class="nav-link active" id="zemanim-tab" data-bs-toggle="tab" data-bs-target="#zemanim-tab-pane" type="button" role="tab" aria-controls="zemanim-tab-pane" aria-selected="true">
 					<span class="lang lang-en">Times Display</span>
-					<span class="lang lang-et">Zemanim Display</span>
-					<span class="lang lang-hb">זמנים</span>
+					<span class="lang lang-he-Latn">Zemanim Display</span>
+					<span class="lang lang-he">זמנים</span>
 				</button>
 			</li>
 			<li class="nav-item" role="presentation">
 				<button class="nav-link" id="limud-tab" data-bs-toggle="tab" data-bs-target="#limud-tab-pane" type="button" role="tab" aria-controls="limud-tab-pane" aria-selected="false">
 					<span class="lang lang-en">Learning Display</span>
-					<span class="lang lang-et">Limud Display</span>
-					<span class="lang lang-hb">לימודים</span>
+					<span class="lang lang-he-Latn">Limud Display</span>
+					<span class="lang lang-he">לימודים</span>
 				</button>
 			</li>
 		</ul>
@@ -123,8 +123,8 @@ accordian: true
 					<button data-mdb-ripple-init type="button" class="btn btn-primary" id="clipboardDownload">
 						<i class="bi bi-clipboard"></i>
 						<span class="lang lang-en">Copy to clipboard</span>
-						<span class="lang lang-et">Copy to clipboard</span>
-						<span class="lang lang-hb">העתק ללוח</span>
+						<span class="lang lang-he-Latn">Copy to clipboard</span>
+						<span class="lang lang-he">העתק ללוח</span>
 					</button>
 				</div>
 				<div class="alert alert-info py-2 small mb-2" role="status" data-zfFind="twilightNotice" style="display: none;"></div>
@@ -145,14 +145,14 @@ accordian: true
 						>
 							<summary>
 								<div class="accordianText">
-									<span class="lang lang-hb">{{ item.names.he }} - {{ mobileZman.names.he }}</span>
-									<span class="lang lang-et">{{ item.names.et }} - {{ mobileZman.names.et }}</span>
+									<span class="lang lang-he">{{ item.names.he }} - {{ mobileZman.names.he }}</span>
+									<span class="lang lang-he-Latn">{{ item.names.he-Latn }} - {{ mobileZman.names.he-Latn }}</span>
 									<span class="lang lang-en">{{ item.names.en }} - {{ mobileZman.names.en }}</span>
 								</div>
 								<span class="timeDisplay">
 									<div class="upNextText" style="display: none;">
-										<span class="lang lang-hb">הבא...</span>
-										<span class="lang lang-et">Up next...</span>
+										<span class="lang lang-he">הבא...</span>
+										<span class="lang lang-he-Latn">Up next...</span>
 										<span class="lang lang-en">Up next...</span>
 									</div>
 									<div></div>
@@ -174,21 +174,21 @@ accordian: true
 						>
 							<summary>
 								<div class="accordianText">
-									<span class="lang lang-hb">{{ item.names.he }}</span>
-									<span class="lang lang-et">{{ item.names.et }}</span>
+									<span class="lang lang-he">{{ item.names.he }}</span>
+									<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 									<span class="lang lang-en">{{ item.names.en }}</span>
 								</div>
 								<span class="timeDisplay multiZmanContainer">
 									{% for pcDisplay in item.shitot %}
 									<span class="subShita" data-subZmanId="{{ pcDisplay.id }}">
 										<div class="upNextText" style="display: none;">
-											<span class="lang lang-hb">הבא...</span>
-											<span class="lang lang-et">Up next...</span>
+											<span class="lang lang-he">הבא...</span>
+											<span class="lang lang-he-Latn">Up next...</span>
 											<span class="lang lang-en">Up next...</span>
 										</div>
-										<span style="font-size: .75em;" class="lang lang-hb">{{ pcDisplay.names.he }}</span>
+										<span style="font-size: .75em;" class="lang lang-he">{{ pcDisplay.names.he }}</span>
 										<span style="font-size: .75em;" class="lang lang-en">{{ pcDisplay.names.en }}</span>
-										<span style="font-size: .75em;" class="lang lang-et">{{ pcDisplay.names.et }}</span>
+										<span style="font-size: .75em;" class="lang lang-he-Latn">{{ pcDisplay.names.he-Latn }}</span>
 										<span></span>
 									</span>
 									{% endfor %}
@@ -215,14 +215,14 @@ accordian: true
 						>
 							<summary>
 								<div class="accordianText">
-									<span class="lang lang-hb">{{ item.names.he }}</span>
-									<span class="lang lang-et">{{ item.names.et }}</span>
+									<span class="lang lang-he">{{ item.names.he }}</span>
+									<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 									<span class="lang lang-en">{{ item.names.en }}</span>
 								</div>
 								<span class="timeDisplay">
 									<div class="upNextText" style="display: none;">
-										<span class="lang lang-hb">הבא...</span>
-										<span class="lang lang-et">Up next...</span>
+										<span class="lang lang-he">הבא...</span>
+										<span class="lang lang-he-Latn">Up next...</span>
 										<span class="lang lang-en">Up next...</span>
 									</div>
 									<div></div>
@@ -242,18 +242,18 @@ accordian: true
 				<div class="card mt-2">
 					<div class="card-header">
 						<h5 class="mb-0">
-							<span class="lang lang-hb">שעה זמנית</span>
-							<span class="lang lang-et">Sha'ah Zmanith</span>
+							<span class="lang lang-he">שעה זמנית</span>
+							<span class="lang lang-he-Latn">Sha'ah Zmanith</span>
 							<span class="lang lang-en">Seasonal Hour</span>
 						</h5>
 					</div>
 					<dl class="list-group list-group-flush lh-sm" data-zfFind="shaahZmanit">
 						<div class="list-group-item d-flex justify-content-between">
-							<dt class="lang lang-hb">
+							<dt class="lang lang-he">
 								גר"א (װילנער גאון)<br>
 								<small class="fw-normal">מהנץ החמה עד שקיעה</small>
 							</dt>
-							<dt class="lang lang-et">
+							<dt class="lang lang-he-Latn">
 								GR"A (Vilna Gaon)<br>
 								<small class="fw-normal">From Hanetz until Sheqi'a</small>
 							</dt>
@@ -264,13 +264,13 @@ accordian: true
 							<dd class="m-0" data-zfReplace="graShaahZmanit"></dd>
 						</div>
 						<div class="list-group-item d-flex justify-content-between">
-							<dt class="lang lang-hb">
+							<dt class="lang lang-he">
 								מג"א (מגן אברהם)<br>
 								<small class="fw-normal">
 									מעלות השחר עד צאת הכוכבים (16.04°)
 								</small>
 							</dt>
-							<dt class="lang lang-et">
+							<dt class="lang lang-he-Latn">
 								MG"A (Maghen Avraham)<br>
 								<small class="fw-normal">
 									From Alot Hashahar until Tzet Ha'Kokhavim (16.04°)
@@ -288,13 +288,13 @@ accordian: true
 				</div>
 			</div>
 			<div class="tab-pane fade" id="limud-tab-pane" role="tabpanel" aria-labelledby="limud-tab" tabindex="0">
-				<div class="card mb-2 lang lang-hb">
+				<div class="card mb-2 lang lang-he">
 					<div class="card-header"><h5 class="mb-0">הילולות של...</h5></div>
 					<ul class="list-group list-group-flush" data-fillText="אין היום" data-zfFind="hiloulah" data-zfIndex="he">
 						<li class="list-group-item">אין היום</li>
 					</ul>
 				</div>
-				<div class="card mb-2 lang lang-et">
+				<div class="card mb-2 lang lang-he-Latn">
 					<div class="card-header"><h5 class="mb-0">Hiloulot of...</h5></div>
 					<ul class="list-group list-group-flush" data-fillText="There aren't any today" data-zfFind="hiloulah" data-zfIndex="en">
 						<li class="list-group-item">There aren't any today</li>
@@ -309,16 +309,16 @@ accordian: true
 				<div class="card mb-2">
 					<div class="card-header">
 						<h5 class="mb-0">
-							<span class="lang lang-hb">לימוד יומי</span>
-							<span class="lang lang-et">Today's Limud</span>
+							<span class="lang lang-he">לימוד יומי</span>
+							<span class="lang lang-he-Latn">Today's Limud</span>
 							<span class="lang lang-en">Today's Learning</span>
 						</h5>
 					</div>
 					<dl class="list-group list-group-flush lh-sm" data-zfFind="DafYomi">
 						{% for learning in site.data.learning.weekday %}
 						<div class="list-group-item d-flex justify-content-between">
-							<dt class="lang lang-hb">{{ learning.text.he.full }}</dt>
-							<dt class="lang lang-et">{{ learning.text.et.full }}</dt>
+							<dt class="lang lang-he">{{ learning.text.he.full }}</dt>
+							<dt class="lang lang-he-Latn">{{ learning.text.he-Latn.full }}</dt>
 							<dt class="lang lang-en">{{ learning.text.en.full }}</dt>
 							<dd class="m-0" data-zfReplace="{{ learning.limud }}"></dd>
 						</div>
@@ -350,26 +350,26 @@ accordian: true
 				<li class="list-group-item" data-zfFind="FastDays" style="display: none;">
 					{% for fast in site.data.events.fasts %}
 					<h5 data-zfFind="{{ fast.yomTovIndex }}">
-						<span class="lang lang-hb">{{ fast.text.he }}</span>
-						<span class="lang lang-et">{{ fast.text.et }}</span>
+						<span class="lang lang-he">{{ fast.text.he }}</span>
+						<span class="lang lang-he-Latn">{{ fast.text.he-Latn }}</span>
 						<span class="lang lang-en">{{ fast.text.en }}</span>
 					</h5>
 					{% endfor %}
 					<span data-zfFind="oneDayTimes">
 						<b class="lang lang-en">Fast Times: </b>
-						<b class="lang lang-et">Fast Times: </b>
-						<b class="lang lang-hb">שעות הצום: </b>
+						<b class="lang lang-he-Latn">Fast Times: </b>
+						<b class="lang lang-he">שעות הצום: </b>
 					</span>
 					<ul data-zfFind="twoDayTimes">
 						<li>
 							<b class="lang lang-en">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-							<b class="lang lang-et">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-							<b class="lang lang-hb">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+							<b class="lang lang-he-Latn">Fast Starts<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-he">הצום מתחיל<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
 						</li>
 						<li>
 							<b class="lang lang-en">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-							<b class="lang lang-et">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
-							<b class="lang lang-hb">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
+							<b class="lang lang-he-Latn">Fast Ends<span data-zfFind="erevTzom"> (Tonight)</span>: </b>
+							<b class="lang lang-he">הצום נגמר<span data-zfFind="erevTzom"> (הלילה)</span>: </b>
 						</li>
 					</ul>
 				</li>
@@ -384,7 +384,7 @@ accordian: true
 								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
 							</p>
 						</div>
-						<div class="lang lang-et">
+						<div class="lang lang-he-Latn">
 							<h5 class="mb-0">Today is <span data-zfReplace="completeCount"></span> of the Omer</h5>
 							<p>which <span data-zfReplace="indCount"></span></p>
 							<p class="mb-0">
@@ -393,7 +393,7 @@ accordian: true
 								<span data-zfReplace="indCount" data-omerDay="tomorrow"></span></span>
 							</p>
 						</div>
-						<div class="lang lang-hb">
+						<div class="lang lang-he">
 							<h5 class="mb-0">הַיּוֹם <span data-zfReplace="completeCount"></span> לָעֹמֶר</h5>
 							<p>שֶׁהֵם <span data-zfReplace="indCount"></span></p>
 							<p class="mb-0">
@@ -406,12 +406,12 @@ accordian: true
 					</div>
 					<div data-zfFind="ThreeWeeksHeader">
 						<h5>
-							<span class="lang lang-hb">
+							<span class="lang lang-he">
 								<span data-zfFind="threeWeeks">שלושה שבועות</span>
 								<span data-zfFind="nineDays">תשעה ימים</span>
 								<span data-zfFind="weekOf">שבוע שחל בו</span>
 							</span>
-							<span class="lang lang-et">
+							<span class="lang lang-he-Latn">
 								<span data-zfFind="threeWeeks">Three Weeks</span>
 								<span data-zfFind="nineDays">Nine Days</span>
 								<span data-zfFind="weekOf">The week of Tisha Beav</span>
@@ -426,8 +426,8 @@ accordian: true
 					<ul>
 						{% for minhag in site.data.mourningMinhag %}
 						<li data-zfFind="{{ minhag.topic }}">
-							<span class="lang lang-hb">{{ minhag.text.he }}</span>
-							<span class="lang lang-et">{{ minhag.text.en }}</span>
+							<span class="lang lang-he">{{ minhag.text.he }}</span>
+							<span class="lang lang-he-Latn">{{ minhag.text.en }}</span>
 							<span class="lang lang-en">{{ minhag.text.en }}</span>
 						</li>
 						{% endfor %}
@@ -435,26 +435,26 @@ accordian: true
 				</li>
 				<li class="list-group-item" data-zfFind="Tachanun">
 					<div data-zfFind="0">
-						<span class="lang lang-hb">לוח-תחנון יום</span>
-						<span class="lang lang-et">Calendar-Taḥanun Day</span>
+						<span class="lang lang-he">לוח-תחנון יום</span>
+						<span class="lang lang-he-Latn">Calendar-Taḥanun Day</span>
 						<span class="lang lang-en">Calendar-Taḥanun Day</span>
 					</div>
 					<div data-zfFind="1">
-						<span class="lang lang-hb">תחנון רק בשחרית</span>
-						<span class="lang lang-et">Only Taḥanun by Shaḥarith</span>
+						<span class="lang lang-he">תחנון רק בשחרית</span>
+						<span class="lang lang-he-Latn">Only Taḥanun by Shaḥarith</span>
 						<span class="lang lang-en">Only Taḥanun by Shaḥarith</span>
 					</div>
 					<div data-zfFind="2">
-						<span class="lang lang-hb">אין תחנון היום</span>
-						<span class="lang lang-et">No Taḥanun</span>
+						<span class="lang lang-he">אין תחנון היום</span>
+						<span class="lang lang-he-Latn">No Taḥanun</span>
 						<span class="lang lang-en">No Taḥanun</span>
 					</div>
 					<div data-zfFind="3">צדקתך</div>
 					<div data-zfFind="4">יהי שם</div>
 				</li>
 				<li class="list-group-item" data-zfFind="Chamah" style="display: none;">
-					<span class="lang lang-hb">ברכת החמה!</span>
-					<span class="lang lang-et">Birchath Hachama!</span>
+					<span class="lang lang-he">ברכת החמה!</span>
+					<span class="lang lang-he-Latn">Birchath Hachama!</span>
 					<span class="lang lang-en">Blessing of the sun!</span>
 				</li>
 				<li class="list-group-item" data-zfReplace="Hallel" style="display: none;"></li>
@@ -462,8 +462,8 @@ accordian: true
 				<li class="list-group-item" data-zfFind="SeasonalPrayers">
 					<span data-zfReplace="SeasonalPrayers"></span>
 					<ul data-zfFind="ShemaKolenu">
-						<li class="lang lang-hb">בשמע קולנו: "ותן טל ומתר לברכה"</li>
-						<li class="lang lang-et">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
+						<li class="lang lang-he">בשמע קולנו: "ותן טל ומתר לברכה"</li>
+						<li class="lang lang-he-Latn">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
 						<li class="lang lang-en">In Shema Kolenu: "ותן טל ומתר לברכה"</li>
 					</ul>
 				</li>
@@ -471,11 +471,11 @@ accordian: true
 					<a data-bs-toggle="modal" data-bs-target="#tekufaModal">
 						<i class="bi bi-info-circle-fill"></i>
 					</a>
-					<span class="lang lang-hb">
+					<span class="lang lang-he">
 						<b>תקופת <span data-zfReplace="tekufaName-hb"></span></b> בשעה <span data-zfReplace="tekufaTime"></span><br>
 						<small class="fw-normal">צאם מים: <span data-zfReplace="tekufaFastTime"></span></small>
 					</span>
-					<span class="lang lang-et">
+					<span class="lang lang-he-Latn">
 						<b>Tekufat <span data-zfReplace="tekufaName-en"></span></b> is at <span data-zfReplace="tekufaTime"></span><br>
 						<small class="fw-normal">Water-prohibition timeframe: <span data-zfReplace="tekufaFastTime"></span></small>
 					</span>
@@ -506,8 +506,8 @@ accordian: true
 					{% if item.attributes.yomTovInclusive %}yomTovInclusive="{{ item.attributes.yomTovInclusive }}"{% endif %}
 					{% if item.attributes.condition %}condition="{{ item.attributes.condition }}"{% endif %}
 				>
-					<span class="lang lang-hb">{{ item.names.he }}</span>
-					<span class="lang lang-et">{{ item.names.et }}</span>
+					<span class="lang lang-he">{{ item.names.he }}</span>
+					<span class="lang lang-he-Latn">{{ item.names.he-Latn }}</span>
 					<span class="lang lang-en">{{ item.names.en }}</span>
 					<span class="timeDisplay"></span>
 				</article>
@@ -546,8 +546,8 @@ accordian: true
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<span class="lang lang-hb">{{ tekufaHeb | markdownify }}</span>
-				<span class="lang lang-et">{{ tekufaEng | markdownify }}</span>
+				<span class="lang lang-he">{{ tekufaHeb | markdownify }}</span>
+				<span class="lang lang-he-Latn">{{ tekufaEng | markdownify }}</span>
 				<span class="lang lang-en">{{ tekufaEng | markdownify }}</span>
 			</div>
 		</div>
@@ -1043,9 +1043,9 @@ accordian: true
 	/** smallest shift (minutes) the notice mentions */
 	const NOTICE_MIN_MINUTES = 1;
 	const NOTICE_TEXT = {
-		dawn: { hb: "עלות השחר", et: "Alot Ha'Shaḥar", en: "Dawn" },
-		nightfall: { hb: "צאת הכוכבים", et: "Tzet Ha'Kokhavim", en: "Nightfall" },
-		rt: { hb: 'צאת ר"ת (סוף יום החמץ)', et: "Rabbenu Tam (end of the Ḥametz day)", en: "Rabbenu Tam (end of the Ḥametz day)" }
+		dawn: { he: "עלות השחר", "he-Latn": "Alot Ha'Shaḥar", en: "Dawn" },
+		nightfall: { he: "צאת הכוכבים", "he-Latn": "Tzet Ha'Kokhavim", en: "Nightfall" },
+		rt: { he: 'צאת ר"ת (סוף יום החמץ)', "he-Latn": "Rabbenu Tam (end of the Ḥametz day)", en: "Rabbenu Tam (end of the Ḥametz day)" }
 	};
 	document.addEventListener("zmanimRendered", (event) => {
 		/** @type {any} */
@@ -1069,7 +1069,7 @@ accordian: true
 		const tf = [updater.dtF[0], { ...updater.dtF[1], second: "2-digit" }];
 		const n = (/** @type {number} */ x) => x.toFixed(2);
 
-		/** @param {'hb' | 'et' | 'en'} lang */
+		/** @param {'he' | 'he-Latn' | 'en'} lang */
 		const lines = (lang) => shifts.map(s => {
 			// half minutes: the rows round to the minute in their own direction, so whole minutes can look off by one
 			const half = Math.round(Math.abs(s.minutes) * 2) / 2;
@@ -1077,9 +1077,9 @@ accordian: true
 			const earlier = s.minutes < 0;
 			const clearer = s.aod < s.refAod;
 			const time = s.standard.toLocaleString(...tf);
-			if (lang === "hb") {
+			if (lang === "he") {
 				const source = s.forecast ? "לפי תחזית האובך" : "לפי ממוצע האובך החודשי";
-				return `<b>${NOTICE_TEXT[s.kind].hb}</b>: ${min} דק' ${earlier ? "מוקדם" : "מאוחר"} יותר מאשר בשמי זמן הגמרא (${time}) - `
+				return `<b>${NOTICE_TEXT[s.kind].he}</b>: ${min} דק' ${earlier ? "מוקדם" : "מאוחר"} יותר מאשר בשמי זמן הגמרא (${time}) - `
 					+ `${source} (${n(s.aod)}) האוויר כאן ${clearer ? "צלול" : "עכור"} יותר משמי ירושלים אז (${n(s.refAod)})`
 					+ (s.capped ? `; נעצר בגבול ההזזה` : "");
 			}
@@ -1090,8 +1090,8 @@ accordian: true
 		}).join("<br>");
 
 		box.innerHTML =
-			`<span class="lang lang-hb">${lines("hb")}</span>`
-			+ `<span class="lang lang-et">${lines("et")}</span>`
+			`<span class="lang lang-he">${lines("he")}</span>`
+			+ `<span class="lang lang-he-Latn">${lines("he-Latn")}</span>`
 			+ `<span class="lang lang-en">${lines("en")}</span>`;
 		box.style.removeProperty("display");
 	});
@@ -1104,8 +1104,8 @@ accordian: true
 		wrapper.innerHTML = `
 			<input class="form-check-input" type="checkbox" role="switch" id="locModal-hhElevation">
 			<label class="form-check-label" for="locModal-hhElevation">
-				<span class="lang lang-hb">גובה המקום בזריחה ובשקיעה</span>
-				<span class="lang lang-et">Elevation in sunrise and sunset</span>
+				<span class="lang lang-he">גובה המקום בזריחה ובשקיעה</span>
+				<span class="lang lang-he-Latn">Elevation in sunrise and sunset</span>
 				<span class="lang lang-en">Elevation in sunrise and sunset</span>
 			</label>`;
 		atmosphereForm.querySelector("h5")?.after(wrapper);

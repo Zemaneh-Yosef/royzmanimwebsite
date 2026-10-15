@@ -125,9 +125,9 @@ export default class zmanimListUpdater {
 					condition: timeSlot.getAttribute('data-condition'),
 					round: timeSlot.getAttribute('data-round'),
 					title: {
-						'hb': timeSlot.querySelector('.zmanTitleText').innerHTML,
+						'he': timeSlot.querySelector('.zmanTitleText').innerHTML,
 						'en': "",
-						'en-et': ""
+						'he-Latn': ""
 					},
 					ignoreNextUpcoming: timeSlot.hasAttribute('data-ignoreNextUpcoming')
 				})])
@@ -575,8 +575,8 @@ export default class zmanimListUpdater {
 
 				timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].zDTObj.toLocaleString(...zmanInfo[zmanId].dtF)
 
-				if (zmanInfo[zmanId].title.hb)
-					timeSlot.querySelector('.zmanTitleText').innerHTML = zmanInfo[zmanId].title.hb
+				if (zmanInfo[zmanId].title.he)
+					timeSlot.querySelector('.zmanTitleText').innerHTML = zmanInfo[zmanId].title.he
 
 				// Calculate but hide! Can be derived via Inspect Element
 				if (!zmanInfo[zmanId].display)
@@ -1045,10 +1045,10 @@ export default class zmanimListUpdater {
 					roshHodeshJCal.setDate(roshHodeshJCal.getDate().add({ weeks: 2 }));
 					roshHodeshJCal.setJewishDayOfMonth(1);
 
-					let dayOfWeek = roshHodeshJCal.getDayOfTheWeek().hb;
+					let dayOfWeek = roshHodeshJCal.getDayOfTheWeek().he;
 					roshHodeshJCal.setDate(roshHodeshJCal.getDate().subtract({ days: 1 }));
 					if (roshHodeshJCal.getJewishDayOfMonth() == 30)
-						dayOfWeek = roshHodeshJCal.getDayOfTheWeek().hb + " / " + dayOfWeek;
+						dayOfWeek = roshHodeshJCal.getDayOfTheWeek().he + " / " + dayOfWeek;
 
 					extra += "<i class='bi bi-moon-fill'></i> מברכים חודש "
 						+ shabbatJCal.chainDate(shabbatJCal.getDate().add({ weeks: 2 })).formatJewishMonth().he

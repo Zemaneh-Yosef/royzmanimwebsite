@@ -21,11 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("24h").checked = true;
         }
 
-        if (settings.language() == "hb") {
+        if (settings.language() == "he") {
             document.getElementById('hebrew').checked = true;
             document.getElementById('enet').checked = false;
             document.getElementById('enli').checked = false;
-        } else if (settings.language() == "en-et") {
+        } else if (settings.language() == "he-Latn") {
             document.getElementById('hebrew').checked = false;
             document.getElementById('enet').checked = true;
             document.getElementById('enli').checked = false;
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.getElementById('languageSelector').addEventListener('click', () => {
-            handleLanguage(document.getElementById('hebrew').checked ? 'hb' : (document.getElementById('enet').checked ? 'en-et' : 'en'), true);
+            handleLanguage(document.getElementById('hebrew').checked ? 'he' : (document.getElementById('enet').checked ? 'he-Latn' : 'en'), true);
             if (window.zmanimListUpdater2) {
                 window.zmanimListUpdater2.resetCalendar();
             }
