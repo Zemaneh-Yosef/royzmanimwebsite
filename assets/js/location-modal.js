@@ -14,6 +14,7 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import * as leaflet from "../libraries/leaflet/leaflet.js";
 import { hazeOn } from "../libraries/kosherZmanim/star-nightfall.js";
 import { settings, saveSetting } from "./settings/handler.js";
+import { isInIsrael, applyLocationDefaults } from "./misc/israel.js";
 
 /** @typedef {import("./refraction-snapshot.js").AtmosphereSpec} AtmosphereSpec */
 /** @typedef {import("./refraction-snapshot.js").Horizon} Horizon */
@@ -607,6 +608,7 @@ export default class LocationModal {
 			url.searchParams.set("long", long.toString());
 			url.searchParams.set("elevation", elevation.toString());
 			url.searchParams.set("timeZone", timeZone);
+			applyLocationDefaults(isInIsrael(lat, long), url);
 			window.location.assign(url);
 		});
 	}

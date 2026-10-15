@@ -31,7 +31,7 @@
 
 import * as leaflet from "../libraries/leaflet/leaflet.js"
 import { settings } from "./settings/handler.js";
-import { isInIsrael } from "./misc/israel.js";
+import { isInIsrael, applyLocationDefaults } from "./misc/israel.js";
 /** @type {leaflet.Map} */
 let leafletInit;
 
@@ -585,17 +585,7 @@ async function getAverageElevation(lat, long) {
 }
 
 function openCalendarWithLocationInfo() {
-	if (!isInIsrael(geoLocation.lat, geoLocation.long)) {
-		localStorage.setItem("hourCalculators", "degrees");
-		localStorage.setItem("rtKulah", "true");
-		localStorage.setItem("tzeitTaanitHumra", "false");
-		localStorage.setItem("tekufa", "hatzoth");
-	} else {
-		localStorage.setItem("hourCalculators", "seasonal");
-		localStorage.setItem("rtKulah", "false");
-		localStorage.setItem("tzeitTaanitHumra", "true");
-		localStorage.setItem("tekufa", "arbitrary");
-	}
+	applyLocationDefaults(isInIsrael(geoLocation.lat, geoLocation.long));
 
 	const typedGL = Object.entries(geoLocation).map(([key, value]) => [key, (typeof value == 'number' ? value.toString() : value)])
 	const params = new URLSearchParams(Object.fromEntries(typedGL));

@@ -49,3 +49,20 @@ export function isInIsrael(lat, lng) {
 	return inside;
 }
 
+
+/**
+ * Store the settings whose defaults depend on whether the location is in Israel. Run whenever a
+ * location is picked or edited.
+ * @param {boolean} inIsrael
+ * @param {URL} [url] the address about to be opened: same-named parameters there would override these
+ */
+export function applyLocationDefaults(inIsrael, url) {
+	const defaults = inIsrael
+		? { hourCalculators: "seasonal", rtKulah: "false", tzeitTaanitHumra: "true", tekufa: "arbitrary" }
+		: { hourCalculators: "degrees", rtKulah: "true", tzeitTaanitHumra: "false", tekufa: "hatzoth" };
+
+	for (const [key, value] of Object.entries(defaults)) {
+		localStorage.setItem(key, value);
+		url?.searchParams.delete(key);
+	}
+}
