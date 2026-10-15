@@ -846,7 +846,7 @@ function messageHandler(x) {
 				)
 		));
 		if (!x.data.oneYear) {
-			dateSel.appendChild(document.createTextNode(' ' +
+			dateSel.appendChild(document.createTextNode(
 				x.data.lang == 'hb'
 				? ` (${hNum.formatHebrewNumber(jCal.getJewishYear())})`
 				: " '" + plainDate.withCalendar(x.data.calendar).year.toString().slice(-2)
