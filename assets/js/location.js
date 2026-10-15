@@ -380,9 +380,10 @@ async function setLocation(name, admin, country, latitude, longitude) {
 				.replaceAll("Asia/Hebron", "Asia/Jerusalem");
 		} catch (e) {
 			const attemptedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-			if (attemptedTimezone)
+			if (attemptedTimezone) {
+				geoLocation.timeZone = attemptedTimezone;
 				alert("Timezone API error - The app will use your local timezone on your computer instead of the destination timezone. Please retry later for the intended timezone.")
-			else {
+			} else {
 				elements.searchBar.disabled = false;
 
 				elements.icons.error.style.removeProperty("display");

@@ -78,7 +78,7 @@ export default class zmanimListUpdater {
 				geoLData.lat,
 				geoLData.lng,
 				geoLData.elevation,
-				geoLData.timezone
+				isValidTimeZone(geoLData.timezone) ? geoLData.timezone : Intl.DateTimeFormat().resolvedOptions().timeZone
 			);
 		});
 
@@ -1107,6 +1107,17 @@ function isValidJSON(str) {
 		JSON.parse(str);
 		return true;
 	} catch (e) {
+		return false;
+	}
+}
+
+/** @param {string} tz */
+function isValidTimeZone(tz) {
+	if (!tz) return false;
+	try {
+		new Intl.DateTimeFormat("en", { timeZone: tz });
+		return true;
+	} catch {
 		return false;
 	}
 }
