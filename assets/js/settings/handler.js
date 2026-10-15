@@ -23,9 +23,12 @@ function defaultSettings (variedTocheck, defaultSetting) {
 
 const settings = Object.freeze({
 	seconds: () => settingsURLOverride("seconds") == "true",
-	/** @return {'h11'|'h12'|'h23'|'h24'} */
+	/** @return {'h11'|'h12'|'h23'} */
 	timeFormat: function () {
-		if (['h11', 'h12', 'h23', 'h24'].includes(settingsURLOverride("timeFormat")))
+		if (settingsURLOverride("timeFormat") == 'h24')
+			return 'h23';
+
+		if (['h11', 'h12', 'h23'].includes(settingsURLOverride("timeFormat")))
 			// @ts-ignore
 			return settingsURLOverride("timeFormat");
 
