@@ -27,7 +27,7 @@
 /**
  * @typedef {Object} CalendarToggle
  * @property {boolean} rtKulah - Toggles Rabbeinu Tam leniency calculation.
- * @property {string} [tekufaMidpoint] - Midpoint reference method (e.g., "hatzoth").
+ * @property {'hatzoth'|'arbitrary'} [tekufaMidpoint] - Tekufa clock: "hatzoth" (−20m56s) or "arbitrary" (fixed); defaults by Israel.
  * @property {string} [tekufaCalc] - Calculation method used for season changes (e.g., "shemuel").
  * @property {boolean} forceSunSeasonal - Forces seasonal calculations based directly on the sun.
  */
@@ -67,6 +67,8 @@
  * @property {boolean} [israel] - Overrides the "Israel" detection from the coordinates.
  * @property {'json'|'url'} source - Where the config came from (set by the loader).
  */
+
+import { isInIsrael } from "../../misc/israel.js";
 
 const params = new URLSearchParams(window.location.search);
 
@@ -185,6 +187,7 @@ function normalize(config) {
 		calendarToggle: {
 			rtKulah: true,
 			forceSunSeasonal: false,
+			tekufaMidpoint: (config.israel ?? locations.some(loc => isInIsrael(loc.lat, loc.long))) ? 'arbitrary' : 'hatzoth',
 			...config.calendarToggle
 		},
 		customTimes: {

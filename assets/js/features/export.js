@@ -122,7 +122,7 @@ export default class exportFriendly {
 
 			receiveData = receiveData.flat();
 			[isoYear + 3760, isoYear + 3761]
-				.flatMap(hebrewYear => new TekufahCalculator(hebrewYear).calculateTekufotShemuel(!zmanLister.zmanCalc.config.fixedMil).slice(0, 4))
+				.flatMap(hebrewYear => new TekufahCalculator(hebrewYear).calculateTekufotShemuel(settings.calendarToggle.tekufaMidpoint() !== "hatzoth").slice(0, 4))
 				.forEach((tekufa, index) => {
 					if (tekufa.year != isoYear)
 						return;

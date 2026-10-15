@@ -31,6 +31,7 @@ const hNum = new HebrewNumberFormatter();
 	hourCalculator: "seasonal"|"degrees";
 	date: string;
 	rtKulah: boolean;
+	tekufaMidpoint: 'hatzoth'|'arbitrary';
 	tzetMelakha: {
 		minutes: number;
 		degree: number;
@@ -1381,7 +1382,7 @@ function messageHandler(x) {
 
 	plainDate = plainDate.withCalendar(x.data.calendar).with({ day: 1 });
 	plainDateForceCal = plainDate.withCalendar('iso8601');
-	let initTekuf = zmanCalc.nextTekufa(zmanCalc.config.fixedMil);
+	let initTekuf = zmanCalc.nextTekufa(x.data.tekufaMidpoint !== "hatzoth");
 	let halfDaysInMonth = plainDate.daysInMonth;
 	if (x.data.shabbatOnly) {
 		if (plainDate.add({ months: 1 }).year == plainDate.year)
@@ -1634,7 +1635,7 @@ function messageHandler(x) {
 	}
 
 	function handleTekufa(beforeHatzotOnly = false) {
-		if (initTekuf.equals(zmanCalc.nextTekufa(zmanCalc.config.fixedMil).withTimeZone(geoLocation.getTimeZone())))
+		if (initTekuf.equals(zmanCalc.nextTekufa(x.data.tekufaMidpoint !== "hatzoth").withTimeZone(geoLocation.getTimeZone())))
 			return;
 
 		if (beforeHatzotOnly && Temporal.ZonedDateTime.compare(initTekuf, zmanCalc.chainDate(initTekuf.toPlainDate()).getHatzoth()) != -1)
@@ -2093,7 +2094,7 @@ function messageHandler(x) {
 		const firstSideClone = handleSecondSide();
 
 		highlightZmanim = [];
-		initTekuf = zmanCalc.nextTekufa(zmanCalc.config.fixedMil);
+		initTekuf = zmanCalc.nextTekufa(x.data.tekufaMidpoint !== "hatzoth");
 		jewishMonthsInSecMonth.clear();
 		for (let index = halfDaysInMonth + 1; index <= plainDate.daysInMonth; index++) {
 			plainDate = dayMinusOne.add({ days: index })

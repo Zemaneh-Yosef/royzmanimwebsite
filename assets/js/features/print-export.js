@@ -191,6 +191,7 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal;
 		date: plainDateForLoop.with({ month: 1 }).add({ months: mIndex - 1 }).toString(),
 		oneYear: plainDateForLoop.year == plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal - 1 }).year,
 		rtKulah: settings.calendarToggle.rtKulah(),
+		tekufaMidpoint: settings.calendarToggle.tekufaMidpoint(),
 		tzetMelakha: settings.customTimes.tzeithIssurMelakha(),
 		timeFormat: settings.timeFormat(),
 		lang: settings.language(),

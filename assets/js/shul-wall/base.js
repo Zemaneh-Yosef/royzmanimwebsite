@@ -22,7 +22,7 @@ const REFRACTION_WAIT_MS = 8000;
     };
     calendarToggle: {
         rtKulah: boolean;
-        tekufaMidpoint: "hatzoth" | "arbitrary";
+        tekufaMidpoint?: "hatzoth" | "arbitrary";
         tekufaCalc: "shemuel" | "adabaravah";
         forceSunSeasonal: boolean;
     },
@@ -67,6 +67,7 @@ async function refreshBase(configText = document.getElementById("zy-scheduleScre
 
 	jCal = new WebsiteLimudCalendar(currentZDT.toPlainDate());
 	jCal.setInIsrael(isInIsrael(geoLocation.getLatitude(), geoLocation.getLongitude()))
+	scheduleSettings.calendarToggle.tekufaMidpoint ??= jCal.getInIsrael() ? "arbitrary" : "hatzoth";
 
 	// ─── Refraction (forecast air + terrain horizon), same source as the website and weekly print ───
 	// The screen reloads itself daily (reload.js), and this module runs again each time, so each day starts

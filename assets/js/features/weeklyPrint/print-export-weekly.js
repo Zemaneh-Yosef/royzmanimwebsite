@@ -496,6 +496,7 @@ const weekInit = {
 	calendar: cal,
 	hourCalculator,
 	rtKulah: config.calendarToggle.rtKulah,
+	tekufaMidpoint: config.calendarToggle.tekufaMidpoint,
 	tzetMelakha: config.customTimes.tzeithIssurMelakha,
 	timeFormat: config.timeFormat,
 	lang: config.language,

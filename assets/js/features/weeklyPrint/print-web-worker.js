@@ -45,6 +45,7 @@ hNum.setUseFinalFormLetters(true);
 	calendar: 'iso8601'|'hebrew';
 	hourCalculator: "seasonal"|"degrees";
 	rtKulah: boolean;
+	tekufaMidpoint: 'hatzoth'|'arbitrary';
 	tzetMelakha: {
 		minutes: number;
 		degree: number;
@@ -1163,7 +1164,7 @@ function messageHandler(x) {
 		}
 	}
 
-	let initTekuf = zmanCalc.nextTekufa(zmanCalc.config.fixedMil);
+	let initTekuf = zmanCalc.nextTekufa(x.data.tekufaMidpoint !== "hatzoth");
 
 	const addedZemanim = Object.fromEntries(x.data.addedZemanim.map(str => [str.split('|')[0], {}]))
 
@@ -1897,7 +1898,7 @@ function messageHandler(x) {
 	}
 
 	function handleTekufa(beforeHatzotOnly = false) {
-		if (initTekuf.equals(zmanCalc.nextTekufa(zmanCalc.config.fixedMil).withTimeZone(geoLocation.getTimeZone())))
+		if (initTekuf.equals(zmanCalc.nextTekufa(x.data.tekufaMidpoint !== "hatzoth").withTimeZone(geoLocation.getTimeZone())))
 			return;
 
 		if (beforeHatzotOnly && Temporal.ZonedDateTime.compare(initTekuf, zc(initTekuf.toPlainDate()).getHatzoth()) != -1)
