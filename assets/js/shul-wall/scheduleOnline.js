@@ -2,6 +2,7 @@
 import './zman-schedule.js'
 
 import { scheduleSettings } from "./base.js";
+import { keepTrying, fetchOk } from "./reload.js";
 import { parse as parseIni } from "../../libraries/ini.js";
 import { parse as parseToml } from "../../libraries/toml.mjs";
 import * as xlsx from "../../libraries/xlsx.js";
@@ -12,7 +13,7 @@ import JSZip from "../../libraries/jszip/jszip.js";
  * @param {"return"|"comma"|"newline"} arrayBehavior
  */
 export async function loadIniSchedule(url, silent=false, arrayBehavior="return") {
-	const iniText = await (await fetch(url)).text();
+	const iniText = await (await fetchOk(url)).text();
 	const iniObj = parseIni(iniText);
 
 	return await loadSchedule(iniObj, silent, arrayBehavior);
@@ -23,7 +24,7 @@ export async function loadIniSchedule(url, silent=false, arrayBehavior="return")
  * @param {"return"|"comma"|"newline"} arrayBehavior
  */
 export async function loadTomlSchedule(url, silent=false, arrayBehavior="return") {
-	const tomlText = await (await fetch(url)).text();
+	const tomlText = await (await fetchOk(url)).text();
 	const tomlObj = parseToml(tomlText);
 
 	return await loadSchedule(tomlObj, silent, arrayBehavior);
@@ -34,7 +35,7 @@ export async function loadTomlSchedule(url, silent=false, arrayBehavior="return"
  * @param {"return"|"comma"|"newline"} arrayBehavior
  */
 export async function loadJsonSchedule(url, silent=false, arrayBehavior="return") {
-	const jsonText = await (await fetch(url)).json();
+	const jsonText = await (await fetchOk(url)).json();
 	return await loadSchedule(jsonText, silent, arrayBehavior);
 }
 
@@ -48,7 +49,7 @@ export async function loadJsonSchedule(url, silent=false, arrayBehavior="return"
  * @param {"return"|"comma"|"newline"} arrayBehavior
  */
 export async function loadExcelSchedule(url, silent=false, arrayBehavior="return") {
-	const buf = await (await fetch(url)).arrayBuffer();
+	const buf = await (await fetchOk(url)).arrayBuffer();
 	const workbook = xlsx.read(buf, { type: "array" });
 	const styleData = await readXlsxStyles(buf);
 
@@ -68,9 +69,9 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior = "re
         if (typeof value == "string" || typeof value == "number") {
             if (!elemForSimpID) {
                 if (silentFail) {
-                    console.warn(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`);
+                    console.warn(`Element with id "${sectionKey}" not found`);
                 } else {
-                    throw new Error(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`)
+                    throw new Error(`Element with id "${sectionKey}" not found`)
                 }
             } else {
                 document.getElementById(sectionKey).innerHTML = String(value);
@@ -79,9 +80,9 @@ export async function loadSchedule(data, silentFail = false, arrayBehavior = "re
         } else if (Array.isArray(value)) {
             if (!elemForSimpID) {
                 if (silentFail) {
-                    console.warn(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`);
+                    console.warn(`Element with id "${sectionKey}" not found`);
                 } else {
-                    throw new Error(`Element with id "${elemForSimpID}" (from section [${sectionKey}]) not found`)
+                    throw new Error(`Element with id "${sectionKey}" not found`)
                 }
             } else {
                 switch (arrayBehavior) {
@@ -468,11 +469,13 @@ function parseCellXfs(stylesXml) {
 
 (async () => {
 	if ("schedule" in scheduleSettings && scheduleSettings.schedule !== "manual") {
-        ({
+        const loader = ({
             "ini": loadIniSchedule,
             "json": loadJsonSchedule,
             "excel": loadExcelSchedule,
             "toml": loadTomlSchedule,
-        })[scheduleSettings.schedule.type](scheduleSettings.schedule.url, undefined, scheduleSettings.schedule.arrayBehavior);
+        })[scheduleSettings.schedule.type];
+        const { url, arrayBehavior } = scheduleSettings.schedule;
+        keepTrying('scheduleLoad', () => loader(url, true, arrayBehavior));
 	}
 })();

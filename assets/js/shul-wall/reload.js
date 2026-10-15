@@ -124,6 +124,32 @@ export async function reload() {
 	}
 }
 
+/**
+ * Runs a loading step now and, until it succeeds, again every 5 minutes, so a wall that starts while a host is down fills in later.
+ * @param {string} timerKey
+ * @param {() => Promise<unknown>} step
+ */
+export async function keepTrying(timerKey, step) {
+	try {
+		await step();
+	} catch (e) {
+		console.error(e);
+		if (!('timers' in window))
+			// @ts-ignore
+			window.timers = {}
+		// @ts-ignore
+		window.timers[timerKey] = setTimeout(() => keepTrying(timerKey, step), 5 * 60 * 1000);
+	}
+}
+
+/** @param {string | URL | Request} url */
+export async function fetchOk(url) {
+	const response = await fetch(url);
+	if (!response.ok)
+		throw new Error(`${response.status} ${response.statusText} from ${response.url}`);
+	return response;
+}
+
 /** @param {number} delay  */
 function waitFor (delay) { return new Promise(resolve => setTimeout(resolve, delay)) }
 async function sleep() {

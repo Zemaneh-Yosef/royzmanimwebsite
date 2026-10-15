@@ -652,18 +652,21 @@ layout: nothing
 <script type="module">
 	import {loadIniSchedule} from '/assets/js/shul-wall/scheduleOnline.js';
 	import autoscrollSchedules from '/assets/js/shul-wall/scheduleAutoscroll.js';
+	import { keepTrying, fetchOk } from '/assets/js/shul-wall/reload.js';
 
-	await loadIniSchedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true);
+	await keepTrying('scheduleLoad', () => loadIniSchedule('https://malka-minyanim.royzmanim.com/db/beth-aharon.db', true));
 
-	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
-		.split('\n')
-		.filter(str => str.startsWith('./beth-aharon/'))
+	keepTrying('flyerLoad', async () => {
+		const flyerURLs = (await (await fetchOk('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+			.split('\n')
+			.filter(str => str.startsWith('./beth-aharon/'))
 
-	const carousel = document.getElementById('ishMatzliachSlide');
-	carousel.firstElementChild.innerHTML = flyerURLs
-		.map((url, index) =>
-			`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="10000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
-		.join('');
+		const carousel = document.getElementById('ishMatzliachSlide');
+		carousel.firstElementChild.innerHTML = flyerURLs
+			.map((url, index) =>
+				`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="10000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+			.join('');
+	});
 
 	/* for (const marquee of document.getElementById("flyerForBusiness").getElementsByClassName('marquee__content')) {
 		marquee.innerHTML = flyerURLs.map(url => {

@@ -417,19 +417,22 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
 <script type="module">
 	import autoSchedule from "/assets/js/shul-wall/auto-schedule.js";
-
-	const flyerURLs = (await (await fetch('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
-		.split('\n')
-		.filter(str => str.startsWith('./ish-matzliach-events/'))
-
-	const carousel = document.getElementById('ishMatzliachSlide');
-	carousel.firstElementChild.innerHTML = flyerURLs
-		.map((url, index) =>
-			`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="10000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
-		.join('');
+	import { keepTrying, fetchOk } from '/assets/js/shul-wall/reload.js';
 
 	const autos = document.querySelectorAll("[data-autoschedule-type]");
 	if (autos.length) {
 		autoSchedule(autos);
 	}
+
+	keepTrying('flyerLoad', async () => {
+		const flyerURLs = (await (await fetchOk('https://zemaneh-yosef.github.io/extras/ls.txt')).text())
+			.split('\n')
+			.filter(str => str.startsWith('./ish-matzliach-events/'))
+
+		const carousel = document.getElementById('ishMatzliachSlide');
+		carousel.firstElementChild.innerHTML = flyerURLs
+			.map((url, index) =>
+				`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="10000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+			.join('');
+	});
 </script>

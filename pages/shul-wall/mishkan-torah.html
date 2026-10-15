@@ -430,10 +430,13 @@ layout: nothing
 <script type="module" src="/assets/js/shul-wall/limud.js"></script>
 <script type="module">
 	import {loadIniSchedule} from '/assets/js/shul-wall/scheduleOnline.js';
+	import { keepTrying } from '/assets/js/shul-wall/reload.js';
 
-	await loadIniSchedule('https://zemaneh-yosef.github.io/extras/yonah-schedule.ini');
-	for (const child of document.getElementsByClassName('marquee__content')[0].children) {
-		const newChild = child.cloneNode(true);
-		child.parentElement.nextElementSibling.appendChild(newChild);
-	}
+	keepTrying('scheduleLoad', async () => {
+		await loadIniSchedule('https://zemaneh-yosef.github.io/extras/yonah-schedule.ini');
+		for (const child of document.getElementsByClassName('marquee__content')[0].children) {
+			const newChild = child.cloneNode(true);
+			child.parentElement.nextElementSibling.appendChild(newChild);
+		}
+	});
 </script>
