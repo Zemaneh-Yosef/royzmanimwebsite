@@ -81,8 +81,12 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 	return events;
 }
 
-if (Worker)
+if ("WorkerGlobalScope" in globalThis)
 	addEventListener('message', async (message) => {
-		await loadWorkerPolyfills();
-		postMessage(spreadSheetExport.apply(spreadSheetExport, message.data))
+		try {
+			await loadWorkerPolyfills();
+			postMessage(spreadSheetExport.apply(spreadSheetExport, message.data))
+		} catch (error) {
+			postMessage({ error: String(error?.stack ?? error) })
+		}
 	})

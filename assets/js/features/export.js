@@ -174,7 +174,6 @@ export default class exportFriendly {
 			element.click();
 
 			document.body.removeChild(element);
-			this.midDownload = false;
 		}
 
 		for (let i = 1; i <= zmanLister.jCal.getDate().monthsInYear; i++) {
@@ -183,25 +182,51 @@ export default class exportFriendly {
 			giveData.push(monthICSData)
 		}
 
-		for (const monthICSData of giveData) {
-			if (window.Worker) {
-				console.log('activate thread')
-				const myWorker = spawnWorker("/assets/js/features/icsPrepare.js");
-				myWorker.postMessage(monthICSData)
-				myWorker.addEventListener("message", async (message) => {
-					console.log("received message from other thread");
-					receiveData.push(await message.data)
-					if (receiveData.length == giveData.length)
-						await postDataReceive();
-				})
-			} else {
-				const icsExport = (await import('./icsPrepare.js')).default;
-				const icsData = icsExport.apply(icsExport, monthICSData);
-				receiveData.push(await icsData);
-				if (receiveData.length == giveData.length)
-					await postDataReceive();
-			}
+		try {
+			receiveData = await this.runMonths("/assets/js/features/icsPrepare.js", () => import('./icsPrepare.js'), giveData);
+			await postDataReceive();
+		} catch (error) {
+			this.reportFailure(error);
+		} finally {
+			this.midDownload = false;
 		}
+	}
+
+	/**
+	 * Runs the export function once per month, each in its own worker when the browser has workers.
+	 * Rejects as soon as one month fails; the workers are terminated either way.
+	 * @param {string} workerURL
+	 * @param {() => Promise<{ default: Function }>} load the same module, for browsers without workers
+	 * @param {any[][]} giveData
+	 * @returns {Promise<any[]>}
+	 */
+	async runMonths(workerURL, load, giveData) {
+		if (!window.Worker) {
+			const exportFunc = (await load()).default;
+			const results = [];
+			for (const monthData of giveData)
+				results.push(await exportFunc.apply(exportFunc, monthData));
+			return results;
+		}
+
+		const workers = giveData.map(() => spawnWorker(workerURL));
+		try {
+			return await Promise.all(workers.map((worker, index) => new Promise((resolve, reject) => {
+				worker.addEventListener("message", message =>
+					message.data?.error ? reject(new Error(message.data.error)) : resolve(message.data));
+				worker.addEventListener("error", reject);
+				worker.addEventListener("messageerror", reject);
+				worker.postMessage(giveData[index]);
+			})));
+		} finally {
+			workers.forEach(worker => worker.terminate());
+		}
+	}
+
+	/** @param {unknown} error */
+	reportFailure(error) {
+		console.error("Export failed:", error);
+		alert(settings.language() == "hb" ? "הייצוא נכשל. נא לנסות שוב." : "The export failed. Please try again.");
 	}
 
 
@@ -310,8 +335,6 @@ export default class exportFriendly {
 			utils.book_append_sheet(wb, limudimWs, "Limudim");
 
 			writeFile(wb, title + ".xlsx");
-
-			this.midDownload = false;
 		}
 
 		for (let i = 1; i <= zmanLister.jCal.getDate().monthsInYear; i++) {
@@ -320,22 +343,13 @@ export default class exportFriendly {
 			giveData.push(monthExcelData)
 		}
 
-		for (const monthExcelData of giveData) {
-			if (window.Worker) {
-				const myWorker = spawnWorker("/assets/js/features/excelPrepare.js");
-				myWorker.postMessage(monthExcelData)
-				myWorker.addEventListener("message", async (message) => {
-					workerData.push(message.data);
-					if (workerData.length == giveData.length)
-						await postDataReceive();
-				})
-			} else {
-				const excelExport = (await import('./excelPrepare.js')).default;
-				const icsData = excelExport.apply(excelExport, monthExcelData);
-				workerData.push(icsData);
-				if (workerData.length == giveData.length)
-					await postDataReceive();
-			}
+		try {
+			workerData = await this.runMonths("/assets/js/features/excelPrepare.js", () => import('./excelPrepare.js'), giveData);
+			await postDataReceive();
+		} catch (error) {
+			this.reportFailure(error);
+		} finally {
+			this.midDownload = false;
 		}
 	}
 }

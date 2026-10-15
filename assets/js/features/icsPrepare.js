@@ -374,8 +374,12 @@ function romanize (num) {
     return Array(+digits.join("") + 1).join("M") + roman;
 }
 
-if (Worker)
+if ("WorkerGlobalScope" in globalThis)
 	addEventListener('message', async (message) => {
-		await loadWorkerPolyfills();
-		postMessage(await icsExport.apply(icsExport, message.data))
+		try {
+			await loadWorkerPolyfills();
+			postMessage(await icsExport.apply(icsExport, message.data))
+		} catch (error) {
+			postMessage({ error: String(error?.stack ?? error) })
+		}
 	})
