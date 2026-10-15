@@ -133,23 +133,27 @@ const settings = Object.freeze({
 				return retObj;
 			}
 
-			if (!(settingsURLOverride("tzeithIMdeg") || "").trim()) {
+			const minutes = parseInt(settingsURLOverride("tzeithIMmin"));
+			const savedDegree = urlParams.get("tzeithIMdeg")
+				|| (localStorage.getItem("tzeithIMdegMin") == minutes.toString() ? localStorage.getItem("tzeithIMdeg") : null);
+			if (!(savedDegree || "").trim()) {
 				const geoLocation = new KosherZmanim.GeoLocation("R Ovadia's house", 31.7898742, 35.1771491, 776, "UTC")
 
 				const aCalendar = new KosherZmanim.AstronomicalCalendar(geoLocation);
 				aCalendar.setDate(Temporal.Now.plainDateISO().with({ month: 3, day: 20 }))
-				const degree = aCalendar.getSunsetSolarDipFromOffset({minutes: parseInt(settingsURLOverride("tzeithIMmin")) });
+				const degree = aCalendar.getSunsetSolarDipFromOffset({ minutes });
 
 				localStorage.setItem("tzeithIMdeg", degree.toString())
+				localStorage.setItem("tzeithIMdegMin", minutes.toString())
 				return {
-					minutes: parseInt(settingsURLOverride("tzeithIMmin")),
+					minutes,
 					degree
 				}
 			}
 
 			return {
-				minutes: parseInt(settingsURLOverride("tzeithIMmin")),
-				degree: parseInt(settingsURLOverride("tzeithIMdeg"))
+				minutes,
+				degree: parseFloat(savedDegree)
 			}
 		}
 	}
