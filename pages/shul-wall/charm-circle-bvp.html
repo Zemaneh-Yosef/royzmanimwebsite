@@ -27,6 +27,7 @@ layout: nothing
 		   min() picks whichever axis (width or height) is more
 		   constrained, so nothing overflows even if a future screen's
 		   aspect ratio drifts further from 1634:842. */
+		font-size: calc(1600vw / 1634);
 		font-size: min(calc(1600dvw / 1634), calc(1600dvh / 842));
 	}
 
