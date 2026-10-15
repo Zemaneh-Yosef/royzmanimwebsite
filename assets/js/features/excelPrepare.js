@@ -42,6 +42,8 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 
 	/** @param {Temporal.ZonedDateTime} time */
 	const formatTime = (time) => '=TIME(' + [time.hour, time.minute, time.second].join(', ') + ')'
+	/** @param {Temporal.ZonedDateTime} time */
+	const timeSerial = (time) => (time.hour * 3600 + time.minute * 60 + time.second) / 86400
 
 	/** @type {{ zemanim: SpreadsheetRow[]; limudim: SpreadsheetRow[]}} */
 	const events = { zemanim: [], limudim: [] };
@@ -57,7 +59,7 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 			.map(entry => [
 				entry[0],
 				{
-					t: "d", v: new Date(entry[1].zDTObj.epochMilliseconds),
+					t: "n", v: timeSerial(entry[1].zDTObj),
 					f: formatTime(entry[1].zDTObj), z:
 						"h" + (["h23", "h24"].includes(funcSettings.timeFormat) ? "h" : "")
 						+ ":mm" + ('second' in entry[1].dtF[1] ? ":ss" : "")
