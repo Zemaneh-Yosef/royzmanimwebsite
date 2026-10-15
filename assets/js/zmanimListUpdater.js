@@ -37,7 +37,7 @@ export default class zmanimListUpdater {
 	constructor(geoLocation) {
 		this.exportManager = new exportFriendly();
 
-		this.jCal = new WebsiteLimudCalendar();
+		this.jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO(geoLocation.getTimeZone()));
 		this.jCal.setUseModernHolidays(true);
 
 		/** Latest full refraction data (forecast + horizon); null until the first load finishes. @type {import("./refraction-data.js").RefractionData | null} */
@@ -555,7 +555,7 @@ export default class zmanimListUpdater {
 			if (this.netzWorker && this.zmanCalc.config.deferVisibleSunrise)
 				this.netzWorker.prefetchAround(date.withCalendar("iso8601"), 7,
 					(d) => hasCachedVisibleSunrise(this.zmanCalc.config, d));
-			if (date.equals(Temporal.Now.plainDateISO())) {
+			if (date.equals(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()))) {
 				const tomorrow = Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
 					.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 });
 				this.timeoutToChangeDate = setTimeout(
@@ -587,7 +587,7 @@ export default class zmanimListUpdater {
 			dateDisplay.innerHTML = date[dateName].text;
 		}
 
-		const boldDateHandler = (this.jCal.getDate().equals(Temporal.Now.plainDateISO())) ? 'add' : 'remove';
+		const boldDateHandler = (this.jCal.getDate().equals(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()))) ? 'add' : 'remove';
 		dateContainer.classList[boldDateHandler]("text-bold");
 
 		// FIX: Date-changer buttons are now wired here per container (not behind a one-time flag)
@@ -1266,7 +1266,7 @@ export default class zmanimListUpdater {
 	renderSeasonalRules(tefilahRuleContainer) {
 		/** @type {import('./WebsiteCalendar.js').default} */
 		let calForRules = this.jCal;
-		if (this.jCal.getDate().equals(Temporal.Now.plainDateISO())
+		if (this.jCal.getDate().equals(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()))
 		 && Temporal.ZonedDateTime.compare(this.zmanCalc.getTzet(), Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())) < 1) {
 			calForRules = this.jCal.tomorrow();
 		}
