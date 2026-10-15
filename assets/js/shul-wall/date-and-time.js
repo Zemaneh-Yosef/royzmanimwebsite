@@ -20,7 +20,6 @@ function updateTime() {
 	if (minutePassed && curTime.minute == 0 && [0, 12, 24].includes(curTime.hour)) {
 		reload();
 		minutePassed = false;
-		return;
 	}
 
 	let local = scheduleSettings.language == 'hb' ? 'he' : 'en'
