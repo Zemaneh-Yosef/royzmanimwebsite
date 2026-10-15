@@ -769,7 +769,7 @@ function messageHandler(x) {
 			case 'netaneli-rt':
 				renderZmanInDiv(zmanCalc.timeRange.current.tzethakokhavim, 'later');
 				renderZmanInDiv(
-					zmanCalc.coreZC.getSunsetOffsetByDegrees(106.04), 'later',
+					zmanCalc.coreZC.getSunsetOffsetByDegrees(106.04) ?? zmanCalc.getSolarMidnight(), 'later',
 					{ dtF: defaulTF, icon: `(מעלות:`, appendText: ")", hideAMPM: true }
 				);
 				div.lastElementChild.classList.add("omerText");
