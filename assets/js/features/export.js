@@ -2,6 +2,7 @@
 
 import { settings } from "../settings/handler.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
+import TekufahCalculator from "../tekufot.js";
 import { snapshotProvider } from "../refraction-snapshot.js";
 import { spawnWorker } from "../misc/worker.js";
 
@@ -119,10 +120,11 @@ export default class exportFriendly {
 		const postDataReceive = async () => {
 			const ics = (await import('../../libraries/ics/ics.esm.js')).ics;
 
-			receiveData = receiveData.flat()
-			zmanLister.zmanCalc.tekufaCalc.calculateTekufotShemuel(!zmanLister.zmanCalc.config.fixedMil)
+			receiveData = receiveData.flat();
+			[isoYear + 3760, isoYear + 3761]
+				.flatMap(hebrewYear => new TekufahCalculator(hebrewYear).calculateTekufotShemuel(!zmanLister.zmanCalc.config.fixedMil).slice(0, 4))
 				.forEach((tekufa, index) => {
-					if (tekufa.year != zmanLister.jCal.getGregorianYear())
+					if (tekufa.year != isoYear)
 						return;
 
 					const time = tekufa.toZonedDateTime("+02:00").withTimeZone(zmanLister.geoLocation.getTimeZone())
@@ -135,7 +137,7 @@ export default class exportFriendly {
 						WebsiteCalendar.TEVES,
 					]
 						.map(month => (new WebsiteCalendar(zmanLister.jCal.getJewishYear(), month, 15)).formatJewishMonth())
-						[index]
+						[index % 4]
 
 					receiveData.push({
 						start: time.subtract({ minutes: 30 }).epochMilliseconds,
