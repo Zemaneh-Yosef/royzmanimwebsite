@@ -5,7 +5,7 @@ import { ZemanFunctions, methodNamesOf, zDTFromFunc, seedVisiblePlaceholders, ha
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { settings } from "./settings/handler.js";
 import ChaiTables from "./features/chaiTables.js";
-import LocationModal from "./location-modal.js";
+import LocationModal, { isValidTimeZone } from "./location-modal.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
 import { showListLoadingAfterDelay } from "./list-loading.js";
 import VisibleSunriseClient from "./visible-sunrise-client.js";
@@ -1356,7 +1356,7 @@ export default class zmanimListUpdater {
 
 // ─── Module Init ──────────────────────────────────────────────────────────────
 
-if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
+if (isNaN(settings.location.lat()) || isNaN(settings.location.long()) || !isValidTimeZone(settings.location.timezone())) {
 	window.location.href = "/";
 }
 

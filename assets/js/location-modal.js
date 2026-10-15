@@ -701,7 +701,7 @@ export default class LocationModal {
 }
 
 /** @param {string} tz */
-function isValidTimeZone(tz) {
+export function isValidTimeZone(tz) {
 	if (!tz) return false;
 	try {
 		new Intl.DateTimeFormat("en", { timeZone: tz });
