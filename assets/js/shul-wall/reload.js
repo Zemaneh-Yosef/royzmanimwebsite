@@ -1,19 +1,33 @@
 // @ts-check
 
+const RETRY_FIRST_MS = 15000;
+const RETRY_MAX_MS = 15 * 60 * 1000;
+
 let waitingForOnline = false;
 let reloadInFlight = false;
+let retryDelay = RETRY_FIRST_MS;
+/** @type {ReturnType<typeof setTimeout> | undefined} */
+let retryTimer;
+
+function retryLater() {
+	clearTimeout(retryTimer);
+	retryTimer = setTimeout(reload, retryDelay);
+	retryDelay = Math.min(retryDelay * 2, RETRY_MAX_MS);
+}
 
 export async function reload() {
 	// A reload is already underway somewhere (dayReload, checkRefresh, or
 	// date-and-time.js's own hour-boundary check) — let it finish instead of
 	// racing it with a second concurrent fetch + DOM swap.
 	if (reloadInFlight) return;
+	clearTimeout(retryTimer);
 
 	if (!navigator.onLine) {
 		if (!waitingForOnline) {
 			waitingForOnline = true;
 			window.addEventListener('online', reload);
 		}
+		retryLater();
 		return;
 	}
 
@@ -29,12 +43,16 @@ export async function reload() {
 		try {
 			pageFetch = await fetch(window.location.href, { signal: controller.signal });
 		} catch {
+			retryLater();
 			return;
 		} finally {
 			clearTimeout(timeoutId);
 		}
 
-		if (!pageFetch.ok) return;
+		if (!pageFetch.ok) {
+			retryLater();
+			return;
+		}
 
 		window.location.reload();
 
@@ -87,6 +105,10 @@ export async function reload() {
 		await waitFor(200);
 		for (const newScr of newScrs)
 			document.head.appendChild(newScr);
+		retryDelay = RETRY_FIRST_MS;
+	} catch (e) {
+		console.error("Soft reload failed", e);
+		retryLater();
 	} finally {
 		// Always release the lock, even if fetch failed, timed out, or came
 		// back non-OK — otherwise one bad network blip permanently blocks
