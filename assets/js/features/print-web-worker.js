@@ -1093,7 +1093,7 @@ function messageHandler(x) {
 				};
 
 				if (erevRoshHashanaDate.dayOfWeek == 3) {
-					roshHashanaObj.title = yomTovObj[WebsiteLimudCalendar.ROSH_HASHANA] + "<br>שבת שובה" + jCal.getHebrewParasha()[0];
+					roshHashanaObj.title = yomTovObj[WebsiteLimudCalendar.ROSH_HASHANA][x.data.lang] + "<br>שבת שובה " + jCal.getHebrewParasha()[0];
 					roshHashanaObj.datesToZman.set(erevRoshHashanaDate.add({ days: 2 }), {
 						candleLighting: handleRound(zmanCalc.chainDate(erevRoshHashanaDate.add({ days: 2 })).getCandleLighting(), 'earlier')
 					})
