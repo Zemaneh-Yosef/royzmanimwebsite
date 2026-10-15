@@ -61,7 +61,7 @@ for (const file of await listFiles(siteDir)) {
 		const sourceFile = path.join(sourceDir, name);
 		const code = await readFile(existsSync(sourceFile) ? sourceFile : file, "utf8");
 		const info = await analyze(code);
-		if (!info.kind) { console.warn(`legacy build: couldn't parse ${name}, left as is`); continue; }
+		if (!info.kind) { problems.push(`${name}: couldn't be parsed`); continue; }
 		scripts.push({
 			name, dir: path.posix.dirname(name), code, info, lower: true,
 			write: async (output, map) => {
@@ -92,7 +92,7 @@ for (const file of await listFiles(siteDir)) {
 			const type = (attributes.match(/\btype\s*=\s*["']?([^"'\s>]+)/i) || [])[1]?.toLowerCase();
 			if (type && type !== "module" && !/^(text|application)\/javascript$/.test(type)) continue;
 			const info = await analyze(body, type === "module" ? "module" : "script");
-			if (!info.kind) { console.warn(`legacy build: couldn't parse inline script #${index} of ${name}, left as is`); continue; }
+			if (!info.kind) { problems.push(`${name}, inline script #${index}: couldn't be parsed`); continue; }
 			const start = match.index + whole.indexOf(">") + 1;
 			scripts.push({
 				name: `${name}.inline-${index}.js`, dir: path.posix.dirname(name), code: body, info, lower: !modernOnly,
@@ -268,8 +268,8 @@ async function analyze(code, kind) {
 		} catch { /* try the next */ }
 	}
 	if (ast) {
-		// Lowering is needed for anything from ES2021 on, and for ES2020's ?. and ?? — the rest of
-		// ES2020 (BigInt, import(), import.meta) is supported by every target.
+		// Lowering is needed for anything from ES2021 on, and for ES2020's ?., ?? and `export * as` — the
+		// rest of ES2020 (BigInt, import(), import.meta) is supported by every target.
 		try {
 			acorn.parse(code, { ecmaVersion: 2020, sourceType: info.kind, allowHashBang: true });
 		} catch {
@@ -285,6 +285,7 @@ async function analyze(code, kind) {
 				case "AwaitExpression": if (!inFunction) info.topLevelAwait = true; break;
 				case "ForOfStatement": if (node.await && !inFunction) info.topLevelAwait = true; break;
 				case "ImportDeclaration": case "ExportNamedDeclaration": case "ExportAllDeclaration":
+					if (node.type === "ExportAllDeclaration" && node.exported) info.needsLowering = true;
 					if (node.source) info.imports.push(node.source.value); break;
 				case "Literal":
 					// esbuild turns these into new RegExp(…), which then throws when it runs (Safari < 16.4 has no
