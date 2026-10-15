@@ -13,6 +13,20 @@ import { printConfig, printHebrewYear } from "./print-config.js";
  * @property {number} day
  */
 
+/** @param {number} year */
+const isHebrewLeapYear = year => [0, 3, 6, 8, 11, 14, 17].includes(year % 19);
+
+/**
+ * The Hebrew and Gregorian date of a hiloulah in the given Hebrew year (Adar II is Adar in a common year)
+ * @param {number} year
+ * @param {number} month
+ * @param {number} day
+ */
+function hiloulahDateText(year, month, day) {
+	const entryCal = new WebsiteCalendar(year, month === 13 && !isHebrewLeapYear(year) ? 12 : month, day);
+	return `${entryCal.getDate().withCalendar('hebrew').toLocaleString('en-u-ca-hebrew', { month: 'short', day: 'numeric' })} | ${entryCal.formatFancyDate().en}`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
 	let hiloulotCount = 0;
 
@@ -215,7 +229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	// --------------------------------------------------------------
 	const config = await printConfig;
 	const TARGET_HEBREW_YEAR = printHebrewYear(config);
-	const isLeapYear = [0, 3, 6, 8, 11, 14, 17].includes(TARGET_HEBREW_YEAR % 19);
+	const isLeapYear = isHebrewLeapYear(TARGET_HEBREW_YEAR);
 
 	// --------------------------------------------------------------
 	// 6. Options
@@ -437,9 +451,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				const selected = [];
 
 				for (const entry of finalCandidates) {
-					const entryCal = new WebsiteCalendar(TARGET_HEBREW_YEAR, entry.month, entry.day);
-					const rightText = `${entryCal.getDate().withCalendar('hebrew').toLocaleString('en-u-ca-hebrew', { month: 'short', day: 'numeric' })} | ${entryCal.formatFancyDate().en}`;
-					const entryDiv = createEntryElement(entry, rightText);
+					const entryDiv = createEntryElement(entry, hiloulahDateText(TARGET_HEBREW_YEAR, entry.month, entry.day));
 
 					newDiv.appendChild(entryDiv);
 					if (newDiv.scrollHeight > maxHeight) {
@@ -455,8 +467,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 					// not by raw month number - a chunk can span the Tishri/
 					// Nissan boundary where raw numbers don't stay monotonic.
 					selected.sort((a, b) => {
-						const orderA = monthOrderIndex.get(a.entry.month);
-						const orderB = monthOrderIndex.get(b.entry.month);
+						const orderA = monthOrderIndex.get(a.entry.month === 13 && !isLeapYear ? 12 : a.entry.month);
+						const orderB = monthOrderIndex.get(b.entry.month === 13 && !isLeapYear ? 12 : b.entry.month);
 						if (orderA !== orderB) return orderA - orderB;
 						return a.entry.day - b.entry.day;
 					});
