@@ -3,7 +3,7 @@
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { Parsha } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions, methodNames, zDTFromFunc } from "./ROYZmanim.js";
-import { HebrewNumberFormatter } from "./WebsiteCalendar.js";
+import { HebrewNumberFormatter, roundsUp } from "./WebsiteCalendar.js";
 import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
 import { showListLoadingAfterDelay } from "./list-loading.js";
@@ -1145,7 +1145,7 @@ function handleRound(zDT, round) {
 	if (round === 'noRound')
 		return zDT;
 
-	if (zDT.second > 40 || (zDT.second >= 20 && round == 'later'))
+	if (roundsUp(zDT, round))
 		return zDT.add({ minutes: 1 }).with({ second: 0 });
 	else
 		return zDT.with({ second: 0 });
