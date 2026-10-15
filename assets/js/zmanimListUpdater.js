@@ -1006,7 +1006,7 @@ export default class zmanimListUpdater {
 
 	_renderTekufa() {
 		const nextTekufa = this.zmanCalc.nextTekufa(settings.calendarToggle.tekufaMidpoint() !== "hatzoth").round('minute');
-		const tekufaRange = /** @type {('add' | 'subtract')[]} */ (['add', 'subtract'])
+		const tekufaRange = /** @type {('add' | 'subtract')[]} */ (['subtract', 'add'])
 			.map((act) => nextTekufa[act]({ minutes: 30 }));
 
 		if (new Set(tekufaRange.map(range => range.toPlainDate())).keys().some(tekTime => tekTime.equals(this.jCal.getDate()))) {
