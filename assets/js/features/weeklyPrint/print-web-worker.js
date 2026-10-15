@@ -545,7 +545,7 @@ function messageHandler(x) {
 					// @ts-ignore
 					time = zmanCalc[shita]();
 				} catch (e) {
-					if (!(shita in methodNames)) {
+					if (!methodNames.includes(shita)) {
 						if (shita == null)
 							console.log(zmanRow);
 						throw new Error("Unknown zman " + shita);

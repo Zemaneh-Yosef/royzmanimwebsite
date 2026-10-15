@@ -823,7 +823,7 @@ function messageHandler(x) {
 					// @ts-ignore
 					time = zmanCalc[shita]();
 				} catch (e) {
-					if (!(shita in methodNames))
+					if (!methodNames.includes(shita))
 						throw new Error("Unknown zman " + shita);
 					else
 						throw e;
