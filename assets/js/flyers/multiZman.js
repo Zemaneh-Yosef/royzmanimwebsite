@@ -35,6 +35,10 @@ const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melak
 /** @type {string[]} */
 let calendars = [];
 const jCal = new WebsiteLimudCalendar();
+const firstCity = document.getElementsByClassName('timecalc')[0];
+jCal.setInIsrael(firstCity
+	? isInIsrael(parseFloat(firstCity.getAttribute("data-lat")), parseFloat(firstCity.getAttribute('data-lng')))
+	: isInIsrael(settings.location.lat(), settings.location.long()));
 let shabbatDate = jCal.getDate();
 let shabbatAfterYomTov = false;
 
