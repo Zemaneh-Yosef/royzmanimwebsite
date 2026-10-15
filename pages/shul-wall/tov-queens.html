@@ -453,7 +453,7 @@ layout: nothing
 			if (!this._data) return;
 
 			// Clear all children except those with data-keep
-			for (const child of this.children) {
+			for (const child of [...this.children]) {
 				if (!child.hasAttribute("data-keep")) child.remove();
 			}
 
