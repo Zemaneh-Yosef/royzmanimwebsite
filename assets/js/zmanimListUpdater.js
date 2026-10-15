@@ -1006,7 +1006,7 @@ export default class zmanimListUpdater {
 		const tekufaRange = /** @type {('add' | 'subtract')[]} */ (['subtract', 'add'])
 			.map((act) => nextTekufa[act]({ minutes: 30 }));
 
-		if (new Set(tekufaRange.map(range => range.toPlainDate())).keys().some(tekTime => tekTime.equals(this.jCal.getDate()))) {
+		if ([...new Set(tekufaRange.map(range => range.toPlainDate()))].some(tekTime => tekTime.equals(this.jCal.getDate()))) {
 			/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 			const tekufaTF = [this.dtF[0], { ...this.dtF[1] }];
 			delete tekufaTF[1].second;

@@ -580,7 +580,7 @@ function messageHandler(x) {
 		if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH || (jCal.getYomTovIndex() == WebsiteLimudCalendar.PESACH && jCal.getJewishDayOfMonth() < 18)) {
 			const hametzDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.EREV_PESACH).getDate();
 
-			if (!highlightZmanim.some(hz => hz.datesToZman.keys().find(d => Temporal.PlainDate.compare(d, hametzDate) == 0))) {
+			if (!highlightZmanim.some(hz => [...hz.datesToZman.keys()].find(d => Temporal.PlainDate.compare(d, hametzDate) == 0))) {
 				/** @type {highlightedZman} */
 				const highlightPesah = { ytI: WebsiteLimudCalendar.PESACH, datesToZman: new Map() };
 
@@ -983,7 +983,7 @@ function messageHandler(x) {
 
 			if (!highlightZmanim.some(hz =>
 				(!('title' in hz) || ('title' in hz && !hz.title.startsWith("Sefirat Ha'Omer")))
-				&& hz.datesToZman.keys().find(d => Temporal.PlainDate.compare(d, erevDate) == 0))) {
+				&& [...hz.datesToZman.keys()].find(d => Temporal.PlainDate.compare(d, erevDate) == 0))) {
 
 				/** RULES:
 				 * 6th of Pesah (Erev) could not fall on Shabbat, Monday or Wednesday

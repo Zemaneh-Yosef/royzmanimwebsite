@@ -862,7 +862,7 @@ function messageHandler(x) {
 		if (jCal.getYomTovIndex() == WebsiteLimudCalendar.EREV_PESACH || (jCal.getYomTovIndex() == WebsiteLimudCalendar.PESACH && jCal.getJewishDayOfMonth() < 18 && x.data.pocket)) {
 			const hametzDate = jCal.chainYomTovIndex(WebsiteLimudCalendar.EREV_PESACH).getDate();
 
-			if (!highlightZmanim.some(hz => hz.datesToZman.keys().find(d => Temporal.PlainDate.compare(d, hametzDate) == 0))) {
+			if (!highlightZmanim.some(hz => [...hz.datesToZman.keys()].find(d => Temporal.PlainDate.compare(d, hametzDate) == 0))) {
 				/** @type {highlightedZman} */
 				const highlightPesah = { ytI: WebsiteLimudCalendar.PESACH, datesToZman: new Map() };
 
@@ -1218,7 +1218,7 @@ function messageHandler(x) {
 				// Handle second day Yom Tov. We find Erev Yom Tov of Pesach by checking for the last day of Chol Hamoed Pesach
 				const erevDate = jCal.chainJewishDate(jCal.getJewishYear(), WebsiteLimudCalendar.NISSAN, 20).getDate();
 
-				if (!highlightZmanim.some(hz => hz.datesToZman.keys().find(d => Temporal.PlainDate.compare(d, erevDate) == 0))) {
+				if (!highlightZmanim.some(hz => [...hz.datesToZman.keys()].find(d => Temporal.PlainDate.compare(d, erevDate) == 0))) {
 					/** @type {highlightedZman} */
 					const pesahObj = {
 						ytI: WebsiteLimudCalendar.PESACH,
@@ -1711,10 +1711,10 @@ function messageHandler(x) {
 	// @ts-ignore
 	let thisMonthFooter = document.getElementsByClassName("zyCalFooter")[0];
 	if (thisMonthFooter) {
-		const erevPesah = highlightZmanim.find(high => 'ytI' in high && high.ytI == WebsiteLimudCalendar.PESACH && high.datesToZman.entries().find(([date, data]) => 'sofZemanAhilathHametz' in data));
+		const erevPesah = highlightZmanim.find(high => 'ytI' in high && high.ytI == WebsiteLimudCalendar.PESACH && [...high.datesToZman.entries()].find(([date, data]) => 'sofZemanAhilathHametz' in data));
 		const yomKippur = highlightZmanim.find(high => 'ytI' in high && high.ytI == WebsiteLimudCalendar.YOM_KIPPUR);
 		if (erevPesah && thisMonthFooter.lastElementChild.hasAttribute('data-zyfooter-hametz')) {
-			const zmanimOfErev = erevPesah.datesToZman.entries().find(([date, data]) => 'sofZemanAhilathHametz' in data);
+			const zmanimOfErev = [...erevPesah.datesToZman.entries()].find(([date, data]) => 'sofZemanAhilathHametz' in data);
 			const hamesName = WebsiteLimudCalendar.formatFancyDate(zmanimOfErev[0])[x.data.lang];
 			const hametzContainer = document.createElement("div");
 			const hametzTitle = document.createElement("h5");
@@ -1763,7 +1763,7 @@ function messageHandler(x) {
 			hametzContainer.appendChild(hametzTiming);
 			thisMonthFooter.lastElementChild.appendChild(hametzContainer);
 		} else if (yomKippur && thisMonthFooter.lastElementChild.hasAttribute('data-zyfooter-yomkippur')) {
-			const zmanimOfYK = yomKippur.datesToZman.entries().find(([date, data]) => 'birkatKohanim' in data);
+			const zmanimOfYK = [...yomKippur.datesToZman.entries()].find(([date, data]) => 'birkatKohanim' in data);
 
 			const yKName = WebsiteLimudCalendar.formatFancyDate(zmanimOfYK[0])[x.data.lang];
 			const yKContainer = document.createElement("div");

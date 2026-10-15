@@ -90,7 +90,7 @@ export default class exportFriendly {
 							? tachObj.innerHTML
 							: [...tachObj.children]
 								.find(langElem =>
-									langElem.classList.values().find(cl => cl.startsWith('lang-')).replace('lang-', '') == settings.language().replace('en-et', 'et'))
+									[...langElem.classList].find(cl => cl.startsWith('lang-')).replace('lang-', '') == settings.language().replace('en-et', 'et'))
 								.innerHTML
 						]
 				)),
@@ -105,7 +105,7 @@ export default class exportFriendly {
 							.parentElement
 							.getElementsByTagName("dt")]
 							.map(titleElem => [
-								titleElem.classList.values().find(cl => cl.startsWith('lang-')).replace('lang-', '').replace('hb', 'he').replace(/^et$/, 'en-et'),
+								[...titleElem.classList].find(cl => cl.startsWith('lang-')).replace('lang-', '').replace('hb', 'he').replace(/^et$/, 'en-et'),
 								titleElem.innerHTML
 							]))
 						]
