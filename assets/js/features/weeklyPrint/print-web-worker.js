@@ -4,7 +4,7 @@ import * as KosherZmanim from '../../../libraries/kosherZmanim/kosher-zmanim.js'
 import { Parsha } from '../../../libraries/kosherZmanim/kosher-zmanim.js';
 import WebsiteLimudCalendar from '../../WebsiteLimudCalendar.js';
 import { parseHTML } from '../../../libraries/linkedom/linkedom.mjs'
-import { daysForLocale } from '../../WebsiteCalendar.js';
+import { daysForLocale, roundsUp } from '../../WebsiteCalendar.js';
 import { ZemanFunctions, methodNames, zDTFromFunc } from '../../ROYZmanim.js';
 import { providerFromSnapshot } from '../../refraction-snapshot.js';
 import n2wordsOrdinal from '../../misc/n2wordsOrdinal.js';
@@ -447,7 +447,7 @@ function messageHandler(x) {
 	 */
 	function roundOne(zDT, round) {
 		const minute = zDT.with({ second: 0, millisecond: 0, microsecond: 0, nanosecond: 0 });
-		if (zDT.second > 40 || (zDT.second >= 20 && round == 'later'))
+		if (roundsUp(zDT, round))
 			return minute.add({ minutes: 1 });
 		else
 			return minute;

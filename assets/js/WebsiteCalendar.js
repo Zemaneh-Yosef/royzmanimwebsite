@@ -358,7 +358,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 				calculatedZman.code.push("Invalid Date");
 			} else {
 				if (calculatedZman.dtF[0] !== null && !('second' in calculatedZman.dtF[1])
-					&& (calculatedZman.zDTObj.second > 40 || (calculatedZman.zDTObj.second > 20 && zmanInfo.round == 'later'))) {
+					&& roundsUp(calculatedZman.zDTObj, zmanInfo.round)) {
 						calculatedZman.zDTObj = calculatedZman.zDTObj.with({ second: 0, millisecond: 0 }).add({ minutes: 1 });
 					}
 			}
@@ -958,6 +958,15 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 			data: dateObjs
 		}
 	}
+}
+
+/**
+ * Whether a time shown to the minute moves up to the next minute: past :40, or past :20 when rounding 'later'
+ * @param {Temporal.ZonedDateTime} zDT
+ * @param {string} [round]
+ */
+export function roundsUp(zDT, round) {
+	return zDT.second > 40 || (zDT.second > 20 && round == 'later');
 }
 
 /**
