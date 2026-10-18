@@ -13,7 +13,7 @@ import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
 
 export { ZMANIM_SETTING_KEYS, settingSourceFrom, melakhaDegreeFromMinutes, zemanimSettings } from "./zmanimSettings.js";
-export { leadText, notificationText, plainText, notificationTag } from "./notificationText.js";
+export { leadText, notificationText, plainText, notificationTag, placeKey } from "./notificationText.js";
 /** @typedef {import("./zmanimSettings.js").ZemanimSettings} ZemanimSettings */
 /** @typedef {import("./zmanimSettings.js").SettingSource} SettingSource */
 
