@@ -3,9 +3,13 @@
 // Zeman notifications: per-zeman on/off and "minutes before", chosen in the settings modal
 // (Notifications tab, wired in settings/docLoad.js) and scheduled by the calendar (zmanimListUpdater.js).
 //
-// The site has no server to push from, so notifications are scheduled in the page: they are sent while the
-// calendar is open, in a tab (also in the background) or as the installed app. They are shown through the
-// service worker when there is one (Android Chrome only allows that), with a plain Notification otherwise.
+// These are scheduled in the page, so they are sent while the calendar is open, in a tab (also in the
+// background) or as the installed app. When the site is closed, the notification server sends the same ones
+// by Web Push (pushNotifications.js); both use the same `tag`, so one never doubles the other. They are shown
+// through the service worker when there is one (Android Chrome only allows that), with a plain Notification
+// otherwise.
+
+import { notificationText, plainText, notificationTag } from "../core/notificationText.js";
 
 /** localStorage key of the per-zeman choices: { [zmanId]: { enabled, minutes } } */
 export const PREFS_KEY = "zmanNotifications";
@@ -130,6 +134,9 @@ export async function showNotification(title, options) {
 				new Promise(resolve => setTimeout(() => resolve(undefined), 3000))
 			]);
 			if (registration && registration.active) {
+				// the notification server (pushNotifications.js) may already have shown it: don't show it twice
+				if (options.tag && (await registration.getNotifications({ tag: options.tag })).length)
+					return true;
 				await registration.showNotification(title, options);
 				return true;
 			}
@@ -149,52 +156,9 @@ export async function showNotification(title, options) {
 }
 
 // ─── Wording ──────────────────────────────────────────────────────────────────
+// Shared with the notification server (core/notificationText.js), so both say the same thing.
 
-/**
- * @param {'he'|'en'|'he-Latn'} language
- * @param {number} minutes
- */
-function leadText(language, minutes) {
-	const hours = Math.floor(minutes / 60);
-	const rest = minutes % 60;
-
-	if (language == "he") {
-		if (minutes == 0) return "עכשיו";
-		const hePart = (/** @type {number} */ n, /** @type {string[]} */ [one, two, many]) =>
-			n == 1 ? one : n == 2 ? two : `${n} ${many}`;
-		const parts = [];
-		if (hours) parts.push(hePart(hours, ["שעה", "שעתיים", "שעות"]));
-		if (rest) parts.push(hePart(rest, ["דקה", "שתי דקות", "דקות"]));
-		if (parts.length == 2)
-			parts[1] = (/^\d/.test(parts[1]) ? "ו-" : "ו") + parts[1];
-		return "בעוד " + parts.join(" ");
-	}
-
-	if (minutes == 0) return "now";
-	const parts = [];
-	if (hours) parts.push(`${hours} hour${hours == 1 ? "" : "s"}`);
-	if (rest) parts.push(`${rest} minute${rest == 1 ? "" : "s"}`);
-	return "in " + parts.join(" and ");
-}
-
-/**
- * @param {ZmanOccurrence} occurrence
- * @param {number} minutes
- * @param {'he'|'en'|'he-Latn'} language
- * @param {string | null} locationName
- */
-export function notificationText(occurrence, minutes, language, locationName) {
-	const title = `${occurrence.title}${minutes == 0 ? " — " : " "}${leadText(language, minutes)}`;
-	const body = [occurrence.timeText, locationName].filter(Boolean).join(" · ");
-	return { title, body };
-}
-
-/** @param {string} html */
-export function plainText(html) {
-	const elem = document.createElement("div");
-	elem.innerHTML = html;
-	return (elem.textContent || "").replace(/\s+/g, " ").trim();
-}
+export { notificationText, plainText };
 
 // ─── Scheduling ───────────────────────────────────────────────────────────────
 
@@ -294,7 +258,7 @@ export class ZmanNotificationScheduler {
 		showNotification(title, {
 			body,
 			// the same zeman never stacks up, even from two tabs
-			tag: `zman-${occurrence.key}-${occurrence.time.toPlainDate().toString()}`,
+			tag: notificationTag(occurrence.key, occurrence.time),
 			timestamp: zmanAt
 		});
 	}
