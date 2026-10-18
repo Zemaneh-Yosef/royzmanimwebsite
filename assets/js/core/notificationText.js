@@ -58,10 +58,19 @@ export function plainText(html) {
 }
 
 /**
- * The notification `tag` for one zeman on one day: the page and the server use the same one, so a
- * notification shown by one is replaced (not doubled) by the other
- * @param {string} key @param {Temporal.ZonedDateTime} time
+ * A place's key: its coordinates to 5 decimals (about a metre), as the refraction cache keys places. Notifications
+ * are kept per place, so the same zeman at two places are two notifications.
+ * @param {number} lat @param {number} lon
  */
-export function notificationTag(key, time) {
-	return `zman-${key}-${time.toPlainDate().toString()}`;
+export function placeKey(lat, lon) {
+	return `${lat.toFixed(5)},${lon.toFixed(5)}`;
+}
+
+/**
+ * The notification `tag` for one zeman on one day at one place: the page and the server use the same one, so a
+ * notification shown by one is replaced (not doubled) by the other
+ * @param {string} key @param {Temporal.ZonedDateTime} time @param {string} [place] placeKey()
+ */
+export function notificationTag(key, time, place) {
+	return `zman-${key}-${time.toPlainDate().toString()}${place ? `@${place}` : ""}`;
 }
