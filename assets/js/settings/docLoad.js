@@ -1,6 +1,7 @@
 import { handleLanguage, settings, saveSetting } from "./handler.js";
 import { isInIsrael } from "../misc/israel.js";
 import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.js"
+import { getPref, savePref, clampMinutes, permissionState, requestPermission, showNotification, PREFS_KEY, PREFS_EVENT } from "../features/zmanNotifications.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     handleLanguage();
@@ -81,5 +82,88 @@ document.addEventListener("DOMContentLoaded", () => {
                     window.zmanimListUpdater2.resetCalendar();
                 }
             })
+
+        setupNotificationSettings();
     }
 })
+
+/** The settings modal's Notifications tab: per-zeman on/off and minutes before (features/zmanNotifications.js) */
+function setupNotificationSettings() {
+    const root = document.getElementById('zmanNotificationSettings');
+    if (!root)
+        return;
+
+    const status = root.querySelector('[data-notif-status]');
+    const allowButton = root.querySelector('[data-notif-allow]');
+    const testButton = root.querySelector('[data-notif-test]');
+    const rows = [...root.querySelectorAll('[data-notif-key]')];
+
+    const showState = () => {
+        const state = permissionState();
+        status.querySelectorAll('[data-notif-state]').forEach(elem =>
+            elem.classList.toggle('d-none', elem.getAttribute('data-notif-state') !== state));
+        status.classList.remove('alert-info', 'alert-success', 'alert-warning', 'alert-secondary');
+        status.classList.add({ granted: 'alert-success', denied: 'alert-warning', unsupported: 'alert-secondary' }[state] || 'alert-info');
+        allowButton.classList.toggle('d-none', state !== 'default');
+        testButton.classList.toggle('d-none', state !== 'granted');
+    };
+
+    const fillRows = () => {
+        for (const row of rows) {
+            const pref = getPref(row.getAttribute('data-notif-key'));
+            const enabled = row.querySelector('[data-notif-enabled]');
+            const minutes = row.querySelector('[data-notif-minutes]');
+            enabled.checked = pref.enabled;
+            if (document.activeElement !== minutes)
+                minutes.value = pref.minutes.toString();
+            minutes.disabled = !pref.enabled;
+        }
+    };
+
+    const askPermission = async () => {
+        await requestPermission();
+        showState();
+        // the scheduler only runs with permission: have it pick up the choices now
+        window.dispatchEvent(new CustomEvent(PREFS_EVENT));
+    };
+
+    for (const row of rows) {
+        const key = row.getAttribute('data-notif-key');
+        const enabled = row.querySelector('[data-notif-enabled]');
+        const minutes = row.querySelector('[data-notif-minutes]');
+
+        enabled.addEventListener('change', () => {
+            savePref(key, { enabled: enabled.checked });
+            minutes.disabled = !enabled.checked;
+            // turning the first one on is the moment to ask (it's a click, which browsers require)
+            if (enabled.checked && permissionState() === 'default')
+                askPermission();
+        });
+
+        minutes.addEventListener('change', () => {
+            const value = clampMinutes(minutes.value);
+            minutes.value = value.toString();
+            savePref(key, { minutes: value });
+        });
+    }
+
+    allowButton.addEventListener('click', askPermission);
+    testButton.addEventListener('click', () => {
+        const language = settings.language();
+        showNotification(
+            language == 'he' ? 'זמני יוסף' : 'Zemaneh Yosef',
+            {
+                body: language == 'he' ? 'כך ייראו התראות הזמנים.' : 'This is how Zeman notifications will look.',
+                tag: 'zman-test'
+            }
+        );
+    });
+
+    // another tab changed them
+    window.addEventListener('storage', (event) => { if (event.key === PREFS_KEY) fillRows(); });
+    // permission can be changed in the browser's site settings while the page is open
+    document.getElementById('settingsModal').addEventListener('show.bs.modal', () => { showState(); fillRows(); });
+
+    showState();
+    fillRows();
+}
