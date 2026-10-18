@@ -109,7 +109,18 @@ accordian: true
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="zemanim-tab-pane" role="tabpanel" aria-labelledby="zemanim-tab" tabindex="0">
-				<div class="grid text-center py-2" style="--bs-columns: 3;">
+				<style>
+					/* phones: two by two; wider: one row */
+					.zemanimActions { --bs-columns: 2; }
+					@media (min-width: 768px) { .zemanimActions { --bs-columns: 4; } }
+				</style>
+				<div class="grid text-center py-2 zemanimActions">
+					<button data-mdb-ripple-init type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#notificationsModal">
+						<i class="bi bi-bell"></i>
+						<span class="lang lang-en">Notifications</span>
+						<span class="lang lang-he-Latn">Notifications</span>
+						<span class="lang lang-he">התראות</span>
+					</button>
 					<button data-mdb-ripple-init type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
 						Export (Digital)
 					</button>
@@ -556,6 +567,7 @@ accordian: true
 </div>
 {% include modals/location.html %}
 {% include modals/export.html %}
+{% include modals/notifications.html %}
 
 <link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
 <script src="/assets/js/zmanimListUpdater.js" type="module"></script>

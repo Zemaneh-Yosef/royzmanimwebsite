@@ -1,15 +1,23 @@
+<div class="modal fade modal-lg" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">
 <style>
     /* phones: the name on its own line, the controls under it; wider screens: one row */
     #zmanNotificationSettings .notif-label { flex: 1 1 100%; }
     @media (min-width: 576px) { #zmanNotificationSettings .notif-label { flex: 1 1 0; } }
+    #zmanNotificationSettings[data-subscribed="false"] [data-notif-choices] { opacity: .55; }
 </style>
-<div id="zmanNotificationSettings">
-    <p class="mb-2">
-        <span class="lang lang-he">בחרו לאילו זמנים לקבל התראה, וכמה דקות לפני הזמן. ההתראות נשלחות כל עוד לוח הזמנים פתוח – בלשונית (גם ברקע) או באפליקציה המותקנת – ואם תפעילו זאת למטה, גם כשהוא סגור.</span>
-        <span class="lang lang-he-Latn">Choose which Zemanim to be notified about, and how many minutes before each one. Notifications are sent while the calendar is open — in a tab (also in the background) or in the installed app — and, if you turn it on below, also when it's closed.</span>
-        <span class="lang lang-en">Choose which times to be notified about, and how many minutes before each one. Notifications are sent while the calendar is open — in a tab (also in the background) or in the installed app — and, if you turn it on below, also when it's closed.</span>
-    </p>
-
+<div class="modal-dialog modal-dialog-scrollable">
+<div class="modal-content">
+<div class="modal-header">
+    <h3 class="modal-title fs-4" id="notificationsModalLabel">
+        <i class="bi bi-bell"></i>
+        <span class="lang lang-he">התראות עבור</span>
+        <span class="lang lang-he-Latn">Notifications for</span>
+        <span class="lang lang-en">Notifications for</span>
+        <span data-notif-place-name></span>
+    </h3>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body" id="zmanNotificationSettings" data-subscribed="false">
     <div class="alert d-flex flex-wrap align-items-center gap-2 py-2" role="status" data-notif-status>
         <div class="flex-fill">
             <span data-notif-state="default">
@@ -46,57 +54,75 @@
         </button>
     </div>
 
-    <div class="border rounded p-3 mb-3 d-none" data-push-section>
+
+    <div class="border rounded p-3 mb-3">
         <div class="form-check form-switch mb-1">
-            <input class="form-check-input" type="checkbox" role="switch" id="notif-push" data-push-toggle>
-            <label class="form-check-label fw-semibold" for="notif-push">
-                <span class="lang lang-he">התראות גם כשהאתר סגור</span>
-                <span class="lang lang-he-Latn">Notify me even when the site is closed</span>
-                <span class="lang lang-en">Notify me even when the site is closed</span>
+            <input class="form-check-input" type="checkbox" role="switch" id="notif-place" data-place-toggle>
+            <label class="form-check-label fw-semibold" for="notif-place">
+                <span class="lang lang-he">שלחו לי התראות עבור <span data-notif-place-name></span></span>
+                <span class="lang lang-he-Latn">Notify me for <span data-notif-place-name></span></span>
+                <span class="lang lang-en">Notify me for <span data-notif-place-name></span></span>
             </label>
         </div>
-        <div class="form-text mt-0">
-            <span class="lang lang-he">שרת ההתראות של זמני יוסף ישלח את אותן התראות, לפי המיקום האחרון שפתחתם בלוח. לשם כך הוא שומר את המיקום, את בחירות ההתראות ואת ההגדרות שמשפיעות על הזמנים – ולא דבר מעבר לכך. כיבוי האפשרות מוחק אותם.</span>
-            <span class="lang lang-he-Latn">Zemaneh Yosef's notification server sends the same notifications, for the last location you opened on the calendar. For that it keeps the location, your notification choices and the settings that change the Zemanim, and nothing else. Turning this off deletes them.</span>
-            <span class="lang lang-en">Zemaneh Yosef's notification server sends the same notifications, for the last location you opened on the calendar. For that it keeps the location, your notification choices and the settings that change the times, and nothing else. Turning this off deletes them.</span>
+        <div class="form-text mt-0" data-delivery="push">
+            <span class="lang lang-he">ההתראות מגיעות גם כשהאתר סגור: שרת ההתראות של זמני יוסף שולח אותן. לשם כך הוא שומר את המקום, את הבחירות שלו ואת ההגדרות שמשפיעות על הזמנים שלו – ולא דבר מעבר לכך. הסרת המקום מוחקת אותם.</span>
+            <span class="lang lang-he-Latn">Notifications arrive even when the site is closed: Zemaneh Yosef's notification server sends them. For that it keeps the place, its choices and the settings that change its Zemanim, and nothing else. Removing the place deletes them.</span>
+            <span class="lang lang-en">Notifications arrive even when the site is closed: Zemaneh Yosef's notification server sends them. For that it keeps the place, its choices and the settings that change its times, and nothing else. Removing the place deletes them.</span>
         </div>
-        <div class="small mt-2" role="status" data-push-status>
-            <span class="d-none" data-push-state="synced">
-                <i class="bi bi-check-circle text-success"></i>
-                <span class="lang lang-he">פעיל עבור:</span>
-                <span class="lang lang-he-Latn">On, for:</span>
-                <span class="lang lang-en">On, for:</span>
-                <span data-push-location></span>
-            </span>
+        <div class="form-text mt-0 d-none" data-delivery="local">
+            <span class="lang lang-he">בדפדפן זה ההתראות נשלחות רק כשלוח הזמנים של המקום פתוח. (באייפון ובאייפד: הוסיפו את האתר למסך הבית כדי לקבל אותן גם כשהוא סגור.)</span>
+            <span class="lang lang-he-Latn">In this browser, notifications are only sent while this place's calendar is open. (On iPhone and iPad, add the site to your Home Screen to get them when it's closed too.)</span>
+            <span class="lang lang-en">In this browser, notifications are only sent while this place's calendar is open. (On iPhone and iPad, add the site to your Home Screen to get them when it's closed too.)</span>
+        </div>
+        <div class="small mt-2" role="status">
             <span class="d-none" data-push-state="syncing">
                 <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                <span class="lang lang-he">מתחבר לשרת ההתראות…</span>
-                <span class="lang lang-he-Latn">Connecting to the notification server…</span>
-                <span class="lang lang-en">Connecting to the notification server…</span>
+                <span class="lang lang-he">מתעדכן מול שרת ההתראות…</span>
+                <span class="lang lang-he-Latn">Updating the notification server…</span>
+                <span class="lang lang-en">Updating the notification server…</span>
             </span>
-            <span class="d-none" data-push-state="needsCalendar">
-                <i class="bi bi-info-circle"></i>
-                <span class="lang lang-he">פתחו את לוח הזמנים של המיקום שלכם כדי להפעיל.</span>
-                <span class="lang lang-he-Latn">Open the calendar for your location to turn this on.</span>
-                <span class="lang lang-en">Open the calendar for your location to turn this on.</span>
-            </span>
-            <span class="d-none" data-push-state="permission">
-                <i class="bi bi-exclamation-triangle text-warning"></i>
-                <span class="lang lang-he">יש לאפשר התראות בדפדפן תחילה.</span>
-                <span class="lang lang-he-Latn">Allow notifications in the browser first.</span>
-                <span class="lang lang-en">Allow notifications in the browser first.</span>
+            <span class="d-none" data-push-state="synced">
+                <i class="bi bi-check-circle text-success"></i>
+                <span class="lang lang-he">מעודכן בשרת ההתראות.</span>
+                <span class="lang lang-he-Latn">Up to date on the notification server.</span>
+                <span class="lang lang-en">Up to date on the notification server.</span>
             </span>
             <span class="d-none" data-push-state="error">
                 <i class="bi bi-exclamation-triangle text-warning"></i>
-                <span class="lang lang-he">לא ניתן היה להתחבר לשרת ההתראות:</span>
-                <span class="lang lang-he-Latn">Couldn't reach the notification server:</span>
-                <span class="lang lang-en">Couldn't reach the notification server:</span>
+                <span class="lang lang-he">לא ניתן היה לעדכן את שרת ההתראות (ההתראות עדיין יישלחו כשהלוח פתוח):</span>
+                <span class="lang lang-he-Latn">Couldn't update the notification server (notifications are still sent while the calendar is open):</span>
+                <span class="lang lang-en">Couldn't update the notification server (notifications are still sent while the calendar is open):</span>
                 <span data-push-error dir="ltr"></span>
+            </span>
+            <span class="d-none" data-push-state="full">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+                <span class="lang lang-he">אפשר להירשם לעד 10 מקומות. הסירו מקום אחר קודם.</span>
+                <span class="lang lang-he-Latn">You can subscribe to up to 10 places. Remove another one first.</span>
+                <span class="lang lang-en">You can subscribe to up to 10 places. Remove another one first.</span>
             </span>
         </div>
     </div>
 
-    <ul class="list-group list-group-flush">
+    <div class="mb-3 d-none" data-other-places>
+        <h6 class="mb-2">
+            <span class="lang lang-he">המקומות האחרים שלכם</span>
+            <span class="lang lang-he-Latn">Your other places</span>
+            <span class="lang lang-en">Your other places</span>
+        </h6>
+        <ul class="list-group" data-other-places-list></ul>
+        <template data-other-place-template>
+            <li class="list-group-item d-flex align-items-center gap-2">
+                <a class="flex-fill text-decoration-none" data-place-link><i class="bi bi-geo-alt"></i> <span data-place-name></span></a>
+                <span class="small text-body-secondary" data-place-count></span>
+                <button type="button" class="btn btn-outline-danger btn-sm" data-place-remove>
+                    <span class="lang lang-he">הסר</span>
+                    <span class="lang lang-he-Latn">Remove</span>
+                    <span class="lang lang-en">Remove</span>
+                </button>
+            </li>
+        </template>
+        <div data-notif-choices>
+        <ul class="list-group list-group-flush">
         <li class="list-group-item d-none d-sm-flex align-items-center gap-3 small text-body-secondary fw-semibold">
             <span class="flex-fill">
                 <span class="lang lang-he">זמן</span>
@@ -150,4 +176,10 @@
         <span class="lang lang-he-Latn">0 = at the Zeman itself. Zemanim that only apply on some days (like candle lighting or the Ḥametz times) only notify on the days they appear on the calendar.</span>
         <span class="lang lang-en">0 = at the time itself. Times that only apply on some days (like candle lighting or the Ḥametz times) only notify on the days they appear on the calendar.</span>
     </p>
+    </div>
+
+</div>
+</div>
+</div>
+</div>
 </div>

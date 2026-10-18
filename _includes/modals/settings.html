@@ -8,27 +8,7 @@
             </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body pt-2">
-            <ul class="nav nav-tabs nav-fill mb-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="settings-general-tab" data-bs-toggle="tab" data-bs-target="#settings-general" type="button" role="tab" aria-controls="settings-general" aria-selected="true">
-                        <i class="bi bi-sliders"></i>
-                        <span class="lang lang-he">כללי</span>
-                        <span class="lang lang-he-Latn">General</span>
-                        <span class="lang lang-en">General</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="settings-notifications-tab" data-bs-toggle="tab" data-bs-target="#settings-notifications" type="button" role="tab" aria-controls="settings-notifications" aria-selected="false">
-                        <i class="bi bi-bell"></i>
-                        <span class="lang lang-he">הגדרות התראות</span>
-                        <span class="lang lang-he-Latn">Notification Settings</span>
-                        <span class="lang lang-en">Notification Settings</span>
-                    </button>
-                </li>
-            </ul>
-            <div class="tab-content">
-            <div class="tab-pane fade show active" id="settings-general" role="tabpanel" aria-labelledby="settings-general-tab" tabindex="0">
+        <div class="modal-body">
             <div class="d-lg-flex">
                 <div style="flex: 1 1;">
                     <h4>Language Options</h4>
@@ -141,11 +121,6 @@
                     
                 </div>
             </div> -->
-            </div>
-            <div class="tab-pane fade" id="settings-notifications" role="tabpanel" aria-labelledby="settings-notifications-tab" tabindex="0">
-                {% include modals/settingsNotifications.html %}
-            </div>
-            </div>
         </div>
       </div>
     </div>

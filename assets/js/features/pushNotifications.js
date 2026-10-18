@@ -1,24 +1,22 @@
 // @ts-check
 
 // Notifications when the site is closed: registers this browser with the notification server
-// (Zemaneh-Yosef/website-notif) and keeps the server's copy of what it needs up to date: the calendar's
-// place, the settings that change the zemanim, the per-zeman choices (zmanNotifications.js) and how times
-// are written. The server runs the site's own zmanim code (core/) and sends the same notifications by Web
-// Push; sw.js shows them, replacing silently any the open calendar already showed (same `tag`).
+// (Zemaneh-Yosef/website-notif) and keeps the server's list of places in step with this browser's
+// (zmanNotifications.js): each place's location, the settings that change its times and its per-zeman choices,
+// plus how times are written. The server runs the site's own zmanim code (core/) and sends the same
+// notifications by Web Push; sw.js shows them, replacing silently any the open calendar already showed (same tag).
 //
-// Opt-in from the settings modal's Notifications tab (settings/docLoad.js). Turning it off deletes the
-// server's copy.
+// Used automatically when the browser can receive pushes and notifications are allowed; with no places left,
+// the server forgets this browser.
 
 import { settings } from "../settings/handler.js";
-import { ZMANIM_SETTING_KEYS } from "../core/zmanimSettings.js";
-import { loadPrefs, permissionState, PREFS_EVENT } from "./zmanNotifications.js";
+import { listPlaces, permissionState, PLACES_EVENT, PLACES_KEY } from "./zmanNotifications.js";
 
 export const PUSH_SERVER = "https://notifs.royzmanim.com";
-/** Fired on window when the push state changes (on/off, synced, an error) */
+/** Fired on window when the server state changes (syncing, synced, an error) */
 export const PUSH_EVENT = "zmanPushStatusChanged";
 
-const ENABLED_KEY = "zmanPushEnabled";
-const SYNCED_KEY = "zmanPushSynced";
+const SYNCED_KEY = "zmanPushState";
 /** Sync again after this even when nothing changed, so a lost server-side copy is noticed */
 const RESYNC_MS = 24 * 60 * 60 * 1000;
 
@@ -74,61 +72,25 @@ function lsSet(key, value) { try { value === null ? localStorage.removeItem(key)
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
+/** Whether this browser can get notifications when the site is closed */
 export function pushSupported() {
 	return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window && window.isSecureContext !== false;
 }
 
-export function pushEnabled() {
-	return pushSupported() && lsGet(ENABLED_KEY) === "true";
-}
+/** @typedef {{ at: number; hash: string; places: string[] }} SyncRecord */
+/** @type {{ syncing: boolean; error: string | null }} */
+const state = { syncing: false, error: null };
 
-/** @typedef {{ at: number; hash: string; locationName: string }} SyncRecord */
-/** @type {{ syncing: boolean; error: string | null; needsCalendar: boolean }} */
-const state = { syncing: false, error: null, needsCalendar: false };
-
-/** @returns {{ supported: boolean; enabled: boolean; syncing: boolean; error: string | null; needsCalendar: boolean; synced: SyncRecord | null }} */
+/** @returns {{ supported: boolean; syncing: boolean; error: string | null; synced: SyncRecord | null }} */
 export function pushStatus() {
 	/** @type {SyncRecord | null} */
 	let synced = null;
 	try { synced = JSON.parse(lsGet(SYNCED_KEY) || "null"); } catch (e) { /* none */ }
-	return { supported: pushSupported(), enabled: pushEnabled(), ...state, synced };
+	return { supported: pushSupported(), ...state, synced };
 }
 
 function announce() {
 	window.dispatchEvent(new CustomEvent(PUSH_EVENT));
-}
-
-// ─── What the server is sent ──────────────────────────────────────────────────
-
-/**
- * The calendar's place: this page's when it shows one, else the last calendar opened (pwa.js keeps its address)
- * @returns {{ lat: number; lon: number; elevation: number; timeZone: string; name: string } | null}
- */
-function currentLocation() {
-	/** @param {URLSearchParams} p */
-	const fromParams = (p) => {
-		const lat = parseFloat(p.get("lat") ?? ""), lon = parseFloat(p.get("long") ?? "");
-		const timeZone = p.get("timeZone");
-		if (!Number.isFinite(lat) || !Number.isFinite(lon) || !timeZone) return null;
-		return { lat, lon, elevation: parseFloat(p.get("elevation") ?? "") || 0, timeZone, name: (p.get("locationName") || "").slice(0, 100) };
-	};
-	const here = window.location.pathname.replace(/\.html$/, "") === "/calendar" ? fromParams(new URLSearchParams(window.location.search)) : null;
-	return here ?? fromParams(new URLSearchParams(lsGet("pwaLastCalendar") || ""));
-}
-
-/** The settings that change the zemanim, as in effect on this page (URL first, then stored) */
-function zemanimSettingValues() {
-	const urlParams = new URLSearchParams(window.location.search);
-	/** @type {Record<string, string>} */
-	const values = {};
-	for (const key of ZMANIM_SETTING_KEYS) {
-		const value = urlParams.get(key) || lsGet(key);
-		if (value) values[key] = value;
-	}
-	// a Tzet Melakha degree given in the URL is used as given (see settings/handler.js)
-	if (urlParams.get("tzeithIMdeg") && values.tzeithIMmin)
-		values.tzeithIMdegMin = values.tzeithIMmin;
-	return values;
 }
 
 function displayOptions() {
@@ -138,6 +100,17 @@ function displayOptions() {
 	if (preferred) locale = preferred;
 	return { language, hourCycle: settings.timeFormat(), seconds: settings.seconds(), locale };
 }
+
+/** JSON equality, whatever the order of keys @param {unknown} a @param {unknown} b */
+function sameJson(a, b) {
+	/** @param {any} v @returns {any} */
+	const sorted = (v) => Array.isArray(v) ? v.map(sorted)
+		: v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, sorted(v[k])])) : v;
+	return JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
+}
+
+/** @param {import("./zmanNotifications.js").Place} place */
+const placeBody = (place) => ({ location: place.location, settings: place.settings, notifications: place.notifications });
 
 // ─── Talking to the server ────────────────────────────────────────────────────
 
@@ -164,6 +137,12 @@ async function api(method, path, body, token) {
 	}
 }
 
+/** @param {{ status: number; data: any }} res @param {number[]} ok */
+function expect(res, ok) {
+	if (!ok.includes(res.status)) throw new Error(res.data?.error || `the server answered ${res.status}`);
+	return res;
+}
+
 /** @param {string} b64 */
 function b64urlToBytes(b64) {
 	const bin = atob(b64.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64.length + 3) % 4));
@@ -182,22 +161,42 @@ function workerReady() {
 async function browserSubscription(registration) {
 	const existing = await registration.pushManager.getSubscription();
 	if (existing) return existing;
-	const { status, data } = await api("GET", "/v1/key");
-	if (status !== 200 || !data?.publicKey) throw new Error("the notification server isn't answering");
+	const { data } = expect(await api("GET", "/v1/key"), [200]);
+	if (!data?.publicKey) throw new Error("the notification server isn't answering");
 	await dbSet({ publicKey: data.publicKey });
 	return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64urlToBytes(data.publicKey) });
 }
 
-/** Send the server everything it needs (skipped when nothing changed since the last time, within a day) */
+/** Forget this browser on the server (no places left) */
+async function forget() {
+	const token = await dbGet("token");
+	if (token) await api("DELETE", "/v1/subscription", undefined, token).catch(() => null);
+	await dbSet({ token: null }).catch(() => null);
+	lsSet(SYNCED_KEY, null);
+	const registration = await navigator.serviceWorker.getRegistration();
+	const subscription = await registration?.pushManager.getSubscription();
+	await subscription?.unsubscribe();
+}
+
+/**
+ * Make the server's places this browser's: add or change what differs, remove what is gone.
+ * Skipped when nothing changed since the last time (within a day).
+ */
 export async function syncPush({ force = false } = {}) {
-	if (!pushEnabled() || state.syncing) return;
+	if (!pushSupported() || state.syncing) return;
+	// not migrated to places yet (notificationsModal.js does it first): nothing to compare with, so don't touch the server
+	if (lsGet(PLACES_KEY) === null) return;
+	const places = listPlaces();
+	const hadServer = !!pushStatus().synced || !!(await dbGet("token"));
+	if (!places.length) {
+		if (hadServer) await forget().catch((e) => console.warn("Couldn't remove this browser from the notification server", e));
+		state.error = null;
+		return announce();
+	}
 	if (permissionState() !== "granted") {
 		state.error = "permission";
 		return announce();
 	}
-	const location = currentLocation();
-	state.needsCalendar = !location;
-	if (!location) return announce();
 
 	state.syncing = true;
 	announce();
@@ -205,29 +204,41 @@ export async function syncPush({ force = false } = {}) {
 		const registration = await workerReady();
 		const subscription = await browserSubscription(registration);
 		const json = subscription.toJSON();
-		const fields = {
-			location,
-			settings: zemanimSettingValues(),
-			notifications: loadPrefs(),
-			display: displayOptions()
-		};
-		const hash = JSON.stringify([json.endpoint, fields]);
+		const display = displayOptions();
+		const hash = JSON.stringify([json.endpoint, display, places.map(placeBody)]);
 		const last = pushStatus().synced;
 		let token = await dbGet("token");
 		if (!force && token && last && last.hash === hash && Date.now() - last.at < RESYNC_MS) return;
 
-		const body = { subscription: { endpoint: json.endpoint, keys: json.keys }, ...fields };
+		const browser = { subscription: { endpoint: json.endpoint, keys: json.keys }, display };
+		/** @type {any} */
+		let server = null;
 		if (token) {
-			const res = await api("PUT", "/v1/subscription", body, token);
+			const res = await api("GET", "/v1/subscription", undefined, token);
 			if (res.status === 401) token = null; // the server no longer has it: register again
-			else if (res.status !== 200) throw new Error(res.data?.error || `the server answered ${res.status}`);
+			else server = expect(res, [200]).data;
 		}
+
 		if (!token) {
-			const res = await api("POST", "/v1/subscribe", body);
-			if (res.status !== 201 || !res.data?.token) throw new Error(res.data?.error || `the server answered ${res.status}`);
-			await dbSet({ token: res.data.token, server: PUSH_SERVER });
+			const { data } = expect(await api("POST", "/v1/subscribe", { ...browser, places: places.map(placeBody) }), [201]);
+			if (!data?.token) throw new Error("the server sent no token");
+			await dbSet({ token: data.token, server: PUSH_SERVER });
+		} else {
+			if (server.endpoint !== json.endpoint || !sameJson(server.display, display))
+				expect(await api("PUT", "/v1/subscription", browser, token), [200]);
+			/** @type {Map<string, any>} */
+			const theirs = new Map((server.places ?? []).map((/** @type {any} */ p) => [p.key, p]));
+			for (const place of places) {
+				const remote = theirs.get(place.key);
+				theirs.delete(place.key);
+				if (remote && sameJson({ location: remote.location, settings: remote.settings, notifications: remote.notifications }, placeBody(place)))
+					continue;
+				expect(await api("PUT", `/v1/places/${encodeURIComponent(place.key)}`, placeBody(place), token), [200]);
+			}
+			for (const key of theirs.keys())
+				expect(await api("DELETE", `/v1/places/${encodeURIComponent(key)}`, undefined, token), [204, 404]);
 		}
-		lsSet(SYNCED_KEY, JSON.stringify({ at: Date.now(), hash, locationName: location.name }));
+		lsSet(SYNCED_KEY, JSON.stringify({ at: Date.now(), hash, places: places.map((p) => p.key) }));
 		state.error = null;
 	} catch (e) {
 		state.error = /** @type {Error} */ (e).message || String(e);
@@ -238,39 +249,34 @@ export async function syncPush({ force = false } = {}) {
 	}
 }
 
+/**
+ * The places the notification server has for this browser, if it has a token from before places (one location
+ * per browser, which the server turned into one place): the migration adopts them as this browser's places.
+ * @returns {Promise<import("./zmanNotifications.js").Place[] | null>}
+ */
+export async function serverPlaces() {
+	if (!pushSupported()) return null;
+	const token = await dbGet("token");
+	if (!token) return null;
+	try {
+		const res = await api("GET", "/v1/subscription", undefined, token);
+		if (res.status !== 200 || !Array.isArray(res.data?.places)) return null;
+		return res.data.places.map((/** @type {any} */ p, /** @type {number} */ i) => ({
+			key: p.key, location: p.location, settings: p.settings ?? {}, notifications: p.notifications ?? {}, addedAt: Date.now() + i
+		}));
+	} catch (e) {
+		return null;
+	}
+}
+
 let syncTimer = /** @type {ReturnType<typeof setTimeout> | null} */ (null);
 /** Sync soon (several changes in a row make one request) */
 export function scheduleSync() {
-	if (!pushEnabled()) return;
+	if (!pushSupported()) return;
 	if (syncTimer !== null) clearTimeout(syncTimer);
 	syncTimer = setTimeout(() => { syncTimer = null; syncPush(); }, 1500);
 }
 
-/** Turn on (from a click: may ask for permission first) */
-export async function enablePush() {
-	lsSet(ENABLED_KEY, "true");
-	await syncPush({ force: true });
-}
-
-/** Turn off: the server forgets this browser, and the browser drops its push subscription */
-export async function disablePush() {
-	lsSet(ENABLED_KEY, null);
-	lsSet(SYNCED_KEY, null);
-	state.error = null;
-	try {
-		const token = await dbGet("token");
-		if (token) await api("DELETE", "/v1/subscription", undefined, token).catch(() => null);
-		await dbSet({ token: null });
-		const registration = await navigator.serviceWorker.getRegistration();
-		const subscription = await registration?.pushManager.getSubscription();
-		await subscription?.unsubscribe();
-	} catch (e) {
-		console.warn("Turning off the notification server failed", e);
-	} finally {
-		announce();
-	}
-}
-
-// choices change in this tab or another: tell the server
-window.addEventListener(PREFS_EVENT, scheduleSync);
-window.addEventListener("storage", (event) => { if (event.key === "zmanNotifications") scheduleSync(); });
+// places or choices change in this tab or another: tell the server
+window.addEventListener(PLACES_EVENT, scheduleSync);
+window.addEventListener("storage", (event) => { if (event.key === PLACES_KEY) scheduleSync(); });
