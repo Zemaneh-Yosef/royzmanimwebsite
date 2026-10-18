@@ -15,7 +15,8 @@ const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
 
 import exportFriendly from "./features/export.js";
 import { ZmanNotificationScheduler, plainText } from "./features/zmanNotifications.js";
-import { scheduleSync } from "./features/pushNotifications.js";
+import { calendarChanged } from "./features/notificationsModal.js";
+import { placeKey } from "./core/notificationText.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
 
@@ -81,7 +82,8 @@ export default class zmanimListUpdater {
 		/** Sends the notifications chosen in the settings modal (Notifications tab), fed by setNextUpcomingZman */
 		this.notifier = new ZmanNotificationScheduler(() => ({
 			language: settings.language(),
-			locationName: settings.location.name()
+			locationName: settings.location.name(),
+			placeKey: placeKey(this.geoLocation.getLatitude(), this.geoLocation.getLongitude())
 		}));
 
 		/** @type {null|ReturnType<typeof setTimeout>} */
@@ -270,8 +272,8 @@ export default class zmanimListUpdater {
 		this.changeDate(this.jCal.getDate());
 
 		this._loadRefraction();
-		// a new place or setting: the notification server needs it too (when it's on)
-		scheduleSync();
+		// a new setting: a subscribed place keeps what its calendar shows, and the notification server gets it
+		calendarChanged();
 	}
 
 	/**
