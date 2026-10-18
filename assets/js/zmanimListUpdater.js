@@ -14,6 +14,7 @@ import { buildZemanimConfig } from "./core/zmanimCore.js";
 const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
 
 import exportFriendly from "./features/export.js";
+import { ZmanNotificationScheduler, plainText } from "./features/zmanNotifications.js";
 
 const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2354, "Asia/Jerusalem");
 
@@ -75,6 +76,12 @@ export default class zmanimListUpdater {
 		this.nextUpcomingZmanTimeout = null;
 
 		this.midDownload = false;
+
+		/** Sends the notifications chosen in the settings modal (Notifications tab), fed by setNextUpcomingZman */
+		this.notifier = new ZmanNotificationScheduler(() => ({
+			language: settings.language(),
+			locationName: settings.location.name()
+		}));
 
 		/** @type {null|ReturnType<typeof setTimeout>} */
 		this.countdownToNextDay = null;
@@ -1307,14 +1314,32 @@ export default class zmanimListUpdater {
 
 		/** @type {Temporal.ZonedDateTime[]} */
 		const zmanim = [];
+		/** @type {import("./features/zmanNotifications.js").ZmanOccurrence[]} */
+		const occurrences = [];
 		const currentSelectedDate = this.zmanCalc.coreZC.getDate();
+		const language = settings.language();
 
 		for (const days of [0, 1]) {
 			this.changeDate(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).add({ days }), true);
-			zmanim.push(...Object.values(this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF)).filter(obj => obj.display == 1).map(time => time.zDTObj));
+			for (const [zmanId, zman] of Object.entries(this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF))) {
+				if (zman.display != 1)
+					continue;
+
+				zmanim.push(zman.zDTObj);
+				if (!zman.zDTObj)
+					continue;
+				occurrences.push({
+					key: zmanId,
+					// notify by the time as it's shown: to the minute, unless seconds are displayed
+					time: 'second' in zman.dtF[1] ? zman.zDTObj : zman.zDTObj.with({ second: 0, millisecond: 0, microsecond: 0, nanosecond: 0 }),
+					title: plainText(zman.title[language] || this.zmanimList[zmanId].title[language]),
+					timeText: zman.zDTObj.toLocaleString(...zman.dtF)
+				});
+			}
 		}
 
 		this.changeDate(currentSelectedDate, true);
+		this.notifier.schedule(occurrences);
 		zmanim.sort(Temporal.ZonedDateTime.compare);
 		this.nextUpcomingZman = zmanim.find(zman =>
 			Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(zman).total({ unit: "milliseconds" }) > 0

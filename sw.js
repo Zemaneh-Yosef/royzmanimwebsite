@@ -64,6 +64,27 @@ self.addEventListener("message", function (event) {
 	}));
 });
 
+// Zeman notifications (assets/js/features/zmanNotifications.js) are shown through this worker: a click brings
+// back the calendar that sent it, or opens it if it was closed.
+self.addEventListener("notificationclick", function (event) {
+	event.notification.close();
+	var data = event.notification.data || {};
+	var target = new URL(data.url || "/calendar", self.location.href);
+	if (target.origin !== self.location.origin) target = new URL("/calendar", self.location.href);
+
+	event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (windows) {
+		var exact = null, calendar = null;
+		for (var i = 0; i < windows.length; i++) {
+			var url = new URL(windows[i].url);
+			if (url.href === target.href) exact = windows[i];
+			else if (!calendar && url.pathname.replace(/\.html$/, "") === target.pathname.replace(/\.html$/, "")) calendar = windows[i];
+		}
+		var client = exact || calendar;
+		if (client && "focus" in client) return client.focus();
+		if (self.clients.openWindow) return self.clients.openWindow(target.href);
+	}));
+});
+
 self.addEventListener("fetch", function (event) {
 	var request = event.request;
 	if (request.method !== "GET" || request.headers.has("range")) return;
