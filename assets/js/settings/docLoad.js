@@ -2,6 +2,7 @@ import { handleLanguage, settings, saveSetting } from "./handler.js";
 import { isInIsrael } from "../misc/israel.js";
 import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.js"
 import { getPref, savePref, clampMinutes, permissionState, requestPermission, showNotification, PREFS_KEY, PREFS_EVENT } from "../features/zmanNotifications.js";
+import { pushSupported, pushEnabled, pushStatus, enablePush, disablePush, scheduleSync, syncPush, PUSH_EVENT } from "../features/pushNotifications.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     handleLanguage();
@@ -54,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document.getElementById('elevationToggle').addEventListener('click', () => {
                 saveSetting("useElevation", document.getElementById("elevationOn").checked ? "true" : "false");
+                scheduleSync();
                 if (window.zmanimListUpdater2) {
                     window.zmanimListUpdater2.resetCalendar();
                 }
@@ -62,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById('languageSelector').addEventListener('click', () => {
             handleLanguage(document.getElementById('hebrew').checked ? 'he' : (document.getElementById('enet').checked ? 'he-Latn' : 'en'), true);
+            scheduleSync();
             if (window.zmanimListUpdater2) {
                 window.zmanimListUpdater2.resetCalendar();
             }
@@ -69,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById('timeFormatter').addEventListener('click', () => {
             localStorage.setItem("timeFormat", document.getElementById("24h").checked ? "h23" : "h12");
+            scheduleSync();
             if (window.zmanimListUpdater2) {
                 window.zmanimListUpdater2.resetCalendar();
             }
@@ -166,4 +170,54 @@ function setupNotificationSettings() {
 
     showState();
     fillRows();
+    setupPushSettings();
+}
+
+/** The "even when the site is closed" switch (features/pushNotifications.js) */
+function setupPushSettings() {
+    const section = document.querySelector('[data-push-section]');
+    if (!section || !pushSupported())
+        return; // stays hidden: this browser can't receive pushes (e.g. iPhone Safari outside the Home Screen app)
+    section.classList.remove('d-none');
+
+    const toggle = section.querySelector('[data-push-toggle]');
+    const render = () => {
+        const status = pushStatus();
+        toggle.checked = status.enabled;
+        let shown = null;
+        if (status.enabled) {
+            if (status.syncing) shown = 'syncing';
+            else if (status.error === 'permission') shown = 'permission';
+            else if (status.error) shown = 'error';
+            else if (status.needsCalendar && !status.synced) shown = 'needsCalendar';
+            else if (status.synced) shown = 'synced';
+        }
+        section.querySelectorAll('[data-push-state]').forEach(elem =>
+            elem.classList.toggle('d-none', elem.getAttribute('data-push-state') !== shown));
+        section.querySelector('[data-push-location]').textContent = status.synced?.locationName || '';
+        section.querySelector('[data-push-error]').textContent = status.error && status.error !== 'permission' ? status.error : '';
+    };
+
+    toggle.addEventListener('change', async () => {
+        if (toggle.checked) {
+            if (permissionState() === 'default')
+                await requestPermission();
+            if (permissionState() !== 'granted') {
+                toggle.checked = false;
+                render();
+                return;
+            }
+            await enablePush();
+        } else {
+            await disablePush();
+        }
+        render();
+    });
+
+    window.addEventListener(PUSH_EVENT, render);
+    document.getElementById('settingsModal').addEventListener('show.bs.modal', render);
+    render();
+    // every visit: make sure the server has what this page has (a no-op when nothing changed)
+    if (pushEnabled())
+        syncPush();
 }

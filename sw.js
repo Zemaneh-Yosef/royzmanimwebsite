@@ -85,6 +85,78 @@ self.addEventListener("notificationclick", function (event) {
 	}));
 });
 
+// Pushes from the notification server (assets/js/features/pushNotifications.js): the same notifications the open
+// calendar sends, with the same `tag`. When the calendar already showed one, it is replaced silently (a push must
+// always show a notification, or browsers revoke the subscription), so it never sounds twice.
+self.addEventListener("push", function (event) {
+	var data = null;
+	try { data = event.data ? event.data.json() : null; } catch (e) { data = null; }
+	if (!data || typeof data.title !== "string") data = { title: "Zemaneh Yosef", body: "", tag: "zman-unknown" };
+	var tag = typeof data.tag === "string" ? data.tag : undefined;
+	var url = typeof data.url === "string" && data.url.indexOf(self.location.origin + "/") === 0 ? data.url : "/calendar";
+
+	event.waitUntil(self.registration.getNotifications(tag ? { tag: tag } : undefined).then(function (shown) {
+		var already = !!tag && shown.length > 0;
+		return self.registration.showNotification(data.title, {
+			body: typeof data.body === "string" ? data.body : "",
+			tag: tag,
+			timestamp: typeof data.timestamp === "number" ? data.timestamp : Date.now(),
+			icon: "/assets/images/pwa/icon-192.png",
+			badge: "/assets/images/pwa/icon-192.png",
+			silent: already,
+			data: { url: url }
+		});
+	}));
+});
+
+// The browser replaced the push subscription: hand the new one to the notification server.
+self.addEventListener("pushsubscriptionchange", function (event) {
+	event.waitUntil(readPushStore(["token", "server", "publicKey"]).then(function (stored) {
+		if (!stored.token || !stored.server) return;
+		var resubscribe = event.newSubscription ? Promise.resolve(event.newSubscription)
+			: self.registration.pushManager.subscribe({
+				userVisibleOnly: true,
+				applicationServerKey: (event.oldSubscription && event.oldSubscription.options.applicationServerKey) || base64UrlBytes(stored.publicKey)
+			});
+		return resubscribe.then(function (subscription) {
+			var json = subscription.toJSON();
+			return fetch(stored.server + "/v1/subscription", {
+				method: "PUT",
+				headers: { "Content-Type": "application/json", "Authorization": "Bearer " + stored.token },
+				body: JSON.stringify({ subscription: { endpoint: json.endpoint, keys: json.keys } }),
+				credentials: "omit"
+			});
+		});
+	}).catch(function (error) { console.warn("Couldn't renew the push subscription", error); }));
+});
+
+function readPushStore(keys) {
+	return new Promise(function (resolve) {
+		var result = {};
+		var req;
+		try { req = indexedDB.open("royzmanim-push", 1); } catch (e) { return resolve(result); }
+		req.onupgradeneeded = function () { req.result.createObjectStore("kv"); };
+		req.onerror = function () { resolve(result); };
+		req.onsuccess = function () {
+			var store = req.result.transaction("kv", "readonly").objectStore("kv");
+			var left = keys.length;
+			keys.forEach(function (key) {
+				var get = store.get(key);
+				get.onsuccess = function () { result[key] = get.result; if (--left === 0) resolve(result); };
+				get.onerror = function () { if (--left === 0) resolve(result); };
+			});
+		};
+	});
+}
+
+function base64UrlBytes(text) {
+	if (!text) return undefined;
+	var bin = atob(text.replace(/-/g, "+").replace(/_/g, "/"));
+	var bytes = new Uint8Array(bin.length);
+	for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+	return bytes;
+}
+
 self.addEventListener("fetch", function (event) {
 	var request = event.request;
 	if (request.method !== "GET" || request.headers.has("range")) return;

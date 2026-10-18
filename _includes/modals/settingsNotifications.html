@@ -5,9 +5,9 @@
 </style>
 <div id="zmanNotificationSettings">
     <p class="mb-2">
-        <span class="lang lang-he">בחרו לאילו זמנים לקבל התראה, וכמה דקות לפני הזמן. ההתראות נשלחות כל עוד לוח הזמנים פתוח – בלשונית (גם ברקע) או באפליקציה המותקנת.</span>
-        <span class="lang lang-he-Latn">Choose which Zemanim to be notified about, and how many minutes before each one. Notifications are sent while the calendar is open — in a tab (also in the background) or in the installed app.</span>
-        <span class="lang lang-en">Choose which times to be notified about, and how many minutes before each one. Notifications are sent while the calendar is open — in a tab (also in the background) or in the installed app.</span>
+        <span class="lang lang-he">בחרו לאילו זמנים לקבל התראה, וכמה דקות לפני הזמן. ההתראות נשלחות כל עוד לוח הזמנים פתוח – בלשונית (גם ברקע) או באפליקציה המותקנת – ואם תפעילו זאת למטה, גם כשהוא סגור.</span>
+        <span class="lang lang-he-Latn">Choose which Zemanim to be notified about, and how many minutes before each one. Notifications are sent while the calendar is open — in a tab (also in the background) or in the installed app — and, if you turn it on below, also when it's closed.</span>
+        <span class="lang lang-en">Choose which times to be notified about, and how many minutes before each one. Notifications are sent while the calendar is open — in a tab (also in the background) or in the installed app — and, if you turn it on below, also when it's closed.</span>
     </p>
 
     <div class="alert d-flex flex-wrap align-items-center gap-2 py-2" role="status" data-notif-status>
@@ -44,6 +44,56 @@
             <span class="lang lang-he-Latn">Send a test notification</span>
             <span class="lang lang-en">Send a test notification</span>
         </button>
+    </div>
+
+    <div class="border rounded p-3 mb-3 d-none" data-push-section>
+        <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" role="switch" id="notif-push" data-push-toggle>
+            <label class="form-check-label fw-semibold" for="notif-push">
+                <span class="lang lang-he">התראות גם כשהאתר סגור</span>
+                <span class="lang lang-he-Latn">Notify me even when the site is closed</span>
+                <span class="lang lang-en">Notify me even when the site is closed</span>
+            </label>
+        </div>
+        <div class="form-text mt-0">
+            <span class="lang lang-he">שרת ההתראות של זמני יוסף ישלח את אותן התראות, לפי המיקום האחרון שפתחתם בלוח. לשם כך הוא שומר את המיקום, את בחירות ההתראות ואת ההגדרות שמשפיעות על הזמנים – ולא דבר מעבר לכך. כיבוי האפשרות מוחק אותם.</span>
+            <span class="lang lang-he-Latn">Zemaneh Yosef's notification server sends the same notifications, for the last location you opened on the calendar. For that it keeps the location, your notification choices and the settings that change the Zemanim, and nothing else. Turning this off deletes them.</span>
+            <span class="lang lang-en">Zemaneh Yosef's notification server sends the same notifications, for the last location you opened on the calendar. For that it keeps the location, your notification choices and the settings that change the times, and nothing else. Turning this off deletes them.</span>
+        </div>
+        <div class="small mt-2" role="status" data-push-status>
+            <span class="d-none" data-push-state="synced">
+                <i class="bi bi-check-circle text-success"></i>
+                <span class="lang lang-he">פעיל עבור:</span>
+                <span class="lang lang-he-Latn">On, for:</span>
+                <span class="lang lang-en">On, for:</span>
+                <span data-push-location></span>
+            </span>
+            <span class="d-none" data-push-state="syncing">
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span class="lang lang-he">מתחבר לשרת ההתראות…</span>
+                <span class="lang lang-he-Latn">Connecting to the notification server…</span>
+                <span class="lang lang-en">Connecting to the notification server…</span>
+            </span>
+            <span class="d-none" data-push-state="needsCalendar">
+                <i class="bi bi-info-circle"></i>
+                <span class="lang lang-he">פתחו את לוח הזמנים של המיקום שלכם כדי להפעיל.</span>
+                <span class="lang lang-he-Latn">Open the calendar for your location to turn this on.</span>
+                <span class="lang lang-en">Open the calendar for your location to turn this on.</span>
+            </span>
+            <span class="d-none" data-push-state="permission">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+                <span class="lang lang-he">יש לאפשר התראות בדפדפן תחילה.</span>
+                <span class="lang lang-he-Latn">Allow notifications in the browser first.</span>
+                <span class="lang lang-en">Allow notifications in the browser first.</span>
+            </span>
+            <span class="d-none" data-push-state="error">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+                <span class="lang lang-he">לא ניתן היה להתחבר לשרת ההתראות:</span>
+                <span class="lang lang-he-Latn">Couldn't reach the notification server:</span>
+                <span class="lang lang-en">Couldn't reach the notification server:</span>
+                <span data-push-error dir="ltr"></span>
+            </span>
+        </div>
     </div>
 
     <ul class="list-group list-group-flush">
