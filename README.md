@@ -21,3 +21,14 @@ Two things it can't fix: a regex literal using lookbehind (`(?<=…)`, `(?<!…)
 the build (patterns built with `new RegExp(…)` aren't checked), and browser APIs newer than those browsers
 need a polyfill in `scripts/legacy/polyfills/` (then run `pnpm build:polyfills`).
 New workers must be started with `spawnWorker()` from `assets/js/misc/worker.js` and listed in `WORKERS`.
+
+## The zmanim core (`assets/js/core/`)
+
+`core/zmanimCore.js` is the calendar without a page: the settings that change the zemanim
+(`core/zmanimSettings.js`), the calculator's configuration, the list of zemanim from `_data/zmanim.yml`,
+and `ZmanimDay`, which gives a day's zemanim exactly as the calendar shows them. The calendar runs on it,
+and so does the notification server ([Zemaneh-Yosef/website-notif](https://github.com/Zemaneh-Yosef/website-notif)),
+which imports these files at a pinned commit of this repository and runs them in Deno.
+
+Keep everything these files import free of browser-only APIs (DOM, `window`, `localStorage`): a change to the
+zmanim logic reaches notifications once the server's pin is moved to the new commit.
