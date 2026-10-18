@@ -1,26 +1,29 @@
 // @ts-check
 
-import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { Input } from "../../libraries/mdbootstrap/mdb.js"
 import { languageTag } from "../misc/language.js"
+import { zemanimSettings } from "../core/zmanimSettings.js"
 const urlParams = new URLSearchParams(window.location.search);
 
 /** @param {string} param */
 const settingsURLOverride = (param) => urlParams.get(param) || localStorage.getItem(param);
 
+/**
+ * The settings that change the zemanim (core/zmanimSettings.js, shared with the notification server),
+ * read from the URL first and then localStorage
+ */
+const zemanim = zemanimSettings({
+	get: settingsURLOverride,
+	has: (key) => urlParams.has(key) || !!localStorage.getItem(key)
+}, {
+	remember: (key, value) => localStorage.setItem(key, value),
+	// a degree in the URL is used as given; a stored one only for the minutes it was worked out from
+	savedDegree: (minutes) => urlParams.get("tzeithIMdeg")
+		|| (localStorage.getItem("tzeithIMdegMin") == minutes.toString() ? localStorage.getItem("tzeithIMdeg") : null)
+});
+
 // @ts-ignore
 window.customTZAlert = false;
-
-/**
- * @param {string} variedTocheck
- * @param {string} defaultSetting
- */
-function defaultSettings (variedTocheck, defaultSetting) {
-	if (urlParams.has(variedTocheck) || localStorage.getItem(variedTocheck))
-		return settingsURLOverride(variedTocheck);
-	else
-		return defaultSetting
-}
 
 const settings = Object.freeze({
 	seconds: () => settingsURLOverride("seconds") == "true",
@@ -94,73 +97,20 @@ const settings = Object.freeze({
 	},
 
 	calendarToggle: {
-		rtKulah: () => defaultSettings("rtKulah", "true") == "true",
+		rtKulah: zemanim.calendarToggle.rtKulah,
 		/** @returns {'hatzoth'|'arbitrary'} */
 		// @ts-ignore
 		tekufaMidpoint: () => ['hatzoth', 'arbitrary'].includes(settingsURLOverride("tekufa")) ? settingsURLOverride("tekufa") : 'hatzoth',
 		/** @returns {'shemuel'|'adabaravah'} */
 		// @ts-ignore
 		tekufaCalc: () => ['shemuel', 'adabaravah'].includes(settingsURLOverride("tekufaCalc")) ? settingsURLOverride("tekufaCalc") : 'shemuel',
-		// @ts-ignore
-		forceSunSeasonal: () => defaultSettings("forceSunSeasonal") == "true",
+		forceSunSeasonal: zemanim.calendarToggle.forceSunSeasonal,
 		/** use the location's elevation for sunrise / sunset; on by default in Israel */
-		useElevation: (/** @type {boolean} */ inIsrael) => defaultSettings("useElevation", inIsrael.toString()) == "true",
+		useElevation: zemanim.calendarToggle.useElevation,
 	},
 	/** Atmosphere-model options, edited from the location modal (assets/js/location-modal.js) */
-	refraction: {
-		/** move Tzet Melakha by degrees by the evening's haze (star-visibility nightfall); on by default */
-		hazeTzet: () => defaultSettings("hazeTzet", "true") == "true",
-		/** @returns {number | null} largest haze delay either way in minutes; null = no cap */
-		hazeMaxDelay: () => {
-			const raw = settingsURLOverride("hazeMaxDelay");
-			if (raw == "none")
-				return null;
-			const minutes = parseFloat(raw);
-			return Number.isFinite(minutes) && minutes >= 0 ? minutes : 15;
-		},
-		/** include water vapour in the refraction; off by default */
-		humidity: () => defaultSettings("refrHumidity", "false") == "true",
-		/** model the sea surface layer over water; off by default (unvalidated) */
-		seaSurfaceLayer: () => defaultSettings("seaSurfaceLayer", "false") == "true",
-	},
-	customTimes: {
-		candleLighting: () => parseInt(settingsURLOverride("candles")) || 20,
-		tzeithIssurMelakha: (/** @type {boolean} */ inIsrael) => {
-			if (!(settingsURLOverride("tzeithIMmin") || "").trim() || isNaN(parseInt(settingsURLOverride("tzeithIMmin")))) {
-				const retObj = {
-					minutes: 30,
-					degree: 7.165
-				};
-
-				if (settings.calendarToggle.forceSunSeasonal() && !inIsrael)
-					retObj.minutes = 40;
-				return retObj;
-			}
-
-			const minutes = parseInt(settingsURLOverride("tzeithIMmin"));
-			const savedDegree = urlParams.get("tzeithIMdeg")
-				|| (localStorage.getItem("tzeithIMdegMin") == minutes.toString() ? localStorage.getItem("tzeithIMdeg") : null);
-			if (!(savedDegree || "").trim()) {
-				const geoLocation = new KosherZmanim.GeoLocation("R Ovadia's house", 31.7898742, 35.1771491, 776, "UTC")
-
-				const aCalendar = new KosherZmanim.AstronomicalCalendar(geoLocation);
-				aCalendar.setDate(Temporal.Now.plainDateISO().with({ month: 3, day: 20 }))
-				const degree = aCalendar.getSunsetSolarDipFromOffset({ minutes });
-
-				localStorage.setItem("tzeithIMdeg", degree.toString())
-				localStorage.setItem("tzeithIMdegMin", minutes.toString())
-				return {
-					minutes,
-					degree
-				}
-			}
-
-			return {
-				minutes,
-				degree: parseFloat(savedDegree)
-			}
-		}
-	}
+	refraction: zemanim.refraction,
+	customTimes: zemanim.customTimes
 })
 
 function handleLanguage(zmanimLanguage = settings.language(), save=false) {

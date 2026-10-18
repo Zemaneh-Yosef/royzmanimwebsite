@@ -8,7 +8,7 @@ import LocationModal, { isValidTimeZone } from "./location-modal.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
 import { showListLoadingAfterDelay } from "./list-loading.js";
 import VisibleSunriseClient from "./visible-sunrise-client.js";
-import { isInIsrael } from "./misc/israel.js";
+import { buildZemanimConfig } from "./core/zmanimCore.js";
 
 /** Floor for the next refraction check, so a clock or storage oddity can't cause a request loop. */
 const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
@@ -379,33 +379,18 @@ export default class zmanimListUpdater {
 		const amudehHoraahIndicators = queryAllElements('[data-zfFind="luachAmudehHoraah"]');
 		const ohrHachaimIndicators = queryAllElements('[data-zfFind="luachOhrHachaim"]');
 
-		this.jCal.setInIsrael(isInIsrael(this.geoLocation.getLatitude(), this.geoLocation.getLongitude()));
+		// the configuration itself is shared with the notification server (core/zmanimCore.js)
+		const { config, inIsrael } = buildZemanimConfig(this.geoLocation, settings, refraction);
+		this.jCal.setInIsrael(inIsrael);
 
-		let fixedMil = false;
-		if (this.jCal.getInIsrael() || settings.calendarToggle.forceSunSeasonal()) {
+		if (config.fixedMil) {
 			ohrHachaimIndicators.forEach((ind) => ind.style.removeProperty('display'));
 			amudehHoraahIndicators.forEach((ind) => ind.style.display = 'none');
-			fixedMil = true;
 		} else {
 			amudehHoraahIndicators.forEach((ind) => ind.style.removeProperty('display'));
 			ohrHachaimIndicators.forEach((ind) => ind.style.display = 'none');
 		}
 
-		/** @type {import("./ROYZmanim.js").ZemanimConfig} */
-		const config = {
-			elevation: settings.calendarToggle.useElevation(this.jCal.getInIsrael()),
-			fixedMil,
-			rtKulah: settings.calendarToggle.rtKulah(),
-			candleLighting: settings.customTimes.candleLighting(),
-			melakha: settings.customTimes.tzeithIssurMelakha(this.jCal.getInIsrael()),
-			atmosphereProvider: refraction.atmosphereProvider,
-			horizon: refraction.horizon,
-			haze: refraction.haze ?? null,
-			humidity: settings.refraction.humidity(),
-			seaSurfaceLayer: settings.refraction.seaSurfaceLayer(),
-			hazeTzet: settings.refraction.hazeTzet(),
-			hazeMaxDelayMinutes: settings.refraction.hazeMaxDelay()
-		};
 		if (this.netzWorker && refraction.horizon) {
 			const netzWorker = this.netzWorker;
 			config.deferVisibleSunrise = (date) => netzWorker.request(date);
