@@ -62,7 +62,7 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
 
 /**
  * @param {number} latitude @param {number} longitude
- * @param {{ forecast?: 'path' | 'nws' | 'open-meteo', serverUrl?: string, serverDays?: number,
+ * @param {{ forecast?: 'path' | 'nws' | 'open-meteo', serverUrl?: string, serverDays?: number, serverEnsemble?: boolean,
  *           normals?: { minC: number[], meanC: number[], heightM?: number } | null,
  *           normalsSource?: 'open-meteo' | 'ncei', userAgent?: string, fetch?: typeof fetch,
  *           timeoutMs?: number, pathTimeoutMs?: number, wait?: boolean, interim?: boolean,
@@ -71,6 +71,7 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
  *                         models?: string, fallbackModel?: string | null, humidity?: boolean } }} [options]
  *   forecast: 'path' (default) as above; 'nws' / 'open-meteo' force a single-temperature forecast.
  *   serverDays: days of server profiles to load at start (default 31; more with atm.paths.prefetch).
+ *   serverEnsemble: also load the server's ensembles (atm.paths.members(date, event); see ensemble.js).
  *   normals: pass what a previous run returned (atm.normals): used from the first moment, and the
  *     download is skipped.
  *   userAgent: identifies the app to NWS (servers only; browsers send their own).
@@ -174,7 +175,7 @@ export async function createAutoAtmosphere(latitude, longitude, options = {}) {
 		if (!options.serverUrl) return;
 		try {
 			const p = await createServerPathAtmosphere(options.serverUrl, latitude, longitude,
-				{ days: options.serverDays ?? 31, fetch: doFetch });
+				{ days: options.serverDays ?? 31, fetch: doFetch, ensemble: options.serverEnsemble });
 			if (p.lastError) note('refraction server', p.lastError);
 			else if (p.eventCount === 0) notes.push('refraction server: no data for this place (outside its regions?)');
 			state.paths = p;
