@@ -35,7 +35,7 @@ import { chainProviders } from "../libraries/kosherZmanim/royzmanim-spa-correcti
 import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHasHumidity } from "./refraction-snapshot.js";
 import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
 import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
-import { fetchHorizonForArea } from "../libraries/kosherZmanim/horizon-client.js";
+import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf } from "../libraries/kosherZmanim/horizon-client.js";
 import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "../libraries/kosherZmanim/open-meteo-haze.js";
 import { fetchLightPollution } from "../libraries/light-pollution-client.js";
 
@@ -69,11 +69,16 @@ const DB_OPEN_TIMEOUT_MS = 3000;
 /** Bump when the cached shape changes, so old entries are ignored. */
 const CACHE_VERSION = 2;
 /**
- * The server's terrain data generation. Change it whenever the server's elevation sources change
- * (terrain.layers): it is sent with horizon requests (so browsers don't serve a 30-day-old cached copy)
- * and is part of the stored horizon's key (so stored horizons are re-fetched). Forecasts are unaffected.
+ * The horizon data's generation on this side. The server's terrain no longer needs it: a stored horizon is
+ * checked against the server's terrain for its place about once a day (TERRAIN_CHECK_MS, /v1/terrain-version)
+ * and downloaded again only where that changed (new elevation sources, or fine near-range terrain turned on
+ * where it has data). Change it when stored horizons must be re-fetched everywhere for another reason: it is
+ * sent with horizon requests (so browsers don't serve a 30-day-old cached copy) and is part of the stored
+ * horizon's key. Forecasts are unaffected.
  */
 export const TERRAIN_VERSION = "bare-earth-2"; // 2: + Jerusalem 10 m DTM
+/** How often a stored horizon is checked against the server's terrain for its place. */
+const TERRAIN_CHECK_MS = 24 * 60 * 60 * 1000;
 const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
 
 // Types live in refraction-snapshot.js; aliased here so either module can be imported for them
@@ -113,6 +118,7 @@ export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./r
  * @property {Normals | null} normals
  * @property {CachedForecast | null} forecast  null when none, or older than FORECAST_MAX_AGE_MS
  * @property {HazeData | null} haze            null when none stored
+ * @property {number | null} [terrainCheckedAt] when the stored horizon was last found current (epoch ms)
  */
 
 /**
@@ -398,7 +404,8 @@ export async function readCachedRefraction(lat, lon) {
 		forecast = null;
 	const haze = hazeFromStored(storedHaze);
 	if (!stat && !forecast && !haze) return null;
-	return { horizon: stat?.horizon ?? null, normals: stat?.normals ?? null, forecast, haze };
+	return { horizon: stat?.horizon ?? null, normals: stat?.normals ?? null, forecast, haze,
+		terrainCheckedAt: stat?.terrainCheckedAt ?? null };
 }
 
 /**
@@ -595,12 +602,30 @@ export async function loadRefraction(lat, lon, options = {}) {
 	const hazeP = options.haze === false ? Promise.resolve(null)
 		: loadHaze(lat, lon, serverUrl, notes, { force: options.force, signal: options.signal });
 
+	// The stored horizon, checked about once a day against the server's terrain for this place and
+	// downloaded again only where that changed
+	const stored = cached?.horizon && (!options.moon || cached.horizon.moon) ? cached.horizon : null;
+	let terrainCheckedAt = cached?.terrainCheckedAt ?? null;
+	/** @param {string} version @returns {Promise<Horizon>} */
+	const fetchHorizon = (version) => fetchHorizonForArea(serverUrl, lat, lon, { signal: options.signal, version, moon: options.moon })
+		.then(h => { terrainCheckedAt = Date.now(); return h; });
 	/** @type {Promise<Horizon | null>} */
-	const horizonP = cached?.horizon && (!options.moon || cached.horizon.moon)
-		? Promise.resolve(cached.horizon)
-		: fetchHorizonForArea(serverUrl, lat, lon, { signal: options.signal, version: TERRAIN_VERSION, moon: options.moon })
-			// a stored sun-only horizon beats none when the moon version can't be had
-			.catch((/** @type {Error} */ e) => { notes.push(`horizon: ${e.message}`); return cached?.horizon ?? null; });
+	const horizonP = (!stored
+		? fetchHorizon(TERRAIN_VERSION)
+		: !options.force && terrainCheckedAt !== null && Date.now() - terrainCheckedAt < TERRAIN_CHECK_MS
+			? Promise.resolve(stored)
+			: /** @type {Promise<Horizon>} */ (fetchTerrainVersion(serverUrl, lat, lon, { area: true, signal: options.signal, moon: options.moon })
+				.then(/** @returns {Horizon | Promise<Horizon>} */ now => {
+					if (sameTerrain(now, terrainOf(stored))) {
+						terrainCheckedAt = Date.now();
+						return stored;
+					}
+					notes.push("terrain changed here: horizon downloaded again");
+					// a new URL, so the browser's cached copy of the old one isn't used
+					return fetchHorizon(`${TERRAIN_VERSION}.${now.layers ?? "-"}.${now.fine ?? "-"}`);
+				})))
+		// a stored (or sun-only) horizon beats none when a new one can't be had; checked again next time
+		.catch((/** @type {Error} */ e) => { notes.push(`horizon: ${e.message}`); return cached?.horizon ?? null; });
 
 	// ── Fresh forecast in storage: no Open-Meteo request ──
 	if (freshForecast) {
@@ -620,8 +645,8 @@ export async function loadRefraction(lat, lon, options = {}) {
 		}
 		const horizon = await horizonP;
 		const normals = cached?.normals ?? null;
-		if (horizon && horizon !== cached?.horizon)
-			writeForPlace(id, staticKey(id), { horizon, normals });
+		if (horizon && (horizon !== cached?.horizon || terrainCheckedAt !== (cached?.terrainCheckedAt ?? null)))
+			writeForPlace(id, staticKey(id), { horizon, normals, terrainCheckedAt });
 
 		notes.push(`forecast from storage (${Math.round((Date.now() - freshForecast.fetchedAt) / 60000)} min old)`);
 		return {
@@ -652,7 +677,7 @@ export async function loadRefraction(lat, lon, options = {}) {
 	}
 
 	const normals = atm?.normals ?? cached?.normals ?? null;
-	writeForPlace(id, staticKey(id), { horizon, normals });
+	writeForPlace(id, staticKey(id), { horizon, normals, terrainCheckedAt });
 
 	const gotForecast = !!(atm?.forecast || atm?.paths?.eventCount);
 	const fetchedAt = Date.now();

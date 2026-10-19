@@ -19,7 +19,11 @@
  *   const withMoon = await fetchHorizonForArea('https://example.org/refraction', 31.778, 35.235, { moon: true });
  *
  * The server computes the set once per place and caches it, so this is one small download per place
- * (a few KB for a point, ~50 KB gzip for a vantage set). Keep it with the location; it does not change.
+ * (a few KB for a point, ~50 KB gzip for a vantage set). Keep it with the location: it changes only when
+ * the server's terrain there does, which fetchTerrainVersion() (a few bytes) tells:
+ *
+ *   const now = await fetchTerrainVersion(url, lat, lon, { area: true });
+ *   if (!sameTerrain(now, terrainOf(stored))) stored = await fetchHorizonForArea(url, lat, lon, { version: ... });
  */
 
 /**
@@ -44,7 +48,7 @@
  *             moonrise nearly all of the area can see). The sun's part of the answer is unchanged.
  *   version:  any string, sent as &v=; the server ignores it, but a new value is a new URL, so browsers
  *             re-fetch instead of using a cached copy (horizons are cached for up to 30 days). Change it
- *             when the server's terrain data changes.
+ *             when the server's terrain data changes (fetchTerrainVersion tells when it has, per place).
  */
 
 const cache = new Map();
@@ -56,6 +60,62 @@ const cache = new Map();
  * @returns {Promise<import('./royzmanim-spa-corrections.js').HorizonSet>}
  */
 export async function fetchHorizon(baseUrl, lat, lon, options = {}) {
+	const url = `${baseUrl.replace(/\/+$/, '')}/v1/horizon?${horizonQuery(lat, lon, options)}`;
+	if (cache.has(url)) return cache.get(url);
+	const p = getJson(url, options, 'horizon');
+	cache.set(url, p);
+	p.catch(() => cache.delete(url));
+	return p;
+}
+
+/**
+ * What the server would build a horizon with this query from, without computing it (/v1/terrain-version):
+ * compare it with a stored horizon's (terrainOf) to tell whether that one is out of date. Same arguments
+ * as fetchHorizon / fetchHorizonForArea (pass area: true for the latter's).
+ * @param {string} baseUrl @param {number | null} lat @param {number | null} lon @param {HorizonOptions} [options]
+ * @returns {Promise<TerrainVersion>}
+ */
+export function fetchTerrainVersion(baseUrl, lat, lon, options = {}) {
+	const { version, ...rest } = options;
+	return getJson(`${baseUrl.replace(/\/+$/, '')}/v1/terrain-version?${horizonQuery(lat, lon, rest)}`, options, 'terrain version');
+}
+
+/**
+ * A horizon's terrain, as /v1/terrain-version gives it: `layers` the bare-earth sources' signature (null
+ * without terrain.layers), `fine` the fine near-range terrain's version where it covers the place (null where
+ * it doesn't, or is off). Both change only when the server's terrain there changes.
+ * @typedef {{ fine: string | null, layers: string | null }} TerrainVersion
+ */
+
+/**
+ * The terrain a horizon set was built from (see TerrainVersion).
+ * @param {any} set a horizon set as fetchHorizon returned it
+ * @returns {TerrainVersion}
+ */
+export function terrainOf(set) {
+	const fine = set?.terrain?.fine;
+	return { fine: fine ? (fine.version ?? fine.signature ?? null) : null, layers: set?.terrain?.layers ?? null };
+}
+
+/** @param {TerrainVersion} a @param {TerrainVersion} b */
+export function sameTerrain(a, b) {
+	return (a.fine ?? null) === (b.fine ?? null) && (a.layers ?? null) === (b.layers ?? null);
+}
+
+/** @param {string} url @param {{ fetch?: typeof fetch, signal?: AbortSignal }} options @param {string} what */
+async function getJson(url, options, what) {
+	const doFetch = options.fetch ?? globalThis.fetch;
+	const r = await doFetch(url, { signal: options.signal });
+	if (!r.ok) {
+		let msg = `HTTP ${r.status}`;
+		try { msg = (await r.json()).error ?? msg; } catch { /* not JSON */ }
+		throw new Error(`${what} request failed: ${msg}`);
+	}
+	return r.json();
+}
+
+/** @param {number | null} lat @param {number | null} lon @param {HorizonOptions} options */
+function horizonQuery(lat, lon, options) {
 	const q = new URLSearchParams();
 	if (lat != null && lon != null) { q.set('lat', lat.toFixed(6)); q.set('lon', lon.toFixed(6)); }
 	if (options.area) {
@@ -73,21 +133,7 @@ export async function fetchHorizon(baseUrl, lat, lon, options = {}) {
 	if (options.minKm != null) q.set('min_km', String(options.minKm));
 	if (options.moon) q.set('moon', '1');
 	if (options.version) q.set('v', options.version);
-	const url = `${baseUrl.replace(/\/+$/, '')}/v1/horizon?${q}`;
-	if (cache.has(url)) return cache.get(url);
-	const doFetch = options.fetch ?? globalThis.fetch;
-	const p = (async () => {
-		const r = await doFetch(url, { signal: options.signal });
-		if (!r.ok) {
-			let msg = `HTTP ${r.status}`;
-			try { msg = (await r.json()).error ?? msg; } catch { /* not JSON */ }
-			throw new Error(`horizon request failed: ${msg}`);
-		}
-		return r.json();
-	})();
-	cache.set(url, p);
-	p.catch(() => cache.delete(url));
-	return p;
+	return q;
 }
 
 /**
