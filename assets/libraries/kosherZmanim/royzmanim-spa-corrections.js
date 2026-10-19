@@ -939,6 +939,11 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._atmosphereProvider = provider;
 	}
 
+	/** The provider set with setAtmosphereProvider (or null), e.g. to restore it after trying others. */
+	getAtmosphereProvider() {
+		return this._atmosphereProvider ?? null;
+	}
+
 	/**
 	 * Shorthand for a constant atmosphere given as sea-level (reduced) values, for both events.
 	 * @param {number} pressureMillibars

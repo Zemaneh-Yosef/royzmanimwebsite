@@ -21,26 +21,39 @@
  * The provider is synchronous, so dates must be fetched (constructor range or prefetch) before the
  * calculator asks for them; dates not fetched return null and the next provider in the chain is used.
  * The profiles are for the requested lat/lon. Use one instance per location.
+ *
+ * With { ensemble: true } the server also sends, per event, the ensemble it has (see ensemble.js):
+ * every GEFS member for a forecast date (how sure the forecast is), or for a date from its climatology a
+ * few representative variations of the air (whose weighted mean time is the typical sunrise, rather than
+ * the sunrise of the typical air). paths.members(date, event) gives them as providers:
+ *
+ *     const paths = await createServerPathAtmosphere(url, lat, lon, { ensemble: true });
+ *     const r = ensembleTimes(calc, paths.members(date, 'sunrise'), () => calc.getVisibleSunrise(date, geo, horizon));
+ *     r.mean; r.sd; r.quantile(0.9);      // epoch ms; the provider set on calc is restored afterwards
  */
 
 /**
+ * @typedef {{ distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number }[] }} ServerProfile
+ * @typedef {{ kind: 'gefs' | 'climatology', cycle?: string, members: { member: string, weight: number, profiles: ServerProfile[] }[] }} EventEnsemble
  * @typedef {{ date: string, event: 'sunrise'|'sunset', source: string, timeUtc: string, azimuthDeg: number,
- *             profiles: { distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number }[] }[] }} PathEvent
+ *             profiles: ServerProfile[], ensemble?: EventEnsemble }} PathEvent
  */
 
 /**
  * @param {string} baseUrl e.g. "https://example.org/refraction" (the server's /v1/... lives under it)
  * @param {number} latitude
  * @param {number} longitude
- * @param {{ days?: number, fetch?: typeof fetch, throwOnError?: boolean }} [options]
+ * @param {{ days?: number, fetch?: typeof fetch, throwOnError?: boolean, ensemble?: boolean }} [options]
  *   days: how many days to load at start, from yesterday (default 31; at most the server's limit).
  *   throwOnError: default false - a failed request leaves those dates empty (the provider returns null
  *   and the next provider in the chain is used) instead of throwing.
+ *   ensemble: also load each event's ensemble (larger answers: ~7x for climatology, ~11x for GEFS days).
  */
 export async function createServerPathAtmosphere(baseUrl, latitude, longitude, options = {}) {
 	const doFetch = options.fetch ?? globalThis.fetch;
-	const root = `${baseUrl.replace(/\/+$/, '')}/v1/path-profiles?lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}`;
-	/** @type {Map<string, { path: any[], key: string, source: string }>} */
+	const root = `${baseUrl.replace(/\/+$/, '')}/v1/path-profiles?lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}`
+		+ (options.ensemble ? '&ensemble=1' : '');
+	/** @type {Map<string, { path: any[], key: string, source: string, ensemble?: EventEnsemble }>} */
 	const byKey = new Map();
 	/** @type {string | null} */
 	let cycle = null;
@@ -59,7 +72,7 @@ export async function createServerPathAtmosphere(baseUrl, latitude, longitude, o
 				if (!e.profiles?.length) continue;
 				const tag = e.source === 'forecast' ? json.cycle : e.source;
 				byKey.set(`${e.date}|${e.event}`, {
-					path: e.profiles, source: e.source,
+					path: e.profiles, source: e.source, ensemble: e.ensemble,
 					key: `srv|${tag}|${latitude},${longitude}|${e.date}|${e.event}`,
 				});
 			}
@@ -83,11 +96,30 @@ export async function createServerPathAtmosphere(baseUrl, latitude, longitude, o
 	ranges.push({ from: yesterday, days: options.days ?? 31 });
 	await loadRange(yesterday, options.days ?? 31);
 
+	/** @param {Temporal.PlainDate} date  @param {'sunrise'|'sunset'} event */
+	const provider = (date, event) => {
+		const e = byKey.get(`${date.toString()}|${event}`);
+		return e ? { path: e.path, key: e.key } : null;
+	};
+
 	return {
-		/** @param {Temporal.PlainDate} date  @param {'sunrise'|'sunset'} event */
-		provider: (date, event) => {
+		provider,
+		/**
+		 * The event's ensemble as providers (each answers this date and event with its member's air, and
+		 * any other with the main profiles), or [] when the server sent none (ensemble option off, or none
+		 * for this date). For ensembleTimes() in ensemble.js.
+		 * @param {Temporal.PlainDate} date @param {'sunrise'|'sunset'} event
+		 * @returns {{ member: string, weight: number, kind: string, provider: (d: Temporal.PlainDate, ev: 'sunrise'|'sunset') => any }[]}
+		 */
+		members(date, event) {
 			const e = byKey.get(`${date.toString()}|${event}`);
-			return e ? { path: e.path, key: e.key } : null;
+			if (!e?.ensemble?.members?.length) return [];
+			const ds = date.toString(), kind = e.ensemble.kind;
+			return e.ensemble.members.map(m => ({
+				member: m.member, weight: m.weight, kind,
+				provider: (/** @type {Temporal.PlainDate} */ d, /** @type {'sunrise'|'sunset'} */ ev) =>
+					d.toString() === ds && ev === event ? { path: m.profiles, key: `${e.key}|${m.member}` } : provider(d, ev),
+			}));
 		},
 		/**
 		 * Load a date range (e.g. a whole year before printing a calendar). Requests are split into
