@@ -598,6 +598,10 @@ accordian: true
 	import { glowDepression, jerusalemAir, stationPressure, pressureAt, JERUSALEM } from "/assets/libraries/kosherZmanim/horizon-glow.js";
 	import { loadReferenceHaze, readCachedReferenceHaze } from "/assets/js/refraction-data.js";
 	import { AstronomyImp } from "/assets/libraries/mooncalc/moonRiseSetCalc.js";
+	import { deltaT } from "/assets/libraries/kosherZmanim/delta-t.js";
+
+	// Delta-T from the Earth's measured rotation, as the sun calculator uses (see delta-t.js)
+	AstronomyImp.SetDeltaTFunction(ut => deltaT(ut + 2451545));
 
 	/**
 	 * Dawn, and the end of the MG"A day (Rabbenu Tam) for Ḥametz, in degrees below the horizon under Jerusalem's

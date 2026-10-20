@@ -8,7 +8,7 @@
  *
  *     import ROYSPACalculator, { monthlyClimate } from "./royzmanim-spa-corrections.js";
  *
- *     const calc = new ROYSPACalculator();                  // defaults = corrections 1-3 on
+ *     const calc = new ROYSPACalculator();                  // defaults = corrections 1-3 and 11 on
  *     calc.configureForLocation(geoLocation);               // sets the per-latitude Earth radius
  *     zmanimCalendar.setAstronomicalCalculator(calc);
  *
@@ -18,8 +18,9 @@
  *     // optional: visible sunrise / sunset over terrain (see 7)
  *     const ms = calc.getVisibleSunrise(date, geoLocation, horizonProfile);   // epoch ms, or NaN
  *
- * WHAT IT CHANGES (only the geometric 90 degree zenith, i.e. sunrise/sunset and anything defined from
- * them; depression-angle zmanim such as 16.1 degrees or 7.165 degrees are untouched, as in KosherJava):
+ * WHAT IT CHANGES (1-10 only the geometric 90 degree zenith, i.e. sunrise/sunset and anything defined from
+ * them; depression-angle zmanim such as 16.1 degrees or 7.165 degrees are untouched, as in KosherJava;
+ * 11, the Sun's position, applies to every time):
  *
  *  1. Refraction constant: 34.478885263888294' (Calendrical Calculations global average) instead of 34'.
  *  2. Elevation model ('physical', default): replaces `refraction + acos(R / (R + h))` with the dip and
@@ -80,16 +81,29 @@
  *     ~1.5-2 s later and sunset ~1.5-2 s earlier than in dry air; at the world-record Persian Gulf dew
  *     points ~3 s, up to ~4-5 s when the moist air is a shallow layer over the sea. Elsewhere ~1 s or
  *     less. Small next to temperature profiles and terrain, hence off unless asked for.
+ * 11. The Sun's apparent place, everywhere SPA uses it (sunrise, sunset, noon, twilight angles):
+ *     - VSOP87D with 412 terms (vsop87-earth.js) instead of Meeus's 195-term Appendix III;
+ *     - IAU 2000B nutation (nutation.js) instead of Meeus's 4-term series (off by up to 0.33");
+ *     - the VSOP87 to FK5 correction (Meeus 32.3), which SPA leaves out;
+ *     - IAU 2006 precession (equinox, obliquity) and sidereal time instead of IAU 1976 / 1982;
+ *     - Delta-T from IERS measurements of the Earth's rotation (delta-t.js) instead of the Espenak-Meeus
+ *       polynomial, which puts 2026 at 75.6 s against the measured 69.1 s.
+ *     Against JPL's DE421 over 2000-2050 the Sun's right ascension and declination are now within 0.08"
+ *     (0.6" before) and the sidereal time within 0.005" (0.34" before). Zmanim move by under 0.1 s, mostly
+ *     ~0.025 s earlier from Delta-T. setDeltaTOverride() still overrides Delta-T.
+ *     The full place is computed once per day (0h UT) and interpolated between the five nearest days
+ *     (Meeus 3.8), within 0.04 ms of computing it in full at every instant: 0.7 us a call against
+ *     SPACalculator's 3.8 us, so sunrise is faster than before, not slower.
  *
  * NOT ported from ChaiTables: its low-precision solar ephemeris (SPA is far better), the 6356.766 km
  * radius, the fixed 16' semidiameter, and the +/-15 s winter "inversion" cushion (a safety margin, not a
  * physical model - add your own margin on top if you want one).
- *
- * NOT changed (checked, negligible): the abridged VSOP87/nutation (max ~2" vs Astronomy Engine) and the
- * Espenak-Meeus delta-T estimate. If you have a trusted delta-T, use setDeltaTOverride().
  */
 
 import { SPACalculator, GeoLocation } from './kosher-zmanim.js';
+import { nutation } from './nutation.js';
+import { EARTH_L, EARTH_B, EARTH_R } from './vsop87-earth.js';
+import { deltaT } from './delta-t.js';
 
 export const ROY_REFRACTION_ARCMIN = 34.478885263888294;
 
@@ -891,6 +905,10 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._thresholdCache = new WeakMap();
 		this._seaSurfaceLayer = false;
 		this._humidity = false;
+		/** the Sun's full apparent place at 0h UT of nearby days (see solarCoords) @type {Cache<number[]>} */
+		this._sunNodes = new Cache(32);
+		/** Meeus 3.8 coefficients for each day, from those nodes @type {Cache<Float64Array>} */
+		this._sunDays = new Cache(16);
 	}
 
 	/**
@@ -1431,3 +1449,101 @@ export default class ROYSPACalculator extends SPACalculator {
 		return th.apparentDeg[k] <= 0.01;
 	}
 }
+
+// ------------------------------------------------------------------------------------------------
+// The Sun's apparent place (header, item 11). Replaces SPACalculator's solarCoords and equationOfTime,
+// which are TypeScript-private, so they are set on the prototype rather than declared in the class.
+// ------------------------------------------------------------------------------------------------
+const SPA = /** @type {any} */ (SPACalculator);
+
+/** @param {SPACalculator} calc @param {number} jdUT @returns {number} TT Julian centuries from J2000.0 */
+function julianCenturiesTT(calc, jdUT) {
+	const override = calc.getDeltaTOverride();
+	const dt = calc.isApplyDeltaT() ? (override !== null ? override : deltaT(jdUT)) : 0;
+	return (jdUT + dt / 86400 - 2451545) / 36525;
+}
+
+/**
+ * The Sun's geocentric apparent place: VSOP87D with more terms (vsop87-earth.js), the VSOP87 to FK5 correction
+ * (Meeus 32.3), IAU 2006 precession (equinox, obliquity), IAU 2000B nutation.
+ * @param {SPACalculator} calc @param {number} jdUT UT Julian day
+ * @returns {number[]} [RA (deg), declination (deg), true obliquity (deg), equation of the equinoxes (deg),
+ *   distance (AU), apparent longitude (deg)]
+ */
+function solarPlace(calc, jdUT) {
+	const t = julianCenturiesTT(calc, jdUT), tau = t / 10;
+	const radius = SPA.sumSeries(EARTH_R, tau);
+	let theta = SPA.sumSeries(EARTH_L, tau) / DEG + 180;   // geocentric longitude, VSOP87 dynamical frame
+	let beta = -SPA.sumSeries(EARTH_B, tau) / DEG;
+	const lp = (theta - 1.397 * t - 0.00031 * t * t) * DEG;
+	// to FK5 (Meeus 32.3), then from IAU 1976 to IAU 2006 general precession in longitude (5029.0966" vs
+	// 5028.796195" per century; without it the longitude drifts from DE421's by 0.3" per century)
+	theta += (-0.09033 - 0.300405 * t) / 3600;
+	beta += 0.03916 / 3600 * (Math.cos(lp) - Math.sin(lp));
+	const [dpsi, deps] = nutation(t);
+	const eps = (meanObliquity(t) + deps) / 3600 * DEG;
+	const lambda = (theta + (dpsi - 20.4898 / radius) / 3600) * DEG;
+	const b = beta * DEG;
+	const alpha = Math.atan2(Math.sin(lambda) * Math.cos(eps) - Math.tan(b) * Math.sin(eps), Math.cos(lambda)) / DEG;
+	const delta = Math.asin(Math.sin(b) * Math.cos(eps) + Math.cos(b) * Math.sin(eps) * Math.sin(lambda)) / DEG;
+	return [(alpha % 360 + 360) % 360, delta, eps / DEG, dpsi / 3600 * Math.cos(eps), radius, ((lambda / DEG) % 360 + 360) % 360];
+}
+
+/**
+ * Geocentric apparent coordinates of the Sun and the apparent sidereal time, replacing SPACalculator.solarCoords.
+ * The place is computed in full only at 0h UT of each day and interpolated between the five nearest days
+ * (Meeus 3.8): the series are the slow part, and the rise / set solvers ask for many instants of one day.
+ * @this {ROYSPACalculator} @param {number} jdUT UT Julian day
+ * @returns {number[]} [RA (deg), declination (deg), true obliquity (deg), apparent Greenwich sidereal time (deg),
+ *   distance (AU), apparent longitude (deg)]
+ */
+function solarCoords(jdUT) {
+	const n0 = Math.round(jdUT - 0.5) + 0.5, n = jdUT - n0;   // nearest 0h UT, |n| <= 0.5
+	const override = this.getDeltaTOverride();
+	const key = this.isApplyDeltaT() ? (override === null ? 'iers' : override) : 'none';
+	const c = this._sunDays.get(n0 + '|' + key, () => {
+		const y = [-2, -1, 0, 1, 2].map(k => this._sunNodes.get((n0 + k) + '|' + key, () => solarPlace(this, n0 + k)));
+		const out = new Float64Array(30);
+		for (let i = 0; i < 6; i++) {
+			const angle = i === 0 || i === 5;   // RA and longitude wrap at 360
+			const [A, B, C, D] = [0, 1, 2, 3].map(k => angle ? (y[k + 1][i] - y[k][i] + 540) % 360 - 180 : y[k + 1][i] - y[k][i]);
+			const E = B - A, F = C - B, G = D - C, H = F - E, J = G - F;
+			out.set([y[2][i], (B + C) / 2, F / 2, (H + J) / 12, (J - H) / 24], 5 * i);
+		}
+		return out;
+	});
+	const n2 = n * n, m = n * (n2 - 1), q = n2 * (n2 - 1);
+	const at = (/** @type {number} */ i) => c[5 * i] + n * c[5 * i + 1] + n2 * c[5 * i + 2] + m * c[5 * i + 3] + q * c[5 * i + 4];
+	const wrap = (/** @type {number} */ x) => (x % 360 + 360) % 360;
+	const gast = greenwichMeanSiderealTime(jdUT, julianCenturiesTT(this, jdUT)) + at(3);
+	return [wrap(at(0)), at(1), at(2), wrap(gast), at(4), wrap(at(5))];
+}
+
+/** IAU 2006 mean obliquity of the ecliptic (arcsec). @param {number} t TT Julian centuries from J2000.0 */
+function meanObliquity(t) {
+	return 84381.406 + t * (-46.836769 + t * (-0.0001831 + t * (0.0020034 + t * (-0.000000576 - t * 0.0000000434))));
+}
+
+/**
+ * IAU 2006 Greenwich mean sidereal time (deg): Earth rotation angle plus the precession polynomial.
+ * @param {number} jdUT UT1 Julian day (UTC is used for it, within 0.9 s) @param {number} t TT Julian centuries from J2000.0
+ */
+function greenwichMeanSiderealTime(jdUT, t) {
+	const era = 360 * ((0.7790572732640 + 0.00273781191135448 * (jdUT - 2451545) + jdUT % 1) % 1);
+	return era + (0.014506 + t * (4612.156534 + t * (1.3915817 + t * (-0.00000044 + t * (-0.000029956 - t * 0.0000000368))))) / 3600;
+}
+
+/**
+ * Equation of time in minutes (Meeus 28.1), from the apparent place above. Meeus's 0.0057183 deg is the
+ * aberration plus the FK5 correction, which the right ascension now includes.
+ * @this {ROYSPACalculator} @param {number} jdUT UT Julian day
+ */
+function equationOfTime(jdUT) {
+	const [alpha, , eps] = solarCoords.call(this, jdUT);
+	const jce = julianCenturiesTT(this, jdUT), jme = jce / 10;
+	const l0 = 280.4664567 + jme * (360007.6982779 + jme * (0.03032028 + jme * (1 / 49931 - jme * (1 / 15300 + jme / 2000000))));
+	const e = (l0 % 360 + 360) % 360 - 0.0057183 - alpha + nutation(jce)[0] / 3600 * Math.cos(eps * DEG);
+	return (((e + 180) % 360 + 360) % 360 - 180) * 4;
+}
+
+Object.assign(ROYSPACalculator.prototype, { solarCoords, equationOfTime });
