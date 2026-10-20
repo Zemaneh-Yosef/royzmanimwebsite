@@ -31,9 +31,10 @@
  *  3. Earth radius: radius of curvature of the WGS84 ellipsoid along the line of sight (east-west by
  *     default) instead of a single mean radius. (ChaiTables uses 6356.766 km, the US Standard Atmosphere
  *     geopotential constant, which is not a radius of curvature; not ported.)
- *  4. Optional: setHorizonAtmosphere(pressureMb, temperatureC) - kept for compatibility, now a shorthand
- *     for a constant atmosphere in (6). The previous version scaled by SPA's (P/1010)(283/(273+T)), which
- *     is about half as temperature-sensitive as the true horizon refraction (exponent ~1.68, see 6).
+ *  4. (Removed: setHorizonAtmosphere(pressureMb, temperatureC). It first scaled by SPA's
+ *     (P/1010)(283/(273+T)), about half as temperature-sensitive as the true horizon refraction (exponent
+ *     ~1.68, see 6). For a constant atmosphere, use (6):
+ *     setAtmosphereProvider(() => ({ temperatureC, pressureMb, heightM: 0 })).)
  *  5. Optional: setSolarRadiusKm(km). 695,700 km (IAU 2015) instead of the table's 696,000 km.
  *  6. Optional, from ChaiTables: ray-traced refraction for the actual air (setAtmosphereProvider).
  *     The provider is asked separately for sunrise and sunset, so it can return the morning minimum and
@@ -942,16 +943,6 @@ export default class ROYSPACalculator extends SPACalculator {
 	/** The provider set with setAtmosphereProvider (or null), e.g. to restore it after trying others. */
 	getAtmosphereProvider() {
 		return this._atmosphereProvider ?? null;
-	}
-
-	/**
-	 * Shorthand for a constant atmosphere given as sea-level (reduced) values, for both events.
-	 * @param {number} pressureMillibars
-	 * @param {number} temperatureCelsius
-	 */
-	setHorizonAtmosphere(pressureMillibars, temperatureCelsius) {
-		const spec = { temperatureC: temperatureCelsius, pressureMb: pressureMillibars, heightM: 0 };
-		this._atmosphereProvider = () => spec;
 	}
 
 	/**
