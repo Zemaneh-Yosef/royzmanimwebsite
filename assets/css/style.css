@@ -167,9 +167,11 @@ html:not(.sidebar-wide) #sidebar .sidebar-label {
 	filter: drop-shadow(0px 2px 1px rgba(0,0,0,.7));
 }
 
+/* the square background, as wide as the sidebar, its wavy edge kept */
 html.sidebar-wide #sidebarLogo {
-	background-image: none;
-	padding: .75rem 1rem;
+	background-size: 100% auto;
+	background-position: center bottom;
+	padding: 1rem 1rem 1.25rem;
 }
 
 #sidebarLogo img {
