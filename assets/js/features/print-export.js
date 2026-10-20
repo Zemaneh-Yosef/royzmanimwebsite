@@ -13,6 +13,82 @@ import { loadPrintRefraction, fillVisibleSunriseTable } from "./print-refraction
 import * as ol from "../../libraries/OpenLayers/ol.js"
 import { spawnWorker } from "../misc/worker.js";
 import { isInIsrael } from "../misc/israel.js";
+import { detectJit } from "../misc/detect-jit.js";
+
+// paged.js lays the pages out on screen, and printing keeps that layout, so it mustn't depend on the screen.
+// Bootstrap Reboot grows h1-h4 with the window's width below 1200px (and the root font follows the browser's
+// font-size setting), which moved the page breaks on smaller or zoomed windows. Pin them to their desktop
+// sizes, and keep the light colours: in dark mode the text would print light grey.
+// Added at the end of <head>: after Bootstrap, before the page's own styles, which still win.
+const fixedLayoutStyle = document.createElement("style");
+fixedLayoutStyle.textContent = `
+	:root {
+		font-size: 16px;
+		color-scheme: light;
+		--bs-body-color: #212529;
+		--bs-body-color-rgb: 33, 37, 41;
+		--bs-body-bg: #fff;
+		--bs-body-bg-rgb: 255, 255, 255;
+		--bs-emphasis-color: #000;
+		--bs-secondary-color: rgba(33, 37, 41, 0.75);
+		--bs-link-color: #0d6efd;
+		--bs-link-color-rgb: 13, 110, 253;
+		--bs-border-color: #dee2e6;
+	}
+	h1 { font-size: 2.5rem; }
+	h2 { font-size: 2rem; }
+	h3 { font-size: 1.75rem; }
+	h4, legend { font-size: 1.5rem; }`;
+document.head.appendChild(fixedLayoutStyle);
+
+/**
+ * A status line pinned to the top of the screen (never printed) while the print is built, so a slow year or a
+ * failure shows on the page and not only in the console.
+ */
+const progress = (() => {
+	const bar = document.createElement("div");
+	bar.setAttribute("data-zyFind", "printProgress");
+	bar.style.cssText = "position:fixed;top:0;inset-inline:0;z-index:9999;padding:.4rem .8rem;"
+		+ "font:600 13px/1.4 system-ui,sans-serif;background:#1f2937;color:white;text-align:center";
+	const status = document.createElement("div");
+	/** a second line that stays while the status changes (see warn) */
+	const warning = document.createElement("div");
+	warning.style.cssText = "font-weight:400;color:#fde68a;margin-top:.2rem";
+	warning.hidden = true;
+	bar.append(status, warning);
+	const style = document.createElement("style");
+	style.textContent = "@media print { [data-zyFind=printProgress] { display: none !important; } }";
+	document.head.appendChild(style);
+	document.body.appendChild(bar);
+
+	return {
+		/** @param {string} text */
+		set(text) { status.textContent = text; },
+		/** @param {string} text */
+		fail(text) { bar.style.background = "#b91c1c"; status.textContent = text; },
+		/** @param {string} text */
+		warn(text) { warning.textContent = text; warning.hidden = false; },
+		done() { bar.remove(); style.remove(); }
+	};
+})();
+
+// Some browsers run the site without their JavaScript optimizer (Edge's "Enhance your security on the web"),
+// which makes the visible-sunrise ray tracing ~30x slower. Only checked in Chromium browsers: the check is
+// calibrated on their engine (V8), and that's where the setting is. See print-export-weekly.js.
+// @ts-ignore -- userAgentData isn't in the TS lib in use
+if (navigator.userAgentData?.brands?.some((/** @type {{ brand: string }} */ b) => b.brand === "Chromium")) setTimeout(() => {
+	try {
+		const { jit, ratio } = detectJit();
+		if (!jit) {
+			console.warn(`JavaScript optimization seems to be off in this browser (loop/sort ratio ${ratio})`);
+			progress.warn("Your browser has JavaScript optimization turned off for this site (for example, Microsoft Edge's "
+				+ "“Enhance your security on the web”), so this calendar will take much longer to calculate. "
+				+ "Adding royzmanim.com to the browser's exceptions for that setting fixes it.");
+		}
+	} catch (e) {
+		console.error("JIT check failed", e);
+	}
+});
 
 const printParam = new URLSearchParams(window.location.search);
 if (printParam.has('lessContrast')) {
@@ -165,13 +241,9 @@ for (const locName of document.querySelectorAll("[data-zyLocationText]"))
 /** @type {Record<string, number>} */
 const jewishYears = {};
 
-let expectedReceive = 0;
-let actualReceive = 0;
-/** @type {Record<string, string[]>} */
-let receiveData = {}
-/** @type {import('./print-web-worker.js').singlePageParams[]} */
-const arrayOfFuncParams = [];
 const firstYearMonths = plainDateForLoop.monthsInYear;
+/** @type {number[]} */
+const monthsToPrint = [];
 for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal;
 	mIndex = !printParam.has('shabbatOnly') ? mIndex + 1
 		: mIndex <= firstYearMonths && mIndex + 2 > firstYearMonths + 1 ? firstYearMonths + 1 : mIndex + 2) {
@@ -182,35 +254,64 @@ for (let mIndex = plainDateForLoop.month; mIndex <= monthsForCal;
 	else
 		jewishYears[jewishYear] += 1;
 
-	expectedReceive += 1;
-	arrayOfFuncParams.push({
-		israel: inIsrael,
-		elevation: useElevation,
-		geoCoordinates: glArgs,
-		htmlElems: baseTable.outerHTML + (footer ? footer.outerHTML : "") + (secondSide ? secondSide.outerHTML : ""),
-		calendar: cal,
-		hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
-		date: plainDateForLoop.with({ month: 1 }).add({ months: mIndex - 1 }).toString(),
-		oneYear: plainDateForLoop.year == plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal - 1 }).year,
-		rtKulah: settings.calendarToggle.rtKulah(),
-		tekufaMidpoint: settings.calendarToggle.tekufaMidpoint(),
-		tzetMelakha: settings.customTimes.tzeithIssurMelakha(inIsrael),
-		timeFormat: settings.timeFormat(),
-		lang: settings.language(),
-		// @ts-ignore
-		allShitot: listAllShitot,
-		month: mIndex,
-		candleTime: settings.customTimes.candleLighting(),
-		shabbatOnly: printParam.has('shabbatOnly'),
-		mergeTzet: printParam.has('mergeTzet') || useOhrHachaim,
-		pocket: location.pathname.includes('pocket')
-	})
+	monthsToPrint.push(mIndex);
 }
 
+// ─── Month worker pool ───────────────────────────────────────────────────────
+// Spawned now so the module loads (and the Temporal polyfill import) overlap with the refraction fetch.
+// Nothing is posted until the refraction data is in. One core is left for this thread; never more workers
+// than months. Each worker takes the next month as soon as it finishes one.
+const WORKER_URL = '/assets/js/features/print-web-worker.js';
+const poolSize = Math.max(1, Math.min(monthsToPrint.length, (navigator.hardwareConcurrency || 4) - 1));
+/** @type {Worker[]} */
+const pool = Array.from({ length: poolSize }, () => spawnWorker(WORKER_URL));
+/** @type {ErrorEvent | null} */
+let earlyWorkerError = null;
+const recordEarlyWorkerError = (/** @type {ErrorEvent} */ e) => { earlyWorkerError ??= e; };
+pool.forEach(worker => worker.addEventListener('error', recordEarlyWorkerError));
+
 // ─── Refraction data (forecast air + terrain horizon), as on the web page ───
+progress.set("Loading the horizon and weather data…");
 const firstPrintedDate = plainDateForLoop;
 const lastPrintedDate = plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal }).subtract({ days: 1 });
 const { refraction, refractionInit } = await loadPrintRefraction(geoLocation, firstPrintedDate, lastPrintedDate);
+
+// A range of path profiles is a large object graph, and postMessage clones it once for every worker, all on
+// this thread before the first month is sent. As one JSON string (made once, parsed in the worker) it is
+// copied, not walked. The snapshot is plain JSON (refraction-snapshot.js), so nothing is lost.
+const { table: refractionTable, ...refractionRest } = refractionInit;
+/** @type {import('./print-refraction.js').RefractionInit} */
+const refractionMessage = { ...refractionRest, tableJson: JSON.stringify(refractionTable) };
+
+// Everything that is the same for every month goes to each worker once; the months only carry their date.
+/** @type {import('./print-web-worker.js').WorkerInit} */
+const workerInit = {
+	type: "init",
+	israel: inIsrael,
+	elevation: useElevation,
+	geoCoordinates: glArgs,
+	htmlElems: baseTable.outerHTML + (footer ? footer.outerHTML : "") + (secondSide ? secondSide.outerHTML : ""),
+	calendar: cal,
+	hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
+	oneYear: plainDateForLoop.year == plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal - 1 }).year,
+	rtKulah: settings.calendarToggle.rtKulah(),
+	tekufaMidpoint: settings.calendarToggle.tekufaMidpoint(),
+	tzetMelakha: settings.customTimes.tzeithIssurMelakha(inIsrael),
+	timeFormat: settings.timeFormat(),
+	lang: settings.language(),
+	// @ts-ignore
+	allShitot: listAllShitot,
+	candleTime: settings.customTimes.candleLighting(),
+	shabbatOnly: printParam.has('shabbatOnly'),
+	mergeTzet: printParam.has('mergeTzet') || useOhrHachaim,
+	pocket: location.pathname.includes('pocket')
+};
+
+/** @type {Pick<import('./print-web-worker.js').singlePageParams, 'month'|'date'>[]} */
+const arrayOfFuncParams = monthsToPrint.map(month => ({
+	month,
+	date: plainDateForLoop.with({ month: 1 }).add({ months: month - 1 }).toString()
+}));
 
 /** Visible minus sea-level sunrise per ISO date (ms), reported by the workers. @type {Record<string, number>} */
 const sunriseOffsets = {};
@@ -222,8 +323,8 @@ if (fundamentalTable) {
 	} else {
 		const zmanCalc = new ZemanFunctions(geoLocation, {
 			elevation: useElevation,
-			melakha: arrayOfFuncParams[0].tzetMelakha,
-			fixedMil: arrayOfFuncParams[0].israel || settings.calendarToggle.forceSunSeasonal(),
+			melakha: workerInit.tzetMelakha,
+			fixedMil: workerInit.israel || settings.calendarToggle.forceSunSeasonal(),
 			candleLighting: settings.customTimes.candleLighting(),
 			rtKulah: settings.calendarToggle.rtKulah(),
 			atmosphereProvider: refraction?.provider ?? null,
@@ -250,63 +351,90 @@ if (fundamentalTable) {
 	}
 }
 
-/** @type {Worker[]} */
-const monthWorkers = [];
-let printFailed = false;
-/** @param {string} message */
-function failPrint(message) {
-	if (printFailed) return;
-	printFailed = true;
-	monthWorkers.forEach(worker => worker.terminate());
+/** The months' HTML, in print order. @type {string[][]} */
+const monthResults = new Array(arrayOfFuncParams.length);
 
-	const bar = document.createElement("div");
-	bar.setAttribute("data-zyFind", "printProgress");
-	bar.style.cssText = "position:fixed;top:0;inset-inline:0;z-index:9999;padding:.4rem .8rem;"
-		+ "font:600 13px/1.4 system-ui,sans-serif;background:#b91c1c;color:white;text-align:center";
-	bar.textContent = "The calendar could not be calculated: " + message.split("\n")[0];
-	document.body.appendChild(bar);
-}
+const monthsStarted = performance.now();
+progress.set(`Calculating months: 0 / ${arrayOfFuncParams.length}`);
 
-for (const monthData of arrayOfFuncParams) {
-	const webWorker = spawnWorker('/assets/js/features/print-web-worker.js');
-	monthWorkers.push(webWorker);
-	// Before the month: messages are handled in order, so it's in place in time
-	webWorker.postMessage(refractionInit);
-	webWorker.addEventListener("message", async (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {
-		if (printFailed) return;
-		actualReceive += 1;
+try {
+	await new Promise((resolve, reject) => {
+		let nextTask = 0;
+		let completed = 0;
+		let failed = false;
 
-		const respData = await msg.data;
-		if ('error' in respData)
-			return failPrint(`Month ${respData.month}: ${respData.error}`);
+		const failAll = (/** @type {any} */ err) => {
+			if (failed) return;
+			failed = true;
+			pool.forEach(worker => worker.terminate());
+			reject(err);
+		};
 
-		receiveData[respData.month] = respData.htmlContent
-		Object.assign(sunriseOffsets, respData.sunriseOffsets);
-		if (actualReceive == expectedReceive) {
-			const sortedObject = Object.fromEntries(Object.keys(receiveData)
-				.sort()
-				.map(key => [key, receiveData[key]]));
+		if (earlyWorkerError)
+			return failAll(earlyWorkerError);
 
-			for (const htmlData of Object.values(sortedObject)) {
-				baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.join(''));
-			}
+		for (const worker of pool) {
+			worker.removeEventListener('error', recordEarlyWorkerError);
+			worker.addEventListener('error', failAll);
 
-			if (footer)
-				footer.remove();
-			else if (secondSide)
-				secondSide.remove();
-			baseTable.remove();
+			// Once per worker, before any month: messages are handled in order, so both are in place in time
+			worker.postMessage(refractionMessage);
+			worker.postMessage(workerInit);
 
-			await preparePrint();
+			/** Index (in arrayOfFuncParams) of the month the worker is on: it gets the next one once it answers */
+			let current = -1;
+			const dispatch = () => {
+				if (nextTask < arrayOfFuncParams.length) {
+					current = nextTask++;
+					worker.postMessage(arrayOfFuncParams[current]);
+				} else {
+					worker.terminate(); // queue drained, free the thread
+				}
+			};
+
+			worker.addEventListener("message", (/** @type {MessageEvent<ReturnType<import('./print-web-worker.js').default>>} */msg) => {
+				const respData = msg.data;
+				if ('error' in respData)
+					return failAll(new Error(`Month ${respData.month}: ${respData.error}`));
+
+				monthResults[current] = respData.htmlContent;
+				Object.assign(sunriseOffsets, respData.sunriseOffsets);
+
+				completed++;
+				const seconds = (performance.now() - monthsStarted) / 1000;
+				progress.set(`Calculating months: ${completed} / ${arrayOfFuncParams.length}`);
+				if (completed === arrayOfFuncParams.length) {
+					console.info(`Full print: ${arrayOfFuncParams.length} months in ${seconds.toFixed(1)} s on ${poolSize} worker(s)`);
+					resolve();
+				}
+				dispatch();
+			});
+
+			dispatch();
 		}
-	})
-	webWorker.addEventListener("error", (err) => {
-		console.error(err);
-		failPrint(`${err.message || "Worker failed to load"} (${err.filename || "worker"}${err.lineno ? ":" + err.lineno : ""})`);
-	})
-
-	webWorker.postMessage(monthData)
+	});
+} catch (err) {
+	// A worker's ErrorEvent says little in the console; spell it out on the page too
+	const message = err instanceof ErrorEvent
+		? `${err.message || "Worker failed to load"} (${err.filename || "worker"}${err.lineno ? ":" + err.lineno : ""})`
+		: err instanceof Error ? err.message : String(err);
+	console.error(err);
+	progress.fail("The calendar could not be calculated: " + message.split("\n")[0]);
+	throw err;
 }
+
+progress.set("Laying out the pages…");
+// One HTML parse per month instead of one per page
+for (const htmlData of monthResults)
+	baseTable.parentElement.insertAdjacentHTML('beforeend', htmlData.join(''));
+
+if (footer)
+	footer.remove();
+else if (secondSide)
+	secondSide.remove();
+baseTable.remove();
+
+await preparePrint();
 
 async function preparePrint() {
 	const importantCardTitleText = document.getElementsByClassName('importantCardTitleText');
@@ -338,6 +466,7 @@ async function preparePrint() {
 	/** @type {HTMLElement} */
 	const finalExplanation = document.querySelector('[data-printFind]');
 	if (!finalExplanation){
+		progress.done();
 		if (!location.pathname.includes('pocket'))
 			window.print();
 		return;
@@ -453,9 +582,36 @@ async function preparePrint() {
 
 	await sleep();
 
+	// paged.js rounds on-screen positions (relative to the window) all through its page breaking, so where its
+	// pages sat moved the breaks: below the month tables and the source text, both as tall as the window's width
+	// makes them, and scrolled by however much (in steps of the screen's pixel size). So they are laid out at the
+	// very top of the page, with the source out of the way and the page unscrolled, the same on every screen,
+	// and moved back afterwards.
+	// paged.js copies the content's ancestors (attributes and all) into every page, so none of this may be an
+	// inline style: the rules only match the real document (:root), never those copies.
+	const renderTo = finalExplanation.parentElement;
+	const renderToPlace = { parent: renderTo.parentNode, next: renderTo.nextSibling };
+	const measuringStyle = document.createElement("style");
+	measuringStyle.textContent = `
+		:root { overflow: hidden; }
+		:root > body > [data-zyPagedHost] > [data-printFind] { display: none; }`;
+	document.head.appendChild(measuringStyle);
+	renderTo.setAttribute('data-zyPagedHost', '');
+	document.body.prepend(renderTo);
+	window.scrollTo(0, 0);
+
 	const paged = new Previewer();
-	const flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], finalExplanation.parentElement);
+	const flow = await paged.preview(finalExplanation, ["/assets/css/footnotes.css"], renderTo);
 	console.log("Rendered", flow.total, "pages.");
+
+	// The layout is final: without this, every resize below (moving the pages back, unsetting their heights)
+	// would have paged.js re-check the pages a frame later and move content between them, or throw doing so
+	for (const page of flow.pages)
+		page.removeListeners();
+
+	renderToPlace.parent.insertBefore(renderTo, renderToPlace.next);
+	renderTo.removeAttribute('data-zyPagedHost');
+	measuringStyle.remove();
 
 	finalExplanation.style.display = "none";
 
@@ -532,6 +688,7 @@ async function preparePrint() {
 		await sleep();
 	}
 
+	progress.done();
 	window.print();
 }
 

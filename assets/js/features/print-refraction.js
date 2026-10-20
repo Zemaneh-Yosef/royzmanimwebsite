@@ -20,7 +20,8 @@ import { loadRefraction, snapshotProvider } from "../refraction-data.js";
  * provider (a closure), so they get its plain results and rebuild it with providerFromSnapshot().
  * @typedef {{
 	type: 'refraction';
-	table: import('../refraction-snapshot.js').ProviderSnapshot;
+	table?: import('../refraction-snapshot.js').ProviderSnapshot;
+	tableJson?: string;
 	normals: import('../refraction-snapshot.js').Normals | null;
 	horizon: import('../refraction-snapshot.js').Horizon | null;
 	haze?: import('../../libraries/kosherZmanim/star-nightfall.js').HazeData | null;

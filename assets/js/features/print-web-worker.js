@@ -48,6 +48,64 @@ const hNum = new HebrewNumberFormatter();
 	pocket: boolean;
   }} singlePageParams */
 
+/**
+ * Sent once per worker, after the RefractionInit and before any month (see print-export.js): everything in
+ * singlePageParams that is the same for every month. The months then only carry `month` and `date`.
+ * @typedef {Omit<singlePageParams, 'month'|'date'> & { type: 'init' }} WorkerInit */
+
+/** @type {Omit<singlePageParams, 'month'|'date'> | null} */
+let workerInit = null;
+
+/** The template, parsed once; every month resets it from pristine clones instead of re-parsing. */
+let template = { html: '', /** @type {any} */ doc: null, /** @type {any[]} */ pristine: [] };
+
+/** @param {string} html @returns {any} the parsed template, as it was before any month changed it */
+function templateDocument(html) {
+	if (template.html !== html) {
+		const doc = parseHTML(html).document;
+		template = { html, doc, pristine: [...doc.childNodes].map(node => node.cloneNode(true)) };
+		return doc;
+	}
+
+	const doc = template.doc;
+	while (doc.firstChild)
+		doc.removeChild(doc.firstChild);
+	for (const node of template.pristine)
+		doc.appendChild(node.cloneNode(true));
+	return doc;
+}
+
+/** @type {Map<string, Intl.DateTimeFormat | null>} */
+const formatterCache = new Map();
+
+/**
+ * zDT.toLocaleString(...tf), but with the Intl.DateTimeFormat cached per format + time zone.
+ * toLocaleString builds a new formatter on every call, which dominated the month's run time.
+ * Falls back to toLocaleString for anything but an ISO ZonedDateTime, or zones Intl can't take.
+ * @param {Temporal.ZonedDateTime} zdt
+ * @param {[locales?: string | string[], options?: Intl.DateTimeFormatOptions]} tf
+ */
+function fmt(zdt, tf) {
+	if (!(zdt instanceof Temporal.ZonedDateTime) || zdt.calendarId !== 'iso8601')
+		return zdt.toLocaleString(...tf);
+
+	const key = JSON.stringify(tf) + zdt.timeZoneId;
+	let formatter = formatterCache.get(key);
+	if (formatter === undefined) {
+		try {
+			formatter = new Intl.DateTimeFormat(tf[0], { ...tf[1], timeZone: zdt.timeZoneId });
+		} catch {
+			formatter = null;
+		}
+		formatterCache.set(key, formatter);
+	}
+
+	return formatter ? formatter.format(zdt.epochMilliseconds) : zdt.toLocaleString(...tf);
+}
+
+/** Built lazily on the first month (after Temporal is guaranteed). @type {any} */
+let makamIndex = null;
+
 // "date" of param will have to be in the iso8601 calendar
 /**
  * Set by the RefractionInit message the page sends before any month (see ../print-refraction.js).
@@ -56,12 +114,12 @@ const hNum = new HebrewNumberFormatter();
 const refraction = { provider: null, horizon: null, haze: null };
 
 /**
-  * @param {MessageEvent<singlePageParams>} x
+  * @param {{ data: singlePageParams }} x
  */
 function messageHandler(x) {
 	const geoLocation = new KosherZmanim.GeoLocation(...x.data.geoCoordinates);
 
-	const { document } = parseHTML(x.data.htmlElems);
+	const document = templateDocument(x.data.htmlElems);
 	const flexWorkAround = document.createElement("span");
 	flexWorkAround.classList.add("flexElemWorkaround")
 
@@ -108,7 +166,7 @@ function messageHandler(x) {
 	const sunriseOffsets = {};
 
 	// @ts-ignore
-	const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
+	makamIndex ??= new KosherZmanim.Makam(makamObj.sefarimList);
 
 	const yomTovObj = {
 		// Holidays
@@ -307,7 +365,7 @@ function messageHandler(x) {
 			if (config.icon)
 				timeElem.innerHTML += config.icon + " ";
 
-			let timeStr = handleRound(zDT, ('second' in config.dtF[1] ? 'noRound' : round)).toLocaleString(...config.dtF)
+			let timeStr = fmt(handleRound(zDT, ('second' in config.dtF[1] ? 'noRound' : round)), config.dtF)
 			if (config.hideAMPM) {
 				for (const amPMStr of amPMStrs)
 					timeStr = timeStr.replace(amPMStr, '').trim();
@@ -937,7 +995,7 @@ function messageHandler(x) {
 
 				highlightPesah.extra =
 					(x.data.lang == 'he' ? "תשלים הלל לפני " : "Conclude Hallel before ")
-					+ hatzotTime.toLocaleString(...defaulTF)
+					+ fmt(hatzotTime, defaulTF)
 					+ '<br>'
 					+ (x.data.lang == 'he' ? "ממוסף ואילך, אומרים מוריד הטל וברכנו" : "From Mussaf onwards, we say מוריד הטל and ברכנו");
 
@@ -1478,13 +1536,13 @@ function messageHandler(x) {
 					"he": "טווח זמן לברכת הלבנה (מומלץ): ",
 					"en": "Range for (recommended) ברכת הלבנה: ",
 					"he-Latn": "Range for (recommended) Birkath Ha'Levana: ",
-				}[x.data.lang] + blTimes.start.toLocaleString(...dtFBLevana) + " - " + blTimes.end.toLocaleString(...dtFBLevana)));
+				}[x.data.lang] + fmt(blTimes.start, dtFBLevana) + " - " + fmt(blTimes.end, dtFBLevana)));
 			} else {
 				bLTimesDispl.appendChild(document.createTextNode({
 					"en": "Recommended start time for Birkath Ha'Levana: ",
 					"he": "זמן מומלץ לתחילת ברכת הלבנה: ",
 					"he-Latn": "Recommended start time for ברכת הלבנה: ",
-				}[x.data.lang] + blTimes.start.toLocaleString(...dtFBLevana)));
+				}[x.data.lang] + fmt(blTimes.start, dtFBLevana)));
 				bLTimesDispl.appendChild(document.createElement("br"));
 				bLTimesDispl.appendChild(document.createTextNode({
 					"he": "מועד אחרון: זמן הנץ של ערב חג",
@@ -1514,7 +1572,7 @@ function messageHandler(x) {
 				"he": "טווח זמן לברכת הלבנה: ",
 				"en": "Range for ברכת הלבנה: ",
 				"he-Latn": "Range for Birkath Ha'Levana: ",
-			}[x.data.lang] + blTimes.start.toLocaleString(...dtFBLevana) + " - " + blTimes.end.toLocaleString(...dtFBLevana)));
+			}[x.data.lang] + fmt(blTimes.start, dtFBLevana) + " - " + fmt(blTimes.end, dtFBLevana)));
 			bLTimesDispl.appendChild(document.createElement("br"));
 			bLTimesDispl.appendChild(document.createTextNode({
 				"he": "(מומלץ להמתין לאחר הצום)",
@@ -1548,7 +1606,7 @@ function messageHandler(x) {
 				"he": "טווח זמן לברכת הלבנה: ",
 				"en": "Range for ברכת הלבנה: ",
 				"he-Latn": "Range for Birkath Ha'Levana: ",
-			}[x.data.lang] + blTimes.start.toLocaleString(...dtFBLevana) + " - " + blTimes.end.toLocaleString(...dtFBLevana)));
+			}[x.data.lang] + fmt(blTimes.start, dtFBLevana) + " - " + fmt(blTimes.end, dtFBLevana)));
 			bLTimesDispl.appendChild(document.createElement("br"));
 
 			const tuBishvat = jCalBMoon.chainYomTovIndex(WebsiteLimudCalendar.TU_BESHVAT);
@@ -1623,13 +1681,13 @@ function messageHandler(x) {
 				"he": "תחילת: ",
 				"en": "Beginning: ",
 				"he-Latn": "Beginning: "
-			}[x.data.lang] + jCalBMoon.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
+			}[x.data.lang] + fmt(jCalBMoon.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()), dtFBLevana)));
 			bLTimesDispl.appendChild(document.createElement("br"));
 			bLTimesDispl.appendChild(document.createTextNode({
 				"he": 'סוף (רמ"א): ',
 				"en": 'End (Rama): ',
 				"he-Latn": "End (Rama): "
-			}[x.data.lang] + jCalBMoon.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
+			}[x.data.lang] + fmt(jCalBMoon.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()), dtFBLevana)));
 		}
 
 		return bLContain;
@@ -1686,8 +1744,8 @@ function messageHandler(x) {
 			"en": "Refrain from water between ",
 			"he-Latn": "Refrain from water between "
 		}[x.data.lang] + [
-			initTekuf.round("minute").subtract({ minutes: 30 }).toLocaleString(...defaulTF),
-			initTekuf.round("minute").add({ minutes: 30 }).toLocaleString(...defaulTF),
+			fmt(initTekuf.round("minute").subtract({ minutes: 30 }), defaulTF),
+			fmt(initTekuf.round("minute").add({ minutes: 30 }), defaulTF),
 		].join(' - ')));
 
 		if (nextTekufaJDate.getJewishMonth() == KosherZmanim.JewishDate.TISHREI && !x.data.israel) {
@@ -1732,13 +1790,13 @@ function messageHandler(x) {
 				"he": "סןף זמן אחילת חמץ: ",
 				"en": "Stop eating by ",
 				"he-Latn": "Stop eating by "
-			}[x.data.lang] + zmanimOfErev[1].sofZemanAhilathHametz.toLocaleString(...defaulTF)));
+			}[x.data.lang] + fmt(zmanimOfErev[1].sofZemanAhilathHametz, defaulTF)));
 			hametzTiming.appendChild(document.createElement("br"));
 			hametzTiming.appendChild(document.createTextNode({
 				"he": "זמן ביעור חמץ עד ",
 				"en": "Dispose by ",
 				"he-Latn": "Dispose by "
-			}[x.data.lang] + zmanimOfErev[1].sofZemanBiurHametz.toLocaleString(...defaulTF)));
+			}[x.data.lang] + fmt(zmanimOfErev[1].sofZemanBiurHametz, defaulTF)));
 
 			if (!x.data.shabbatOnly) {
 				const hr = document.createElement("hr");
@@ -1758,7 +1816,7 @@ function messageHandler(x) {
 					"he": "תחילת זמן (לכתחילה): ",
 					"en": "Earliest (preferable) time: ",
 					"he-Latn": "Earliest (preferable) time: "
-				}[x.data.lang] + nissanJCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()).toLocaleString(...dtFBLevana)));
+				}[x.data.lang] + fmt(nissanJCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()), dtFBLevana)));
 			}
 
 			hametzContainer.appendChild(hametzTitle);
@@ -1782,13 +1840,13 @@ function messageHandler(x) {
 				"he": "תתחיל מוסף לפני ",
 				"en": "Start מוסף before ",
 				"he-Latn": "Start מוסף before "
-			}[x.data.lang] + zmanimOfYK[1].musaf.toLocaleString(...defaulTF)));
+			}[x.data.lang] + fmt(zmanimOfYK[1].musaf, defaulTF)));
 			yKTiming.appendChild(document.createElement("br"));
 			yKTiming.appendChild(document.createTextNode({
 				"he": "ברכת כהנים לפני ",
 				"en": "Finish ברכת כהנים before ",
 				"he-Latn": "Finish ברכת כהנים before "
-			}[x.data.lang] + zmanimOfYK[1].birkatKohanim.toLocaleString(...defaulTF)));
+			}[x.data.lang] + fmt(zmanimOfYK[1].birkatKohanim, defaulTF)));
 
 			const tishriJCal = jCal.clone();
 			tishriJCal.setDate(zmanimOfYK[0]);
@@ -1802,7 +1860,7 @@ function messageHandler(x) {
 					"he": "זמן ברכת הלבנה לכתחילה לפני ",
 					"en": "Preferable time for Birkat Ha'Levana before ",
 					"he-Latn": "Preferable time for Birkat Ha'Levana before "
-				}[x.data.lang] + tishriBLEnd.toLocaleString(...dtFBLevana)));
+				}[x.data.lang] + fmt(tishriBLEnd, dtFBLevana)));
 			}
 
 			yKContainer.appendChild(yKTitle);
@@ -1896,7 +1954,7 @@ function messageHandler(x) {
 					hanukahElem.getElementsByClassName('DateOfHanuka')[0].innerHTML = (
 						hanukahDate.toLocaleString('en', { weekday: "short" }) + ". " +
 						hanukahDate.toLocaleString('en', { day: 'numeric' }));
-					hanukahElem.getElementsByClassName('hanukaLightTime')[0].innerHTML = hanukahZmanim.candleLighting.toLocaleString(...defaulTF);
+					hanukahElem.getElementsByClassName('hanukaLightTime')[0].innerHTML = fmt(hanukahZmanim.candleLighting, defaulTF);
 				}
 			} else {
 				ssFH.firstElementChild.remove();
@@ -1956,14 +2014,14 @@ function messageHandler(x) {
 					for (const [zmanName, zmanTime] of Object.entries(zmanOfDay)) {
 						if (zmanName == 'rabbenuTam') {
 							const rtElem = document.createElement("span");
-							rtElem.innerHTML = ` (${x.data.lang == 'he' ? 'ר"ת' : 'R"T'}: ${zmanTime.toLocaleString(...defaulTF)})`;
+							rtElem.innerHTML = ` (${x.data.lang == 'he' ? 'ר"ת' : 'R"T'}: ${fmt(zmanTime, defaulTF)})`;
 							rtElem.classList.add('rabbenuTamAppend');
 
 							timesBox.lastElementChild.appendChild(rtElem);
 							continue;
 						} else if (zmanName == 'sofZemanAhilathHametz') {
 							const ahilaElement = document.createElement("div");
-							ahilaElement.innerHTML = `(${x.data.lang == 'he' ? "סוף זמן אכילת חמץ:" : "Eat before "} ${zmanTime.toLocaleString(...defaulTF)})`;
+							ahilaElement.innerHTML = `(${x.data.lang == 'he' ? "סוף זמן אכילת חמץ:" : "Eat before "} ${fmt(zmanTime, defaulTF)})`;
 							ahilaElement.classList.add('rabbenuTamAppend');
 
 							timesBox.lastElementChild.appendChild(ahilaElement);
@@ -2039,7 +2097,7 @@ function messageHandler(x) {
 						if (zmanTime.second)
 							bottomTF[1].second = '2-digit';
 
-						innerRow[0] += " " + zmanTime.toLocaleString(...bottomTF);
+						innerRow[0] += " " + fmt(zmanTime, bottomTF);
 						zmanRow.innerHTML = innerRow.join('');
 						timesBox.appendChild(zmanRow);
 					}
@@ -2140,17 +2198,24 @@ function messageHandler(x) {
 
 if (Worker) {
 	addEventListener('message', async (message) => {
-		// Handled before any await, so it is in place before the first month runs
+		// Both init messages are handled before any await, so they are in place before the first month runs
 		if (message.data && message.data.type === 'refraction') {
-			refraction.provider = providerFromSnapshot(message.data.table, message.data.normals);
+			// The page may send the table as one JSON string: far cheaper to post than the same table as objects
+			const table = message.data.tableJson ? JSON.parse(message.data.tableJson) : message.data.table;
+			refraction.provider = providerFromSnapshot(table, message.data.normals);
 			refraction.horizon = message.data.horizon;
 			refraction.haze = message.data.haze ?? null;
+			return;
+		}
+		if (message.data && message.data.type === 'init') {
+			const { type, ...init } = message.data;
+			workerInit = init;
 			return;
 		}
 
 		try {
 			await loadWorkerPolyfills();
-			postMessage(messageHandler(message))
+			postMessage(messageHandler(workerInit ? { data: { ...workerInit, ...message.data } } : message))
 		} catch (err) {
 			console.error(err);
 			postMessage({ month: message.data.month, error: err instanceof Error ? (err.stack || err.message) : String(err) });
