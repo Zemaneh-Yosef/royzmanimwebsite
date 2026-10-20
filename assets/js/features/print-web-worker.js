@@ -1780,47 +1780,58 @@ function messageHandler(x) {
 			const hametzTitle = document.createElement("h5");
 			hametzTitle.innerHTML = {
 				he: "ערב פסח",
-				en: "Passover Eve's Ḥametz Times - " + hamesName,
-				"he-Latn": "Erev Pesaḥ for Ḥametz - " + hamesName
+				en: "Passover Eve's Times - " + hamesName,
+				"he-Latn": "Erev Pesaḥ - " + hamesName
 			}[x.data.lang];
 
 			const hametzTiming = document.createElement("p");
 			hametzTiming.classList.add('mb-0');
 			hametzTiming.appendChild(document.createTextNode({
 				"he": "סןף זמן אחילת חמץ: ",
-				"en": "Stop eating by ",
-				"he-Latn": "Stop eating by "
+				"en": "Stop eating Ḥametz by ",
+				"he-Latn": "Stop eating Ḥametz by "
 			}[x.data.lang] + fmt(zmanimOfErev[1].sofZemanAhilathHametz, defaulTF)));
-			hametzTiming.appendChild(document.createElement("br"));
 			hametzTiming.appendChild(document.createTextNode({
-				"he": "זמן ביעור חמץ עד ",
-				"en": "Dispose by ",
-				"he-Latn": "Dispose by "
+				"he": "; זמן ביעור חמץ עד ",
+				"en": "; Dispose by ",
+				"he-Latn": "; Dispose by "
 			}[x.data.lang] + fmt(zmanimOfErev[1].sofZemanBiurHametz, defaulTF)));
 
+			hametzContainer.appendChild(hametzTitle);
 			if (!x.data.shabbatOnly) {
+				hametzContainer.appendChild(hametzTiming);
+
 				const hr = document.createElement("hr");
 				hr.style.margin = ".5rem 0";
-				hametzTiming.appendChild(hr);
+				hametzContainer.appendChild(hr);
 
 				const nissanJCal = jCal.clone();
 				nissanJCal.setDate(zmanimOfErev[0]);
 
-				hametzTiming.appendChild(document.createTextNode({
+				const blTiming = document.createElement("p");
+				blTiming.classList.add('mb-0');
+
+				blTiming.appendChild(document.createTextNode({
 					"he": "זמן ברכת הלבנה לכתחילה לפני",
 					"en": "Say Birkat Ha'Levana before the holiday",
 					"he-Latn": "Say Birkat Ha'Levana before the holiday"
 				}[x.data.lang]));
-				hametzTiming.appendChild(document.createElement("br"));
-				hametzTiming.appendChild(document.createTextNode({
-					"he": "תחילת זמן (לכתחילה): ",
-					"en": "Earliest (preferable) time: ",
-					"he-Latn": "Earliest (preferable) time: "
-				}[x.data.lang] + fmt(nissanJCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()), dtFBLevana)));
+
+				const blEndTime = nissanJCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone());
+				if (Temporal.ZonedDateTime.compare(blEndTime, zDTFromFunc(zmanCalc.chainDate(zmanimOfErev[0]).getNetz())) < 0) {
+					blTiming.appendChild(document.createElement("br"));
+					blTiming.appendChild(document.createTextNode({
+						"he": "תחילת זמן (לכתחילה): ",
+						"en": "Earliest (preferable) time: ",
+						"he-Latn": "Earliest (preferable) time: "
+					}[x.data.lang] + fmt(blEndTime, dtFBLevana)));
+				}
+
+				hametzContainer.appendChild(blTiming)
+			} else {
+				hametzContainer.appendChild(hametzTiming);
 			}
 
-			hametzContainer.appendChild(hametzTitle);
-			hametzContainer.appendChild(hametzTiming);
 			thisMonthFooter.lastElementChild.appendChild(hametzContainer);
 		} else if (yomKippur && thisMonthFooter.lastElementChild.hasAttribute('data-zyfooter-yomkippur')) {
 			const zmanimOfYK = [...yomKippur.datesToZman.entries()].find(([date, data]) => 'birkatKohanim' in data);
