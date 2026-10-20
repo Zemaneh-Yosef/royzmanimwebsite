@@ -7,6 +7,10 @@ import { providerFromSnapshot } from '../../refraction-snapshot.js';
 import { moonHorizonTarget } from '../../moon-refraction.js';
 import { createVisibleMoon } from '../../moon-visible.js';
 import { loadWorkerPolyfills } from '../../misc/worker-polyfills.js';
+import { deltaT } from '../../../libraries/kosherZmanim/delta-t.js';
+
+// Delta-T from the Earth's measured rotation (69.1 s in 2026) instead of Astronomy Engine's Espenak-Meeus 75.6 s
+AstronomyImp.SetDeltaTFunction(ut => deltaT(ut + 2451545));
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
