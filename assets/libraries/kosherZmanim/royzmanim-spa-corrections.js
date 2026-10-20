@@ -41,10 +41,13 @@
  *     The provider is asked separately for sunrise and sunset, so it can return the morning minimum and
  *     the daytime mean temperature as ChaiTables does (monthlyClimate() builds such a provider from 12
  *     monthly WorldClim-style values). With a provider set, the 34.48' constant is NOT used: the whole
- *     horizon depression (dip + refraction) is ray traced through a standard-lapse atmosphere anchored to
- *     the supplied temperature and pressure. In ISA air this gives 32.9' at sea level - the same value as
- *     Sweer's integral and van der Werf's ray tracing used by ChaiTables - and it reproduces van der
- *     Werf's scaling laws (T exponent 1.68, P exponent 1.08, falling with altitude) without curve fits.
+ *     horizon depression (dip + refraction) is ray traced through van der Werf's modified US1976
+ *     atmosphere (his REF2023 program: standard lapse up to the US1976 tropopause temperature, the US1976
+ *     layers above, Ciddor refractivity at 574 nm, gravity by latitude and height) anchored to the
+ *     supplied temperature and pressure. It agrees with REF2023 to within 0.6" from -45 C to 35 C. In ISA
+ *     air this gives 33.0' at sea level - Sweer's integral and the ray tracing used by ChaiTables give
+ *     32.9' - and it reproduces van der Werf's scaling laws (T exponent 1.68, P exponent 1.09, falling
+ *     with altitude) without curve fits.
  *     Note the 34.48' average implicitly assumes colder-than-ISA air; do not combine the two.
  *  7. Optional, from ChaiTables: visible sunrise/sunset over a horizon profile (getVisibleSunrise /
  *     getVisibleSunset). Profile points come from a DEM (distance + height; geometric angle with Earth
@@ -73,14 +76,15 @@
  *     observer as at sea level (no sea horizon lies below them), as KosherJava's callers clamp anyway.
  * 10. Optional (OFF by default, setHumidity(true)): water vapour. Moist air bends visible light slightly
  *     less than dry air at the same pressure and temperature: refractivity (A P - B e) / T with
- *     B / A = 0.143 (Hohenkerk & Sinclair 1985, as in SLALIB's sla_REFRO; e = vapour pressure). Only
+ *     B / A = 0.137 (Ciddor 1996 at 574 nm; e = vapour pressure), and moist air is lighter, so its
+ *     pressure falls off more slowly with height (as in REF2023). Only
  *     data that carry humidity are affected: a single-temperature spec with dewPointC or
  *     relativeHumidity (vapour then falls off with a 2 km scale height, capped at saturation), or path
  *     profile levels with td (dew point, C) or rh (%). Without such data, or with it off, results are
  *     unchanged to the bit. Size: on the most humid mornings in the US (dew point ~24 C) sunrise comes
- *     ~1.5-2 s later and sunset ~1.5-2 s earlier than in dry air; at the world-record Persian Gulf dew
- *     points ~3 s, up to ~4-5 s when the moist air is a shallow layer over the sea. Elsewhere ~1 s or
- *     less. Small next to temperature profiles and terrain, hence off unless asked for.
+ *     ~2-2.5 s later and sunset ~2-2.5 s earlier than in dry air; at the world-record Persian Gulf dew
+ *     points ~3-4 s, more when the moist air is a shallow layer over the sea. Elsewhere ~1 s or less.
+ *     Small next to temperature profiles and terrain, hence off unless asked for.
  * 11. The Sun's apparent place, everywhere SPA uses it (sunrise, sunset, noon, twilight angles):
  *     - VSOP87D with 412 terms (vsop87-earth.js) instead of Meeus's 195-term Appendix III;
  *     - IAU 2000B nutation (nutation.js) instead of Meeus's 4-term series (off by up to 0.33");
@@ -176,19 +180,44 @@ export function sweerHorizon(heightM, groundElevM, R) {
 // ------------------------------------------------------------------------------------------------
 // General ray tracer (ChaiTables / van der Werf physics, without their curve fits)
 //
-// Spherically symmetric atmosphere: standard 6.5 K/km lapse to 11 km, isothermal above, hydrostatic
-// pressure, n - 1 proportional to density (Gladstone-Dale, same constant as Sweer). Refraction of a ray
+// Spherically symmetric atmosphere, as van der Werf's "modified US1976 atmosphere" (REF2023): the
+// standard 6.5 K/km lapse from the supplied air up to the US1976 tropopause temperature (216.65 K, so
+// the tropopause is lower in cold air and higher in warm air), then the US1976 layers above it.
+// Heights are geopotential, so gravity falls off with height; surface gravity follows the latitude when
+// it is given. Hydrostatic pressure, with water vapour lighter than dry air (virtual temperature).
+// Refractivity from Ciddor (1996) at 574 nm, for the dry air and the vapour. Refraction of a ray
 // leaving the observer at apparent altitude a is integral of (-dn/dr / n) tan z dr with Bouguer's
 // invariant n r sin z = const. Rays below the horizontal are integrated down to their perigee and back.
 // ------------------------------------------------------------------------------------------------
-const GLADSTONE_A = SWEER_A, G0 = 9.80665, R_DRY = 287.053, P_EXP = G0 / (R_DRY * ISA_LAPSE);
+const G0 = 9.80665, R_DRY = 287.053, P_EXP = G0 / (R_DRY * ISA_LAPSE);
 const RAY_TOP_M = 90000;
-/** n - 1 = REFR_K (P - VAPOUR_BETA e) / T, with P and e in mb and T in K (header, item 10) */
-const REFR_K = GLADSTONE_A * 288.15 / 1013.25;
-/** vapour term relative to the dry term at equal partial pressure: 11.2684e-6 / 78.77e-6 (sla_REFRO) */
-const VAPOUR_BETA = 0.143;
+/** effective wavelength of sunlight for refraction (um), as REF2023 */
+const WAVELENGTH_UM = 0.574;
+const SIGMA2 = 1 / (WAVELENGTH_UM * WAVELENGTH_UM);
+/** n - 1 = REFR_K (P - VAPOUR_BETA e) / T, with P and e in mb and T in K: Ciddor's dry air (15 C, 1013.25 mb) */
+const REFR_K = 1e-8 * (5792105 / (238.0185 - SIGMA2) + 167917 / (57.362 - SIGMA2)) * 288.15 / 1013.25;
+/** Ciddor's water vapour (20 C, 13.33 mb), per mb / K like REFR_K */
+const REFR_KW = 1.022e-8 * (295.235 + 2.6422 * SIGMA2 - 0.03238 * SIGMA2 ** 2 + 0.004028 * SIGMA2 ** 3) * 293.15 / 13.33;
+/** a mb of vapour in place of a mb of dry air lowers the refractivity by this fraction (0.137; header, item 10) */
+const VAPOUR_BETA = 1 - REFR_KW / REFR_K;
+/** 1 - (molar mass of water / of dry air): moist air's lightness in the hydrostatic balance */
+const VAPOUR_LIGHT = 1 - 18.016 / 28.964;
 /** scale height of water vapour above a single measured value (typical 1.5-2.5 km) */
 const VAPOUR_SCALE_M = 2000;
+/** Earth radius of the US1976 geopotential height (m) */
+const GEOPOTENTIAL_R = 6356766;
+/** US1976 temperature nodes above the tropopause: [geopotential height (m), K]; isothermal past the last */
+const US76_UPPER = [[20000, 216.65], [32000, 228.65], [47000, 270.65], [51000, 270.65], [71000, 214.65], [84852, 186.946]];
+const US76_TROPOPAUSE_K = 216.65;
+
+/**
+ * Surface gravity (m/s^2) at a geodetic latitude, as REF2023.
+ * @param {number} latitudeDeg
+ */
+export function gravityAtLatitude(latitudeDeg) {
+	const s = Math.sin(latitudeDeg * DEG), s2 = Math.sin(2 * latitudeDeg * DEG);
+	return 9.780356 * (1 + 0.0052885 * s * s - 0.0000059 * s2 * s2);
+}
 
 /**
  * Saturation vapour pressure over water (mb) at a temperature (C), Bolton (1980).
@@ -229,58 +258,124 @@ export function standardPressure(heightM) {
 }
 
 /**
- * Build the refractivity profile for a given surface temperature / pressure.
+ * Build the refractivity profile for a given surface temperature / pressure (see the section header).
  * @param {number} temperatureC
  * @param {number} pressureMb
  * @param {number} heightM height at which temperatureC / pressureMb apply
  * @param {number} [vapourMb] water vapour pressure at heightM (mb); 0 / omitted = dry air (header, item 10).
  *   Above and below it falls off with a 2 km scale height, never above saturation.
+ * @param {number} [latitudeDeg] sets the surface gravity; omitted = standard gravity (9.80665)
  * @returns {Atmosphere}
  */
-export function createAtmosphere(temperatureC, pressureMb, heightM, vapourMb = 0) {
-	const Ts = temperatureC + 273.15;
-	const T0 = Ts + ISA_LAPSE * heightM, P0 = pressureMb / Math.pow(Ts / T0, P_EXP);
-	const T11 = T0 - ISA_LAPSE * ISA_H11, P11 = P0 * Math.pow(T11 / T0, P_EXP), H = R_DRY * T11 / G0;
-	/** @param {number} h @returns {[number, number, number]} T, P, d(ln(n-1))/dh */
-	const state = h => {
-		if (h <= ISA_H11) {
-			const T = T0 - ISA_LAPSE * h;
-			return [T, P0 * Math.pow(T / T0, P_EXP), (ISA_LAPSE - G0 / R_DRY) / T];
+export function createAtmosphere(temperatureC, pressureMb, heightM, vapourMb = 0, latitudeDeg = NaN) {
+	const g = Number.isFinite(latitudeDeg) ? gravityAtLatitude(latitudeDeg) : G0, gR = g / R_DRY;
+	const geo = (/** @type {number} */ h) => GEOPOTENTIAL_R * h / (GEOPOTENTIAL_R + h);
+	const Ts = temperatureC + 273.15, za = geo(heightM), T0 = Ts + ISA_LAPSE * za;
+	// Above the troposphere the US1976 layers, lowered by d where the supplied air is already colder than
+	// them (only very cold air, or a level above the tropopause), so the profile passes through it.
+	// The tropopause is where the lapse line meets them; the line falls faster than any layer, so once.
+	const upperAt = (/** @type {number} */ z) => {
+		if (z <= US76_UPPER[0][0]) return US76_UPPER[0][1];
+		for (let i = 1; i < US76_UPPER.length; i++) {
+			const [z0, t0] = US76_UPPER[i - 1], [z1, t1] = US76_UPPER[i];
+			if (z <= z1) return t0 + (t1 - t0) * (z - z0) / (z1 - z0);
 		}
-		return [T11, P11 * Math.exp(-(h - ISA_H11) / H), -1 / H];
+		return US76_UPPER[US76_UPPER.length - 1][1];
 	};
+	const d = Math.max(0, upperAt(za) - Ts);
+	let ztp = (T0 - US76_TROPOPAUSE_K + d) / ISA_LAPSE;
+	for (let i = 0; i < US76_UPPER.length && ztp > US76_UPPER[i][0]; i++) {
+		const [zb, tb] = US76_UPPER[i], next = US76_UPPER[i + 1];
+		const s = next ? (next[1] - tb) / (next[0] - zb) : 0;
+		ztp = (T0 - tb + d + s * zb) / (ISA_LAPSE + s);
+		if (!next || ztp <= next[0]) break;
+	}
+	// layers above the tropopause: base height, base T, lapse dT/dz, ln P at the base
+	const lnPtp = Math.log(pressureMb) + g / (R_DRY * ISA_LAPSE) * Math.log((T0 - ISA_LAPSE * ztp) / Ts);
+	/** @type {{ z: number, T: number, s: number, lnP: number }[]} */
+	const layers = [];
+	{
+		const nodes = [[ztp, T0 - ISA_LAPSE * ztp], ...US76_UPPER.filter(([z]) => z > ztp).map(([z, t]) => [z, t - d])];
+		let lnP = lnPtp;
+		for (let i = 0; i < nodes.length; i++) {
+			const [z, T] = nodes[i], next = nodes[i + 1];
+			const s = next ? (next[1] - T) / (next[0] - z) : 0;
+			layers.push({ z, T, s, lnP });
+			if (next) lnP += s === 0 ? -gR * (next[0] - z) / T : -gR / s * Math.log(next[1] / T);
+		}
+	}
+	/** T, ln P (dry hydrostatics), dT/dz, d(ln P)/dz at geopotential height z @param {number} z @returns {[number, number, number, number]} */
+	const stateZ = z => {
+		if (z <= ztp) {
+			const T = T0 - ISA_LAPSE * z;
+			return [T, Math.log(pressureMb) + g / (R_DRY * ISA_LAPSE) * Math.log(T / Ts), -ISA_LAPSE, -gR / T];
+		}
+		let i = layers.length - 1;
+		while (layers[i].z > z) i--;
+		const L = layers[i], T = L.T + L.s * (z - L.z);
+		const lnP = L.s === 0 ? L.lnP - gR * (z - L.z) / L.T : L.lnP - gR / L.s * Math.log(T / L.T);
+		return [T, lnP, L.s, -gR / T];
+	};
+	const P0 = Math.exp(stateZ(0)[1]);
+	const baseKey = T0.toFixed(4) + '|' + P0.toFixed(4) + '|g' + g.toFixed(5);
 	if (!(vapourMb > 0)) {
+		/** @param {number} h @returns {[number, number]} N, dN/dh */
+		const both = h => {
+			const k = GEOPOTENTIAL_R / (GEOPOTENTIAL_R + h), [T, lnP, dT, dlnP] = stateZ(GEOPOTENTIAL_R * h / (GEOPOTENTIAL_R + h));
+			const N = REFR_K * Math.exp(lnP) / T;
+			return [N, N * (dlnP - dT / T) * k * k];
+		};
 		return {
-			T0, P0,
-			key: T0.toFixed(4) + '|' + P0.toFixed(4),
-			nm1(h) { const s = state(h); return GLADSTONE_A * (s[1] / 1013.25) * (288.15 / s[0]); },
-			dndh(h) { const s = state(h); return GLADSTONE_A * (s[1] / 1013.25) * (288.15 / s[0]) * s[2]; },
-			/** [nm1(h), dndh(h)] from one evaluation of the state (same values) @param {number} h @returns {[number, number]} */
-			both(h) { const s = state(h), N = GLADSTONE_A * (s[1] / 1013.25) * (288.15 / s[0]); return [N, N * s[2]]; },
+			T0, P0, key: baseKey,
+			nm1: h => both(h)[0],
+			dndh: h => both(h)[1],
+			/** [nm1(h), dndh(h)] from one evaluation of the state (same values) */
+			both,
 		};
 	}
-	/** T, P, dT/dh, dP/dh, e, de/dh @param {number} h @returns {[number, number, number, number, number, number]} */
-	const moist = h => {
-		const [T, P] = state(h);
-		const dT = h <= ISA_H11 ? -ISA_LAPSE : 0, dP = -P * G0 / (R_DRY * T);
-		let e = vapourMb * Math.exp(-(h - heightM) / VAPOUR_SCALE_M), de = -e / VAPOUR_SCALE_M;
-		const tC = T - 273.15, es = saturationVapourMb(tC);
-		if (es < e) { e = es; de = es * 17.67 * 243.5 / ((tC + 243.5) * (tC + 243.5)) * dT; }
-		return [T, P, dT, dP, e, de];
+	/** e, de/dh at height h (dT/dh given), capped at saturation @param {number} h @param {number} T @param {number} dTdh */
+	const vapour = (h, T, dTdh) => {
+		const e = vapourMb * Math.exp(-(h - heightM) / VAPOUR_SCALE_M), tC = T - 273.15, es = saturationVapourMb(tC);
+		return es < e ? [es, es * 17.67 * 243.5 / ((tC + 243.5) * (tC + 243.5)) * dTdh] : [e, -e / VAPOUR_SCALE_M];
+	};
+	/** the vapour's lightness: d(ln P)/dh beyond the dry value @param {number} h */
+	const light = h => {
+		const k = GEOPOTENTIAL_R / (GEOPOTENTIAL_R + h), [T, lnP, dT] = stateZ(geo(h));
+		return gR / T * VAPOUR_LIGHT * vapour(h, T, dT * k * k)[0] / Math.exp(lnP) * k * k;
+	};
+	// its integral from heightM, tabulated (it is second order in e / P to treat P as the dry value here);
+	// above the table's top the vapour has run out, below its bottom the integrand is held
+	const VL_STEP = 20, vlLo = Math.min(heightM, 0) - 1000, vlN = Math.ceil((30000 - vlLo) / VL_STEP);
+	const vlTab = new Float64Array(vlN + 1);
+	for (let i = 1, prev = light(vlLo); i <= vlN; i++) {
+		const cur = light(vlLo + i * VL_STEP);
+		vlTab[i] = vlTab[i - 1] + (prev + cur) / 2 * VL_STEP;
+		prev = cur;
+	}
+	const vlAt = (/** @type {number} */ h) => {
+		const x = (h - vlLo) / VL_STEP;
+		if (x <= 0) return x * VL_STEP * light(vlLo);
+		if (x >= vlN) return vlTab[vlN];
+		const i = Math.floor(x);
+		return vlTab[i] + (vlTab[i + 1] - vlTab[i]) * (x - i);
+	};
+	const vlA = vlAt(heightM);
+	/** @param {number} h @returns {[number, number]} N, dN/dh */
+	const both = h => {
+		const k = GEOPOTENTIAL_R / (GEOPOTENTIAL_R + h), [T, lnP, dTz, dlnPz] = stateZ(geo(h));
+		const dT = dTz * k * k, P = Math.exp(lnP + vlAt(h) - vlA);
+		const [e, de] = vapour(h, T, dT);
+		const dP = P * (dlnPz * k * k + gR / T * VAPOUR_LIGHT * e / P * k * k);
+		const N = REFR_K * (P - VAPOUR_BETA * e) / T;
+		return [N, REFR_K * (dP - VAPOUR_BETA * de) / T - N * dT / T];
 	};
 	return {
 		T0, P0,
-		key: T0.toFixed(4) + '|' + P0.toFixed(4) + '|e' + vapourMb.toFixed(4) + '@' + heightM.toFixed(1),
-		nm1(h) { const [T, P, , , e] = moist(h); return REFR_K * (P - VAPOUR_BETA * e) / T; },
-		dndh(h) {
-			const [T, P, dT, dP, e, de] = moist(h);
-			return REFR_K * ((dP - VAPOUR_BETA * de) / T - (P - VAPOUR_BETA * e) * dT / (T * T));
-		},
-		/** [nm1(h), dndh(h)] from one evaluation of the state (same values) @param {number} h @returns {[number, number]} */
-		both(h) {
-			const [T, P, dT, dP, e, de] = moist(h);
-			return [REFR_K * (P - VAPOUR_BETA * e) / T, REFR_K * ((dP - VAPOUR_BETA * de) / T - (P - VAPOUR_BETA * e) * dT / (T * T))];
-		},
+		key: baseKey + '|e' + vapourMb.toFixed(4) + '@' + heightM.toFixed(1),
+		nm1: h => both(h)[0],
+		dndh: h => both(h)[1],
+		/** [nm1(h), dndh(h)] from one evaluation of the state (same values) */
+		both,
 	};
 }
 
@@ -289,7 +384,7 @@ export function createAtmosphere(temperatureC, pressureMb, heightM, vapourMb = 0
  * called on every sunrise / sunset calculation: rebuilding the columns each time cost more than the
  * cached ray trace the medium feeds (and a path medium does not depend on the observer's height).
  * One cache per combination of the sea-surface-layer and humidity settings.
- * @type {WeakMap<object, Medium>[]}
+ * @type {WeakMap<object, { latitudeDeg: number, medium: Medium }>[]}
  */
 const pathMediumCache = [new WeakMap(), new WeakMap(), new WeakMap(), new WeakMap()];
 
@@ -297,22 +392,24 @@ const pathMediumCache = [new WeakMap(), new WeakMap(), new WeakMap(), new WeakMa
  * @param {number} heightM @param {AtmosphereSpec | null | undefined} spec
  * @param {boolean} [surfaceLayer] model the sea surface layer over water (see header, item 8)
  * @param {boolean} [humidity] use the water vapour the spec carries (see header, item 10)
+ * @param {number} [latitudeDeg] sets the surface gravity (see createAtmosphere)
  * @returns {Medium}
  */
-function atmosphereFromSpec(heightM, spec, surfaceLayer = false, humidity = false) {
+function atmosphereFromSpec(heightM, spec, surfaceLayer = false, humidity = false, latitudeDeg = NaN) {
 	if (!spec) return mediumOf(createAtmosphere(ISA_T0 - 273.15, 1013.25, 0));
 	if ('path' in spec) {
 		const cache = pathMediumCache[(surfaceLayer ? 1 : 0) + (humidity ? 2 : 0)];
-		let medium = cache.get(spec.path);
-		if (!medium) {
-			medium = createPathAtmosphere(spec.path, spec.key, { surfaceLayer, humidity });
-			cache.set(spec.path, medium);
+		let entry = cache.get(spec.path);
+		// a profile array belongs to one place, but the medium's gravity depends on it: check
+		if (!entry || !Object.is(entry.latitudeDeg, latitudeDeg)) {
+			entry = { latitudeDeg, medium: createPathAtmosphere(spec.path, spec.key, { surfaceLayer, humidity, latitudeDeg }) };
+			cache.set(spec.path, entry);
 		}
-		return medium;
+		return entry.medium;
 	}
 	const h = spec.heightM ?? heightM;
 	const e = humidity ? vapourPressureMb(spec.temperatureC, spec.dewPointC, spec.relativeHumidity) : 0;
-	return mediumOf(createAtmosphere(spec.temperatureC, spec.pressureMb ?? standardPressure(h), h, Number.isFinite(e) ? e : 0));
+	return mediumOf(createAtmosphere(spec.temperatureC, spec.pressureMb ?? standardPressure(h), h, Number.isFinite(e) ? e : 0, latitudeDeg));
 }
 
 /**
@@ -438,8 +535,11 @@ function vapourColumn(pts, levels) {
 	});
 }
 
-/** @param {PathProfile} prof @param {boolean} surfaceLayer @param {boolean} [humidity] */
-function buildColumn(prof, surfaceLayer, humidity = false) {
+/**
+ * @param {PathProfile} prof @param {boolean} surfaceLayer @param {boolean} [humidity]
+ * @param {number} [latitudeDeg] surface gravity for the air above and below the levels (see createAtmosphere)
+ */
+function buildColumn(prof, surfaceLayer, humidity = false, latitudeDeg = NaN) {
 	const levels = (prof.levels ?? [])
 		.filter(l => Number.isFinite(l.h) && Number.isFinite(l.t) && Number.isFinite(l.p) && l.p > 0)
 		.sort((a, b) => a.h - b.h)
@@ -465,9 +565,9 @@ function buildColumn(prof, surfaceLayer, humidity = false) {
 	}
 	const top = pts[pts.length - 1];
 	const eOf = (/** @type {{le?: number}} */ q) => vap && Number.isFinite(q.le) ? Math.exp(/** @type {number} */ (q.le)) : 0;
-	const above = createAtmosphere(top.T - 273.15, Math.exp(top.lp), top.z, eOf(top));
+	const above = createAtmosphere(top.T - 273.15, Math.exp(top.lp), top.z, eOf(top), latitudeDeg);
 	const bottom = pts[0];
-	const below = createAtmosphere(bottom.T - 273.15, Math.exp(bottom.lp), bottom.z, eOf(bottom));
+	const below = createAtmosphere(bottom.T - 273.15, Math.exp(bottom.lp), bottom.z, eOf(bottom), latitudeDeg);
 	const zs = pts.map(q => q.z);
 	/** N = n - 1 and dN/dz at height z (exact for this column model) @param {number} z @returns {[number, number]} */
 	const exact = z => {
@@ -479,7 +579,7 @@ function buildColumn(prof, surfaceLayer, humidity = false) {
 		const dT = (b.T - a.T) / dz, dlp = (b.lp - a.lp) / dz;
 		const T = a.T + dT * f * dz, P = Math.exp(a.lp + dlp * f * dz);
 		if (!vap) {
-			const N = GLADSTONE_A * (P / 1013.25) * (288.15 / T);
+			const N = REFR_K * P / T;
 			return [N, N * (dlp - dT / T)];
 		}
 		// moist: ln e linear in height between levels (header, item 10)
@@ -555,18 +655,20 @@ function hashString(s) {
  * azimuth. The first profile should be at (or near) the observer.
  * @param {PathProfile[]} profiles
  * @param {string} [key] cache key; derived from the data when omitted
- * @param {{ surfaceLayer?: boolean, humidity?: boolean }} [options] surfaceLayer: model the sea surface
- *   layer, wave crests and inferior mirages over water (default true here; ROYSPACalculator turns it off
- *   unless asked, see header item 8). humidity: use the levels' td / rh (default false; header, item 10)
+ * @param {{ surfaceLayer?: boolean, humidity?: boolean, latitudeDeg?: number }} [options] surfaceLayer: model
+ *   the sea surface layer, wave crests and inferior mirages over water (default true here; ROYSPACalculator
+ *   turns it off unless asked, see header item 8). humidity: use the levels' td / rh (default false; header,
+ *   item 10). latitudeDeg: surface gravity above and below the levels (default standard gravity)
  * @returns {Medium}
  */
 export function createPathAtmosphere(profiles, key, options = {}) {
 	const surfaceLayer = options.surfaceLayer ?? true;
 	const humidity = options.humidity ?? false;
+	const latitudeDeg = options.latitudeDeg ?? NaN;
 	const sorted = [...profiles].sort((a, b) => a.distanceKm - b.distanceKm);
 	if (!sorted.length) throw new Error('No path profiles');
 	const ds = sorted.map(p => p.distanceKm * 1000);
-	const cols = sorted.map(p => buildColumn(p, surfaceLayer, humidity));
+	const cols = sorted.map(p => buildColumn(p, surfaceLayer, humidity, latitudeDeg));
 	const tabs = cols.map(c => c.table);
 	const moist = humidity && sorted.some(p => (p.levels ?? []).some(l => Number.isFinite(l.td) || Number.isFinite(l.rh)));
 	/** N, dN/dz, dN/dd: the field at the point fieldAt() was last asked for */
@@ -683,7 +785,8 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 	};
 	const near = cols[0];
 	return {
-		key: (key ?? 'path|' + hashString(JSON.stringify(sorted))) + (surfaceLayer ? '|sl' : '') + (moist ? '|h' : ''),
+		key: (key ?? 'path|' + hashString(JSON.stringify(sorted))) + (surfaceLayer ? '|sl' : '') + (moist ? '|h' : '')
+			+ (Number.isFinite(latitudeDeg) ? '|lat' + latitudeDeg.toFixed(2) : ''),
 		nm1: z => near(z)[0],
 		dndh: z => near(z)[1],
 		refraction: trace,
@@ -1001,7 +1104,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	_atmosphereFor(date, event, geo, heightM) {
 		if (!this._atmosphereProvider || !date || !event) return null;
 		const spec = this._atmosphereProvider(date, event, geo);
-		return spec ? atmosphereFromSpec(heightM, spec, this._seaSurfaceLayer, this._humidity) : null;
+		return spec ? atmosphereFromSpec(heightM, spec, this._seaSurfaceLayer, this._humidity, geo?.getLatitude?.()) : null;
 	}
 
 	/** @param {Medium} atm @param {number} heightM */

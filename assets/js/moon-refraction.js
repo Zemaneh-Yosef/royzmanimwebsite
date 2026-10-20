@@ -96,7 +96,7 @@ export function airAt(provider, timeZone, geo, epochMs, observerHeightM) {
  * @param {number} metersAboveGround observer's height above that surface (>= 0)
  */
 function rayTracedTarget(air, latitude, groundM, metersAboveGround) {
-	const atm = createAtmosphere(air.temperatureC, air.pressureMb, air.heightM);
+	const atm = createAtmosphere(air.temperatureC, air.pressureMb, air.heightM, 0, latitude);
 	// rayRefraction / seaHorizonAltitude measure heights from the sphere they are given; shift the
 	// atmosphere so height 0 is the ground, which sits groundM above sea level.
 	const shifted = {

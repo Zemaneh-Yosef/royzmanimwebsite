@@ -113,7 +113,7 @@ export function createVisibleMoon(calc, horizon, Astronomy, options) {
 		let table = thresholdCache.get(key);
 		if (table) return table;
 
-		const atm = air ? createAtmosphere(/** @type {number} */ (T), /** @type {number} */ (P), /** @type {number} */ (H)) : isa;
+		const atm = air ? createAtmosphere(/** @type {number} */ (T), /** @type {number} */ (P), /** @type {number} */ (H), 0, horizon.lat) : isa;
 		const scale = air ? 1 : isaScale;
 		const entries = horizon[side];
 		const hOf = (/** @type {number} */ ho) => Math.round(ho / 10) * 10;   // eye heights to 10 m
