@@ -65,9 +65,9 @@
             </label>
         </div>
         <div class="form-text mt-0" data-delivery="push">
-            <span class="lang lang-he">ההתראות מגיעות גם כשהאתר סגור: שרת ההתראות של זמני יוסף שולח אותן. לשם כך הוא שומר את המקום, את הבחירות שלו ואת ההגדרות שמשפיעות על הזמנים שלו – ולא דבר מעבר לכך. הסרת המקום מוחקת אותם.</span>
-            <span class="lang lang-he-Latn">Notifications arrive even when the site is closed: Zemaneh Yosef's notification server sends them. For that it keeps the place, its choices and the settings that change its Zemanim, and nothing else. Removing the place deletes them.</span>
-            <span class="lang lang-en">Notifications arrive even when the site is closed: Zemaneh Yosef's notification server sends them. For that it keeps the place, its choices and the settings that change its times, and nothing else. Removing the place deletes them.</span>
+            <span class="lang lang-he">ההתראות מגיעות גם כשהאתר סגור: שרת ההתראות של זמני יוסף שולח אותן. לשם כך הוא שומר את המקום, את הבחירות שלו ואת ההגדרות שמשפיעות על הזמנים שלו – ולא דבר מעבר לכך. כיבוי ההתראות של המקום מוחק אותם.</span>
+            <span class="lang lang-he-Latn">Notifications arrive even when the site is closed: Zemaneh Yosef's notification server sends them. For that it keeps the place, its choices and the settings that change its Zemanim, and nothing else. Turning off the place's notifications deletes them.</span>
+            <span class="lang lang-en">Notifications arrive even when the site is closed: Zemaneh Yosef's notification server sends them. For that it keeps the place, its choices and the settings that change its times, and nothing else. Turning off the place's notifications deletes them.</span>
         </div>
         <div class="form-text mt-0 d-none" data-delivery="local">
             <span class="lang lang-he">בדפדפן זה ההתראות נשלחות רק כשלוח הזמנים של המקום פתוח. (באייפון ובאייפד: הוסיפו את האתר למסך הבית כדי לקבל אותן גם כשהוא סגור.)</span>
@@ -96,18 +96,18 @@
             </span>
             <span class="d-none" data-push-state="full">
                 <i class="bi bi-exclamation-triangle text-warning"></i>
-                <span class="lang lang-he">אפשר להירשם לעד 10 מקומות. הסירו מקום אחר קודם.</span>
-                <span class="lang lang-he-Latn">You can subscribe to up to 10 places. Remove another one first.</span>
-                <span class="lang lang-en">You can subscribe to up to 10 places. Remove another one first.</span>
+                <span class="lang lang-he">אפשר לקבל התראות לעד 10 מקומות. כבו התראות של מקום אחר קודם.</span>
+                <span class="lang lang-he-Latn">You can get notifications for up to 10 places. Turn off another one first.</span>
+                <span class="lang lang-en">You can get notifications for up to 10 places. Turn off another one first.</span>
             </span>
         </div>
     </div>
 
     <div class="mb-3 d-none" data-other-places>
         <h6 class="mb-2">
-            <span class="lang lang-he">המקומות האחרים שלכם</span>
-            <span class="lang lang-he-Latn">Your other places</span>
-            <span class="lang lang-en">Your other places</span>
+            <span class="lang lang-he">מקומות נוספים עם התראות</span>
+            <span class="lang lang-he-Latn">Your other places with notifications</span>
+            <span class="lang lang-en">Your other places with notifications</span>
         </h6>
         <ul class="list-group" data-other-places-list></ul>
         <template data-other-place-template>
@@ -115,13 +115,15 @@
                 <a class="flex-fill text-decoration-none" data-place-link><i class="bi bi-geo-alt"></i> <span data-place-name></span></a>
                 <span class="small text-body-secondary" data-place-count></span>
                 <button type="button" class="btn btn-outline-danger btn-sm" data-place-remove>
-                    <span class="lang lang-he">הסר</span>
-                    <span class="lang lang-he-Latn">Remove</span>
-                    <span class="lang lang-en">Remove</span>
+                    <span class="lang lang-he">כבה התראות</span>
+                    <span class="lang lang-he-Latn">Turn off</span>
+                    <span class="lang lang-en">Turn off</span>
                 </button>
             </li>
         </template>
-        <div data-notif-choices>
+    </div>
+
+    <div data-notif-choices>
         <ul class="list-group list-group-flush">
         <li class="list-group-item d-none d-sm-flex align-items-center gap-3 small text-body-secondary fw-semibold">
             <span class="flex-fill">
@@ -177,8 +179,6 @@
         <span class="lang lang-en">0 = at the time itself. Times that only apply on some days (like candle lighting or the Ḥametz times) only notify on the days they appear on the calendar.</span>
     </p>
     </div>
-
-</div>
 </div>
 </div>
 </div>

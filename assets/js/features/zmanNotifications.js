@@ -1,7 +1,8 @@
 // @ts-check
 
 // Zeman notifications, per place: each place someone subscribes to (from the calendar's Notifications button,
-// features/notificationsModal.js) has its own per-zeman on/off and "minutes before".
+// features/notificationsModal.js) has its own per-zeman on/off and "minutes before". Places themselves (saved with
+// or without notifications) are kept by places.js.
 //
 // The calendar sends the open place's notifications itself (ZmanNotificationScheduler below), in a tab (also in
 // the background) or the installed app. When the browser can receive pushes, the notification server sends every
@@ -9,17 +10,17 @@
 // `tag`, so one never doubles the other. They are shown through the service worker when there is one (Android
 // Chrome only allows that), with a plain Notification otherwise.
 
-import { notificationText, plainText, notificationTag, placeKey } from "../core/notificationText.js";
+import { notificationText, plainText, notificationTag } from "../core/notificationText.js";
 import { ZMANIM_SETTING_KEYS } from "../core/zmanimSettings.js";
+import {
+	calendarLocation, calendarUrl, getPlace, isNotified, listPlaces, loadPlaces, placeKey, PLACES_EVENT, PLACES_KEY,
+	readJson, storePlaces, writeJson
+} from "./places.js";
 
-/** localStorage key of the subscribed places: { [placeKey]: Place } */
-export const PLACES_KEY = "zmanNotificationPlaces";
 /** localStorage key of the choices a new place starts with (the last ones used); before places, the only choices */
 export const TEMPLATE_KEY = "zmanNotifications";
 /** localStorage key of what was already sent, so reloads and other open tabs don't repeat it */
 const SENT_KEY = "zmanNotificationsSent";
-/** Fired on window when the places or their choices change in this tab (other tabs get the "storage" event) */
-export const PLACES_EVENT = "zmanNotificationPlacesChanged";
 
 export const DEFAULT_MINUTES = 15;
 /** A notification that comes due this late (a sleeping phone, a throttled tab) is still worth sending */
@@ -28,18 +29,11 @@ export const MAX_MINUTES = 24 * 60;
 /** As the notification server allows */
 export const MAX_PLACES = 10;
 
-export { placeKey };
+export { calendarLocation, calendarUrl, getPlace, listPlaces, placeKey, PLACES_EVENT, PLACES_KEY };
 
-/** @typedef {{ enabled: boolean; minutes: number }} ZmanNotificationPref */
-/** @typedef {{ lat: number; lon: number; elevation: number; timeZone: string; name: string }} PlaceLocation */
-/**
- * @typedef {Object} Place
- * @property {string} key placeKey(lat, lon)
- * @property {PlaceLocation} location
- * @property {Record<string, ZmanNotificationPref>} notifications
- * @property {Record<string, string>} settings the settings that change the zemanim, as on this place's calendar
- * @property {number} addedAt
- */
+/** @typedef {import("./places.js").ZmanNotificationPref} ZmanNotificationPref */
+/** @typedef {import("./places.js").PlaceLocation} PlaceLocation */
+/** @typedef {import("./places.js").Place} Place */
 /**
  * @typedef {Object} ZmanOccurrence
  * @property {string} key zeman id as in the calendar list ("sunset", "latestShma-mga", …)
@@ -48,44 +42,15 @@ export { placeKey };
  * @property {string} timeText the time as shown on the calendar
  */
 
-/** @param {string} key */
-function readJson(key) {
-	try {
-		const parsed = JSON.parse(localStorage.getItem(key) || "null");
-		return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
-	} catch (e) {
-		return null;
-	}
+/** The places that get notifications, oldest first @returns {Place[]} */
+export function notifiedPlaces() {
+	return listPlaces().filter(isNotified);
 }
 
-/** @param {string} key @param {unknown} value */
-function writeJson(key, value) {
-	try {
-		localStorage.setItem(key, JSON.stringify(value));
-	} catch (e) {
-		console.warn("Couldn't save the notification settings", e);
-	}
-}
-
-/** @returns {Record<string, Place>} */
-export function loadPlaces() {
-	return readJson(PLACES_KEY) ?? {};
-}
-
-/** The subscribed places, oldest first @returns {Place[]} */
-export function listPlaces() {
-	return Object.values(loadPlaces()).sort((a, b) => a.addedAt - b.addedAt);
-}
-
-/** @param {string} key @returns {Place | null} */
-export function getPlace(key) {
-	return loadPlaces()[key] ?? null;
-}
-
-/** @param {Record<string, Place>} places */
-function savePlaces(places) {
-	writeJson(PLACES_KEY, places);
-	window.dispatchEvent(new CustomEvent(PLACES_EVENT));
+/** A place that gets notifications @param {string} key @returns {Place | null} */
+export function getNotifiedPlace(key) {
+	const place = getPlace(key);
+	return place && isNotified(place) ? place : null;
 }
 
 /** The choices a new place starts with: the last ones used @returns {Record<string, ZmanNotificationPref>} */
@@ -94,30 +59,33 @@ export function templateChoices() {
 }
 
 /**
- * Subscribe to a place (or update its location and settings)
+ * Get notifications for a place (saving it, or updating its location and settings)
  * @param {PlaceLocation} location @param {Record<string, string>} settings
- * @returns {Place | null} null when there are already MAX_PLACES others
+ * @returns {Place | null} null when MAX_PLACES others already get them
  */
 export function addPlace(location, settings) {
 	const places = loadPlaces();
 	const key = placeKey(location.lat, location.lon);
-	if (!places[key] && Object.keys(places).length >= MAX_PLACES)
+	const old = places[key];
+	if (!(old && isNotified(old)) && Object.values(places).filter(isNotified).length >= MAX_PLACES)
 		return null;
+	const notifications = old?.notifications ?? {};
 	places[key] = {
 		key, location, settings,
-		notifications: places[key]?.notifications ?? templateChoices(),
-		addedAt: places[key]?.addedAt ?? Date.now()
+		notifications: Object.keys(notifications).length ? notifications : templateChoices(),
+		addedAt: old?.addedAt ?? Date.now(),
+		notify: true
 	};
-	savePlaces(places);
+	storePlaces(places);
 	return places[key];
 }
 
-/** @param {string} key */
-export function removePlace(key) {
+/** Stop a place's notifications; it stays saved, its choices kept for next time @param {string} key */
+export function stopNotifications(key) {
 	const places = loadPlaces();
-	if (!(key in places)) return;
-	delete places[key];
-	savePlaces(places);
+	if (!places[key] || !isNotified(places[key])) return;
+	places[key].notify = false;
+	storePlaces(places);
 }
 
 /** Keep a place's settings in step with its calendar (they decide its times) @param {string} key @param {Record<string, string>} settings */
@@ -125,7 +93,7 @@ export function refreshPlaceSettings(key, settings) {
 	const places = loadPlaces();
 	if (!places[key] || JSON.stringify(places[key].settings) === JSON.stringify(settings)) return;
 	places[key].settings = settings;
-	savePlaces(places);
+	storePlaces(places);
 }
 
 /**
@@ -134,7 +102,7 @@ export function refreshPlaceSettings(key, settings) {
  * @returns {ZmanNotificationPref}
  */
 export function getPref(place, key) {
-	const pref = (getPlace(place)?.notifications ?? templateChoices())[key];
+	const pref = (getNotifiedPlace(place)?.notifications ?? templateChoices())[key];
 	return {
 		enabled: !!(pref && pref.enabled),
 		minutes: pref ? clampMinutes(pref.minutes) : DEFAULT_MINUTES
@@ -148,13 +116,13 @@ export function getPref(place, key) {
  */
 export function savePref(place, key, change) {
 	const places = loadPlaces();
-	if (!places[place]) return;
+	if (!places[place] || !isNotified(places[place])) return;
 	const pref = Object.assign(getPref(place, key), change);
 	pref.minutes = clampMinutes(pref.minutes);
 	places[place].notifications[key] = pref;
 	// the next place starts from these
 	writeJson(TEMPLATE_KEY, places[place].notifications);
-	savePlaces(places);
+	storePlaces(places);
 }
 
 /** @param {unknown} value */
@@ -165,16 +133,6 @@ export function clampMinutes(value) {
 	if (Number.isNaN(minutes))
 		return DEFAULT_MINUTES;
 	return Math.min(Math.max(minutes, 0), MAX_MINUTES);
-}
-
-/** The calendar's place when this page is one (from its address) @returns {PlaceLocation | null} */
-export function calendarLocation() {
-	if (window.location.pathname.replace(/\.html$/, "") !== "/calendar") return null;
-	const p = new URLSearchParams(window.location.search);
-	const lat = parseFloat(p.get("lat") ?? ""), lon = parseFloat(p.get("long") ?? "");
-	const timeZone = p.get("timeZone");
-	if (!Number.isFinite(lat) || !Number.isFinite(lon) || !timeZone) return null;
-	return { lat, lon, elevation: parseFloat(p.get("elevation") ?? "") || 0, timeZone, name: (p.get("locationName") || "").trim().slice(0, 100) };
 }
 
 /** The settings that change the zemanim, as in effect on this page (URL first, then stored) */
@@ -192,47 +150,67 @@ export function zemanimSettingValues() {
 	return values;
 }
 
-/** A place's calendar @param {PlaceLocation} loc */
-export function calendarUrl(loc) {
-	const params = new URLSearchParams({ lat: String(loc.lat), long: String(loc.lon), elevation: String(loc.elevation), locationName: loc.name, timeZone: loc.timeZone });
-	return `/calendar?${params}`;
+/** localStorage key set once the choices from before places became places */
+const MIGRATED_KEY = "zmanPlacesMigrated";
+
+/**
+ * Whether the choices from before places are places yet. Places saved without notifications (the sidebar's Save)
+ * may come first; until then the notification server isn't touched, so the place it has isn't lost.
+ */
+export function placesMigrated() {
+	if (localStorage.getItem(MIGRATED_KEY) !== null) return true;
+	if (localStorage.getItem(PLACES_KEY) === null) return false;
+	// stored before saving existed, so already migrated
+	return Object.values(loadPlaces()).some(isNotified);
 }
 
 /**
  * Before places, one set of choices served whichever calendar was open (and the notification server got the
  * last one opened). Make that the one subscribed place: the place the server had, else the last calendar.
+ * Places saved since are kept.
  * @param {PlaceLocation | null} fallback the calendar on screen, if any
  * @param {Record<string, string>} settings
  * @param {() => Promise<Place[] | null>} [fromServer] the places the notification server already has, if any:
  *   those win (the server had the place the person really chose)
  */
 export async function migrateToPlaces(fallback, settings, fromServer) {
-	if (localStorage.getItem(PLACES_KEY) !== null) return;
+	const done = () => {
+		try {
+			localStorage.setItem(MIGRATED_KEY, "1");
+			localStorage.removeItem("zmanPushEnabled");
+			localStorage.removeItem("zmanPushSynced");
+		} catch (e) { /* blocked */ }
+	};
+	if (placesMigrated()) return done();
 	const adopted = fromServer ? await fromServer() : null;
-	if (localStorage.getItem(PLACES_KEY) !== null) return; // another tab got there first
+	if (placesMigrated()) return done(); // another tab got there first
+
+	/** @type {Place[]} */
+	let found = [];
 	if (adopted && adopted.length) {
-		writeJson(PLACES_KEY, Object.fromEntries(adopted.map((p) => [p.key, p])));
-		try { localStorage.removeItem("zmanPushEnabled"); localStorage.removeItem("zmanPushSynced"); } catch (e) { /* blocked */ }
-		window.dispatchEvent(new CustomEvent(PLACES_EVENT));
-		return;
+		found = adopted;
+	} else {
+		const old = templateChoices();
+		const hadChoices = Object.values(old).some((pref) => pref && pref.enabled);
+		/** @type {PlaceLocation | null} */
+		let location = null;
+		const last = new URLSearchParams(localStorage.getItem("pwaLastCalendar") || "");
+		const lat = parseFloat(last.get("lat") ?? ""), lon = parseFloat(last.get("long") ?? "");
+		if (Number.isFinite(lat) && Number.isFinite(lon) && last.get("timeZone"))
+			location = { lat, lon, elevation: parseFloat(last.get("elevation") ?? "") || 0, timeZone: /** @type {string} */ (last.get("timeZone")), name: (last.get("locationName") || "").slice(0, 100) };
+		location = location ?? fallback;
+		if (hadChoices && location) {
+			const key = placeKey(location.lat, location.lon);
+			found = [{ key, location, settings, notifications: old, addedAt: Date.now(), notify: true }];
+		}
 	}
-	const old = templateChoices();
-	const hadChoices = Object.values(old).some((pref) => pref && pref.enabled);
-	/** @type {PlaceLocation | null} */
-	let location = null;
-	const last = new URLSearchParams(localStorage.getItem("pwaLastCalendar") || "");
-	const lat = parseFloat(last.get("lat") ?? ""), lon = parseFloat(last.get("long") ?? "");
-	if (Number.isFinite(lat) && Number.isFinite(lon) && last.get("timeZone"))
-		location = { lat, lon, elevation: parseFloat(last.get("elevation") ?? "") || 0, timeZone: /** @type {string} */ (last.get("timeZone")), name: (last.get("locationName") || "").slice(0, 100) };
-	location = location ?? fallback;
-	/** @type {Record<string, Place>} */
-	const places = {};
-	if (hadChoices && location) {
-		const key = placeKey(location.lat, location.lon);
-		places[key] = { key, location, settings, notifications: old, addedAt: Date.now() };
-	}
+
+	const places = loadPlaces();
+	for (const place of found)
+		places[place.key] = { ...place, addedAt: places[place.key]?.addedAt ?? place.addedAt, notify: true };
 	writeJson(PLACES_KEY, places);
-	try { localStorage.removeItem("zmanPushEnabled"); localStorage.removeItem("zmanPushSynced"); } catch (e) { /* blocked */ }
+	done();
+	if (found.length) window.dispatchEvent(new CustomEvent(PLACES_EVENT));
 }
 
 // ─── Permission ───────────────────────────────────────────────────────────────
@@ -370,7 +348,7 @@ export class ZmanNotificationScheduler {
 		if (permissionState() !== "granted")
 			return;
 
-		const place = getPlace(this.context().placeKey);
+		const place = getNotifiedPlace(this.context().placeKey);
 		if (!place)
 			return;
 		const prefs = place.notifications;

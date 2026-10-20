@@ -34,7 +34,9 @@ body {
 .maxWidthContainer {
 	margin-left: auto;
 	margin-right: auto;
-	width: clamp(16rem, 90vw, 80rem)
+	width: clamp(16rem, 90vw, 80rem);
+	/* beside the wide sidebar, 90vw is more than there is */
+	max-width: calc(100% - 2rem);
 }
 
 .navbar {
@@ -130,8 +132,34 @@ body {
 	height: 3rem;
 }
 
+/* The sidebar: slim (icons, with tooltips) or wide (html.sidebar-wide: the one-line logo, the saved places and
+   labels by the icons), switched by its bottom button (settings/docLoad.js) */
+#sidebar {
+	width: 4.5rem;
+	background-color: var(--bs-body-bg);
+	box-shadow: 3px 0 5px 0 rgba(0,0,0,.5);
+	position: sticky;
+	top: 0;
+	align-self: flex-start;
+	height: 100vh;
+	height: 100dvh;
+	z-index: 2;
+	transition: width .15s ease;
+}
+
+html.sidebar-wide #sidebar {
+	width: 16rem;
+}
+
+html:not(.sidebar-wide) #sidebar .sidebar-wide-only,
+html.sidebar-wide #sidebar .sidebar-slim-only,
+html:not(.sidebar-wide) #sidebar .sidebar-label {
+	display: none !important;
+}
+
 #sidebarLogo {
 	display: block;
+	flex-shrink: 0;
 	background-image: url(/assets/images/icon-bg.png);
 	background-position: center;
 	background-size: 100%;
@@ -139,7 +167,13 @@ body {
 	filter: drop-shadow(0px 2px 1px rgba(0,0,0,.7));
 }
 
+html.sidebar-wide #sidebarLogo {
+	background-image: none;
+	padding: .75rem 1rem;
+}
+
 #sidebarLogo img {
+	width: 100%;
 	transform: scale(1); /* you need a scale here to allow it to transition in both directions */
 	transition: 0.15s all ease;
 }
@@ -148,9 +182,172 @@ body {
 	transform: scale(1.125);
 }
 
-#sidebar {
-	width: 4.5rem;
-	box-shadow: 3px 0 5px 0 rgba(0,0,0,.5);
+html.sidebar-wide #sidebarLogo:hover img {
+	transform: scale(1.05);
+}
+
+#sidebar .sidebar-actions .nav-link {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: .75rem;
+	border: 0;
+	background: none;
+}
+
+#sidebar .sidebar-actions .nav-link:hover,
+#sidebar .sidebar-actions .nav-link:focus-visible {
+	background-color: rgba(var(--bs-emphasis-color-rgb), .075);
+}
+
+#sidebar .sidebar-actions .nav-link .bi {
+	font-size: 1.1rem;
+}
+
+html.sidebar-wide #sidebar .sidebar-actions .nav-link {
+	justify-content: flex-start;
+	padding-inline: 1.25rem;
+	text-align: start;
+}
+
+html:not(.sidebar-wide) #sidebar .dropdown-toggle::after {
+	display: none;
+}
+
+html.sidebar-wide #sidebar .dropdown-toggle::after {
+	margin-inline-start: auto;
+}
+
+body[dir="rtl"] .sidebar-toggle-icon,
+html.sidebar-wide body:not([dir="rtl"]) .sidebar-toggle-icon {
+	transform: scaleX(-1);
+}
+
+html.sidebar-wide body[dir="rtl"] .sidebar-toggle-icon {
+	transform: none;
+}
+
+.sidebar-places {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	flex: 0 1 auto;
+	padding: .5rem .5rem 0;
+	border-top: var(--bs-border-width) solid var(--bs-border-color);
+	overflow-y: auto;
+}
+
+.sidebar-heading {
+	font-size: .75rem;
+	font-weight: 600;
+	letter-spacing: .05em;
+	text-transform: uppercase;
+	color: var(--bs-secondary-color);
+	margin: .25rem .5rem .5rem;
+}
+
+/* The saved places (_includes/places-list.html, features/placesList.js) */
+.places-item {
+	display: flex;
+	align-items: center;
+	border-radius: var(--bs-border-radius);
+}
+
+.places-item:hover,
+.places-item:focus-within {
+	background-color: rgba(var(--bs-emphasis-color-rgb), .075);
+}
+
+.places-item.active {
+	background-color: rgba(var(--bs-primary-rgb), .15);
+}
+
+.places-link {
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+	flex: 1 1 auto;
+	min-width: 0;
+	padding: .4rem .5rem;
+	color: var(--bs-body-color);
+	text-decoration: none;
+}
+
+.places-item.active .places-link {
+	font-weight: 600;
+}
+
+.places-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.places-bell {
+	font-size: .75em;
+	color: var(--bs-secondary-color);
+	margin-inline-start: auto;
+}
+
+.places-remove {
+	--bs-btn-padding-y: .1rem;
+	--bs-btn-padding-x: .4rem;
+	color: var(--bs-secondary-color);
+	opacity: 0;
+}
+
+.places-item:hover .places-remove,
+.places-item:focus-within .places-remove,
+#placesModal .places-remove {
+	opacity: 1;
+}
+
+@media (hover: none) {
+	.places-remove {
+		opacity: 1;
+	}
+}
+
+.places-remove:hover {
+	color: var(--bs-danger);
+}
+
+.places-list-container .places-empty {
+	padding: 0 .5rem;
+}
+
+.places-list-container .places-save,
+.places-list-container .places-find {
+	display: block;
+	margin: .5rem .5rem 0;
+	text-align: start;
+}
+
+.places-list-container .places-find {
+	margin-top: .25rem;
+	padding-inline: 0;
+	text-decoration: none;
+}
+
+#placesModal .places-link {
+	padding: .6rem .5rem;
+}
+
+/* the home page: the places as buttons above the search */
+.places-chips .places-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+}
+
+.places-chips .places-item {
+	border: var(--bs-border-width) solid var(--bs-primary);
+	border-radius: 2rem;
+}
+
+.places-chips .places-link {
+	padding: .35rem .9rem;
+	color: var(--bs-primary);
 }
 
 @media (max-width: 991.98px) {

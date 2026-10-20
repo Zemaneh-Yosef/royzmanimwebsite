@@ -6,11 +6,11 @@
 // plus how times are written. The server runs the site's own zmanim code (core/) and sends the same
 // notifications by Web Push; sw.js shows them, replacing silently any the open calendar already showed (same tag).
 //
-// Used automatically when the browser can receive pushes and notifications are allowed; with no places left,
-// the server forgets this browser.
+// Used automatically when the browser can receive pushes and notifications are allowed; with no place left getting
+// notifications, the server forgets this browser.
 
 import { settings } from "../settings/handler.js";
-import { listPlaces, permissionState, PLACES_EVENT, PLACES_KEY } from "./zmanNotifications.js";
+import { notifiedPlaces, permissionState, placesMigrated, PLACES_EVENT, PLACES_KEY } from "./zmanNotifications.js";
 
 export const PUSH_SERVER = "https://notifs.royzmanim.com";
 /** Fired on window when the server state changes (syncing, synced, an error) */
@@ -167,7 +167,7 @@ async function browserSubscription(registration) {
 	return registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64urlToBytes(data.publicKey) });
 }
 
-/** Forget this browser on the server (no places left) */
+/** Forget this browser on the server (no places left getting notifications) */
 async function forget() {
 	const token = await dbGet("token");
 	if (token) await api("DELETE", "/v1/subscription", undefined, token).catch(() => null);
@@ -185,8 +185,8 @@ async function forget() {
 export async function syncPush({ force = false } = {}) {
 	if (!pushSupported() || state.syncing) return;
 	// not migrated to places yet (notificationsModal.js does it first): nothing to compare with, so don't touch the server
-	if (lsGet(PLACES_KEY) === null) return;
-	const places = listPlaces();
+	if (!placesMigrated()) return;
+	const places = notifiedPlaces();
 	const hadServer = !!pushStatus().synced || !!(await dbGet("token"));
 	if (!places.length) {
 		if (hadServer) await forget().catch((e) => console.warn("Couldn't remove this browser from the notification server", e));
@@ -262,7 +262,7 @@ export async function serverPlaces() {
 		const res = await api("GET", "/v1/subscription", undefined, token);
 		if (res.status !== 200 || !Array.isArray(res.data?.places)) return null;
 		return res.data.places.map((/** @type {any} */ p, /** @type {number} */ i) => ({
-			key: p.key, location: p.location, settings: p.settings ?? {}, notifications: p.notifications ?? {}, addedAt: Date.now() + i
+			key: p.key, location: p.location, settings: p.settings ?? {}, notifications: p.notifications ?? {}, addedAt: Date.now() + i, notify: true
 		}));
 	} catch (e) {
 		return null;

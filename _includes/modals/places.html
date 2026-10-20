@@ -1,0 +1,18 @@
+<div class="modal fade" id="placesModal" tabindex="-1" aria-labelledby="placesModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title fs-4" id="placesModalLabel">
+					<i class="bi bi-geo-alt"></i>
+					<span class="lang lang-he">המקומות שלי</span>
+					<span class="lang lang-he-Latn">Your Places</span>
+					<span class="lang lang-en">Your Places</span>
+				</h3>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				{% include places-list.html %}
+			</div>
+		</div>
+	</div>
+</div>

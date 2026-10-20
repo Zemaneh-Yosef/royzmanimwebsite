@@ -59,6 +59,14 @@ layout: landing
 				<span class="lang lang-he">{{ hebrewLocationText | markdownify }}</span>
 				<span class="lang lang-he-Latn">{{ englishLocationText | markdownify }}</span>
 				<span class="lang lang-en">{{ englishLocationText | markdownify }}</span>
+				<section class="places-chips mb-3 d-none" data-places-section aria-labelledby="homePlacesHeading">
+					<h6 id="homePlacesHeading">
+						<span class="lang lang-he">המקומות שלי</span>
+						<span class="lang lang-he-Latn">Your Places</span>
+						<span class="lang lang-en">Your Places</span>
+					</h6>
+					{% include places-list.html links_only=true %}
+				</section>
 				<div id="manualHelp" class="container pb-3 d-none">
 					<div id="leafletMap" style="aspect-ratio: 16 / 9; margin-bottom: .5rem;"></div>
 					<div id="manualContainer">

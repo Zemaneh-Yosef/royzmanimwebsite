@@ -28,33 +28,54 @@
 		<script src="/assets/js/settings/docLoadBlock.js"></script>
 		<div class="d-none d-lg-flex flex-column flex-shrink-0" id="sidebar">
 			<a href="/" id="sidebarLogo" class="link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
-				<img src="/assets/images/icon-text.png" alt="Zemaneh Yosef Icon" style="width: 100%">
+				<img class="sidebar-slim-only" src="/assets/images/icon-text.png" alt="Zemaneh Yosef Icon">
+				<img class="sidebar-wide-only" src="/assets/images/logo.png" alt="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
 			</a>
-			<ul class="nav nav-pills nav-flush flex-column mt-auto text-center">
-				<li>
-					<a href="https://chat.whatsapp.com/GzDPMTQQzSm0V7hux8X4Ue" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="WhatsApp Community" data-bs-original-title="WhatsApp Community">
-						<i class="bi bi-whatsapp"></i>
-					</a>
-				</li>
-				<li>
-					<a href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Molad Calculator" data-bs-original-title="Molad Calculator">
-						<i class="bi bi-moon-stars-fill"></i>
-					</a>
-				</li>
-				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Mobile App Download">
-					<a class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#mobileModal">
-						<i class="bi bi-phone"></i>
-					</a>
-				</li>
-				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Settings">
-					<a class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#settingsModal">
-						<i class="bi bi-wrench-adjustable"></i>
+			<ul class="nav nav-pills nav-flush flex-column sidebar-actions sidebar-slim-only">
+				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Your Places">
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#placesModal" aria-label="Your Places">
+						<i class="bi bi-geo-alt"></i>
 					</a>
 				</li>
 			</ul>
-			<div class="dropdown border-top">
-				<a href="#" class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+			<nav class="sidebar-places sidebar-wide-only" aria-labelledby="sidebarPlacesHeading">
+				<h2 class="sidebar-heading" id="sidebarPlacesHeading">
+					<span class="lang lang-he">המקומות שלי</span>
+					<span class="lang lang-he-Latn">Your Places</span>
+					<span class="lang lang-en">Your Places</span>
+				</h2>
+				{% include places-list.html %}
+			</nav>
+			<ul class="nav nav-pills nav-flush flex-column mt-auto sidebar-actions">
+				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Mobile App Download">
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#mobileModal">
+						<i class="bi bi-phone"></i>
+						<span class="sidebar-label">
+							<span class="lang lang-he">הורדת האפליקציה</span>
+							<span class="lang lang-he-Latn">Mobile App</span>
+							<span class="lang lang-en">Mobile App</span>
+						</span>
+					</a>
+				</li>
+				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Settings">
+					<a href="#" class="nav-link py-3 border-bottom rounded-0" data-bs-toggle="modal" data-bs-target="#settingsModal">
+						<i class="bi bi-wrench-adjustable"></i>
+						<span class="sidebar-label">
+							<span class="lang lang-he">תְצוּרָה</span>
+							<span class="lang lang-he-Latn">Settings</span>
+							<span class="lang lang-en">Settings</span>
+						</span>
+					</a>
+				</li>
+			</ul>
+			<div class="dropdown border-bottom sidebar-actions">
+				<a href="#" class="nav-link py-3 link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
 					<i class="bi bi-question-circle-fill"></i>
+					<span class="sidebar-label">
+						<span class="lang lang-he">מידע</span>
+						<span class="lang lang-he-Latn">About</span>
+						<span class="lang lang-en">About</span>
+					</span>
 				</a>
 				<ul class="dropdown-menu text-small shadow">
 					<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#aboutModal">
@@ -76,8 +97,18 @@
 					<li><a class="dropdown-item" href="https://github.com/Zemaneh-Yosef/royzmanimwebsite">Source Code</a></li>
 				</ul>
 			</div>
+			<div class="sidebar-actions" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Wider sidebar" data-sidebar-tooltip>
+				<button type="button" class="nav-link py-3 w-100" data-sidebar-toggle aria-label="Wider sidebar">
+					<i class="bi bi-chevron-double-right sidebar-toggle-icon"></i>
+					<span class="sidebar-label">
+						<span class="lang lang-he">צמצם</span>
+						<span class="lang lang-he-Latn">Collapse</span>
+						<span class="lang lang-en">Collapse</span>
+					</span>
+				</button>
+			</div>
 		</div>
-		<div style="flex: 1 1;">
+		<div style="flex: 1 1; min-width: 0;">
 			<header class="navbar d-lg-none mb-1">
 				<div class="container-fluid">
 					<a class="navbar-brand" href="/">
@@ -89,10 +120,10 @@
 					<nav class="collapse navbar-collapse" id="navbarNavDropdown">
 						<ul class="navbar-nav ms-auto mb-2 mb-lg-0" style="text-align: end;">
 							<li class="nav-item">
-								<a class="nav-link" href="https://elyahu41.github.io/RabbiOvadiahYosefCalendar/moladCalculator.html" target="_blank">
-									<span class="lang lang-he">לוח של מולד</span>
-									<span class="lang lang-he-Latn">Molad Calendar</span>
-									<span class="lang lang-en">New-Moon Calendar</span>
+								<a class="nav-link" data-bs-toggle="modal" data-bs-target="#placesModal">
+									<span class="lang lang-he">המקומות שלי</span>
+									<span class="lang lang-he-Latn">Your Places</span>
+									<span class="lang lang-en">Your Places</span>
 								</a>
 							</li>
 							<li class="nav-item">
@@ -162,6 +193,7 @@
 		{% include modals/calendar.html %}
 		{% endcomment %}
 		{% include modals/mobile.html %}
+		{% include modals/places.html %}
 		<script src="/assets/js/settings/docLoad.js" type="module"></script>
 		<script src="/assets/libraries/bootstrap/js/bootstrap.bundle.min.js"></script>
 	</body>

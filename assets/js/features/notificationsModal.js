@@ -1,14 +1,15 @@
 // @ts-check
 
 // The calendar's Notifications window (_includes/modals/notifications.html): subscribe to the place on screen,
-// choose its zemanim and how long before each, and see or remove the other places this browser is subscribed to.
+// choose its zemanim and how long before each, and see or turn off the other places this browser is subscribed to.
+// Turning a place's notifications off keeps it saved (places.js); the sidebar's Places list removes it altogether.
 // Places and choices are kept by zmanNotifications.js; pushNotifications.js keeps the notification server in step.
 
 import { settings } from "../settings/handler.js";
 import {
-	addPlace, calendarLocation, calendarUrl, clampMinutes, getPlace, getPref, listPlaces, migrateToPlaces, permissionState,
-	placeKey, PLACES_EVENT, PLACES_KEY, refreshPlaceSettings, removePlace, requestPermission, savePref, showNotification,
-	zemanimSettingValues
+	addPlace, calendarLocation, calendarUrl, clampMinutes, getNotifiedPlace, getPlace, getPref, migrateToPlaces, notifiedPlaces,
+	permissionState, placeKey, PLACES_EVENT, PLACES_KEY, refreshPlaceSettings, requestPermission, savePref, showNotification,
+	stopNotifications, zemanimSettingValues
 } from "./zmanNotifications.js";
 import { pushStatus, pushSupported, PUSH_EVENT, scheduleSync, serverPlaces, syncPush } from "./pushNotifications.js";
 
@@ -19,7 +20,7 @@ const hereKey = here ? placeKey(here.lat, here.lon) : null;
 const migrated = migrateToPlaces(here, zemanimSettingValues(), serverPlaces);
 
 /**
- * The calendar was rebuilt (a new setting): a subscribed place keeps the settings its calendar shows, and the
+ * The calendar was rebuilt (a new setting): a saved place keeps the settings its calendar shows, and the
  * server gets them (pushNotifications.js listens for the change)
  */
 export function calendarChanged() {
@@ -57,7 +58,7 @@ function setup() {
 		allowButton.classList.toggle("d-none", permission !== "default");
 		testButton.classList.toggle("d-none", permission !== "granted");
 
-		const place = getPlace(key);
+		const place = getNotifiedPlace(key);
 		root.dataset.subscribed = place ? "true" : "false";
 		toggle.checked = !!place;
 		toggle.disabled = permission === "denied" || permission === "unsupported";
@@ -85,7 +86,7 @@ function setup() {
 			minutes.disabled = !place || !pref.enabled;
 		}
 
-		const rest = listPlaces().filter((p) => p.key !== key);
+		const rest = notifiedPlaces().filter((p) => p.key !== key);
 		others.classList.toggle("d-none", rest.length === 0);
 		othersList.replaceChildren(...rest.map((p) => {
 			const item = /** @type {HTMLElement} */ (/** @type {DocumentFragment} */ (otherTemplate.content.cloneNode(true)).firstElementChild);
@@ -93,7 +94,7 @@ function setup() {
 			/** @type {HTMLElement} */ (item.querySelector("[data-place-name]")).textContent = p.location.name || p.key;
 			const count = Object.values(p.notifications).filter((n) => n && n.enabled).length;
 			/** @type {HTMLElement} */ (item.querySelector("[data-place-count]")).textContent = count ? `🔔 ${count}` : "";
-			/** @type {HTMLElement} */ (item.querySelector("[data-place-remove]")).addEventListener("click", () => removePlace(p.key));
+			/** @type {HTMLElement} */ (item.querySelector("[data-place-remove]")).addEventListener("click", () => stopNotifications(p.key));
 			return item;
 		}));
 	};
@@ -107,7 +108,7 @@ function setup() {
 	toggle.addEventListener("change", async () => {
 		note = null;
 		if (!toggle.checked) {
-			removePlace(key);
+			stopNotifications(key);
 			return render();
 		}
 		if (permissionState() === "default") await requestPermission();
@@ -155,4 +156,4 @@ if (document.readyState === "loading") document.addEventListener("DOMContentLoad
 else setup();
 
 // every visit: make sure the server has what this browser has (a no-op when nothing changed)
-migrated.then(() => { if (listPlaces().length || pushStatus().synced) syncPush(); });
+migrated.then(() => { if (notifiedPlaces().length || pushStatus().synced) syncPush(); });

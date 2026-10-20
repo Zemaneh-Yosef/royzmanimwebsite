@@ -1,0 +1,26 @@
+{% comment %}
+The saved places (assets/js/features/placesList.js fills the list): in the wide sidebar, the Places window and on
+the home page. include.links_only leaves out Save and Remove.
+{% endcomment %}
+<div class="places-list-container" data-places-container{% if include.links_only %} data-places-links-only{% endif %}>
+	<ul class="places-list list-unstyled mb-0" data-places-list></ul>
+	{% unless include.links_only %}
+	<p class="places-empty small text-body-secondary mb-2" data-places-empty>
+		<span class="lang lang-he">אין עדיין מקומות שמורים. פתחו לוח זמנים ושמרו את המקום כדי למצוא אותו כאן.</span>
+		<span class="lang lang-he-Latn">No saved places yet. Open a place's calendar and save it to find it here.</span>
+		<span class="lang lang-en">No saved places yet. Open a place's calendar and save it to find it here.</span>
+	</p>
+	<button type="button" class="btn btn-sm btn-outline-primary places-save d-none" data-places-save>
+		<i class="bi bi-bookmark-plus"></i>
+		<span class="lang lang-he">שמור את <span data-places-here></span></span>
+		<span class="lang lang-he-Latn">Save <span data-places-here></span></span>
+		<span class="lang lang-en">Save <span data-places-here></span></span>
+	</button>
+	<a href="/#getStarted" class="btn btn-sm btn-link places-find">
+		<i class="bi bi-search"></i>
+		<span class="lang lang-he">חיפוש מקום אחר</span>
+		<span class="lang lang-he-Latn">Find another place</span>
+		<span class="lang lang-en">Find another place</span>
+	</a>
+	{% endunless %}
+</div>

@@ -1,5 +1,11 @@
 // @ts-check
 
+// The wide sidebar (settings/docLoad.js), on before the sidebar is drawn
+try {
+    if (localStorage.getItem("sidebarWide") === "true")
+        document.documentElement.classList.add("sidebar-wide");
+} catch (e) { /* storage blocked: the slim sidebar */ }
+
 // Things no polyfill can supply (see _includes/polyfills.html for the ones that can)
 if (typeof BigInt !== "function" || !("noModule" in HTMLScriptElement.prototype) || !("Intl" in window) || typeof Intl.supportedValuesOf !== "function" || !Intl.supportedValuesOf('calendar').includes('hebrew')) {
     var modal = document.getElementById("unsupportedModal");

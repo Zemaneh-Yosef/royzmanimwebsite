@@ -2,6 +2,9 @@ import { handleLanguage, settings, saveSetting } from "./handler.js";
 import { isInIsrael } from "../misc/israel.js";
 import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.js"
 import { scheduleSync } from "../features/pushNotifications.js";
+import "../features/placesList.js";
+
+const SIDEBAR_WIDE_KEY = "sidebarWide";
 
 document.addEventListener("DOMContentLoaded", () => {
     handleLanguage();
@@ -13,6 +16,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new window.bootstrap.Tooltip(tooltipTriggerEl))
+
+    // the sidebar, slim (icons with tooltips) or wide (the logo on one line, the saved places, labels by the icons);
+    // docLoadBlock.js puts the class on before the page shows, so it doesn't jump
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
+    if (sidebar && sidebarToggle) {
+        const sidebarTooltips = tooltipList.filter(tooltip => sidebar.contains(tooltip._element));
+        const showSidebar = (wide) => {
+            document.documentElement.classList.toggle('sidebar-wide', wide);
+            sidebarToggle.setAttribute('aria-label', wide ? 'Narrower sidebar' : 'Wider sidebar');
+            sidebarTooltips.forEach(tooltip => { tooltip.hide(); wide ? tooltip.disable() : tooltip.enable(); });
+        };
+        showSidebar(document.documentElement.classList.contains('sidebar-wide'));
+        sidebarToggle.addEventListener('click', () => {
+            const wide = !document.documentElement.classList.contains('sidebar-wide');
+            try { localStorage.setItem(SIDEBAR_WIDE_KEY, String(wide)); } catch (e) { /* blocked: this page only */ }
+            showSidebar(wide);
+        });
+    }
 
     if (document.getElementById('settingsModal')) {
         if (settings.timeFormat() == "h12") {
