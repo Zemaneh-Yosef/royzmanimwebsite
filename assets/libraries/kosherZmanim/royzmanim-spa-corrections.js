@@ -1223,9 +1223,10 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * @param {HorizonPoint[] | HorizonSet | null} [horizon] @param {VisibleOptions} [options]
 	 */
 	getSunrises(date, geoLocation, horizon = null, options = {}) {
+		const d = this._solarDate(date, geoLocation);
 		return {
-			seaLevel: this._utcToEpochMs(date, geoLocation, this.getUTCSunrise(date, geoLocation, 90, false), 'sunrise'),
-			elevated: this._utcToEpochMs(date, geoLocation, this.getUTCSunrise(date, geoLocation, 90, true), 'sunrise'),
+			seaLevel: this._utcToEpochMs(d, geoLocation, this.getUTCSunrise(d, geoLocation, 90, false), 'sunrise'),
+			elevated: this._utcToEpochMs(d, geoLocation, this.getUTCSunrise(d, geoLocation, 90, true), 'sunrise'),
 			visible: horizon ? this.getVisibleSunrise(date, geoLocation, horizon, options) : NaN,
 		};
 	}
@@ -1236,16 +1237,30 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * @param {HorizonPoint[] | HorizonSet | null} [horizon] @param {VisibleOptions} [options]
 	 */
 	getSunsets(date, geoLocation, horizon = null, options = {}) {
+		const d = this._solarDate(date, geoLocation);
 		return {
-			seaLevel: this._utcToEpochMs(date, geoLocation, this.getUTCSunset(date, geoLocation, 90, false), 'sunset'),
-			elevated: this._utcToEpochMs(date, geoLocation, this.getUTCSunset(date, geoLocation, 90, true), 'sunset'),
+			seaLevel: this._utcToEpochMs(d, geoLocation, this.getUTCSunset(d, geoLocation, 90, false), 'sunset'),
+			elevated: this._utcToEpochMs(d, geoLocation, this.getUTCSunset(d, geoLocation, 90, true), 'sunset'),
 			visible: horizon ? this.getVisibleSunset(date, geoLocation, horizon, options) : NaN,
 		};
 	}
 
 	/**
+	 * The date whose noon by longitude is this place's civil noon on `date`: KosherJava's antimeridian adjustment
+	 * (AstronomicalCalendar.getAdjustedDate). It differs only where the time zone lies across the date line from
+	 * the longitude (Samoa, Tonga, Kiribati's Line Islands, the Chatham Islands, Attu); there, solving for `date`
+	 * itself gives the sunrise and sunset of the day before or after.
+	 * @param {Temporal.PlainDate} date @param {GeoLocation} geo
+	 */
+	_solarDate(date, geo) {
+		const k = geo.getAntimeridianAdjustment();
+		return k ? date.add({ days: k }) : date;
+	}
+
+	/**
 	 * UTC hours (modulo 24, as KosherJava returns them) to epoch ms on the right day for this place.
-	 * @param {Temporal.PlainDate} date @param {GeoLocation} geo @param {number} hours @param {'sunrise'|'sunset'} event
+	 * @param {Temporal.PlainDate} date the solar date (_solarDate) @param {GeoLocation} geo @param {number} hours
+	 * @param {'sunrise'|'sunset'} event
 	 */
 	_utcToEpochMs(date, geo, hours, event) {
 		if (!Number.isFinite(hours)) return NaN;
@@ -1279,8 +1294,9 @@ export default class ROYSPACalculator extends SPACalculator {
 			this._atmosphereProvider = null;
 			let t;
 			try {
-				t = this._utcToEpochMs(date, geo, event === 'sunrise' ? this.getUTCSunrise(date, geo, 90, true)
-					: this.getUTCSunset(date, geo, 90, true), event);
+				const d = this._solarDate(date, geo);
+				t = this._utcToEpochMs(d, geo, event === 'sunrise' ? this.getUTCSunrise(d, geo, 90, true)
+					: this.getUTCSunset(d, geo, 90, true), event);
 			} finally {
 				this._atmosphereProvider = provider;
 			}
@@ -1488,9 +1504,10 @@ export default class ROYSPACalculator extends SPACalculator {
 		};
 
 		// Local apparent noon as a Julian day (getUTCNoon is modulo 24 h, so pick the right day).
-		const jd0 = julianDay0(date);
+		const solarDate = this._solarDate(date, geo);
+		const jd0 = julianDay0(solarDate);
 		const approx = jd0 + 0.5 - geo.getLongitude() / 360;
-		const nh = this.getUTCNoon(date, geo) / 24;
+		const nh = this.getUTCNoon(solarDate, geo) / 24;
 		let jdNoon = jd0 + nh;
 		for (const k of [-1, 1]) if (Math.abs(jd0 + nh + k - approx) < Math.abs(jdNoon - approx)) jdNoon = jd0 + nh + k;
 
