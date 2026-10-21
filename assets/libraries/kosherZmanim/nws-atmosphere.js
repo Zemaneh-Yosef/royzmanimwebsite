@@ -36,7 +36,7 @@ const NWS_BASE = 'https://api.weather.gov';
 
 /**
  * @typedef {{ start: number, end: number, value: number }} Interval   epoch ms, degrees C
- * @typedef {(date: any, event: 'sunrise'|'sunset', geo: import('./kosher-zmanim').GeoLocation) => ({ temperatureC: number, pressureMb?: number, heightM?: number } | null | undefined)} Provider
+ * @typedef {(date: any, event: 'sunrise'|'sunset', geo: import('./kosher-zmanim').GeoLocation) => ({ temperatureC: number, pressureMb?: number, heightM?: number, source?: 'forecast' } | null | undefined)} Provider
  */
 
 /**
@@ -230,7 +230,8 @@ export async function createNwsAtmosphere(latitude, longitude, options = {}) {
 		const temperatureC = temperatureAt(series, t);
 		// The forecast is for the grid cell's own elevation; passing it lets the calculator carry the
 		// temperature to the observer's height along the standard lapse rate.
-		if (Number.isFinite(temperatureC)) return gridElevationM == null ? { temperatureC } : { temperatureC, heightM: gridElevationM };
+		if (Number.isFinite(temperatureC))
+			return gridElevationM == null ? { temperatureC, source: 'forecast' } : { temperatureC, heightM: gridElevationM, source: 'forecast' };
 		return options.fallback ? options.fallback(date, event, geo) : null;
 	};
 

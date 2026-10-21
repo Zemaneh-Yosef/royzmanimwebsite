@@ -39,7 +39,7 @@ const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 const ARCHIVE_URL = 'https://archive-api.open-meteo.com/v1/archive';
 
 /**
- * @typedef {(date: any, event: 'sunrise'|'sunset', geo: import('./kosher-zmanim.js').GeoLocation) => ({ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number } | null | undefined)} Provider
+ * @typedef {(date: any, event: 'sunrise'|'sunset', geo: import('./kosher-zmanim.js').GeoLocation) => ({ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number, source?: 'forecast' } | null | undefined)} Provider
  * @typedef {{ start: number, end: number, value: number }} Interval
  */
 
@@ -141,8 +141,8 @@ export async function createOpenMeteoAtmosphere(latitude, longitude, options = {
 		const t = approximateEventTime(date, geo?.getLatitude?.() ?? latitude, geo?.getLongitude?.() ?? longitude, event);
 		const temperatureC = temperatureAt(temps, t);
 		if (!Number.isFinite(temperatureC)) return options.fallback ? options.fallback(date, event, geo) : null;
-		/** @type {{ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number }} */
-		const spec = { temperatureC };
+		/** @type {{ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number, source: 'forecast' }} */
+		const spec = { temperatureC, source: 'forecast' };
 		if (dews.length) { const td = temperatureAt(dews, t); if (Number.isFinite(td)) spec.dewPointC = td; }
 		// surface pressure and temperature both belong to the forecast point's elevation; the calculator
 		// carries them to the observer's height

@@ -8,6 +8,7 @@ import LocationModal, { isValidTimeZone } from "./location-modal.js";
 import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
 import { showListLoadingAfterDelay } from "./list-loading.js";
 import VisibleSunriseClient from "./visible-sunrise-client.js";
+import { renderSolarIcons } from "./solar-icons.js";
 import { buildZemanimConfig } from "./core/zmanimCore.js";
 
 /** Floor for the next refraction check, so a clock or storage oddity can't cause a request loop. */
@@ -1160,14 +1161,18 @@ export default class zmanimListUpdater {
 
 					timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].zDTObj.toLocaleString(...zmanInfo[zmanId].dtF);
 
+					// the name's own spans: sunrise / sunset have language-switched icons in front of them
 					if (zmanInfo[zmanId].title.he)
-						timeSlot.querySelector('.lang-he').innerHTML = zmanInfo[zmanId].title.he;
+						timeSlot.querySelector('.accordianText > .lang-he').innerHTML = zmanInfo[zmanId].title.he;
 
 					if (zmanInfo[zmanId].title.en)
-						timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en;
+						timeSlot.querySelector('.accordianText > .lang-en').innerHTML = zmanInfo[zmanId].title.en;
 
 					if (zmanInfo[zmanId].title["he-Latn"])
-						timeSlot.querySelector('.lang-he-Latn').innerHTML = zmanInfo[zmanId].title["he-Latn"];
+						timeSlot.querySelector('.accordianText > .lang-he-Latn').innerHTML = zmanInfo[zmanId].title["he-Latn"];
+
+					if (zmanId == 'sunrise' || zmanId == 'sunset')
+						renderSolarIcons(timeSlot, zmanId, zmanInfo[zmanId].solar);
 
 					if (!zmanInfo[zmanId].display)
 						timeSlot.style.setProperty('display', 'none', 'important');

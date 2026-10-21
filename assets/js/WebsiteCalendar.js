@@ -4,10 +4,27 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js"
 import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js";
 import { zDTFromFunc } from "./ROYZmanim.js";
 import n2wordsOrdinal from './misc/n2wordsOrdinal.js';
+import { atmosphereSourceOf, surfaceTemperatureOf } from "./refraction-snapshot.js";
 
 /** @typedef {{ he?: string, en?: string, "he-Latn"?: string; "ru"?: string; }} langType */
-/** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions] }} zmanData */
+/** @typedef {{display: -2|-1|0|1, code: string[], zDTObj: Temporal.ZonedDateTime, title: langType, merge_title: langType; function: string; dtF: [string | string[], options?: Intl.DateTimeFormatOptions]; solar?: solarInfo }} zmanData */
+/**
+ * How a sunrise / sunset was computed: which sunrise (`kind`) and the air its refraction was traced through
+ * (`air`; `temperatureC` at the observer, NaN without data)
+ * @typedef {{ kind: 'sea-level'|'elevated'|'visible'|'visible-estimated'; air: import("./refraction-snapshot.js").AtmosphereSource; temperatureC: number }} solarInfo
+ */
 /** @typedef {{ function: string|null; yomTovInclusive: string|null; luachInclusive: "degrees"|"seasonal"|null; condition: string|null; title: { "he-Latn": string; en: string; he: string; ru?: string; }; round: "earlier"|"later"|"exact"; ignoreNextUpcoming?: boolean}} zmanInfoList */
+
+/**
+ * @param {import("./ROYZmanim.js").ZemanFunctions} zmanCalc
+ * @param {'sunrise'|'sunset'} event
+ * @param {solarInfo['kind']} kind
+ * @returns {solarInfo}
+ */
+function solarInfoOf(zmanCalc, event, kind) {
+	const spec = zmanCalc.getAtmosphereSpec(event);
+	return { kind, air: atmosphereSourceOf(spec), temperatureC: surfaceTemperatureOf(spec) };
+}
 
 export default
 class WebsiteCalendar extends KosherZmanim.JewishCalendar {
@@ -218,6 +235,13 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 						calculatedZman.dtF[1].second = '2-digit'
 					}
 
+					calculatedZman.solar = solarInfoOf(zmanCalc, 'sunrise',
+						calculatedZman.funcRet instanceof Temporal.ZonedDateTime ? 'sea-level'
+						: "estimated" in calculatedZman.funcRet && calculatedZman.funcRet.estimated ? 'visible-estimated' : 'visible');
+					break;
+				case 'sunset':
+					calculatedZman.solar = solarInfoOf(zmanCalc, 'sunset',
+						zmanCalc.coreZC.isUseElevation() && zmanCalc.coreZC.getGeoLocation().getElevation() > 0 ? 'elevated' : 'sea-level');
 					break;
 				case 'candleLighting':
 					if (!this.hasCandleLighting()) {

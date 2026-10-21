@@ -219,3 +219,16 @@
 		text-align: end;
 	}
 }
+/** Icons in front of Sunrise / Sunset: which sunrise it is and the air behind it (assets/js/solar-icons.js) */
+.accordian .solarIcons {
+	display: inline-flex;
+	gap: .2rem;
+	margin-inline-end: .35rem;
+	font-size: .8em;
+	opacity: .75;
+	vertical-align: baseline;
+}
+
+.accordian .solarNote {
+	line-height: 1.6;
+}

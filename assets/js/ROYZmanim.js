@@ -671,6 +671,24 @@ class ZemanFunctions extends ZemanimMathBase {
 			: { time: visible, isVisual: true };
 	}
 
+	/**
+	 * The air the current date's sunrise / sunset is traced through (see atmosphereSourceOf in
+	 * refraction-snapshot.js for where it came from); null = none, the default 34.48' refraction.
+	 * @param {'sunrise'|'sunset'} event
+	 * @returns {import("./refraction-snapshot.js").AtmosphereSpec | null}
+	 */
+	getAtmosphereSpec(event) {
+		const provider = this.config.atmosphereProvider;
+		if (!provider)
+			return null;
+		try {
+			return provider(this.coreZC.getDate().withCalendar("iso8601"), event, this.coreZC.getGeoLocation()) ?? null;
+		} catch (e) {
+			console.error("Atmosphere provider failed", e);
+			return null;
+		}
+	}
+
 	getSofZemanShemaMGA() {
 		return this.seasonalAfter(this.timeRange.current.dawn, Temporal.Duration.from({ hours: 3 }), this.timeRange.current.ranges.mga);
 	}

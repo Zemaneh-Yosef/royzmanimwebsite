@@ -241,11 +241,12 @@ export function vapourPressureMb(tC, dewPointC, rhPercent) {
 
 /**
  * @typedef {{ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number,
- *             relativeHumidity?: number } | { path: PathProfile[], key?: string }} AtmosphereSpec
+ *             relativeHumidity?: number, source?: 'forecast' | 'normals' } | { path: PathProfile[], key?: string }} AtmosphereSpec
  *   Either one temperature (temperatureC / pressureMb: air at heightM metres above sea level, default the
  *   observer's height; pressureMb defaults to the standard pressure for that height), or `path`: weather-
  *   model profiles at several distances along the Sun's azimuth (see createPathAtmosphere).
  *   dewPointC / relativeHumidity (%): the air's moisture at heightM; used only with setHumidity(true).
+ *   source: where one temperature came from (a weather forecast or monthly normals), for display only.
  * @typedef {{ T0: number, P0: number, nm1: (h:number)=>number, dndh: (h:number)=>number, key: string }} Atmosphere
  */
 
@@ -905,8 +906,8 @@ export function monthlyClimate(normals) {
 	if (normals.minC?.length !== 12 || normals.meanC?.length !== 12) throw new Error('minC and meanC need 12 monthly values');
 	return (date, event) => {
 		const doy = date.dayOfYear;
-		/** @type {{ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number }} */
-		const spec = { temperatureC: interpolateMonthly(event === 'sunrise' ? normals.minC : normals.meanC, doy) };
+		/** @type {{ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number, source: 'normals' }} */
+		const spec = { temperatureC: interpolateMonthly(event === 'sunrise' ? normals.minC : normals.meanC, doy), source: 'normals' };
 		if (normals.pressureMb != null) spec.pressureMb = normals.pressureMb;
 		if (normals.heightM != null) spec.heightM = normals.heightM;
 		const dew = event === 'sunrise' ? normals.sunriseDewC : normals.sunsetDewC;

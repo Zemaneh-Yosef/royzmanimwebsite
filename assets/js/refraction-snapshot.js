@@ -97,3 +97,39 @@ export function providerFromSnapshot(table, normals) {
 	const fromTable = (date, event) => table?.[snapshotKey(date, event)] ?? null;
 	return chainProviders(fromTable, providerFromNormals(normals));
 }
+
+/**
+ * Where the air behind a sunrise / sunset comes from, best first:
+ *   'forecast-path'  weather-model temperature profiles along the line of sight (Open-Meteo, or the server's GFS run)
+ *   'forecast-point' a forecast of one temperature at the observer (NWS / Open-Meteo, while the profiles are missing)
+ *   'climatology'    the server's typical profiles for the date (past the forecast)
+ *   'normals'        monthly average temperatures at the observer
+ *   'standard'       no data: the default 34.48' refraction
+ * @typedef {'forecast-path' | 'forecast-point' | 'climatology' | 'normals' | 'standard'} AtmosphereSource
+ */
+
+/**
+ * @param {AtmosphereSpec | null | undefined} spec what the provider gave for the event
+ * @returns {AtmosphereSource}
+ */
+export function atmosphereSourceOf(spec) {
+	if (!spec) return 'standard';
+	if ("path" in spec)
+		// path-atmosphere.js keys the server's events "srv|<cycle or climatology source>|..."
+		return spec.key?.startsWith("srv|climatology") ? 'climatology' : 'forecast-path';
+	// a single temperature stored before specs carried their source is taken for the humbler one
+	return spec.source === 'forecast' ? 'forecast-point' : 'normals';
+}
+
+/**
+ * The air temperature at the observer in a spec: its one temperature, or the lowest level of the nearest profile.
+ * @param {AtmosphereSpec | null | undefined} spec
+ * @returns {number} NaN when there is none
+ */
+export function surfaceTemperatureOf(spec) {
+	if (!spec) return NaN;
+	if (!("path" in spec)) return spec.temperatureC;
+	const near = spec.path.reduce((a, b) => b.distanceKm < a.distanceKm ? b : a, spec.path[0]);
+	const lowest = (near?.levels ?? []).filter(l => Number.isFinite(l.t)).reduce((a, b) => !a || b.h < a.h ? b : a, null);
+	return lowest?.t ?? NaN;
+}
