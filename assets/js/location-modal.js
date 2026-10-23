@@ -475,7 +475,18 @@ export default class LocationModal {
 			const ms = delay ? delay.total({ unit: "milliseconds" }) : 0;
 			effect = val(ltr(fmtShift(ms)));
 			const cap = zc.config.hazeMaxDelayMinutes === undefined ? 15 : zc.config.hazeMaxDelayMinutes;
-			if (cap !== null && Math.abs(ms) >= cap * 60000 - 1)
+			const status = zc.getHazeDelayStatus?.() ?? "modeled";
+			if (status === "at-least" || status === "at-most")
+				effect.append(note({
+					he: "הכוכבים לא נראים במודל לפני שהשמש 18° מתחת לאופק: הגבול במקום זמן מחושב",
+					"he-Latn": "the model sees no stars before the Sun is 18° down: the limit stands in, not a computed time"
+				}));
+			else if (status === "unresolved")
+				effect.append(note({
+					he: "הכוכבים לא נראים במודל לפני 18° בשני המצבים: ללא הזזה",
+					"he-Latn": "the model sees no stars before 18° either way: no shift applied"
+				}));
+			else if (cap !== null && Math.abs(ms) >= cap * 60000 - 1)
 				effect.append(note({ he: `הגיע לגבול של ${cap} דק'`, "he-Latn": `at the ${cap}-minute limit` }));
 		}
 		rows.push([{ he: "השפעה על צאת הכוכבים במעלות", "he-Latn": "Effect on Tzet by degrees" }, effect]);

@@ -582,7 +582,8 @@ accordian: true
 	 *  Nightfall           three medium stars (magnitude 2-3) seen anywhere, by A. Taylor's star-visibility model
 	 *                      (star-nightfall.js) with the Moon and no light pollution, under the haze here at dusk
 	 *                      (CAMS, read when the Sun is 4.65 degrees down: 18 minutes after sea-level sunset in
-	 *                      Jerusalem at the equinox). Its threshold margin is calibrated
+	 *                      Jerusalem at the equinox) dimming the stars; the twilight sky's brightness stays that
+	 *                      of the standard's haze (star-nightfall.js, "How sure"). Its threshold margin is calibrated
 	 *                      so that under Jerusalem's average dusk haze in the Gemara's time (GEMARA_SKY_FACTOR)
 	 *                      the earliest nightfall of the year in
 	 *                      Jerusalem is 18 minutes after sea-level sunset (STAR_MARGIN_TABLE). Standard: the same
@@ -626,7 +627,9 @@ accordian: true
 	 * dust ~34% and natural fine-mode ~15% (Georgoulias et al. 2016, ACP 16:13853, from MODIS), so 0.49 of today's
 	 * average. Antiquity's own smoke (wood and dung fires, kilns, burning fields) is left out: there are no numbers
 	 * for it. Applies to every twilight time on the page - dawn, nightfall, Rabbenu Tam - wherever Jerusalem's
-	 * measured average is the reference. 1 = today's sky.
+	 * measured average is the reference. 1 = today's sky. This is a declared reconstruction (a halachic modelling
+	 * choice), not a measured ancient optical depth: a modern regional share of the aerosol says what is man-made
+	 * now, not what Jerusalem's air held then.
 	 */
 	const GEMARA_SKY_FACTOR = 0.49;
 	/** Jerusalem's average haze (a measured aodRef) as it was in the Gemara's time @param {number} aodRef */
@@ -637,23 +640,25 @@ accordian: true
 	 * no light pollution, moonless) at 18.00 minutes after SEA-LEVEL sunset - late January or mid-September, the
 	 * two come out alike - in every year 2024-2030 (within 0.06 min). From _denoDebug/starMarginTable.mjs.
 	 * Counted from the sunset with elevation (on in Israel unless switched off) it is ~5 minutes less: that is
-	 * intended. A hazier Jerusalem needs a smaller margin (negative past ~0.23: the model's eye then sees a little
-	 * past its own threshold) to make the same 18 minutes.
+	 * intended. A hazier Jerusalem needs a smaller margin (negative past ~0.2: the model's eye then sees a little
+	 * past its own threshold) to make the same 18 minutes. A negative margin is a fitted number, not a property of
+	 * eyes: it absorbs whatever else is off (the threshold model, the sky's response to haze, the assumed sky).
+	 * Recalibrated October 2026 for the gases' ozone and pressure in star-nightfall.js.
 	 */
 	const STAR_MARGIN_TABLE = [
-		[0.03, 0.6821],
-		[0.05, 0.5822],
-		[0.07, 0.4936],
-		[0.1, 0.3728],
-		[0.13, 0.2647],
-		[0.16, 0.1654],
-		[0.2, 0.0455],
-		[0.25, -0.0914],
-		[0.3, -0.2155],
-		[0.35, -0.3304],
-		[0.4, -0.4389],
-		[0.5, -0.6384],
-		[0.6, -0.8223]
+		[0.03, 0.5818],
+		[0.05, 0.4933],
+		[0.07, 0.411],
+		[0.1, 0.2992],
+		[0.13, 0.1971],
+		[0.16, 0.1038],
+		[0.2, -0.0107],
+		[0.25, -0.1425],
+		[0.3, -0.2626],
+		[0.35, -0.3752],
+		[0.4, -0.4811],
+		[0.5, -0.6762],
+		[0.6, -0.8575]
 	];
 	/** halakhic_calc's default sky at Jerusalem's height: Jerusalem's average until its haze is loaded */
 	const DEFAULT_JERUSALEM_AOD = defaultAod(JERUSALEM.elevationM);
@@ -885,8 +890,10 @@ accordian: true
 		/**
 		 * Nightfall by the stars (see the top of this script) on this date: the standard (Jerusalem's average
 		 * dusk haze) and today's (the haze here at dusk), epoch ms, the latter within the cap of the former.
-		 * NaN where the Sun never gets 18 degrees down and the stars aren't seen before.
-		 * @returns { { standard: number, today: number } }
+		 * NaN where the Sun never gets 18 degrees down and the stars aren't seen before. `seen`: whether the
+		 * model saw the stars before the Sun was 18 degrees down under each haze; where it didn't, the
+		 * 18-degree moment (or the cap) stands in - a fallback, which the notice says.
+		 * @returns { { standard: number, today: number, seen: { standard: boolean, today: boolean } } }
 		 */
 		nightfallTimes() {
 			const geo = this.coreZC.getGeoLocation();
@@ -895,24 +902,36 @@ accordian: true
 			const cache = cacheFor(this.config, "nightfall");
 			const cached = cache.get(key + "|standard");
 			if (cached !== undefined)
-				return { standard: cached, today: /** @type {number} */ (cache.get(key + "|today")) };
+				return {
+					standard: cached, today: /** @type {number} */ (cache.get(key + "|today")),
+					seen: { standard: cache.get(key + "|seenStandard") !== 0, today: cache.get(key + "|seenToday") !== 0 }
+				};
 
 			const lat = geo.getLatitude(), lon = geo.getLongitude(), elevationM = Math.max(0, geo.getElevation());
 			const d = { year: date.year, month: date.month, day: date.day };
 			let standard = NaN, today = NaN;
+			const seen = { standard: true, today: true };
 			try {
 				// the Gemara's sky: calibrates the margin (18 minutes in Jerusalem) and is the standard the cap is kept from
 				const refAod = jerusalemHaze ? gemaraAod(hazeOn(jerusalemHaze, d, "dusk").aodRef) : DEFAULT_JERUSALEM_AOD;
 				const marginMag = starMarginFor(refAod);
 				const haze = this.config.haze;
 				const localAod = haze && jerusalemHaze && this.config.hazeTzet !== false ? hazeOn(haze, d, "dusk").aod : refAod;
-				const at = (/** @type {number} */ aod) => {
-					const result = starNightfall(d, lat, lon, { stars: 'medium', aod, blpCdM2: 0, elevationM, marginMag, moon: moonFor(geo) });
+				// the twilight sky's brightness stays the reference sky's; the air here dims the stars (star-nightfall.js,
+				// "How sure")
+				const at = (/** @type {number} */ aod, /** @type {'standard' | 'today'} */ which) => {
+					const result = starNightfall(d, lat, lon, { stars: 'medium', aod, skyAod: refAod, blpCdM2: 0, elevationM, marginMag, moon: moonFor(geo) });
+					seen[which] = result.reached;
 					// stars not seen before the Sun is 18 degrees down: that moment; never that low: midnight
 					return (!result.reached && !Number.isFinite(eveningSunAt(d, lat, lon, -18))) ? NaN : result.ms;
 				};
-				standard = at(refAod);
-				today = localAod === refAod ? standard : at(localAod);
+				standard = at(refAod, "standard");
+				if (localAod === refAod) {
+					today = standard;
+					seen.today = seen.standard;
+				} else {
+					today = at(localAod, "today");
+				}
 				const capMin = this.config.hazeMaxDelayMinutes === undefined ? 15 : this.config.hazeMaxDelayMinutes;
 				if (!Number.isFinite(standard))
 					today = NaN; // as without haze: midnight
@@ -925,14 +944,16 @@ accordian: true
 			}
 			cache.set(key + "|standard", standard);
 			cache.set(key + "|today", today);
-			return { standard, today };
+			cache.set(key + "|seenStandard", seen.standard ? 1 : 0);
+			cache.set(key + "|seenToday", seen.today ? 1 : 0);
+			return { standard, today, seen };
 		}
 
 		/**
 		 * How the air here moves each twilight time from its time under Jerusalem's sky in the Gemara's time (the
 		 * notice above the zemanim). Empty without haze data (here or for Jerusalem) or with the haze setting off.
 		 * @returns { { kind: 'dawn' | 'nightfall' | 'rt', minutes: number, standard: Temporal.ZonedDateTime,
-		 *   aod: number, refAod: number, forecast: boolean, capped: boolean }[] }
+		 *   aod: number, refAod: number, forecast: boolean, capped: boolean, fallback?: boolean }[] }
 		 */
 		twilightShifts() {
 			const haze = this.config.haze;
@@ -951,21 +972,21 @@ accordian: true
 			 * @param {'dawn' | 'nightfall' | 'rt'} kind @param {'morning' | 'dusk' | 'night'} reading
 			 * @param {Temporal.ZonedDateTime | null} standard @param {Temporal.ZonedDateTime | null} actual
 			 */
-			const add = (kind, reading, standard, actual) => {
+			const add = (kind, reading, standard, actual, fallback = false) => {
 				if (!standard || !actual)
 					return;
 				const here = hazeOn(haze, d, reading), jlm = hazeOn(jerusalemHaze, d, reading);
 				const minutes = standard.until(actual).total("minute");
 				out.push({
 					kind, minutes, standard, aod: here.aod, refAod: gemaraAod(jlm.aodRef), forecast: here.forecast,
-					capped: capMin !== null && Math.abs(minutes) >= capMin - 0.01
+					capped: capMin !== null && Math.abs(minutes) >= capMin - 0.01, fallback
 				});
 			};
 			try {
 				add("dawn", "morning", this.coreZC.getSunriseOffsetByDegrees(zenith), this.timeRange.current.dawn);
-				const { standard, today } = this.nightfallTimes();
+				const { standard, today, seen } = this.nightfallTimes();
 				if (Number.isFinite(standard) && Number.isFinite(today))
-					add("nightfall", "dusk", toZDT(standard), toZDT(today));
+					add("nightfall", "dusk", toZDT(standard), toZDT(today), !seen.standard || !seen.today);
 				add("rt", "night", this.coreZC.getSunsetOffsetByDegrees(zenith), this.timeRange.current.tzethakokhavim);
 			} catch (e) {
 				console.error("Twilight shifts failed", e);
@@ -1085,18 +1106,26 @@ accordian: true
 				const source = s.forecast ? "לפי תחזית האובך" : "לפי ממוצע האובך החודשי";
 				return `<b>${NOTICE_TEXT[s.kind].he}</b>: ${min} דק' ${earlier ? "מוקדם" : "מאוחר"} יותר מאשר בשמי זמן הגמרא (${time}) - `
 					+ `${source} (${n(s.aod)}) האוויר כאן ${clearer ? "צלול" : "עכור"} יותר משמי ירושלים אז (${n(s.refAod)})`
-					+ (s.capped ? `; נעצר בגבול ההזזה` : "");
+					+ (s.fallback ? `; במודל הכוכבים לא נראים לפני שהשמש 18° מתחת לאופק, והגבול בא במקום זמן מחושב`
+						: s.capped ? `; נעצר בגבול ההזזה` : "");
 			}
 			const source = s.forecast ? "the haze forecast here" : "the month's average haze here";
 			return `<b>${NOTICE_TEXT[s.kind][lang]}</b>: ${min} min ${earlier ? "earlier" : "later"} than under the Gemara's sky (${time}) - `
 				+ `${source} (${n(s.aod)}) is ${clearer ? "clearer" : "hazier"} than Jerusalem's then (${n(s.refAod)})`
-				+ (s.capped ? "; held at the largest-shift limit" : "");
+				+ (s.fallback ? "; the model sees no stars before the Sun is 18° down, so the limit stands in for a computed time"
+					: s.capped ? "; held at the largest-shift limit" : "");
 		}).join("<br>");
 
+		// the models behind these shifts are not yet checked against observed dawns and nightfalls on hazy days
+		const caveat = {
+			he: "<br><small>ההזזות לפי האובך הן ממודל שעדיין לא נבדק מול תצפיות בימים אביכים.</small>",
+			"he-Latn": "<br><small>The haze shifts come from models not yet checked against observations on hazy days.</small>",
+			en: "<br><small>The haze shifts come from models not yet checked against observations on hazy days.</small>"
+		};
 		box.innerHTML =
-			`<span class="lang lang-he">${lines("he")}</span>`
-			+ `<span class="lang lang-he-Latn">${lines("he-Latn")}</span>`
-			+ `<span class="lang lang-en">${lines("en")}</span>`;
+			`<span class="lang lang-he">${lines("he")}${caveat.he}</span>`
+			+ `<span class="lang lang-he-Latn">${lines("he-Latn")}${caveat["he-Latn"]}</span>`
+			+ `<span class="lang lang-en">${lines("en")}${caveat.en}</span>`;
 		box.style.removeProperty("display");
 	});
 

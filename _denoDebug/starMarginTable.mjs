@@ -7,6 +7,7 @@
 // minutes after sea-level sunset (the Sun's centre 0.833 degrees down). The page interpolates it at Jerusalem's
 // actual average, so that under Jerusalem's average sky the Gemara's 18 minutes come out exactly.
 
+import "../assets/libraries/temporal-polyfill/global.min.js";
 import { starNightfall, eveningSunAt } from "../assets/libraries/kosherZmanim/star-nightfall.js";
 
 const J = { lat: 31.7780, lon: 35.2354, h: 754 };

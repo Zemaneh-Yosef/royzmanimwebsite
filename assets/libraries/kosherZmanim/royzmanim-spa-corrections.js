@@ -22,10 +22,15 @@
  * them; depression-angle zmanim such as 16.1 degrees or 7.165 degrees are untouched, as in KosherJava;
  * 11, the Sun's position, applies to every time):
  *
- *  1. Refraction constant: 34.478885263888294' (Calendrical Calculations global average) instead of 34'.
+ *  1. Refraction constant: 34.478885263888294' (Calendrical Calculations' value) instead of 34'. It is a
+ *     convention for average air, not a law: within 0.0014' of Bennett's (1982) formula at 0 degrees
+ *     (34.477534'), above the 33.0' of standard air ray traced (6) - an allowance for the colder, more
+ *     stable air near the ground at dawn - and short of Minnaert's 35' observed average; real days scatter
+ *     rise and set times by 1-2 minutes either way (Minnaert, Light and Colour, sec. 29). More refraction
+ *     makes sunrise earlier: 34.48' instead of 34' brings it ~2.3-2.6 s earlier at sea level.
  *  2. Elevation model ('physical', default): replaces `refraction + acos(R / (R + h))` with the dip and
  *     horizon-ray refraction from Sweer's (1938) ray equations in a standard atmosphere. KosherJava's
- *     geometric dip is ~10% too large (it ignores terrestrial refraction) and its refraction is the value
+ *     geometric dip is ~9% too large (52.9' against 48.4' at 755 m; it ignores terrestrial refraction) and its refraction is the value
  *     for a body at 0 degrees altitude, while the sea horizon seen from above is below that, where
  *     refraction is larger. At 800 m the old total depression was ~5.7' too shallow. Sea-level results
  *     are unchanged. Pass { elevationModel: 'kosherjava' } to get the original behaviour back.
@@ -50,8 +55,14 @@
  *     with altitude) without curve fits.
  *     Note the 34.48' average implicitly assumes colder-than-ISA air; do not combine the two.
  *  7. Optional, from ChaiTables: visible sunrise/sunset over a horizon profile (getVisibleSunrise /
- *     getVisibleSunset). Profile points come from a DEM (distance + height; geometric angle with Earth
- *     curvature plus terrestrial refraction) or are measured apparent angles. Every point of the solar
+ *     getVisibleSunset). Profile points come from a DEM (distance + height) or are measured apparent
+ *     angles. With weather-model air along the path (8), a DEM point's apparent elevation is the ray from
+ *     the eye to it traced through the same air as the Sun's rays (terrainElevation). ChaiTables'
+ *     one-curvature terrestrial refraction (-dn/dh x L / 2 at the endpoints' mean height) agrees within
+ *     ~0.6 s of sunrise in smooth air, but missed by 10-60 s in synthetic inversion tests (October 2026
+ *     review) and cannot see the air change along the path; it stays for one-temperature air (6), which
+ *     has no inversion. The server sends, per azimuth, the highest terrain point under standard refraction
+ *     and any other that would be highest in other air; the highest in the day's air is used. Every point of the solar
  *     limb is tested against the profile at its own azimuth (ChaiTables' 2022 limb-sampling fix), and the
  *     refraction for each point is ray traced at its own apparent altitude for the observer's height.
  *     The semidiameter is date-based (ChaiTables' visible branch uses a fixed 16').
@@ -477,6 +488,78 @@ export function terrestrialRefraction(atm, h1, h2, pathM) {
 }
 
 /**
+ * Height (m above sea level) at ground distance distM of the ray leaving an observer at height ho with
+ * apparent altitude aDeg, traced through a refractivity field (RK4 in polar coordinates, as the path medium's
+ * solar rays). -Infinity if the ray comes down below the floor (sea level, or a basin floor) before it.
+ * @param {(z: number, d: number, out: Float64Array) => void} field writes N (= n - 1), dN/dz and dN/dd at
+ *   height z and ground distance d into out[0..2]
+ * @param {number} ho @param {number} aDeg @param {number} R @param {number} distM @param {number} [floorM]
+ */
+function rayHeightAt(field, ho, aDeg, R, distM, floorM = 0) {
+	const F = new Float64Array(3), D = new Float64Array(3);
+	const deriv = (/** @type {number} */ r, /** @type {number} */ th, /** @type {number} */ b) => {
+		field(r - R, R * th, F);
+		const cb = Math.cos(b), sb = Math.sin(b);
+		D[0] = sb; D[1] = cb / r; D[2] = cb / r + (F[1] * cb - (R / r) * F[2] * sb) / (1 + F[0]);
+	};
+	const floor = Math.min(0, floorM), thEnd = distM / R;
+	// ~250 m steps: the field's columns are tabulated every 2 m in height, so a short path still gets 16
+	const n = Math.max(16, Math.ceil(distM / 250));
+	const s = distM / Math.cos(aDeg * DEG) / n;
+	let r = R + ho, th = 0, b = aDeg * DEG;
+	for (let i = 0; i < 4 * n; i++) {
+		const r0 = r, th0 = th;
+		deriv(r, th, b); const r1 = D[0], t1 = D[1], b1 = D[2];
+		deriv(r + s / 2 * r1, th + s / 2 * t1, b + s / 2 * b1); const r2 = D[0], t2 = D[1], b2 = D[2];
+		deriv(r + s / 2 * r2, th + s / 2 * t2, b + s / 2 * b2); const r3 = D[0], t3 = D[1], b3 = D[2];
+		deriv(r + s * r3, th + s * t3, b + s * b3);
+		r += s / 6 * (r1 + 2 * r2 + 2 * r3 + D[0]);
+		th += s / 6 * (t1 + 2 * t2 + 2 * t3 + D[1]);
+		b += s / 6 * (b1 + 2 * b2 + 2 * b3 + D[2]);
+		// the last step overshoots the target's distance: linear in th within a step (mm over 250 m)
+		if (th >= thEnd) return r0 + (r - r0) * (thEnd - th0) / (th - th0) - R;
+		if (r - R < floor) return -Infinity;
+	}
+	return -Infinity;
+}
+
+/**
+ * Apparent elevation (degrees) of a terrain point at ground distance distM and height targetM: the ray from
+ * the observer that reaches it, traced through the air (rayHeightAt) rather than bent by one curvature
+ * (terrestrialRefraction, which takes dn/dh at the endpoints' mean height and so misses inversions the ray
+ * dips through, and any change of the air along a path medium). Solved by the secant method from the
+ * one-curvature estimate; the ray's height at the target grows with its elevation by ~distM per radian, so
+ * two or three traces reach 1 cm. In an inversion strong enough to give the ridge several images, this is
+ * the one nearest the estimate.
+ * A one-temperature atmosphere (createAtmosphere: standard lapse rate, no inversion, the same everywhere)
+ * keeps the one-curvature estimate: there the two differ by under 2" out to 80 km and 8" (~0.6 s of
+ * sunrise) at 150 km, and the trace would cost ~0.5 ms a point on every day of a calendar. Weather-model
+ * path media, which can hold inversions and change along the path, are traced.
+ * @param {Atmosphere | Medium} atm @param {number} ho observer height @param {number} targetM
+ * @param {number} distM @param {number} R @param {number} [floorM]
+ */
+export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0) {
+	const geo = geometricElevation(ho, targetM, distM, R);
+	const chord = Math.hypot(distM, (R + targetM) * Math.cos(distM / R) - (R + ho));
+	const est = geo + terrestrialRefraction(atm, ho, targetM, chord);
+	const heightAt = 'heightAt' in atm ? atm.heightAt : undefined;
+	if (!heightAt) return est;
+	const f = (/** @type {number} */ a) => heightAt(ho, a, R, distM, floorM) - targetM;
+	const slope = distM * DEG;                                 // metres of height per degree, near enough
+	let a0 = est, f0 = f(a0);
+	// a ray that came down before the target: aim higher until one gets there
+	for (let i = 0; i < 20 && f0 === -Infinity; i++) { a0 += 0.05; f0 = f(a0); }
+	if (f0 === -Infinity) return est;
+	let a1 = a0 - f0 / slope, f1 = f(a1);
+	for (let i = 0; i < 8 && Math.abs(f1) > 0.01; i++) {
+		const d = f1 - f0;
+		const a2 = Number.isFinite(f1) && d !== 0 ? a1 - f1 * (a1 - a0) / d : a1 + 0.01;
+		a0 = a1; f0 = f1; a1 = a2; f1 = f(a1);
+	}
+	return Number.isFinite(f1) && Math.abs(f1) < 1 ? a1 : est;
+}
+
+/**
  * Geometric (unrefracted) elevation angle, degrees, of a point at surface distance distM and height
  * targetM, seen from observerM, on a sphere of radius R.
  * @param {number} observerM @param {number} targetM @param {number} distM @param {number} R
@@ -504,7 +587,10 @@ export function geometricElevation(observerM, targetM, distM, R) {
  * @typedef {{ distanceKm: number, water?: boolean, skinC?: number | null, levels: ProfileLevel[] }} PathProfile
  * @typedef {{ key: string, nm1: (h:number)=>number, dndh: (h:number)=>number,
  *             refraction: (ho:number, aDeg:number, R:number, floorM?:number)=>number,
- *             seaHorizon: (ho:number, R:number, floorM?:number)=>number }} Medium
+ *             seaHorizon: (ho:number, R:number, floorM?:number)=>number,
+ *             heightAt?: (ho:number, aDeg:number, R:number, distM:number, floorM?:number)=>number }} Medium
+ *   heightAt: the height at ground distance distM of the ray leaving ho at apparent altitude aDeg (rayHeightAt);
+ *   path media only (see terrainElevation)
  */
 
 const SURFACE_Z0H = 1e-4;
@@ -791,6 +877,9 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 		nm1: z => near(z)[0],
 		dndh: z => near(z)[1],
 		refraction: trace,
+		heightAt: (ho, aDeg, R, distM, floorM = 0) => rayHeightAt((z, d, out) => {
+			fieldAt(z, d); out[0] = F[0]; out[1] = F[1]; out[2] = F[2];
+		}, ho, aDeg, R, distM, floorM),
 		// Apparent altitude of the lowest direction in which the Sun can be seen. Normally that is the
 		// sea horizon (the ray grazing the water). Over water warmer than the air, rays aimed just above
 		// the water curve back up (inferior mirage); the Sun then vanishes where it meets its mirror image,
@@ -977,9 +1066,11 @@ class Cache {
  * @typedef {{ mode: 'point' | 'vantage', points: HorizonSetPoint[], params?: any }} HorizonSet
  *   What the server's /v1/horizon returns (see horizon-client.js): the exact point, or the vantage
  *   points within a radius that have the lowest horizon in some direction.
- * @typedef {{ azimuthDeg: number, distanceKm: number, heightM: number }} DemHorizonPoint
+ * @typedef {{ azimuthDeg: number, distanceKm: number, heightM: number, alternates?: [number, number][] }} DemHorizonPoint
  *   A horizon point from a DEM: the highest-angle terrain point at this azimuth, its distance along the
- *   surface and its height above sea level. Elevation angle and terrestrial refraction are computed.
+ *   surface and its height above sea level. Its apparent elevation is found by tracing the ray to it
+ *   (terrainElevation). alternates: [distanceKm, heightM] of other points along the azimuth that would be
+ *   the highest in other air (the server's, see its terrain.py); the highest of all in the day's air counts.
  * @typedef {{ azimuthDeg: number, elevationDeg: number }} ObservedHorizonPoint
  *   A measured (theodolite / photo) apparent elevation angle; used as-is (refraction already included).
  * @typedef {DemHorizonPoint | ObservedHorizonPoint} HorizonPoint
@@ -1385,10 +1476,12 @@ export default class ROYSPACalculator extends SPACalculator {
 				app = p.elevationDeg;
 			} else {
 				const q = /** @type {DemHorizonPoint} */ (p);
-				const d = q.distanceKm * 1000;
-				const geo = geometricElevation(ho, q.heightM, d, R);
-				const path = Math.hypot(d, (R + q.heightM) * Math.cos(d / R) - (R + ho)); // chord length
-				app = geo + terrestrialRefraction(atm, ho, q.heightM, path);
+				// the ray to the terrain traced through the same air as the Sun's (terrainElevation). The server
+				// picks each azimuth's highest point under standard refraction; where other air could make a
+				// farther (or nearer) point the higher one it sends those too (alternates), and the highest wins
+				app = terrainElevation(atm, ho, q.heightM, q.distanceKm * 1000, R, floorM);
+				for (const [dk, hm] of q.alternates ?? [])
+					app = Math.max(app, terrainElevation(atm, ho, hm, dk * 1000, R, floorM));
 			}
 			return { az: ((p.azimuthDeg % 360) + 360) % 360, app: Math.max(app, seaAlt) };
 		}).sort((a, b) => a.az - b.az);

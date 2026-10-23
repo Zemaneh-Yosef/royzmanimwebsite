@@ -9,11 +9,15 @@
  * haze taken from data instead of a fixed clear atmosphere:
  *
  *   sky       twilight luminance by altitude, azimuth from the Sun and solar altitude (the table used by
- *             halakhic_calc), scaled by (1 - 10^(-0.4 k X)) for the air the line of sight crosses; plus
- *             the artificial sky (light pollution, Blp) and the natural night sky (1.7e-4 cd/m^2)
+ *             halakhic_calc), scaled by (1 - 10^(-0.4 k X)) for the air the line of sight crosses (k of the
+ *             sky's haze, skyAod: see "How sure"); plus the artificial sky (light pollution, Blp) and the
+ *             natural night sky (1.7e-4 cd/m^2)
  *   threshold the faintest point source the eye sees against that sky (Crumey 2014), raised by the
  *             star's extinction 10^(0.4 k X), with halakhic_calc's 1 magnitude margin
- *   extinction k = 0.1066 (Rayleigh and ozone, as halakhic_calc) + 1.086 x aerosol optical depth (550 nm)
+ *   extinction k = 0.1066 x P / 1013.25 (Rayleigh: halakhic_calc's 0.1066 is Schaefer's Rayleigh term alone,
+ *             though calc_time.py labels it Rayleigh and ozone; P the standard pressure at the observer's
+ *             height) + 0.031 (ozone's Chappuis band at V, Schaefer 1992) + 1.086 x aerosol optical depth
+ *             (550 nm). Minnaert (sec. 46) measured k = 0.21-0.23 on very clear nights: this at AOD ~0.1
  *   airmass   X = (1 - (cos(alt) / (1 + h / R))^2)^-1/2 at the apparent (refracted) altitude, stars
  *             above 10 degrees only
  *   stars     Yale Bright Star Catalog: medium = V 2.0-3.0, small = V 3.0-4.0 (halakhic_calc's classes);
@@ -39,11 +43,15 @@
  * 87 times within 1.6 min; small stars within 0.4 min. Medium stars come ~1 min earlier here because
  * PyEphem refracts the Sun's altitude even below the horizon (-1.8 deg true reads -1.0 deg) and the
  * twilight table is entered with that; here the true solar altitude is used. That cancels in a haze delay.
+ * Those checks predate the gas term's ozone and pressure (October 2026): at a given aerosol optical depth
+ * they put nightfall 0.4-1 min later than calc_time.py; its default sky (defaultAod) gives the same times.
  *
- * Haze delay (hazeDelayMs): nightfall at a day's haze minus nightfall at a reference haze (e.g. the
- * place's long-run average), same sky otherwise. Added to a time defined for average conditions (such
- * as Tzet Shabbat by degrees), it makes hazier evenings later and clearer ones earlier. Where the stars
- * do not appear before the Sun is 18 degrees down, the moment it reaches 18 degrees stands in.
+ * Haze delay (hazeDelay / hazeDelayMs): nightfall at a day's haze minus nightfall at a reference haze (e.g.
+ * the place's long-run average), same sky otherwise. Added to a time defined for average conditions (such
+ * as Tzet Shabbat by degrees), it makes hazier evenings later and clearer ones earlier. Where the stars do
+ * not appear before the Sun is 18 degrees down the model has no time, only a bound: hazeDelay says so
+ * (status 'at-least' / 'at-most' / 'unresolved') rather than passing the 18-degree moment off as nightfall,
+ * and the caller chooses its own fallback.
  *
  * Options added for absolute nightfall times (handasi-hazeman), both off by default so the haze delay above
  * is unchanged:
@@ -55,9 +63,17 @@
  * defaultAod(elevationM) gives the aerosol optical depth that matches halakhic_calc's fixed extinction
  * 0.1066 + 0.12 e^(-h/1500): the "default sky" with nothing local about it.
  *
- * How sure: the extinction of starlight by haze is plain physics; the brightening of the twilight sky by
- * haze (the (1 - 10^(-0.4 k X)) factor) is the model's assumption and probably overstates the effect late
- * in twilight, when most haze is in the Earth's shadow. Not yet compared with observations on hazy nights.
+ * How sure: the extinction of starlight by haze is plain physics (Beer-Lambert). The brightening of the
+ * twilight sky by haze - calc_time.py's (1 - 10^(-0.4 k X)) with the day's k - is not: it treats haze as lit
+ * by the Sun, but from ~4 degrees down the low haze is in the Earth's shadow and the light it would scatter
+ * comes from tens of km up (Rozenberg, Twilight, pp. 184, 207, 258), and twilight brightness away from the
+ * horizon is observed to be "virtually independent" of the weather at the station (p. 25). With the day's
+ * haze in the sky term too, Jerusalem's delay for AOD 0.1 -> 0.4 was 7-8 minutes; with the sky held at the
+ * reference haze (skyAod, as hazeDelay does) it is ~4 minutes, and haze that also dimmed the sunlit high sky
+ * would make it ~2.5; Rozenberg's own estimate was 4-5. So the haze delay keeps the sky at the reference haze
+ * and lets the day's haze dim only the stars. That is an interim choice, not a measured result: haze also
+ * scatters the glow from above, and only a spherical multiple-scattering calculation or timed observations
+ * on hazy evenings can settle how much. Absolute times (starNightfall without skyAod) are unchanged.
  */
 
 import ROYSPACalculator from './royzmanim-spa-corrections.js';
@@ -65,7 +81,10 @@ import { nutation } from './nutation.js';
 import { deltaT } from './delta-t.js';
 
 const DEG = Math.PI / 180;
+/** Rayleigh extinction at V, sea level (Schaefer's; halakhic_calc's whole gas term) */
 const RAYLEIGH_K = 0.1066;
+/** ozone (Chappuis band) at V, magnitudes per airmass (Schaefer 1992's 0.031 average) */
+const OZONE_K = 0.031;
 const AOD_TO_K = 2.5 * Math.LOG10E;            // magnitudes per unit optical depth (1.0857)
 const NATURAL_SKY_CDM2 = 1.7e-4;
 const MIN_ALT_DEG = 10;
@@ -77,9 +96,10 @@ const EARTH_R_M = 6371000;
  *   the Moon's topocentric right ascension / declination of date (deg) and phase angle (deg) at an instant
  */
 /**
- * @typedef {{ aod: number, blpCdM2?: number | null, stars?: StarClass, together?: boolean, nearDeg?: number,
- *             elevationM?: number, marginMag?: number, moon?: MoonSource | null }} NightfallOptions
- *   aod: aerosol optical depth at 550 nm. blpCdM2: light pollution, cd/m^2 (the server's blpCdM2; 0 / null =
+ * @typedef {{ aod: number, skyAod?: number, blpCdM2?: number | null, stars?: StarClass, together?: boolean,
+ *             nearDeg?: number, elevationM?: number, marginMag?: number, moon?: MoonSource | null }} NightfallOptions
+ *   aod: aerosol optical depth at 550 nm. skyAod: the one the twilight sky's brightness is figured with
+ *   (default aod; see "How sure" above). blpCdM2: light pollution, cd/m^2 (the server's blpCdM2; 0 / null =
  *   none). stars: 'medium' (default) or 'small'. together: three within nearDeg (default: true for small
  *   stars, false for medium). elevationM: observer's height (airmass only; default 0). marginMag: threshold
  *   margin in magnitudes (default 1.0, halakhic_calc's). moon: include the Moon's light (default: none).
@@ -197,6 +217,15 @@ function brightLimit(B) {
 	return Math.pow(r + a4 * Math.pow(B, 0.25) + a5 * Math.sqrt(B), 2);
 }
 
+/**
+ * Extinction (magnitudes per airmass) of the air's gases at a height: Rayleigh scaled by the standard
+ * pressure there, plus ozone.
+ * @param {number} elevationM
+ */
+function gasExtinction(elevationM) {
+	return RAYLEIGH_K * Math.pow(1 - 0.0065 * Math.max(0, elevationM) / 288.15, 5.25588) + OZONE_K;
+}
+
 /** @param {number} altDeg @param {number} elevationM */
 function airmass(altDeg, elevationM) {
 	const s = Math.cos(altDeg * DEG) / (1 + elevationM / EARTH_R_M);
@@ -204,12 +233,13 @@ function airmass(altDeg, elevationM) {
 }
 
 /**
- * Aerosol optical depth that, with the Rayleigh / ozone term, gives halakhic_calc's default extinction
+ * Aerosol optical depth that, with the gases (gasExtinction), gives halakhic_calc's default extinction
  * k = 0.1066 + 0.12 e^(-h / 1500) at the observer's height.
  * @param {number} [elevationM]
  */
 export function defaultAod(elevationM = 0) {
-	return 0.12 * Math.exp(-Math.max(0, elevationM) / 1500) / AOD_TO_K;
+	const h = Math.max(0, elevationM);
+	return Math.max(0, RAYLEIGH_K + 0.12 * Math.exp(-h / 1500) - gasExtinction(h)) / AOD_TO_K;
 }
 
 /**
@@ -248,7 +278,8 @@ function threeTogether(pts, d) {
  * Every star of a list above 10 degrees at an instant, with the faintest magnitude visible where it is.
  * @param {number} ms epoch ms @param {number} latDeg @param {number} lonDeg
  * @param {[number, number, number][]} stars precessed [ra, dec, mag]
- * @param {{ k: number, blp: number, elevationM: number, marginMag: number, moon: MoonSource | null }} p
+ * @param {{ k: number, kSky: number, blp: number, elevationM: number, marginMag: number, moon: MoonSource | null }} p
+ *   k: the day's extinction (stars, moonlight); kSky: the one the twilight sky's brightness is figured with
  * @returns {{ alt: number, az: number, mag: number, limit: number }[]}
  */
 function skyAt(ms, latDeg, lonDeg, stars, p) {
@@ -276,7 +307,7 @@ function skyAt(ms, latDeg, lonDeg, stars, p) {
 		let dAz = Math.abs(az - sunAz);
 		if (dAz > 180) dAz = 360 - dAz;
 		const X = airmass(alt, p.elevationM);
-		let B = twilightLuminance(alt, dAz, sunAlt) * (1 - Math.pow(10, -0.4 * p.k * X)) + p.blp + NATURAL_SKY_CDM2;
+		let B = twilightLuminance(alt, dAz, sunAlt) * (1 - Math.pow(10, -0.4 * p.kSky * X)) + p.blp + NATURAL_SKY_CDM2;
 		if (moon) {
 			const d = Math.max(separation(moon.pos, [alt, az]), 0.25); // deg; floored: no star sits on the Moon
 			const ext = Math.pow(10, -0.4 * p.k * X);
@@ -296,7 +327,7 @@ function skyAt(ms, latDeg, lonDeg, stars, p) {
  * Whether three stars are visible at an instant.
  * @param {number} ms epoch ms @param {number} latDeg @param {number} lonDeg
  * @param {[number, number, number][]} stars precessed [ra, dec, mag]
- * @param {{ k: number, blp: number, together: boolean, nearDeg: number, elevationM: number, marginMag: number, moon: MoonSource | null }} p
+ * @param {{ k: number, kSky: number, blp: number, together: boolean, nearDeg: number, elevationM: number, marginMag: number, moon: MoonSource | null }} p
  */
 function starsVisible(ms, latDeg, lonDeg, stars, p) {
 	const seen = skyAt(ms, latDeg, lonDeg, stars, p).filter(s => s.mag <= s.limit).map(s => [s.alt, s.az]);
@@ -316,8 +347,10 @@ export function starsAt(ms, latDeg, lonDeg, options) {
 /** @param {NightfallOptions} options */
 function paramsOf(options) {
 	const cls = options.stars ?? 'medium';
+	const gas = gasExtinction(options.elevationM ?? 0);
 	return {
-		k: RAYLEIGH_K + AOD_TO_K * Math.max(0, options.aod),
+		k: gas + AOD_TO_K * Math.max(0, options.aod),
+		kSky: gas + AOD_TO_K * Math.max(0, Number.isFinite(options.skyAod) ? /** @type {number} */ (options.skyAod) : options.aod),
 		blp: Math.max(0, options.blpCdM2 ?? 0),
 		together: options.together ?? cls === 'small',
 		nearDeg: options.nearDeg ?? 10,
@@ -404,18 +437,43 @@ export function starNightfall(date, latDeg, lonDeg, options) {
 }
 
 /**
+ * @typedef {{ aod: number, aodRef: number, blpCdM2?: number | null, elevationM?: number, stars?: StarClass,
+ *             together?: boolean, nearDeg?: number, marginMag?: number, moon?: MoonSource | null }} HazeDelayOptions
+ * @typedef {'none' | 'modeled' | 'at-least' | 'at-most' | 'unresolved'} HazeDelayStatus
+ *   none: the hazes are equal or the Sun doesn't set (ms 0). modeled: three stars seen under both hazes.
+ *   at-least: not under the day's haze before the Sun is 18 degrees down (ms is the least the delay can be).
+ *   at-most: not under the reference haze (ms the most it can be). unresolved: under neither (ms NaN).
+ */
+
+/**
  * Nightfall at the day's haze minus nightfall at a reference haze (ms; positive = later), everything else
- * equal. 0 when the two hazes are equal or the Sun doesn't set.
+ * equal, with the twilight sky's brightness held at the reference haze (see "How sure" at the top).
  * @param {{year:number, month:number, day:number}} date @param {number} latDeg @param {number} lonDeg
- * @param {{ aod: number, aodRef: number, blpCdM2?: number | null, elevationM?: number, stars?: StarClass,
- *           together?: boolean, nearDeg?: number, marginMag?: number, moon?: MoonSource | null }} options
+ * @param {HazeDelayOptions} options
+ * @returns {{ ms: number, status: HazeDelayStatus }}
+ */
+export function hazeDelay(date, latDeg, lonDeg, options) {
+	if (!(Number.isFinite(options.aod) && Number.isFinite(options.aodRef)) || options.aod === options.aodRef)
+		return { ms: 0, status: 'none' };
+	const a = starNightfall(date, latDeg, lonDeg, { ...options, aod: options.aod, skyAod: options.aodRef });
+	const b = starNightfall(date, latDeg, lonDeg, { ...options, aod: options.aodRef, skyAod: options.aodRef });
+	const d = a.ms - b.ms;
+	if (!Number.isFinite(d)) return { ms: 0, status: 'none' };
+	if (a.reached && b.reached) return { ms: d, status: 'modeled' };
+	if (b.reached) return { ms: d, status: 'at-least' };
+	if (a.reached) return { ms: d, status: 'at-most' };
+	return { ms: NaN, status: 'unresolved' };
+}
+
+/**
+ * hazeDelay's milliseconds alone: the bound where there is only a bound, 0 where there is neither a time nor
+ * a bound. Prefer hazeDelay, which says which.
+ * @param {{year:number, month:number, day:number}} date @param {number} latDeg @param {number} lonDeg
+ * @param {HazeDelayOptions} options
  */
 export function hazeDelayMs(date, latDeg, lonDeg, options) {
-	if (!(Number.isFinite(options.aod) && Number.isFinite(options.aodRef)) || options.aod === options.aodRef) return 0;
-	const a = starNightfall(date, latDeg, lonDeg, { ...options, aod: options.aod });
-	const b = starNightfall(date, latDeg, lonDeg, { ...options, aod: options.aodRef });
-	const d = a.ms - b.ms;
-	return Number.isFinite(d) ? d : 0;
+	const { ms } = hazeDelay(date, latDeg, lonDeg, options);
+	return Number.isFinite(ms) ? ms : 0;
 }
 
 // ------------------------------------------------------------------------------------------------

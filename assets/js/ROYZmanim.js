@@ -4,7 +4,7 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import ROYSPACalculator from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
 import { MathUtils } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import TekufahCalculator from "./tekufot.js";
-import { hazeDelayMs, hazeOn } from "../libraries/kosherZmanim/star-nightfall.js";
+import { hazeDelay, hazeOn } from "../libraries/kosherZmanim/star-nightfall.js";
 
 /** @typedef {{minutes: number | null; degree?: number | null}} melakhaTzet */
 /** @typedef {import("./refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
@@ -82,8 +82,9 @@ export function hasCachedVisibleSunrise(config, date) {
 }
 
 /**
- * Haze delays (ms) per config and ISO date, shared by every instance chainDate() makes from it.
- * @type {WeakMap<ZemanimConfig, Map<string, number>>}
+ * Haze delays (ms, and whether modeled or a bound) per config and ISO date, shared by every instance
+ * chainDate() makes from it.
+ * @type {WeakMap<ZemanimConfig, Map<string, { ms: number, status: import("../libraries/kosherZmanim/star-nightfall.js").HazeDelayStatus }>>}
  */
 const hazeDelayCache = new WeakMap();
 
@@ -458,9 +459,27 @@ class ZemanimMathBase {
 	/**
 	 * How much later (negative: earlier) nightfall by the stars comes on the current date at the evening's
 	 * haze than at the place's average haze (ZemanimConfig.haze / hazeTzet). null when off or without data.
+	 * Where the model has only a bound (the stars not seen before the Sun is 18 degrees down under one of the
+	 * two hazes; getHazeDelayStatus), the cap stands in on that side: a fallback, not a modeled time.
 	 * @returns {Temporal.Duration | null}
 	 */
 	getHazeDelay() {
+		const entry = this.hazeDelayEntry();
+		return entry ? Temporal.Duration.from({ milliseconds: Math.round(entry.ms) }) : null;
+	}
+
+	/**
+	 * Whether getHazeDelay() is the star model's own difference ('modeled'), a bound with the cap standing in
+	 * ('at-least': the stars not seen under the evening's haze before the Sun is 18 degrees down; 'at-most':
+	 * not under the average haze), or neither ('unresolved': no delay applied). null when off or without data.
+	 * @returns {import("../libraries/kosherZmanim/star-nightfall.js").HazeDelayStatus | null}
+	 */
+	getHazeDelayStatus() {
+		return this.hazeDelayEntry()?.status ?? null;
+	}
+
+	/** @returns {{ ms: number, status: import("../libraries/kosherZmanim/star-nightfall.js").HazeDelayStatus } | null} */
+	hazeDelayEntry() {
 		const haze = this.config.haze;
 		if (!haze || this.config.hazeTzet === false)
 			return null;
@@ -471,22 +490,33 @@ class ZemanimMathBase {
 			cache = new Map();
 			hazeDelayCache.set(this.config, cache);
 		}
-		let ms = cache.get(key);
-		if (ms === undefined) {
+		let entry = cache.get(key);
+		if (entry === undefined) {
 			const geo = this.coreZC.getGeoLocation();
+			/** @type {{ ms: number, status: import("../libraries/kosherZmanim/star-nightfall.js").HazeDelayStatus }} */
+			let d;
 			try {
 				const { aod, aodRef } = hazeOn(haze, date);
-				ms = hazeDelayMs(date, geo.getLatitude(), geo.getLongitude(),
+				d = hazeDelay(date, geo.getLatitude(), geo.getLongitude(),
 					{ ...this.starModelOptions(), aod, aodRef, blpCdM2: haze.blpCdM2, elevationM: geo.getElevation() });
 			} catch (e) {
 				console.error("Haze delay failed", e);
-				ms = 0;
+				d = { ms: 0, status: "none" };
 			}
 			const capMin = this.config.hazeMaxDelayMinutes === undefined ? 15 : this.config.hazeMaxDelayMinutes;
-			if (capMin != null) ms = Math.max(-capMin * 60000, Math.min(capMin * 60000, ms));
-			cache.set(key, ms);
+			const cap = capMin == null ? Infinity : capMin * 60000;
+			let ms = d.ms;
+			if (d.status === "unresolved")
+				ms = 0;
+			else if (d.status === "at-least")
+				ms = Math.max(ms, cap === Infinity ? ms : cap);
+			else if (d.status === "at-most")
+				ms = Math.min(ms, cap === Infinity ? ms : -cap);
+			ms = Math.max(-cap, Math.min(cap, ms));
+			entry = { ms, status: d.status };
+			cache.set(key, entry);
 		}
-		return Temporal.Duration.from({ milliseconds: Math.round(ms) });
+		return entry;
 	}
 
 	/**
