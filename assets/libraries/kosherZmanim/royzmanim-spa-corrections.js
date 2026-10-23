@@ -535,11 +535,16 @@ function rayHeightAt(field, ho, aDeg, R, distM, floorM = 0) {
  * one-curvature estimate; the ray's height at the target grows with its elevation by ~distM per radian, so
  * two or three traces reach 1 cm. Where the air bends level rays more sharply than the Earth curves (a duct:
  * maxCurvature > 1 / R near the heights the ray passes), the ridge can show more than one image, one above
- * the other; the Sun is hidden behind it up to the highest. `images` says how that is handled: 'auto' (the
- * default) checks, above the secant's solution, for a ray that still meets the ridge (rays aimed 0.02 deg apart
- * up to 0.5 deg higher, stopping at the first) and only then searches upward for the highest image; 'scan'
- * searches whenever there is a duct (several hundred traces a point; in ERA5 air a duct crosses the ray on
- * 10-40% of mornings, but a higher image changed the time on about 1 in 800); 'off' keeps the secant's.
+ * the other; the Sun is hidden behind it up to the highest. `images` says how that is handled:
+ *  - 'auto' (default): search only where some ray aimed above the secant's solution can be turned back
+ *    down at all (Medium.trapLimit, from Bouguer's invariant), and only up to the steepest such ray;
+ *  - 'scan': search wherever a duct lies within the band of heights below (several hundred traces a point;
+ *    in ERA5 air such a duct is there on 10-40% of mornings, while a higher image changed the time on 4 of
+ *    about 3,200 mornings tested: Jerusalem 1985-96 and 2009-13, Toronto, Chicago and Montreal 2023);
+ *  - 'off': keep the secant's solution.
+ * The search itself (scanBetween) steps 0.005 deg (a choice: finer than the 0.1-0.15 deg between images
+ * reported by Minnaert, The Nature of Light and Colour in the Open Air, sections 30 and 34, so an image
+ * thinner than 0.005 deg can be missed) and bisects the highest crossing to 1e-5 deg.
  * A one-temperature atmosphere (createAtmosphere: standard lapse rate, no inversion, the same everywhere)
  * keeps the one-curvature estimate: there the two differ by under 2" out to 80 km and 8" (~0.6 s of
  * sunrise) at 150 km, and the trace would cost ~0.5 ms a point on every day of a calendar. Weather-model
@@ -556,19 +561,21 @@ export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0, images 
 	if (!heightAt) return est;
 	const f = (/** @type {number} */ a) => heightAt(ho, a, R, distM, floorM) - targetM;
 	const slope = distM * DEG;                                 // metres of height per degree, near enough
-	// a duct the ray can pass through (rays bending more sharply than the Earth curves): the ridge can show
-	// several images, one above the other
-	const sag = distM * distM / (8 * R);
-	const duct = images !== 'off' && 'maxCurvature' in atm && atm.maxCurvature
-		&& atm.maxCurvature(Math.min(ho, targetM) - sag - 100, Math.max(ho, targetM) + 100) > 1 / R;
-	if (duct && images === 'scan') return highestImage(f, est);
+	if (images === 'scan') {
+		// a duct (rays bending more sharply than the Earth curves, the ITU-R P.453 criterion) anywhere in the
+		// band the ray could pass: from the sagitta d^2/8R below the lower end (geometry) with 100 m to spare
+		// (a choice), to 100 m above the higher end (a choice)
+		const sag = distM * distM / (8 * R);
+		const duct = 'maxCurvature' in atm && atm.maxCurvature
+			&& atm.maxCurvature(Math.min(ho, targetM) - sag - 100, Math.max(ho, targetM) + 100) > 1 / R;
+		if (duct) return highestImage(f, est);
+	}
 	const a = secantElevation(f, est, slope);
-	if (!duct) return a ?? est;
-	if (a === null) return highestImage(f, est);
-	// a higher image shows as a ray aimed above the solution that still meets the ridge
-	for (let k = 1; k <= 25; k++)
-		if (f(a + k * 0.02) < 0) return scanUp(f, a + k * 0.02);
-	return a;
+	if (images !== 'auto' || !('trapLimit' in atm) || !atm.trapLimit) return a ?? est;
+	const top = atm.trapLimit(ho, a ?? est, R);
+	if (top === null) return a ?? est;
+	// the highest image's ray lies between the first solution and the steepest ray a duct can still turn
+	return scanBetween(f, a ?? est, top);
 }
 
 /**
@@ -592,8 +599,9 @@ function secantElevation(f, est, slope) {
 
 /**
  * The highest elevation (degrees) whose ray still meets the ridge (f < 0: below its top, or down before it),
- * for air that can give it several images: from an elevation known to be blocked, up in 0.005 deg steps until
- * 0.15 deg in a row clear it, then bisected to 1e-5 deg.
+ * for air that can give it several images ('scan'): from an elevation known to be blocked (found going down
+ * est - 0.05 * 2^k, up to 12 tries), up in 0.005 deg steps until 0.15 deg in a row clear it (at most 3 deg),
+ * then bisected to 1e-5 deg. The 0.005, 0.15, 3, 0.05 * 2^k and 12 are choices, not from a source.
  * @param {(a: number) => number} f the ray's height at the ridge minus the ridge's @param {number} est a first guess
  */
 function highestImage(f, est) {
@@ -601,6 +609,20 @@ function highestImage(f, est) {
 	for (let k = 0; k < 12 && !(f(start) < 0); k++) start = est - 0.05 * 2 ** k;
 	if (!(f(start) < 0)) return est;
 	return scanUp(f, start);
+}
+
+/**
+ * The highest elevation in [lo, hi] (degrees) whose ray still meets the ridge, stepping 0.005 deg (see
+ * terrainElevation) and bisecting the last crossing to 1e-5 deg; lo if none above it does.
+ * @param {(a: number) => number} f @param {number} lo @param {number} hi
+ */
+function scanBetween(f, lo, hi) {
+	let below = NaN;
+	for (let a = lo + 0.005; a <= hi + 0.005; a += 0.005) if (f(a) < 0) below = a;
+	if (Number.isNaN(below)) return lo;
+	let l = below, h = below + 0.005;
+	while (h - l > 1e-5) { const m = (l + h) / 2; if (f(m) < 0) l = m; else h = m; }
+	return h;
 }
 
 /**
@@ -647,7 +669,8 @@ export function geometricElevation(observerM, targetM, distM, R) {
  *             refraction: (ho:number, aDeg:number, R:number, floorM?:number)=>number,
  *             seaHorizon: (ho:number, R:number, floorM?:number)=>number,
  *             heightAt?: (ho:number, aDeg:number, R:number, distM:number, floorM?:number)=>number,
- *             maxCurvature?: (zLo:number, zHi:number)=>number }} Medium
+ *             maxCurvature?: (zLo:number, zHi:number)=>number,
+ *             trapLimit?: (ho:number, aDeg:number, R:number)=>number|null }} Medium
  *   heightAt: the height at ground distance distM of the ray leaving ho at apparent altitude aDeg (rayHeightAt);
  *   path media only (see terrainElevation)
  */
@@ -929,6 +952,35 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 		while (j < ds.length - 1 && Math.abs(ds[j + 1] - d) < Math.abs(ds[j] - d)) j++;
 		return water[j] ? WAVE_CLEARANCE_M : 0;
 	};
+	// n (R + z) of every column at the heights the ray tracer itself resolves (columnInto: 2 m to 3 km, 20 m
+	// above), from the Dead Sea shore (about -430 m, the lowest land) to the top of the tables; per radius
+	/** @type {Map<number, { z: Float64Array, m: Float64Array[] }>} */
+	const grids = new Map();
+	/** @param {number} R */
+	const invariantGrid = R => {
+		let g = grids.get(R);
+		if (g) return g;
+		const zl = [];
+		for (let z = -440; z < COL_Z1; z += COL_D1) zl.push(z);
+		for (let z = COL_Z1; z <= COL_Z1 + COL_N2 * COL_D2; z += COL_D2) zl.push(z);
+		const z = Float64Array.from(zl), v = new Float64Array(2);
+		g = { z, m: tabs.map(t => z.map(h => { columnInto(t, h, v, 0); return (1 + v[0]) * (R + h); })) };
+		grids.set(R, g);
+		return g;
+	};
+	/** grid index at or just below height h @param {{ z: Float64Array }} g @param {number} h */
+	const gridIndex = (g, h) => {
+		let lo = 0, hi = g.z.length - 1;
+		if (h <= g.z[0]) return 0;
+		if (h >= g.z[hi]) return hi;
+		while (hi - lo > 1) { const k = (lo + hi) >> 1; if (g.z[k] <= h) lo = k; else hi = k; }
+		return lo;
+	};
+	/** n (R + z) at height h, linear between grid heights @param {{ z: Float64Array }} g @param {Float64Array} m @param {number} h */
+	const gridAt = (g, m, h) => {
+		const k = Math.min(gridIndex(g, h), g.z.length - 2);
+		return m[k] + (m[k + 1] - m[k]) * (h - g.z[k]) / (g.z[k + 1] - g.z[k]);
+	};
 	const near = cols[0];
 	return {
 		key: (key ?? 'path|' + hashString(JSON.stringify(sorted))) + (surfaceLayer ? '|sl' : '') + (moist ? '|h' : '')
@@ -951,6 +1003,38 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 					best = Math.max(best, -v[1] / (1 + v[0]));
 				}
 			return best;
+		},
+		trapLimit(ho, aDeg, R) {
+			const g = invariantGrid(R);
+			const cosA = Math.cos(aDeg * DEG);
+			let top = null;
+			for (const m of g.m) {
+				// Bouguer's invariant n (R + z) cos(b) is constant along a ray in horizontally layered air (van der
+				// Werf 2003, Applied Optics 42, 354, eqs. 5-10); each column is taken as if it filled the path,
+				// and any column that could turn a ray counts (the air changes along the path, so no one column
+				// decides). A ray rising from ho can only come back down where n (R + z) falls with height to
+				// its invariant, i.e. inside a duct (the same condition as ITU-R P.453's, modified refractivity
+				// falling with height), and only one at or above the lowest height the family of rays reaches.
+				const m0 = gridAt(g, m, ho);
+				const c = m0 * cosA;
+				// lowest reachable height: ho for rays aimed level or up, else the first solution's own lowest
+				// point (where n (R + z) has fallen to its invariant); rays aimed higher stay above it
+				let i = gridIndex(g, ho);
+				if (aDeg < 0) while (i > 0 && m[i - 1] >= c) i--;
+				let mMin = Infinity;
+				for (let k = i; k < m.length - 1; k++) {
+					if (m[k + 1] < m[k] && m[k + 1] < mMin) mMin = m[k + 1];
+				}
+				// rays aimed above aDeg have invariants below m0 cos(aDeg) (above m0 cos(aDeg) only for the
+				// downward ones, which reach no lower than the first solution); one can be turned where a duct
+				// takes n (R + z) below that, the steepest at acos(mMin / m0)
+				const cMax = aDeg < 0 ? m0 : c;
+				if (mMin < cMax) {
+					const lim = Math.acos(Math.min(1, mMin / m0)) / DEG;
+					top = Math.max(top ?? -Infinity, lim);
+				}
+			}
+			return top;
 		},
 		// Apparent altitude of the lowest direction in which the Sun can be seen. Normally that is the
 		// sea horizon (the ray grazing the water). Over water warmer than the air, rays aimed just above
@@ -1201,9 +1285,9 @@ export default class ROYSPACalculator extends SPACalculator {
 
 	/**
 	 * How a ridge seen through a duct, which can show more than one image, is handled (terrainElevation):
-	 * 'auto' (default) searches for the highest image only where a ray aimed just above the first solution
-	 * still meets the ridge; 'scan' searches wherever the air has a duct (slower, the same results in every
-	 * test so far); 'off' keeps the first solution.
+	 * 'auto' (default) searches for the highest image only where Bouguer's invariant allows some ray aimed
+	 * above the first solution to be turned back down, and only up to the steepest such ray; 'scan' searches
+	 * wherever a duct lies in a band of heights around the ray (slower); 'off' keeps the first solution.
 	 * @param {'auto'|'scan'|'off'} mode
 	 */
 	setTerrainImageSearch(mode) {
