@@ -506,7 +506,7 @@ function rayHeightAt(field, ho, aDeg, R, distM, floorM = 0) {
 		const cb = Math.cos(b), sb = Math.sin(b);
 		D[0] = sb; D[1] = cb / r; D[2] = cb / r + (F[1] * cb - (R / r) * F[2] * sb) / (1 + F[0]);
 	};
-	const floor = Math.min(0, floorM), thEnd = distM / R;
+	const floor = floorM, thEnd = distM / R;
 	// ~250 m steps: the field's columns are tabulated every 2 m in height, so a short path still gets 16
 	const n = Math.max(16, Math.ceil(distM / 250));
 	const s = distM / Math.cos(aDeg * DEG) / n;
@@ -568,14 +568,52 @@ export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0, images 
 		const sag = distM * distM / (8 * R);
 		const duct = 'maxCurvature' in atm && atm.maxCurvature
 			&& atm.maxCurvature(Math.min(ho, targetM) - sag - 100, Math.max(ho, targetM) + 100) > 1 / R;
-		if (duct) return highestImage(f, est);
+		if (duct) {
+			// the highest image is never below the first solution
+			const first = firstSolution(f, est, slope);
+			return Math.max(highestImage(f, first), first);
+		}
 	}
-	const a = secantElevation(f, est, slope);
-	if (images !== 'auto' || !('trapLimit' in atm) || !atm.trapLimit) return a ?? est;
-	const top = atm.trapLimit(ho, a ?? est, R);
-	if (top === null) return a ?? est;
+	const first = firstSolution(f, est, slope);
+	if (images !== 'auto' || !('trapLimit' in atm) || !atm.trapLimit) return first;
+	const top = atm.trapLimit(ho, first, R);
+	if (top === null) return first;
 	// the highest image's ray lies between the first solution and the steepest ray a duct can still turn
-	return scanBetween(f, a ?? est, top);
+	return scanBetween(f, first, top);
+}
+
+/**
+ * The secant solution, or where the secant finds none, the lowest elevation at which rays stop being
+ * blocked (by the point, or by the water or ground before it) and start to clear it: bisected between the
+ * highest blocked and the lowest clear elevation the secant tried (from there, 0.05 deg steps find a pair if
+ * it tried none). For a point no ray reaches, hidden below the water or ground in front of it, that is the
+ * edge of that surface, so the point adds nothing above it. The one-curvature estimate is no answer there:
+ * in a duct it can put such a point well above the water horizon.
+ * @param {(a: number) => number} f @param {number} est @param {number} slope
+ */
+function firstSolution(f, est, slope) {
+	/** @type {[number, number][]} */
+	const tried = [];
+	const g = (/** @type {number} */ a) => { const v = f(a); tried.push([a, v]); return v; };
+	const a = secantElevation(g, est, slope);
+	if (a !== null) return a;
+	tried.sort((x, y) => x[0] - y[0]);
+	let lo = NaN, hi = NaN;
+	for (let i = 0; i < tried.length - 1; i++)
+		if (tried[i][1] < 0 && !(tried[i + 1][1] < 0)) { lo = tried[i][0]; hi = tried[i + 1][0]; break; }
+	if (Number.isNaN(lo)) {
+		const bottom = tried[0], top = tried[tried.length - 1];
+		if (bottom[1] < 0) {                                          // all blocked: aim higher
+			lo = top[0];
+			for (let k = 1; k <= 40 && Number.isNaN(hi); k++) if (!(f(lo + 0.05) < 0)) hi = lo + 0.05; else lo += 0.05;
+		} else {                                                      // all clear: aim lower
+			hi = bottom[0];
+			for (let k = 1; k <= 40 && Number.isNaN(lo); k++) if (f(hi - 0.05) < 0) lo = hi - 0.05; else hi -= 0.05;
+		}
+		if (Number.isNaN(lo) || Number.isNaN(hi)) return est;
+	}
+	while (hi - lo > 1e-5) { const m = (lo + hi) / 2; if (f(m) < 0) lo = m; else hi = m; }
+	return hi;
 }
 
 /**
@@ -928,7 +966,7 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 			b += s / 6 * (b1 + 2 * b2 + 2 * b3 + D[2]);
 			// blocked below the surface: the basin floor, else the wave crests over water (0 when no column
 			// is over water, so the nearest-column search is skipped then)
-			if (r - R < (floorM < 0 ? floorM : anyWater ? clearance(R * th) : 0)) return NaN;
+			if (r - R < (floorM < 0 ? floorM : floorM + (anyWater ? clearance(R * th) : 0))) return NaN;
 			if (b > 0 && b < 1 && r - R >= zSafe && R * th >= dLast) return 0;
 		}
 		return aDeg - (b - th) / DEG;
@@ -1222,11 +1260,14 @@ class Cache {
  * @typedef {{ mode: 'point' | 'vantage', points: HorizonSetPoint[], params?: any }} HorizonSet
  *   What the server's /v1/horizon returns (see horizon-client.js): the exact point, or the vantage
  *   points within a radius that have the lowest horizon in some direction.
- * @typedef {{ azimuthDeg: number, distanceKm: number, heightM: number, alternates?: [number, number][] }} DemHorizonPoint
+ * @typedef {{ azimuthDeg: number, distanceKm: number, heightM: number, alternates?: [number, number][], floorM?: number }} DemHorizonPoint
  *   A horizon point from a DEM: the highest-angle terrain point at this azimuth, its distance along the
  *   surface and its height above sea level. Its apparent elevation is found by tracing the ray to it
  *   (terrainElevation). alternates: [distanceKm, heightM] of other points along the azimuth that would be
  *   the highest in other air (the server's, see its terrain.py); the highest of all in the day's air counts.
+ *   floorM: the lowest surface the line of sight crosses out to those points (a lake's own surface, a valley
+ *   floor, the sea); rays come down no lower. Horizons from before the server's algorithm 3 have none, and
+ *   the floor is then sea level, or the basin floor below it, as before.
  * @typedef {{ azimuthDeg: number, elevationDeg: number }} ObservedHorizonPoint
  *   A measured (theodolite / photo) apparent elevation angle; used as-is (refraction already included).
  * @typedef {DemHorizonPoint | ObservedHorizonPoint} HorizonPoint
@@ -1627,6 +1668,10 @@ export default class ROYSPACalculator extends SPACalculator {
 			floorM = Math.min(Number.isFinite(observer.groundM) ? /** @type {number} */ (observer.groundM) : ho, ho);
 			for (const p of profile) if ('heightM' in p && Number.isFinite(p.heightM)) floorM = Math.min(floorM, p.heightM);
 		}
+		// with each direction's own floor from the server (DemHorizonPoint.floorM), the lowest of them: the
+		// refraction table and the measured points' sea horizon start there
+		const floors = profile.map(p => 'floorM' in p ? p.floorM : undefined).filter(Number.isFinite);
+		if (floors.length === profile.length) floorM = Math.min(ho < 0 ? floorM : Infinity, .../** @type {number[]} */ (floors));
 		const R = this.getEarthRadius() * 1000;
 		const provided = this._atmosphereFor(date, event, geoLocation, ho);
 		const atm = provided ?? atmosphereFromSpec(ho, null);
@@ -1650,24 +1695,35 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	_computeThresholds(profile, atm, ho, floorM, R, scale) {
 		const seaAlt = atm.seaHorizon(ho, R, floorM);
+		/** the water (or level ground) horizon over a floor, per floor height @type {Map<number, number>} */
+		const seaAlts = new Map([[floorM, seaAlt]]);
+		/** @param {number} fl */
+		const seaAltOver = fl => {
+			let v = seaAlts.get(fl);
+			if (v === undefined) { v = atm.seaHorizon(ho, R, fl); seaAlts.set(fl, v); }
+			return v;
+		};
 		const pts = profile.map(p => {
-			let app;
+			let app, sea = seaAlt;
 			if ('elevationDeg' in p && p.elevationDeg != null) {
 				app = p.elevationDeg;
 			} else {
 				const q = /** @type {DemHorizonPoint} */ (p);
+				// this direction's own floor (the server's floorM), else the one for the whole horizon
+				const fl = Number.isFinite(q.floorM) ? /** @type {number} */ (q.floorM) : floorM;
+				sea = seaAltOver(fl);
 				// the ray to the terrain traced through the same air as the Sun's (terrainElevation). The server
 				// picks each azimuth's highest point under standard refraction; where other air could make a
 				// farther (or nearer) point the higher one it sends those too (alternates), and the highest wins
 				const elevation = (/** @type {number} */ hm, /** @type {number} */ dm) => this._terrainRays
-					? terrainElevation(atm, ho, hm, dm, R, floorM, this._terrainImages)
+					? terrainElevation(atm, ho, hm, dm, R, fl, this._terrainImages)
 					: geometricElevation(ho, hm, dm, R) + terrestrialRefraction(atm, ho, hm,
 						Math.hypot(dm, (R + hm) * Math.cos(dm / R) - (R + ho)));
 				app = elevation(q.heightM, q.distanceKm * 1000);
 				for (const [dk, hm] of q.alternates ?? [])
 					app = Math.max(app, elevation(hm, dk * 1000));
 			}
-			return { az: ((p.azimuthDeg % 360) + 360) % 360, app: Math.max(app, seaAlt) };
+			return { az: ((p.azimuthDeg % 360) + 360) % 360, app: Math.max(app, sea) };
 		}).sort((a, b) => a.az - b.az);
 		if (pts.length < 2) throw new Error('Horizon profile needs at least two points');
 
