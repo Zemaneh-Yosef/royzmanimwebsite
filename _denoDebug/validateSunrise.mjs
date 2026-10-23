@@ -13,6 +13,9 @@
 // --normals    label=file or file: a monthlyClimate() input ({ minC: [12], meanC: [12], ... }), run as a
 //              provider too, with and without Keller & Hall's inversion rule (inversionCorrection).
 // --humidity   use the water vapour the data carries (setHumidity(true)).
+// --terrain-compare  also run each --profiles with the old terrain treatment, as label:formula (one-curvature
+//              terrestrial refraction, setTerrainRayTracing(false)) and label:noalt (the horizon's alternate
+//              points dropped), to see what the traced terrain rays and the alternates change.
 // --csv FILE   every observation with each provider's computed time and difference.
 //
 // Always runs "standard" too: no provider, the 34.48' average refraction. Differences are observed minus
@@ -33,6 +36,8 @@ if (!args.obs || !args.tz || !args.horizon) {
 }
 
 const horizon = JSON.parse(readFileSync(args.horizon, "utf8"));
+const horizonNoAlt = JSON.parse(JSON.stringify(horizon));
+for (const p of horizonNoAlt.points ?? []) for (const ev of ["sunrise", "sunset"]) for (const q of p[ev] ?? []) delete q.alternates;
 const point = horizon.points?.[0] ?? {};
 const lat = num(args.lat) ?? point.lat ?? horizon.params?.lat;
 const lon = num(args.lon) ?? point.lon ?? horizon.params?.lon;
@@ -41,20 +46,22 @@ if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error("no lat / lo
 const geo = new GeoLocation("observer", lat, lon, Math.max(0, height), args.tz);
 const observations = readObservations(args.obs, args.event?.[0] ?? "sunrise", args.tz);
 
-/** @type {{ label: string, provider: any, options: any }[]} */
+/** @type {{ label: string, provider: any, options: any, terrainRays?: boolean, horizon?: any }[]} */
 const runs = [{ label: "standard", provider: null, options: {} }];
 for (const spec of args.profiles ?? []) {
 	const [label, file] = spec.includes("=") ? spec.split(/=(.*)/s) : [spec, spec];
 	const body = JSON.parse(readFileSync(file, "utf8"));
 	const byKey = new Map();
 	for (const e of body.events ?? []) if (e.profiles?.length) byKey.set(`${e.date}|${e.event}`, e);
-	runs.push({
-		label, options: {},
-		provider: (date, event) => {
-			const e = byKey.get(`${date.toString()}|${event}`);
-			return e ? { path: e.profiles, key: `${label}|${e.date}|${e.event}` } : null;
-		},
-	});
+	const provider = (date, event) => {
+		const e = byKey.get(`${date.toString()}|${event}`);
+		return e ? { path: e.profiles, key: `${label}|${e.date}|${e.event}` } : null;
+	};
+	runs.push({ label, options: {}, provider });
+	if (args["terrain-compare"]) {
+		runs.push({ label: `${label}:formula`, options: {}, provider, terrainRays: false });
+		runs.push({ label: `${label}:noalt`, options: {}, provider, horizon: horizonNoAlt });
+	}
 }
 for (const spec of args.normals ?? []) {
 	const [label, file] = spec.includes("=") ? spec.split(/=(.*)/s) : ["normals", spec];
@@ -68,12 +75,14 @@ for (const run of runs) {
 	const calc = new ROYSPACalculator();
 	calc.configureForLocation(geo);
 	if (args.humidity) calc.setHumidity(true);
+	if (run.terrainRays === false) calc.setTerrainRayTracing(false);
+	const hz = run.horizon ?? horizon;
 	if (run.provider) calc.setAtmosphereProvider(run.provider);
 	for (const r of rows) {
 		// a provider without data for the date is not that provider's answer: leave the date out for it
 		if (run.provider && !run.provider(r.date, r.event, geo)) continue;
-		const ms = r.event === "sunrise" ? calc.getVisibleSunrise(r.date, geo, horizon, run.options)
-			: calc.getVisibleSunset(r.date, geo, horizon, run.options);
+		const ms = r.event === "sunrise" ? calc.getVisibleSunrise(r.date, geo, hz, run.options)
+			: calc.getVisibleSunset(r.date, geo, hz, run.options);
 		if (Number.isFinite(ms)) r.computed[run.label] = ms;
 	}
 }
@@ -130,7 +139,7 @@ function parseArgs(argv) {
 	const out = {};
 	for (let i = 0; i < argv.length; i++) {
 		const k = argv[i].replace(/^--/, "");
-		if (k === "humidity") { out.humidity = true; continue; }
+		if (k === "humidity" || k === "terrain-compare") { out[k] = true; continue; }
 		(out[k] ??= []).push(argv[++i]);
 	}
 	for (const k of ["obs", "tz", "horizon", "lat", "lon", "height"]) if (out[k]) out[k] = out[k][0];
