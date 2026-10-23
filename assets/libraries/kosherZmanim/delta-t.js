@@ -61,3 +61,27 @@ export function deltaT(jd) {
 	const x = (y - TABLE_START) / TABLE_STEP, i = Math.floor(x);
 	return TABLE[i] + (TABLE[i + 1] - TABLE[i]) * (x - i);
 }
+
+/** Leap seconds: [Julian day (UTC) from which TAI - UTC holds, TAI - UTC (s)], from 1972 (IERS Bulletin C) */
+const LEAP_SECONDS = [
+	[2441317.5, 10], [2441499.5, 11], [2441683.5, 12], [2442048.5, 13], [2442413.5, 14], [2442778.5, 15],
+	[2443144.5, 16], [2443509.5, 17], [2443874.5, 18], [2444239.5, 19], [2444786.5, 20], [2445151.5, 21],
+	[2445516.5, 22], [2446247.5, 23], [2447161.5, 24], [2447892.5, 25], [2448257.5, 26], [2448804.5, 27],
+	[2449169.5, 28], [2449534.5, 29], [2450083.5, 30], [2450630.5, 31], [2451179.5, 32], [2453736.5, 33],
+	[2454832.5, 34], [2456109.5, 35], [2457204.5, 36], [2457754.5, 37],
+];
+
+/**
+ * UT1 - UTC in seconds, from Delta-T and the leap seconds: 32.184 s + (TAI - UTC) - Delta-T. The clock gives
+ * UTC; the Earth's rotation angle needs UT1, up to 0.9 s away (0.9 s of time turns the sky by 13.5"). Kept
+ * within the 0.9 s that leap seconds hold UTC to, so an extrapolated Delta-T can't run away. 0 before 1972,
+ * when UTC's seconds were stretched to follow UT1.
+ * @param {number} jd Julian day (UTC)
+ */
+export function ut1MinusUtc(jd) {
+	if (jd < LEAP_SECONDS[0][0]) return 0;
+	let i = LEAP_SECONDS.length - 1;
+	while (jd < LEAP_SECONDS[i][0]) i--;
+	const d = 32.184 + LEAP_SECONDS[i][1] - deltaT(jd);
+	return Math.max(-0.9, Math.min(0.9, d));
+}

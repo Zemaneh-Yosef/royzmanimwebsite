@@ -62,7 +62,9 @@
  *     ~0.6 s of sunrise in smooth air, but missed by 10-60 s in synthetic inversion tests (October 2026
  *     review) and cannot see the air change along the path; it stays for one-temperature air (6), which
  *     has no inversion. The server sends, per azimuth, the highest terrain point under standard refraction
- *     and any other that would be highest in other air; the highest in the day's air is used. Every point of the solar
+ *     and any other that would be highest in other air; the highest in the day's air is used. Where the air
+ *     holds a duct (rays bending more sharply than the Earth curves), a ridge can show several images and
+ *     the Sun stays hidden up to the highest, which is what is used. Every point of the solar
  *     limb is tested against the profile at its own azimuth (ChaiTables' 2022 limb-sampling fix), and the
  *     refraction for each point is ray traced at its own apparent altitude for the observer's height.
  *     The semidiameter is date-based (ChaiTables' visible branch uses a fixed 16').
@@ -102,7 +104,9 @@
  *     - the VSOP87 to FK5 correction (Meeus 32.3), which SPA leaves out;
  *     - IAU 2006 precession (equinox, obliquity) and sidereal time instead of IAU 1976 / 1982;
  *     - Delta-T from IERS measurements of the Earth's rotation (delta-t.js) instead of the Espenak-Meeus
- *       polynomial, which puts 2026 at 75.6 s against the measured 69.1 s.
+ *       polynomial, which puts 2026 at 75.6 s against the measured 69.1 s;
+ *     - the Earth's rotation from UT1 rather than the clock's UTC: UT1 - UTC = 32.184 s + leap seconds
+ *       - Delta-T (ut1MinusUtc in delta-t.js), up to 0.9 s, so TT is UTC + 32.184 s + leap seconds exactly.
  *     Against JPL's DE421 over 2000-2050 the Sun's right ascension and declination are now within 0.08"
  *     (0.6" before) and the sidereal time within 0.005" (0.34" before). Zmanim move by under 0.1 s, mostly
  *     ~0.025 s earlier from Delta-T. setDeltaTOverride() still overrides Delta-T.
@@ -118,7 +122,7 @@
 import { SPACalculator, GeoLocation } from './kosher-zmanim.js';
 import { nutation } from './nutation.js';
 import { EARTH_L, EARTH_B, EARTH_R } from './vsop87-earth.js';
-import { deltaT } from './delta-t.js';
+import { deltaT, ut1MinusUtc } from './delta-t.js';
 
 export const ROY_REFRACTION_ARCMIN = 34.478885263888294;
 
@@ -529,8 +533,10 @@ function rayHeightAt(field, ho, aDeg, R, distM, floorM = 0) {
  * (terrestrialRefraction, which takes dn/dh at the endpoints' mean height and so misses inversions the ray
  * dips through, and any change of the air along a path medium). Solved by the secant method from the
  * one-curvature estimate; the ray's height at the target grows with its elevation by ~distM per radian, so
- * two or three traces reach 1 cm. In an inversion strong enough to give the ridge several images, this is
- * the one nearest the estimate.
+ * two or three traces reach 1 cm. Where the air bends level rays more sharply than the Earth curves (a duct:
+ * maxCurvature > 1 / R near the heights the ray passes), the ridge can show more than one image, one above
+ * the other; the Sun is hidden behind it up to the highest, so the directions above the first solution are
+ * searched for the highest elevation whose ray still meets the ridge.
  * A one-temperature atmosphere (createAtmosphere: standard lapse rate, no inversion, the same everywhere)
  * keeps the one-curvature estimate: there the two differ by under 2" out to 80 km and 8" (~0.6 s of
  * sunrise) at 150 km, and the trace would cost ~0.5 ms a point on every day of a calendar. Weather-model
@@ -546,6 +552,12 @@ export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0) {
 	if (!heightAt) return est;
 	const f = (/** @type {number} */ a) => heightAt(ho, a, R, distM, floorM) - targetM;
 	const slope = distM * DEG;                                 // metres of height per degree, near enough
+	// a duct the ray can pass through (rays bending more sharply than the Earth curves): the ridge can show
+	// several images and the secant can stall between them, so scan instead
+	const sag = distM * distM / (8 * R);
+	const duct = 'maxCurvature' in atm && atm.maxCurvature
+		&& atm.maxCurvature(Math.min(ho, targetM) - sag - 100, Math.max(ho, targetM) + 100) > 1 / R;
+	if (duct) return highestImage(f, est);
 	let a0 = est, f0 = f(a0);
 	// a ray that came down before the target: aim higher until one gets there
 	for (let i = 0; i < 20 && f0 === -Infinity; i++) { a0 += 0.05; f0 = f(a0); }
@@ -557,6 +569,25 @@ export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0) {
 		a0 = a1; f0 = f1; a1 = a2; f1 = f(a1);
 	}
 	return Number.isFinite(f1) && Math.abs(f1) < 1 ? a1 : est;
+}
+
+/**
+ * The highest elevation (degrees) whose ray still meets the ridge (f < 0: below its top, or down before it),
+ * for air that can give it several images: from an elevation known to be blocked, up in 0.005 deg steps until
+ * 0.15 deg in a row clear it, then bisected to 1e-5 deg.
+ * @param {(a: number) => number} f the ray's height at the ridge minus the ridge's @param {number} est a first guess
+ */
+function highestImage(f, est) {
+	let start = est;
+	for (let k = 0; k < 12 && !(f(start) < 0); k++) start = est - 0.05 * 2 ** k;
+	if (!(f(start) < 0)) return est;
+	let below = start, clear = 0;
+	for (let a = start + 0.005; clear < 0.15 && a < start + 3; a += 0.005) {
+		if (f(a) < 0) { below = a; clear = 0; } else clear += 0.005;
+	}
+	let lo = below, hi = below + 0.005;
+	while (hi - lo > 1e-5) { const m = (lo + hi) / 2; if (f(m) < 0) lo = m; else hi = m; }
+	return hi;
 }
 
 /**
@@ -588,7 +619,8 @@ export function geometricElevation(observerM, targetM, distM, R) {
  * @typedef {{ key: string, nm1: (h:number)=>number, dndh: (h:number)=>number,
  *             refraction: (ho:number, aDeg:number, R:number, floorM?:number)=>number,
  *             seaHorizon: (ho:number, R:number, floorM?:number)=>number,
- *             heightAt?: (ho:number, aDeg:number, R:number, distM:number, floorM?:number)=>number }} Medium
+ *             heightAt?: (ho:number, aDeg:number, R:number, distM:number, floorM?:number)=>number,
+ *             maxCurvature?: (zLo:number, zHi:number)=>number }} Medium
  *   heightAt: the height at ground distance distM of the ray leaving ho at apparent altitude aDeg (rayHeightAt);
  *   path media only (see terrainElevation)
  */
@@ -880,6 +912,19 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 		heightAt: (ho, aDeg, R, distM, floorM = 0) => rayHeightAt((z, d, out) => {
 			fieldAt(z, d); out[0] = F[0]; out[1] = F[1]; out[2] = F[2];
 		}, ho, aDeg, R, distM, floorM),
+		// the sharpest bending of a level ray (-dN/dz / (1 + N), per metre) anywhere in [zLo, zHi], every 2 m,
+		// in every column: rays curve more than the Earth (and a ridge can show more than one image) only where
+		// it exceeds 1 / R
+		maxCurvature(zLo, zHi) {
+			const v = new Float64Array(2);
+			let best = -Infinity;
+			for (const t of tabs)
+				for (let z = Math.max(0, zLo); z <= zHi; z += 2) {
+					columnInto(t, z, v, 0);
+					best = Math.max(best, -v[1] / (1 + v[0]));
+				}
+			return best;
+		},
 		// Apparent altitude of the lowest direction in which the Sun can be seen. Normally that is the
 		// sea horizon (the ray grazing the water). Over water warmer than the air, rays aimed just above
 		// the water curve back up (inferior mirage); the Sun then vanishes where it meets its mirror image,
@@ -1684,11 +1729,23 @@ export default class ROYSPACalculator extends SPACalculator {
 // ------------------------------------------------------------------------------------------------
 const SPA = /** @type {any} */ (SPACalculator);
 
-/** @param {SPACalculator} calc @param {number} jdUT @returns {number} TT Julian centuries from J2000.0 */
+/**
+ * UT1 - UTC (s) the calculator applies: from the leap seconds and Delta-T (delta-t.js), or 0 with Delta-T off
+ * (then times are taken as they come, as SPACalculator does).
+ * @param {SPACalculator} calc @param {number} jdUT UTC Julian day
+ */
+function dut1(calc, jdUT) {
+	return calc.isApplyDeltaT() ? ut1MinusUtc(jdUT) : 0;
+}
+
+/**
+ * @param {SPACalculator} calc @param {number} jdUT UTC Julian day (the clock's; UT1 = UTC + dut1, TT = UT1 + Delta-T)
+ * @returns {number} TT Julian centuries from J2000.0
+ */
 function julianCenturiesTT(calc, jdUT) {
 	const override = calc.getDeltaTOverride();
 	const dt = calc.isApplyDeltaT() ? (override !== null ? override : deltaT(jdUT)) : 0;
-	return (jdUT + dt / 86400 - 2451545) / 36525;
+	return (jdUT + (dt + dut1(calc, jdUT)) / 86400 - 2451545) / 36525;
 }
 
 /**
@@ -1728,7 +1785,7 @@ function solarPlace(calc, jdUT) {
 function solarCoords(jdUT) {
 	const n0 = Math.round(jdUT - 0.5) + 0.5, n = jdUT - n0;   // nearest 0h UT, |n| <= 0.5
 	const override = this.getDeltaTOverride();
-	const key = this.isApplyDeltaT() ? (override === null ? 'iers' : override) : 'none';
+	const key = this.isApplyDeltaT() ? (override === null ? 'iers-ut1' : override) : 'none';
 	const c = this._sunDays.get(n0 + '|' + key, () => {
 		const y = [-2, -1, 0, 1, 2].map(k => this._sunNodes.get((n0 + k) + '|' + key, () => solarPlace(this, n0 + k)));
 		const out = new Float64Array(30);
@@ -1743,7 +1800,7 @@ function solarCoords(jdUT) {
 	const n2 = n * n, m = n * (n2 - 1), q = n2 * (n2 - 1);
 	const at = (/** @type {number} */ i) => c[5 * i] + n * c[5 * i + 1] + n2 * c[5 * i + 2] + m * c[5 * i + 3] + q * c[5 * i + 4];
 	const wrap = (/** @type {number} */ x) => (x % 360 + 360) % 360;
-	const gast = greenwichMeanSiderealTime(jdUT, julianCenturiesTT(this, jdUT)) + at(3);
+	const gast = greenwichMeanSiderealTime(jdUT + dut1(this, jdUT) / 86400, julianCenturiesTT(this, jdUT)) + at(3);
 	return [wrap(at(0)), at(1), at(2), wrap(gast), at(4), wrap(at(5))];
 }
 
@@ -1754,7 +1811,7 @@ function meanObliquity(t) {
 
 /**
  * IAU 2006 Greenwich mean sidereal time (deg): Earth rotation angle plus the precession polynomial.
- * @param {number} jdUT UT1 Julian day (UTC is used for it, within 0.9 s) @param {number} t TT Julian centuries from J2000.0
+ * @param {number} jdUT UT1 Julian day @param {number} t TT Julian centuries from J2000.0
  */
 function greenwichMeanSiderealTime(jdUT, t) {
 	const era = 360 * ((0.7790572732640 + 0.00273781191135448 * (jdUT - 2451545) + jdUT % 1) % 1);
