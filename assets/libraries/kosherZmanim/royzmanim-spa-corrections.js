@@ -535,16 +535,20 @@ function rayHeightAt(field, ho, aDeg, R, distM, floorM = 0) {
  * one-curvature estimate; the ray's height at the target grows with its elevation by ~distM per radian, so
  * two or three traces reach 1 cm. Where the air bends level rays more sharply than the Earth curves (a duct:
  * maxCurvature > 1 / R near the heights the ray passes), the ridge can show more than one image, one above
- * the other; the Sun is hidden behind it up to the highest, so the directions above the first solution are
- * searched for the highest elevation whose ray still meets the ridge.
+ * the other; the Sun is hidden behind it up to the highest. `images` says how that is handled: 'auto' (the
+ * default) checks, above the secant's solution, for a ray that still meets the ridge (rays aimed 0.02 deg apart
+ * up to 0.5 deg higher, stopping at the first) and only then searches upward for the highest image; 'scan'
+ * searches whenever there is a duct (several hundred traces a point; in ERA5 air a duct crosses the ray on
+ * 10-40% of mornings, but a higher image changed the time on about 1 in 800); 'off' keeps the secant's.
  * A one-temperature atmosphere (createAtmosphere: standard lapse rate, no inversion, the same everywhere)
  * keeps the one-curvature estimate: there the two differ by under 2" out to 80 km and 8" (~0.6 s of
  * sunrise) at 150 km, and the trace would cost ~0.5 ms a point on every day of a calendar. Weather-model
  * path media, which can hold inversions and change along the path, are traced.
  * @param {Atmosphere | Medium} atm @param {number} ho observer height @param {number} targetM
  * @param {number} distM @param {number} R @param {number} [floorM]
+ * @param {'auto'|'scan'|'off'} [images]
  */
-export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0) {
+export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0, images = 'auto') {
 	const geo = geometricElevation(ho, targetM, distM, R);
 	const chord = Math.hypot(distM, (R + targetM) * Math.cos(distM / R) - (R + ho));
 	const est = geo + terrestrialRefraction(atm, ho, targetM, chord);
@@ -553,22 +557,37 @@ export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0) {
 	const f = (/** @type {number} */ a) => heightAt(ho, a, R, distM, floorM) - targetM;
 	const slope = distM * DEG;                                 // metres of height per degree, near enough
 	// a duct the ray can pass through (rays bending more sharply than the Earth curves): the ridge can show
-	// several images and the secant can stall between them, so scan instead
+	// several images, one above the other
 	const sag = distM * distM / (8 * R);
-	const duct = 'maxCurvature' in atm && atm.maxCurvature
+	const duct = images !== 'off' && 'maxCurvature' in atm && atm.maxCurvature
 		&& atm.maxCurvature(Math.min(ho, targetM) - sag - 100, Math.max(ho, targetM) + 100) > 1 / R;
-	if (duct) return highestImage(f, est);
+	if (duct && images === 'scan') return highestImage(f, est);
+	const a = secantElevation(f, est, slope);
+	if (!duct) return a ?? est;
+	if (a === null) return highestImage(f, est);
+	// a higher image shows as a ray aimed above the solution that still meets the ridge
+	for (let k = 1; k <= 25; k++)
+		if (f(a + k * 0.02) < 0) return scanUp(f, a + k * 0.02);
+	return a;
+}
+
+/**
+ * The secant solution of f(a) = 0 from est, or null where it fails (no ray reaches the target, or no
+ * convergence to 1 m). @param {(a: number) => number} f @param {number} est @param {number} slope
+ * @returns {number | null}
+ */
+function secantElevation(f, est, slope) {
 	let a0 = est, f0 = f(a0);
 	// a ray that came down before the target: aim higher until one gets there
 	for (let i = 0; i < 20 && f0 === -Infinity; i++) { a0 += 0.05; f0 = f(a0); }
-	if (f0 === -Infinity) return est;
+	if (f0 === -Infinity) return null;
 	let a1 = a0 - f0 / slope, f1 = f(a1);
 	for (let i = 0; i < 8 && Math.abs(f1) > 0.01; i++) {
 		const d = f1 - f0;
 		const a2 = Number.isFinite(f1) && d !== 0 ? a1 - f1 * (a1 - a0) / d : a1 + 0.01;
 		a0 = a1; f0 = f1; a1 = a2; f1 = f(a1);
 	}
-	return Number.isFinite(f1) && Math.abs(f1) < 1 ? a1 : est;
+	return Number.isFinite(f1) && Math.abs(f1) < 1 ? a1 : null;
 }
 
 /**
@@ -581,6 +600,14 @@ function highestImage(f, est) {
 	let start = est;
 	for (let k = 0; k < 12 && !(f(start) < 0); k++) start = est - 0.05 * 2 ** k;
 	if (!(f(start) < 0)) return est;
+	return scanUp(f, start);
+}
+
+/**
+ * From an elevation whose ray meets the ridge, the highest that still does (see highestImage).
+ * @param {(a: number) => number} f @param {number} start
+ */
+function scanUp(f, start) {
 	let below = start, clear = 0;
 	for (let a = start + 0.005; clear < 0.15 && a < start + 3; a += 0.005) {
 		if (f(a) < 0) { below = a; clear = 0; } else clear += 0.005;
@@ -1146,6 +1173,8 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._seaSurfaceLayer = false;
 		this._humidity = false;
 		this._terrainRays = true;
+		/** @type {'auto'|'scan'|'off'} */
+		this._terrainImages = 'auto';
 		/** the Sun's full apparent place at 0h UT of nearby days (see solarCoords) @type {Cache<number[]>} */
 		this._sunNodes = new Cache(32);
 		/** Meeus 3.8 coefficients for each day, from those nodes @type {Cache<Float64Array>} */
@@ -1168,6 +1197,18 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	setTerrainRayTracing(on) {
 		this._terrainRays = !!on;
+	}
+
+	/**
+	 * How a ridge seen through a duct, which can show more than one image, is handled (terrainElevation):
+	 * 'auto' (default) searches for the highest image only where a ray aimed just above the first solution
+	 * still meets the ridge; 'scan' searches wherever the air has a duct (slower, the same results in every
+	 * test so far); 'off' keeps the first solution.
+	 * @param {'auto'|'scan'|'off'} mode
+	 */
+	setTerrainImageSearch(mode) {
+		if (mode !== 'auto' && mode !== 'scan' && mode !== 'off') throw new RangeError(`unknown mode ${mode}`);
+		this._terrainImages = mode;
 	}
 
 	/** Whether water vapour is included (see setHumidity). */
@@ -1515,7 +1556,7 @@ export default class ROYSPACalculator extends SPACalculator {
 			byProfile = new Cache(64);
 			this._thresholdCache.set(profile, byProfile);
 		}
-		return byProfile.get([atm.key, scale, ho, floorM, R, this._terrainRays].join('|'),
+		return byProfile.get([atm.key, scale, ho, floorM, R, this._terrainRays, this._terrainImages].join('|'),
 			() => this._computeThresholds(profile, atm, ho, floorM, R, scale));
 	}
 
@@ -1535,7 +1576,7 @@ export default class ROYSPACalculator extends SPACalculator {
 				// picks each azimuth's highest point under standard refraction; where other air could make a
 				// farther (or nearer) point the higher one it sends those too (alternates), and the highest wins
 				const elevation = (/** @type {number} */ hm, /** @type {number} */ dm) => this._terrainRays
-					? terrainElevation(atm, ho, hm, dm, R, floorM)
+					? terrainElevation(atm, ho, hm, dm, R, floorM, this._terrainImages)
 					: geometricElevation(ho, hm, dm, R) + terrestrialRefraction(atm, ho, hm,
 						Math.hypot(dm, (R + hm) * Math.cos(dm / R) - (R + ho)));
 				app = elevation(q.heightM, q.distanceKm * 1000);
