@@ -1291,7 +1291,7 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._geo = null;
 		/** @type {Cache<{dip:number, refr:number}>} */
 		this._horizonCache = new Cache(256);
-		/** @type {Cache<{a0:number, step:number, refr:Float64Array}>} */
+		/** @type {Cache<{a:Float64Array, refr:Float64Array, rough:Uint8Array}>} */
 		this._refrTableCache = new Cache(64);
 		/** horizon thresholds per profile (see _horizonThresholds) @type {WeakMap<object, Cache<{ azimuthDeg: number[], apparentDeg: number[], thresholdDeg: number[] }>>} */
 		this._thresholdCache = new WeakMap();
@@ -1300,6 +1300,7 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._terrainRays = true;
 		/** @type {'auto'|'scan'|'off'} */
 		this._terrainImages = 'auto';
+		this._earlySunImages = false;
 		/** the Sun's full apparent place at 0h UT of nearby days (see solarCoords) @type {Cache<number[]>} */
 		this._sunNodes = new Cache(32);
 		/** Meeus 3.8 coefficients for each day, from those nodes @type {Cache<Float64Array>} */
@@ -1331,6 +1332,19 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * wherever a duct lies in a band of heights around the ray (slower); 'off' keeps the first solution.
 	 * @param {'auto'|'scan'|'off'} mode
 	 */
+	/**
+	 * Let the Sun be seen first through a ray aimed above the horizon that air over cold water bends more than
+	 * the ray at the horizon (an image of the Sun's edge floating just above the horizon before the usual
+	 * sunrise; the "Novaya Zemlya" effect). Off by default: it rests on the weather model's thin layer of air
+	 * over the water, and whether such an image is sunrise is a halachic question. With it on, each direction's
+	 * threshold is the lowest true altitude any ray from the horizon up reaches (not only the ray at the
+	 * horizon). Same for sunset. Without such air it changes nothing.
+	 * @param {boolean} on
+	 */
+	setEarlySunImages(on) {
+		this._earlySunImages = !!on;
+	}
+
 	setTerrainImageSearch(mode) {
 		if (mode !== 'auto' && mode !== 'scan' && mode !== 'off') throw new RangeError(`unknown mode ${mode}`);
 		this._terrainImages = mode;
@@ -1685,7 +1699,7 @@ export default class ROYSPACalculator extends SPACalculator {
 			byProfile = new Cache(64);
 			this._thresholdCache.set(profile, byProfile);
 		}
-		return byProfile.get([atm.key, scale, ho, floorM, R, this._terrainRays, this._terrainImages].join('|'),
+		return byProfile.get([atm.key, scale, ho, floorM, R, this._terrainRays, this._terrainImages, this._earlySunImages].join('|'),
 			() => this._computeThresholds(profile, atm, ho, floorM, R, scale));
 	}
 
@@ -1729,25 +1743,56 @@ export default class ROYSPACalculator extends SPACalculator {
 
 		const maxApp = Math.max(...pts.map(p => p.app));
 		const table = this._refractionTable(atm, ho, R, seaAlt, maxApp, floorM);
-		const tab = table.refr, N = tab.length;
-		/** cubic Hermite (Catmull-Rom) interpolation; < 1" from a direct ray trace @param {number} a */
+		const A = table.a, tab = table.refr, N = tab.length;
+		/** cubic Hermite interpolation on the table's (uneven) nodes; a direct trace where a node is a blocked ray @param {number} a */
 		const refrAt = a => {
-			const x = (a - table.a0) / table.step;
-			const i = Math.min(Math.max(Math.floor(x), 0), N - 2), t = x - i;
-			const p0 = tab[Math.max(i - 1, 0)], p1 = tab[i], p2 = tab[i + 1], p3 = tab[Math.min(i + 2, N - 1)];
-			const m1 = i === 0 ? p2 - p1 : (p2 - p0) / 2, m2 = i + 2 > N - 1 ? p2 - p1 : (p3 - p1) / 2;
-			const t2 = t * t, t3 = t2 * t;
-			return scale * ((2 * t3 - 3 * t2 + 1) * p1 + (t3 - 2 * t2 + t) * m1 + (-2 * t3 + 3 * t2) * p2 + (t3 - t2) * m2);
+			let i = 0, j = N - 1;
+			if (a <= A[0]) j = 1;
+			else if (a >= A[N - 1]) i = N - 2;
+			else { while (j - i > 1) { const k = (i + j) >> 1; if (A[k] <= a) i = k; else j = k; } }
+			i = Math.min(i, N - 2);
+			if (table.rough[i]) return scale * atm.refraction(ho, a, R, floorM);
+			const slope = (/** @type {number} */ k) => {
+				if (k <= 0) return (tab[1] - tab[0]) / (A[1] - A[0]);
+				if (k >= N - 1) return (tab[N - 1] - tab[N - 2]) / (A[N - 1] - A[N - 2]);
+				const h0 = A[k] - A[k - 1], h1 = A[k + 1] - A[k];
+				return ((tab[k] - tab[k - 1]) / h0 * h1 + (tab[k + 1] - tab[k]) / h1 * h0) / (h0 + h1);
+			};
+			const h = A[i + 1] - A[i], t = (a - A[i]) / h, t2 = t * t, t3 = t2 * t;
+			const v = (2 * t3 - 3 * t2 + 1) * tab[i] + (t3 - 2 * t2 + t) * h * slope(i)
+				+ (-2 * t3 + 3 * t2) * tab[i + 1] + (t3 - t2) * h * slope(i + 1);
+			return scale * (Number.isFinite(v) ? v : atm.refraction(ho, a, R, floorM));
+		};
+		// with setEarlySunImages: the lowest true altitude a ray at or above each table node reaches
+		/** @type {Float64Array | null} */
+		let lowestAbove = null;
+		if (this._earlySunImages) {
+			lowestAbove = new Float64Array(N + 1).fill(Infinity);
+			for (let k = N - 1; k >= 0; k--)
+				lowestAbove[k] = Math.min(lowestAbove[k + 1], Number.isFinite(tab[k]) ? A[k] - scale * tab[k] : Infinity);
+		}
+		/** @param {number} app */
+		const threshold = app => {
+			const t = app - refrAt(app);
+			if (!lowestAbove) return t;
+			let k = 0;
+			while (k < N && A[k] <= app) k++;
+			return Math.min(t, lowestAbove[k]);
 		};
 		return {
 			azimuthDeg: pts.map(p => p.az),
 			apparentDeg: pts.map(p => p.app),
-			thresholdDeg: pts.map(p => p.app - refrAt(p.app)),
+			thresholdDeg: pts.map(p => threshold(p.app)),
 		};
 	}
 
 	/**
-	 * Refraction versus apparent altitude for this observer and air, from the sea horizon upward.
+	 * Refraction versus apparent altitude for this observer and air, from the sea horizon upward: every 0.1 deg,
+	 * and in the lowest 1 deg above the sea horizon halved wherever the refraction midway differs from the
+	 * straight line between the ends by more than 1e-4 deg (about 0.03 s of sunrise), down to 0.1/32 deg. Air
+	 * over cold water can change the refraction within hundredths of a degree there, which 0.1 deg steps smooth
+	 * away (by up to 80 s of sunrise on a Lake Michigan morning); smooth air needs one halving. The tolerance and
+	 * the depth are choices.
 	 * @param {Medium} atm @param {number} ho @param {number} R @param {number} seaAlt @param {number} maxApp
 	 * @param {number} [floorM] lowest surface the rays can reach (see getHorizonThresholds)
 	 */
@@ -1757,13 +1802,35 @@ export default class ROYSPACalculator extends SPACalculator {
 		const n = Math.ceil((top - seaAlt) / step) + 1;
 		const key = [atm.key, ho, R, n, floorM].join('|');
 		return this._refrTableCache.get(key, () => {
-			const refr = new Float64Array(n);
+			// the grazing ray itself: nudge up by 1e-7 deg so the perigee solve stays inside the atmosphere
+			const at = (/** @type {number} */ a) => atm.refraction(ho, a, R, floorM);
+			/** @type {[number, number][]} */
+			const nodes = [];
 			for (let i = 0; i < n; i++) {
-				// the grazing ray itself: nudge up by 1e-7 deg so the perigee solve stays inside the atmosphere
 				const a = i === 0 && ho > floorM ? seaAlt + 1e-7 : seaAlt + i * step;
-				refr[i] = atm.refraction(ho, a, R, floorM);
+				nodes.push([a, at(a)]);
 			}
-			return { a0: seaAlt, step, refr };
+			/** @type {[number, number][]} */
+			const out = [nodes[0]];
+			/** intervals still off by more than the tolerance at the smallest step: refraction jumps there (between
+			 * rays that run along a warm layer and rays that clear it), so it is traced directly @type {number[]} */
+			const rough = [];
+			/** @param {[number, number]} p @param {[number, number]} q @param {number} depth */
+			const refine = (p, q, depth) => {
+				if (p[0] < seaAlt + 1) {
+					const am = (p[0] + q[0]) / 2, m = /** @type {[number, number]} */ ([am, at(am)]);
+					const lin = (p[1] + q[1]) / 2;
+					if (!(Math.abs(m[1] - lin) <= 1e-4)) {
+						if (depth < 5) { refine(p, m, depth + 1); refine(m, q, depth + 1); return; }
+						out.push(m); rough.push(out.length - 2, out.length - 1);
+					}
+				}
+				out.push(q);
+			};
+			for (let i = 0; i < n - 1; i++) refine(nodes[i], nodes[i + 1], 0);
+			const flags = new Uint8Array(out.length);
+			for (const i of rough) flags[i] = 1;
+			return { a: Float64Array.from(out, x => x[0]), refr: Float64Array.from(out, x => x[1]), rough: flags };
 		});
 	}
 
