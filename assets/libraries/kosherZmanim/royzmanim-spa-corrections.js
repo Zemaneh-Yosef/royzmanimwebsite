@@ -1100,6 +1100,7 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._thresholdCache = new WeakMap();
 		this._seaSurfaceLayer = false;
 		this._humidity = false;
+		this._terrainRays = true;
 		/** the Sun's full apparent place at 0h UT of nearby days (see solarCoords) @type {Cache<number[]>} */
 		this._sunNodes = new Cache(32);
 		/** Meeus 3.8 coefficients for each day, from those nodes @type {Cache<Float64Array>} */
@@ -1113,6 +1114,15 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	setHumidity(on) {
 		this._humidity = !!on;
+	}
+
+	/**
+	 * Trace the ray to each DEM horizon point through a path atmosphere (terrainElevation; default on) rather
+	 * than use the one-curvature terrestrial refraction. Off reproduces the earlier behaviour, for comparison.
+	 * @param {boolean} on
+	 */
+	setTerrainRayTracing(on) {
+		this._terrainRays = !!on;
 	}
 
 	/** Whether water vapour is included (see setHumidity). */
@@ -1460,7 +1470,7 @@ export default class ROYSPACalculator extends SPACalculator {
 			byProfile = new Cache(64);
 			this._thresholdCache.set(profile, byProfile);
 		}
-		return byProfile.get([atm.key, scale, ho, floorM, R].join('|'),
+		return byProfile.get([atm.key, scale, ho, floorM, R, this._terrainRays].join('|'),
 			() => this._computeThresholds(profile, atm, ho, floorM, R, scale));
 	}
 
@@ -1479,9 +1489,13 @@ export default class ROYSPACalculator extends SPACalculator {
 				// the ray to the terrain traced through the same air as the Sun's (terrainElevation). The server
 				// picks each azimuth's highest point under standard refraction; where other air could make a
 				// farther (or nearer) point the higher one it sends those too (alternates), and the highest wins
-				app = terrainElevation(atm, ho, q.heightM, q.distanceKm * 1000, R, floorM);
+				const elevation = (/** @type {number} */ hm, /** @type {number} */ dm) => this._terrainRays
+					? terrainElevation(atm, ho, hm, dm, R, floorM)
+					: geometricElevation(ho, hm, dm, R) + terrestrialRefraction(atm, ho, hm,
+						Math.hypot(dm, (R + hm) * Math.cos(dm / R) - (R + ho)));
+				app = elevation(q.heightM, q.distanceKm * 1000);
 				for (const [dk, hm] of q.alternates ?? [])
-					app = Math.max(app, terrainElevation(atm, ho, hm, dk * 1000, R, floorM));
+					app = Math.max(app, elevation(hm, dk * 1000));
 			}
 			return { az: ((p.azimuthDeg % 360) + 360) % 360, app: Math.max(app, seaAlt) };
 		}).sort((a, b) => a.az - b.az);
