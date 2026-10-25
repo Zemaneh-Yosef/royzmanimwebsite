@@ -444,7 +444,13 @@ export default class LocationModal {
 				[{ he: "נתונים", "he-Latn": "Data" }, val(tri({ he: "לא זמינים (עדיין)", "he-Latn": "not available (yet)" }))]
 			]);
 
-		const { aod, aodRef, forecast } = hazeOn(haze, date);
+		// read when the Sun is at the Tzet's degree after sunset, as the delay below reads it
+		const reading = hazeOn(haze, date, { depressionDeg: zc.hazeDegree(), rising: false });
+		if (!reading)
+			return section({ he: "אובך וזיהום אור", "he-Latn": "Haze & light pollution" }, [
+				[{ he: "נתונים", "he-Latn": "Data" }, val(tri({ he: "השמש אינה יורדת די הצורך", "he-Latn": "the Sun doesn't get low enough here" }))]
+			]);
+		const { aod, aodRef, forecast } = reading;
 		const evening = val(ltr(`AOD ${aod.toFixed(2)}`));
 		if (forecast)
 			evening.append(note(haze.forecastSource === "gefs"

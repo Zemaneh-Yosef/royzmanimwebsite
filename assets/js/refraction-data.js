@@ -97,18 +97,13 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
 /** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeData} HazeData */
 /**
  * What is stored for a place's haze.
- * @typedef {{ monthly: number[], reference: number, normalsRange: [string, string], source: string,
- *             normalsFetchedAt: number, blpCdM2: number | null, evenings: Record<string, number>,
- *             forecastFetchedAt: number | null, forecastSource?: string,
- *             aodScale?: number | null, calibratedAt?: number,
- *             monthlyMorning?: number[] | null, referenceMorning?: number | null,
- *             mornings?: Record<string, number>, monthlyNight?: number[] | null, referenceNight?: number | null,
- *             nights?: Record<string, number>, monthlyDusk?: number[] | null, referenceDusk?: number | null,
- *             dusks?: Record<string, number> }} StoredHaze
- *   monthlyMorning / referenceMorning, monthlyNight / referenceNight, monthlyDusk / referenceDusk: null where the Sun doesn't get 16 degrees
- *   (16 / 4.65 degrees) down for most of the year (stored so the normals are not fetched again for them); absent in data stored
- *   before they existed (fetched again once).
+ * @typedef {{ normals: HazeSeries, normalsRange: [string, string], source: string, normalsFetchedAt: number,
+ *             blpCdM2: number | null, forecast: HazeSeries | null, forecastFetchedAt: number | null,
+ *             forecastSource?: string, aodScale?: number | null, calibratedAt?: number }} StoredHaze
+ *   normals / forecast: CAMS's hourly series (open-meteo-haze.js), read at each time's own moment (hazeOn).
+ *   Data stored before the series were kept (monthly averages at fixed moments) is fetched again once.
  */
+/** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeSeries} HazeSeries */
 
 // Re-exported so main-thread code has one import
 export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./refraction-snapshot.js";
@@ -416,21 +411,12 @@ export async function readCachedRefraction(lat, lon) {
  * @param {StoredHaze | null} st @returns {HazeData | null}
  */
 function hazeFromStored(st) {
-	if (!st || !Array.isArray(st.monthly) || st.monthly.length !== 12 || !Number.isFinite(st.reference)) return null;
+	if (!st || !st.normals?.aod?.length) return null;
 	const fresh = st.forecastFetchedAt != null && Date.now() - st.forecastFetchedAt < FORECAST_MAX_AGE_MS;
 	return {
-		monthly: st.monthly, reference: st.reference, normalsRange: st.normalsRange, source: st.source,
-		...(Array.isArray(st.monthlyMorning) && st.monthlyMorning.length === 12 && Number.isFinite(st.referenceMorning)
-			? { monthlyMorning: st.monthlyMorning, referenceMorning: /** @type {number} */ (st.referenceMorning) } : {}),
-		...(Array.isArray(st.monthlyNight) && st.monthlyNight.length === 12 && Number.isFinite(st.referenceNight)
-			? { monthlyNight: st.monthlyNight, referenceNight: /** @type {number} */ (st.referenceNight) } : {}),
-		...(Array.isArray(st.monthlyDusk) && st.monthlyDusk.length === 12 && Number.isFinite(st.referenceDusk)
-			? { monthlyDusk: st.monthlyDusk, referenceDusk: /** @type {number} */ (st.referenceDusk) } : {}),
+		normals: st.normals, normalsRange: st.normalsRange, source: st.source,
 		blpCdM2: st.blpCdM2 ?? null,
-		evenings: fresh ? st.evenings ?? {} : {},
-		mornings: fresh ? st.mornings ?? {} : {},
-		nights: fresh ? st.nights ?? {} : {},
-		dusks: fresh ? st.dusks ?? {} : {},
+		forecast: fresh ? st.forecast ?? null : null,
 		forecastFetchedAt: fresh ? st.forecastFetchedAt : null,
 		...(fresh && st.forecastSource ? { forecastSource: st.forecastSource } : {}),
 		...(Number.isFinite(st.aodScale) ? { aodScale: /** @type {number} */ (st.aodScale) } : {}),
@@ -465,13 +451,12 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 	/** @type {StoredHaze | null} */
 	const st = await readOne(key);
 	const now = Date.now();
-	// normals stored before the dawn / night / dusk averages existed are fetched again once
-	const normalsOk = st && Array.isArray(st.monthly) && "monthlyDusk" in st && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
-	// so is a forecast stored before the night readings existed
+	// haze stored before the hourly series were kept is fetched again once
+	const normalsOk = st && st.normals?.aod?.length && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
 	const forecastOk = options.reference || (!options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS
-		&& st.dusks !== undefined);
+		&& st.forecast !== undefined);
 	const calibrationOk = st?.calibratedAt != null && now - st.calibratedAt < HAZE_CALIBRATION_MAX_AGE_MS;
-	const [normals, evenings, blp, scale] = await Promise.all([
+	const [normals, fc, blp, scale] = await Promise.all([
 		normalsOk ? null : fetchHazeNormals(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze normals: ${e.message}`); return null; }),
 		forecastOk ? null : fetchHazeForecastBoth(lat, lon)
 			.then(ev => ({ ev, src: "cams" }))
@@ -486,27 +471,21 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 		calibrationOk ? null : fetchHazeCalibration(serverUrl, lat, lon, options.signal)
 			.catch((/** @type {Error} */ e) => { notes.push(`haze calibration: ${e.message}`); return null; }),
 	]);
-	const base = normals ?? (st && Array.isArray(st.monthly) ? st : null);
+	const base = normals ?? (st?.normals?.aod?.length ? st : null);
 	if (!base) return null;
 	/** @type {StoredHaze} */
 	const out = {
-		monthly: base.monthly, reference: base.reference, normalsRange: base.normalsRange, source: base.source,
-		monthlyMorning: base.monthlyMorning ?? null, referenceMorning: base.referenceMorning ?? null,
-		monthlyNight: base.monthlyNight ?? null, referenceNight: base.referenceNight ?? null,
-		monthlyDusk: base.monthlyDusk ?? null, referenceDusk: base.referenceDusk ?? null,
+		normals: base.normals, normalsRange: base.normalsRange, source: base.source,
 		normalsFetchedAt: normals ? now : /** @type {StoredHaze} */ (st).normalsFetchedAt,
 		blpCdM2: blp ?? st?.blpCdM2 ?? null,
-		evenings: evenings?.ev.evenings ?? st?.evenings ?? {},
-		mornings: evenings?.ev.mornings ?? st?.mornings ?? {},
-		nights: evenings?.ev.nights ?? st?.nights ?? {},
-		dusks: evenings?.ev.dusks ?? st?.dusks ?? {},
-		forecastFetchedAt: evenings ? now : st?.forecastFetchedAt ?? null,
-		forecastSource: evenings?.src ?? st?.forecastSource,
+		forecast: fc?.ev ?? st?.forecast ?? null,
+		forecastFetchedAt: fc ? now : st?.forecastFetchedAt ?? null,
+		forecastSource: fc?.src ?? st?.forecastSource,
 		aodScale: scale ?? st?.aodScale ?? null,
 		// a failed ask is retried on the next load; an answer is kept for HAZE_CALIBRATION_MAX_AGE_MS
 		calibratedAt: scale != null ? now : st?.calibratedAt,
 	};
-	if (normals || evenings || blp != null || scale != null) {
+	if (normals || fc || blp != null || scale != null) {
 		// not awaited: the page uses `out` now, storing it can finish in the background
 		if (!options.reference) writeForPlace(id, key, out);
 		else writeReference(key, out);

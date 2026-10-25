@@ -480,53 +480,116 @@ export function hazeDelayMs(date, latDeg, lonDeg, options) {
 // Haze data for a place (filled by open-meteo-haze.js; plain JSON, safe to post to workers)
 // ------------------------------------------------------------------------------------------------
 /**
- * @typedef {{ monthly: number[], reference: number, evenings: Record<string, number>, blpCdM2: number | null,
+ * @typedef {{ lat: number, lon: number, t0: number, step: number, aod: (number | null)[] }} HazeSeries
+ *   hourly aerosol optical depth (550 nm) at lat / lon: aod[i] at unix second t0 + i * step
+ * @typedef {{ normals: HazeSeries, forecast: HazeSeries | null, blpCdM2: number | null,
  *             forecastFetchedAt: number | null, normalsRange: [string, string], source: string,
- *             forecastSource?: string, aodScale?: number, monthlyMorning?: number[], referenceMorning?: number,
- *             mornings?: Record<string, number>, monthlyNight?: number[], referenceNight?: number,
- *             nights?: Record<string, number>, monthlyDusk?: number[], referenceDusk?: number,
- *             dusks?: Record<string, number> }} HazeData
- *   monthly: average evening aerosol optical depth (550 nm), January..December. reference: the place's
- *   year-round average (mean of the months): the "average sky". evenings: forecast evening values by ISO
- *   date. blpCdM2: light pollution (the refraction server's blpCdM2), null if unknown. forecastSource:
- *   'cams' (Open-Meteo) or 'gefs' (NOAA GEFS-Aerosols, the fallback). aodScale: the refraction server's
- *   AERONET calibration of CAMS for the place (/v1/haze-calibration; 1 or absent = none); it multiplies the
- *   CAMS values (monthly, reference and CAMS forecasts), not a GEFS forecast.
- *   monthlyMorning / referenceMorning / mornings: the same for the morning, read when the Sun is 16 degrees
- *   down before sunrise (open-meteo-haze.js HAZE_DAWN_SUN_ALT), for dawn by the horizon glow
- *   (horizon-glow.js); monthlyNight / referenceNight / nights: read when it is 16 degrees down after sunset,
- *   for Rabbenu Tam's nightfall by the glow; monthlyDusk / referenceDusk / dusks: read when it is 4.65 degrees
- *   down after sunset (handasi-hazeman's nightfall by the stars). Absent where the Sun doesn't get that low for
- *   most of the year, and in data stored before they existed: the evening values stand in.
+ *             forecastSource?: string, aodScale?: number }} HazeData
+ *   normals: CAMS's archive (August 2022 on), from which the average at any moment is taken (hazeOn).
+ *   forecast: CAMS's forecast, yesterday to ~5 days ahead (or NOAA GEFS-Aerosols', forecastSource 'gefs'),
+ *   null when none is fresh. blpCdM2: light pollution (the refraction server's blpCdM2), null if unknown.
+ *   aodScale: the refraction server's AERONET calibration of CAMS for the place (/v1/haze-calibration; 1 or
+ *   absent = none); it multiplies the CAMS values (averages and CAMS forecasts), not a GEFS forecast.
+ * @typedef {{ depressionDeg: number, rising: boolean }} HazeMoment
+ *   when the haze is read: the Sun's centre depressionDeg below the horizon (unrefracted), before sunrise
+ *   (rising) or after sunset. Each time is read at its own moment: Tzet at its degree, dawn at its.
  */
 
 const MID_MONTH_DOY = [15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5];
 
 /**
- * The evening (or morning) aerosol optical depth for a date: the forecast's when it has the date, else the
- * month's average (interpolated between mid-months), plus the reference to compare it with.
- * @param {HazeData} haze @param {{year:number, month:number, day:number}} date
- * @param {'evening' | 'dusk' | 'morning' | 'night'} [when] default 'evening' (Sun 7 degrees down: ZY's Tzet);
- *   'dusk': 4.65 degrees down (handasi-hazeman's nightfall); 'morning' / 'night': 16 degrees down before sunrise /
- *   after sunset (the horizon glow)
- * @returns {{ aod: number, aodRef: number, forecast: boolean }}
+ * A series' value at an instant (linear between hours), NaN outside it or at a gap.
+ * @param {HazeSeries} s @param {number} ms
  */
-export function hazeOn(haze, date, when = 'evening') {
-	const iso = `${String(date.year).padStart(4, '0')}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+export function hazeSeriesAt(s, ms) {
+	const x = (ms / 1000 - s.t0) / s.step;
+	if (!(x >= 0 && x <= s.aod.length - 1)) return NaN;
+	const i = Math.min(Math.floor(x), s.aod.length - 2), f = x - i;
+	const a = s.aod[i], b = s.aod[i + 1];
+	if (a == null || b == null) return f < 0.5 ? (a ?? NaN) : (b ?? NaN);
+	return a + (b - a) * f;
+}
+
+/** The moment of a date (epoch ms, NaN if the Sun doesn't get that low) @param {{year:number, month:number, day:number}} date @param {number} lat @param {number} lon @param {HazeMoment} m */
+function momentOf(date, lat, lon, m) {
+	return m.rising ? morningSunAt(date, lat, lon, -m.depressionDeg) : eveningSunAt(date, lat, lon, -m.depressionDeg);
+}
+
+/** the Sun's altitude at every hour of an archive @type {WeakMap<HazeSeries, Float64Array>} */
+const altCache = new WeakMap();
+/** monthly averages per archive and moment @type {WeakMap<HazeSeries, Map<string, { monthly: number[], reference: number } | null>>} */
+const normalsCache = new WeakMap();
+
+/**
+ * Average haze per month at a moment, and the mean of the 12 (the place's "average sky" then): every day of
+ * the archive read at that day's moment. Months with fewer than 10 such days take the mean of the others;
+ * null with fewer than 9 months (the Sun not that low for most of the year).
+ * The moment is found from the Sun's altitude at the archive's hours, linear between them: the Sun's
+ * altitude bends little in an hour, so the moment is off by seconds, while the haze is itself linear
+ * between hours. (Solving for it exactly every day took ~70 ms a moment; this ~1 ms.)
+ * @param {HazeSeries} s @param {HazeMoment} m
+ */
+function normalsAt(s, m) {
+	let byMoment = normalsCache.get(s);
+	if (!byMoment) { byMoment = new Map(); normalsCache.set(s, byMoment); }
+	const key = `${m.depressionDeg}|${m.rising ? 'r' : 's'}`;
+	if (byMoment.has(key)) return /** @type {{ monthly: number[], reference: number } | null} */ (byMoment.get(key));
+	const n = s.aod.length;
+	let alt = altCache.get(s);
+	if (!alt) {
+		alt = new Float64Array(n);
+		for (let i = 0; i < n; i++) alt[i] = sunHorizontal(jdOf((s.t0 + i * s.step) * 1000), s.lat, s.lon)[0];
+		altCache.set(s, alt);
+	}
+	const h = -m.depressionDeg, sum = Array(12).fill(0), cnt = Array(12).fill(0);
+	// a day's evening runs from its local noon to 12 h later, its morning from 12 h before its noon (as
+	// eveningSunAt / morningSunAt look for it)
+	const noonOffset = -s.lon / 15 * 3600;
+	for (let day = Math.floor(s.t0 / 86400) * 86400; day <= s.t0 + (n - 1) * s.step; day += 86400) {
+		const noon = day + 43200 + noonOffset;
+		const from = m.rising ? noon - 43200 : noon, to = from + 43200;
+		const i0 = Math.max(0, Math.ceil((from - s.t0) / s.step)), i1 = Math.min(n - 1, Math.floor((to - s.t0) / s.step));
+		for (let i = i0; i < i1; i++) {
+			const a = alt[i], b = alt[i + 1];
+			if (m.rising ? (a < h && b >= h) : (a > h && b <= h)) {
+				const f = (h - a) / (b - a), va = s.aod[i], vb = s.aod[i + 1];
+				const v = va == null || vb == null ? (f < 0.5 ? va : vb) : va + (vb - va) * f;
+				if (v != null && v >= 0) { const mo = new Date(day * 1000).getUTCMonth(); sum[mo] += v; cnt[mo]++; }
+				break;
+			}
+		}
+	}
+	const have = cnt.filter(c => c >= 10).length;
+	let res = null;
+	if (have >= 9) {
+		const raw = sum.map((v, i) => cnt[i] >= 10 ? v / cnt[i] : NaN);
+		const mean = raw.filter(Number.isFinite).reduce((x, y) => x + y, 0) / have;
+		const monthly = raw.map(v => Number.isFinite(v) ? v : mean);
+		res = { monthly, reference: monthly.reduce((x, y) => x + y, 0) / 12 };
+	}
+	byMoment.set(key, res);
+	return res;
+}
+
+/**
+ * The aerosol optical depth at a date's moment: the forecast's when it covers that moment, else the
+ * month's average at that moment (interpolated between mid-months), plus the reference to compare it with
+ * (the place's average at that moment). null where the Sun doesn't get that low for most of the year.
+ * @param {HazeData} haze @param {{year:number, month:number, day:number}} date @param {HazeMoment} moment
+ * @returns {{ aod: number, aodRef: number, forecast: boolean } | null}
+ */
+export function hazeOn(haze, date, moment) {
+	const s = haze?.normals;
+	if (!s?.aod?.length) return null;
+	const nm = normalsAt(s, moment);
+	if (!nm) return null;
 	const scale = Number.isFinite(haze.aodScale) && /** @type {number} */ (haze.aodScale) > 0 ? /** @type {number} */ (haze.aodScale) : 1;
-	const alt = when === 'morning' ? { monthly: haze.monthlyMorning, reference: haze.referenceMorning, days: haze.mornings }
-		: when === 'night' ? { monthly: haze.monthlyNight, reference: haze.referenceNight, days: haze.nights }
-		: when === 'dusk' ? { monthly: haze.monthlyDusk, reference: haze.referenceDusk, days: haze.dusks }
-		: null;
-	const own = alt && Array.isArray(alt.monthly) && alt.monthly.length === 12 && Number.isFinite(alt.reference);
-	const monthly = own ? /** @type {number[]} */ (alt.monthly) : haze.monthly;
-	const reference = own ? /** @type {number} */ (alt.reference) : haze.reference;
-	const aodRef = reference * scale;
-	// a day's forecast at its own moment, else the evening's for that day (better than a monthly average)
-	const f = alt?.days?.[iso] ?? haze.evenings?.[iso];
-	if (Number.isFinite(f)) return { aod: haze.forecastSource === 'gefs' ? f : f * scale, aodRef, forecast: true };
+	const aodRef = nm.reference * scale;
+	const t = momentOf(date, s.lat, s.lon, moment);
+	const f = haze.forecast && Number.isFinite(t) ? hazeSeriesAt(haze.forecast, t) : NaN;
+	if (Number.isFinite(f) && f >= 0) return { aod: haze.forecastSource === 'gefs' ? f : f * scale, aodRef, forecast: true };
 	const doy = (Date.UTC(date.year, date.month - 1, date.day) - Date.UTC(date.year, 0, 1)) / 86400000 + 1;
-	const m = monthly, d = doy < MID_MONTH_DOY[0] ? doy + 365 : doy;
+	const m = nm.monthly, d = doy < MID_MONTH_DOY[0] ? doy + 365 : doy;
 	let aod = m[0];
 	for (let i = 0; i < 12; i++) {
 		const a = MID_MONTH_DOY[i], b = i < 11 ? MID_MONTH_DOY[i + 1] : MID_MONTH_DOY[0] + 365;
