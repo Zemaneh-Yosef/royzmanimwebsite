@@ -4,6 +4,7 @@ import { settings } from "../settings/handler.js";
 import WebsiteCalendar from "../WebsiteCalendar.js";
 import TekufahCalculator from "../tekufot.js";
 import { snapshotProvider } from "../refraction-snapshot.js";
+import { loadRefraction, printNeedsTypicalAir } from "../refraction-data.js";
 import { spawnWorker } from "../misc/worker.js";
 
 /**
@@ -11,21 +12,34 @@ import { spawnWorker } from "../misc/worker.js";
  * atmosphere provider and deferVisibleSunrise are functions), so the workers get a plain copy of it and
  * the provider's results for the exported year; they rebuild the provider with providerFromSnapshot().
  * The terrain horizon is plain data and stays in the config, so the workers compute the same visible
- * sunrise as the page.
+ * sunrise as the page. An export that runs past the forecast (as a year does) uses typical air on every day,
+ * as the prints do, so its times have no step where the forecast ends.
  * @param {import('../zmanimListUpdater.js').default} zmanLister
  * @param {[number, number, number, string]} firstDateParams the first month's PlainDate constructor arguments
- * @returns {{ config: import("../ROYZmanim.js").ZemanimConfig, refraction: import("./excelPrepare.js").ExportRefraction }}
+ * @returns {Promise<{ config: import("../ROYZmanim.js").ZemanimConfig, refraction: import("./excelPrepare.js").ExportRefraction }>}
  */
-function workerCalcInputs(zmanLister, firstDateParams) {
+async function workerCalcInputs(zmanLister, firstDateParams) {
 	const { atmosphereProvider, deferVisibleSunrise: _deferred, ...config } = zmanLister.zmanCalc.config;
-	const provider = zmanLister.refraction?.provider ?? atmosphereProvider ?? null;
 	// a 13-month year plus a little on each side (some zmanim look at neighbouring days)
-	const from = new Temporal.PlainDate(...firstDateParams).subtract({ days: 14 });
+	const first = new Temporal.PlainDate(...firstDateParams);
+	const from = first.subtract({ days: 14 }), days = 420;
+	const geo = zmanLister.geoLocation;
+	let provider = zmanLister.refraction?.provider ?? atmosphereProvider ?? null;
+	let normals = zmanLister.refraction?.normals ?? null;
+	if (provider && printNeedsTypicalAir(first.add({ months: 13 }), geo.getLongitude())) {
+		const typical = await loadRefraction(geo.getLatitude(), geo.getLongitude(), {
+			typical: true, haze: false, prefetch: { from: from.withCalendar("iso8601"), days }
+		});
+		if (typical.notes.length)
+			console.info("Refraction (export):", typical.notes);
+		provider = typical.provider;
+		normals = typical.normals ?? normals;
+	}
 	return {
 		config,
 		refraction: {
-			table: provider ? snapshotProvider(provider, zmanLister.geoLocation, from, 420) : {},
-			normals: zmanLister.refraction?.normals ?? null
+			table: provider ? snapshotProvider(provider, geo, from, days) : {},
+			normals
 		}
 	};
 }
@@ -51,7 +65,7 @@ export default class exportFriendly {
 		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 
 		const { year: isoYear, calendarId: isoCalendar } = zmanLister.jCal.getDate()
-		const calcInputs = workerCalcInputs(zmanLister, [isoYear, 1, 1, isoCalendar]);
+		const calcInputs = await workerCalcInputs(zmanLister, [isoYear, 1, 1, isoCalendar]);
 
 		/** @type {Parameters<import('./icsPrepare.js')["default"]>} */
 		const icsParams = [
@@ -259,7 +273,7 @@ export default class exportFriendly {
 		const glArgs = Object.values(settings.location).map(numberFunc => numberFunc())
 
 		const { year: isoYear, calendarId: isoCalendar } = zmanLister.jCal.getDate()
-		const calcInputs = workerCalcInputs(zmanLister, [isoYear, 1, 1, isoCalendar]);
+		const calcInputs = await workerCalcInputs(zmanLister, [isoYear, 1, 1, isoCalendar]);
 
 		/** @type {Parameters<import('./excelPrepare.js')["default"]>} */
 		const excelParams = [
