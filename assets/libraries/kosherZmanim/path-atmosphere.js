@@ -43,16 +43,18 @@
  * @param {string} baseUrl e.g. "https://example.org/refraction" (the server's /v1/... lives under it)
  * @param {number} latitude
  * @param {number} longitude
- * @param {{ days?: number, fetch?: typeof fetch, throwOnError?: boolean, ensemble?: boolean }} [options]
+ * @param {{ days?: number, fetch?: typeof fetch, throwOnError?: boolean, ensemble?: boolean, typical?: boolean }} [options]
  *   days: how many days to load at start, from yesterday (default 31; at most the server's limit).
  *   throwOnError: default false - a failed request leaves those dates empty (the provider returns null
  *   and the next provider in the chain is used) instead of throwing.
  *   ensemble: also load each event's ensemble (larger answers: ~7x for climatology, ~11x for GEFS days).
+ *   typical: typical air (climatology) for every date, the forecast's included (a printed calendar that runs
+ *   past the forecast, so that its days have no step where the forecast ends).
  */
 export async function createServerPathAtmosphere(baseUrl, latitude, longitude, options = {}) {
 	const doFetch = options.fetch ?? globalThis.fetch;
 	const root = `${baseUrl.replace(/\/+$/, '')}/v1/path-profiles?lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}`
-		+ (options.ensemble ? '&ensemble=1' : '');
+		+ (options.ensemble ? '&ensemble=1' : '') + (options.typical ? '&typical=1' : '');
 	/** @type {Map<string, { path: any[], key: string, source: string, ensemble?: EventEnsemble }>} */
 	const byKey = new Map();
 	/** @type {string | null} */

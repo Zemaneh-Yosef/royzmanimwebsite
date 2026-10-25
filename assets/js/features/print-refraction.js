@@ -11,7 +11,7 @@
  *   fillVisibleSunriseTable(vsTable, offsets, firstDate, lastDate, refraction.horizon, locale);
  */
 
-import { loadRefraction, snapshotProvider } from "../refraction-data.js";
+import { loadRefraction, snapshotProvider, printNeedsTypicalAir } from "../refraction-data.js";
 
 /** @typedef {import("../refraction-data.js").RefractionData} RefractionData */
 
@@ -46,8 +46,10 @@ export async function loadPrintRefraction(geoLocation, first, last) {
 	/** @type {RefractionData | null} */
 	let refraction = null;
 	try {
+		// a print that runs past the forecast uses typical air on every day: no step where the forecast ends
 		refraction = await loadRefraction(geoLocation.getLatitude(), geoLocation.getLongitude(), {
-			prefetch: { from, days }
+			prefetch: { from, days },
+			typical: printNeedsTypicalAir(last, geoLocation.getLongitude())
 		});
 		if (refraction.notes.length)
 			console.info("Refraction:", refraction.notes);

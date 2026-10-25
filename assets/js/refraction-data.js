@@ -35,6 +35,7 @@ import { chainProviders } from "../libraries/kosherZmanim/royzmanim-spa-correcti
 import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHasHumidity } from "./refraction-snapshot.js";
 import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
 import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
+import { fetchOpenMeteoNormals } from "../libraries/kosherZmanim/open-meteo-atmosphere.js";
 import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf } from "../libraries/kosherZmanim/horizon-client.js";
 import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "../libraries/kosherZmanim/open-meteo-haze.js";
 import { fetchLightPollution } from "../libraries/light-pollution-client.js";
@@ -48,6 +49,8 @@ export const FORECAST_TTL_MS = 3 * 60 * 60 * 1000;
 export const FORECAST_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 /** Days stored from yesterday on (Open-Meteo covers ~16, the server's profiles ~31). */
 const FORECAST_DAYS = 33;
+/** Days, from today, that the day's own weather reaches (Open-Meteo's forecast). */
+export const FORECAST_REACH_DAYS = 16;
 /** The haze forecast (CAMS, two runs a day) is fetched again after this. */
 export const HAZE_TTL_MS = 6 * 60 * 60 * 1000;
 /** The server's AERONET calibration factor is asked again after this. */
@@ -564,6 +567,17 @@ function yesterdayAt(lon) {
 		.toZonedDateTimeISO("UTC").toPlainDate().subtract({ days: 1 });
 }
 
+/**
+ * Whether a printed range runs past the day's own weather (FORECAST_REACH_DAYS from today). Such a print
+ * uses typical air on every day (loadRefraction's `typical`), so its times have no step where the forecast
+ * ends; a print within the forecast keeps the forecast.
+ * @param {Temporal.PlainDate} last last printed date (any calendar) @param {number} lon
+ */
+export function printNeedsTypicalAir(last, lon) {
+	const lastForecastDay = yesterdayAt(lon).add({ days: FORECAST_REACH_DAYS });
+	return Temporal.PlainDate.compare(last.withCalendar("iso8601"), lastForecastDay) > 0;
+}
+
 /** requestIdleCallback where it exists, else a short timeout. @param {() => void} fn */
 const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdleCallback(() => fn(), { timeout: 5000 }) : setTimeout(fn, 50));
 
@@ -577,7 +591,7 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  *
  * @param {number} lat @param {number} lon
  * @param {{ serverUrl?: string, prefetch?: { from: Temporal.PlainDate, days: number }, force?: boolean, moon?: boolean,
- *           signal?: AbortSignal, humidity?: boolean, haze?: boolean }} [options]
+ *           signal?: AbortSignal, humidity?: boolean, haze?: boolean, typical?: boolean }} [options]
  *   prefetch: also load the server's climatology for this range (e.g. a yearly print). Only the server
  *     is asked for it: a fresh stored forecast still saves the Open-Meteo download.
  *   force: ignore the stored forecast and fetch.
@@ -586,6 +600,8 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  *   humidity: also fetch dew points / relative humidity (for ZemanimConfig.humidity). A stored forecast
  *     or normals without them are fetched again once; if that fails, the stored ones are used dry.
  *   haze: load the haze data (default true; false skips it and `haze` comes back null).
+ *   typical: typical air only - the server's climatology, then the monthly normals - with no forecast, for a
+ *     print that runs past the forecast (printNeedsTypicalAir), so all its days use the same kind of air.
  * @returns {Promise<RefractionData>}
  */
 export async function loadRefraction(lat, lon, options = {}) {
@@ -626,6 +642,35 @@ export async function loadRefraction(lat, lon, options = {}) {
 				})))
 		// a stored (or sun-only) horizon beats none when a new one can't be had; checked again next time
 		.catch((/** @type {Error} */ e) => { notes.push(`horizon: ${e.message}`); return cached?.horizon ?? null; });
+
+	// ── Typical air only (a print that runs past the forecast): the server's climatology, then the normals ──
+	if (options.typical) {
+		/** @type {AtmosphereProvider | null} */
+		let serverPaths = null;
+		try {
+			const paths = await createServerPathAtmosphere(serverUrl, lat, lon, { days: 1, typical: true });
+			if (options.prefetch) await paths.prefetch(options.prefetch.from, options.prefetch.days);
+			if (paths.lastError) notes.push(`refraction server: ${paths.lastError.message}`);
+			serverPaths = paths.provider;
+		} catch (e) {
+			notes.push(`refraction server: ${/** @type {Error} */ (e).message}`);
+		}
+		let normals = usableNormals;
+		if (!normals) {
+			try {
+				normals = await fetchOpenMeteoNormals(lat, lon, { humidity: options.humidity });
+			} catch (e) {
+				notes.push(`normals: ${/** @type {Error} */ (e).message}`);
+			}
+		}
+		const horizon = await horizonP;
+		writeForPlace(id, staticKey(id), { horizon, normals, terrainCheckedAt });
+		notes.push("typical air only (the printed range runs past the forecast)");
+		return {
+			provider: chainProviders(serverPaths, providerFromNormals(normals)),
+			horizon, normals, forecastFetchedAt: null, fromCache: false, haze: await hazeP, notes
+		};
+	}
 
 	// ── Fresh forecast in storage: no Open-Meteo request ──
 	if (freshForecast) {
