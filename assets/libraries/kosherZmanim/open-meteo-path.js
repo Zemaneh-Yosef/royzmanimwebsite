@@ -27,8 +27,8 @@
  * Where the chosen model ends (or lacks a level for an event), the whole path for that event comes
  * from gfs_seamless instead, which reaches 16 days: never a mix within one sunrise or sunset.
  * Override with options.models (one Open-Meteo model name, 'best_match', or 'auto').
- * Sunset air from GFS has its lowest 200 m corrected (sunset-air.js; sunsetAirModel says when);
- * the other models' air is used as it comes until they have coefficients of their own.
+ * Sunset air has its lowest 200 m corrected with the coefficients for the model it came from (sunset-air.js;
+ * sunsetAirModel says which).
  *
  * This is the same information the refraction-server builds from GFS, from better models, and needs
  * nothing of yours. It covers the forecast range only; for later dates chain a climatology after it.
@@ -115,8 +115,8 @@ const HRRR_BOX = { south: 21, north: 53, west: -135, east: -60 };
 const HRRR_HOURS = 48;
 
 /**
- * The sunset-air.js coefficients for one event's air, or null (sunrise, or a model not fitted yet: ICON,
- * GEM, Open-Meteo's European models, and HRRR's hours of gfs_seamless).
+ * The sunset-air.js coefficients for one event's air, or null (sunrise, or a model not fitted: best_match
+ * outside Europe, any other model).
  * @param {string} name the Open-Meteo model the path came from
  * @param {'sunrise'|'sunset'} event @param {number} lat @param {number} lon
  * @param {number} t the event (epoch ms) @param {number} fetchedAt when the forecast was fetched (epoch ms)
@@ -125,9 +125,12 @@ const HRRR_HOURS = 48;
 export function sunsetAirModel(name, event, lat, lon, t, fetchedAt) {
 	if (event !== 'sunset') return null;
 	if (name === 'gfs_global' || name === 'gfs025') return 'gfs';
+	if (name === 'icon_seamless') return 'icon';
+	if (name === 'gem_seamless') return 'gem';
+	if (name === 'best_match') return chooseOpenMeteoModel(lat, lon) === 'best_match' ? 'europe' : null;   // fitted in Europe only
 	if (name !== 'gfs_seamless') return null;
 	const hrrr = lat >= HRRR_BOX.south && lat <= HRRR_BOX.north && lon >= HRRR_BOX.west && lon <= HRRR_BOX.east;
-	return hrrr && t < fetchedAt + HRRR_HOURS * 3600000 ? null : 'gfs';
+	return hrrr && t < fetchedAt + HRRR_HOURS * 3600000 ? 'hrrr' : 'gfs';
 }
 
 /**

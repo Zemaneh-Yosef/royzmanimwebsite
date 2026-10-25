@@ -19,12 +19,24 @@
  * out-of-sample skill was checked by leaving out a fifth of the stations at a time. Wind, cloud cover,
  * boundary-layer height and surface heat flux were tried as further predictors and added nothing.
  *
- * Which air: each model has its own errors, so each has its own coefficients and air from a model with
- * none is left as it is. Columns over water are never changed (the fit is for land).
- *   gfs  NOAA GFS 0.25 deg, the 00 UTC run's 11 and 23 h forecasts, 2022-2025: 19,409 sunset soundings,
- *        166 stations. Out of sample, rms error of the rise at 25 / 50 / 100 / 200 m:
- *        0.80 / 1.25 / 1.79 / 2.06 K raw -> 0.64 / 0.90 / 1.18 / 1.60 K; the raw rise was too large
- *        by 0.29 / 0.55 / 0.85 / 0.82 K on average.
+ * Which air: each model has its own errors, so each has its own coefficients (air from a model with
+ * none is left as it is). Columns over water are never changed (the fit is for land).
+ * Out of sample, rms error of the rise at 25 / 50 / 100 / 200 m, raw -> corrected, and the raw rise's bias:
+ *   gfs     NOAA GFS 0.25 deg, the 00 UTC run's 11 and 23 h forecasts (NOAA's archive), 2022-2025:
+ *           19,409 sunset soundings, 166 stations worldwide.
+ *           0.80 / 1.25 / 1.79 / 2.06 K -> 0.64 / 0.90 / 1.18 / 1.60 K; bias +0.29 / +0.55 / +0.85 / +0.82 K
+ * The rest are Open-Meteo's archived forecasts (historical-forecast API), 2024-2025, the columns built as
+ * open-meteo-path.js builds them:
+ *   hrrr    gfs_seamless over the contiguous US (HRRR's hours): 12,824 soundings, 40 US stations.
+ *           0.64 / 0.95 / 1.28 / 1.56 K -> 0.51 / 0.78 / 1.02 / 1.22 K; bias +0.18 / +0.29 / +0.47 / +0.59 K
+ *   gem     gem_seamless: 3,869 soundings, 30 Canadian stations.
+ *           0.99 / 1.31 / 1.77 / 2.52 K -> 0.86 / 1.14 / 1.54 / 2.33 K; bias +0.06 / +0.13 / +0.20 / +0.04 K
+ *   europe  best_match in Europe: 3,212 soundings, 31 stations.
+ *           0.62 / 0.85 / 1.12 / 1.38 K -> 0.57 / 0.79 / 1.02 / 1.31 K; bias +0.08 / +0.14 / +0.27 / +0.35 K
+ *   icon    icon_seamless: 3,509 soundings, 36 stations in ICON-EU's area (Europe to the Middle East).
+ *           0.73 / 0.96 / 1.20 / 1.44 K -> 0.69 / 0.92 / 1.18 / 1.48 K; bias +0.07 / +0.12 / +0.22 / +0.25 K.
+ *           Worse at 200 m, so there ICON's own air is kept (a = 0, b = 1): corrected to 100 m only.
+ * A model is corrected only where the fit improved every height it sets.
  * The correction is linear, so it is equally right for a column averaged over many days (a climatology
  * built from the same model).
  */
@@ -37,6 +49,10 @@ export const SUNSET_AIR_HEIGHTS_M = [25, 50, 100, 200];
 /** a (K), b per height in SUNSET_AIR_HEIGHTS_M, by model. */
 export const SUNSET_AIR_COEFFICIENTS = {
 	gfs: [[-0.0912, 0.2659], [-0.2151, 0.2745], [-0.4609, 0.2952], [-0.7808, 0.4320]],
+	hrrr: [[-0.0852, 0.1820], [-0.1953, 0.2460], [-0.4746, 0.2834], [-0.9834, 0.3164]],
+	gem: [[0.1108, 0.2327], [0.0916, 0.3088], [0.0216, 0.3605], [0.0511, 0.5056]],
+	europe: [[-0.0254, 0.4030], [-0.0859, 0.4995], [-0.2510, 0.5751], [-0.3897, 0.7766]],
+	icon: [[0.0029, 0.4891], [-0.0435, 0.6260], [-0.1806, 0.7552], [0, 1]],
 };
 
 const G0 = 9.80665, R_DRY = 287.05;
