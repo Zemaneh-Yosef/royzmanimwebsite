@@ -82,6 +82,17 @@
  *     ray meets the wave line, and 0.2 K of sea temperature moved the elevated sunset by up to a minute),
  *     so it stays off for zmanim until it has been checked against observations. Off, the sea is a
  *     smooth surface at sea level under the weather model's air.
+ *     Sunset (setSunsetInversionDamping, 0.75 by default): a ground inversion in a sunset profile is
+ *     damped. Where a column's lowest level (the 2 m air) is colder than its next level less the standard
+ *     lapse rate, that much of the difference is taken away. At sunset the evening inversion has only
+ *     begun and lies in the lowest few metres, but a model column spreads it evenly up to its next level
+ *     (60-100 m), across the observer and the grazing rays, and the light is bent too much: sunset comes
+ *     out late. Against R. Sampson's 124 timed sunsets at Edmonton (1990-94, M.Sc. thesis, Univ. of
+ *     Alberta) in ERA5 air, 45 came out more than 30 s late without damping, 4 with it, and the rms
+ *     fell from 50 s to 30 s (standard refraction: 50 s); each half of the record on its own gives the same
+ *     best range (0.5-1). Over the sea (Schaefer & Liller's 110 Pacific sunsets) it changes nothing.
+ *     Sunrise profiles are used as given: the dawn inversion has had the night to deepen, and undamped
+ *     air fits Rabbi Druk's and Sampson's sunrises.
  *  9. Observers below sea level (Jordan Valley, Kinneret, Dead Sea). KosherJava's GeoLocation rejects
  *     negative elevations, so the visible sunrise takes the eye's real height separately (the server's
  *     HorizonSet points carry it; for a plain profile pass options.observerHeightM). Rays are then traced
@@ -399,26 +410,32 @@ export function createAtmosphere(temperatureC, pressureMb, heightM, vapourMb = 0
  * Built path media, per profile array. Providers hand back the same array for a date / event, and this is
  * called on every sunrise / sunset calculation: rebuilding the columns each time cost more than the
  * cached ray trace the medium feeds (and a path medium does not depend on the observer's height).
- * One cache per combination of the sea-surface-layer and humidity settings.
- * @type {WeakMap<object, { latitudeDeg: number, medium: Medium }>[]}
+ * One cache per combination of the sea-surface-layer, humidity and inversion-damping settings.
+ * @type {Map<string, WeakMap<object, { latitudeDeg: number, medium: Medium }>>}
  */
-const pathMediumCache = [new WeakMap(), new WeakMap(), new WeakMap(), new WeakMap()];
+const pathMediumCache = new Map();
+
+/** Share of a sunset profile's ground inversion taken away (setSunsetInversionDamping; header item 8). */
+export const SUNSET_INVERSION_DAMPING = 0.75;
 
 /**
  * @param {number} heightM @param {AtmosphereSpec | null | undefined} spec
  * @param {boolean} [surfaceLayer] model the sea surface layer over water (see header, item 8)
  * @param {boolean} [humidity] use the water vapour the spec carries (see header, item 10)
  * @param {number} [latitudeDeg] sets the surface gravity (see createAtmosphere)
+ * @param {number} [inversionDamping] share of a path profile's ground inversion taken away (sunset; header item 8)
  * @returns {Medium}
  */
-function atmosphereFromSpec(heightM, spec, surfaceLayer = false, humidity = false, latitudeDeg = NaN) {
+function atmosphereFromSpec(heightM, spec, surfaceLayer = false, humidity = false, latitudeDeg = NaN, inversionDamping = 0) {
 	if (!spec) return mediumOf(createAtmosphere(ISA_T0 - 273.15, 1013.25, 0));
 	if ('path' in spec) {
-		const cache = pathMediumCache[(surfaceLayer ? 1 : 0) + (humidity ? 2 : 0)];
+		const ck = `${surfaceLayer ? 1 : 0}${humidity ? 1 : 0}|${inversionDamping}`;
+		let cache = pathMediumCache.get(ck);
+		if (!cache) pathMediumCache.set(ck, cache = new WeakMap());
 		let entry = cache.get(spec.path);
 		// a profile array belongs to one place, but the medium's gravity depends on it: check
 		if (!entry || !Object.is(entry.latitudeDeg, latitudeDeg)) {
-			entry = { latitudeDeg, medium: createPathAtmosphere(spec.path, spec.key, { surfaceLayer, humidity, latitudeDeg }) };
+			entry = { latitudeDeg, medium: createPathAtmosphere(spec.path, spec.key, { surfaceLayer, humidity, latitudeDeg, inversionDamping }) };
 			cache.set(spec.path, entry);
 		}
 		return entry.medium;
@@ -746,7 +763,7 @@ function vapourColumn(pts, levels) {
  * @param {PathProfile} prof @param {boolean} surfaceLayer @param {boolean} [humidity]
  * @param {number} [latitudeDeg] surface gravity for the air above and below the levels (see createAtmosphere)
  */
-function buildColumn(prof, surfaceLayer, humidity = false, latitudeDeg = NaN) {
+function buildColumn(prof, surfaceLayer, humidity = false, latitudeDeg = NaN, inversionDamping = 0) {
 	const levels = (prof.levels ?? [])
 		.filter(l => Number.isFinite(l.h) && Number.isFinite(l.t) && Number.isFinite(l.p) && l.p > 0)
 		.sort((a, b) => a.h - b.h)
@@ -754,6 +771,11 @@ function buildColumn(prof, surfaceLayer, humidity = false, latitudeDeg = NaN) {
 	/** @type {{z:number, T:number, lp:number, le?:number}[]} */
 	let pts = levels.map(l => ({ z: l.h, T: l.t + 273.15, lp: Math.log(l.p) }));
 	if (!pts.length) throw new Error('Path profile has no usable levels');
+	if (inversionDamping > 0 && pts.length > 1) {
+		// the ground inversion (the lowest level colder than the next less the standard lapse), damped
+		const [a, b] = pts, lapsed = b.T + ISA_LAPSE * (b.z - a.z);
+		if (lapsed > a.T) a.T += inversionDamping * (lapsed - a.T);
+	}
 	const vap = humidity ? vapourColumn(pts, levels) : null;
 	if (vap) pts.forEach((q, i) => { q.le = vap[i]; });
 	const s = pts[0];
@@ -862,20 +884,23 @@ function hashString(s) {
  * azimuth. The first profile should be at (or near) the observer.
  * @param {PathProfile[]} profiles
  * @param {string} [key] cache key; derived from the data when omitted
- * @param {{ surfaceLayer?: boolean, humidity?: boolean, latitudeDeg?: number }} [options] surfaceLayer: model
- *   the sea surface layer, wave crests and inferior mirages over water (default true here; ROYSPACalculator
- *   turns it off unless asked, see header item 8). humidity: use the levels' td / rh (default false; header,
- *   item 10). latitudeDeg: surface gravity above and below the levels (default standard gravity)
+ * @param {{ surfaceLayer?: boolean, humidity?: boolean, latitudeDeg?: number, inversionDamping?: number }} [options]
+ *   surfaceLayer: model the sea surface layer, wave crests and inferior mirages over water (default true here;
+ *   ROYSPACalculator turns it off unless asked, see header item 8). humidity: use the levels' td / rh (default
+ *   false; header, item 10). latitudeDeg: surface gravity above and below the levels (default standard
+ *   gravity). inversionDamping: share of each column's ground inversion taken away (default 0;
+ *   ROYSPACalculator uses SUNSET_INVERSION_DAMPING for sunset, see header item 8)
  * @returns {Medium}
  */
 export function createPathAtmosphere(profiles, key, options = {}) {
 	const surfaceLayer = options.surfaceLayer ?? true;
 	const humidity = options.humidity ?? false;
 	const latitudeDeg = options.latitudeDeg ?? NaN;
+	const inversionDamping = options.inversionDamping ?? 0;
 	const sorted = [...profiles].sort((a, b) => a.distanceKm - b.distanceKm);
 	if (!sorted.length) throw new Error('No path profiles');
 	const ds = sorted.map(p => p.distanceKm * 1000);
-	const cols = sorted.map(p => buildColumn(p, surfaceLayer, humidity, latitudeDeg));
+	const cols = sorted.map(p => buildColumn(p, surfaceLayer, humidity, latitudeDeg, inversionDamping));
 	const tabs = cols.map(c => c.table);
 	const moist = humidity && sorted.some(p => (p.levels ?? []).some(l => Number.isFinite(l.td) || Number.isFinite(l.rh)));
 	/** N, dN/dz, dN/dd: the field at the point fieldAt() was last asked for */
@@ -1021,7 +1046,8 @@ export function createPathAtmosphere(profiles, key, options = {}) {
 	};
 	const near = cols[0];
 	return {
-		key: (key ?? 'path|' + hashString(JSON.stringify(sorted))) + (surfaceLayer ? '|sl' : '') + (moist ? '|h' : '')
+		key: (key ?? 'path|' + hashString(JSON.stringify(sorted))) + (surfaceLayer ? '|sl' : '') + (moist ? '|h' : '') +
+			(inversionDamping > 0 ? '|inv' + inversionDamping : '')
 			+ (Number.isFinite(latitudeDeg) ? '|lat' + latitudeDeg.toFixed(2) : ''),
 		nm1: z => near(z)[0],
 		dndh: z => near(z)[1],
@@ -1297,6 +1323,7 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._thresholdCache = new WeakMap();
 		this._seaSurfaceLayer = false;
 		this._humidity = false;
+		this._sunsetInversionDamping = SUNSET_INVERSION_DAMPING;
 		this._terrainRays = true;
 		/** @type {'auto'|'scan'|'off'} */
 		this._terrainImages = 'auto';
@@ -1326,13 +1353,6 @@ export default class ROYSPACalculator extends SPACalculator {
 	}
 
 	/**
-	 * How a ridge seen through a duct, which can show more than one image, is handled (terrainElevation):
-	 * 'auto' (default) searches for the highest image only where Bouguer's invariant allows some ray aimed
-	 * above the first solution to be turned back down, and only up to the steepest such ray; 'scan' searches
-	 * wherever a duct lies in a band of heights around the ray (slower); 'off' keeps the first solution.
-	 * @param {'auto'|'scan'|'off'} mode
-	 */
-	/**
 	 * Let the Sun be seen first through a ray aimed above the horizon that air over cold water bends more than
 	 * the ray at the horizon (an image of the Sun's edge floating just above the horizon before the usual
 	 * sunrise; the "Novaya Zemlya" effect). Off by default: it rests on the weather model's thin layer of air
@@ -1345,9 +1365,26 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._earlySunImages = !!on;
 	}
 
+	/**
+	 * How a ridge seen through a duct, which can show more than one image, is handled (terrainElevation):
+	 * 'auto' (default) searches for the highest image only where Bouguer's invariant allows some ray aimed
+	 * above the first solution to be turned back down, and only up to the steepest such ray; 'scan' searches
+	 * wherever a duct lies in a band of heights around the ray (slower); 'off' keeps the first solution.
+	 * @param {'auto'|'scan'|'off'} mode
+	 */
 	setTerrainImageSearch(mode) {
 		if (mode !== 'auto' && mode !== 'scan' && mode !== 'off') throw new RangeError(`unknown mode ${mode}`);
 		this._terrainImages = mode;
+	}
+
+	/**
+	 * Share (0-1) of a sunset path profile's ground inversion taken away (header, item 8). Default
+	 * SUNSET_INVERSION_DAMPING (0.75); 0 uses the weather model's air as given. Sunrise is never damped.
+	 * @param {number} fraction
+	 */
+	setSunsetInversionDamping(fraction) {
+		if (!(fraction >= 0 && fraction <= 1)) throw new RangeError(`damping ${fraction} not in [0, 1]`);
+		this._sunsetInversionDamping = fraction;
 	}
 
 	/** Whether water vapour is included (see setHumidity). */
@@ -1431,7 +1468,8 @@ export default class ROYSPACalculator extends SPACalculator {
 	_atmosphereFor(date, event, geo, heightM) {
 		if (!this._atmosphereProvider || !date || !event) return null;
 		const spec = this._atmosphereProvider(date, event, geo);
-		return spec ? atmosphereFromSpec(heightM, spec, this._seaSurfaceLayer, this._humidity, geo?.getLatitude?.()) : null;
+		return spec ? atmosphereFromSpec(heightM, spec, this._seaSurfaceLayer, this._humidity, geo?.getLatitude?.(),
+			event === 'sunset' ? this._sunsetInversionDamping : 0) : null;
 	}
 
 	/** @param {Medium} atm @param {number} heightM */
