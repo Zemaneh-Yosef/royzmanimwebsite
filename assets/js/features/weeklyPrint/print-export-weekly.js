@@ -21,7 +21,7 @@ import QrCode from "../../../libraries/qrCode.js";
 import { analyzeCycle as analyzeTimeZoneCycle } from "../../../libraries/dst-transition.js";
 
 import { ZemanFunctions, zDTFromFunc } from "../../ROYZmanim.js";
-import { loadRefraction, snapshotProvider } from "../../refraction-data.js";
+import { loadRefraction, snapshotProvider, printNeedsTypicalAir } from "../../refraction-data.js";
 
 import * as ol from "../../../libraries/OpenLayers/ol.js"
 
@@ -342,9 +342,11 @@ const locationGeos = multiLocation ? locationArgs.map(args => new GeoLocation(..
  * @param {boolean} moon also fetch the moon's horizon (the centre, for the moon pages)
  */
 async function refractionFor(geo, moon) {
+	// a print that runs past the forecast uses typical air on every day: no step where the forecast ends
 	const loaded = await loadRefraction(geo.getLatitude(), geo.getLongitude(), {
 		prefetch: { from: snapshotStart, days: snapshotDays },
-		moon
+		moon,
+		typical: printNeedsTypicalAir(endDateForLoop, geo.getLongitude())
 	});
 	if (loaded.notes.length)
 		console.info(`Refraction (${geo.getLocationName()}):`, loaded.notes);
