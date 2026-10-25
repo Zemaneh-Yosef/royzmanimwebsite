@@ -8,7 +8,7 @@
  * Why: in the evening the ground cools and the air just above it ends up colder than the air higher up
  * (a ground inversion). Weather models make that inversion too strong at sunset, which bends the last
  * light too much and puts the computed sunset late. Against Sampson's 124 observed Edmonton sunsets
- * (1990-94; Sampson, Lozowski & Peterson 2003, PASP 115:366) ERA5 air gave sunsets 25 s late on average
+ * (1990-94; R. Sampson, M.Sc. thesis, Univ. of Alberta, 1994, appendix D) ERA5 air gave sunsets 25 s late on average
  * (rms 50 s; summer 82 s); the same correction fitted to ERA5 brought that to 7 s (rms 29 s; summer 26 s),
  * without making more sunsets early. At sunrise it changed nothing measurable, so it is applied at sunset only.
  *
