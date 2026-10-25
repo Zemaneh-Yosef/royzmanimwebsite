@@ -570,8 +570,8 @@ accordian: true
 	 *
 	 *  Dawn                when the glow over the eastern horizon is as bright as in Jerusalem 72 minutes before
 	 *                      sunrise at the equinox (16.04 degrees) under Jerusalem's average sky: horizon-glow.js,
-	 *                      with the morning's haze (CAMS, read when the Sun is 16 degrees down) and the air's
-	 *                      pressure here against Jerusalem's average morning haze (as in the Gemara's time:
+	 *                      with the morning's haze here (CAMS, read when the Sun is at dawn's own depression here) and
+	 *                      the air's pressure here against Jerusalem's average haze at 16.04 degrees (as in the Gemara's time:
 	 *                      GEMARA_SKY_FACTOR) and pressure. A hazier or lower
 	 *                      place sees it later, a clearer or higher one earlier. Standard: 16.04 degrees;
 	 *                      midnight where the Sun never gets that low
@@ -580,22 +580,23 @@ accordian: true
 	 *  Ḥametz              as ZY, over the day from dawn to Rabbenu Tam's nightfall (both by the horizon glow)
 	 *  Pelag               Halacha Berura only
 	 *  Nightfall           three medium stars (magnitude 2-3) seen anywhere, by A. Taylor's star-visibility model
-	 *                      (star-nightfall.js) with the Moon and no light pollution, under the haze here at dusk
-	 *                      (CAMS, read when the Sun is 4.65 degrees down: 18 minutes after sea-level sunset in
-	 *                      Jerusalem at the equinox) dimming the stars; the twilight sky's brightness stays that
+	 *                      (star-nightfall.js) with the Moon and no light pollution, under the haze here at nightfall
+	 *                      itself (CAMS, read at the moment found, found again with it) dimming the stars; the
+	 *                      standard's haze is Jerusalem's average 4.65 degrees down (18 minutes after sea-level sunset
+	 *                      in Jerusalem at the equinox); the twilight sky's brightness stays that
 	 *                      of the standard's haze (star-nightfall.js, "How sure"). Its threshold margin is calibrated
 	 *                      so that under Jerusalem's average dusk haze in the Gemara's time (GEMARA_SKY_FACTOR)
 	 *                      the earliest nightfall of the year in
 	 *                      Jerusalem is 18 minutes after sea-level sunset (STAR_MARGIN_TABLE). Standard: the same
 	 *                      at that haze
 	 *  Rabbenu Tam         as dawn, in the evening: the western glow fading to Jerusalem's 72-minute brightness,
-	 *                      with the haze when the Sun is 16 degrees down after sunset against Jerusalem's average
-	 *                      then (in the Gemara's time, as dawn); only the end of the Ḥametz day, never shown
+	 *                      with the haze here at its own depression after sunset against Jerusalem's average at 16.04
+	 *                      degrees (in the Gemara's time, as dawn); only the end of the Ḥametz day, never shown
 	 *  Candle lighting / Tzet Shabbat / fast ends   sunset / nightfall
 	 */
 	import * as KosherZmanim from "/assets/libraries/kosherZmanim/kosher-zmanim.js";
 	import { ZemanFunctions, zDTFromFunc } from "/assets/js/ROYZmanim.js";
-	import { starNightfall, eveningSunAt, defaultAod, moonFromAstronomy, hazeOn } from "/assets/libraries/kosherZmanim/star-nightfall.js";
+	import { starNightfall, eveningSunAt, sunAltAz, defaultAod, moonFromAstronomy, hazeOn } from "/assets/libraries/kosherZmanim/star-nightfall.js";
 	import { glowDepression, jerusalemAir, stationPressure, pressureAt, JERUSALEM } from "/assets/libraries/kosherZmanim/horizon-glow.js";
 	import { loadReferenceHaze, readCachedReferenceHaze } from "/assets/js/refraction-data.js";
 	import { AstronomyImp } from "/assets/libraries/mooncalc/moonRiseSetCalc.js";
@@ -609,9 +610,16 @@ accordian: true
 	 * average sky in the Gemara's time (GEMARA_SKY_FACTOR): 72 minutes before sea-level sunrise in Jerusalem at the equinox (16.04-16.07 in 2025-2026)
 	 */
 	const DAWN_DEGREES = 16.04;
+	/** The Sun's depression 18 minutes after sea-level sunset in Jerusalem at the equinox (geometric): nightfall's standard */
+	const NIGHTFALL_DEGREES = 4.65;
+	/**
+	 * Haze at a moment (hazeOn), or null where the Sun doesn't get that low for most of the year.
+	 * @param {any} haze @param {{year:number, month:number, day:number}} d @param {number} depressionDeg @param {boolean} rising
+	 */
+	const hazeAt = (haze, d, depressionDeg, rising) => hazeOn(haze, d, { depressionDeg, rising });
 
 	/**
-	 * Jerusalem's average haze (monthly normals at dawn, at 4.65 and at 16 degrees after sunset, AERONET-calibrated):
+	 * Jerusalem's average haze (CAMS's archive, read at dawn's and nightfall's degrees, AERONET-calibrated):
 	 * the sky the Gemara's 72 and 18 minutes are measured in. Read from an earlier visit's store, else loaded below;
 	 * until then dawn is plain 16.04 degrees and nightfall the standard under halakhic_calc's default sky.
 	 * @type {import("/assets/libraries/kosherZmanim/star-nightfall.js").HazeData | null}
@@ -779,8 +787,10 @@ accordian: true
 
 		/**
 		 * The Sun's depression (degrees) at which the horizon glow here matches Jerusalem's at 16.04 degrees,
-		 * or null without the haze of both places (or with the haze setting off). The haze of both is read when
-		 * the Sun is 16 degrees down: before sunrise for dawn ('morning'), after sunset for Rabbenu Tam ('evening').
+		 * or null without the haze of both places (or with the haze setting off). Jerusalem's average haze is read
+		 * at 16.04 degrees (the standard's moment); the haze here at the depression found, so it is found twice:
+		 * from the haze at 16.04 degrees, then from the haze at that answer. Before sunrise for dawn ('morning'),
+		 * after sunset for Rabbenu Tam ('evening').
 		 * @param {'morning' | 'evening'} when
 		 */
 		glowDegrees(when) {
@@ -794,12 +804,19 @@ accordian: true
 			if (deg === undefined) {
 				try {
 					const d = { year: date.year, month: date.month, day: date.day };
-					const reading = when === "morning" ? "morning" : "night";
-					const here = hazeOn(haze, d, reading);
-					const jlm = hazeOn(jerusalemHaze, d, reading);
+					const rising = when === "morning";
+					const jlm = hazeAt(jerusalemHaze, d, DAWN_DEGREES, rising);
 					const geo = this.coreZC.getGeoLocation();
-					const pressureMb = pressureHere(this.config.atmosphereProvider, date, when === "morning" ? "sunrise" : "sunset", geo);
-					deg = glowDepression({ aod: here.aod, pressureMb }, jerusalemAir(gemaraAod(jlm.aodRef)), DAWN_DEGREES);
+					const pressureMb = pressureHere(this.config.atmosphereProvider, date, rising ? "sunrise" : "sunset", geo);
+					const solve = (/** @type {number} */ readAt) => {
+						const here = hazeAt(haze, d, readAt, rising);
+						return here && jlm ? glowDepression({ aod: here.aod, pressureMb }, jerusalemAir(gemaraAod(jlm.aodRef)), DAWN_DEGREES) : NaN;
+					};
+					deg = solve(DAWN_DEGREES);
+					if (Number.isFinite(deg)) {
+						const again = solve(deg);
+						if (Number.isFinite(again)) deg = again;
+					}
 				} catch (e) {
 					console.error("Horizon glow failed", e);
 					deg = NaN;
@@ -913,10 +930,14 @@ accordian: true
 			const seen = { standard: true, today: true };
 			try {
 				// the Gemara's sky: calibrates the margin (18 minutes in Jerusalem) and is the standard the cap is kept from
-				const refAod = jerusalemHaze ? gemaraAod(hazeOn(jerusalemHaze, d, "dusk").aodRef) : DEFAULT_JERUSALEM_AOD;
+				const jlm = jerusalemHaze ? hazeAt(jerusalemHaze, d, NIGHTFALL_DEGREES, false) : null;
+				const refAod = jlm ? gemaraAod(jlm.aodRef) : DEFAULT_JERUSALEM_AOD;
 				const marginMag = starMarginFor(refAod);
 				const haze = this.config.haze;
-				const localAod = haze && jerusalemHaze && this.config.hazeTzet !== false ? hazeOn(haze, d, "dusk").aod : refAod;
+				const useLocal = haze && jlm && this.config.hazeTzet !== false;
+				// the haze here at a moment of the evening (the standard's haze where there is none)
+				const localAt = (/** @type {number} */ depressionDeg) => (useLocal ? hazeAt(haze, d, depressionDeg, false)?.aod : null) ?? refAod;
+				let localAod = localAt(NIGHTFALL_DEGREES);
 				// the twilight sky's brightness stays the reference sky's; the air here dims the stars (star-nightfall.js,
 				// "How sure")
 				const at = (/** @type {number} */ aod, /** @type {'standard' | 'today'} */ which) => {
@@ -931,6 +952,11 @@ accordian: true
 					seen.today = seen.standard;
 				} else {
 					today = at(localAod, "today");
+					// read again at the nightfall found: the haze of its own moment
+					if (Number.isFinite(today)) {
+						const again = localAt(-sunAltAz(today, lat, lon)[0]);
+						if (again !== localAod) { localAod = again; today = at(localAod, "today"); }
+					}
 				}
 				const capMin = this.config.hazeMaxDelayMinutes === undefined ? 15 : this.config.hazeMaxDelayMinutes;
 				if (!Number.isFinite(standard))
@@ -968,14 +994,20 @@ accordian: true
 
 			/** @type {ReturnType<HandasiHazemanFunctions["twilightShifts"]>} */
 			const out = [];
+			const geo = this.coreZC.getGeoLocation();
 			/**
-			 * @param {'dawn' | 'nightfall' | 'rt'} kind @param {'morning' | 'dusk' | 'night'} reading
-			 * @param {Temporal.ZonedDateTime | null} standard @param {Temporal.ZonedDateTime | null} actual
+			 * @param {'dawn' | 'nightfall' | 'rt'} kind @param {number} refDeg the standard's degree (Jerusalem's haze
+			 * is read there) @param {Temporal.ZonedDateTime | null} standard @param {Temporal.ZonedDateTime | null} actual
 			 */
-			const add = (kind, reading, standard, actual, fallback = false) => {
+			const add = (kind, refDeg, standard, actual, fallback = false) => {
 				if (!standard || !actual)
 					return;
-				const here = hazeOn(haze, d, reading), jlm = hazeOn(jerusalemHaze, d, reading);
+				const rising = kind === "dawn";
+				// the haze here as the time itself read it: at its own moment
+				const here = hazeAt(haze, d, -sunAltAz(actual.epochMilliseconds, geo.getLatitude(), geo.getLongitude())[0], rising);
+				const jlm = hazeAt(jerusalemHaze, d, refDeg, rising);
+				if (!here || !jlm)
+					return;
 				const minutes = standard.until(actual).total("minute");
 				out.push({
 					kind, minutes, standard, aod: here.aod, refAod: gemaraAod(jlm.aodRef), forecast: here.forecast,
@@ -983,11 +1015,11 @@ accordian: true
 				});
 			};
 			try {
-				add("dawn", "morning", this.coreZC.getSunriseOffsetByDegrees(zenith), this.timeRange.current.dawn);
+				add("dawn", DAWN_DEGREES, this.coreZC.getSunriseOffsetByDegrees(zenith), this.timeRange.current.dawn);
 				const { standard, today, seen } = this.nightfallTimes();
 				if (Number.isFinite(standard) && Number.isFinite(today))
-					add("nightfall", "dusk", toZDT(standard), toZDT(today), !seen.standard || !seen.today);
-				add("rt", "night", this.coreZC.getSunsetOffsetByDegrees(zenith), this.timeRange.current.tzethakokhavim);
+					add("nightfall", NIGHTFALL_DEGREES, toZDT(standard), toZDT(today), !seen.standard || !seen.today);
+				add("rt", DAWN_DEGREES, this.coreZC.getSunsetOffsetByDegrees(zenith), this.timeRange.current.tzethakokhavim);
 			} catch (e) {
 				console.error("Twilight shifts failed", e);
 			}
