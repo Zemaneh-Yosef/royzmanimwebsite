@@ -30,7 +30,13 @@
  *     const paths = await createServerPathAtmosphere(url, lat, lon, { ensemble: true });
  *     const r = ensembleTimes(calc, paths.members(date, 'sunrise'), () => calc.getVisibleSunrise(date, geo, horizon));
  *     r.mean; r.sd; r.quantile(0.9);      // epoch ms; the provider set on calc is restored afterwards
+ *
+ * Sunset air from GFS (the forecast, GEFS members, and the climatology built from GFS runs) has its lowest
+ * 200 m corrected (sunset-air.js) unless { sunsetAirCorrection: false }; NOAA's reanalysis climatology
+ * ("climatology-ncep") is left as it is.
  */
+
+import { correctSunsetPath } from './sunset-air.js';
 
 /**
  * @typedef {{ distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number }[] }} ServerProfile
@@ -43,13 +49,15 @@
  * @param {string} baseUrl e.g. "https://example.org/refraction" (the server's /v1/... lives under it)
  * @param {number} latitude
  * @param {number} longitude
- * @param {{ days?: number, fetch?: typeof fetch, throwOnError?: boolean, ensemble?: boolean, typical?: boolean }} [options]
+ * @param {{ days?: number, fetch?: typeof fetch, throwOnError?: boolean, ensemble?: boolean, typical?: boolean,
+ *           sunsetAirCorrection?: boolean }} [options]
  *   days: how many days to load at start, from yesterday (default 31; at most the server's limit).
  *   throwOnError: default false - a failed request leaves those dates empty (the provider returns null
  *   and the next provider in the chain is used) instead of throwing.
  *   ensemble: also load each event's ensemble (larger answers: ~7x for climatology, ~11x for GEFS days).
  *   typical: typical air (climatology) for every date, the forecast's included (a printed calendar that runs
  *   past the forecast, so that its days have no step where the forecast ends).
+ *   sunsetAirCorrection: correct GFS air at sunset (default true; see the header).
  */
 export async function createServerPathAtmosphere(baseUrl, latitude, longitude, options = {}) {
 	const doFetch = options.fetch ?? globalThis.fetch;
@@ -57,6 +65,9 @@ export async function createServerPathAtmosphere(baseUrl, latitude, longitude, o
 		+ (options.ensemble ? '&ensemble=1' : '') + (options.typical ? '&typical=1' : '');
 	/** @type {Map<string, { path: any[], key: string, source: string, ensemble?: EventEnsemble }>} */
 	const byKey = new Map();
+	const correct = options.sunsetAirCorrection ?? true;
+	/** the model whose sunset correction applies to an event's air, or null @param {PathEvent} e */
+	const airModel = e => correct && e.event === 'sunset' && (e.source === 'forecast' || e.source === 'climatology-gfs') ? 'gfs' : null;
 	/** @type {string | null} */
 	let cycle = null;
 	/** @type {Error | null} */
@@ -73,9 +84,14 @@ export async function createServerPathAtmosphere(baseUrl, latitude, longitude, o
 			for (const e of /** @type {PathEvent[]} */ (json.events ?? [])) {
 				if (!e.profiles?.length) continue;
 				const tag = e.source === 'forecast' ? json.cycle : e.source;
+				const m = airModel(e);
+				const fix = (/** @type {ServerProfile[]} */ path) => m ? correctSunsetPath(path, m) : path;
+				const ensemble = e.ensemble && m
+					? { ...e.ensemble, members: e.ensemble.members.map(x => ({ ...x, profiles: fix(x.profiles) })) }
+					: e.ensemble;
 				byKey.set(`${e.date}|${e.event}`, {
-					path: e.profiles, source: e.source, ensemble: e.ensemble,
-					key: `srv|${tag}|${latitude},${longitude}|${e.date}|${e.event}`,
+					path: fix(e.profiles), source: e.source, ensemble,
+					key: `srv|${tag}|${latitude},${longitude}|${e.date}|${e.event}${m ? `|air-${m}1` : ''}`,
 				});
 			}
 			if (json.cycle) cycle = json.cycle;

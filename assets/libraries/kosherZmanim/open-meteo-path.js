@@ -27,6 +27,8 @@
  * Where the chosen model ends (or lacks a level for an event), the whole path for that event comes
  * from gfs_seamless instead, which reaches 16 days: never a mix within one sunrise or sunset.
  * Override with options.models (one Open-Meteo model name, 'best_match', or 'auto').
+ * Sunset air from GFS has its lowest 200 m corrected (sunset-air.js; sunsetAirModel says when);
+ * the other models' air is used as it comes until they have coefficients of their own.
  *
  * This is the same information the refraction-server builds from GFS, from better models, and needs
  * nothing of yours. It covers the forecast range only; for later dates chain a climatology after it.
@@ -44,6 +46,7 @@
  */
 
 import { getOpenMeteoJson } from './open-meteo-atmosphere.js';
+import { correctSunsetPath } from './sunset-air.js';
 
 const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 const MARINE_URL = 'https://marine-api.open-meteo.com/v1/marine';
@@ -102,6 +105,29 @@ export const MODEL_REGIONS = [
  */
 export function chooseOpenMeteoModel(latitude, longitude) {
 	return MODEL_REGIONS.find(r => r.test(latitude, longitude))?.model ?? FALLBACK_MODEL;
+}
+
+/**
+ * NOAA's HRRR (3 km, the first ~48 h of gfs_seamless over the contiguous US) as a box around its grid.
+ * A point near the edge counts as inside: there the hours may be HRRR's.
+ */
+const HRRR_BOX = { south: 21, north: 53, west: -135, east: -60 };
+const HRRR_HOURS = 48;
+
+/**
+ * The sunset-air.js coefficients for one event's air, or null (sunrise, or a model not fitted yet: ICON,
+ * GEM, Open-Meteo's European models, and HRRR's hours of gfs_seamless).
+ * @param {string} name the Open-Meteo model the path came from
+ * @param {'sunrise'|'sunset'} event @param {number} lat @param {number} lon
+ * @param {number} t the event (epoch ms) @param {number} fetchedAt when the forecast was fetched (epoch ms)
+ * @returns {string | null}
+ */
+export function sunsetAirModel(name, event, lat, lon, t, fetchedAt) {
+	if (event !== 'sunset') return null;
+	if (name === 'gfs_global' || name === 'gfs025') return 'gfs';
+	if (name !== 'gfs_seamless') return null;
+	const hrrr = lat >= HRRR_BOX.south && lat <= HRRR_BOX.north && lon >= HRRR_BOX.west && lon <= HRRR_BOX.east;
+	return hrrr && t < fetchedAt + HRRR_HOURS * 3600000 ? null : 'gfs';
 }
 
 /**
@@ -183,7 +209,8 @@ function toSeries(json, levels = []) {
  * @param {number} latitude @param {number} longitude
  * @param {{ days?: number, distancesKm?: number[], levelsMb?: number[], fetch?: typeof fetch,
  *           forecastUrl?: string, marineUrl?: string, extraParams?: string, models?: string,
- *           fallbackModel?: string | null, retries?: number, humidity?: boolean }} [options]
+ *           fallbackModel?: string | null, retries?: number, humidity?: boolean,
+ *           sunsetAirCorrection?: boolean }} [options]
  *   days: forecast days (default 16, Open-Meteo's maximum).
  *   models: 'auto' (default: chooseOpenMeteoModel), 'best_match', or one Open-Meteo model name.
  *   fallbackModel: used where the chosen model ends (default 'gfs_seamless'; null = none).
@@ -191,6 +218,8 @@ function toSeries(json, levels = []) {
  *   retries: retries of a failed request (default 1; see getOpenMeteoJson).
  *   humidity: also fetch dew point / relative humidity (see the header; default false).
  *   forecastUrl / marineUrl / extraParams: e.g. a paid endpoint and "&apikey=...".
+ *   sunsetAirCorrection: correct sunset air from a model sunset-air.js has coefficients for (default true;
+ *   see sunsetAirModel).
  */
 export async function createOpenMeteoPathAtmosphere(latitude, longitude, options = {}) {
 	const doFetch = options.fetch ?? globalThis.fetch;
@@ -211,6 +240,7 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 	/** @type {Map<string, { path: PathProfile[], key: string } | null>} */ let built = new Map();
 	/** @type {Map<string, string>} model used per event */ let usedModel = new Map();
 	let stamp = '';
+	let fetchedAt = 0;
 	/** @type {{ start: number, end: number } | null} */ let coverage = null;
 	/** @type {Error | null} */ let lastError = null;
 
@@ -271,6 +301,7 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 		}
 		const ends = [newFc, newFb].filter(s => s.length).map(s => s[0].times);
 		fans = newFans; fc = newFc; fb = newFb; marine = newMarine; built = new Map(); usedModel = new Map();
+		fetchedAt = now;
 		coverage = {
 			start: Math.min(...ends.map(ts => ts[0])) * 1000,
 			end: Math.max(...ends.map(ts => ts[ts.length - 1])) * 1000,
@@ -342,7 +373,11 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 				if (!series.length) continue;
 				const path = fan.idx.map((i, n) => profileFrom(series[i], i, t, dists[n]));
 				if (path.every(Boolean)) {
-					res = { path: /** @type {PathProfile[]} */ (path), key: `om|${name}|${stamp}|${k}${options.humidity ? '|h' : ''}` };
+					const air = (options.sunsetAirCorrection ?? true) ? sunsetAirModel(name, event, latitude, longitude, t, fetchedAt) : null;
+					res = {
+						path: air ? correctSunsetPath(/** @type {PathProfile[]} */ (path), air) : /** @type {PathProfile[]} */ (path),
+						key: `om|${name}|${stamp}|${k}${options.humidity ? '|h' : ''}${air ? `|air-${air}1` : ''}`,
+					};
 					usedModel.set(k, name);
 					break;
 				}
