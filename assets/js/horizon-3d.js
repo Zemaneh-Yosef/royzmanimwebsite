@@ -540,8 +540,10 @@ async function main() {
 
 	/**
 	 * The skyline the map draws in a direction from the spot: the highest angle of its terrain, as drawn (flat:
-	 * atan(rise / distance)), and how far away that is. Sampled from the terrain loaded so far (sparser with
-	 * distance, out to 150 km); kept for half a second per direction, as it is asked for every frame.
+	 * atan(rise / distance)), and how far away that is. Sampled from the terrain loaded so far, from 1 km (as
+	 * the server's horizons: nearer, the map's coarse tiles can put the ground a few metres above the eye, and
+	 * a few metres at 100 m is degrees) out to 150 km, sparser with distance; kept for half a second per
+	 * direction, as it is asked for every frame.
 	 */
 	let skylineCache = { key: "", at: 0, value: /** @type {{angle: number, distM: number} | null} */ (null) };
 	function drawnSkyline(azDeg) {
@@ -550,7 +552,7 @@ async function main() {
 		if (skylineCache.key === key && now - skylineCache.at < 500) return skylineCache.value;
 		const eye = eyeAltitude();
 		let best = null;
-		for (let d = 100; d <= 150000; d *= 1.03) {
+		for (let d = 1000; d <= 150000; d *= 1.02) {
 			const [lon2, lat2] = destination(spot.lat, spot.lon, azDeg, d);
 			const h = map.queryTerrainElevation([lon2, lat2]);
 			if (h === null || h === undefined) continue;
@@ -571,14 +573,14 @@ async function main() {
 		const disc = $("sunDisc");
 		const sun = sunNow();
 		if (!eyeMode || sun.app < -1.5) { disc.hidden = true; return; }
-		// What hides the sun: the higher of the server's horizon there (if the spot has it) and the terrain the
-		// map draws, both as the flat map shows them; the sun is raised by the curvature the flat map leaves
-		// out at that distance (see below)
+		// What hides the sun: the server's horizon there (what the calendar computes with, and what the ridge
+		// dots show), else, where the spot has none (a direction another spot of the area covers, or "Stand
+		// here"), the terrain the map draws; as the flat map shows it, and the sun raised by the curvature the
+		// flat map leaves out at that distance (see below)
 		const entry = entryAtAny(spot, sun.az);
-		const server = entry && { angle: Math.atan2(entry.heightM - eyeAltitude(), entry.distanceKm * 1000) / D2R,
-			distM: entry.distanceKm * 1000 };
-		const drawn = drawnSkyline(sun.az);
-		const edge = server && (!drawn || server.angle >= drawn.angle) ? server : drawn;
+		const edge = entry
+			? { angle: Math.atan2(entry.heightM - eyeAltitude(), entry.distanceKm * 1000) / D2R, distM: entry.distanceKm * 1000 }
+			: drawnSkyline(sun.az);
 		const flatten = edge ? edge.distM * (1 - K_STANDARD) / (2 * R_EARTH) / D2R : 0;
 		const { W, H, f, F, Rt, U } = cameraBasis();
 		/** screen [x, y] of a direction, or null behind the camera */
