@@ -32,6 +32,14 @@ layout: null
 		}
 		html, body { margin: 0; height: 100%; background: #9fc2e6; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
 		#map { position: absolute; inset: 0; }
+		/* the ground darkens with the sun's depression; the disc is drawn where the sun is (eye view) */
+		#dusk { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: #02040a; opacity: 0; transition: opacity 0.2s; }
+		#sunDisc {
+			position: absolute; z-index: 1; pointer-events: none; border-radius: 50%; transform: translate(-50%, -50%);
+			background: radial-gradient(circle, #fffbe8 0 55%, #ffd76a 75%, #ffb02e 100%);
+			box-shadow: 0 0 18px 6px rgba(255, 214, 102, 0.55);
+		}
+		.panel input[type=date], .panel input[type=time], .panel select { font: inherit; }
 		.panel {
 			position: absolute; top: 12px; inset-inline-start: 12px; z-index: 2;
 			width: min(340px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto;
@@ -66,10 +74,29 @@ layout: null
 </head>
 <body>
 	<div id="map" role="region" aria-label="3D terrain"></div>
+	<div id="dusk" aria-hidden="true"></div>
+	<div id="sunDisc" aria-hidden="true" hidden></div>
 	<div class="panel" id="panel">
 		<a id="back" href="/calendar" data-t="back">← Back to the calendar</a>
 		<h1 data-t="title">Horizon in 3D</h1>
 		<div class="sub" id="where"></div>
+		<div class="row">
+			<input type="date" id="date" aria-label="Date">
+			<input type="time" id="time" step="60" aria-label="Time">
+			<button type="button" class="btn" id="now" data-t="now">Now</button>
+		</div>
+		<div class="row">
+			<button type="button" class="btn" id="back10" aria-label="10 minutes earlier">−10′</button>
+			<input type="range" id="clock" min="0" max="1439" step="1" aria-label="Time of day">
+			<button type="button" class="btn" id="fwd10" aria-label="10 minutes later">+10′</button>
+			<button type="button" class="btn" id="play" aria-label="Play" aria-pressed="false">▶</button>
+		</div>
+		<div class="row">
+			<label for="zman" id="zmanLabel" data-t="zman" hidden>Zman</label>
+			<select id="zman" hidden></select>
+			<button type="button" class="btn" id="faceSun" data-t="faceSun">Face the sun</button>
+		</div>
+		<div id="sunNow" class="note"></div>
 		<div class="row">
 			<div class="seg" role="group" aria-label="Event">
 				<button type="button" id="evSunrise" data-t="sunrise">Sunrise</button>
@@ -108,7 +135,7 @@ layout: null
 		<div id="sunInfo" class="note"></div>
 		<div class="legend">
 			<div><span class="dot" style="background: var(--accent)"></span><span data-t="legRidge">The horizon the server found (what hides the sun)</span></div>
-			<div><span class="dot" style="background: var(--sun)"></span><span data-t="legSun">Where the sun meets it today (approx.)</span></div>
+			<div><span class="dot" style="background: var(--sun)"></span><span data-t="legSun">Where the sun meets it on the date (approx.)</span></div>
 			<div><span class="dot" style="background: #2563eb"></span><span data-t="legSpot">Where you stand</span></div>
 		</div>
 		<div class="note" data-t="clickNote">Tap the ground for its position, height and angle.</div>

@@ -11,6 +11,8 @@
 import * as maplibregl from "../libraries/maplibre/maplibre-gl.mjs";
 import { REFRACTION_SERVER, TERRAIN_VERSION, readCachedRefraction } from "./refraction-data.js";
 import { fetchHorizonForArea } from "../libraries/kosherZmanim/horizon-client.js";
+import { sunAltAz, morningSunAt, eveningSunAt } from "../libraries/kosherZmanim/star-nightfall.js";
+import { ROY_REFRACTION_ARCMIN } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
 
 /** @typedef {import('../libraries/kosherZmanim/royzmanim-spa-corrections.js').HorizonSet} HorizonSet */
 /** @typedef {import('../libraries/kosherZmanim/royzmanim-spa-corrections.js').HorizonSetPoint} HorizonSetPoint */
@@ -55,7 +57,10 @@ const HEBREW = {
 	relief: "תבליט בלבד",
 	spot: "נקודה",
 	legRidge: "האופק שהשרת מצא (מה שמסתיר את השמש)",
-	legSun: "היכן שהשמש פוגשת אותו היום (בקירוב)",
+	legSun: "היכן שהשמש פוגשת אותו בתאריך (בקירוב)",
+	now: "עכשיו",
+	zman: "זמן",
+	faceSun: "פנו אל השמש",
 	legSpot: "היכן שאתם עומדים",
 	clickNote: "הקישו על הקרקע לראות מיקום, גובה וזווית.",
 	sources: "נתונים",
@@ -123,8 +128,14 @@ function sunAzimuthAt(latDeg, decl, altDeg, event) {
 	return event === "sunrise" ? a : 360 - a;
 }
 
-/** Refraction (deg) at apparent altitude h (deg): Sæmundsson (1986), standard air. */
-const refraction = (h) => 1.02 / Math.tan((h + 10.3 / (h + 5.11)) * D2R) / 60;
+/** Refraction (deg) of a body at true altitude h (deg), standard air: Sæmundsson (1986). Meant for h above about -1. */
+const refractionTrue = (h) => 1.02 / Math.tan((h + 10.3 / (h + 5.11)) * D2R) / 60;
+/** Refraction (deg) at apparent altitude h (deg), standard air: Bennett (1982). */
+const refractionApparent = (h) => 1 / Math.tan((h + 7.31 / (h + 4.4)) * D2R) / 60;
+/** The sun's centre at sunrise / sunset as the calendar's calculator takes it: refraction and the semi-diameter. */
+const SUNRISE_ALT = -(ROY_REFRACTION_ARCMIN + 16) / 60;
+/** The sun's angular radius (deg), for drawing it. */
+const SUN_RADIUS = 0.2666;
 
 // ─── Horizon data ────────────────────────────────────────────────────────────
 
@@ -140,6 +151,11 @@ function entryAt(spot, event, az) {
 		if (d < bestD) { best = e; bestD = d; }
 	}
 	return bestD <= 1 ? best : null;
+}
+
+/** The horizon entry nearest an azimuth among both events' (they cover the year's sunrise and sunset directions). */
+function entryAtAny(spot, az) {
+	return entryAt(spot, "sunrise", az) ?? entryAt(spot, "sunset", az);
 }
 
 /** The spot of a vantage set that sees lowest at this azimuth (its `wins`), else the first. @param {HorizonSet} set */
@@ -159,12 +175,39 @@ function spotFor(set, event, az) {
 function sunOnHorizon(spot, event, decl) {
 	let alt = 0, az = null, entry = null;
 	for (let i = 0; i < 3; i++) {
-		az = sunAzimuthAt(spot.lat, decl, alt - refraction(alt), event);
+		az = sunAzimuthAt(spot.lat, decl, alt - refractionApparent(alt), event);
 		if (az === null) return null;
 		entry = entryAt(spot, event, az);
 		alt = entry ? elevationAngle(spot.height, entry.heightM, entry.distanceKm * 1000) : 0;
 	}
 	return { az, alt, entry };
+}
+
+// ─── The sky by the sun's depression ─────────────────────────────────────────
+
+/** [depression (deg; negative: the sun up), sky, horizon, darkening of the ground (0..1)] */
+const SKY_STOPS = /** @type {[number, string, string, number][]} */ ([
+	[-6, "#6fa3dc", "#e3edf7", 0],
+	[0, "#5b88c2", "#f3c993", 0.05],
+	[3, "#3f5f92", "#e7955f", 0.2],
+	[6, "#263a63", "#a8677a", 0.4],
+	[9, "#16223f", "#4c4466", 0.58],
+	[12, "#0c1427", "#25283f", 0.7],
+	[15, "#070b18", "#11141f", 0.78],
+	[18, "#04060c", "#06080f", 0.84]
+]);
+
+const hex = (/** @type {string} */ c) => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
+const mixHex = (a, b, f) => "#" + hex(a).map((x, i) => Math.round(x + (hex(b)[i] - x) * f).toString(16).padStart(2, "0")).join("");
+
+/** The sky's colours and the ground's darkening for a depression (deg below the horizon). */
+function skyAt(depression) {
+	const d = Math.max(SKY_STOPS[0][0], Math.min(18, depression));
+	let i = 0;
+	while (i < SKY_STOPS.length - 2 && d > SKY_STOPS[i + 1][0]) i++;
+	const [d0, s0, h0, g0] = SKY_STOPS[i], [d1, s1, h1, g1] = SKY_STOPS[i + 1];
+	const f = (d - d0) / (d1 - d0);
+	return { sky: mixHex(s0, s1, f), horizon: mixHex(h0, h1, f), dark: g0 + (g1 - g0) * f };
 }
 
 // ─── Page ────────────────────────────────────────────────────────────────────
@@ -190,14 +233,33 @@ async function main() {
 	back.search = location.search;
 	$("back").href = back.pathname + back.search;
 
-	const dateParam = q.get("date");
-	const day = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? new Date(dateParam + "T12:00:00Z") : new Date();
-	// noon at the place, on that day
-	const jdNoon = Math.floor(day.getTime() / 86400000) + 2440588 - lon / 360;
-	const decl = declination(jdNoon);
+	// The moment shown: a date and a time at the place (its time zone from the calendar, else this device's)
+	const tz = (() => {
+		const z = q.get("tz");
+		try { if (z) return Temporal.Now.zonedDateTimeISO(z).timeZoneId; } catch (e) { /* not a time zone */ }
+		return Temporal.Now.timeZoneId();
+	})();
+	const zoned = (/** @type {number} */ ms) => Temporal.Instant.fromEpochMilliseconds(ms).toZonedDateTimeISO(tz);
+	const dateParam = q.get("date") ?? "";
+	/** @type {Temporal.PlainDate} */
+	let date = /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? Temporal.PlainDate.from(dateParam) : Temporal.Now.plainDateISO(tz);
+	const ymd = (/** @type {Temporal.PlainDate} */ d) => ({ year: d.year, month: d.month, day: d.day });
+	/** The sun's declination at the place's noon of the date: aims the view at the day's sunrise / sunset. */
+	let decl = 0;
+	const setDecl = () => { decl = declination(Date.UTC(date.year, date.month - 1, date.day, 12) / 86400000 + 2440587.5 - lon / 360); };
+	setDecl();
+
+	const timeParam = q.get("time") ?? "";
 	/** @type {SunEvent} */
 	let event = q.get("event") === "sunset" ? "sunset" : q.get("event") === "sunrise" ? "sunrise"
-		: (((day.getUTCHours() + lon / 15) % 24 + 24) % 24) < 12 ? "sunrise" : "sunset";
+		: /^\d{1,2}:\d{2}/.test(timeParam) ? (Number(timeParam.split(":")[0]) < 12 ? "sunrise" : "sunset")
+		: Temporal.Now.zonedDateTimeISO(tz).hour < 12 ? "sunrise" : "sunset";
+	/** The moment shown (epoch ms). */
+	let when = /^\d{1,2}:\d{2}(:\d{2})?$/.test(timeParam)
+		? date.toZonedDateTime({ timeZone: tz, plainTime: Temporal.PlainTime.from(timeParam.padStart(5, "0")) }).epochMilliseconds
+		: date.equals(Temporal.Now.plainDateISO(tz)) ? Date.now()
+		: (event === "sunrise" ? morningSunAt : eveningSunAt)(ymd(date), lat, lon, SUNRISE_ALT);
+	if (!Number.isFinite(when)) when = date.toZonedDateTime({ timeZone: tz, plainTime: "12:00" }).epochMilliseconds;
 
 	// The horizon set the calendar uses for this place (stored with it), else the same request it makes
 	/** @type {HorizonSet | null} */
@@ -393,6 +455,144 @@ async function main() {
 		$("where").textContent = `${fmt(spot.lat, 5)}, ${fmt(spot.lon, 5)}${h}` + (area?.name && !customSpot ? ` · ${area.name}` : "");
 	}
 
+	// ─── The moment: the sun where it is, the sky as dark as its depression ───
+
+	/** The sun's true (unrefracted) and apparent altitude and its azimuth at `when`, from the spot. */
+	function sunNow() {
+		const [alt, sAz] = sunAltAz(when, spot.lat, spot.lon);
+		return { alt, app: alt > -1.5 ? alt + refractionTrue(Math.max(alt, -1)) : alt, az: sAz };
+	}
+
+	/**
+	 * Draws the sun's disc over the eye view. The map is flat (web Mercator: no curvature, no bending), so a
+	 * ridge d away is drawn atan(dh / d) up instead of the d (1 - k) / 2R less it is seen at; the sun is raised
+	 * by the same amount there, so it stands where it really is against that ridge (standard air), and the
+	 * part of it below the ridge is cut off.
+	 */
+	function placeSun() {
+		const disc = $("sunDisc");
+		const sun = sunNow();
+		if (!eyeMode || sun.app < -1.5) { disc.hidden = true; return; }
+		const entry = entryAtAny(spot, sun.az);
+		const flatten = entry ? entry.distanceKm * 1000 * (1 - K_STANDARD) / (2 * R_EARTH) / D2R : 0;
+		const W = map.getContainer().clientWidth, H = map.getContainer().clientHeight;
+		const f = H / 2 / Math.tan(fov / 2 * D2R);
+		const b = map.getBearing() * D2R, tl = (map.getPitch() - 90) * D2R;
+		const F = [Math.sin(b) * Math.cos(tl), Math.cos(b) * Math.cos(tl), Math.sin(tl)];
+		const Rt = [Math.cos(b), -Math.sin(b), 0];
+		const U = [Rt[1] * F[2] - Rt[2] * F[1], Rt[2] * F[0] - Rt[0] * F[2], Rt[0] * F[1] - Rt[1] * F[0]];
+		/** screen [x, y] of a direction, or null behind the camera */
+		const screen = (azDeg, altDeg) => {
+			const a = azDeg * D2R, e = altDeg * D2R;
+			const d = [Math.sin(a) * Math.cos(e), Math.cos(a) * Math.cos(e), Math.sin(e)];
+			const z = d[0] * F[0] + d[1] * F[1] + d[2] * F[2];
+			if (z <= 0.05) return null;
+			return [W / 2 + f * (d[0] * Rt[0] + d[1] * Rt[1]) / z, H / 2 - f * (d[0] * U[0] + d[1] * U[1] + d[2] * U[2]) / z];
+		};
+		const at = screen(sun.az, sun.app + flatten);
+		if (!at || at[0] < -100 || at[0] > W + 100 || at[1] < -100 || at[1] > H + 100) { disc.hidden = true; return; }
+		const r = Math.max(5, f * Math.tan(SUN_RADIUS * D2R));
+		disc.hidden = false;
+		disc.style.left = `${at[0]}px`;
+		disc.style.top = `${at[1]}px`;
+		disc.style.width = disc.style.height = `${2 * r}px`;
+		// the ridge's line in that direction, drawn (flat) at its plain angle
+		const ridge = entry && screen(sun.az, Math.atan2(entry.heightM - eyeAltitude(), entry.distanceKm * 1000) / D2R);
+		const hidden = ridge ? Math.max(0, Math.min(2 * r, at[1] + r - ridge[1])) : 0;
+		disc.style.clipPath = hidden ? `inset(0 0 ${hidden}px 0)` : "";
+		disc.hidden = hidden >= 2 * r;
+	}
+	map.on("render", placeSun);
+
+	/** Puts the controls, the sky and the sun at `when`; with `aimed`, turns to face the sun. */
+	function showMoment(aimed = false) {
+		const z = zoned(when);
+		const d = z.toPlainDate();
+		if (!d.equals(date)) {
+			date = d;
+			setDecl();
+			drawData();
+		}
+		$("date").value = date.toString();
+		$("time").value = z.toPlainTime().toString({ smallestUnit: "minute" });
+		$("clock").value = String(z.hour * 60 + z.minute);
+		const sun = sunNow();
+		const sky = skyAt(-sun.alt);
+		map.setSky({ "sky-color": sky.sky, "horizon-color": sky.horizon, "fog-color": sky.horizon,
+			"sky-horizon-blend": 0.5, "horizon-fog-blend": 0.6, "fog-ground-blend": 0.75 });
+		$("dusk").style.opacity = String(sky.dark);
+		const time = z.toLocaleString(HE ? "he-IL" : "en-US", { dateStyle: "medium", timeStyle: "short" });
+		$("sunNow").textContent = HE
+			? `${time}: השמש בגובה ${fmt(sun.alt, 2)}°${sun.alt > -1.5 ? ` (נראית ${fmt(sun.app, 2)}°)` : ""}, בכיוון ${fmt(sun.az, 1)}°` + (sun.alt < 0 ? ` — ${fmt(-sun.alt, 2)}° מתחת לאופק.` : ".")
+			: `${time}: the sun is ${fmt(sun.alt, 2)}° up${sun.alt > -1.5 ? ` (seen at ${fmt(sun.app, 2)}°)` : ""}, at ${fmt(sun.az, 1)}°` + (sun.alt < 0 ? ` — ${fmt(-sun.alt, 2)}° below the horizon.` : ".");
+		fillZmanim();
+		if (aimed) {
+			az = sun.az;
+			tilt = Math.max(-10, Math.min(20, sun.app));
+			$("tilt").value = String(tilt);
+			eyeMode = true;
+			look();
+		}
+		map.triggerRepaint();
+	}
+
+	/** The calendar's zmanim for the date shown, when it opened this page for this place and date. */
+	function fillZmanim() {
+		let items = [];
+		try {
+			const z = JSON.parse(localStorage.getItem("horizon3d.zmanim") ?? "null");
+			if (z && Math.abs(z.lat - lat) < 1e-6 && Math.abs(z.lon - lon) < 1e-6 && z.date === date.toString()) items = z.items;
+		} catch (e) { /* none */ }
+		const sel = $("zman");
+		sel.hidden = $("zmanLabel").hidden = !items.length;
+		if (sel.dataset.date === date.toString() && sel.options.length - 1 === items.length) return;
+		sel.dataset.date = date.toString();
+		const pick = document.createElement("option");
+		pick.value = "";
+		pick.textContent = HE ? "קפיצה לזמן…" : "Jump to a zman…";
+		sel.replaceChildren(pick, ...items.map((/** @type {{title: string, ms: number}} */ it) => {
+			const o = document.createElement("option");
+			o.value = String(it.ms);
+			o.textContent = `${zoned(it.ms).toPlainTime().toString({ smallestUnit: "minute" })} ${it.title}`;
+			return o;
+		}));
+	}
+
+	let playing = 0;
+	function stop() { clearInterval(playing); playing = 0; $("play").textContent = "▶"; $("play").setAttribute("aria-pressed", "false"); }
+	$("play").onclick = () => {
+		if (playing) return stop();
+		$("play").textContent = "❚❚"; $("play").setAttribute("aria-pressed", "true");
+		playing = setInterval(() => { when += 60000; showMoment(); }, 120);
+	};
+	$("date").onchange = (e) => {
+		if (!e.target.value) return;
+		const z = zoned(when);
+		when = Temporal.PlainDate.from(e.target.value).toZonedDateTime({ timeZone: tz, plainTime: z.toPlainTime() }).epochMilliseconds;
+		showMoment();
+	};
+	$("time").onchange = (e) => {
+		if (!e.target.value) return;
+		when = date.toZonedDateTime({ timeZone: tz, plainTime: Temporal.PlainTime.from(e.target.value) }).epochMilliseconds;
+		showMoment();
+	};
+	$("clock").oninput = (e) => {
+		const m = Number(e.target.value);
+		when = date.toZonedDateTime({ timeZone: tz, plainTime: { hour: Math.floor(m / 60), minute: m % 60 } }).epochMilliseconds;
+		showMoment();
+	};
+	$("back10").onclick = () => { when -= 600000; showMoment(); };
+	$("fwd10").onclick = () => { when += 600000; showMoment(); };
+	$("now").onclick = () => { stop(); when = Date.now(); showMoment(true); };
+	$("faceSun").onclick = () => showMoment(true);
+	$("zman").onchange = (e) => {
+		if (!e.target.value) return;
+		stop();
+		when = Number(e.target.value);
+		showMoment(true);
+		e.target.value = "";
+	};
+
 	// ─── Controls ───
 	$("evSunrise").onclick = () => setEvent("sunrise");
 	$("evSunset").onclick = () => setEvent("sunset");
@@ -473,6 +673,7 @@ async function main() {
 	fillSpots();
 	describeWhere();
 	setEvent(event);
+	showMoment();
 	// the terrain under the camera arrives after the first frame; aim again once it has
 	map.once("idle", () => { if (eyeMode) look(); });
 }
