@@ -415,9 +415,16 @@ async function main() {
 		// the sky is the page's own (behind a transparent globe view): by the sun's depression, as the calendar
 		// reckons twilight in degrees; Cesium's darkens far too early and leaves the ground lit
 		skyBox: false, skyAtmosphere: false,
-		contextOptions: { webgl: { alpha: true } }
+		contextOptions: { webgl: { alpha: true } },
+		// drawn at the screen's own pixels (on a high-DPI screen Cesium otherwise draws fewer and stretches them):
+		// affordable, as a frame is drawn only on a change
+		useBrowserRecommendedResolution: false,
+		// anti-aliased (Cesium's default, made explicit): the ridges' edges against the sky are what the view is for
+		msaaSamples: 4
 	});
 	const scene = widget.scene, camera = scene.camera, globe = scene.globe;
+	// without WebGL 2 (no multisampling), smoothed after drawing instead
+	if (!scene.msaaSupported) scene.postProcessStages.fxaa.enabled = true;
 	/** made when "relief only" is first chosen (only with the map tiles: the server's own terrain is lit instead) */
 	let relief = null;
 	if (ownFormat) {
