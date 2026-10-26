@@ -1,0 +1,1 @@
+MapLibre GL JS 6.13.0 (https://github.com/maplibre/maplibre-gl-js), BSD-3-Clause (LICENSE.txt): dist/ as published on npm, source maps left out.

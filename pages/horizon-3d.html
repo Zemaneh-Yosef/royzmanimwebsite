@@ -1,0 +1,124 @@
+---
+permalink: /horizon-3d
+layout: null
+---
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Horizon in 3D | Zemaneh Yosef</title>
+	<meta name="description" content="The terrain the visible sunrise and sunset are computed from, seen from where you stand.">
+	<link href="/favicon.ico" rel="icon" type="image/x-icon">
+	<link rel="stylesheet" href="/assets/libraries/maplibre/maplibre-gl.css">
+	{% include polyfills.html %}
+	<style>
+		:root {
+			--panel-bg: rgba(255, 255, 255, 0.92);
+			--panel-fg: #1d2330;
+			--muted: #5b6475;
+			--accent: #b45309;
+			--sun: #f5b400;
+			--border: rgba(0, 0, 0, 0.12);
+		}
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--panel-bg: rgba(24, 27, 34, 0.92);
+				--panel-fg: #e8ebf1;
+				--muted: #a3abba;
+				--accent: #f59e0b;
+				--border: rgba(255, 255, 255, 0.14);
+			}
+		}
+		html, body { margin: 0; height: 100%; background: #9fc2e6; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+		#map { position: absolute; inset: 0; }
+		.panel {
+			position: absolute; top: 12px; inset-inline-start: 12px; z-index: 2;
+			width: min(340px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto;
+			background: var(--panel-bg); color: var(--panel-fg); border: 1px solid var(--border);
+			border-radius: 10px; padding: 12px 14px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+		}
+		.panel h1 { font-size: 16px; margin: 0 0 2px; }
+		.panel .sub { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+		.panel .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+		.panel label { color: var(--muted); font-size: 12px; min-width: 64px; }
+		.panel input[type=range] { flex: 1; min-width: 120px; }
+		.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+		.seg button, .btn {
+			border: 0; background: transparent; color: inherit; padding: 5px 10px; font: inherit; cursor: pointer;
+		}
+		.btn { border: 1px solid var(--border); border-radius: 7px; }
+		.seg button[aria-pressed=true] { background: var(--accent); color: #fff; }
+		.btn:hover, .seg button:hover { filter: brightness(1.1); }
+		.val { font-variant-numeric: tabular-nums; min-width: 56px; text-align: end; }
+		.legend { font-size: 12px; color: var(--muted); margin-top: 10px; }
+		.legend span.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-inline-end: 4px; }
+		.note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+		.err { color: #b91c1c; font-size: 13px; }
+		.panel details summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+		.maplibregl-popup-content { font: 13px/1.45 system-ui, sans-serif; color: #1d2330; }
+		.maplibregl-popup-content .btn { margin-top: 6px; padding: 3px 8px; }
+		#back { color: var(--accent); text-decoration: none; font-size: 12px; }
+		@media (max-width: 600px) {
+			.panel { top: auto; bottom: 8px; inset-inline-start: 8px; max-height: 45dvh; }
+		}
+	</style>
+</head>
+<body>
+	<div id="map" role="region" aria-label="3D terrain"></div>
+	<div class="panel" id="panel">
+		<a id="back" href="/calendar" data-t="back">← Back to the calendar</a>
+		<h1 data-t="title">Horizon in 3D</h1>
+		<div class="sub" id="where"></div>
+		<div class="row">
+			<div class="seg" role="group" aria-label="Event">
+				<button type="button" id="evSunrise" data-t="sunrise">Sunrise</button>
+				<button type="button" id="evSunset" data-t="sunset">Sunset</button>
+			</div>
+			<button type="button" class="btn" id="eyeBtn" data-t="eye">Eye view</button>
+			<button type="button" class="btn" id="aboveBtn" data-t="above">From above</button>
+		</div>
+		<div class="row">
+			<label for="az" data-t="facing">Facing</label>
+			<button type="button" class="btn" id="left" aria-label="Turn left">◀</button>
+			<input type="range" id="az" min="0" max="360" step="0.5">
+			<button type="button" class="btn" id="right" aria-label="Turn right">▶</button>
+			<span class="val" id="azVal"></span>
+		</div>
+		<div class="row">
+			<label for="tilt" data-t="tilt">Look up</label>
+			<input type="range" id="tilt" min="-10" max="20" step="0.25" value="1">
+			<span class="val" id="tiltVal"></span>
+		</div>
+		<div class="row">
+			<label for="fov" data-t="lens">Lens</label>
+			<input type="range" id="fov" min="5" max="60" step="1" value="30">
+			<span class="val" id="fovVal"></span>
+		</div>
+		<div class="row">
+			<label for="imagery" data-t="imagery">Imagery</label>
+			<select id="imagery">
+				<option value="sat" data-t="satellite">Satellite</option>
+				<option value="osm" data-t="map">Map</option>
+				<option value="none" data-t="relief">Relief only</option>
+			</select>
+			<label for="spot" id="spotLabel" data-t="spot" hidden>Spot</label>
+			<select id="spot" hidden></select>
+		</div>
+		<div id="sunInfo" class="note"></div>
+		<div class="legend">
+			<div><span class="dot" style="background: var(--accent)"></span><span data-t="legRidge">The horizon the server found (what hides the sun)</span></div>
+			<div><span class="dot" style="background: var(--sun)"></span><span data-t="legSun">Where the sun meets it today (approx.)</span></div>
+			<div><span class="dot" style="background: #2563eb"></span><span data-t="legSpot">Where you stand</span></div>
+		</div>
+		<div class="note" data-t="clickNote">Tap the ground for its position, height and angle.</div>
+		<div id="err" class="err" role="alert"></div>
+		<details>
+			<summary data-t="sources">Data</summary>
+			<div class="note" id="tileStats"></div>
+			<div class="note" data-t="srcText">Terrain: the same elevation data as our visible-sunrise horizons (bare-earth models: SRTM, FABDEM and national surveys where loaded); where our server has none, the AWS Terrain Tiles. Heights you see are bare earth: buildings and trees are not in them.</div>
+		</details>
+	</div>
+	<script type="module" src="/assets/js/horizon-3d.js"></script>
+</body>
+</html>

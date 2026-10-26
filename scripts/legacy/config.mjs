@@ -11,13 +11,14 @@
 export const TARGETS = ["chrome67", "edge79", "firefox78", "safari14.1", "ios14.5"];
 
 /** Pages built for modern browsers only: their inline scripts and styles are not lowered. Paths are relative to _site. */
-export const MODERN_ONLY_PAGES = ["handasi-hazeman.html"];
+export const MODERN_ONLY_PAGES = ["handasi-hazeman.html", "horizon-3d.html"];
 
 /**
  * Third-party code served exactly as shipped. PDF.js only runs in newer browsers; the haskamot modal
  * falls back to showing the PDF itself where it doesn't start (_includes/modals/haskamot.html).
+ * MapLibre needs WebGL 2 and a modern browser anyway (the 3D horizon page, horizon-3d.html, says so where it can't start).
  */
-export const LEAVE_AS_IS = ["assets/libraries/pdfviewer/"];
+export const LEAVE_AS_IS = ["assets/libraries/pdfviewer/", "assets/libraries/maplibre/"];
 
 /**
  * Module workers started through spawnWorker() (assets/js/misc/worker.js). For each one the build

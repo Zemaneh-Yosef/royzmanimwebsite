@@ -527,6 +527,12 @@ export default class LocationModal {
 		} else {
 			terrain = val(tri({ he: "לא זמין — הנץ לפי גובה פני הים", "he-Latn": "Not available — netz at sea level" }));
 		}
+		// the terrain in 3D, from where the observer stands (pages/horizon-3d.html); it reads the same horizon set
+		const view3d = /** @type {HTMLAnchorElement} */ (el("a", "d-block", tri({ he: "צפייה באופק בתלת־ממד", "he-Latn": "View the horizon in 3D" })));
+		view3d.href = `/horizon-3d?${new URLSearchParams({ lat: String(this.geo.getLatitude()), lon: String(this.geo.getLongitude()) })}`;
+		view3d.target = "_blank";
+		view3d.rel = "noopener";
+		if (Math.abs(this.geo.getLatitude()) <= 60) terrain.append(view3d);   // the elevation data's reach
 
 		const overWater = [sunrise, sunset].some(spec => spec && "path" in spec && spec.path.some(p => p.water));
 		const sea = val(tri(config.seaSurfaceLayer ? { he: "פעיל", "he-Latn": "On" } : { he: "כבוי", "he-Latn": "Off" }));
