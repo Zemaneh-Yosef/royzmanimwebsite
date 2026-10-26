@@ -111,13 +111,20 @@ export function sameTerrain(a, b) {
  * A place's first horizon, still being computed: the server answers within its time limit (a first horizon can
  * take minutes while its elevation tiles are built) with 503 and `computing`, and carries on. Ask again after
  * `retryAfterS` seconds: the request joins the same computation, and once it is done the answer is immediate.
+ * `etaS` is the server's estimate of the time left (null from servers without one), from `work`: the 1" tiles
+ * still to download or build, the fine chunks still to build and the spots to search.
  */
 export class HorizonPendingError extends Error {
-	/** @param {string} message @param {number} retryAfterS */
-	constructor(message, retryAfterS) {
+	/**
+	 * @param {string} message @param {number} retryAfterS @param {number | null} [etaS]
+	 * @param {{ tiles: number, fineChunks: number, spots: number } | null} [work]
+	 */
+	constructor(message, retryAfterS, etaS = null, work = null) {
 		super(message);
 		this.name = 'HorizonPendingError';
 		this.retryAfterS = retryAfterS;
+		this.etaS = etaS;
+		this.work = work;
 	}
 }
 
@@ -129,7 +136,8 @@ async function getJson(url, options, what) {
 		let msg = `HTTP ${r.status}`, body = null;
 		try { body = await r.json(); msg = body.error ?? msg; } catch { /* not JSON */ }
 		if (r.status === 503 && body?.computing)
-			throw new HorizonPendingError(`${what}: ${msg}`, Number(body.retryAfterS) > 0 ? Number(body.retryAfterS) : 15);
+			throw new HorizonPendingError(`${what}: ${msg}`, Number(body.retryAfterS) > 0 ? Number(body.retryAfterS) : 15,
+				Number(body.etaS) > 0 ? Number(body.etaS) : null, body.work ?? null);
 		throw new Error(`${what} request failed: ${msg}`);
 	}
 	return r.json();
