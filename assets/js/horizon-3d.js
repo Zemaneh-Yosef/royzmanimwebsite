@@ -549,8 +549,31 @@ async function main() {
 
 	/** The sun's true (unrefracted) and apparent altitude and its azimuth at `when`, from the spot. */
 	function sunNow() {
-		const [alt, sAz] = sunAltAz(when, spot.lat, spot.lon);
+		return sunAt(when);
+	}
+	function sunAt(/** @type {number} */ ms) {
+		const [alt, sAz] = sunAltAz(ms, spot.lat, spot.lon);
 		return { alt, app: alt > -1.5 ? alt + refractionTrue(Math.max(alt, -1)) : alt, az: sAz };
+	}
+
+	/**
+	 * The moment the sun's disc and the sky are drawn at: it glides to `when` (an ease-out of up to ~1/3 s) instead
+	 * of jumping a quarter of a degree with every minute; a change of more than three hours is shown at once.
+	 */
+	let shownWhen = when, glide = 0;
+	function glideTo() {
+		cancelAnimationFrame(glide);
+		const from = shownWhen, to = when, span = Math.abs(to - from);
+		const apply = () => { sky = skyAt(-sunAt(shownWhen).alt); darkenGround(); };
+		if (!span || span > 3 * 3600000) { shownWhen = to; apply(); return; }
+		const t0 = performance.now(), dur = Math.min(350, 120 + span / 60000 * 20);
+		const step = () => {
+			const f = Math.min(1, (performance.now() - t0) / dur);
+			shownWhen = from + (to - from) * (1 - (1 - f) ** 3);
+			apply();                                 // asks for a frame too
+			if (f < 1) glide = requestAnimationFrame(step);
+		};
+		glide = requestAnimationFrame(step);
 	}
 
 	/** The world point 100 km from the eye in a direction (azimuth, altitude in deg). */
@@ -606,7 +629,7 @@ async function main() {
 	 */
 	function placeSun() {
 		const disc = $("sunDisc");
-		const sun = sunNow();
+		const sun = sunAt(shownWhen);
 		if (!eyeMode || sun.app < -1.5) { disc.hidden = true; return; }
 		const entry = entryAtAny(spot, sun.az);
 		let edgePoint = null, distM = 0;
@@ -673,9 +696,8 @@ async function main() {
 		// the event the moment belongs to: the morning's sunrise or the afternoon's sunset (the view stays put)
 		const ev = sun.az < 180 ? "sunrise" : "sunset";
 		if (ev !== event) setEvent(ev, false);
-		// the sky and the ground's light by the sun's depression at that moment
-		sky = skyAt(-sun.alt);
-		darkenGround();
+		// the sky and the ground's light by the sun's depression at that moment (gliding there with the disc)
+		glideTo();
 		show($("sunNow"), "sunNow", {
 			time: z.toLocaleString(LANG === "he" ? "he-IL" : "en-US", { dateStyle: "medium", timeStyle: "short" }),
 			alt: fmt(sun.alt, 2), app: fmt(sun.app, 2), az: fmt(sun.az, 1), below: fmt(-sun.alt, 2)
