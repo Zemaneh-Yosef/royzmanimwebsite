@@ -36,7 +36,7 @@ import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHa
 import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
 import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
 import { fetchOpenMeteoNormals } from "../libraries/kosherZmanim/open-meteo-atmosphere.js";
-import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf } from "../libraries/kosherZmanim/horizon-client.js";
+import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf, HorizonPendingError } from "../libraries/kosherZmanim/horizon-client.js";
 import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "../libraries/kosherZmanim/open-meteo-haze.js";
 import { fetchLightPollution } from "../libraries/light-pollution-client.js";
 
@@ -130,6 +130,8 @@ export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./r
  * @property {HazeData | null} haze          evening haze + light pollution for nightfall by the stars
  *   (ZemanimConfig.haze); null when it could not be had
  * @property {string[]} notes               what could not be loaded, for logging
+ * @property {number | null} [horizonRetryS] the server is still computing this place's first horizon: ask
+ *   again in this many seconds (the data is otherwise complete, with the stored horizon or none)
  */
 
 // ─── IndexedDB plumbing ──────────────────────────────────────────────────────
@@ -601,6 +603,8 @@ export async function loadRefraction(lat, lon, options = {}) {
 	// downloaded again only where that changed
 	const stored = cached?.horizon && (!options.moon || cached.horizon.moon) ? cached.horizon : null;
 	let terrainCheckedAt = cached?.terrainCheckedAt ?? null;
+	/** @type {number | null} */
+	let horizonRetryS = null;
 	/** @param {string} version @returns {Promise<Horizon>} */
 	const fetchHorizon = (version) => fetchHorizonForArea(serverUrl, lat, lon, { signal: options.signal, version, moon: options.moon })
 		.then(h => { terrainCheckedAt = Date.now(); return h; });
@@ -620,7 +624,12 @@ export async function loadRefraction(lat, lon, options = {}) {
 					return fetchHorizon(`${TERRAIN_VERSION}.${now.layers ?? "-"}.${now.fine ?? "-"}`);
 				})))
 		// a stored (or sun-only) horizon beats none when a new one can't be had; checked again next time
-		.catch((/** @type {Error} */ e) => { notes.push(`horizon: ${e.message}`); return cached?.horizon ?? null; });
+		.catch((/** @type {Error} */ e) => {
+			notes.push(`horizon: ${e.message}`);
+			// a place's first horizon, still being computed on the server: the caller asks again then
+			if (e instanceof HorizonPendingError) horizonRetryS = e.retryAfterS;
+			return cached?.horizon ?? null;
+		});
 
 	// ── Typical air only (a print that runs past the forecast): the server's climatology, then the normals ──
 	if (options.typical) {
@@ -647,7 +656,7 @@ export async function loadRefraction(lat, lon, options = {}) {
 		notes.push("typical air only (the printed range runs past the forecast)");
 		return {
 			provider: chainProviders(serverPaths, providerFromNormals(normals)),
-			horizon, normals, forecastFetchedAt: null, fromCache: false, haze: await hazeP, notes
+			horizon, normals, forecastFetchedAt: null, fromCache: false, haze: await hazeP, notes, horizonRetryS
 		};
 	}
 
@@ -679,7 +688,8 @@ export async function loadRefraction(lat, lon, options = {}) {
 			forecastFetchedAt: freshForecast.fetchedAt,
 			fromCache: true,
 			haze: await hazeP,
-			notes
+			notes,
+			horizonRetryS
 		};
 	}
 
@@ -724,9 +734,10 @@ export async function loadRefraction(lat, lon, options = {}) {
 			forecastFetchedAt: cached.forecast.fetchedAt,
 			fromCache: true,
 			haze: await hazeP,
-			notes
+			notes,
+			horizonRetryS
 		};
 	}
 
-	return { provider, horizon, normals, forecastFetchedAt: gotForecast ? fetchedAt : null, fromCache: false, haze: await hazeP, notes };
+	return { provider, horizon, normals, forecastFetchedAt: gotForecast ? fetchedAt : null, fromCache: false, haze: await hazeP, notes, horizonRetryS };
 }

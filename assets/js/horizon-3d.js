@@ -10,7 +10,7 @@
  */
 import * as maplibregl from "../libraries/maplibre/maplibre-gl.mjs";
 import { REFRACTION_SERVER, TERRAIN_VERSION, readCachedRefraction } from "./refraction-data.js";
-import { fetchHorizonForArea } from "../libraries/kosherZmanim/horizon-client.js";
+import { fetchHorizonForArea, HorizonPendingError } from "../libraries/kosherZmanim/horizon-client.js";
 import { sunAltAz, morningSunAt, eveningSunAt } from "../libraries/kosherZmanim/star-nightfall.js";
 import { ROY_REFRACTION_ARCMIN } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
 
@@ -72,6 +72,7 @@ const HEBREW = {
 	sources: "נתונים",
 	errLatLon: "פתחו דף זה ממיקום בלוח (צריך קו רוחב וקו אורך בין 60° דרום ל־60° צפון).",
 	errHorizon: "לא ניתן היה לטעון את האופק; פני השטח מוצגים בכל זאת.",
+	pending: "השרת עדיין מחשב את האופק של המקום הזה (בפעם הראשונה זה יכול לקחת כמה דקות); פני השטח מוצגים בינתיים, והאופק יופיע כשיהיה מוכן.",
 	errWebgl: "הדפדפן הזה אינו תומך ב־WebGL 2, שהתצוגה התלת־ממדית צריכה.",
 	srcText: "פני השטח: אותם נתוני גובה שמהם מחושב אופק הנץ הנראה (מודלים של פני הקרקע החשופה: SRTM, ‏FABDEM ומיפוי לאומי היכן שנטען); היכן שאין לשרת נתונים — אריחי הגובה של AWS. הגבהים הם של הקרקע עצמה: בניינים ועצים אינם בהם."
 };
@@ -271,9 +272,17 @@ async function main() {
 	/** @type {HorizonSet | null} */
 	let set = null;
 	try { set = (await readCachedRefraction(lat, lon))?.horizon ?? null; } catch (e) { /* no stored place */ }
+	/** A place's first horizon, still being computed on the server: asked for again until it is ready. */
+	let pendingS = 0;
+	const fetchSet = () => fetchHorizonForArea(REFRACTION_SERVER, lat, lon, { version: TERRAIN_VERSION });
+	const horizonFailed = (/** @type {any} */ e) =>
+		showError(t("errHorizon", "The horizon could not be loaded; the terrain is still shown.") + ` (${e?.message ?? e})`);
 	if (!set) {
-		try { set = await fetchHorizonForArea(REFRACTION_SERVER, lat, lon, { version: TERRAIN_VERSION }); }
-		catch (e) { showError(t("errHorizon", "The horizon could not be loaded; the terrain is still shown.") + ` (${e?.message ?? e})`); }
+		try { set = await fetchSet(); }
+		catch (e) {
+			if (e instanceof HorizonPendingError) pendingS = e.retryAfterS;
+			else horizonFailed(e);
+		}
 	}
 
 	/** @type {HorizonSetPoint} */
@@ -791,6 +800,28 @@ async function main() {
 	describeWhere();
 	setEvent(event);
 	showMoment();
+	if (pendingS) waitForHorizon(pendingS);
+
+	/** Shows the terrain meanwhile, and the horizon once the server has it. */
+	function waitForHorizon(retryS) {
+		$("sunInfo").textContent = t("pending", "The server is still computing this place's horizon (the first time can take a few minutes); the terrain is shown meanwhile, and the horizon appears when it is ready.");
+		setTimeout(async () => {
+			try {
+				set = await fetchSet();
+			} catch (e) {
+				if (e instanceof HorizonPendingError) return waitForHorizon(e.retryAfterS);
+				$("sunInfo").textContent = "";
+				return horizonFailed(e);
+			}
+			// the view stays where it is: only the ridge, the eye's height and the sun's point change
+			if (!customSpot) spot = set.points[0];
+			fillSpots();
+			describeWhere();
+			setEvent(event, false);
+			showMoment();
+			look();
+		}, retryS * 1000);
+	}
 	// the terrain under the camera arrives after the first frame; aim again once it has
 	map.once("idle", () => { if (eyeMode) look(); });
 }

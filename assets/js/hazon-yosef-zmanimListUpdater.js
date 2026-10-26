@@ -323,7 +323,10 @@ export default class zmanimListUpdater {
 		const staleIn = data.forecastFetchedAt !== null
 			? data.forecastFetchedAt + FORECAST_TTL_MS - Date.now()
 			: FORECAST_TTL_MS;
-		this._refractionRefresh = setTimeout(() => this._loadRefraction(), Math.max(MIN_REFRACTION_RECHECK_MS, staleIn));
+		// a place's first horizon still being computed on the server: ask again when it says, for the horizon alone
+		// (the stored forecast is reused, so this is one small request)
+		const recheckMs = data.horizonRetryS ? data.horizonRetryS * 1000 : Math.max(MIN_REFRACTION_RECHECK_MS, staleIn);
+		this._refractionRefresh = setTimeout(() => this._loadRefraction(), recheckMs);
 	}
 
 	updateWeekListing(date = this.weekPlainDate) {

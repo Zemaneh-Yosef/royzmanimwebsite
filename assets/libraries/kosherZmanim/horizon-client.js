@@ -19,8 +19,10 @@
  *   const withMoon = await fetchHorizonForArea('https://example.org/refraction', 31.778, 35.235, { moon: true });
  *
  * The server computes the set once per place and caches it, so this is one small download per place
- * (a few KB for a point, ~50 KB gzip for a vantage set). Keep it with the location: it changes only when
- * the server's terrain there does, which fetchTerrainVersion() (a few bytes) tells:
+ * (a few KB for a point, ~50 KB gzip for a vantage set). A place's very first set can take the server minutes:
+ * the request then fails with HorizonPendingError, whose retryAfterS says when to ask again. Keep the set
+ * with the location: it changes only when the server's terrain there does, which fetchTerrainVersion()
+ * (a few bytes) tells:
  *
  *   const now = await fetchTerrainVersion(url, lat, lon, { area: true });
  *   if (!sameTerrain(now, terrainOf(stored))) stored = await fetchHorizonForArea(url, lat, lon, { version: ... });
@@ -105,13 +107,29 @@ export function sameTerrain(a, b) {
 		&& (a.algo ?? 1) === (b.algo ?? 1);
 }
 
+/**
+ * A place's first horizon, still being computed: the server answers within its time limit (a first horizon can
+ * take minutes while its elevation tiles are built) with 503 and `computing`, and carries on. Ask again after
+ * `retryAfterS` seconds: the request joins the same computation, and once it is done the answer is immediate.
+ */
+export class HorizonPendingError extends Error {
+	/** @param {string} message @param {number} retryAfterS */
+	constructor(message, retryAfterS) {
+		super(message);
+		this.name = 'HorizonPendingError';
+		this.retryAfterS = retryAfterS;
+	}
+}
+
 /** @param {string} url @param {{ fetch?: typeof fetch, signal?: AbortSignal }} options @param {string} what */
 async function getJson(url, options, what) {
 	const doFetch = options.fetch ?? globalThis.fetch;
 	const r = await doFetch(url, { signal: options.signal });
 	if (!r.ok) {
-		let msg = `HTTP ${r.status}`;
-		try { msg = (await r.json()).error ?? msg; } catch { /* not JSON */ }
+		let msg = `HTTP ${r.status}`, body = null;
+		try { body = await r.json(); msg = body.error ?? msg; } catch { /* not JSON */ }
+		if (r.status === 503 && body?.computing)
+			throw new HorizonPendingError(`${what}: ${msg}`, Number(body.retryAfterS) > 0 ? Number(body.retryAfterS) : 15);
 		throw new Error(`${what} request failed: ${msg}`);
 	}
 	return r.json();
