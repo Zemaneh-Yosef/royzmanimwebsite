@@ -1,0 +1,1 @@
+CesiumJS 1.146.0 (https://github.com/CesiumGS/cesium), Apache-2.0 (LICENSE.md): Build/Cesium as published on npm: index.js (ES module), Workers, ThirdParty, the Assets the 3D horizon page uses and Widgets/CesiumWidget. Cesium's default world imagery (NaturalEarthII) and the other widgets are left out.

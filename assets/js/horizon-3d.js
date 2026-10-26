@@ -7,8 +7,13 @@
  * the AWS Terrain Tiles elsewhere. On it, the horizon the server found for the location (the same set the
  * calendar uses: stored with the place, else /v1/horizon?area=auto) and the point where today's sun meets
  * it. One link does both events: the toggle turns the observer to face the other one.
+ *
+ * Drawn with CesiumJS: a round Earth (the WGS84 ellipsoid), the camera exactly at the observer's eye, so a
+ * ridge is drawn at its geometric angle, Earth's curvature included. What the drawing leaves out is the air's
+ * bending, which raises a ridge d away by d k / 2R (standard air: k = 0.13); the sun's disc is lowered by
+ * the same amount there, so it stands where it really is against that ridge.
  */
-import * as maplibregl from "../libraries/maplibre/maplibre-gl.mjs";
+import * as Cesium from "../libraries/cesium/index.js";
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { REFRACTION_SERVER, TERRAIN_VERSION, readCachedRefraction, loadRefraction } from "./refraction-data.js";
 import { ZmanimDay, zmanimListFromData, timeFormat } from "./core/zmanimCore.js";
@@ -28,13 +33,16 @@ const R_EARTH = 6371008.8;
 /** Refraction coefficient of standard air, as the server picks its horizon points with (terrain.py). */
 const K_STANDARD = 0.13;
 const EYE_M = 1.7;
-/** How far the eye view looks down / up (deg): the map's pitch reaches 90 + TILT_MAX (maxPitch). */
+/** How far the eye view looks down / up (deg). */
 const TILT_MIN = -30, TILT_MAX = 25;
 /** The lens's vertical field of view (deg). */
 const FOV_MIN = 5, FOV_MAX = 60;
 const clampTilt = (/** @type {number} */ x) => Math.max(TILT_MIN, Math.min(TILT_MAX, x));
 const clampFov = (/** @type {number} */ x) => Math.max(FOV_MIN, Math.min(FOV_MAX, x));
 const D2R = Math.PI / 180;
+/** The finest heightmap level made (geographic tiles of 65 x 65 heights: ~19 m apart at level 14); finer, Cesium
+ * refines what it has, as the data is no finer (the server's tiles go to zoom 14, ~10 m). */
+const MAX_TERRAIN_LEVEL = 14;
 
 // ─── Language ────────────────────────────────────────────────────────────────
 // The page's words are in its HTML, in each language (pages/horizon-3d.html), shown by the site's own setting as
@@ -202,6 +210,152 @@ function skyAt(depression) {
 	return { sky: mixHex(s0, s1, f), horizon: mixHex(h0, h1, f), dark: g0 + (g1 - g0) * f };
 }
 
+// ─── Terrain: the elevation tiles, as Cesium heightmaps ───────────────────────
+// Cesium wants heights on a latitude / longitude grid. They are read from the same web-Mercator Terrarium
+// tiles as before (the server's /v1/terrain-tiles, else AWS's), at the zoom whose pixels are about half a
+// heightmap step, bilinearly.
+
+const tileStats = { server: 0, aws: 0 };
+/** @type {Map<string, Promise<Float32Array | null>>} decoded heights of a Mercator tile (256 x 256), by "z/x/y" */
+const mercTiles = new Map();
+const decodeCanvas = document.createElement("canvas");
+decodeCanvas.width = decodeCanvas.height = 256;
+const decodeCtx = /** @type {CanvasRenderingContext2D} */ (decodeCanvas.getContext("2d", { willReadFrequently: true }));
+
+/** Heights (m) of Terrarium tile z/x/y: the server's where it makes them, else AWS's (with its sea bed set to sea level). */
+function mercTile(z, x, y) {
+	const key = `${z}/${x}/${y}`;
+	let p = mercTiles.get(key);
+	if (!p) {
+		p = (async () => {
+			let blob = null, fromAws = false;
+			if (z >= SERVER_MIN_ZOOM && z <= SERVER_MAX_ZOOM) {
+				try {
+					const r = await fetch(`${REFRACTION_SERVER}/v1/terrain-tiles/${z}/${x}/${y}.png`);
+					if (r.ok) { blob = await r.blob(); tileStats.server++; }
+				} catch (e) { /* the server unreachable: AWS's */ }
+			}
+			if (!blob) {
+				const r = await fetch(`${AWS_TERRARIUM}/${z}/${x}/${y}.png`);
+				if (!r.ok) return null;
+				blob = await r.blob(); tileStats.aws++; fromAws = true;
+			}
+			updateStats();
+			const bmp = await createImageBitmap(blob);
+			decodeCtx.clearRect(0, 0, 256, 256);
+			decodeCtx.drawImage(bmp, 0, 0);
+			const px = decodeCtx.getImageData(0, 0, 256, 256).data;
+			const h = new Float32Array(256 * 256);
+			for (let i = 0; i < h.length; i++) {
+				const v = px[4 * i] * 256 + px[4 * i + 1] + px[4 * i + 2] / 256 - 32768;
+				// AWS's tiles carry the sea bed (bathymetry): its water is drawn at sea level, as the server's
+				h[i] = fromAws && v < 0 ? 0 : v;
+			}
+			return h;
+		})();
+		mercTiles.set(key, p);
+		if (mercTiles.size > 600) mercTiles.delete(/** @type {string} */ (mercTiles.keys().next().value));
+	}
+	return p;
+}
+let updateStats = () => {};
+
+/** A geographic tile's 65 x 65 heights (rows north to south), from the Mercator tiles under it. */
+async function heightmap(x, y, level, scheme) {
+	const rect = scheme.tileXYToRectangle(x, y, level);
+	const W = rect.west / D2R, E = rect.east / D2R, N = rect.north / D2R, S = rect.south / D2R;
+	const z = Math.max(0, Math.min(SERVER_MAX_ZOOM, level + 1));
+	const n = 2 ** z;
+	const mx = (lon) => (lon + 180) / 360 * n * 256;
+	const my = (lat) => {
+		const l = Math.max(-85.05, Math.min(85.05, lat)) * D2R;
+		return (1 - Math.asinh(Math.tan(l)) / Math.PI) / 2 * n * 256;
+	};
+	const x0 = Math.floor(mx(W) / 256), x1 = Math.floor((mx(E) - 1e-6) / 256);
+	const y0 = Math.floor(my(N) / 256), y1 = Math.floor((my(S) - 1e-6) / 256);
+	/** @type {Map<string, Float32Array | null>} */
+	const got = new Map();
+	await Promise.all([...Array((x1 - x0 + 1) * (y1 - y0 + 1)).keys()].map(async (k) => {
+		const tx = x0 + k % (x1 - x0 + 1), ty = y0 + Math.floor(k / (x1 - x0 + 1));
+		got.set(`${tx},${ty}`, await mercTile(z, ((tx % n) + n) % n, Math.max(0, Math.min(n - 1, ty))));
+	}));
+	const at = (gx, gy) => {
+		const tx = Math.floor(gx / 256), ty = Math.floor(gy / 256);
+		const t = got.get(`${Math.max(x0, Math.min(x1, tx))},${Math.max(y0, Math.min(y1, ty))}`);
+		if (!t) return 0;
+		const px = Math.max(0, Math.min(255, Math.floor(gx - tx * 256))), py = Math.max(0, Math.min(255, Math.floor(gy - ty * 256)));
+		return t[py * 256 + px];
+	};
+	const out = new Float32Array(65 * 65);
+	for (let j = 0; j < 65; j++) {
+		const lat = N + (S - N) * j / 64;
+		const gy = my(lat) - 0.5;
+		for (let i = 0; i < 65; i++) {
+			const gx = mx(W + (E - W) * i / 64) - 0.5;
+			const fx = gx - Math.floor(gx), fy = gy - Math.floor(gy), x_ = Math.floor(gx), y_ = Math.floor(gy);
+			out[j * 65 + i] = at(x_, y_) * (1 - fx) * (1 - fy) + at(x_ + 1, y_) * fx * (1 - fy)
+				+ at(x_, y_ + 1) * (1 - fx) * fy + at(x_ + 1, y_ + 1) * fx * fy;
+		}
+	}
+	return out;
+}
+
+/** The heightmaps above, ending at MAX_TERRAIN_LEVEL: finer tiles are refined by Cesium from those. */
+class ElevationTerrain extends Cesium.CustomHeightmapTerrainProvider {
+	constructor() {
+		const scheme = new Cesium.GeographicTilingScheme();
+		super({
+			width: 65, height: 65, tilingScheme: scheme,
+			callback: (x, y, level) => heightmap(x, y, level, scheme),
+			credit: new Cesium.Credit("Terrain: <a href=\"https://github.com/zemaneh-yosef/zemaneh-shamayim\">ROYZmanim server</a> (SRTM, FABDEM, national surveys); elsewhere <a href=\"https://registry.opendata.aws/terrain-tiles/\">AWS Terrain Tiles</a>")
+		});
+		this.scheme = scheme;
+	}
+	requestTileGeometry(x, y, level) {
+		return heightmap(x, y, level, this.scheme).then(h => new Cesium.HeightmapTerrainData({
+			buffer: h, width: 65, height: 65, childTileMask: level < MAX_TERRAIN_LEVEL ? 15 : 0
+		}));
+	}
+	getTileDataAvailable(x, y, level) {
+		return level <= MAX_TERRAIN_LEVEL;
+	}
+}
+
+/**
+ * Shaded relief from the same tiles (light from the north-west, 45° up), as an imagery layer: Cesium shades only
+ * terrain that comes with surface normals, which heightmaps don't.
+ */
+class HillshadeImagery extends Cesium.UrlTemplateImageryProvider {
+	constructor() {
+		super({ url: "hillshade://{z}/{x}/{y}", tilingScheme: new Cesium.WebMercatorTilingScheme(), maximumLevel: SERVER_MAX_ZOOM });
+	}
+	async requestImage(x, y, level) {
+		const h = await mercTile(level, x, y);
+		const c = document.createElement("canvas");
+		c.width = c.height = 256;
+		if (!h) return c;
+		const ctx = /** @type {CanvasRenderingContext2D} */ (c.getContext("2d"));
+		const img = ctx.createImageData(256, 256);
+		const n = 2 ** level;
+		const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / n)));
+		const cell = 40075016.686 * Math.cos(lat) / n / 256;             // metres a pixel
+		const zen = 45 * D2R, azi = 315 * D2R;
+		const H = (i, j) => h[Math.max(0, Math.min(255, j)) * 256 + Math.max(0, Math.min(255, i))];
+		for (let j = 0; j < 256; j++) {
+			for (let i = 0; i < 256; i++) {
+				const dzdx = (H(i + 1, j) - H(i - 1, j)) / (2 * cell), dzdy = (H(i, j - 1) - H(i, j + 1)) / (2 * cell);
+				const slope = Math.atan(Math.hypot(dzdx, dzdy)), aspect = Math.atan2(dzdy, -dzdx);
+				const shade = Math.cos(zen) * Math.cos(slope) + Math.sin(zen) * Math.sin(slope) * Math.cos(azi - Math.PI / 2 - aspect);
+				const v = Math.max(0, Math.min(255, 255 * (0.35 + 0.75 * shade)));
+				const k = 4 * (j * 256 + i);
+				img.data[k] = v * 0.98; img.data[k + 1] = v * 0.95; img.data[k + 2] = v * 0.88; img.data[k + 3] = 255;
+			}
+		}
+		ctx.putImageData(img, 0, 0);
+		return c;
+	}
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 const $ = (id) => /** @type {any} */ (document.getElementById(id));
@@ -219,7 +373,7 @@ async function main() {
 		show($("err"), "errLatLon");
 		return;
 	}
-	if (!document.createElement("canvas").getContext("webgl2")) {
+	if (!document.createElement("canvas").getContext("webgl2") && !document.createElement("canvas").getContext("webgl")) {
 		show($("err"), "errWebgl");
 		return;
 	}
@@ -240,7 +394,7 @@ async function main() {
 		try { if (tzParam) return Temporal.Now.zonedDateTimeISO(tzParam).timeZoneId; } catch (e) { /* not a time zone */ }
 		return Temporal.Now.timeZoneId();
 	})();
-	// whole milliseconds: sunrise / sunset times found by bisection have fractions, which Temporal refuses
+	// whole milliseconds, as ROYZmanim.js converts its computed times: sunrise / sunset found by bisection have fractions
 	const zoned = (/** @type {number} */ ms) => Temporal.Instant.fromEpochMilliseconds(Math.round(ms)).toZonedDateTimeISO(tz);
 	const dateParam = q.get("date") ?? "";
 	/** @type {Temporal.PlainDate} */
@@ -289,92 +443,65 @@ async function main() {
 	let az = 90, tilt = 1, fov = 30;
 	let eyeMode = true;
 
-	const tileStats = { server: 0, aws: 0 };
-	maplibregl.addProtocol("royzdem", async (params, abort) => {
-		const [z, x, y] = params.url.slice("royzdem://".length).split("/").map(Number);
-		if (z >= SERVER_MIN_ZOOM && z <= SERVER_MAX_ZOOM) {
-			try {
-				const r = await fetch(`${REFRACTION_SERVER}/v1/terrain-tiles/${z}/${x}/${y}.png`, { signal: abort.signal });
-				if (r.ok) { tileStats.server++; updateStats(); return { data: await r.arrayBuffer() }; }
-			} catch (e) {
-				if (abort.signal.aborted) throw e;
-			}
-		}
-		const r = await fetch(`${AWS_TERRARIUM}/${z}/${x}/${y}.png`, { signal: abort.signal });
-		if (!r.ok) throw new Error(`terrain tile ${z}/${x}/${y}: HTTP ${r.status}`);
-		tileStats.aws++; updateStats();
-		return { data: await r.arrayBuffer() };
-	});
-	function updateStats() {
-		show($("tileStats"), "tiles", { server: String(tileStats.server), aws: String(tileStats.aws),
-			total: String(tileStats.server + tileStats.aws) });
-	}
+	updateStats = () => show($("tileStats"), "tiles", { server: String(tileStats.server), aws: String(tileStats.aws),
+		total: String(tileStats.server + tileStats.aws) });
 
-	const dem = /** @type {const} */ ({
-		type: "raster-dem", tiles: ["royzdem://{z}/{x}/{y}"], tileSize: 256, encoding: "terrarium", maxzoom: SERVER_MAX_ZOOM,
-		attribution: "Terrain: <a href=\"https://github.com/zemaneh-yosef/zemaneh-shamayim\">ROYZmanim server</a> (SRTM, FABDEM, national surveys); elsewhere <a href=\"https://registry.opendata.aws/terrain-tiles/\">AWS Terrain Tiles</a>"
+	// ─── The globe ───
+	const imagery = {
+		sat: new Cesium.UrlTemplateImageryProvider({
+			url: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg",
+			tilingScheme: new Cesium.WebMercatorTilingScheme(), maximumLevel: 15,
+			credit: new Cesium.Credit("<a href=\"https://s2maps.eu\">Sentinel-2 cloudless 2016</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2016)")
+		}),
+		osm: new Cesium.UrlTemplateImageryProvider({
+			url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", maximumLevel: 19,
+			credit: new Cesium.Credit("© <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors")
+		})
+	};
+	const widget = new Cesium.CesiumWidget("map", {
+		terrainProvider: new ElevationTerrain(),
+		baseLayer: new Cesium.ImageryLayer(imagery.sat),
+		scene3DOnly: true,
+		// drawn only when something changes (the view, the moment, the markers, tiles arriving), not every frame
+		requestRenderMode: true,
+		maximumRenderTimeChange: Infinity,
+		// the sky is the page's own (behind a transparent globe view): by the sun's depression, as the calendar
+		// reckons twilight in degrees; Cesium's darkens far too early and leaves the ground lit
+		skyBox: false, skyAtmosphere: false,
+		contextOptions: { webgl: { alpha: true } }
 	});
-	const map = new maplibregl.Map({
-		container: "map",
-		center: [lon, lat],
-		zoom: 14,
-		pitch: 85,
-		maxPitch: 90 + TILT_MAX,
-		centerClampedToGround: false,
-		attributionControl: { compact: true },
-		style: {
-			version: 8,
-			sources: {
-				dem,
-				demShade: { ...dem },
-				sat: {
-					type: "raster", tileSize: 256, maxzoom: 15,
-					tiles: ["https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/{z}/{y}/{x}.jpg"],
-					attribution: "<a href=\"https://s2maps.eu\">Sentinel-2 cloudless 2016</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2016)"
-				},
-				osm: {
-					type: "raster", tileSize: 256, maxzoom: 19,
-					tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-					attribution: "© <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"
-				},
-				ridge: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
-				sun: { type: "geojson", data: { type: "FeatureCollection", features: [] } },
-				spots: { type: "geojson", data: { type: "FeatureCollection", features: [] } }
-			},
-			layers: [
-				{ id: "bg", type: "background", paint: { "background-color": "#c9c3b4" } },
-				{ id: "sat", type: "raster", source: "sat" },
-				{ id: "osm", type: "raster", source: "osm", layout: { visibility: "none" } },
-				{ id: "shade", type: "hillshade", source: "demShade", paint: { "hillshade-exaggeration": 0.35 } },
-				{ id: "sunLine", type: "line", source: "sun", filter: ["==", ["geometry-type"], "LineString"],
-					paint: { "line-color": "#f5b400", "line-width": 2, "line-opacity": 0.8, "line-dasharray": [3, 3] } },
-				{ id: "ridge", type: "circle", source: "ridge",
-					paint: { "circle-color": "#d97706", "circle-radius": 3, "circle-stroke-color": "#fff", "circle-stroke-width": 0.5,
-						"circle-pitch-alignment": "viewport", "circle-pitch-scale": "viewport" } },
-				{ id: "sunPoint", type: "circle", source: "sun", filter: ["==", ["geometry-type"], "Point"],
-					paint: { "circle-color": "#f5b400", "circle-radius": 8, "circle-stroke-color": "#7c2d12", "circle-stroke-width": 2,
-						"circle-pitch-alignment": "viewport", "circle-pitch-scale": "viewport" } },
-				{ id: "spots", type: "circle", source: "spots",
-					paint: { "circle-color": ["case", ["get", "here"], "#2563eb", "#93c5fd"], "circle-radius": ["case", ["get", "here"], 7, 4],
-						"circle-stroke-color": "#fff", "circle-stroke-width": 1.5,
-						"circle-pitch-alignment": "viewport", "circle-pitch-scale": "viewport" } }
-			],
-			terrain: { source: "dem", exaggeration: 1 },
-			sky: {
-				"sky-color": "#6fa3dc", "horizon-color": "#e3edf7", "fog-color": "#e3edf7",
-				"sky-horizon-blend": 0.5, "horizon-fog-blend": 0.6, "fog-ground-blend": 0.75
-			}
-		}
-	});
-	map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), RTL ? "top-left" : "top-right");   // clear of the panel
-	map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), RTL ? "bottom-left" : "bottom-right");
-	map.on("error", (e) => console.warn("map:", e?.error?.message ?? e));
+	const scene = widget.scene, camera = scene.camera, globe = scene.globe;
+	// the relief, faintly over the imagery (as alone in "relief only"), for the ground's shape
+	const relief = new HillshadeImagery();
+	let reliefLayer = scene.imageryLayers.addImageryProvider(relief);
+	reliefLayer.alpha = 0.35;
+	globe.depthTestAgainstTerrain = true;          // markers behind a hill are hidden by it
+	globe.showGroundAtmosphere = false;            // it whitens far terrain, the horizon's own ridges
+	globe.baseColor = Cesium.Color.fromCssColorString("#c9c3b4");
+	scene.backgroundColor = Cesium.Color.TRANSPARENT;
+	globe.maximumScreenSpaceError = 2;
+	globe.preloadAncestors = true;
+	scene.fog.enabled = false;                     // fog would thin out the far ridges the horizon is made of
+	if (scene.sun) scene.sun.show = false;         // drawn below, where refraction puts it
+	if (scene.moon) scene.moon.show = false;
+	scene.screenSpaceCameraController.enableCollisionDetection = false;   // the camera stays exactly at the eye
+	camera.frustum.near = 0.2;
+	widget.clock.shouldAnimate = false;
+	window.addEventListener("error", (e) => console.warn(e.message));
 
 	/** The observer's eye above sea level: the server's height for the spot, else the ground under it + eye. */
 	function eyeAltitude() {
 		if (Number.isFinite(spot.height)) return spot.height;
-		const g = map.queryTerrainElevation([spot.lon, spot.lat]);
+		const g = globe.getHeight(Cesium.Cartographic.fromDegrees(spot.lon, spot.lat));
 		return (g ?? 0) + EYE_M;
+	}
+
+	/** Cesium's field of view is the wider side's: the lens is the vertical one. */
+	function setFov() {
+		const c = scene.canvas, aspect = c.clientWidth / Math.max(1, c.clientHeight);
+		const f = /** @type {Cesium.PerspectiveFrustum} */ (camera.frustum);
+		f.fov = aspect >= 1 ? 2 * Math.atan(Math.tan(fov / 2 * D2R) * aspect) : fov * D2R;
+		scene.requestRender();
 	}
 
 	function look() {
@@ -384,58 +511,54 @@ async function main() {
 		$("tilt").value = String(tilt);
 		$("fov").value = String(fov);
 		$("fovVal").textContent = `${Math.round(fov)}°`;
-		map.setVerticalFieldOfView(fov);
+		setFov();
 		syncHandlers();
 		if (!eyeMode) return;
-		// a hair above the eye, so the camera stays clear of the terrain mesh under it
-		// The camera looks at a point 40 km out rather than wherever its ray meets the ground: MapLibre loads
-		// terrain only so far beyond its centre, and a view tilted slightly down would put that centre on the
-		// ground a few km ahead and leave distant ridges out (in Los Angeles: the San Gabriels, 77 km). Much
-		// farther and it draws the ground under the observer from coarser tiles (60 km: 34 m too high there).
-		// The direction is the same either way.
-		// The target is placed on the flat map, straight along the bearing (a great circle would turn the view
-		// by the meridians' convergence: ~0.4 deg at 150 km in Los Angeles).
-		const eye = eyeAltitude() + 0.5;
-		const far = 40000;
-		const here = maplibregl.MercatorCoordinate.fromLngLat([spot.lon, spot.lat]);
-		const units = far * here.meterInMercatorCoordinateUnits();
-		const there = new maplibregl.MercatorCoordinate(here.x + units * Math.sin(az * D2R), here.y - units * Math.cos(az * D2R)).toLngLat();
-		map.jumpTo(map.calculateCameraOptionsFromTo(new maplibregl.LngLat(spot.lon, spot.lat), eye, there,
-			eye + far * Math.tan(tilt * D2R)));
+		// at the eye (a hair above it, clear of the ground's mesh), facing az, tilt above the horizontal
+		camera.setView({
+			destination: Cesium.Cartesian3.fromDegrees(spot.lon, spot.lat, eyeAltitude() + 0.5),
+			orientation: { heading: az * D2R, pitch: tilt * D2R, roll: 0 }
+		});
 	}
 
-	function drawData() {
-		/** @type {any[]} */
-		const ridge = [];
-		for (const e of spot[event] ?? []) {
-			if (!("distanceKm" in e)) continue;
-			ridge.push({ type: "Feature", properties: { az: e.azimuthDeg, d: e.distanceKm, h: e.heightM },
-				geometry: { type: "Point", coordinates: destination(spot.lat, spot.lon, e.azimuthDeg, e.distanceKm * 1000) } });
-		}
-		map.getSource("ridge").setData({ type: "FeatureCollection", features: ridge });
+	// ─── Markers: the server's horizon, where the sun meets it, the spots ───
+	const ridgePoints = scene.primitives.add(new Cesium.PointPrimitiveCollection());
+	const markPoints = scene.primitives.add(new Cesium.PointPrimitiveCollection());
+	const ORANGE = Cesium.Color.fromCssColorString("#d97706"), SUN = Cesium.Color.fromCssColorString("#f5b400");
+	const at = (la, lo, h) => Cesium.Cartesian3.fromDegrees(lo, la, h);
 
+	function drawData() {
+		// both events' horizons: whatever can hide the sun, whichever way the view faces
+		ridgePoints.removeAll();
+		for (const ev of /** @type {SunEvent[]} */ (["sunrise", "sunset"])) {
+			for (const e of spot[ev] ?? []) {
+				if (!("distanceKm" in e)) continue;
+				const [lo, la] = destination(spot.lat, spot.lon, e.azimuthDeg, e.distanceKm * 1000);
+				ridgePoints.add({ position: at(la, lo, e.heightM + 1), pixelSize: 6, color: ORANGE,
+					outlineColor: Cesium.Color.WHITE, outlineWidth: 1, disableDepthTestDistance: 0 });
+			}
+		}
+		markPoints.removeAll();
 		const sun = Number.isFinite(spot.height) ? sunOnHorizon(spot, event, decl) : null;
-		/** @type {any[]} */
-		const sunF = [];
 		if (sun) {
-			const dist = sun.entry ? sun.entry.distanceKm * 1000 : 30000;
-			const to = destination(spot.lat, spot.lon, sun.az, dist);
-			// from 1 km out: nearer, the line would fill the bottom of the eye view
-			sunF.push({ type: "Feature", properties: {}, geometry: { type: "LineString",
-				coordinates: [destination(spot.lat, spot.lon, sun.az, Math.min(1000, dist / 2)), to] } });
-			if (sun.entry) sunF.push({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: to } });
+			if (sun.entry) {
+				const [lo, la] = destination(spot.lat, spot.lon, sun.az, sun.entry.distanceKm * 1000);
+				markPoints.add({ position: at(la, lo, sun.entry.heightM + 1), pixelSize: 16, color: SUN,
+					outlineColor: Cesium.Color.fromCssColorString("#7c2d12"), outlineWidth: 2 });
+			}
 			show($("sunInfo"), event, sun.entry
 				? { az: fmt(sun.az, 1), dist: fmt(sun.entry.distanceKm, 1), height: fmt(sun.entry.heightM, 0), angle: fmt(sun.alt, 2) }
 				: { az: fmt(sun.az, 1) }, sun.entry ? [] : ["over"]);
 		} else {
 			$("sunInfo").replaceChildren();
 		}
-		map.getSource("sun").setData({ type: "FeatureCollection", features: sunF });
-
-		const spots = (customSpot ? [spot] : set?.points ?? [spot]).map(p => ({
-			type: "Feature", properties: { here: p === spot }, geometry: { type: "Point", coordinates: [p.lon, p.lat] }
-		}));
-		map.getSource("spots").setData({ type: "FeatureCollection", features: spots });
+		for (const p of customSpot ? [spot] : set?.points ?? [spot]) {
+			if (!Number.isFinite(p.ground)) continue;
+			markPoints.add({ position: at(p.lat, p.lon, p.ground + 0.5), pixelSize: p === spot ? 12 : 7,
+				color: Cesium.Color.fromCssColorString(p === spot ? "#2563eb" : "#93c5fd"),
+				outlineColor: Cesium.Color.WHITE, outlineWidth: 1.5 });
+		}
+		scene.requestRender();
 		return sun;
 	}
 
@@ -448,7 +571,6 @@ async function main() {
 		if (aim) {
 			az = sun?.az ?? (ev === "sunrise" ? 90 : 270);
 			tilt = sun ? clampTilt(sun.alt) : 1;
-			$("tilt").value = String(tilt);
 			eyeMode = true;
 			look();
 		}
@@ -489,7 +611,7 @@ async function main() {
 			[...(Number.isFinite(spot.height) ? [] : ["eye"]), ...(name ? [] : ["area"])]);
 	}
 
-	// ─── The moment: the sun where it is, the sky as dark as its depression ───
+	// ─── The moment: the sun where it is, the sky and ground lit by it ───
 
 	/** The sun's true (unrefracted) and apparent altitude and its azimuth at `when`, from the spot. */
 	function sunNow() {
@@ -497,95 +619,107 @@ async function main() {
 		return { alt, app: alt > -1.5 ? alt + refractionTrue(Math.max(alt, -1)) : alt, az: sAz };
 	}
 
-	/**
-	 * The eye view's camera as a pinhole: screen size, focal length (px) and its forward / right / up unit
-	 * vectors (east, north, up).
-	 */
-	function cameraBasis() {
-		const W = map.getContainer().clientWidth, H = map.getContainer().clientHeight;
-		const f = H / 2 / Math.tan(fov / 2 * D2R);
-		const b = map.getBearing() * D2R, tl = (map.getPitch() - 90) * D2R;
-		const F = [Math.sin(b) * Math.cos(tl), Math.cos(b) * Math.cos(tl), Math.sin(tl)];
-		const Rt = [Math.cos(b), -Math.sin(b), 0];
-		const U = [Rt[1] * F[2] - Rt[2] * F[1], Rt[2] * F[0] - Rt[0] * F[2], Rt[0] * F[1] - Rt[1] * F[0]];
-		return { W, H, f, F, Rt, U };
+	/** The world point 100 km from the eye in a direction (azimuth, altitude in deg). */
+	function pointToward(azDeg, altDeg) {
+		const eye = at(spot.lat, spot.lon, eyeAltitude() + 0.5);
+		const enu = Cesium.Transforms.eastNorthUpToFixedFrame(eye);
+		const a = azDeg * D2R, e = altDeg * D2R;
+		const dir = Cesium.Matrix4.multiplyByPointAsVector(enu,
+			new Cesium.Cartesian3(Math.sin(a) * Math.cos(e), Math.cos(a) * Math.cos(e), Math.sin(e)), new Cesium.Cartesian3());
+		return Cesium.Cartesian3.add(eye, Cesium.Cartesian3.multiplyByScalar(dir, 1e5, dir), new Cesium.Cartesian3());
 	}
+	/** A world point's place on the screen (CSS px), or undefined behind the camera. */
+	const toScreen = (p) => Cesium.SceneTransforms.worldToWindowCoordinates(scene, p);
 
 	/** The direction (azimuth, altitude in deg) a screen point looks in, in the eye view. */
 	function screenDirection(/** @type {{x: number, y: number}} */ pt) {
-		const { W, H, f, F, Rt, U } = cameraBasis();
-		const u = (pt.x - W / 2) / f, v = (H / 2 - pt.y) / f;
-		const d = [0, 1, 2].map(i => F[i] + u * Rt[i] + v * U[i]);
-		return { az: (Math.atan2(d[0], d[1]) / D2R + 360) % 360, alt: Math.atan2(d[2], Math.hypot(d[0], d[1])) / D2R };
+		const ray = camera.getPickRay(new Cesium.Cartesian2(pt.x, pt.y));
+		if (!ray) return null;
+		const enu = Cesium.Transforms.eastNorthUpToFixedFrame(camera.positionWC);
+		const inv = Cesium.Matrix4.inverseTransformation(enu, new Cesium.Matrix4());
+		const d = Cesium.Matrix4.multiplyByPointAsVector(inv, ray.direction, new Cesium.Cartesian3());
+		return { az: (Math.atan2(d.x, d.y) / D2R + 360) % 360, alt: Math.atan2(d.z, Math.hypot(d.x, d.y)) / D2R };
 	}
 
 	/**
-	 * The skyline the map draws in a direction from the spot: the highest angle of its terrain, as drawn (flat:
-	 * atan(rise / distance)), and how far away that is. Sampled from the terrain loaded so far, from 1 km (as
-	 * the server's horizons: nearer, the map's coarse tiles can put the ground a few metres above the eye, and
-	 * a few metres at 100 m is degrees) out to 150 km, sparser with distance; kept for half a second per
-	 * direction, as it is asked for every frame.
+	 * Where the terrain Cesium draws hides the sun in a direction, where the spot has no server horizon there (a
+	 * direction another spot of the area covers, or "Stand here"): the highest point of the drawn ground along
+	 * it, from 1 km (as the server's horizons) to 150 km; kept for half a second per direction.
 	 */
-	let skylineCache = { key: "", at: 0, value: /** @type {{angle: number, distM: number} | null} */ (null) };
+	let skylineCache = { key: "", at: 0, value: /** @type {{lat: number, lon: number, h: number, distM: number} | null} */ (null) };
 	function drawnSkyline(azDeg) {
 		const key = `${spot.lat},${spot.lon},${azDeg.toFixed(2)}`;
 		const now = performance.now();
 		if (skylineCache.key === key && now - skylineCache.at < 500) return skylineCache.value;
 		const eye = eyeAltitude();
-		let best = null;
+		let best = null, bestAngle = -Infinity;
 		for (let d = 1000; d <= 150000; d *= 1.02) {
-			const [lon2, lat2] = destination(spot.lat, spot.lon, azDeg, d);
-			const h = map.queryTerrainElevation([lon2, lat2]);
-			if (h === null || h === undefined) continue;
-			const angle = Math.atan2(h - eye, d) / D2R;
-			if (!best || angle > best.angle) best = { angle, distM: d };
+			const [lo, la] = destination(spot.lat, spot.lon, azDeg, d);
+			const h = globe.getHeight(Cesium.Cartographic.fromDegrees(lo, la));
+			if (h === undefined) continue;
+			const angle = Math.atan2(h - eye - d * d / (2 * R_EARTH), d);
+			if (angle > bestAngle) { bestAngle = angle; best = { lat: la, lon: lo, h, distM: d }; }
 		}
 		skylineCache = { key, at: now, value: best };
 		return best;
 	}
 
 	/**
-	 * Draws the sun's disc over the eye view. The map is flat (web Mercator: no curvature, no bending), so a
-	 * ridge d away is drawn atan(dh / d) up instead of the d (1 - k) / 2R less it is seen at; the sun is raised
-	 * by the same amount there, so it stands where it really is against that ridge (standard air), and the
-	 * part of it below the ridge is cut off.
+	 * Draws the sun's disc over the eye view, where it is seen (refraction included), lowered by what the drawing
+	 * leaves out of the ridge behind it (the air's bending: d k / 2R), so it stands where it really is against that
+	 * ridge (standard air); the part below the ridge is cut off. What hides it: the server's horizon there (what the
+	 * calendar computes with, and what the orange dots show), else the drawn ground.
 	 */
 	function placeSun() {
 		const disc = $("sunDisc");
 		const sun = sunNow();
 		if (!eyeMode || sun.app < -1.5) { disc.hidden = true; return; }
-		// What hides the sun: the server's horizon there (what the calendar computes with, and what the ridge
-		// dots show), else, where the spot has none (a direction another spot of the area covers, or "Stand
-		// here"), the terrain the map draws; as the flat map shows it, and the sun raised by the curvature the
-		// flat map leaves out at that distance (see below)
 		const entry = entryAtAny(spot, sun.az);
-		const edge = entry
-			? { angle: Math.atan2(entry.heightM - eyeAltitude(), entry.distanceKm * 1000) / D2R, distM: entry.distanceKm * 1000 }
-			: drawnSkyline(sun.az);
-		const flatten = edge ? edge.distM * (1 - K_STANDARD) / (2 * R_EARTH) / D2R : 0;
-		const { W, H, f, F, Rt, U } = cameraBasis();
-		/** screen [x, y] of a direction, or null behind the camera */
-		const screen = (azDeg, altDeg) => {
-			const a = azDeg * D2R, e = altDeg * D2R;
-			const d = [Math.sin(a) * Math.cos(e), Math.cos(a) * Math.cos(e), Math.sin(e)];
-			const z = d[0] * F[0] + d[1] * F[1] + d[2] * F[2];
-			if (z <= 0.05) return null;
-			return [W / 2 + f * (d[0] * Rt[0] + d[1] * Rt[1]) / z, H / 2 - f * (d[0] * U[0] + d[1] * U[1] + d[2] * U[2]) / z];
-		};
-		const at = screen(sun.az, sun.app + flatten);
-		if (!at || at[0] < -100 || at[0] > W + 100 || at[1] < -100 || at[1] > H + 100) { disc.hidden = true; return; }
-		const r = Math.max(5, f * Math.tan(SUN_RADIUS * D2R));
+		let edgePoint = null, distM = 0;
+		if (entry) {
+			const [lo, la] = destination(spot.lat, spot.lon, sun.az, entry.distanceKm * 1000);
+			edgePoint = at(la, lo, entry.heightM);
+			distM = entry.distanceKm * 1000;
+		} else {
+			const s = drawnSkyline(sun.az);
+			if (s) { edgePoint = at(s.lat, s.lon, s.h); distM = s.distM; }
+		}
+		const bend = distM * K_STANDARD / (2 * R_EARTH) / D2R;
+		const c = toScreen(pointToward(sun.az, sun.app - bend));
+		const H = scene.canvas.clientHeight;
+		if (!c || c.x < -100 || c.x > scene.canvas.clientWidth + 100 || c.y < -100 || c.y > H + 100) { disc.hidden = true; return; }
+		const r = Math.max(5, H / 2 / Math.tan(fov / 2 * D2R) * Math.tan(SUN_RADIUS * D2R));
 		disc.hidden = false;
-		disc.style.left = `${at[0]}px`;
-		disc.style.top = `${at[1]}px`;
+		disc.style.left = `${c.x}px`;
+		disc.style.top = `${c.y}px`;
 		disc.style.width = disc.style.height = `${2 * r}px`;
-		// the skyline in that direction, as drawn
-		const ridge = edge && screen(sun.az, edge.angle);
-		const hidden = ridge ? Math.max(0, Math.min(2 * r, at[1] + r - ridge[1])) : 0;
+		// the ridge's edge on screen, straight below or above the sun's centre
+		const e = edgePoint && toScreen(edgePoint);
+		const hidden = e ? Math.max(0, Math.min(2 * r, c.y + r - e.y)) : 0;
 		disc.style.clipPath = hidden ? `inset(0 0 ${hidden}px 0)` : "";
 		disc.hidden = hidden >= 2 * r;
 	}
-	map.on("render", placeSun);
+	scene.postRender.addEventListener(placeSun);
+
+	/** The sky behind the globe: the depression's colours, the horizon's glow at the horizon line on screen. */
+	let sky = skyAt(6), skyKey = "";
+	function paintSky() {
+		const H = scene.canvas.clientHeight;
+		const p = toScreen(pointToward(az, 0));
+		const y = p ? Math.max(-H, Math.min(2 * H, p.y)) : H / 2;
+		const key = `${sky.sky}${sky.horizon}${Math.round(y)}`;
+		if (key === skyKey) return;
+		skyKey = key;
+		$("map").style.background = `linear-gradient(to bottom, ${sky.sky} 0px, ${sky.sky} ${Math.round(y - H * 0.55)}px, ${sky.horizon} ${Math.round(y)}px, ${sky.horizon} 100%)`;
+	}
+	scene.postRender.addEventListener(paintSky);
+	/** The ground as dark as the sky says. */
+	function darkenGround() {
+		const b = 1 - sky.dark;
+		for (let i = 0; i < scene.imageryLayers.length; i++) scene.imageryLayers.get(i).brightness = b;
+		globe.baseColor = Cesium.Color.fromCssColorString("#c9c3b4").withAlpha(1).darken(sky.dark, new Cesium.Color());
+		scene.requestRender();                     // the sun's disc and the sky follow the moment too
+	}
 
 	/** Puts the controls, the sky and the sun at `when`; with `aimed`, turns to face the sun. */
 	function showMoment(aimed = false) {
@@ -602,10 +736,12 @@ async function main() {
 		$("time").value = z.toPlainTime().toString({ smallestUnit: "minute" });
 		$("clock").value = String(z.hour * 60 + z.minute);
 		const sun = sunNow();
-		const sky = skyAt(-sun.alt);
-		map.setSky({ "sky-color": sky.sky, "horizon-color": sky.horizon, "fog-color": sky.horizon,
-			"sky-horizon-blend": 0.5, "horizon-fog-blend": 0.6, "fog-ground-blend": 0.75 });
-		$("dusk").style.opacity = String(sky.dark);
+		// the event the moment belongs to: the morning's sunrise or the afternoon's sunset (the view stays put)
+		const ev = sun.az < 180 ? "sunrise" : "sunset";
+		if (ev !== event) setEvent(ev, false);
+		// the sky and the ground's light by the sun's depression at that moment
+		sky = skyAt(-sun.alt);
+		darkenGround();
 		show($("sunNow"), "sunNow", {
 			time: z.toLocaleString(LANG === "he" ? "he-IL" : "en-US", { dateStyle: "medium", timeStyle: "short" }),
 			alt: fmt(sun.alt, 2), app: fmt(sun.app, 2), az: fmt(sun.az, 1), below: fmt(-sun.alt, 2)
@@ -614,11 +750,9 @@ async function main() {
 		if (aimed) {
 			az = sun.az;
 			tilt = clampTilt(sun.app);
-			$("tilt").value = String(tilt);
 			eyeMode = true;
 			look();
 		}
-		map.triggerRepaint();
 	}
 
 	// ─── The calendar's zemanim, for "jump to a zman" ───
@@ -712,9 +846,10 @@ async function main() {
 		syncHandlers();
 		// the spot and its horizon in the direction it faces, seen from behind and above
 		const far = entryAt(spot, event, az);
-		const to = destination(spot.lat, spot.lon, az, far ? far.distanceKm * 1000 : 20000);
-		const bounds = new maplibregl.LngLatBounds([spot.lon, spot.lat], [spot.lon, spot.lat]).extend(to);
-		map.fitBounds(bounds, { padding: 80, bearing: az, pitch: 55, duration: 800, maxZoom: 15 });
+		const reach = far ? far.distanceKm * 1000 : 20000;
+		const [lo, la] = destination(spot.lat, spot.lon, (az + 180) % 360, reach * 0.6);
+		camera.flyTo({ destination: at(la, lo, eyeAltitude() + reach * 0.5),
+			orientation: { heading: az * D2R, pitch: -35 * D2R, roll: 0 }, duration: 0.8 });
 	};
 	$("az").oninput = (e) => { az = Number(e.target.value); eyeMode = true; look(); };
 	$("left").onclick = () => { az = (az - 5 + 360) % 360; eyeMode = true; look(); };
@@ -723,8 +858,11 @@ async function main() {
 	$("fov").oninput = (e) => { fov = Number(e.target.value); look(); };
 	$("imagery").onchange = (e) => {
 		const v = e.target.value;
-		map.setLayoutProperty("sat", "visibility", v === "sat" ? "visible" : "none");
-		map.setLayoutProperty("osm", "visibility", v === "osm" ? "visible" : "none");
+		scene.imageryLayers.removeAll();
+		if (v === "sat" || v === "osm") scene.imageryLayers.addImageryProvider(imagery[v]);
+		reliefLayer = scene.imageryLayers.addImageryProvider(relief);
+		reliefLayer.alpha = v === "none" ? 1 : 0.35;
+		darkenGround();
 	};
 	$("spot").onchange = (e) => {
 		spot = set.points[Number(e.target.value)];
@@ -740,15 +878,16 @@ async function main() {
 			eyeMode = true; look(); e.preventDefault();
 		} else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
 			tilt = clampTilt(tilt + (e.key === "ArrowUp" ? 0.25 : -0.25));
-			$("tilt").value = String(tilt);
 			eyeMode = true; look(); e.preventDefault();
 		}
 	});
+	window.addEventListener("resize", () => look());
+
 	// ─── Looking around, as in Google Earth's ground-level view ───
 	// In the eye view you stay where you stand: dragging turns your head (the ground follows the pointer),
-	// scrolling or pinching changes the lens, a double click faces that spot. From above, the map's own
+	// scrolling or pinching changes the lens, a double click faces that spot. From above, Cesium's own
 	// pan / rotate / zoom apply.
-	const canvas = map.getCanvasContainer();
+	const canvas = scene.canvas;
 	/** @type {Map<number, {x: number, y: number}>} */
 	const pointers = new Map();
 	/** @type {{x: number, y: number, az: number, tilt: number, fov: number, dist: number} | null} */
@@ -756,10 +895,9 @@ async function main() {
 	let dragged = false;
 
 	function syncHandlers() {
-		for (const h of [map.dragPan, map.dragRotate, map.scrollZoom, map.touchZoomRotate, map.touchPitch, map.doubleClickZoom, map.keyboard])
-			eyeMode ? h.disable() : h.enable();
+		scene.screenSpaceCameraController.enableInputs = !eyeMode;
 		canvas.style.cursor = eyeMode ? (grab ? "grabbing" : "grab") : "";
-		canvas.style.touchAction = eyeMode ? "none" : "";
+		canvas.style.touchAction = "none";
 	}
 	const spread = () => {
 		const [a, b] = [...pointers.values()];
@@ -785,7 +923,7 @@ async function main() {
 		const x = ps.reduce((t, p) => t + p.x, 0) / ps.length, y = ps.reduce((t, p) => t + p.y, 0) / ps.length;
 		if (Math.hypot(x - grab.x, y - grab.y) > 3) dragged = true;
 		// a pixel is fov / height degrees at the centre: the ground stays under the pointer
-		const perPx = grab.fov / map.getContainer().clientHeight;
+		const perPx = grab.fov / canvas.clientHeight;
 		az = ((grab.az - (x - grab.x) * perPx) % 360 + 360) % 360;
 		tilt = clampTilt(grab.tilt + (y - grab.y) * perPx);
 		if (grab.dist && pointers.size > 1) { fov = clampFov(grab.fov * grab.dist / Math.max(1, spread())); dragged = true; }
@@ -807,61 +945,71 @@ async function main() {
 		look();
 	}, { passive: false });
 
+	/** The ground under a screen point: its place and height, or null (sky). */
+	function groundAt(/** @type {{x: number, y: number}} */ pt) {
+		const ray = camera.getPickRay(new Cesium.Cartesian2(pt.x, pt.y));
+		const p = ray && globe.pick(ray, scene);
+		if (!p) return null;
+		const c = Cesium.Cartographic.fromCartesian(p);
+		return { lat: c.latitude / D2R, lon: c.longitude / D2R, h: c.height };
+	}
+
 	/**
-	 * Turns to face what was tapped: with `dir` (a tap in the eye view: its direction from the camera's
-	 * geometry, exact whatever the terrain mesh) that direction, else the ground point `at`.
-	 * @param {maplibregl.LngLat} at @param {{az: number, alt: number} | null} dir
+	 * Turns to face what was tapped: with `dir` (a tap in the eye view: its direction from the camera, exact) that
+	 * direction, else the ground point `g`.
 	 */
-	function faceGround(at, dir) {
+	function faceGround(g, dir) {
 		if (dir) {
 			az = dir.az;
 			tilt = clampTilt(dir.alt);
-			eyeMode = true;
-			look();
-			return;
+		} else if (g) {
+			const { dist, bearing } = inverse(spot.lat, spot.lon, g.lat, g.lon);
+			az = bearing;
+			tilt = clampTilt(elevationAngle(eyeAltitude(), g.h, dist));
 		}
-		const h = map.queryTerrainElevation(at);
-		const { dist, bearing } = inverse(spot.lat, spot.lon, at.lat, at.lng);
-		az = bearing;
-		if (h !== null) tilt = clampTilt(elevationAngle(eyeAltitude(), h, dist));
 		eyeMode = true;
 		look();
 	}
 
 	/** A single tap's popup waits a moment, so a double one can face the spot instead. */
 	let tapTimer = 0;
-	map.on("dblclick", (e) => {
+	const popup = /** @type {HTMLElement} */ ($("popup"));
+	canvas.addEventListener("dblclick", (e) => {
 		clearTimeout(tapTimer);
-		if (eyeMode) faceGround(e.lngLat, screenDirection(e.point));
+		const pt = { x: e.offsetX, y: e.offsetY };
+		if (eyeMode) faceGround(null, screenDirection(pt));
 	});
-	map.on("click", (e) => {
+	canvas.addEventListener("click", (e) => {
 		if (dragged) return;
 		clearTimeout(tapTimer);
-		tapTimer = setTimeout(() => showPoint(e), 280);
+		const pt = { x: e.offsetX, y: e.offsetY };
+		tapTimer = window.setTimeout(() => showPoint(pt), 280);
 	});
 
-	function showPoint(e) {
-		const { lng, lat: la } = e.lngLat;
-		const h = map.queryTerrainElevation(e.lngLat);
-		const { dist, bearing } = inverse(spot.lat, spot.lon, la, lng);
-		const angle = h === null || !Number.isFinite(eyeAltitude()) ? null : elevationAngle(eyeAltitude(), h, dist);
-		const div = show(document.createElement("div"), "point", {
-			lat: fmt(la, 5), lon: fmt(lng, 5), height: h === null ? "" : fmt(h, 0), dist: fmt(dist / 1000, 2),
+	function showPoint(pt) {
+		popup.hidden = true;
+		const g = groundAt(pt);
+		if (!g) return;
+		const { dist, bearing } = inverse(spot.lat, spot.lon, g.lat, g.lon);
+		const angle = Number.isFinite(eyeAltitude()) ? elevationAngle(eyeAltitude(), g.h, dist) : null;
+		const body = show(/** @type {HTMLElement} */ (popup.querySelector(".popup-body")), "point", {
+			lat: fmt(g.lat, 5), lon: fmt(g.lon, 5), height: fmt(g.h, 0), dist: fmt(dist / 1000, 2),
 			bearing: fmt(bearing, 1), angle: angle === null ? "" : fmt(angle, 2)
-		}, [...(h === null ? ["height"] : []), ...(angle === null ? ["angle"] : [])]);
-		const dir = eyeMode ? screenDirection(e.point) : null;
-		/** @type {HTMLButtonElement} */ (div.querySelector('[data-action="look"]')).onclick = () => { popup.remove(); faceGround(e.lngLat, dir); };
-		/** @type {HTMLButtonElement} */ (div.querySelector('[data-action="stand"]')).onclick = () => {
+		}, angle === null ? ["angle"] : []);
+		const dir = eyeMode ? screenDirection(pt) : null;
+		/** @type {HTMLButtonElement} */ (body.querySelector('[data-action="look"]')).onclick = () => { popup.hidden = true; faceGround(g, dir); };
+		/** @type {HTMLButtonElement} */ (body.querySelector('[data-action="stand"]')).onclick = () => {
 			// a spot of one's own: no server horizon for it, just the terrain
-			spot = { lat: la, lon: lng, ground: h ?? NaN, height: (h ?? 0) + EYE_M };
+			spot = { lat: g.lat, lon: g.lon, ground: g.h, height: g.h + EYE_M };
 			customSpot = true;
-			popup.remove(); fillSpots(); describeWhere(); drawData(); eyeMode = true; look();
+			popup.hidden = true; fillSpots(); describeWhere(); drawData(); eyeMode = true; look();
 		};
-		const popup = new maplibregl.Popup({ maxWidth: "260px" }).setLngLat(e.lngLat).setDOMContent(div).addTo(map);
+		popup.style.left = `${Math.min(pt.x + 12, canvas.clientWidth - 240)}px`;
+		popup.style.top = `${Math.max(8, pt.y - 20)}px`;
+		popup.hidden = false;
 	}
+	/** @type {HTMLButtonElement} */ (popup.querySelector(".popup-close")).onclick = () => { popup.hidden = true; };
 
-	// the style, not every tile ("load" waits for all of them): the controls work while the terrain streams in
-	await new Promise(resolve => map.isStyleLoaded() ? resolve(null) : map.once("style.load", resolve));
 	fillSpots();
 	describeWhere();
 	setEvent(event);
@@ -893,8 +1041,6 @@ async function main() {
 			setupZmanim().catch(e => console.error("zemanim:", e));   // the visible sunrise needs the horizon too
 		}, p.retryAfterS * 1000);
 	}
-	// the terrain under the camera arrives after the first frame; aim again once it has
-	map.once("idle", () => { if (eyeMode) look(); });
 }
 
 main().catch((e) => {

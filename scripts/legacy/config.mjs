@@ -16,9 +16,9 @@ export const MODERN_ONLY_PAGES = ["handasi-hazeman.html", "horizon-3d.html"];
 /**
  * Third-party code served exactly as shipped. PDF.js only runs in newer browsers; the haskamot modal
  * falls back to showing the PDF itself where it doesn't start (_includes/modals/haskamot.html).
- * MapLibre needs WebGL 2 and a modern browser anyway (the 3D horizon page, horizon-3d.html, says so where it can't start).
+ * CesiumJS needs WebGL and a modern browser anyway (the 3D horizon page, horizon-3d.html, says so where it can't start).
  */
-export const LEAVE_AS_IS = ["assets/libraries/pdfviewer/", "assets/libraries/maplibre/"];
+export const LEAVE_AS_IS = ["assets/libraries/pdfviewer/", "assets/libraries/cesium/"];
 
 /**
  * Module workers started through spawnWorker() (assets/js/misc/worker.js). For each one the build

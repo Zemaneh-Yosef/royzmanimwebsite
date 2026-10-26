@@ -10,7 +10,9 @@ layout: null
 	<title>Horizon in 3D | Zemaneh Yosef</title>
 	<meta name="description" content="The terrain the visible sunrise and sunset are computed from, seen from where you stand.">
 	<link href="/favicon.ico" rel="icon" type="image/x-icon">
-	<link rel="stylesheet" href="/assets/libraries/maplibre/maplibre-gl.css">
+	<link rel="stylesheet" href="/assets/libraries/cesium/Widgets/CesiumWidget/CesiumWidget.css">
+	<!-- where Cesium finds its workers and assets -->
+	<script>window.CESIUM_BASE_URL = "/assets/libraries/cesium/";</script>
 	<link rel="stylesheet" href="/assets/css/core.css">
 	{% include polyfills.html %}
 	<style>
@@ -33,8 +35,7 @@ layout: null
 		}
 		html, body { margin: 0; height: 100%; background: #9fc2e6; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
 		#map { position: absolute; inset: 0; }
-		/* the ground darkens with the sun's depression; the disc is drawn where the sun is (eye view) */
-		#dusk { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: #02040a; opacity: 0; transition: opacity 0.2s; }
+		/* the sun's disc, drawn where it is seen (eye view) */
 		#sunDisc {
 			position: absolute; z-index: 1; pointer-events: none; border-radius: 50%; transform: translate(-50%, -50%);
 			background: radial-gradient(circle, #fffbe8 0 55%, #ffd76a 75%, #ffb02e 100%);
@@ -65,9 +66,15 @@ layout: null
 		.note { font-size: 12px; color: var(--muted); margin-top: 8px; }
 		.err { color: #b91c1c; font-size: 13px; }
 		.panel details summary { cursor: pointer; color: var(--muted); font-size: 12px; }
-		.maplibregl-popup-content { font: 13px/1.45 system-ui, sans-serif; color: #1d2330; }
-		.maplibregl-popup-content .btn { margin-top: 6px; padding: 3px 8px; }
-		.maplibregl-popup-content .btn + .btn { margin-inline-start: 6px; }
+		.popup {
+			position: absolute; z-index: 3; max-width: 240px; padding: 8px 26px 8px 10px; border-radius: 8px;
+			background: #fff; color: #1d2330; font: 13px/1.45 system-ui, sans-serif; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+		}
+		.popup .btn { margin-top: 6px; padding: 3px 8px; }
+		.popup .btn + .btn { margin-inline-start: 6px; }
+		.popup-close { position: absolute; top: 2px; inset-inline-end: 4px; border: 0; background: none; font-size: 16px; cursor: pointer; color: #5b6475; }
+		/* Cesium's credits, clear of the panel */
+		.cesium-widget-credits { font-size: 10px; }
 		#back { color: var(--accent); text-decoration: none; font-size: 12px; }
 		/* numbers read left to right in Hebrew too (a minus sign stays in front) */
 		bdi[data-v], #spot, .val { direction: ltr; unicode-bidi: isolate; }
@@ -79,8 +86,11 @@ layout: null
 <body>
 	<script src="/assets/js/settings/docLoadBlock.js"></script>
 	<div id="map" role="region" aria-label="3D terrain"></div>
-	<div id="dusk" aria-hidden="true"></div>
 	<div id="sunDisc" aria-hidden="true" hidden></div>
+	<div id="popup" class="popup" hidden>
+		<button type="button" class="popup-close" aria-label="Close">×</button>
+		<div class="popup-body"></div>
+	</div>
 	<div class="panel" id="panel">
 		<a id="back" href="/calendar">
 			<span class="lang lang-he">→ חזרה ללוח</span>
