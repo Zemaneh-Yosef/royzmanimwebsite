@@ -9,7 +9,10 @@
  * it. One link does both events: the toggle turns the observer to face the other one.
  */
 import * as maplibregl from "../libraries/maplibre/maplibre-gl.mjs";
-import { REFRACTION_SERVER, TERRAIN_VERSION, readCachedRefraction } from "./refraction-data.js";
+import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
+import { REFRACTION_SERVER, TERRAIN_VERSION, readCachedRefraction, loadRefraction } from "./refraction-data.js";
+import { ZmanimDay, zmanimListFromData, timeFormat } from "./core/zmanimCore.js";
+import { settings } from "./settings/handler.js";
 import { fetchHorizonForArea, HorizonPendingError } from "../libraries/kosherZmanim/horizon-client.js";
 import { sunAltAz, morningSunAt, eveningSunAt } from "../libraries/kosherZmanim/star-nightfall.js";
 import { ROY_REFRACTION_ARCMIN } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
@@ -206,8 +209,12 @@ const fmt = (x, d = 1) => x.toLocaleString("en-US", { minimumFractionDigits: d, 
 
 async function main() {
 	for (const o of /** @type {NodeListOf<HTMLOptionElement>} */ (document.querySelectorAll("option[data-en]"))) o.textContent = langText(o);
+	// The place as the calendar's own parameters give it (locationName, lat, long, elevation, timeZone), which the
+	// location panel's link passes on; lon / tz from older links
 	const q = new URLSearchParams(location.search);
-	const lat = Number(q.get("lat")), lon = Number(q.get("lon") ?? q.get("long"));
+	const lat = Number(q.get("lat")), lon = Number(q.get("long") ?? q.get("lon"));
+	const elevation = Number(q.get("elevation")) || 0;
+	const tzParam = q.get("timeZone") ?? q.get("tz");
 	if (!q.get("lat") || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 60 || Math.abs(lon) > 180) {
 		show($("err"), "errLatLon");
 		return;
@@ -222,18 +229,19 @@ async function main() {
 	if (backParam.startsWith("/") && !backParam.startsWith("//") && !backParam.startsWith("/\\")) {
 		$("back").href = backParam;
 	} else {
-		const cal = new URLSearchParams({ lat: String(lat), long: String(lon) });
-		if (q.get("tz")) cal.set("timeZone", /** @type {string} */ (q.get("tz")));
+		const cal = new URLSearchParams({ lat: String(lat), long: String(lon), elevation: String(elevation) });
+		if (q.get("locationName")) cal.set("locationName", /** @type {string} */ (q.get("locationName")));
+		if (tzParam) cal.set("timeZone", tzParam);
 		$("back").href = `/calendar?${cal}`;
 	}
 
 	// The moment shown: a date and a time at the place (its time zone from the calendar, else this device's)
 	const tz = (() => {
-		const z = q.get("tz");
-		try { if (z) return Temporal.Now.zonedDateTimeISO(z).timeZoneId; } catch (e) { /* not a time zone */ }
+		try { if (tzParam) return Temporal.Now.zonedDateTimeISO(tzParam).timeZoneId; } catch (e) { /* not a time zone */ }
 		return Temporal.Now.timeZoneId();
 	})();
-	const zoned = (/** @type {number} */ ms) => Temporal.Instant.fromEpochMilliseconds(ms).toZonedDateTimeISO(tz);
+	// whole milliseconds: sunrise / sunset times found by bisection have fractions, which Temporal refuses
+	const zoned = (/** @type {number} */ ms) => Temporal.Instant.fromEpochMilliseconds(Math.round(ms)).toZonedDateTimeISO(tz);
 	const dateParam = q.get("date") ?? "";
 	/** @type {Temporal.PlainDate} */
 	let date = /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? Temporal.PlainDate.from(dateParam) : Temporal.Now.plainDateISO(tz);
@@ -613,24 +621,49 @@ async function main() {
 		map.triggerRepaint();
 	}
 
-	/** The calendar's zmanim for the date shown, when it opened this page for this place and date. */
-	function fillZmanim() {
-		let items = [];
+	// ─── The calendar's zemanim, for "jump to a zman" ───
+	// The same list as /calendar (_data/zmanim.yml, embedded in the page) and the same calculator
+	// (core/zmanimCore.js ZmanimDay: the calendar's settings, this place's air, horizon and haze), so the times
+	// are the calendar's, for whatever date is shown.
+	const zmanimData = JSON.parse(/** @type {HTMLElement} */ (document.getElementById("zmanimData")).textContent ?? "[]");
+	/** @type {ZmanimDay | null} */
+	let zmanimDay = null;
+	/** The calculator, with this place's refraction data when there is some (as the calendar: its plain times first). */
+	function makeZmanimDay(/** @type {any} */ refraction) {
+		zmanimDay = new ZmanimDay({
+			geoLocation: new KosherZmanim.GeoLocation(q.get("locationName") ?? "", lat, lon, elevation, tz),
+			settings, zmanimList: zmanimListFromData(zmanimData), refraction, date,
+			dtF: timeFormat({ language: LANG, hourCycle: settings.timeFormat(), seconds: settings.seconds() })
+		});
+		$("zman").dataset.date = "";
+		fillZmanim();
+	}
+	/** The calendar's air, horizon and haze for this place (stored by it, else fetched), then the times with them. */
+	async function setupZmanim() {
+		if (!zmanimDay) makeZmanimDay(undefined);
 		try {
-			const z = JSON.parse(localStorage.getItem("horizon3d.zmanim") ?? "null");
-			if (z && Math.abs(z.lat - lat) < 1e-6 && Math.abs(z.lon - lon) < 1e-6 && z.date === date.toString()) items = z.items;
-		} catch (e) { /* none */ }
+			const r = await loadRefraction(lat, lon, { humidity: settings.refraction.humidity() });
+			makeZmanimDay({ atmosphereProvider: r.provider, horizon: r.horizon, haze: r.haze });
+		} catch (e) {
+			console.warn("refraction data:", e);       // the calendar's fallback too: the plain times
+		}
+	}
+
+	/** The zemanim the calendar shows on the date shown. */
+	function fillZmanim() {
 		const sel = $("zman");
-		sel.hidden = $("zmanLabel").hidden = !items.length;
-		if (sel.dataset.date === date.toString() && sel.options.length - 1 === items.length) return;
+		sel.hidden = $("zmanLabel").hidden = !zmanimDay;
+		if (!zmanimDay || sel.dataset.date === date.toString()) return;
 		sel.dataset.date = date.toString();
+		const plain = document.createElement("template");
 		const pick = document.createElement("option");
 		pick.value = "";
 		pick.textContent = langText(sel);
-		sel.replaceChildren(pick, ...items.map((/** @type {{title: string, ms: number}} */ it) => {
+		sel.replaceChildren(pick, ...zmanimDay.shownOn(date, LANG).map(z => {
+			plain.innerHTML = z.title;                 // titles may hold markup (<sup>)
 			const o = document.createElement("option");
-			o.value = String(it.ms);
-			o.textContent = `${zoned(it.ms).toPlainTime().toString({ smallestUnit: "minute" })} ${it.title}`;
+			o.value = String(z.time.epochMilliseconds);
+			o.textContent = `${z.timeText} ${(plain.content.textContent ?? "").replace(/\s+/g, " ").trim()}`;
 			return o;
 		}));
 	}
@@ -834,6 +867,7 @@ async function main() {
 	setEvent(event);
 	showMoment();
 	if (pending) waitForHorizon(pending);
+	setupZmanim().catch(e => console.error("zemanim:", e));
 
 	/** Shows the terrain meanwhile, and the horizon once the server has it. @param {HorizonPendingError} p */
 	function waitForHorizon(p) {
@@ -856,6 +890,7 @@ async function main() {
 			setEvent(event, false);
 			showMoment();
 			look();
+			setupZmanim().catch(e => console.error("zemanim:", e));   // the visible sunrise needs the horizon too
 		}, p.retryAfterS * 1000);
 	}
 	// the terrain under the camera arrives after the first frame; aim again once it has

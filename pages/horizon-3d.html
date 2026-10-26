@@ -112,9 +112,9 @@ layout: null
 			<label for="zman" id="zmanLabel" hidden>
 				<span class="lang lang-he">זמן</span>
 				<span class="lang lang-he-Latn">Zman</span>
-				<span class="lang lang-en">Time</span>
+				<span class="lang lang-en">Zman</span>
 			</label>
-			<select id="zman" hidden data-he="קפיצה לזמן…" data-he-latn="Jump to a zman…" data-en="Jump to a time…"></select>
+			<select id="zman" hidden data-he="קפיצה לזמן…" data-he-latn="Jump to a zman…" data-en="Jump to a zman…"></select>
 			<button type="button" class="btn" id="faceSun">
 				<span class="lang lang-he">פנו אל השמש</span>
 				<span class="lang lang-he-Latn">Face the sun</span>
@@ -310,6 +310,8 @@ layout: null
 			<span class="lang lang-en">Stand here</span>
 		</button>
 	</template>
+	<!-- the calendar's zemanim (as /calendar lists them), for "jump to a zman" -->
+	<script id="zmanimData" type="application/json">{{ site.data.zmanim | jsonify }}</script>
 	<script type="module" src="/assets/js/horizon-3d.js"></script>
 </body>
 </html>

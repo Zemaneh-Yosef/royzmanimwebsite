@@ -76,13 +76,6 @@ function ltr(text) {
 	return span;
 }
 
-/** A zman's title (it may hold markup) as plain text. @param {string} html */
-function plainTitle(html) {
-	const div = document.createElement("div");
-	div.innerHTML = html;
-	return (div.textContent ?? "").replace(/\s+/g, " ").trim();
-}
-
 /** A muted note after a value. @param {Tri} t */
 const note = (t) => el("span", "text-body-secondary", " (", tri(t), ")");
 
@@ -536,24 +529,19 @@ export default class LocationModal {
 		}
 		// the terrain in 3D, from where the observer stands (pages/horizon-3d.html); it reads the same horizon set
 		const view3d = /** @type {HTMLAnchorElement} */ (el("a", "d-block", tri({ he: "צפייה באופק בתלת־ממד", "he-Latn": "View the horizon in 3D" })));
-		const shown = this.updater.zmanCalc.coreZC.getDate();
-		// back: this calendar page as it is (its own location parameters), for the 3D page's "Back" link
-		view3d.href = `/horizon-3d?${new URLSearchParams({ lat: String(this.geo.getLatitude()), lon: String(this.geo.getLongitude()),
-			tz: this.geo.getTimeZone(), date: shown.toString(), back: location.pathname + location.search })}`;
+		// The calendar's own parameters (the place: locationName, lat, long, elevation, timeZone; and any settings
+		// given in the address), so the 3D page reads the place and settings as this page does; back: this page
+		const params = new URLSearchParams(location.search);
+		params.set("locationName", this.geo.getLocationName() ?? "");
+		params.set("lat", String(this.geo.getLatitude()));
+		params.set("long", String(this.geo.getLongitude()));
+		params.set("elevation", String(this.geo.getElevation()));
+		params.set("timeZone", this.geo.getTimeZone());
+		params.set("date", this.updater.zmanCalc.coreZC.getDate().toString());
+		params.set("back", location.pathname + location.search);
+		view3d.href = `/horizon-3d?${params}`;
 		view3d.target = "_blank";
 		view3d.rel = "noopener";
-		// the day's zmanim go along (same origin, so localStorage), for the page's "jump to a zman"
-		view3d.addEventListener("click", () => {
-			try {
-				const lang = settings.language();
-				const items = Object.values(this.updater.jCal.getZmanimInfo(false, this.updater.zmanCalc, this.updater.zmanimList, this.updater.dtF))
-					.filter(z => z.display == 1 && z.zDTObj)
-					.map(z => ({ title: plainTitle(z.title[lang] ?? z.title.en ?? ""), ms: z.zDTObj.epochMilliseconds }))
-					.sort((a, b) => a.ms - b.ms);
-				localStorage.setItem("horizon3d.zmanim", JSON.stringify({
-					lat: this.geo.getLatitude(), lon: this.geo.getLongitude(), date: shown.toString(), items }));
-			} catch (e) { /* storage blocked: the page works without them */ }
-		});
 		if (Math.abs(this.geo.getLatitude()) <= 60) terrain.append(view3d);   // the elevation data's reach
 
 		const overWater = [sunrise, sunset].some(spec => spec && "path" in spec && spec.path.some(p => p.water));
