@@ -63,8 +63,8 @@
  *     review) and cannot see the air change along the path; it stays for one-temperature air (6), which
  *     has no inversion. The server sends, per azimuth, the highest terrain point under standard refraction
  *     and any other that would be highest in other air; the highest in the day's air is used. Where the air
- *     holds a duct (rays bending more sharply than the Earth curves), a ridge can show several images and
- *     the Sun stays hidden up to the highest, which is what is used. Every point of the solar
+ *     holds a duct (rays bending more sharply than the Earth curves), a ridge can show several images;
+ *     the search for the highest is off by default (setTerrainImageSearch). Every point of the solar
  *     limb is tested against the profile at its own azimuth (ChaiTables' 2022 limb-sampling fix), and the
  *     refraction for each point is ray traced at its own apparent altitude for the observer's height.
  *     The semidiameter is date-based (ChaiTables' visible branch uses a fixed 16').
@@ -536,12 +536,14 @@ function rayHeightAt(field, ho, aDeg, R, distM, floorM = 0) {
  * two or three traces reach 1 cm. Where the air bends level rays more sharply than the Earth curves (a duct:
  * maxCurvature > 1 / R near the heights the ray passes), the ridge can show more than one image, one above
  * the other; the Sun is hidden behind it up to the highest. `images` says how that is handled:
- *  - 'auto' (default): search only where some ray aimed above the secant's solution can be turned back
+ *  - 'auto': search only where some ray aimed above the secant's solution can be turned back
  *    down at all (Medium.trapLimit, from Bouguer's invariant), and only up to the steepest such ray;
  *  - 'scan': search wherever a duct lies within the band of heights below (several hundred traces a point;
  *    in ERA5 air such a duct is there on 10-40% of mornings, while a higher image changed the time on 4 of
  *    about 3,200 mornings tested: Jerusalem 1985-96 and 2009-13, Toronto, Chicago and Montreal 2023);
- *  - 'off': keep the secant's solution.
+ *  - 'off' (default): keep the secant's solution. Against timed sunrises and sunsets (Edmonton 1990-94, Chile
+ *    and Hawaii 1987-89) the search changed 2 of 474 events, both for the worse, so it stays off until
+ *    observations show it helps.
  * The search itself (scanBetween) steps 0.005 deg (a choice: finer than the 0.1-0.15 deg between images
  * reported by Minnaert, The Nature of Light and Colour in the Open Air, sections 30 and 34, so an image
  * thinner than 0.005 deg can be missed) and bisects the highest crossing to 1e-5 deg.
@@ -553,7 +555,7 @@ function rayHeightAt(field, ho, aDeg, R, distM, floorM = 0) {
  * @param {number} distM @param {number} R @param {number} [floorM]
  * @param {'auto'|'scan'|'off'} [images]
  */
-export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0, images = 'auto') {
+export function terrainElevation(atm, ho, targetM, distM, R, floorM = 0, images = 'off') {
 	const geo = geometricElevation(ho, targetM, distM, R);
 	const chord = Math.hypot(distM, (R + targetM) * Math.cos(distM / R) - (R + ho));
 	const est = geo + terrestrialRefraction(atm, ho, targetM, chord);
@@ -1299,7 +1301,7 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._humidity = false;
 		this._terrainRays = true;
 		/** @type {'auto'|'scan'|'off'} */
-		this._terrainImages = 'auto';
+		this._terrainImages = 'off';
 		this._earlySunImages = false;
 		/** the Sun's full apparent place at 0h UT of nearby days (see solarCoords) @type {Cache<number[]>} */
 		this._sunNodes = new Cache(32);
@@ -1326,13 +1328,6 @@ export default class ROYSPACalculator extends SPACalculator {
 	}
 
 	/**
-	 * How a ridge seen through a duct, which can show more than one image, is handled (terrainElevation):
-	 * 'auto' (default) searches for the highest image only where Bouguer's invariant allows some ray aimed
-	 * above the first solution to be turned back down, and only up to the steepest such ray; 'scan' searches
-	 * wherever a duct lies in a band of heights around the ray (slower); 'off' keeps the first solution.
-	 * @param {'auto'|'scan'|'off'} mode
-	 */
-	/**
 	 * Let the Sun be seen first through a ray aimed above the horizon that air over cold water bends more than
 	 * the ray at the horizon (an image of the Sun's edge floating just above the horizon before the usual
 	 * sunrise; the "Novaya Zemlya" effect). Off by default: it rests on the weather model's thin layer of air
@@ -1345,6 +1340,14 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._earlySunImages = !!on;
 	}
 
+	/**
+	 * How a ridge seen through a duct, which can show more than one image, is handled (terrainElevation):
+	 * 'off' (default) keeps the first solution; 'auto' searches for the highest image only where Bouguer's
+	 * invariant allows some ray aimed above the first solution to be turned back down, and only up to the
+	 * steepest such ray; 'scan' searches wherever a duct lies in a band of heights around the ray (slower).
+	 * Off by default: against timed sunrises and sunsets it changed 2 of 474 events, both for the worse.
+	 * @param {'auto'|'scan'|'off'} mode
+	 */
 	setTerrainImageSearch(mode) {
 		if (mode !== 'auto' && mode !== 'scan' && mode !== 'off') throw new RangeError(`unknown mode ${mode}`);
 		this._terrainImages = mode;
