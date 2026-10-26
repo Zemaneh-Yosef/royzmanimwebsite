@@ -245,9 +245,16 @@ async function main() {
 		showError(t("errWebgl", "This browser doesn't support WebGL 2, which the 3D view needs."));
 		return;
 	}
-	const back = new URL("/calendar", location.href);
-	back.search = location.search;
-	$("back").href = back.pathname + back.search;
+	// Back to the calendar page that opened this one, as it was (its own parameters: locationName, lat, long,
+	// elevation, timeZone, ...), only ever on this site; else the main calendar for this place
+	const backParam = q.get("back") ?? "";
+	if (backParam.startsWith("/") && !backParam.startsWith("//") && !backParam.startsWith("/\\")) {
+		$("back").href = backParam;
+	} else {
+		const cal = new URLSearchParams({ lat: String(lat), long: String(lon) });
+		if (q.get("tz")) cal.set("timeZone", /** @type {string} */ (q.get("tz")));
+		$("back").href = `/calendar?${cal}`;
+	}
 
 	// The moment shown: a date and a time at the place (its time zone from the calendar, else this device's)
 	const tz = (() => {

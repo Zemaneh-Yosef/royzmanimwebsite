@@ -537,8 +537,9 @@ export default class LocationModal {
 		// the terrain in 3D, from where the observer stands (pages/horizon-3d.html); it reads the same horizon set
 		const view3d = /** @type {HTMLAnchorElement} */ (el("a", "d-block", tri({ he: "צפייה באופק בתלת־ממד", "he-Latn": "View the horizon in 3D" })));
 		const shown = this.updater.zmanCalc.coreZC.getDate();
+		// back: this calendar page as it is (its own location parameters), for the 3D page's "Back" link
 		view3d.href = `/horizon-3d?${new URLSearchParams({ lat: String(this.geo.getLatitude()), lon: String(this.geo.getLongitude()),
-			tz: this.geo.getTimeZone(), date: shown.toString() })}`;
+			tz: this.geo.getTimeZone(), date: shown.toString(), back: location.pathname + location.search })}`;
 		view3d.target = "_blank";
 		view3d.rel = "noopener";
 		// the day's zmanim go along (same origin, so localStorage), for the page's "jump to a zman"
