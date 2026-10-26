@@ -11,6 +11,7 @@ layout: null
 	<meta name="description" content="The terrain the visible sunrise and sunset are computed from, seen from where you stand.">
 	<link href="/favicon.ico" rel="icon" type="image/x-icon">
 	<link rel="stylesheet" href="/assets/libraries/maplibre/maplibre-gl.css">
+	<link rel="stylesheet" href="/assets/css/core.css">
 	{% include polyfills.html %}
 	<style>
 		:root {
@@ -66,24 +67,40 @@ layout: null
 		.panel details summary { cursor: pointer; color: var(--muted); font-size: 12px; }
 		.maplibregl-popup-content { font: 13px/1.45 system-ui, sans-serif; color: #1d2330; }
 		.maplibregl-popup-content .btn { margin-top: 6px; padding: 3px 8px; }
+		.maplibregl-popup-content .btn + .btn { margin-inline-start: 6px; }
 		#back { color: var(--accent); text-decoration: none; font-size: 12px; }
+		/* numbers read left to right in Hebrew too (a minus sign stays in front) */
+		bdi[data-v], #spot, .val { direction: ltr; unicode-bidi: isolate; }
 		@media (max-width: 600px) {
 			.panel { top: auto; bottom: 8px; inset-inline-start: 8px; max-height: 45dvh; }
 		}
 	</style>
 </head>
 <body>
+	<script src="/assets/js/settings/docLoadBlock.js"></script>
 	<div id="map" role="region" aria-label="3D terrain"></div>
 	<div id="dusk" aria-hidden="true"></div>
 	<div id="sunDisc" aria-hidden="true" hidden></div>
 	<div class="panel" id="panel">
-		<a id="back" href="/calendar" data-t="back">← Back to the calendar</a>
-		<h1 data-t="title">Horizon in 3D</h1>
+		<a id="back" href="/calendar">
+			<span class="lang lang-he">→ חזרה ללוח</span>
+			<span class="lang lang-he-Latn">← Back to the calendar</span>
+			<span class="lang lang-en">← Back to the calendar</span>
+		</a>
+		<h1>
+			<span class="lang lang-he">האופק בתלת־ממד</span>
+			<span class="lang lang-he-Latn">Horizon in 3D</span>
+			<span class="lang lang-en">Horizon in 3D</span>
+		</h1>
 		<div class="sub" id="where"></div>
 		<div class="row">
 			<input type="date" id="date" aria-label="Date">
 			<input type="time" id="time" step="60" aria-label="Time">
-			<button type="button" class="btn" id="now" data-t="now">Now</button>
+			<button type="button" class="btn" id="now">
+				<span class="lang lang-he">עכשיו</span>
+				<span class="lang lang-he-Latn">Now</span>
+				<span class="lang lang-en">Now</span>
+			</button>
 		</div>
 		<div class="row">
 			<button type="button" class="btn" id="back10" aria-label="10 minutes earlier">−10′</button>
@@ -92,60 +109,207 @@ layout: null
 			<button type="button" class="btn" id="play" aria-label="Play" aria-pressed="false">▶</button>
 		</div>
 		<div class="row">
-			<label for="zman" id="zmanLabel" data-t="zman" hidden>Zman</label>
-			<select id="zman" hidden></select>
-			<button type="button" class="btn" id="faceSun" data-t="faceSun">Face the sun</button>
+			<label for="zman" id="zmanLabel" hidden>
+				<span class="lang lang-he">זמן</span>
+				<span class="lang lang-he-Latn">Zman</span>
+				<span class="lang lang-en">Time</span>
+			</label>
+			<select id="zman" hidden data-he="קפיצה לזמן…" data-he-latn="Jump to a zman…" data-en="Jump to a time…"></select>
+			<button type="button" class="btn" id="faceSun">
+				<span class="lang lang-he">פנו אל השמש</span>
+				<span class="lang lang-he-Latn">Face the sun</span>
+				<span class="lang lang-en">Face the sun</span>
+			</button>
 		</div>
 		<div id="sunNow" class="note"></div>
 		<div class="row">
 			<div class="seg" role="group" aria-label="Event">
-				<button type="button" id="evSunrise" data-t="sunrise">Sunrise</button>
-				<button type="button" id="evSunset" data-t="sunset">Sunset</button>
+				<button type="button" id="evSunrise">
+					<span class="lang lang-he">זריחה</span>
+					<span class="lang lang-he-Latn">Netz</span>
+					<span class="lang lang-en">Sunrise</span>
+				</button>
+				<button type="button" id="evSunset">
+					<span class="lang lang-he">שקיעה</span>
+					<span class="lang lang-he-Latn">Sheqi'a</span>
+					<span class="lang lang-en">Sunset</span>
+				</button>
 			</div>
-			<button type="button" class="btn" id="eyeBtn" data-t="eye">Eye view</button>
-			<button type="button" class="btn" id="aboveBtn" data-t="above">From above</button>
+			<button type="button" class="btn" id="eyeBtn">
+				<span class="lang lang-he">מבט מהעין</span>
+				<span class="lang lang-he-Latn">Eye view</span>
+				<span class="lang lang-en">Eye view</span>
+			</button>
+			<button type="button" class="btn" id="aboveBtn">
+				<span class="lang lang-he">מבט מלמעלה</span>
+				<span class="lang lang-he-Latn">From above</span>
+				<span class="lang lang-en">From above</span>
+			</button>
 		</div>
 		<div class="row">
-			<label for="az" data-t="facing">Facing</label>
+			<label for="az">
+				<span class="lang lang-he">כיוון</span>
+				<span class="lang lang-he-Latn">Facing</span>
+				<span class="lang lang-en">Facing</span>
+			</label>
 			<button type="button" class="btn" id="left" aria-label="Turn left">◀</button>
 			<input type="range" id="az" min="0" max="360" step="0.5">
 			<button type="button" class="btn" id="right" aria-label="Turn right">▶</button>
 			<span class="val" id="azVal"></span>
 		</div>
 		<div class="row">
-			<label for="tilt" data-t="tilt">Look up</label>
+			<label for="tilt">
+				<span class="lang lang-he">הרמת מבט</span>
+				<span class="lang lang-he-Latn">Look up</span>
+				<span class="lang lang-en">Look up</span>
+			</label>
 			<input type="range" id="tilt" min="-30" max="25" step="0.25" value="1">
 			<span class="val" id="tiltVal"></span>
 		</div>
 		<div class="row">
-			<label for="fov" data-t="lens">Lens</label>
+			<label for="fov">
+				<span class="lang lang-he">עדשה</span>
+				<span class="lang lang-he-Latn">Lens</span>
+				<span class="lang lang-en">Lens</span>
+			</label>
 			<input type="range" id="fov" min="5" max="60" step="1" value="30">
 			<span class="val" id="fovVal"></span>
 		</div>
 		<div class="row">
-			<label for="imagery" data-t="imagery">Imagery</label>
+			<label for="imagery">
+				<span class="lang lang-he">רקע</span>
+				<span class="lang lang-he-Latn">Imagery</span>
+				<span class="lang lang-en">Imagery</span>
+			</label>
 			<select id="imagery">
-				<option value="sat" data-t="satellite">Satellite</option>
-				<option value="osm" data-t="map">Map</option>
-				<option value="none" data-t="relief">Relief only</option>
+				<option value="sat" data-he="לוויין" data-he-latn="Satellite" data-en="Satellite">Satellite</option>
+				<option value="osm" data-he="מפה" data-he-latn="Map" data-en="Map">Map</option>
+				<option value="none" data-he="תבליט בלבד" data-he-latn="Relief only" data-en="Relief only">Relief only</option>
 			</select>
-			<label for="spot" id="spotLabel" data-t="spot" hidden>Spot</label>
+			<label for="spot" id="spotLabel" hidden>
+				<span class="lang lang-he">נקודה</span>
+				<span class="lang lang-he-Latn">Spot</span>
+				<span class="lang lang-en">Spot</span>
+			</label>
 			<select id="spot" hidden></select>
 		</div>
 		<div id="sunInfo" class="note"></div>
 		<div class="legend">
-			<div><span class="dot" style="background: var(--accent)"></span><span data-t="legRidge">The horizon the server found (what hides the sun)</span></div>
-			<div><span class="dot" style="background: var(--sun)"></span><span data-t="legSun">Where the sun meets it on the date (approx.)</span></div>
-			<div><span class="dot" style="background: #2563eb"></span><span data-t="legSpot">Where you stand</span></div>
+			<div><span class="dot" style="background: var(--accent)"></span>
+				<span class="lang lang-he">האופק שהשרת מצא (מה שמסתיר את השמש)</span>
+				<span class="lang lang-he-Latn">The horizon the server found (what hides the sun)</span>
+				<span class="lang lang-en">The horizon the server found (what hides the sun)</span>
+			</div>
+			<div><span class="dot" style="background: var(--sun)"></span>
+				<span class="lang lang-he">היכן שהשמש פוגשת אותו בתאריך (בקירוב)</span>
+				<span class="lang lang-he-Latn">Where the sun meets it on the date (approx.)</span>
+				<span class="lang lang-en">Where the sun meets it on the date (approx.)</span>
+			</div>
+			<div><span class="dot" style="background: #2563eb"></span>
+				<span class="lang lang-he">היכן שאתם עומדים</span>
+				<span class="lang lang-he-Latn">Where you stand</span>
+				<span class="lang lang-en">Where you stand</span>
+			</div>
 		</div>
-		<div class="note" data-t="clickNote">Drag to look around, scroll or pinch to zoom the lens, double-click to face a spot. Tap the ground for its position, height and angle.</div>
+		<div class="note">
+			<span class="lang lang-he">גררו כדי להסתכל סביב, גללו או צבטו כדי לשנות עדשה, הקישו פעמיים כדי לפנות לנקודה. הקישו על הקרקע לראות מיקום, גובה וזווית.</span>
+			<span class="lang lang-he-Latn">Drag to look around, scroll or pinch to zoom the lens, double-click to face a spot. Tap the ground for its position, height and angle.</span>
+			<span class="lang lang-en">Drag to look around, scroll or pinch to zoom the lens, double-click to face a spot. Tap the ground for its position, height and angle.</span>
+		</div>
 		<div id="err" class="err" role="alert"></div>
 		<details>
-			<summary data-t="sources">Data</summary>
+			<summary>
+				<span class="lang lang-he">נתונים</span>
+				<span class="lang lang-he-Latn">Data</span>
+				<span class="lang lang-en">Data</span>
+			</summary>
 			<div class="note" id="tileStats"></div>
-			<div class="note" data-t="srcText">Terrain: the same elevation data as our visible-sunrise horizons (bare-earth models: SRTM, FABDEM and national surveys where loaded); where our server has none, the AWS Terrain Tiles. Heights you see are bare earth: buildings and trees are not in them.</div>
+			<div class="note">
+				<span class="lang lang-he">פני השטח: אותם נתוני גובה שמהם מחושב אופק הנץ הנראה (מודלים של פני הקרקע החשופה: SRTM, ‏FABDEM ומיפוי לאומי היכן שנטען); היכן שאין לשרת נתונים — אריחי הגובה של AWS. הגבהים הם של הקרקע עצמה: בניינים ועצים אינם בהם.</span>
+				<span class="lang lang-he-Latn">Terrain: the same elevation data as our visible-netz horizons (bare-earth models: SRTM, FABDEM and national surveys where loaded); where our server has none, the AWS Terrain Tiles. Heights you see are bare earth: buildings and trees are not in them.</span>
+				<span class="lang lang-en">Terrain: the same elevation data as our visible-sunrise horizons (bare-earth models: SRTM, FABDEM and national surveys where loaded); where our server has none, the AWS Terrain Tiles. Heights you see are bare earth: buildings and trees are not in them.</span>
+			</div>
 		</details>
 	</div>
+
+	<!--
+		Messages with numbers in them. horizon-3d.js copies one into place (show()) and fills its [data-v] slots
+		with numbers and names only; a [data-part] it is told to drop is removed (an optional clause).
+	-->
+	<template id="msg-errLatLon">
+		<span class="lang lang-he">פתחו דף זה ממיקום בלוח (צריך קו רוחב וקו אורך בין 60° דרום ל־60° צפון).</span>
+		<span class="lang lang-he-Latn">Open this page from a location in the calendar (it needs lat and lon between 60°S and 60°N).</span>
+		<span class="lang lang-en">Open this page from a location in the calendar (it needs lat and lon between 60°S and 60°N).</span>
+	</template>
+	<template id="msg-errWebgl">
+		<span class="lang lang-he">הדפדפן הזה אינו תומך ב־WebGL 2, שהתצוגה התלת־ממדית צריכה.</span>
+		<span class="lang lang-he-Latn">This browser doesn't support WebGL 2, which the 3D view needs.</span>
+		<span class="lang lang-en">This browser doesn't support WebGL 2, which the 3D view needs.</span>
+	</template>
+	<template id="msg-errHorizon">
+		<span class="lang lang-he">לא ניתן היה לטעון את האופק; פני השטח מוצגים בכל זאת. (<bdi data-v="detail"></bdi>)</span>
+		<span class="lang lang-he-Latn">The horizon could not be loaded; the terrain is still shown. (<bdi data-v="detail"></bdi>)</span>
+		<span class="lang lang-en">The horizon could not be loaded; the terrain is still shown. (<bdi data-v="detail"></bdi>)</span>
+	</template>
+	<template id="msg-where">
+		<bdi dir="ltr"><bdi data-v="lat"></bdi>, <bdi data-v="lon"></bdi></bdi><span data-part="eye"> ·
+			<span class="lang lang-he">עין <bdi data-v="eye"></bdi> מ'</span>
+			<span class="lang lang-he-Latn">eye <bdi data-v="eye"></bdi> m</span>
+			<span class="lang lang-en">eye <bdi data-v="eye"></bdi> m</span></span><span data-part="area"> · <bdi data-v="area"></bdi></span>
+	</template>
+	<template id="msg-tiles">
+		<span class="lang lang-he">אריחי גובה: <bdi data-v="server"></bdi> מהשרת שלנו, <bdi data-v="aws"></bdi> מ־AWS (מתוך <bdi data-v="total"></bdi>)</span>
+		<span class="lang lang-he-Latn">Terrain tiles: <bdi data-v="server"></bdi> from our server, <bdi data-v="aws"></bdi> from AWS (of <bdi data-v="total"></bdi>)</span>
+		<span class="lang lang-en">Terrain tiles: <bdi data-v="server"></bdi> from our server, <bdi data-v="aws"></bdi> from AWS (of <bdi data-v="total"></bdi>)</span>
+	</template>
+	<template id="msg-sunrise">
+		<span class="lang lang-he">השמש עולה בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מעל הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>° באוויר תקני)</span>.</span>
+		<span class="lang lang-he-Latn">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
+		<span class="lang lang-en">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
+	</template>
+	<template id="msg-sunset">
+		<span class="lang lang-he">השמש שוקעת בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מאחורי הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>° באוויר תקני)</span>.</span>
+		<span class="lang lang-he-Latn">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
+		<span class="lang lang-en">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
+	</template>
+	<template id="msg-sunNow">
+		<span class="lang lang-he"><bdi data-v="time"></bdi>: השמש בגובה <bdi data-v="alt"></bdi>°<span data-part="seen"> (נראית <bdi data-v="app"></bdi>°)</span>, בכיוון <bdi data-v="az"></bdi>°<span data-part="below"> — <bdi data-v="below"></bdi>° מתחת לאופק</span>.</span>
+		<span class="lang lang-he-Latn"><bdi data-v="time"></bdi>: the sun is <bdi data-v="alt"></bdi>° up<span data-part="seen"> (seen at <bdi data-v="app"></bdi>°)</span>, at <bdi data-v="az"></bdi>°<span data-part="below"> — <bdi data-v="below"></bdi>° below the horizon</span>.</span>
+		<span class="lang lang-en"><bdi data-v="time"></bdi>: the sun is <bdi data-v="alt"></bdi>° up<span data-part="seen"> (seen at <bdi data-v="app"></bdi>°)</span>, at <bdi data-v="az"></bdi>°<span data-part="below"> — <bdi data-v="below"></bdi>° below the horizon</span>.</span>
+	</template>
+	<template id="msg-pending">
+		<span class="lang lang-he">השרת מחשב את האופק של המקום הזה בפעם הראשונה<span data-part="eta">: עוד כ־<bdi data-v="eta"></bdi> <span data-part="sec">שניות</span><span data-part="min">דקות</span></span>. פני השטח מוצגים בינתיים, והאופק יופיע כשיהיה מוכן.</span>
+		<span class="lang lang-he-Latn">The server is computing this place's horizon for the first time<span data-part="eta">: about <bdi data-v="eta"></bdi> <span data-part="sec">s</span><span data-part="min">min</span> more</span>. The terrain is shown meanwhile, and the horizon appears when it is ready.</span>
+		<span class="lang lang-en">The server is computing this place's horizon for the first time<span data-part="eta">: about <bdi data-v="eta"></bdi> <span data-part="sec">s</span><span data-part="min">min</span> more</span>. The terrain is shown meanwhile, and the horizon appears when it is ready.</span>
+	</template>
+	<template id="msg-point">
+		<div><bdi dir="ltr"><bdi data-v="lat"></bdi>, <bdi data-v="lon"></bdi></bdi></div>
+		<div data-part="height">
+			<span class="lang lang-he">גובה: <bdi data-v="height"></bdi> מ'</span>
+			<span class="lang lang-he-Latn">Height: <bdi data-v="height"></bdi> m</span>
+			<span class="lang lang-en">Height: <bdi data-v="height"></bdi> m</span>
+		</div>
+		<div>
+			<span class="lang lang-he">מרחק: <bdi data-v="dist"></bdi> ק"מ · כיוון <bdi data-v="bearing"></bdi>°</span>
+			<span class="lang lang-he-Latn">Distance: <bdi data-v="dist"></bdi> km · bearing <bdi data-v="bearing"></bdi>°</span>
+			<span class="lang lang-en">Distance: <bdi data-v="dist"></bdi> km · bearing <bdi data-v="bearing"></bdi>°</span>
+		</div>
+		<div data-part="angle">
+			<span class="lang lang-he">זווית: <bdi data-v="angle"></bdi>° (אוויר תקני)</span>
+			<span class="lang lang-he-Latn">Angle: <bdi data-v="angle"></bdi>° (standard air)</span>
+			<span class="lang lang-en">Angle: <bdi data-v="angle"></bdi>° (standard air)</span>
+		</div>
+		<button type="button" class="btn" data-action="look">
+			<span class="lang lang-he">הסתכלו לכאן</span>
+			<span class="lang lang-he-Latn">Look here</span>
+			<span class="lang lang-en">Look here</span>
+		</button>
+		<button type="button" class="btn" data-action="stand">
+			<span class="lang lang-he">עמדו כאן</span>
+			<span class="lang lang-he-Latn">Stand here</span>
+			<span class="lang lang-en">Stand here</span>
+		</button>
+	</template>
 	<script type="module" src="/assets/js/horizon-3d.js"></script>
 </body>
 </html>

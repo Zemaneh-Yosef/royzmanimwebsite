@@ -34,60 +34,33 @@ const clampFov = (/** @type {number} */ x) => Math.max(FOV_MIN, Math.min(FOV_MAX
 const D2R = Math.PI / 180;
 
 // ─── Language ────────────────────────────────────────────────────────────────
+// The page's words are in its HTML, in each language (pages/horizon-3d.html), shown by the site's own setting as
+// everywhere else: docLoadBlock.js puts lang-he / lang-he-Latn / lang-en on <body> and core.css hides the rest.
+// Here only numbers and names go into the messages' slots.
 
-/** @returns {'he' | 'he-Latn' | 'en'} */
-function language() {
-	let saved = null;
-	try { saved = new URLSearchParams(location.search).get("zmanimLanguage") || localStorage.getItem("zmanimLanguage"); } catch (e) { /* storage blocked */ }
-	saved = { hb: "he", "en-et": "he-Latn" }[saved ?? ""] ?? saved;
-	if (saved === "he" || saved === "he-Latn" || saved === "en") return saved;
-	return (navigator.languages ?? [navigator.language]).some(l => l?.startsWith("he")) ? "he" : "en";
+/** @type {'he' | 'he-Latn' | 'en'} */
+const LANG = document.body.classList.contains("lang-he") ? "he"
+	: document.body.classList.contains("lang-he-Latn") ? "he-Latn" : "en";
+const RTL = document.body.dir === "rtl";
+
+/**
+ * Puts a message from the page's <template id="msg-NAME"> into `target`: its [data-v] slots get `values`, and the
+ * [data-part]s named in `drop` (optional clauses) are left out.
+ * @param {HTMLElement} target @param {string} name @param {Record<string, string>} [values] @param {string[]} [drop]
+ */
+function show(target, name, values = {}, drop = []) {
+	const tpl = /** @type {HTMLTemplateElement} */ (document.getElementById(`msg-${name}`));
+	const frag = /** @type {DocumentFragment} */ (tpl.content.cloneNode(true));
+	for (const el of /** @type {NodeListOf<HTMLElement>} */ (frag.querySelectorAll("[data-part]")))
+		if (drop.includes(el.dataset.part ?? "")) el.remove();
+	for (const el of /** @type {NodeListOf<HTMLElement>} */ (frag.querySelectorAll("[data-v]")))
+		el.textContent = values[el.dataset.v ?? ""] ?? "";
+	target.replaceChildren(frag);
+	return target;
 }
-const LANG = language();
-const HE = LANG === "he";
 
-/** @type {Record<string, string>} */
-const HEBREW = {
-	back: "→ חזרה ללוח",
-	title: "האופק בתלת־ממד",
-	sunrise: "זריחה",
-	sunset: "שקיעה",
-	eye: "מבט מהעין",
-	above: "מבט מלמעלה",
-	facing: "כיוון",
-	tilt: "הרמת מבט",
-	lens: "עדשה",
-	imagery: "רקע",
-	satellite: "לוויין",
-	map: "מפה",
-	relief: "תבליט בלבד",
-	spot: "נקודה",
-	legRidge: "האופק שהשרת מצא (מה שמסתיר את השמש)",
-	legSun: "היכן שהשמש פוגשת אותו בתאריך (בקירוב)",
-	now: "עכשיו",
-	zman: "זמן",
-	faceSun: "פנו אל השמש",
-	legSpot: "היכן שאתם עומדים",
-	clickNote: "גררו כדי להסתכל סביב, גללו או צבטו כדי לשנות עדשה, הקישו פעמיים כדי לפנות לנקודה. הקישו על הקרקע לראות מיקום, גובה וזווית.",
-	sources: "נתונים",
-	errLatLon: "פתחו דף זה ממיקום בלוח (צריך קו רוחב וקו אורך בין 60° דרום ל־60° צפון).",
-	errHorizon: "לא ניתן היה לטעון את האופק; פני השטח מוצגים בכל זאת.",
-	pending: "השרת עדיין מחשב את האופק של המקום הזה (בפעם הראשונה זה יכול לקחת כמה דקות); פני השטח מוצגים בינתיים, והאופק יופיע כשיהיה מוכן.",
-	pendingEta: "השרת מחשב את האופק של המקום הזה בפעם הראשונה: עוד כ־{eta}. פני השטח מוצגים בינתיים, והאופק יופיע כשיהיה מוכן.",
-	errWebgl: "הדפדפן הזה אינו תומך ב־WebGL 2, שהתצוגה התלת־ממדית צריכה.",
-	srcText: "פני השטח: אותם נתוני גובה שמהם מחושב אופק הנץ הנראה (מודלים של פני הקרקע החשופה: SRTM, ‏FABDEM ומיפוי לאומי היכן שנטען); היכן שאין לשרת נתונים — אריחי הגובה של AWS. הגבהים הם של הקרקע עצמה: בניינים ועצים אינם בהם."
-};
-/** @param {string} key @param {string} en */
-const t = (key, en) => HE ? (HEBREW[key] ?? en) : en;
-
-function translatePage() {
-	document.documentElement.lang = HE ? "he" : "en";
-	document.documentElement.dir = HE ? "rtl" : "ltr";
-	for (const node of /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll("[data-t]"))) {
-		const key = node.dataset.t ?? "";
-		if (HE && HEBREW[key]) node.textContent = HEBREW[key];
-	}
-}
+/** An <option>'s (or other text-only element's) words in the page's language, from its data-he / data-he-latn / data-en. */
+const langText = (/** @type {HTMLElement} */ el) => el.dataset[{ he: "he", "he-Latn": "heLatn", en: "en" }[LANG]] ?? el.textContent ?? "";
 
 // ─── Geometry ────────────────────────────────────────────────────────────────
 
@@ -229,20 +202,18 @@ function skyAt(depression) {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 const $ = (id) => /** @type {any} */ (document.getElementById(id));
-const fmt = (x, d = 1) => x.toLocaleString(HE ? "he-IL" : "en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
-
-function showError(msg) { $("err").textContent = msg; }
+const fmt = (x, d = 1) => x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 
 async function main() {
-	translatePage();
+	for (const o of /** @type {NodeListOf<HTMLOptionElement>} */ (document.querySelectorAll("option[data-en]"))) o.textContent = langText(o);
 	const q = new URLSearchParams(location.search);
 	const lat = Number(q.get("lat")), lon = Number(q.get("lon") ?? q.get("long"));
 	if (!q.get("lat") || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 60 || Math.abs(lon) > 180) {
-		showError(t("errLatLon", "Open this page from a location in the calendar (it needs lat and lon between 60°S and 60°N)."));
+		show($("err"), "errLatLon");
 		return;
 	}
 	if (!document.createElement("canvas").getContext("webgl2")) {
-		showError(t("errWebgl", "This browser doesn't support WebGL 2, which the 3D view needs."));
+		show($("err"), "errWebgl");
 		return;
 	}
 	// Back to the calendar page that opened this one, as it was (its own parameters: locationName, lat, long,
@@ -293,7 +264,7 @@ async function main() {
 	let pending = null;
 	const fetchSet = () => fetchHorizonForArea(REFRACTION_SERVER, lat, lon, { version: TERRAIN_VERSION });
 	const horizonFailed = (/** @type {any} */ e) =>
-		showError(t("errHorizon", "The horizon could not be loaded; the terrain is still shown.") + ` (${e?.message ?? e})`);
+		show($("err"), "errHorizon", { detail: String(e?.message ?? e) });
 	if (!set) {
 		try { set = await fetchSet(); }
 		catch (e) {
@@ -327,10 +298,8 @@ async function main() {
 		return { data: await r.arrayBuffer() };
 	});
 	function updateStats() {
-		const n = tileStats.server + tileStats.aws;
-		$("tileStats").textContent = HE
-			? `אריחי גובה: ${tileStats.server} מהשרת שלנו, ${tileStats.aws} מ־AWS (מתוך ${n})`
-			: `Terrain tiles: ${tileStats.server} from our server, ${tileStats.aws} from AWS (of ${n})`;
+		show($("tileStats"), "tiles", { server: String(tileStats.server), aws: String(tileStats.aws),
+			total: String(tileStats.server + tileStats.aws) });
 	}
 
 	const dem = /** @type {const} */ ({
@@ -389,8 +358,8 @@ async function main() {
 			}
 		}
 	});
-	map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), HE ? "top-left" : "top-right");   // clear of the panel
-	map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), HE ? "bottom-left" : "bottom-right");
+	map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), RTL ? "top-left" : "top-right");   // clear of the panel
+	map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), RTL ? "bottom-left" : "bottom-right");
 	map.on("error", (e) => console.warn("map:", e?.error?.message ?? e));
 
 	/** The observer's eye above sea level: the server's height for the spot, else the ground under it + eye. */
@@ -447,15 +416,11 @@ async function main() {
 			sunF.push({ type: "Feature", properties: {}, geometry: { type: "LineString",
 				coordinates: [destination(spot.lat, spot.lon, sun.az, Math.min(1000, dist / 2)), to] } });
 			if (sun.entry) sunF.push({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: to } });
-			$("sunInfo").textContent = HE
-				? `השמש ${event === "sunrise" ? "עולה" : "שוקעת"} בכיוון ${fmt(sun.az, 1)}° בערך` + (sun.entry
-					? `, מעל הר במרחק ${fmt(sun.entry.distanceKm, 1)} ק"מ בגובה ${fmt(sun.entry.heightM, 0)} מ' (זווית ${fmt(sun.alt, 2)}° באוויר תקני).`
-					: ".")
-				: `The sun ${event === "sunrise" ? "rises" : "sets"} at about ${fmt(sun.az, 1)}°` + (sun.entry
-					? `, over terrain ${fmt(sun.entry.distanceKm, 1)} km away at ${fmt(sun.entry.heightM, 0)} m (${fmt(sun.alt, 2)}° up in standard air).`
-					: ".");
+			show($("sunInfo"), event, sun.entry
+				? { az: fmt(sun.az, 1), dist: fmt(sun.entry.distanceKm, 1), height: fmt(sun.entry.heightM, 0), angle: fmt(sun.alt, 2) }
+				: { az: fmt(sun.az, 1) }, sun.entry ? [] : ["over"]);
 		} else {
-			$("sunInfo").textContent = "";
+			$("sunInfo").replaceChildren();
 		}
 		map.getSource("sun").setData({ type: "FeatureCollection", features: sunF });
 
@@ -511,8 +476,9 @@ async function main() {
 
 	function describeWhere() {
 		const area = /** @type {any} */ (set)?.area;
-		const h = Number.isFinite(spot.height) ? ` · ${HE ? "עין" : "eye"} ${fmt(spot.height, 1)} m` : "";
-		$("where").textContent = `${fmt(spot.lat, 5)}, ${fmt(spot.lon, 5)}${h}` + (area?.name && !customSpot ? ` · ${area.name}` : "");
+		const name = area?.name && !customSpot ? area.name : "";
+		show($("where"), "where", { lat: fmt(spot.lat, 5), lon: fmt(spot.lon, 5), eye: fmt(spot.height, 1), area: name },
+			[...(Number.isFinite(spot.height) ? [] : ["eye"]), ...(name ? [] : ["area"])]);
 	}
 
 	// ─── The moment: the sun where it is, the sky as dark as its depression ───
@@ -632,10 +598,10 @@ async function main() {
 		map.setSky({ "sky-color": sky.sky, "horizon-color": sky.horizon, "fog-color": sky.horizon,
 			"sky-horizon-blend": 0.5, "horizon-fog-blend": 0.6, "fog-ground-blend": 0.75 });
 		$("dusk").style.opacity = String(sky.dark);
-		const time = z.toLocaleString(HE ? "he-IL" : "en-US", { dateStyle: "medium", timeStyle: "short" });
-		$("sunNow").textContent = HE
-			? `${time}: השמש בגובה ${fmt(sun.alt, 2)}°${sun.alt > -1.5 ? ` (נראית ${fmt(sun.app, 2)}°)` : ""}, בכיוון ${fmt(sun.az, 1)}°` + (sun.alt < 0 ? ` — ${fmt(-sun.alt, 2)}° מתחת לאופק.` : ".")
-			: `${time}: the sun is ${fmt(sun.alt, 2)}° up${sun.alt > -1.5 ? ` (seen at ${fmt(sun.app, 2)}°)` : ""}, at ${fmt(sun.az, 1)}°` + (sun.alt < 0 ? ` — ${fmt(-sun.alt, 2)}° below the horizon.` : ".");
+		show($("sunNow"), "sunNow", {
+			time: z.toLocaleString(LANG === "he" ? "he-IL" : "en-US", { dateStyle: "medium", timeStyle: "short" }),
+			alt: fmt(sun.alt, 2), app: fmt(sun.app, 2), az: fmt(sun.az, 1), below: fmt(-sun.alt, 2)
+		}, [...(sun.alt > -1.5 ? [] : ["seen"]), ...(sun.alt < 0 ? [] : ["below"])]);
 		fillZmanim();
 		if (aimed) {
 			az = sun.az;
@@ -660,7 +626,7 @@ async function main() {
 		sel.dataset.date = date.toString();
 		const pick = document.createElement("option");
 		pick.value = "";
-		pick.textContent = HE ? "קפיצה לזמן…" : "Jump to a zman…";
+		pick.textContent = langText(sel);
 		sel.replaceChildren(pick, ...items.map((/** @type {{title: string, ms: number}} */ it) => {
 			const o = document.createElement("option");
 			o.value = String(it.ms);
@@ -845,29 +811,19 @@ async function main() {
 		const { lng, lat: la } = e.lngLat;
 		const h = map.queryTerrainElevation(e.lngLat);
 		const { dist, bearing } = inverse(spot.lat, spot.lon, la, lng);
-		const div = document.createElement("div");
-		div.dir = HE ? "rtl" : "ltr";
-		const lines = [
-			`${fmt(la, 5)}, ${fmt(lng, 5)}`,
-			h === null ? "" : `${HE ? "גובה" : "Height"}: ${fmt(h, 0)} m`,
-			`${HE ? "מרחק" : "Distance"}: ${fmt(dist / 1000, 2)} km · ${HE ? "כיוון" : "bearing"} ${fmt(bearing, 1)}°`,
-			h === null || !Number.isFinite(eyeAltitude()) ? "" : `${HE ? "זווית" : "Angle"}: ${fmt(elevationAngle(eyeAltitude(), h, dist), 2)}° ${HE ? "(אוויר תקני)" : "(standard air)"}`
-		].filter(Boolean);
-		for (const l of lines) { const p = document.createElement("div"); p.textContent = l; div.append(p); }
-		const lookBtn = document.createElement("button");
-		lookBtn.className = "btn"; lookBtn.textContent = HE ? "הסתכלו לכאן" : "Look here";
+		const angle = h === null || !Number.isFinite(eyeAltitude()) ? null : elevationAngle(eyeAltitude(), h, dist);
+		const div = show(document.createElement("div"), "point", {
+			lat: fmt(la, 5), lon: fmt(lng, 5), height: h === null ? "" : fmt(h, 0), dist: fmt(dist / 1000, 2),
+			bearing: fmt(bearing, 1), angle: angle === null ? "" : fmt(angle, 2)
+		}, [...(h === null ? ["height"] : []), ...(angle === null ? ["angle"] : [])]);
 		const dir = eyeMode ? screenDirection(e.point) : null;
-		lookBtn.onclick = () => { popup.remove(); faceGround(e.lngLat, dir); };
-		const standBtn = document.createElement("button");
-		standBtn.className = "btn"; standBtn.textContent = HE ? "עמדו כאן" : "Stand here";
-		standBtn.style.marginInlineStart = "6px";
-		standBtn.onclick = () => {
+		/** @type {HTMLButtonElement} */ (div.querySelector('[data-action="look"]')).onclick = () => { popup.remove(); faceGround(e.lngLat, dir); };
+		/** @type {HTMLButtonElement} */ (div.querySelector('[data-action="stand"]')).onclick = () => {
 			// a spot of one's own: no server horizon for it, just the terrain
 			spot = { lat: la, lon: lng, ground: h ?? NaN, height: (h ?? 0) + EYE_M };
 			customSpot = true;
 			popup.remove(); fillSpots(); describeWhere(); drawData(); eyeMode = true; look();
 		};
-		div.append(lookBtn, standBtn);
 		const popup = new maplibregl.Popup({ maxWidth: "260px" }).setLngLat(e.lngLat).setDOMContent(div).addTo(map);
 	}
 
@@ -879,25 +835,18 @@ async function main() {
 	showMoment();
 	if (pending) waitForHorizon(pending);
 
-	/** "40 s" / "3 min" (rounded: it is an estimate) @param {number} s */
-	function aboutTime(s) {
-		return s < 90
-			? (HE ? `${Math.max(5, Math.round(s / 5) * 5)} שניות` : `${Math.max(5, Math.round(s / 5) * 5)} s`)
-			: (HE ? `${Math.round(s / 60)} דקות` : `${Math.round(s / 60)} min`);
-	}
-
 	/** Shows the terrain meanwhile, and the horizon once the server has it. @param {HorizonPendingError} p */
 	function waitForHorizon(p) {
-		$("sunInfo").textContent = p.etaS
-			? (HE ? HEBREW.pendingEta.replace("{eta}", aboutTime(p.etaS))
-				: `The server is computing this place's horizon for the first time: about ${aboutTime(p.etaS)} more. The terrain is shown meanwhile, and the horizon appears when it is ready.`)
-			: t("pending", "The server is still computing this place's horizon (the first time can take a few minutes); the terrain is shown meanwhile, and the horizon appears when it is ready.");
+		// the server's estimate, rounded (it is one): to 5 s under a minute and a half, else to minutes
+		const s = p.etaS ?? 0;
+		show($("sunInfo"), "pending", { eta: String(s < 90 ? Math.max(5, Math.round(s / 5) * 5) : Math.round(s / 60)) },
+			!s ? ["eta"] : s < 90 ? ["min"] : ["sec"]);
 		setTimeout(async () => {
 			try {
 				set = await fetchSet();
 			} catch (e) {
 				if (e instanceof HorizonPendingError) return waitForHorizon(e);
-				$("sunInfo").textContent = "";
+				$("sunInfo").replaceChildren();
 				return horizonFailed(e);
 			}
 			// the view stays where it is: only the ridge, the eye's height and the sun's point change
@@ -915,5 +864,5 @@ async function main() {
 
 main().catch((e) => {
 	console.error(e);
-	showError(String(e?.message ?? e));
+	$("err").textContent = String(e?.message ?? e);
 });
