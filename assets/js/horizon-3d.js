@@ -853,8 +853,15 @@ async function main() {
 		look();
 	};
 	document.addEventListener("keydown", (e) => {
-		if (/** @type {HTMLElement} */ (e.target).closest("input, select")) return;
-		if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+		if (e.key === "Escape") { popup.hidden = true; return; }
+		if (/** @type {HTMLElement} */ (e.target).closest("input, select") || e.ctrlKey || e.metaKey || e.altKey) return;
+		if (!eyeMode) { if (aboveKey(e)) { e.preventDefault(); scene.requestRender(); } return; }
+		if (e.key === "+" || e.key === "=" || e.key === "-") {
+			fov = clampFov(fov * (e.key === "-" ? 1.25 : 0.8));
+			look(); e.preventDefault();
+		} else if (e.key === "n" || e.key === "N") {
+			az = 0; look();
+		} else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
 			az = (az + (e.key === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 0.2 : 2) + 360) % 360;
 			eyeMode = true; look(); e.preventDefault();
 		} else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
@@ -864,11 +871,58 @@ async function main() {
 	});
 	window.addEventListener("resize", () => look());
 
+	/** The point the view is centred on (the ground), or null. */
+	function centrePoint() {
+		const ray = camera.getPickRay(new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2));
+		return (ray && globe.pick(ray, scene)) || null;
+	}
+	/** Turns and tilts the view about the point it is centred on (or, over the sky, in place). */
+	function orbit(dHeading, dPitch, heading = camera.heading + dHeading) {
+		const pitch = Math.max(-Math.PI / 2, Math.min(-2 * D2R, camera.pitch + dPitch));
+		const c = centrePoint();
+		if (!c) { camera.setView({ orientation: { heading, pitch, roll: 0 } }); return; }
+		camera.lookAt(c, new Cesium.HeadingPitchRange(heading, pitch, Cesium.Cartesian3.distance(camera.position, c)));
+		camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+	}
+	/**
+	 * Google Earth's keys from above: arrows pan, Shift+arrows turn and tilt, + / - (or Page Up / Down) zoom, N faces
+	 * north, U looks straight down, R does both. True if the key was one of them.
+	 */
+	function aboveKey(/** @type {KeyboardEvent} */ e) {
+		const above = camera.positionCartographic.height - (globe.getHeight(camera.positionCartographic) ?? 0);
+		const step = Math.max(20, above) * 0.15;
+		const turn = 5 * D2R, k = e.key;
+		if (k.startsWith("Arrow") && e.shiftKey) {
+			if (k === "ArrowLeft" || k === "ArrowRight") orbit(k === "ArrowLeft" ? -turn : turn, 0);
+			else orbit(0, k === "ArrowUp" ? turn / 2 : -turn / 2);
+		} else if (k.startsWith("Arrow")) {
+			// along the ground: the heading's way, as the view looks
+			const c = camera.positionCartographic, h = camera.heading / D2R;
+			const bearing = h + { ArrowUp: 0, ArrowRight: 90, ArrowDown: 180, ArrowLeft: 270 }[k];
+			const [lo, la] = destination(c.latitude / D2R, c.longitude / D2R, (bearing + 360) % 360, step);
+			camera.setView({ destination: at(la, lo, c.height), orientation: { heading: camera.heading, pitch: camera.pitch, roll: 0 } });
+		} else if (k === "+" || k === "=" || k === "PageUp") camera.zoomIn(step * 2);
+		else if (k === "-" || k === "PageDown") camera.zoomOut(step * 2);
+		else if (k === "n" || k === "N") orbit(0, 0, 0);
+		else if (k === "u" || k === "U") orbit(0, -Math.PI);
+		else if (k === "r" || k === "R") orbit(0, -Math.PI, 0);
+		else return false;
+		return true;
+	}
+
 	// ─── Looking around, as in Google Earth's ground-level view ───
 	// In the eye view you stay where you stand: dragging turns your head (the ground follows the pointer),
-	// scrolling or pinching changes the lens, a double click faces that spot. From above, Cesium's own
-	// pan / rotate / zoom apply.
+	// scrolling or pinching changes the lens, a double click faces that spot. From above, Google Earth's: drag
+	// pans, Shift+drag tilts and turns about the point, Ctrl (or Alt) + drag looks around, scroll or right-drag
+	// zooms toward the pointer, a double click flies toward the spot; on a touch screen two fingers pinch, twist
+	// and (moved up or down together) tilt. Cesium's own handling, with Shift and Ctrl swapped to match.
 	const canvas = scene.canvas;
+	{
+		const ssc = scene.screenSpaceCameraController, CE = Cesium.CameraEventType, KM = Cesium.KeyboardEventModifier;
+		ssc.tiltEventTypes = [CE.MIDDLE_DRAG, CE.PINCH, { eventType: CE.LEFT_DRAG, modifier: KM.SHIFT },
+			{ eventType: CE.RIGHT_DRAG, modifier: KM.SHIFT }];
+		ssc.lookEventTypes = [{ eventType: CE.LEFT_DRAG, modifier: KM.CTRL }, { eventType: CE.LEFT_DRAG, modifier: KM.ALT }];
+	}
 	/** @type {Map<number, {x: number, y: number}>} */
 	const pointers = new Map();
 	/** @type {{x: number, y: number, az: number, tilt: number, fov: number, dist: number} | null} */
@@ -889,7 +943,10 @@ async function main() {
 		const x = ps.reduce((t, p) => t + p.x, 0) / ps.length, y = ps.reduce((t, p) => t + p.y, 0) / ps.length;
 		grab = { x, y, az, tilt, fov, dist: spread() };
 	};
+	/** where the last press began: from above (Cesium's own dragging), a click that ends a drag is no tap either */
+	let pressAt = { x: 0, y: 0 };
 	canvas.addEventListener("pointerdown", (e) => {
+		pressAt = { x: e.clientX, y: e.clientY };
 		if (!eyeMode || (e.pointerType === "mouse" && e.button !== 0)) return;
 		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 		try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* not capturable: moves still arrive over the map */ }
@@ -959,9 +1016,16 @@ async function main() {
 		clearTimeout(tapTimer);
 		const pt = { x: e.offsetX, y: e.offsetY };
 		if (eyeMode) faceGround(null, screenDirection(pt));
+		else {
+			// from above, as Google Earth: halfway toward the spot, looking the same way
+			const ray = camera.getPickRay(new Cesium.Cartesian2(pt.x, pt.y));
+			const p = ray && globe.pick(ray, scene);
+			if (p) camera.flyTo({ destination: Cesium.Cartesian3.lerp(camera.position, p, 0.5, new Cesium.Cartesian3()),
+				orientation: { heading: camera.heading, pitch: camera.pitch, roll: 0 }, duration: 0.5 });
+		}
 	});
 	canvas.addEventListener("click", (e) => {
-		if (dragged) return;
+		if (dragged || Math.hypot(e.clientX - pressAt.x, e.clientY - pressAt.y) > 3) return;
 		clearTimeout(tapTimer);
 		const pt = { x: e.offsetX, y: e.offsetY };
 		tapTimer = window.setTimeout(() => showPoint(pt), 280);
