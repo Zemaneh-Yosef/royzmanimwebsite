@@ -394,8 +394,19 @@ async function main() {
 			credit: new Cesium.Credit("© <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors")
 		})
 	};
+	// The server's terrain in Cesium's own format (quantized-mesh with surface normals: no work here, and Cesium
+	// shades it); from a server without it, the Mercator tiles made into heightmaps here
+	/** @type {Cesium.TerrainProvider} */
+	let terrainProvider, ownFormat = true;
+	try {
+		terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(`${REFRACTION_SERVER}/v1/cesium-terrain`, { requestVertexNormals: true });
+	} catch (e) {
+		console.warn("terrain in Cesium's format not available, using the map tiles:", e);
+		terrainProvider = new ElevationTerrain();
+		ownFormat = false;
+	}
 	const widget = new Cesium.CesiumWidget("map", {
-		terrainProvider: new ElevationTerrain(),
+		terrainProvider,
 		baseLayer: new Cesium.ImageryLayer(imagery.sat),
 		scene3DOnly: true,
 		// drawn only when something changes (the view, the moment, the markers, tiles arriving), not every frame
@@ -407,8 +418,16 @@ async function main() {
 		contextOptions: { webgl: { alpha: true } }
 	});
 	const scene = widget.scene, camera = scene.camera, globe = scene.globe;
-	/** made when "relief only" is first chosen */
+	/** made when "relief only" is first chosen (only with the map tiles: the server's own terrain is lit instead) */
 	let relief = null;
+	if (ownFormat) {
+		// the ground shaded as a relief map is: by a light from the north-west, 45 deg up, over this place
+		const enu = Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(lon, lat));
+		const toLight = Cesium.Matrix4.multiplyByPointAsVector(enu, new Cesium.Cartesian3(-0.5, 0.5, Math.SQRT1_2), new Cesium.Cartesian3());
+		scene.light = new Cesium.DirectionalLight({ direction: Cesium.Cartesian3.negate(toLight, toLight), intensity: 1.6 });
+		globe.enableLighting = true;
+		globe.dynamicAtmosphereLighting = false;
+	}
 	globe.depthTestAgainstTerrain = true;          // markers behind a hill are hidden by it
 	globe.showGroundAtmosphere = false;            // it whitens far terrain, the horizon's own ridges
 	globe.baseColor = Cesium.Color.fromCssColorString("#c9c3b4");
@@ -816,7 +835,7 @@ async function main() {
 		const v = e.target.value;
 		scene.imageryLayers.removeAll();
 		if (v === "sat" || v === "osm") scene.imageryLayers.addImageryProvider(imagery[v]);
-		else scene.imageryLayers.addImageryProvider(relief ??= new HillshadeImagery());
+		else if (!ownFormat) scene.imageryLayers.addImageryProvider(relief ??= new HillshadeImagery());
 		darkenGround();
 	};
 	$("spot").onchange = (e) => {
