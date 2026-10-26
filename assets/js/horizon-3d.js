@@ -25,6 +25,12 @@ const R_EARTH = 6371008.8;
 /** Refraction coefficient of standard air, as the server picks its horizon points with (terrain.py). */
 const K_STANDARD = 0.13;
 const EYE_M = 1.7;
+/** How far the eye view looks down / up (deg): the map's pitch reaches 90 + TILT_MAX (maxPitch). */
+const TILT_MIN = -30, TILT_MAX = 25;
+/** The lens's vertical field of view (deg). */
+const FOV_MIN = 5, FOV_MAX = 60;
+const clampTilt = (/** @type {number} */ x) => Math.max(TILT_MIN, Math.min(TILT_MAX, x));
+const clampFov = (/** @type {number} */ x) => Math.max(FOV_MIN, Math.min(FOV_MAX, x));
 const D2R = Math.PI / 180;
 
 // ─── Language ────────────────────────────────────────────────────────────────
@@ -62,7 +68,7 @@ const HEBREW = {
 	zman: "זמן",
 	faceSun: "פנו אל השמש",
 	legSpot: "היכן שאתם עומדים",
-	clickNote: "הקישו על הקרקע לראות מיקום, גובה וזווית.",
+	clickNote: "גררו כדי להסתכל סביב, גללו או צבטו כדי לשנות עדשה, הקישו פעמיים כדי לפנות לנקודה. הקישו על הקרקע לראות מיקום, גובה וזווית.",
 	sources: "נתונים",
 	errLatLon: "פתחו דף זה ממיקום בלוח (צריך קו רוחב וקו אורך בין 60° דרום ל־60° צפון).",
 	errHorizon: "לא ניתן היה לטעון את האופק; פני השטח מוצגים בכל זאת.",
@@ -308,7 +314,7 @@ async function main() {
 		center: [lon, lat],
 		zoom: 14,
 		pitch: 85,
-		maxPitch: 115,
+		maxPitch: 90 + TILT_MAX,
 		centerClampedToGround: false,
 		attributionControl: { compact: true },
 		style: {
@@ -370,8 +376,11 @@ async function main() {
 		$("az").value = String(az);
 		$("azVal").textContent = `${fmt(az, 1)}°`;
 		$("tiltVal").textContent = `${fmt(tilt, 2)}°`;
-		$("fovVal").textContent = `${fov}°`;
+		$("tilt").value = String(tilt);
+		$("fov").value = String(fov);
+		$("fovVal").textContent = `${Math.round(fov)}°`;
 		map.setVerticalFieldOfView(fov);
+		syncHandlers();
 		if (!eyeMode) return;
 		// a hair above the eye, so the camera stays clear of the terrain mesh under it
 		map.jumpTo(map.calculateCameraOptionsFromCameraLngLatAltRotation([spot.lon, spot.lat], eyeAltitude() + 0.5, az, 90 + tilt));
@@ -428,7 +437,7 @@ async function main() {
 		const sun = drawData();
 		if (aim) {
 			az = sun?.az ?? (ev === "sunrise" ? 90 : 270);
-			tilt = sun ? Math.max(-5, Math.min(15, sun.alt)) : 1;
+			tilt = sun ? clampTilt(sun.alt) : 1;
 			$("tilt").value = String(tilt);
 			eyeMode = true;
 			look();
@@ -469,18 +478,35 @@ async function main() {
 	 * by the same amount there, so it stands where it really is against that ridge (standard air), and the
 	 * part of it below the ridge is cut off.
 	 */
-	function placeSun() {
-		const disc = $("sunDisc");
-		const sun = sunNow();
-		if (!eyeMode || sun.app < -1.5) { disc.hidden = true; return; }
-		const entry = entryAtAny(spot, sun.az);
-		const flatten = entry ? entry.distanceKm * 1000 * (1 - K_STANDARD) / (2 * R_EARTH) / D2R : 0;
+	/**
+	 * The eye view's camera as a pinhole: screen size, focal length (px) and its forward / right / up unit
+	 * vectors (east, north, up).
+	 */
+	function cameraBasis() {
 		const W = map.getContainer().clientWidth, H = map.getContainer().clientHeight;
 		const f = H / 2 / Math.tan(fov / 2 * D2R);
 		const b = map.getBearing() * D2R, tl = (map.getPitch() - 90) * D2R;
 		const F = [Math.sin(b) * Math.cos(tl), Math.cos(b) * Math.cos(tl), Math.sin(tl)];
 		const Rt = [Math.cos(b), -Math.sin(b), 0];
 		const U = [Rt[1] * F[2] - Rt[2] * F[1], Rt[2] * F[0] - Rt[0] * F[2], Rt[0] * F[1] - Rt[1] * F[0]];
+		return { W, H, f, F, Rt, U };
+	}
+
+	/** The direction (azimuth, altitude in deg) a screen point looks in, in the eye view. */
+	function screenDirection(/** @type {{x: number, y: number}} */ pt) {
+		const { W, H, f, F, Rt, U } = cameraBasis();
+		const u = (pt.x - W / 2) / f, v = (H / 2 - pt.y) / f;
+		const d = [0, 1, 2].map(i => F[i] + u * Rt[i] + v * U[i]);
+		return { az: (Math.atan2(d[0], d[1]) / D2R + 360) % 360, alt: Math.atan2(d[2], Math.hypot(d[0], d[1])) / D2R };
+	}
+
+	function placeSun() {
+		const disc = $("sunDisc");
+		const sun = sunNow();
+		if (!eyeMode || sun.app < -1.5) { disc.hidden = true; return; }
+		const entry = entryAtAny(spot, sun.az);
+		const flatten = entry ? entry.distanceKm * 1000 * (1 - K_STANDARD) / (2 * R_EARTH) / D2R : 0;
+		const { W, H, f, F, Rt, U } = cameraBasis();
 		/** screen [x, y] of a direction, or null behind the camera */
 		const screen = (azDeg, altDeg) => {
 			const a = azDeg * D2R, e = altDeg * D2R;
@@ -528,7 +554,7 @@ async function main() {
 		fillZmanim();
 		if (aimed) {
 			az = sun.az;
-			tilt = Math.max(-10, Math.min(20, sun.app));
+			tilt = clampTilt(sun.app);
 			$("tilt").value = String(tilt);
 			eyeMode = true;
 			look();
@@ -599,6 +625,7 @@ async function main() {
 	$("eyeBtn").onclick = () => { eyeMode = true; look(); };
 	$("aboveBtn").onclick = () => {
 		eyeMode = false;
+		syncHandlers();
 		// the spot and its horizon in the direction it faces, seen from behind and above
 		const far = entryAt(spot, event, az);
 		const to = destination(spot.lat, spot.lon, az, far ? far.distanceKm * 1000 : 20000);
@@ -627,16 +654,108 @@ async function main() {
 			az = (az + (e.key === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 0.2 : 2) + 360) % 360;
 			eyeMode = true; look(); e.preventDefault();
 		} else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-			tilt = Math.max(-10, Math.min(20, tilt + (e.key === "ArrowUp" ? 0.25 : -0.25)));
+			tilt = clampTilt(tilt + (e.key === "ArrowUp" ? 0.25 : -0.25));
 			$("tilt").value = String(tilt);
 			eyeMode = true; look(); e.preventDefault();
 		}
 	});
-	// dragging or zooming the map leaves the eye view until "Eye view" is pressed again
-	map.on("dragstart", () => { eyeMode = false; });
-	map.on("wheel", () => { eyeMode = false; });
+	// ─── Looking around, as in Google Earth's ground-level view ───
+	// In the eye view you stay where you stand: dragging turns your head (the ground follows the pointer),
+	// scrolling or pinching changes the lens, a double click faces that spot. From above, the map's own
+	// pan / rotate / zoom apply.
+	const canvas = map.getCanvasContainer();
+	/** @type {Map<number, {x: number, y: number}>} */
+	const pointers = new Map();
+	/** @type {{x: number, y: number, az: number, tilt: number, fov: number, dist: number} | null} */
+	let grab = null;
+	let dragged = false;
 
+	function syncHandlers() {
+		for (const h of [map.dragPan, map.dragRotate, map.scrollZoom, map.touchZoomRotate, map.touchPitch, map.doubleClickZoom, map.keyboard])
+			eyeMode ? h.disable() : h.enable();
+		canvas.style.cursor = eyeMode ? (grab ? "grabbing" : "grab") : "";
+		canvas.style.touchAction = eyeMode ? "none" : "";
+	}
+	const spread = () => {
+		const [a, b] = [...pointers.values()];
+		return b ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
+	};
+	const startGrab = () => {
+		const ps = [...pointers.values()];
+		const x = ps.reduce((t, p) => t + p.x, 0) / ps.length, y = ps.reduce((t, p) => t + p.y, 0) / ps.length;
+		grab = { x, y, az, tilt, fov, dist: spread() };
+	};
+	canvas.addEventListener("pointerdown", (e) => {
+		if (!eyeMode || (e.pointerType === "mouse" && e.button !== 0)) return;
+		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+		try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* not capturable: moves still arrive over the map */ }
+		dragged = false;
+		startGrab();
+		syncHandlers();
+	});
+	canvas.addEventListener("pointermove", (e) => {
+		if (!grab || !pointers.has(e.pointerId)) return;
+		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+		const ps = [...pointers.values()];
+		const x = ps.reduce((t, p) => t + p.x, 0) / ps.length, y = ps.reduce((t, p) => t + p.y, 0) / ps.length;
+		if (Math.hypot(x - grab.x, y - grab.y) > 3) dragged = true;
+		// a pixel is fov / height degrees at the centre: the ground stays under the pointer
+		const perPx = grab.fov / map.getContainer().clientHeight;
+		az = ((grab.az - (x - grab.x) * perPx) % 360 + 360) % 360;
+		tilt = clampTilt(grab.tilt + (y - grab.y) * perPx);
+		if (grab.dist && pointers.size > 1) { fov = clampFov(grab.fov * grab.dist / Math.max(1, spread())); dragged = true; }
+		look();
+	});
+	const release = (/** @type {PointerEvent} */ e) => {
+		if (!pointers.delete(e.pointerId)) return;
+		if (pointers.size) startGrab(); else grab = null;
+		syncHandlers();
+		// the click that ends a drag is not a tap on the ground
+		if (dragged && !pointers.size) setTimeout(() => { dragged = false; }, 0);
+	};
+	canvas.addEventListener("pointerup", release);
+	canvas.addEventListener("pointercancel", release);
+	canvas.addEventListener("wheel", (e) => {
+		if (!eyeMode) return;
+		e.preventDefault();
+		fov = clampFov(fov * Math.exp(e.deltaY * (e.deltaMode === 1 ? 0.05 : 0.0015)));
+		look();
+	}, { passive: false });
+
+	/**
+	 * Turns to face what was tapped: with `dir` (a tap in the eye view: its direction from the camera's
+	 * geometry, exact whatever the terrain mesh) that direction, else the ground point `at`.
+	 * @param {maplibregl.LngLat} at @param {{az: number, alt: number} | null} dir
+	 */
+	function faceGround(at, dir) {
+		if (dir) {
+			az = dir.az;
+			tilt = clampTilt(dir.alt);
+			eyeMode = true;
+			look();
+			return;
+		}
+		const h = map.queryTerrainElevation(at);
+		const { dist, bearing } = inverse(spot.lat, spot.lon, at.lat, at.lng);
+		az = bearing;
+		if (h !== null) tilt = clampTilt(elevationAngle(eyeAltitude(), h, dist));
+		eyeMode = true;
+		look();
+	}
+
+	/** A single tap's popup waits a moment, so a double one can face the spot instead. */
+	let tapTimer = 0;
+	map.on("dblclick", (e) => {
+		clearTimeout(tapTimer);
+		if (eyeMode) faceGround(e.lngLat, screenDirection(e.point));
+	});
 	map.on("click", (e) => {
+		if (dragged) return;
+		clearTimeout(tapTimer);
+		tapTimer = setTimeout(() => showPoint(e), 280);
+	});
+
+	function showPoint(e) {
 		const { lng, lat: la } = e.lngLat;
 		const h = map.queryTerrainElevation(e.lngLat);
 		const { dist, bearing } = inverse(spot.lat, spot.lon, la, lng);
@@ -651,11 +770,8 @@ async function main() {
 		for (const l of lines) { const p = document.createElement("div"); p.textContent = l; div.append(p); }
 		const lookBtn = document.createElement("button");
 		lookBtn.className = "btn"; lookBtn.textContent = HE ? "הסתכלו לכאן" : "Look here";
-		lookBtn.onclick = () => {
-			az = bearing;
-			if (h !== null) { tilt = Math.max(-10, Math.min(20, elevationAngle(eyeAltitude(), h, dist))); $("tilt").value = String(tilt); }
-			eyeMode = true; popup.remove(); look();
-		};
+		const dir = eyeMode ? screenDirection(e.point) : null;
+		lookBtn.onclick = () => { popup.remove(); faceGround(e.lngLat, dir); };
 		const standBtn = document.createElement("button");
 		standBtn.className = "btn"; standBtn.textContent = HE ? "עמדו כאן" : "Stand here";
 		standBtn.style.marginInlineStart = "6px";
@@ -667,9 +783,10 @@ async function main() {
 		};
 		div.append(lookBtn, standBtn);
 		const popup = new maplibregl.Popup({ maxWidth: "260px" }).setLngLat(e.lngLat).setDOMContent(div).addTo(map);
-	});
+	}
 
-	await new Promise(resolve => map.once("load", resolve));
+	// the style, not every tile ("load" waits for all of them): the controls work while the terrain streams in
+	await new Promise(resolve => map.isStyleLoaded() ? resolve(null) : map.once("style.load", resolve));
 	fillSpots();
 	describeWhere();
 	setEvent(event);
