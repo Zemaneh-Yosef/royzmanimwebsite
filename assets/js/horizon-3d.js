@@ -21,14 +21,12 @@ import { settings } from "./settings/handler.js";
 import { fetchHorizonForArea, HorizonPendingError } from "../libraries/kosherZmanim/horizon-client.js";
 import { sunAltAz, morningSunAt, eveningSunAt } from "../libraries/kosherZmanim/star-nightfall.js";
 import { ROY_REFRACTION_ARCMIN } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
+import { terrainSource, SERVER_MAX_ZOOM } from "./horizon-3d-terrain.js";
 
 /** @typedef {import('../libraries/kosherZmanim/royzmanim-spa-corrections.js').HorizonSet} HorizonSet */
 /** @typedef {import('../libraries/kosherZmanim/royzmanim-spa-corrections.js').HorizonSetPoint} HorizonSetPoint */
 /** @typedef {'sunrise' | 'sunset'} SunEvent */
 
-const AWS_TERRARIUM = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium";
-/** Zooms the server makes tiles for (terrain_tiles.py MIN_ZOOM..MAX_ZOOM). */
-const SERVER_MIN_ZOOM = 8, SERVER_MAX_ZOOM = 14;
 const R_EARTH = 6371008.8;
 /** Refraction coefficient of standard air, as the server picks its horizon points with (terrain.py). */
 const K_STANDARD = 0.13;
@@ -40,9 +38,9 @@ const FOV_MIN = 5, FOV_MAX = 60;
 const clampTilt = (/** @type {number} */ x) => Math.max(TILT_MIN, Math.min(TILT_MAX, x));
 const clampFov = (/** @type {number} */ x) => Math.max(FOV_MIN, Math.min(FOV_MAX, x));
 const D2R = Math.PI / 180;
-/** The finest heightmap level made (geographic tiles of 65 x 65 heights: ~19 m apart at level 14); finer, Cesium
- * refines what it has, as the data is no finer (the server's tiles go to zoom 14, ~10 m). */
-const MAX_TERRAIN_LEVEL = 14;
+/** The finest heightmap level made (geographic tiles of 65 x 65 heights: ~38 m apart at level 13, about the 1"
+ * data's own spacing); finer, Cesium refines what it has. One level more is four times the tiles. */
+const MAX_TERRAIN_LEVEL = 13;
 
 // ─── Language ────────────────────────────────────────────────────────────────
 // The page's words are in its HTML, in each language (pages/horizon-3d.html), shown by the site's own setting as
@@ -211,108 +209,68 @@ function skyAt(depression) {
 }
 
 // ─── Terrain: the elevation tiles, as Cesium heightmaps ───────────────────────
-// Cesium wants heights on a latitude / longitude grid. They are read from the same web-Mercator Terrarium
-// tiles as before (the server's /v1/terrain-tiles, else AWS's), at the zoom whose pixels are about half a
-// heightmap step, bilinearly.
+// The work (fetching, decoding, resampling, shading) is horizon-3d-terrain.js, in a worker so that it never holds up
+// the page; where a worker can't decode images (no OffscreenCanvas), on the page itself.
 
 const tileStats = { server: 0, aws: 0 };
-/** @type {Map<string, Promise<Float32Array | null>>} decoded heights of a Mercator tile (256 x 256), by "z/x/y" */
-const mercTiles = new Map();
-const decodeCanvas = document.createElement("canvas");
-decodeCanvas.width = decodeCanvas.height = 256;
-const decodeCtx = /** @type {CanvasRenderingContext2D} */ (decodeCanvas.getContext("2d", { willReadFrequently: true }));
-
-/** Heights (m) of Terrarium tile z/x/y: the server's where it makes them, else AWS's (with its sea bed set to sea level). */
-function mercTile(z, x, y) {
-	const key = `${z}/${x}/${y}`;
-	let p = mercTiles.get(key);
-	if (!p) {
-		p = (async () => {
-			let blob = null, fromAws = false;
-			if (z >= SERVER_MIN_ZOOM && z <= SERVER_MAX_ZOOM) {
-				try {
-					const r = await fetch(`${REFRACTION_SERVER}/v1/terrain-tiles/${z}/${x}/${y}.png`);
-					if (r.ok) { blob = await r.blob(); tileStats.server++; }
-				} catch (e) { /* the server unreachable: AWS's */ }
-			}
-			if (!blob) {
-				const r = await fetch(`${AWS_TERRARIUM}/${z}/${x}/${y}.png`);
-				if (!r.ok) return null;
-				blob = await r.blob(); tileStats.aws++; fromAws = true;
-			}
-			updateStats();
-			const bmp = await createImageBitmap(blob);
-			decodeCtx.clearRect(0, 0, 256, 256);
-			decodeCtx.drawImage(bmp, 0, 0);
-			const px = decodeCtx.getImageData(0, 0, 256, 256).data;
-			const h = new Float32Array(256 * 256);
-			for (let i = 0; i < h.length; i++) {
-				const v = px[4 * i] * 256 + px[4 * i + 1] + px[4 * i + 2] / 256 - 32768;
-				// AWS's tiles carry the sea bed (bathymetry): its water is drawn at sea level, as the server's
-				h[i] = fromAws && v < 0 ? 0 : v;
-			}
-			return h;
-		})();
-		mercTiles.set(key, p);
-		if (mercTiles.size > 600) mercTiles.delete(/** @type {string} */ (mercTiles.keys().next().value));
-	}
-	return p;
-}
 let updateStats = () => {};
+const countTile = (/** @type {boolean} */ fromServer) => { tileStats[fromServer ? "server" : "aws"]++; updateStats(); };
 
-/** A geographic tile's 65 x 65 heights (rows north to south), from the Mercator tiles under it. */
-async function heightmap(x, y, level, scheme) {
-	const rect = scheme.tileXYToRectangle(x, y, level);
-	const W = rect.west / D2R, E = rect.east / D2R, N = rect.north / D2R, S = rect.south / D2R;
-	const z = Math.max(0, Math.min(SERVER_MAX_ZOOM, level + 1));
-	const n = 2 ** z;
-	const mx = (lon) => (lon + 180) / 360 * n * 256;
-	const my = (lat) => {
-		const l = Math.max(-85.05, Math.min(85.05, lat)) * D2R;
-		return (1 - Math.asinh(Math.tan(l)) / Math.PI) / 2 * n * 256;
-	};
-	const x0 = Math.floor(mx(W) / 256), x1 = Math.floor((mx(E) - 1e-6) / 256);
-	const y0 = Math.floor(my(N) / 256), y1 = Math.floor((my(S) - 1e-6) / 256);
-	/** @type {Map<string, Float32Array | null>} */
-	const got = new Map();
-	await Promise.all([...Array((x1 - x0 + 1) * (y1 - y0 + 1)).keys()].map(async (k) => {
-		const tx = x0 + k % (x1 - x0 + 1), ty = y0 + Math.floor(k / (x1 - x0 + 1));
-		got.set(`${tx},${ty}`, await mercTile(z, ((tx % n) + n) % n, Math.max(0, Math.min(n - 1, ty))));
-	}));
-	const at = (gx, gy) => {
-		const tx = Math.floor(gx / 256), ty = Math.floor(gy / 256);
-		const t = got.get(`${Math.max(x0, Math.min(x1, tx))},${Math.max(y0, Math.min(y1, ty))}`);
-		if (!t) return 0;
-		const px = Math.max(0, Math.min(255, Math.floor(gx - tx * 256))), py = Math.max(0, Math.min(255, Math.floor(gy - ty * 256)));
-		return t[py * 256 + px];
-	};
-	const out = new Float32Array(65 * 65);
-	for (let j = 0; j < 65; j++) {
-		const lat = N + (S - N) * j / 64;
-		const gy = my(lat) - 0.5;
-		for (let i = 0; i < 65; i++) {
-			const gx = mx(W + (E - W) * i / 64) - 0.5;
-			const fx = gx - Math.floor(gx), fy = gy - Math.floor(gy), x_ = Math.floor(gx), y_ = Math.floor(gy);
-			out[j * 65 + i] = at(x_, y_) * (1 - fx) * (1 - fy) + at(x_ + 1, y_) * fx * (1 - fy)
-				+ at(x_, y_ + 1) * (1 - fx) * fy + at(x_ + 1, y_ + 1) * fx * fy;
+/** @returns {{ heightmap: (w: number, s: number, e: number, n: number, level: number) => Promise<Float32Array>,
+ *              hillshade: (z: number, x: number, y: number) => Promise<Uint8ClampedArray> }} */
+function terrainWork() {
+	if (typeof OffscreenCanvas !== "undefined") {
+		try {
+			const worker = new Worker(new URL("./horizon-3d-terrain-worker.js", import.meta.url), { type: "module" });
+			/** @type {Map<number, {resolve: (v: any) => void, reject: (e: any) => void}>} */
+			const waiting = new Map();
+			let next = 0;
+			worker.onmessage = (e) => {
+				const m = e.data;
+				if ("tile" in m) return countTile(m.tile);
+				const w = waiting.get(m.id);
+				waiting.delete(m.id);
+				if (m.error) w?.reject(new Error(m.error)); else w?.resolve(m.heights ?? m.rgba);
+			};
+			worker.postMessage({ init: { server: REFRACTION_SERVER } });
+			const call = (msg) => new Promise((resolve, reject) => {
+				const id = next++;
+				waiting.set(id, { resolve, reject });
+				worker.postMessage({ id, ...msg });
+			});
+			return { heightmap: (...a) => call({ heightmap: a }), hillshade: (...a) => call({ hillshade: a }) };
+		} catch (e) {
+			console.warn("terrain worker:", e);
 		}
 	}
-	return out;
+	const canvas = document.createElement("canvas");
+	canvas.width = canvas.height = 256;
+	const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d", { willReadFrequently: true }));
+	return terrainSource({ server: REFRACTION_SERVER, onTile: countTile, decode: async (blob) => {
+		const bmp = await createImageBitmap(blob);
+		ctx.clearRect(0, 0, 256, 256);
+		ctx.drawImage(bmp, 0, 0);
+		return ctx.getImageData(0, 0, 256, 256).data;
+	} });
 }
+const work = terrainWork();
 
-/** The heightmaps above, ending at MAX_TERRAIN_LEVEL: finer tiles are refined by Cesium from those. */
+/** The heightmaps, ending at MAX_TERRAIN_LEVEL: finer tiles are refined by Cesium from those. */
 class ElevationTerrain extends Cesium.CustomHeightmapTerrainProvider {
 	constructor() {
 		const scheme = new Cesium.GeographicTilingScheme();
+		const heights = (x, y, level) => {
+			const r = scheme.tileXYToRectangle(x, y, level);
+			return work.heightmap(r.west / D2R, r.south / D2R, r.east / D2R, r.north / D2R, level);
+		};
 		super({
-			width: 65, height: 65, tilingScheme: scheme,
-			callback: (x, y, level) => heightmap(x, y, level, scheme),
+			width: 65, height: 65, tilingScheme: scheme, callback: heights,
 			credit: new Cesium.Credit("Terrain: <a href=\"https://github.com/zemaneh-yosef/zemaneh-shamayim\">ROYZmanim server</a> (SRTM, FABDEM, national surveys); elsewhere <a href=\"https://registry.opendata.aws/terrain-tiles/\">AWS Terrain Tiles</a>")
 		});
-		this.scheme = scheme;
+		this.heights = heights;
 	}
 	requestTileGeometry(x, y, level) {
-		return heightmap(x, y, level, this.scheme).then(h => new Cesium.HeightmapTerrainData({
+		return this.heights(x, y, level).then(h => new Cesium.HeightmapTerrainData({
 			buffer: h, width: 65, height: 65, childTileMask: level < MAX_TERRAIN_LEVEL ? 15 : 0
 		}));
 	}
@@ -322,37 +280,15 @@ class ElevationTerrain extends Cesium.CustomHeightmapTerrainProvider {
 }
 
 /**
- * Shaded relief from the same tiles (light from the north-west, 45° up), as an imagery layer: Cesium shades only
- * terrain that comes with surface normals, which heightmaps don't.
+ * Shaded relief from the same tiles, for "relief only" (Cesium shades only terrain that comes with surface normals,
+ * which heightmaps don't).
  */
 class HillshadeImagery extends Cesium.UrlTemplateImageryProvider {
 	constructor() {
 		super({ url: "hillshade://{z}/{x}/{y}", tilingScheme: new Cesium.WebMercatorTilingScheme(), maximumLevel: SERVER_MAX_ZOOM });
 	}
 	async requestImage(x, y, level) {
-		const h = await mercTile(level, x, y);
-		const c = document.createElement("canvas");
-		c.width = c.height = 256;
-		if (!h) return c;
-		const ctx = /** @type {CanvasRenderingContext2D} */ (c.getContext("2d"));
-		const img = ctx.createImageData(256, 256);
-		const n = 2 ** level;
-		const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 0.5) / n)));
-		const cell = 40075016.686 * Math.cos(lat) / n / 256;             // metres a pixel
-		const zen = 45 * D2R, azi = 315 * D2R;
-		const H = (i, j) => h[Math.max(0, Math.min(255, j)) * 256 + Math.max(0, Math.min(255, i))];
-		for (let j = 0; j < 256; j++) {
-			for (let i = 0; i < 256; i++) {
-				const dzdx = (H(i + 1, j) - H(i - 1, j)) / (2 * cell), dzdy = (H(i, j - 1) - H(i, j + 1)) / (2 * cell);
-				const slope = Math.atan(Math.hypot(dzdx, dzdy)), aspect = Math.atan2(dzdy, -dzdx);
-				const shade = Math.cos(zen) * Math.cos(slope) + Math.sin(zen) * Math.sin(slope) * Math.cos(azi - Math.PI / 2 - aspect);
-				const v = Math.max(0, Math.min(255, 255 * (0.35 + 0.75 * shade)));
-				const k = 4 * (j * 256 + i);
-				img.data[k] = v * 0.98; img.data[k + 1] = v * 0.95; img.data[k + 2] = v * 0.88; img.data[k + 3] = 255;
-			}
-		}
-		ctx.putImageData(img, 0, 0);
-		return c;
+		return createImageBitmap(new ImageData(await work.hillshade(level, x, y), 256, 256));
 	}
 }
 
@@ -471,10 +407,8 @@ async function main() {
 		contextOptions: { webgl: { alpha: true } }
 	});
 	const scene = widget.scene, camera = scene.camera, globe = scene.globe;
-	// the relief, faintly over the imagery (as alone in "relief only"), for the ground's shape
-	const relief = new HillshadeImagery();
-	let reliefLayer = scene.imageryLayers.addImageryProvider(relief);
-	reliefLayer.alpha = 0.35;
+	/** made when "relief only" is first chosen */
+	let relief = null;
 	globe.depthTestAgainstTerrain = true;          // markers behind a hill are hidden by it
 	globe.showGroundAtmosphere = false;            // it whitens far terrain, the horizon's own ridges
 	globe.baseColor = Cesium.Color.fromCssColorString("#c9c3b4");
@@ -860,8 +794,7 @@ async function main() {
 		const v = e.target.value;
 		scene.imageryLayers.removeAll();
 		if (v === "sat" || v === "osm") scene.imageryLayers.addImageryProvider(imagery[v]);
-		reliefLayer = scene.imageryLayers.addImageryProvider(relief);
-		reliefLayer.alpha = v === "none" ? 1 : 0.35;
+		else scene.imageryLayers.addImageryProvider(relief ??= new HillshadeImagery());
 		darkenGround();
 	};
 	$("spot").onchange = (e) => {
