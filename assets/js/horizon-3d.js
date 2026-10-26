@@ -173,7 +173,15 @@ function spotFor(set, event, az) {
 			if (a <= b ? az >= a && az <= b : az >= a || az <= b) return p;
 		}
 	}
-	return set.points[0];
+	// no spot's range holds it (a gap between them): of those with a horizon there, the one that sees lowest.
+	// A spot's horizon only covers the few degrees around where it wins.
+	let best = set.points[0], lowest = Infinity;
+	for (const p of set.points) {
+		const e = entryAt(p, event, az);
+		const angle = e && elevationAngle(p.height, e.heightM, e.distanceKm * 1000);
+		if (e && angle < lowest) { best = p; lowest = angle; }
+	}
+	return best;
 }
 
 /**
@@ -290,6 +298,8 @@ async function main() {
 	/** @type {HorizonSetPoint} */
 	let spot = set?.points?.[0] ?? { lat, lon, ground: NaN, height: NaN };
 	let customSpot = false;
+	/** a spot picked from the list: not changed for another date's sunrise */
+	let spotChosen = false;
 	let az = 90, tilt = 1, fov = 30;
 	let eyeMode = true;
 
@@ -394,7 +404,20 @@ async function main() {
 		syncHandlers();
 		if (!eyeMode) return;
 		// a hair above the eye, so the camera stays clear of the terrain mesh under it
-		map.jumpTo(map.calculateCameraOptionsFromCameraLngLatAltRotation([spot.lon, spot.lat], eyeAltitude() + 0.5, az, 90 + tilt));
+		// The camera looks at a point 40 km out rather than wherever its ray meets the ground: MapLibre loads
+		// terrain only so far beyond its centre, and a view tilted slightly down would put that centre on the
+		// ground a few km ahead and leave distant ridges out (in Los Angeles: the San Gabriels, 77 km). Much
+		// farther and it draws the ground under the observer from coarser tiles (60 km: 34 m too high there).
+		// The direction is the same either way.
+		// The target is placed on the flat map, straight along the bearing (a great circle would turn the view
+		// by the meridians' convergence: ~0.4 deg at 150 km in Los Angeles).
+		const eye = eyeAltitude() + 0.5;
+		const far = 40000;
+		const here = maplibregl.MercatorCoordinate.fromLngLat([spot.lon, spot.lat]);
+		const units = far * here.meterInMercatorCoordinateUnits();
+		const there = new maplibregl.MercatorCoordinate(here.x + units * Math.sin(az * D2R), here.y - units * Math.cos(az * D2R)).toLngLat();
+		map.jumpTo(map.calculateCameraOptionsFromTo(new maplibregl.LngLat(spot.lon, spot.lat), eye, there,
+			eye + far * Math.tan(tilt * D2R)));
 	}
 
 	function drawData() {
@@ -440,11 +463,7 @@ async function main() {
 		event = ev;
 		$("evSunrise").setAttribute("aria-pressed", String(ev === "sunrise"));
 		$("evSunset").setAttribute("aria-pressed", String(ev === "sunset"));
-		if (set && !customSpot) {
-			const first = sunOnHorizon(set.points[0], ev, decl);
-			const s = spotFor(set, ev, first?.az ?? (ev === "sunrise" ? 90 : 270));
-			if (s !== spot) { spot = s; fillSpots(); }
-		}
+		pickSpot();
 		const sun = drawData();
 		if (aim) {
 			az = sun?.az ?? (ev === "sunrise" ? 90 : 270);
@@ -453,6 +472,20 @@ async function main() {
 			eyeMode = true;
 			look();
 		}
+	}
+
+	/**
+	 * In an area, the spot that sees the date's sunrise / sunset lowest, as the calendar does (unless one was
+	 * picked by hand or "Stand here"). Each spot's horizon covers only the few degrees where it wins, so a new
+	 * date needs its own spot. @returns {boolean} whether the spot changed
+	 */
+	function pickSpot() {
+		if (!set || customSpot || spotChosen) return false;
+		const first = sunOnHorizon(set.points[0], event, decl);
+		const s = spotFor(set, event, first?.az ?? (event === "sunrise" ? 90 : 270));
+		const changed = s !== spot;
+		if (changed) { spot = s; fillSpots(); describeWhere(); }
+		return changed;
 	}
 
 	function fillSpots() {
@@ -484,12 +517,6 @@ async function main() {
 	}
 
 	/**
-	 * Draws the sun's disc over the eye view. The map is flat (web Mercator: no curvature, no bending), so a
-	 * ridge d away is drawn atan(dh / d) up instead of the d (1 - k) / 2R less it is seen at; the sun is raised
-	 * by the same amount there, so it stands where it really is against that ridge (standard air), and the
-	 * part of it below the ridge is cut off.
-	 */
-	/**
 	 * The eye view's camera as a pinhole: screen size, focal length (px) and its forward / right / up unit
 	 * vectors (east, north, up).
 	 */
@@ -511,12 +538,48 @@ async function main() {
 		return { az: (Math.atan2(d[0], d[1]) / D2R + 360) % 360, alt: Math.atan2(d[2], Math.hypot(d[0], d[1])) / D2R };
 	}
 
+	/**
+	 * The skyline the map draws in a direction from the spot: the highest angle of its terrain, as drawn (flat:
+	 * atan(rise / distance)), and how far away that is. Sampled from the terrain loaded so far (sparser with
+	 * distance, out to 150 km); kept for half a second per direction, as it is asked for every frame.
+	 */
+	let skylineCache = { key: "", at: 0, value: /** @type {{angle: number, distM: number} | null} */ (null) };
+	function drawnSkyline(azDeg) {
+		const key = `${spot.lat},${spot.lon},${azDeg.toFixed(2)}`;
+		const now = performance.now();
+		if (skylineCache.key === key && now - skylineCache.at < 500) return skylineCache.value;
+		const eye = eyeAltitude();
+		let best = null;
+		for (let d = 100; d <= 150000; d *= 1.03) {
+			const [lon2, lat2] = destination(spot.lat, spot.lon, azDeg, d);
+			const h = map.queryTerrainElevation([lon2, lat2]);
+			if (h === null || h === undefined) continue;
+			const angle = Math.atan2(h - eye, d) / D2R;
+			if (!best || angle > best.angle) best = { angle, distM: d };
+		}
+		skylineCache = { key, at: now, value: best };
+		return best;
+	}
+
+	/**
+	 * Draws the sun's disc over the eye view. The map is flat (web Mercator: no curvature, no bending), so a
+	 * ridge d away is drawn atan(dh / d) up instead of the d (1 - k) / 2R less it is seen at; the sun is raised
+	 * by the same amount there, so it stands where it really is against that ridge (standard air), and the
+	 * part of it below the ridge is cut off.
+	 */
 	function placeSun() {
 		const disc = $("sunDisc");
 		const sun = sunNow();
 		if (!eyeMode || sun.app < -1.5) { disc.hidden = true; return; }
+		// What hides the sun: the higher of the server's horizon there (if the spot has it) and the terrain the
+		// map draws, both as the flat map shows them; the sun is raised by the curvature the flat map leaves
+		// out at that distance (see below)
 		const entry = entryAtAny(spot, sun.az);
-		const flatten = entry ? entry.distanceKm * 1000 * (1 - K_STANDARD) / (2 * R_EARTH) / D2R : 0;
+		const server = entry && { angle: Math.atan2(entry.heightM - eyeAltitude(), entry.distanceKm * 1000) / D2R,
+			distM: entry.distanceKm * 1000 };
+		const drawn = drawnSkyline(sun.az);
+		const edge = server && (!drawn || server.angle >= drawn.angle) ? server : drawn;
+		const flatten = edge ? edge.distM * (1 - K_STANDARD) / (2 * R_EARTH) / D2R : 0;
 		const { W, H, f, F, Rt, U } = cameraBasis();
 		/** screen [x, y] of a direction, or null behind the camera */
 		const screen = (azDeg, altDeg) => {
@@ -533,8 +596,8 @@ async function main() {
 		disc.style.left = `${at[0]}px`;
 		disc.style.top = `${at[1]}px`;
 		disc.style.width = disc.style.height = `${2 * r}px`;
-		// the ridge's line in that direction, drawn (flat) at its plain angle
-		const ridge = entry && screen(sun.az, Math.atan2(entry.heightM - eyeAltitude(), entry.distanceKm * 1000) / D2R);
+		// the skyline in that direction, as drawn
+		const ridge = edge && screen(sun.az, edge.angle);
 		const hidden = ridge ? Math.max(0, Math.min(2 * r, at[1] + r - ridge[1])) : 0;
 		disc.style.clipPath = hidden ? `inset(0 0 ${hidden}px 0)` : "";
 		disc.hidden = hidden >= 2 * r;
@@ -548,7 +611,9 @@ async function main() {
 		if (!d.equals(date)) {
 			date = d;
 			setDecl();
+			const moved = pickSpot();
 			drawData();
+			if (moved && eyeMode) look();       // to the new spot's eye, facing the same way
 		}
 		$("date").value = date.toString();
 		$("time").value = z.toPlainTime().toString({ smallestUnit: "minute" });
@@ -655,6 +720,7 @@ async function main() {
 	};
 	$("spot").onchange = (e) => {
 		spot = set.points[Number(e.target.value)];
+		spotChosen = true;                       // kept when the date or event changes
 		describeWhere();
 		drawData();
 		look();
