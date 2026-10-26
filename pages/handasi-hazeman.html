@@ -614,7 +614,9 @@ accordian: true
 	const NIGHTFALL_DEGREES = 4.65;
 	/**
 	 * Haze at a moment (hazeOn), or null where the Sun doesn't get that low for most of the year.
-	 * @param {any} haze @param {{year:number, month:number, day:number}} d @param {number} depressionDeg @param {boolean} rising
+	 * @param {any} haze
+	 * @param { { year:number, month:number, day:number } } d
+	 * @param {number} depressionDeg @param {boolean} rising
 	 */
 	const hazeAt = (haze, d, depressionDeg, rising) => hazeOn(haze, d, { depressionDeg, rising });
 
