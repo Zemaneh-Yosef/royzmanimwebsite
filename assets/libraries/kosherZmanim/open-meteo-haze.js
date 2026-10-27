@@ -33,6 +33,7 @@
  */
 
 import { getOpenMeteoJson } from './open-meteo-atmosphere.js';
+import { plausibleAod, report } from './atmosphere-guard.js';
 
 const AQ_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality';
 /** NOAA AOML's ERDDAP copy of the latest GEFS-Aerosols run (aerosol optical thickness at 550 nm) */
@@ -40,6 +41,21 @@ export const GEFS_AEROSOL_URL = 'https://oceanwatch.aoml.noaa.gov/erddap/griddap
 export const HAZE_HISTORY_START = '2022-08-01';
 
 /** @typedef {import('./star-nightfall.js').HazeSeries} HazeSeries */
+
+/**
+ * Optical depths rounded to 0.001, with values no haze can have (atmosphere-guard.js) as gaps.
+ * @param {(number | null)[]} vals @param {string} source @returns {(number | null)[]}
+ */
+function guardAod(vals, source) {
+	let bad = 0;
+	const out = vals.map(v => {
+		if (v == null) return null;
+		if (plausibleAod(v) == null) { bad++; return null; }
+		return +v.toFixed(3);
+	});
+	if (bad) report(`${source}: ${bad} haze values out of range`);
+	return out;
+}
 
 /** @param {Date} d */
 const isoOf = d => d.toISOString().slice(0, 10);
@@ -51,7 +67,7 @@ const isoOf = d => d.toISOString().slice(0, 10);
 function seriesOf(j, lat, lon) {
 	const times = j?.hourly?.time ?? [], vals = j?.hourly?.aerosol_optical_depth ?? [];
 	if (times.length < 2) throw new Error('Open-Meteo returned no haze');
-	return { lat, lon, t0: times[0], step: times[1] - times[0], aod: vals.map((/** @type {number | null} */ v) => v == null ? null : +v.toFixed(3)) };
+	return { lat, lon, t0: times[0], step: times[1] - times[0], aod: guardAod(vals, 'CAMS via Open-Meteo') };
 }
 
 /**
@@ -128,5 +144,5 @@ export async function fetchGefsHazeForecastBoth(latitude, longitude, options = {
 		times.push(t);
 		vals.push(Number.isFinite(va) && Number.isFinite(vb) ? va + (vb - va) * (t - ta) / (tb - ta) : null);
 	}
-	return { lat: latitude, lon: longitude, t0: times[0], step: 3600, aod: vals.map(v => v == null ? null : +v.toFixed(3)) };
+	return { lat: latitude, lon: longitude, t0: times[0], step: 3600, aod: guardAod(vals, 'GEFS-Aerosols') };
 }

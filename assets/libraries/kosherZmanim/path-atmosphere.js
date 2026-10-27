@@ -37,6 +37,7 @@
  */
 
 import { correctSunsetPath } from './sunset-air.js';
+import { pathProblem, report } from './atmosphere-guard.js';
 
 /**
  * @typedef {{ distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number }[] }} ServerProfile
@@ -86,11 +87,22 @@ export async function createServerPathAtmosphere(baseUrl, latitude, longitude, o
 				const tag = e.source === 'forecast' ? json.cycle : e.source;
 				const m = airModel(e);
 				const fix = (/** @type {ServerProfile[]} */ path) => m ? correctSunsetPath(path, m) : path;
-				const ensemble = e.ensemble && m
+				// air no atmosphere can have (atmosphere-guard.js) is left out: the next provider answers that event
+				const path = fix(e.profiles), problem = pathProblem(path);
+				if (problem) { report(`refraction server, ${e.date} ${e.event} (${e.source}): ${problem}`); byKey.delete(`${e.date}|${e.event}`); continue; }
+				let ensemble = e.ensemble && m
 					? { ...e.ensemble, members: e.ensemble.members.map(x => ({ ...x, profiles: fix(x.profiles) })) }
 					: e.ensemble;
+				if (ensemble?.members?.length) {
+					const members = ensemble.members.filter(x => {
+						const why = pathProblem(x.profiles);
+						if (why) report(`refraction server, ${e.date} ${e.event} member ${x.member}: ${why}`);
+						return !why;
+					});
+					ensemble = members.length ? { ...ensemble, members } : undefined;
+				}
 				byKey.set(`${e.date}|${e.event}`, {
-					path: fix(e.profiles), source: e.source, ensemble,
+					path, source: e.source, ensemble,
 					key: `srv|${tag}|${latitude},${longitude}|${e.date}|${e.event}${m ? `|air-${m}1` : ''}`,
 				});
 			}

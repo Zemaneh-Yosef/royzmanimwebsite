@@ -79,6 +79,7 @@
 import ROYSPACalculator from './royzmanim-spa-corrections.js';
 import { nutation } from './nutation.js';
 import { deltaT } from './delta-t.js';
+import { plausibleAod, LIMITS, report } from './atmosphere-guard.js';
 
 const DEG = Math.PI / 180;
 /** Rayleigh extinction at V, sea level (Schaefer's; halakhic_calc's whole gas term) */
@@ -554,7 +555,8 @@ function normalsAt(s, m) {
 			if (m.rising ? (a < h && b >= h) : (a > h && b <= h)) {
 				const f = (h - a) / (b - a), va = s.aod[i], vb = s.aod[i + 1];
 				const v = va == null || vb == null ? (f < 0.5 ? va : vb) : va + (vb - va) * f;
-				if (v != null && v >= 0) { const mo = new Date(day * 1000).getUTCMonth(); sum[mo] += v; cnt[mo]++; }
+				// a stored or fetched value no haze can have (atmosphere-guard.js) is left out
+				if (plausibleAod(v) != null) { const mo = new Date(day * 1000).getUTCMonth(); sum[mo] += v; cnt[mo]++; }
 				break;
 			}
 		}
@@ -583,11 +585,18 @@ export function hazeOn(haze, date, moment) {
 	if (!s?.aod?.length) return null;
 	const nm = normalsAt(s, moment);
 	if (!nm) return null;
-	const scale = Number.isFinite(haze.aodScale) && /** @type {number} */ (haze.aodScale) > 0 ? /** @type {number} */ (haze.aodScale) : 1;
+	// the server's calibration factor (CAMS against AERONET): beyond 1/10 .. 10 it is no calibration (atmosphere-guard.js)
+	let scale = 1;
+	if (haze.aodScale != null) {
+		if (Number.isFinite(haze.aodScale) && /** @type {number} */ (haze.aodScale) >= 0.1 && /** @type {number} */ (haze.aodScale) <= 10) scale = /** @type {number} */ (haze.aodScale);
+		else report(`haze calibration factor ${haze.aodScale}`);
+	}
 	const aodRef = nm.reference * scale;
+	if (Number.isFinite(aodRef) && aodRef > LIMITS.aod[1]) { report(`haze average ${aodRef}`); return null; }
 	const t = momentOf(date, s.lat, s.lon, moment);
 	const f = haze.forecast && Number.isFinite(t) ? hazeSeriesAt(haze.forecast, t) : NaN;
-	if (Number.isFinite(f) && f >= 0) return { aod: haze.forecastSource === 'gefs' ? f : f * scale, aodRef, forecast: true };
+	if (Number.isFinite(f) && f >= 0 && plausibleAod(f) == null) report(`haze forecast ${f}`);
+	if (plausibleAod(f) != null) return { aod: haze.forecastSource === 'gefs' ? f : f * scale, aodRef, forecast: true };
 	const doy = (Date.UTC(date.year, date.month - 1, date.day) - Date.UTC(date.year, 0, 1)) / 86400000 + 1;
 	const m = nm.monthly, d = doy < MID_MONTH_DOY[0] ? doy + 365 : doy;
 	let aod = m[0];

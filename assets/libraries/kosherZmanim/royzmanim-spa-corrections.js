@@ -123,6 +123,7 @@ import { SPACalculator, GeoLocation } from './kosher-zmanim.js';
 import { nutation } from './nutation.js';
 import { EARTH_L, EARTH_B, EARTH_R } from './vsop87-earth.js';
 import { deltaT, ut1MinusUtc } from './delta-t.js';
+import { specProblem, groundTemperature, LIMITS, report } from './atmosphere-guard.js';
 
 export const ROY_REFRACTION_ARCMIN = 34.478885263888294;
 
@@ -1189,7 +1190,8 @@ function interpolateMonthly(values, doy) {
  */
 export function monthlyClimate(normals) {
 	if (normals.minC?.length !== 12 || normals.meanC?.length !== 12) throw new Error('minC and meanC need 12 monthly values');
-	return (date, event) => {
+	/** @type {((date: Temporal.PlainDate, event: 'sunrise'|'sunset') => any) & { climatology?: boolean }} */
+	const provider = (date, event) => {
 		const doy = date.dayOfYear;
 		/** @type {{ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number, source: 'normals' }} */
 		const spec = { temperatureC: interpolateMonthly(event === 'sunrise' ? normals.minC : normals.meanC, doy), source: 'normals' };
@@ -1199,20 +1201,36 @@ export function monthlyClimate(normals) {
 		if (dew?.length === 12 && dew.every(Number.isFinite)) spec.dewPointC = interpolateMonthly(dew, doy);
 		return spec;
 	};
+	// chainProviders checks the other sources' air against it
+	provider.climatology = true;
+	return provider;
 }
 
 /**
- * Combine providers: each is asked in turn and the first non-null answer is used, e.g.
- * chainProviders(serverPaths.provider, nws.provider, monthlyClimate(normals)).
+ * Combine providers: each is asked in turn and the first answer that can be real air is used, e.g.
+ * chainProviders(serverPaths.provider, nws.provider, monthlyClimate(normals)). An answer the guardrails refuse
+ * (atmosphere-guard.js: values no air can have, or air more than 45 C from the place's normal when a
+ * monthlyClimate provider is in the chain) passes to the next provider.
  * @param {...(((date: Temporal.PlainDate, event: 'sunrise'|'sunset', geo: any) => AtmosphereSpec | null | undefined) | null | undefined)} providers
  * @returns {(date: Temporal.PlainDate, event: 'sunrise'|'sunset', geo: any) => AtmosphereSpec | null}
  */
 export function chainProviders(...providers) {
+	const climate = /** @type {any} */ (providers.find(p => /** @type {any} */ (p)?.climatology));
 	return (date, event, geo) => {
 		for (const p of providers) {
 			if (!p) continue;
 			const spec = p(date, event, geo);
-			if (spec) return spec;
+			if (!spec) continue;
+			const problem = specProblem(spec);
+			if (problem) { report(`${/** @type {any} */ (spec).source ?? 'provider'} for ${date} ${event}: ${problem}`); continue; }
+			if (climate && p !== climate) {
+				const normal = groundTemperature(climate(date, event, geo)), here = groundTemperature(spec);
+				if (Number.isFinite(normal) && Number.isFinite(here) && Math.abs(here - normal) > LIMITS.maxAnomalyC) {
+					report(`${/** @type {any} */ (spec).source ?? 'provider'} for ${date} ${event}: ${here} C against a normal of ${normal.toFixed(1)} C`);
+					continue;
+				}
+			}
+			return spec;
 		}
 		return null;
 	};
@@ -1434,6 +1452,9 @@ export default class ROYSPACalculator extends SPACalculator {
 	_atmosphereFor(date, event, geo, heightM) {
 		if (!this._atmosphereProvider || !date || !event) return null;
 		const spec = this._atmosphereProvider(date, event, geo);
+		// air no atmosphere can have (atmosphere-guard.js): the standard model instead
+		const problem = specProblem(spec);
+		if (problem) { report(`${date} ${event}: ${problem}`); return null; }
 		return spec ? atmosphereFromSpec(heightM, spec, this._seaSurfaceLayer, this._humidity, geo?.getLatitude?.()) : null;
 	}
 

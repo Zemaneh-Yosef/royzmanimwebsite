@@ -32,6 +32,8 @@
  * 10 C temperature error changes it by about 6%.
  */
 
+import { cleanSeries } from './atmosphere-guard.js';
+
 const NWS_BASE = 'https://api.weather.gov';
 
 /**
@@ -57,7 +59,7 @@ function durationMs(d) {
 export function parseTemperatureLayer(layer) {
 	if (!layer?.values) return [];
 	const f = /degF/i.test(layer.uom ?? '');
-	return layer.values
+	const series = layer.values
 		.filter(v => v.value != null)
 		.map(v => {
 			const [s, d] = v.validTime.split('/');
@@ -65,7 +67,10 @@ export function parseTemperatureLayer(layer) {
 			const value = /** @type {number} */ (v.value);
 			return { start, end: start + durationMs(d), value: f ? (value - 32) * 5 / 9 : value };
 		})
+		.filter(v => Number.isFinite(v.start) && v.end > v.start)
 		.sort((a, b) => a.start - b.start);
+	// impossible values and lone spikes out (atmosphere-guard.js)
+	return cleanSeries(series, 'temperature', 'NWS forecast');
 }
 
 /**
