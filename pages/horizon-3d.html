@@ -13,6 +13,11 @@ layout: null
 	<link rel="stylesheet" href="/assets/libraries/cesium/Widgets/CesiumWidget/CesiumWidget.css">
 	<!-- where Cesium finds its workers and assets -->
 	<script>window.CESIUM_BASE_URL = "/assets/libraries/cesium/";</script>
+	<!-- connections to the terrain and imagery servers opened, and Cesium fetched, while the page is still loading -->
+	<link rel="preconnect" href="https://hanetz.royzmanim.com" crossorigin>
+	<link rel="preconnect" href="https://tiles.maps.eox.at" crossorigin>
+	<link rel="modulepreload" href="/assets/libraries/cesium/index.js">
+	<link rel="modulepreload" href="/assets/js/horizon-3d.js">
 	<link rel="stylesheet" href="/assets/css/core.css">
 	{% include polyfills.html %}
 	<style>

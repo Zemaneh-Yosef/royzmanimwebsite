@@ -313,6 +313,16 @@ async function main() {
 		show($("err"), "errWebgl");
 		return;
 	}
+	// The terrain and imagery servers speak HTTP/2 and 3, one connection carrying many requests at once: Cesium
+	// need not hold back to its 18 per server (sized for HTTP/1.1's six connections). Each tile's finer ones wait
+	// for it, so the more asked for at once, the sooner the deepest arrive.
+	Cesium.RequestScheduler.maximumRequests = 120;
+	for (const url of [REFRACTION_SERVER, "https://tiles.maps.eox.at/"]) {
+		Cesium.RequestScheduler.requestsByServer[Cesium.RequestScheduler.getServerKey(url)] = 60;
+	}
+	// The server's terrain in Cesium's own format, asked for now so that it arrives while the horizon is read
+	const ownTerrain = Cesium.CesiumTerrainProvider.fromUrl(`${REFRACTION_SERVER}/v1/cesium-terrain`, { requestVertexNormals: true })
+		.then(provider => ({ provider }), error => ({ provider: null, error }));
 	// Back to the calendar page that opened this one, as it was (its own parameters: locationName, lat, long,
 	// elevation, timeZone, ...), only ever on this site; else the main calendar for this place
 	const backParam = q.get("back") ?? "";
@@ -398,10 +408,10 @@ async function main() {
 	// shades it); from a server without it, the Mercator tiles made into heightmaps here
 	/** @type {Cesium.TerrainProvider} */
 	let terrainProvider, ownFormat = true;
-	try {
-		terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(`${REFRACTION_SERVER}/v1/cesium-terrain`, { requestVertexNormals: true });
-	} catch (e) {
-		console.warn("terrain in Cesium's format not available, using the map tiles:", e);
+	const own = await ownTerrain;
+	if (own.provider) terrainProvider = own.provider;
+	else {
+		console.warn("terrain in Cesium's format not available, using the map tiles:", own.error);
 		terrainProvider = new ElevationTerrain();
 		ownFormat = false;
 	}
@@ -437,6 +447,7 @@ async function main() {
 	}
 	globe.depthTestAgainstTerrain = true;          // markers behind a hill are hidden by it
 	globe.showGroundAtmosphere = false;            // it whitens far terrain, the horizon's own ridges
+	globe.showWaterEffect = false;                 // no animated waves (nor the texture for them, not vendored)
 	globe.baseColor = Cesium.Color.fromCssColorString("#c9c3b4");
 	scene.backgroundColor = Cesium.Color.TRANSPARENT;
 	globe.maximumScreenSpaceError = 2;
