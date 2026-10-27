@@ -34,6 +34,7 @@
  */
 
 import { approximateEventTime, temperatureAt } from './nws-atmosphere.js';
+import { cleanSeries } from './atmosphere-guard.js';
 
 const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 const ARCHIVE_URL = 'https://archive-api.open-meteo.com/v1/archive';
@@ -128,9 +129,10 @@ export async function createOpenMeteoAtmosphere(latitude, longitude, options = {
 		if (j.hourly_units?.temperature_2m && !/°C|C$/.test(j.hourly_units.temperature_2m)) {
 			throw new Error(`unexpected temperature unit ${j.hourly_units.temperature_2m}`);
 		}
-		temps = hourlySeries(h.time, h.temperature_2m);
-		press = hourlySeries(h.time, h.surface_pressure);
-		dews = options.humidity ? hourlySeries(h.time, h.dew_point_2m) : [];
+		// impossible values and lone spikes out (atmosphere-guard.js)
+		temps = cleanSeries(hourlySeries(h.time, h.temperature_2m), 'temperature', 'Open-Meteo forecast');
+		press = cleanSeries(hourlySeries(h.time, h.surface_pressure), 'pressure', 'Open-Meteo forecast');
+		dews = options.humidity ? cleanSeries(hourlySeries(h.time, h.dew_point_2m), 'dew', 'Open-Meteo forecast') : [];
 		elevationM = Number.isFinite(j.elevation) ? j.elevation : undefined;
 		if (!temps.length) throw new Error('Open-Meteo returned no temperatures');
 	};
@@ -191,7 +193,7 @@ export async function fetchOpenMeteoNormals(latitude, longitude, options = {}) {
 		+ `&start_date=${startYear}-01-01&end_date=${endYear}-12-31&hourly=temperature_2m${options.humidity ? ',dew_point_2m' : ''}&timeformat=unixtime&timezone=GMT`
 		+ (options.extraParams ?? '');
 	const j = await getJson(doFetch, url);
-	const series = hourlySeries(j?.hourly?.time ?? [], j?.hourly?.temperature_2m ?? []);
+	const series = cleanSeries(hourlySeries(j?.hourly?.time ?? [], j?.hourly?.temperature_2m ?? []), 'temperature', 'Open-Meteo archive');
 	if (series.length < 24 * 300) throw new Error('Open-Meteo archive returned too little data');
 	/** event-time monthly averages of one hourly series @param {Interval[]} s */
 	const monthly = s => {
@@ -223,7 +225,7 @@ export async function fetchOpenMeteoNormals(latitude, longitude, options = {}) {
 	};
 	if (options.humidity) {
 		// dew points are a bonus: gaps leave them out rather than failing the normals
-		const dew = monthly(hourlySeries(j?.hourly?.time ?? [], j?.hourly?.dew_point_2m ?? []));
+		const dew = monthly(cleanSeries(hourlySeries(j?.hourly?.time ?? [], j?.hourly?.dew_point_2m ?? []), 'dew', 'Open-Meteo archive'));
 		if ([...dew.sunrise, ...dew.sunset].every(Number.isFinite)) { out.sunriseDewC = dew.sunrise; out.sunsetDewC = dew.sunset; }
 	}
 	return out;
