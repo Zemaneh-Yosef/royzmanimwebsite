@@ -3,7 +3,7 @@
 import { JewishDate } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { zDTFromFunc } from "../ROYZmanim.js";
-import { scheduleSettings, geoLocation, jCal, zmanCalc, dtF } from "./base.js";
+import { scheduleSettings, geoLocation, jCal, zmanCalc, dtF, onZmanimUpdate } from "./base.js";
 
 /** @param {HTMLElement} [fastContainer] */
 function renderFastIndex(fastContainer) {
@@ -180,188 +180,195 @@ function writeMourningPeriod(mourningDiv) {
 	}
 }
 
-for (const fastContainer of queryAllElements('[data-zfFind="FastDays"]'))
-	renderFastIndex(fastContainer)
+/** Fills in the sidebar (fast times, special days, Tekufa, seasonal prayers...). Safe to run again. */
+function renderSidebar() {
+	for (const fastContainer of queryAllElements('[data-zfFind="FastDays"]'))
+		renderFastIndex(fastContainer)
 
-const specialDayText = jCal.listOfSpecialDays().join(" / ");
-for (const specialDay of queryAllElements('[data-zfReplace="SpecialDay"]')) {
-	if (!specialDayText) {
-		specialDay.style.display = "none";
-	} else {
-		specialDay.style.removeProperty("display");
-		specialDay.innerHTML = specialDayText;
-	}
-}
-
-for (const mourningDiv of queryAllElements('[data-zfFind="MourningPeriod"]')) {
-	writeMourningPeriod(mourningDiv);
-}
-
-queryAllElements('[data-zfReplace="Ulchaparat"]').forEach((ulchaparat) => {
-	if (jCal.isRoshChodesh()) {
-		ulchaparat.style.removeProperty("display");
-		ulchaparat.innerHTML = (jCal.tefilahRules().amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
-	} else {
-		ulchaparat.style.display = "none";
-	}
-})
-
-queryAllElements('[data-zfFind="Chamah"]').forEach((chamah) => {
-	if (jCal.isBirkasHachamah()) {
-		chamah.style.removeProperty("display");
-	} else {
-		chamah.style.display = "none";
-	}
-})
-
-queryAllElements('[data-zfFind="BirchatHalevana"]').forEach((birchatHalevana) => {
-	const birLev = jCal.birkathHalevanaCheck(zmanCalc);
-	if (!birLev.current) {
-		birchatHalevana.style.display = "none";
-		return;
-	}
-
-	birchatHalevana.style.removeProperty("display");
-	birchatHalevana.querySelectorAll('[data-zfReplace="date-en-end"]').forEach(
-		endDate => endDate.innerHTML = birLev.data.end.toLocaleString("en", {day: 'numeric', month: 'short'})
-	)
-
-	const bhHeb = birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]')
-	if (bhHeb)
-		bhHeb.innerHTML = birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'})
-
-	const bhRus = birchatHalevana.querySelector('[data-zfReplace="date-ru-end"]')
-	if (bhRus)
-		bhRus.innerHTML = birLev.data.end.toLocaleString("ru", {day: 'numeric', month: 'short'})
-
-	if (birLev.data.start.dayOfYear == jCal.getDate().dayOfYear) {
-		birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
-			//@ts-ignore
-			startsToday => startsToday.style.removeProperty("display")
-		)
-	} else {
-		birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
-			//@ts-ignore
-			startsToday => startsToday.style.display = "none"
-		)
-	}
-
-	if (birLev.data.end.dayOfYear == jCal.getDate().dayOfYear) {
-		birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
-			//@ts-ignore
-			endsToday => endsToday.style.removeProperty("display")
-		)
-	} else {
-		birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
-			//@ts-ignore
-			endsToday => endsToday.style.display = "none"
-		)
-	}
-})
-
-/** @param {HTMLElement} [tefilahRuleContainer] */
-function renderSeasonalRules(tefilahRuleContainer) {
-	/** @type {import('../WebsiteCalendar.js').default} */
-	let calForRules = jCal;
-	if (jCal.getDate().equals(Temporal.Now.plainDateISO(geoLocation.getTimeZone()))
-		&& Temporal.ZonedDateTime.compare(zmanCalc.getTzet(), Temporal.Now.zonedDateTimeISO(geoLocation.getTimeZone())) < 1) {
-		calForRules = jCal.tomorrow();
-	}
-	const seasonalRules = [
-		calForRules.tefilahRules().amidah.mechayehHametim,
-		calForRules.tefilahRules().amidah.mevarechHashanim
-	];
-
-	tefilahRuleContainer.querySelector('[data-zfReplace="SeasonalPrayers"]').innerHTML = seasonalRules.filter(Boolean).join(" / ");
-}
-
-queryAllElements('[data-zfReplace="Tachanun"]').forEach((tachanun) => {
-	if (jCal.isYomTovAssurBemelacha()) {
-		tachanun.style.display = "none";
-		return;
-	}
-
-	tachanun.style.removeProperty("display");
-	let tachanunId = jCal.tefilahRules().tachanun;
-	if (jCal.getDayOfWeek() == 7) {
-		tachanunId = Math.min(tachanunId + 3, 4)
-	}
-
-	for (const tachanunDiv of tachanun.children) {
-		if (!(tachanunDiv instanceof HTMLElement))
-			continue;
-
-		if (tachanunDiv.getAttribute("data-zfFind") == tachanunId.toString()) {
-			tachanunDiv.style.removeProperty("display");
+	const specialDayText = jCal.listOfSpecialDays().join(" / ");
+	for (const specialDay of queryAllElements('[data-zfReplace="SpecialDay"]')) {
+		if (!specialDayText) {
+			specialDay.style.display = "none";
 		} else {
-			tachanunDiv.style.display = "none";
+			specialDay.style.removeProperty("display");
+			specialDay.innerHTML = specialDayText;
 		}
 	}
-})
 
-const hallelText = jCal.tefilahRules().hallel;
-queryAllElements('[data-zfReplace="Hallel"]').forEach((hallel) => {
-	if (!hallelText) {
-		hallel.style.display = "none";
+	for (const mourningDiv of queryAllElements('[data-zfFind="MourningPeriod"]')) {
+		writeMourningPeriod(mourningDiv);
+	}
+
+	queryAllElements('[data-zfReplace="Ulchaparat"]').forEach((ulchaparat) => {
+		if (jCal.isRoshChodesh()) {
+			ulchaparat.style.removeProperty("display");
+			ulchaparat.innerHTML = (jCal.tefilahRules().amidah.ulChaparatPesha ? "Say וּלְכַפָּרַת פֶּשַׁע" : "Do not say וּלְכַפָּרַת פֶּשַׁע")
+		} else {
+			ulchaparat.style.display = "none";
+		}
+	})
+
+	queryAllElements('[data-zfFind="Chamah"]').forEach((chamah) => {
+		if (jCal.isBirkasHachamah()) {
+			chamah.style.removeProperty("display");
+		} else {
+			chamah.style.display = "none";
+		}
+	})
+
+	queryAllElements('[data-zfFind="BirchatHalevana"]').forEach((birchatHalevana) => {
+		const birLev = jCal.birkathHalevanaCheck(zmanCalc);
+		if (!birLev.current) {
+			birchatHalevana.style.display = "none";
+			return;
+		}
+
+		birchatHalevana.style.removeProperty("display");
+		birchatHalevana.querySelectorAll('[data-zfReplace="date-en-end"]').forEach(
+			endDate => endDate.innerHTML = birLev.data.end.toLocaleString("en", {day: 'numeric', month: 'short'})
+		)
+
+		const bhHeb = birchatHalevana.querySelector('[data-zfReplace="date-hb-end"]')
+		if (bhHeb)
+			bhHeb.innerHTML = birLev.data.end.toLocaleString("he", {day: 'numeric', month: 'short'})
+
+		const bhRus = birchatHalevana.querySelector('[data-zfReplace="date-ru-end"]')
+		if (bhRus)
+			bhRus.innerHTML = birLev.data.end.toLocaleString("ru", {day: 'numeric', month: 'short'})
+
+		if (birLev.data.start.dayOfYear == jCal.getDate().dayOfYear) {
+			birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
+				//@ts-ignore
+				startsToday => startsToday.style.removeProperty("display")
+			)
+		} else {
+			birchatHalevana.querySelectorAll('[data-zfFind="starts-tonight"]').forEach(
+				//@ts-ignore
+				startsToday => startsToday.style.display = "none"
+			)
+		}
+
+		if (birLev.data.end.dayOfYear == jCal.getDate().dayOfYear) {
+			birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
+				//@ts-ignore
+				endsToday => endsToday.style.removeProperty("display")
+			)
+		} else {
+			birchatHalevana.querySelectorAll('[data-zfFind="ends-tonight"]').forEach(
+				//@ts-ignore
+				endsToday => endsToday.style.display = "none"
+			)
+		}
+	})
+
+	/** @param {HTMLElement} [tefilahRuleContainer] */
+	function renderSeasonalRules(tefilahRuleContainer) {
+		/** @type {import('../WebsiteCalendar.js').default} */
+		let calForRules = jCal;
+		if (jCal.getDate().equals(Temporal.Now.plainDateISO(geoLocation.getTimeZone()))
+			&& Temporal.ZonedDateTime.compare(zmanCalc.getTzet(), Temporal.Now.zonedDateTimeISO(geoLocation.getTimeZone())) < 1) {
+			calForRules = jCal.tomorrow();
+		}
+		const seasonalRules = [
+			calForRules.tefilahRules().amidah.mechayehHametim,
+			calForRules.tefilahRules().amidah.mevarechHashanim
+		];
+
+		tefilahRuleContainer.querySelector('[data-zfReplace="SeasonalPrayers"]').innerHTML = seasonalRules.filter(Boolean).join(" / ");
+	}
+
+	queryAllElements('[data-zfReplace="Tachanun"]').forEach((tachanun) => {
+		if (jCal.isYomTovAssurBemelacha()) {
+			tachanun.style.display = "none";
+			return;
+		}
+
+		tachanun.style.removeProperty("display");
+		let tachanunId = jCal.tefilahRules().tachanun;
+		if (jCal.getDayOfWeek() == 7) {
+			tachanunId = Math.min(tachanunId + 3, 4)
+		}
+
+		for (const tachanunDiv of tachanun.children) {
+			if (!(tachanunDiv instanceof HTMLElement))
+				continue;
+
+			if (tachanunDiv.getAttribute("data-zfFind") == tachanunId.toString()) {
+				tachanunDiv.style.removeProperty("display");
+			} else {
+				tachanunDiv.style.display = "none";
+			}
+		}
+	})
+
+	const hallelText = jCal.tefilahRules().hallel;
+	queryAllElements('[data-zfReplace="Hallel"]').forEach((hallel) => {
+		if (!hallelText) {
+			hallel.style.display = "none";
+		} else {
+			hallel.style.removeProperty("display");
+			hallel.innerHTML = hallelText == 2 ? "הלל שלם (עם ברכה)" : "חצי הלל (בלי ברכה)";
+		}
+	})
+
+	const tekufaDate = zmanCalc.nextTekufa(scheduleSettings.calendarToggle.tekufaMidpoint !== "hatzoth");
+	if (jCal.getDate().toZonedDateTime(geoLocation.getTimeZone()).until(tekufaDate).total('days') < 1) {
+		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
+		const tekufaTF = [dtF[0], { ...dtF[1] }]
+		delete tekufaTF[1].second
+
+		const nextTekufaJDate = [1, 4, 7, 10]
+			.map(month => new JewishDate(jCal.getJewishYear(), month, 15))
+			.sort((jDateA, jDateB) => {
+				const durationA = jCal.getDate().until(jDateA.getDate())
+				const durationB = jCal.getDate().until(jDateB.getDate())
+
+				return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
+			})[0]
+
+		/** @type {{en: string; he: string}} */
+		// @ts-ignore
+		const nextTekufotNames = ['en', 'he']
+			.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
+			.reduce(function (obj, [key, val]) {
+				//@ts-ignore
+				obj[key] = val
+				return obj
+			}, {})
+
+		for (let tekufa of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
+			if (!(tekufa instanceof HTMLElement))
+				continue;
+
+			tekufa.style.removeProperty("display");
+
+			Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaTime"]'))
+				.forEach(element => element.innerHTML = tekufaDate.round("minute").toLocaleString(...tekufaTF));
+			Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaFastTime"]'))
+				.forEach(element => element.innerHTML =
+					[
+						tekufaDate.round("minute").subtract({ minutes: 30 }).toLocaleString(...tekufaTF),
+						tekufaDate.round("minute").add({ minutes: 30 }).toLocaleString(...tekufaTF),
+					].join('-')
+				);
+
+			Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
+				.forEach(element => element.innerHTML = nextTekufotNames.en);
+			tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
+		}
 	} else {
-		hallel.style.removeProperty("display");
-		hallel.innerHTML = hallelText == 2 ? "הלל שלם (עם ברכה)" : "חצי הלל (בלי ברכה)";
+		queryAllElements('[data-zfFind="Tekufa"]').forEach((tekufa) => tekufa.style.display = "none")
 	}
-})
 
-const tekufaDate = zmanCalc.nextTekufa(scheduleSettings.calendarToggle.tekufaMidpoint !== "hatzoth");
-if (jCal.getDate().toZonedDateTime(geoLocation.getTimeZone()).until(tekufaDate).total('days') < 1) {
-	/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-	const tekufaTF = [dtF[0], { ...dtF[1] }]
-	delete tekufaTF[1].second
-
-	const nextTekufaJDate = [1, 4, 7, 10]
-		.map(month => new JewishDate(jCal.getJewishYear(), month, 15))
-		.sort((jDateA, jDateB) => {
-			const durationA = jCal.getDate().until(jDateA.getDate())
-			const durationB = jCal.getDate().until(jDateB.getDate())
-
-			return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
-		})[0]
-
-	/** @type {{en: string; he: string}} */
-	// @ts-ignore
-	const nextTekufotNames = ['en', 'he']
-		.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
-		.reduce(function (obj, [key, val]) {
-			//@ts-ignore
-			obj[key] = val
-			return obj
-		}, {})
-
-	for (let tekufa of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
-		if (!(tekufa instanceof HTMLElement))
-			continue;
-
-		tekufa.style.removeProperty("display");
-
-		Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaTime"]'))
-			.forEach(element => element.innerHTML = tekufaDate.round("minute").toLocaleString(...tekufaTF));
-		Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaFastTime"]'))
-			.forEach(element => element.innerHTML =
-				[
-					tekufaDate.round("minute").subtract({ minutes: 30 }).toLocaleString(...tekufaTF),
-					tekufaDate.round("minute").add({ minutes: 30 }).toLocaleString(...tekufaTF),
-				].join('-')
-			);
-
-		Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
-			.forEach(element => element.innerHTML = nextTekufotNames.en);
-		tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
+	for (let seasonalRuleContainer of document.querySelectorAll('[data-zfFind="SeasonalPrayers"]')) {
+		if (seasonalRuleContainer instanceof HTMLElement)
+			renderSeasonalRules(seasonalRuleContainer);
 	}
-} else {
-	queryAllElements('[data-zfFind="Tekufa"]').forEach((tekufa) => tekufa.style.display = "none")
 }
 
-for (let seasonalRuleContainer of document.querySelectorAll('[data-zfFind="SeasonalPrayers"]')) {
-	if (seasonalRuleContainer instanceof HTMLElement)
-		renderSeasonalRules(seasonalRuleContainer);
-}
+renderSidebar();
+// better refraction data arrived after the first draw
+onZmanimUpdate("sidebar", renderSidebar);
 
 /**
  * @template {HTMLElement} [T=HTMLElement]
