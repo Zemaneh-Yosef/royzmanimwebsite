@@ -2,7 +2,7 @@
 
 import { methodNames } from "../../ROYZmanim.js";
 import { reload } from "../reload.js";
-import { currentZDT, jCal, zmanCalc, dtF } from "../base.js";
+import { currentZDT, jCal, zmanCalc, dtF, onZmanimUpdate } from "../base.js";
 
 if (!('timers' in window))
 	// @ts-ignore
@@ -51,109 +51,121 @@ const zmanimList = Object.fromEntries(Array.from(calList.children)
 		&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
 	))
 
-/** @type {ReturnType<typeof jCal.getZmanimInfo>} */
-const timesDataList = {};
-jCal.back();
+/** Draws the upcoming zemanim, and sets the page to reload once the first of them passes. Safe to run again. */
+function render() {
+	// not currentZDT: this can run again a while after the page loaded
+	const now = Temporal.Now.zonedDateTimeISO(currentZDT.timeZoneId);
+	/** @type {ReturnType<typeof jCal.getZmanimInfo>} */
+	const timesDataList = {};
+	jCal.back();
 
-for (let index = 0; index < 3; index++) {
-	zmanCalc.setDate(jCal.getDate());
-	for (const [yTimeName, yTimeData] of Object.entries(jCal.getZmanimInfo(true, zmanCalc, zmanimList, dtF))) {
-		if (yTimeData.zDTObj &&
-			yTimeData.display == 1
-			&& Temporal.ZonedDateTime.compare(yTimeData.zDTObj, currentZDT) == 1
-			&& !(yTimeName in timesDataList))
-			timesDataList[yTimeName] = yTimeData;
+	for (let index = 0; index < 3; index++) {
+		zmanCalc.setDate(jCal.getDate());
+		for (const [yTimeName, yTimeData] of Object.entries(jCal.getZmanimInfo(true, zmanCalc, zmanimList, dtF))) {
+			if (yTimeData.zDTObj &&
+				yTimeData.display == 1
+				&& Temporal.ZonedDateTime.compare(yTimeData.zDTObj, now) == 1
+				&& !(yTimeName in timesDataList))
+				timesDataList[yTimeName] = yTimeData;
+		}
+
+		jCal.setDate(jCal.getDate().add({ days: 1 }));
+	}
+	jCal.setDate(currentZDT.toPlainDate());
+	zmanCalc.setDate(currentZDT.toPlainDate());
+
+	calList.replaceChildren();
+
+	const sortedTimes = Object.entries(timesDataList).sort((a, b) => Temporal.ZonedDateTime.compare(a[1].zDTObj, b[1].zDTObj));
+	for (const timeListing of sortedTimes) {
+		const timeData = timeListing[1];
+		const artElem = document.createElement('article');
+
+		const artTitles = langList.map(lang => {
+			const titleElem = document.createElement('div');
+			if (langList.length != 1)
+				titleElem.classList.add('langTV', `lang-${lang}`);
+
+			// @ts-ignore
+			titleElem.appendChild(document.createTextNode(timeData.title[lang]));
+			return titleElem;
+		});
+		for (const titleElem of artTitles)
+			artElem.appendChild(titleElem);
+
+		const artTime = document.createElement('div');
+		artTime.appendChild(document.createTextNode(timeData.zDTObj.toLocaleString(...timeData.dtF)));
+		artTime.classList.add('timeDisplayWide')
+		if (Temporal.PlainDate.compare(timeData.zDTObj, currentZDT.toPlainDate()) == 1)
+			artTime.classList.add("nextDay");
+
+		artElem.appendChild(artTime);
+
+		const curTimeIsShema = (/** @type {typeof timeData} */row) => ("he" in row.title && row.title.he) ? row.title.he.startsWith("שמע")
+			: row.title.en.startsWith("Shema");
+		if (curTimeIsShema(timeData) && calList.hasAttribute('data-primaryShema')) {
+			const shemaTimes = sortedTimes
+				.map(arrayEntry => arrayEntry[1])
+				.filter(curTimeIsShema)
+				.map(zmanObj => zmanObj.zDTObj.toPlainDate());
+
+			if (shemaTimes[0].equals(shemaTimes[1])) {
+				if (timeData.function !== calList.getAttribute('data-primaryShema'))
+					continue;
+
+				for (const titleElem of artTitles)
+					titleElem.innerHTML = titleElem.innerHTML.split(" ")[0];
+
+				const secondShemaZmanObj = sortedTimes
+					.map(arrayEntry => arrayEntry[1])
+					.find(zmanObj => zmanObj.title.he.startsWith("שמע") && zmanObj.function !== calList.getAttribute('data-primaryShema'));
+				const secondShemaElem = document.createElement('div');
+				secondShemaElem.classList.add('secondShemaDispl');
+				secondShemaElem.appendChild(document.createTextNode('('))
+				for (const lang of langList) {
+					const titleSecShema = document.createElement('span');
+					titleSecShema.classList.add('langTV', `lang-${lang}`);
+					titleSecShema.style.unicodeBidi = 'isolate';
+					// @ts-ignore
+					titleSecShema.appendChild(document.createTextNode(secondShemaZmanObj.title[lang].split(" ")[1]));
+					secondShemaElem.appendChild(titleSecShema);
+				}
+				secondShemaElem.appendChild(document.createTextNode(': ' + secondShemaZmanObj.zDTObj.toLocaleString(...dtF) + ')'))
+				artElem.appendChild(secondShemaElem);
+			}
+		}
+		calList.appendChild(artElem)
 	}
 
-	jCal.setDate(jCal.getDate().add({ days: 1 }));
-}
-jCal.setDate(currentZDT.toPlainDate());
-zmanCalc.setDate(currentZDT.toPlainDate());
+	// @ts-ignore
+	clearTimeout(window.timers.zmanReload);
+	if (!sortedTimes.length)
+		return;
 
-for (const elem of Array.from(calList.children)) {
-	elem.remove()
-}
-
-const sortedTimes = Object.entries(timesDataList).sort((a, b) => Temporal.ZonedDateTime.compare(a[1].zDTObj, b[1].zDTObj));
-for (const timeListing of sortedTimes) {
-	const timeData = timeListing[1];
-	const artElem = document.createElement('article');
-
-	const artTitles = langList.map(lang => {
-		const titleElem = document.createElement('div');
-		if (langList.length != 1)
-			titleElem.classList.add('langTV', `lang-${lang}`);
-
-		// @ts-ignore
-		titleElem.appendChild(document.createTextNode(timeData.title[lang]));
-		return titleElem;
-	});
-	for (const titleElem of artTitles)
-		artElem.appendChild(titleElem);
-
-	const artTime = document.createElement('div');
-	artTime.appendChild(document.createTextNode(timeData.zDTObj.toLocaleString(...timeData.dtF)));
-	artTime.classList.add('timeDisplayWide')
-	if (Temporal.PlainDate.compare(timeData.zDTObj, currentZDT.toPlainDate()) == 1)
-		artTime.classList.add("nextDay");
-
-	artElem.appendChild(artTime);
-
-	const curTimeIsShema = (/** @type {typeof timeData} */row) => ("he" in row.title && row.title.he) ? row.title.he.startsWith("שמע")
-		: row.title.en.startsWith("Shema");
-	if (curTimeIsShema(timeData) && calList.hasAttribute('data-primaryShema')) {
-		const shemaTimes = sortedTimes
-			.map(arrayEntry => arrayEntry[1])
-			.filter(curTimeIsShema)
-			.map(zmanObj => zmanObj.zDTObj.toPlainDate());
-
-		if (shemaTimes[0].equals(shemaTimes[1])) {
-			if (timeData.function !== calList.getAttribute('data-primaryShema'))
-				continue;
-
-			for (const titleElem of artTitles)
-				titleElem.innerHTML = titleElem.innerHTML.split(" ")[0];
-
-			const secondShemaZmanObj = sortedTimes
-				.map(arrayEntry => arrayEntry[1])
-				.find(zmanObj => zmanObj.title.he.startsWith("שמע") && zmanObj.function !== calList.getAttribute('data-primaryShema'));
-			const secondShemaElem = document.createElement('div');
-			secondShemaElem.classList.add('secondShemaDispl');
-			secondShemaElem.appendChild(document.createTextNode('('))
-			for (const lang of langList) {
-				const titleSecShema = document.createElement('span');
-				titleSecShema.classList.add('langTV', `lang-${lang}`);
-				titleSecShema.style.unicodeBidi = 'isolate';
-				// @ts-ignore
-				titleSecShema.appendChild(document.createTextNode(secondShemaZmanObj.title[lang].split(" ")[1]));
-				secondShemaElem.appendChild(titleSecShema);
-			}
-			secondShemaElem.appendChild(document.createTextNode(': ' + secondShemaZmanObj.zDTObj.toLocaleString(...dtF) + ')'))
-			artElem.appendChild(secondShemaElem);
+	let timeForReload = sortedTimes[0][1].zDTObj;
+	if (jCal.tomorrow().isChanukah() && ![6, 7].includes(jCal.getDayOfWeek())) {
+		switch (sortedTimes[0][1].function) {
+			case 'getTzet':
+				timeForReload = timeForReload.add({ minutes: 30 });
+				break;
+			case 'getTzetHumra':
+				// Rather than figure out some way to keep the previous Tzet time while Tzet Lekhumra is reloading,
+				// just reload it after our extended Tzet time
+				timeForReload = null;
+				break;
 		}
 	}
-	calList.appendChild(artElem)
+
+	if (timeForReload)
+		// @ts-ignore
+		window.timers.zmanReload = setTimeout(
+			async () => await reload(),
+			Math.max(0, now.until(timeForReload).total('milliseconds')) + 1000)
 }
 
-let timeForReload = sortedTimes[0][1].zDTObj;
-if (jCal.tomorrow().isChanukah() && ![6, 7].includes(jCal.getDayOfWeek())) {
-	switch (sortedTimes[0][1].function) {
-		case 'getTzet':
-			timeForReload = timeForReload.add({ minutes: 30 });
-			break;
-		case 'getTzetHumra':
-			// Rather than figure out some way to keep the previous Tzet time while Tzet Lekhumra is reloading,
-			// just reload it after our extended Tzet time
-			timeForReload = null;
-			break;
-	}
-}
-
-if (timeForReload)
-	// @ts-ignore
-	window.timers.zmanReload = setTimeout(
-		async () => await reload(),
-		currentZDT.until(timeForReload).total('milliseconds') + 1000)
+render();
+// better refraction data arrived after the first draw
+onZmanimUpdate("transition", render);
 
 /**
  * @param {string} str

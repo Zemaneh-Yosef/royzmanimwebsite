@@ -3,7 +3,7 @@
 import * as KosherZmanim from "../../../libraries/kosherZmanim/kosher-zmanim.js";
 import { methodNames } from "../../ROYZmanim.js";
 import { reload } from "../reload.js";
-import { jCal, zmanCalc, dtF, scheduleSettings } from "../base.js";
+import { jCal, zmanCalc, dtF, scheduleSettings, onZmanimUpdate } from "../base.js";
 
 if (!('timers' in window))
 	// @ts-ignore
@@ -170,6 +170,15 @@ export default class zmanimListUpdater {
 }
 
 const zmanimListUpdater2 = new zmanimListUpdater()
+
+// better refraction data arrived after the first draw
+onZmanimUpdate("daySpotlight", () => {
+	// @ts-ignore
+	clearTimeout(window.timers.spotlightNextZman);
+	// @ts-ignore
+	clearTimeout(window.timers.spotlightDayChange);
+	zmanimListUpdater2.resetCalendar();
+});
 
 // @ts-ignore
 window.zmanimListUpdater2 = zmanimListUpdater2;

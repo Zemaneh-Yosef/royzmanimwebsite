@@ -2,7 +2,10 @@
 
 import WebsiteCalendar from '../WebsiteCalendar.js';
 import { zDTFromFunc } from '../ROYZmanim.js';
-import { jCal, zmanCalc, dtF, scheduleSettings } from "./base.js";
+import { jCal, zmanCalc, dtF, scheduleSettings, onZmanimUpdate } from "./base.js";
+
+// better refraction data arrived after the first draw: work out every scheduled time on the page again
+onZmanimUpdate("autoSchedule", () => autoSchedule(document.querySelectorAll('[data-autoschedule-type]')));
 
 /**
  * @param {NodeListOf<HTMLElement>} nodes

@@ -4,7 +4,7 @@
 import { gsap as jsGsap } from "../../libraries/gsap.js";
 
 import { zDTFromFunc } from "../ROYZmanim.js";
-import { scheduleSettings, zmanCalc } from "./base.js";
+import { scheduleSettings, zmanCalc, onZmanimUpdate } from "./base.js";
 
 if (!('timers' in window))
     // @ts-ignore
@@ -34,9 +34,29 @@ class CountDown {
 			timerElem.lastElementChild
 		].map(contEl => contEl.children)
 		this.tzOrigin = timezoneOrigin;
+		/** @type {Temporal.ZonedDateTime | null} the time being counted down to; anything else stops ticking */
+		this.target = null;
+		this.finished = false;
+	}
+
+	/** @param {Temporal.ZonedDateTime} zDT */
+	start(zDT) {
+		if (this.finished) {
+			// faded out for a time that, with newer data, hasn't come yet
+			gsap.set(timerEl, { clearProps: "opacity" });
+			this.finished = false;
+		}
+		this.target = zDT;
+		requestAnimationFrame(() => this.updateTimer(zDT));
+	}
+
+	/** Stops counting (the next tick of the old countdown sees it's no longer the target). */
+	stop() {
+		this.target = null;
 	}
 
 	countdownFinished() {
+		this.finished = true;
 		gsap.to(timerEl, { opacity: 0.2, duration: 1 });
 	}
 
@@ -44,6 +64,8 @@ class CountDown {
 	 * @param {Temporal.ZonedDateTime} zDT
 	 */
 	updateTimer(zDT) {
+		if (zDT !== this.target)
+			return;
 		timerEl.style.removeProperty('display');
 		if (Temporal.ZonedDateTime.compare(Temporal.Now.zonedDateTimeISO(this.tzOrigin), zDT) == 1)
 			return this.countdownFinished();
@@ -100,45 +122,65 @@ class CountDown {
 
 
 const counter = new CountDown(timerEl);
-if (hebDate.month == hebDate.monthsInYear || (hebDate.month == 1 && hebDate.day >= 2 && hebDate.day < 10)) {
-	if (zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight().dayOfYear
-		== Temporal.Now.plainDateISO(scheduleSettings.location.timezone).dayOfYear
-		&& Temporal.ZonedDateTime.compare(
-			Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
-			zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight())
-		< 1
-		&& hebDate.dayOfWeek !== 6) {
-		requestAnimationFrame(() => counter.updateTimer(zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight()))
-	} else if (zmanCalc.getSolarMidnight().dayOfYear == Temporal.Now.plainDateISO(scheduleSettings.location.timezone).dayOfYear
-		&& Temporal.ZonedDateTime.compare(
-			Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
-			zmanCalc.getSolarMidnight())
-		< 1
-		&& hebDate.dayOfWeek !== 5) {
-		if (Temporal.ZonedDateTime.compare(
-			Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
-			zmanCalc.getSolarMidnight().subtract({ minutes: 15 })
-		) == 1) {
-			// @ts-ignore
-			window.timers.hatzotLaylah = setTimeout(() => {
-				requestAnimationFrame(() => counter.updateTimer(zmanCalc.getSolarMidnight()))
-			}, Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(zmanCalc.getSolarMidnight().subtract({ minutes: 15 })).total('milliseconds'))
-		} else {
-			requestAnimationFrame(() => counter.updateTimer(zmanCalc.getSolarMidnight()))
+
+/** Starts (or schedules) whichever countdown applies now. Safe to run again. */
+function startCountdowns() {
+	const wasCounting = counter.target !== null;
+	counter.stop();
+	let scheduled = false;
+	// @ts-ignore
+	for (const key of ['countDownTillNextSec', 'hatzotLaylah', 'untilNetzCountdown']) clearTimeout(window.timers[key]);
+
+	if (hebDate.month == hebDate.monthsInYear || (hebDate.month == 1 && hebDate.day >= 2 && hebDate.day < 10)) {
+		if (zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight().dayOfYear
+			== Temporal.Now.plainDateISO(scheduleSettings.location.timezone).dayOfYear
+			&& Temporal.ZonedDateTime.compare(
+				Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
+				zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight())
+			< 1
+			&& hebDate.dayOfWeek !== 6) {
+			counter.start(zmanCalc.chainDate(zmanCalc.coreZC.getDate().subtract({ days: 1 })).getSolarMidnight())
+		} else if (zmanCalc.getSolarMidnight().dayOfYear == Temporal.Now.plainDateISO(scheduleSettings.location.timezone).dayOfYear
+			&& Temporal.ZonedDateTime.compare(
+				Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
+				zmanCalc.getSolarMidnight())
+			< 1
+			&& hebDate.dayOfWeek !== 5) {
+			if (Temporal.ZonedDateTime.compare(
+				Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone),
+				zmanCalc.getSolarMidnight().subtract({ minutes: 15 })
+			) == 1) {
+				scheduled = true;
+				// @ts-ignore
+				window.timers.hatzotLaylah = setTimeout(() => {
+					counter.start(zmanCalc.getSolarMidnight())
+				}, Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(zmanCalc.getSolarMidnight().subtract({ minutes: 15 })).total('milliseconds'))
+			} else {
+				counter.start(zmanCalc.getSolarMidnight())
+			}
 		}
 	}
+
+	const netz = zDTFromFunc(zmanCalc.getNetz())
+	if (rangeDates(zmanCalc.getMisheyakir(), Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone), netz)) {
+		const launchCountdown = () => counter.start(netz)
+		const untilCountdown = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone)
+			.until(netz.subtract({ minutes: 101 }))
+			.total('milliseconds');
+
+		scheduled = true;
+		// @ts-ignore
+		window.timers.untilNetzCountdown = setTimeout(launchCountdown, Math.max(untilCountdown, 500));
+	}
+
+	// it was counting down to a time the new data says has passed
+	if (wasCounting && counter.target === null && !scheduled)
+		counter.countdownFinished();
 }
 
-const netz = zDTFromFunc(zmanCalc.getNetz())
-if (rangeDates(zmanCalc.getMisheyakir(), Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone), netz)) {
-	const launchCountdown = () => requestAnimationFrame(() => counter.updateTimer(netz))
-	const untilCountdown = Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone)
-		.until(netz.subtract({ minutes: 101 }))
-		.total('milliseconds');
-
-	// @ts-ignore
-	window.timers.untilNetzCountdown = setTimeout(launchCountdown, Math.max(untilCountdown, 500));
-}
+startCountdowns();
+// better refraction data arrived after the first draw
+onZmanimUpdate("netzCountdown", startCountdowns);
 
 /**
  * @param {Temporal.ZonedDateTime} start
