@@ -7,8 +7,13 @@ import { isInIsrael } from "../misc/israel.js";
 import { languageTag } from "../misc/language.js";
 import { loadRefraction, readCachedRefraction, providerFromCache } from "../refraction-data.js";
 
-/** How long the first render waits for fresh refraction data before using what's stored (offline TVs). */
+/**
+ * How long the first render waits for fresh refraction data, only when nothing usable is stored yet
+ * (a new TV, or cleared storage). Every module on the page waits for this one, so the screen is blank meanwhile.
+ */
 const REFRACTION_WAIT_MS = 8000;
+/** How long reading the stored refraction data may take before the page goes on without it. */
+const REFRACTION_CACHE_WAIT_MS = 4000;
 
 /** @typedef {{
     seconds: boolean;
@@ -74,12 +79,17 @@ async function refreshBase(configText = document.getElementById("zy-scheduleScre
 	scheduleSettings.calendarToggle.elevation ??= jCal.getInIsrael();
 
 	// ─── Refraction (forecast air + terrain horizon), same source as the website and weekly print ───
-	// The screen reloads itself daily (reload.js), and this module runs again each time, so each day starts
-	// with current data. Start from what's stored (instant, works offline); give the network a few seconds
-	// to bring something fresher. If it's slower than that, it keeps loading in the background and fills
-	// the stored data (IndexedDB), so the next reload gets it.
+	// Every other module on the page imports this one, so nothing at all is drawn until this finishes.
+	// Render from what's stored (instant, works offline) whenever there is any air data stored, and let
+	// the network load carry on in the background: it fills the store (IndexedDB), and the screen reloads
+	// itself often enough (after each zeman passes, transition.js; at midnight, reset.js) that the next
+	// load shows it. Only a screen with nothing stored waits, and then only for a few seconds.
 	const lat = geoLocation.getLatitude(), lon = geoLocation.getLongitude();
-	const cachedRefraction = await readCachedRefraction(lat, lon);
+	/** @type {import("../refraction-data.js").CachedRefraction | null} */
+	const cachedRefraction = await Promise.race([
+		readCachedRefraction(lat, lon).catch(() => null),
+		new Promise((resolve) => setTimeout(() => resolve(null), REFRACTION_CACHE_WAIT_MS))
+	]);
 	/** @type {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} */
 	let refraction = {
 		atmosphereProvider: providerFromCache(cachedRefraction),
@@ -87,15 +97,22 @@ async function refreshBase(configText = document.getElementById("zy-scheduleScre
 		haze: cachedRefraction?.haze ?? null
 	};
 
-	/** @type {import("../refraction-data.js").RefractionData | null} */
-	const freshRefraction = await Promise.race([
-		loadRefraction(lat, lon).catch((e) => { console.error("Refraction data failed to load", e); return null; }),
-		new Promise((resolve) => setTimeout(() => resolve(null), REFRACTION_WAIT_MS))
-	]);
-	if (freshRefraction) {
-		if (freshRefraction.notes.length)
-			console.info("Refraction:", freshRefraction.notes);
-		refraction = { atmosphereProvider: freshRefraction.provider, horizon: freshRefraction.horizon, haze: freshRefraction.haze };
+	const freshLoad = loadRefraction(lat, lon)
+		.then((fresh) => {
+			if (fresh.notes.length)
+				console.info("Refraction:", fresh.notes);
+			return fresh;
+		})
+		.catch((e) => { console.error("Refraction data failed to load", e); return null; });
+
+	if (!refraction.atmosphereProvider) {
+		/** @type {import("../refraction-data.js").RefractionData | null} */
+		const freshRefraction = await Promise.race([
+			freshLoad,
+			new Promise((resolve) => setTimeout(() => resolve(null), REFRACTION_WAIT_MS))
+		]);
+		if (freshRefraction)
+			refraction = { atmosphereProvider: freshRefraction.provider, horizon: freshRefraction.horizon, haze: freshRefraction.haze };
 	}
 
 	zmanCalc = new ZemanFunctions(geoLocation, {
