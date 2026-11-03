@@ -40,6 +40,18 @@ import { correctSunsetPath } from './sunset-air.js';
 import { pathProblem, report } from './atmosphere-guard.js';
 
 /**
+ * Short hash of an event's profiles. The calculator caches traces by the air's key, so a key must change when the
+ * air does.
+ * @param {unknown} profiles
+ */
+function hashProfiles(profiles) {
+	const s = JSON.stringify(profiles);
+	let h = 5381;
+	for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+	return (h >>> 0).toString(36);
+}
+
+/**
  * @typedef {{ distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number }[] }} ServerProfile
  * @typedef {{ kind: 'gefs' | 'climatology', cycle?: string, members: { member: string, weight: number, profiles: ServerProfile[] }[] }} EventEnsemble
  * @typedef {{ date: string, event: 'sunrise'|'sunset', source: string, timeUtc: string, azimuthDeg: number,
@@ -84,7 +96,8 @@ export async function createServerPathAtmosphere(baseUrl, latitude, longitude, o
 			const json = await r.json();
 			for (const e of /** @type {PathEvent[]} */ (json.events ?? [])) {
 				if (!e.profiles?.length) continue;
-				const tag = e.source === 'forecast' ? json.cycle : e.source;
+				// a forecast is named by its run; the climatology grows under the same name, so its key carries its values
+				const tag = e.source === 'forecast' ? json.cycle : `${e.source}#${hashProfiles(e.profiles)}`;
 				const m = airModel(e);
 				const fix = (/** @type {ServerProfile[]} */ path) => m ? correctSunsetPath(path, m) : path;
 				// air no atmosphere can have (atmosphere-guard.js) is left out: the next provider answers that event

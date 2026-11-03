@@ -114,6 +114,12 @@
  *     (Meeus 3.8), within 0.04 ms of computing it in full at every instant: 0.7 us a call against
  *     SPACalculator's 3.8 us, so sunrise is faster than before, not slower.
  *
+ * 12. KosherJava's result cache: every setter here clears it, as KosherJava asks of a cacheable calculator, and
+ *     sunrise / sunset are keyed also by the air the provider gives for the date and event. A provider that gets
+ *     better data later, or ensembleTimes() swapping providers, can share one calculator without old times coming
+ *     back. GeoLocation's horizon elevations are honoured by tracing from the observer's real height down to that
+ *     horizon (so the air is read at its own heights), and setUseApparentSolarRadius(false) uses the fixed radius.
+ *
  * NOT ported from ChaiTables: its low-precision solar ephemeris (SPA is far better), the 6356.766 km
  * radius, the fixed 16' semidiameter, and the +/-15 s winter "inversion" cushion (a safety margin, not a
  * physical model - add your own margin on top if you want one).
@@ -860,6 +866,27 @@ function hashString(s) {
 	return (h >>> 0).toString(36);
 }
 
+/** ids for profile arrays that come without a key, so the result cache can tell them apart @type {WeakMap<object, number>} */
+const pathIds = new WeakMap();
+let nextPathId = 0;
+
+/**
+ * What identifies a provider's answer in the result cache: its key, or for one without a key its profile array (by
+ * identity) or its values. Equal answers give equal times, so equal keys must mean equal air.
+ * @param {AtmosphereSpec | null | undefined} spec
+ */
+function airKey(spec) {
+	if (spec == null) return 'std';
+	const s = /** @type {any} */ (spec);
+	if (typeof s.key === 'string') return s.key;
+	if (s.path && typeof s.path === 'object') {
+		let id = pathIds.get(s.path);
+		if (id === undefined) pathIds.set(s.path, id = ++nextPathId);
+		return 'path#' + id;
+	}
+	return JSON.stringify(spec);
+}
+
 /**
  * Atmosphere that varies along the path, from profiles at increasing distances (km) along the Sun's
  * azimuth. The first profile should be at (or near) the observer.
@@ -1309,6 +1336,8 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._event = null;
 		/** @type {GeoLocation} */
 		this._geo = null;
+		/** whether the sunrise / sunset being solved is the elevation-adjusted one @type {boolean | null} */
+		this._adjustForElevation = null;
 		/** @type {Cache<{dip:number, refr:number}>} */
 		this._horizonCache = new Cache(256);
 		/** @type {Cache<{a:Float64Array, refr:Float64Array, rough:Uint8Array}>} */
@@ -1334,6 +1363,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	setHumidity(on) {
 		this._humidity = !!on;
+		this.clearResultCache();
 	}
 
 	/**
@@ -1343,6 +1373,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	setTerrainRayTracing(on) {
 		this._terrainRays = !!on;
+		this.clearResultCache();
 	}
 
 	/**
@@ -1356,6 +1387,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	setEarlySunImages(on) {
 		this._earlySunImages = !!on;
+		this.clearResultCache();
 	}
 
 	/**
@@ -1369,6 +1401,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	setTerrainImageSearch(mode) {
 		if (mode !== 'auto' && mode !== 'scan' && mode !== 'off') throw new RangeError(`unknown mode ${mode}`);
 		this._terrainImages = mode;
+		this.clearResultCache();
 	}
 
 	/** Whether water vapour is included (see setHumidity). */
@@ -1383,6 +1416,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	setSeaSurfaceLayer(on) {
 		this._seaSurfaceLayer = !!on;
+		this.clearResultCache();
 	}
 
 	getCalculatorName() {
@@ -1407,6 +1441,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	setAtmosphereProvider(provider) {
 		this._atmosphereProvider = provider;
+		this.clearResultCache();
 	}
 
 	/** The provider set with setAtmosphereProvider (or null), e.g. to restore it after trying others. */
@@ -1420,6 +1455,7 @@ export default class ROYSPACalculator extends SPACalculator {
 	 */
 	setSolarRadiusKm(km) {
 		this._solarRadiusScale = km == null ? 1 : km / 696000;
+		this.clearResultCache();
 	}
 
 	/** @param {Temporal.PlainDate | null} date */
@@ -1429,19 +1465,50 @@ export default class ROYSPACalculator extends SPACalculator {
 
 	/** @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {number} zenith @param {boolean} adjustForElevation */
 	getUTCSunrise(date, geoLocation, zenith, adjustForElevation) {
-		return this._withEvent('sunrise', geoLocation, () => super.getUTCSunrise(date, geoLocation, zenith, adjustForElevation));
+		return this._withEvent('sunrise', geoLocation, adjustForElevation, () => super.getUTCSunrise(date, geoLocation, zenith, adjustForElevation));
 	}
 
 	/** @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {number} zenith @param {boolean} adjustForElevation */
 	getUTCSunset(date, geoLocation, zenith, adjustForElevation) {
-		return this._withEvent('sunset', geoLocation, () => super.getUTCSunset(date, geoLocation, zenith, adjustForElevation));
+		return this._withEvent('sunset', geoLocation, adjustForElevation, () => super.getUTCSunset(date, geoLocation, zenith, adjustForElevation));
 	}
 
-	/** @param {'sunrise'|'sunset'} event @param {GeoLocation} geo @param {() => number} fn */
-	_withEvent(event, geo, fn) {
-		const prevE = this._event, prevG = this._geo;
-		this._event = event; this._geo = geo;
-		try { return fn(); } finally { this._event = prevE; this._geo = prevG; }
+	/**
+	 * KosherJava's result cache, with the air the provider gives for the date and event added to the key: a time
+	 * computed before better data arrived, or with another provider (an ensemble member), is never returned for
+	 * it. Depression angles and the KosherJava elevation model don't depend on the air and keep the plain key.
+	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {number} zenith @param {boolean} adjustForElevation
+	 */
+	getCachedUTCSunrise(date, geoLocation, zenith, adjustForElevation) {
+		const base = /** @type {any} */ (this);   // isCaching and getCached are TypeScript-private, as in KosherJava
+		if (!base.isCaching()) return this.getUTCSunrise(date, geoLocation, zenith, adjustForElevation);
+		return base.getCached(date, this._resultKey(date, geoLocation, zenith, adjustForElevation, 'sunrise'),
+			() => this.getUTCSunrise(date, geoLocation, zenith, adjustForElevation));
+	}
+
+	/** @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {number} zenith @param {boolean} adjustForElevation */
+	getCachedUTCSunset(date, geoLocation, zenith, adjustForElevation) {
+		const base = /** @type {any} */ (this);
+		if (!base.isCaching()) return this.getUTCSunset(date, geoLocation, zenith, adjustForElevation);
+		return base.getCached(date, this._resultKey(date, geoLocation, zenith, adjustForElevation, 'sunset'),
+			() => this.getUTCSunset(date, geoLocation, zenith, adjustForElevation));
+	}
+
+	/**
+	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {number} zenith @param {boolean} adjustForElevation
+	 * @param {'sunrise'|'sunset'} event
+	 */
+	_resultKey(date, geoLocation, zenith, adjustForElevation, event) {
+		const key = SPA.resultKey(geoLocation, zenith, adjustForElevation, event === 'sunrise' ? 'SUNRISE' : 'SUNSET');
+		if (zenith !== 90 || this._elevationModel === 'kosherjava' || !this._atmosphereProvider) return key;
+		return key + '|' + airKey(this._atmosphereProvider(date, event, geoLocation));
+	}
+
+	/** @param {'sunrise'|'sunset'} event @param {GeoLocation} geo @param {boolean} adjustForElevation @param {() => number} fn */
+	_withEvent(event, geo, adjustForElevation, fn) {
+		const prevE = this._event, prevG = this._geo, prevA = this._adjustForElevation;
+		this._event = event; this._geo = geo; this._adjustForElevation = adjustForElevation;
+		try { return fn(); } finally { this._event = prevE; this._geo = prevG; this._adjustForElevation = prevA; }
 	}
 
 	/**
@@ -1459,12 +1526,12 @@ export default class ROYSPACalculator extends SPACalculator {
 	}
 
 	/** @param {Medium} atm @param {number} heightM */
-	_rayTracedHorizon(atm, heightM) {
+	_rayTracedHorizon(atm, heightM, floorM = 0) {
 		const R = this.getEarthRadius() * 1000;
-		return this._horizonCache.get(atm.key + '|' + heightM + '|' + R, () => {
-			const dip = -atm.seaHorizon(heightM, R);
+		return this._horizonCache.get(atm.key + '|' + heightM + '|' + R + (floorM ? '|f' + floorM : ''), () => {
+			const dip = -atm.seaHorizon(heightM, R, floorM);
 			// nudge just above the grazing ray so the tracer does not register it as reaching the sea
-			return { dip, refr: atm.refraction(heightM, -dip + (heightM > 0 ? 1e-7 : 0), R) };
+			return { dip, refr: atm.refraction(heightM, -dip + (heightM > floorM ? 1e-7 : 0), R, floorM) };
 		});
 	}
 
@@ -1480,18 +1547,21 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * Total depression of the Sun's upper limb below the geometric horizon, excluding solar radius, degrees:
 	 * observed dip + refraction of the horizon ray. With an atmosphere it is fully ray traced; without, it
 	 * is the 34.48' constant scaled by Sweer's ratio (equals the constant at sea level).
-	 * @param {number} elevationMeters
+	 * @param {number} elevationMeters the observer's height above sea level
 	 * @param {Atmosphere | Medium | null} [atmosphere]
+	 * @param {number} [horizonElevationMeters] height of the horizon's surface above sea level (GeoLocation's horizon
+	 *   elevation), at most elevationMeters; 0 for the sea
 	 */
-	getHorizonDepression(elevationMeters, atmosphere = null) {
+	getHorizonDepression(elevationMeters, atmosphere = null, horizonElevationMeters = 0) {
 		const h0 = Math.max(0, elevationMeters);
+		const floorM = Math.min(Math.max(0, horizonElevationMeters), h0);
 		if (atmosphere) {
-			const r = this._rayTracedHorizon(mediumOf(atmosphere), h0);
+			const r = this._rayTracedHorizon(mediumOf(atmosphere), h0, floorM);
 			const total = r.dip + r.refr;
 			// never let odd weather data take sunrise / sunset away: fall back to the default model
 			if (Number.isFinite(total)) return total;
 		}
-		const h = sweerHorizon(h0, 0, this.getEarthRadius() * 1000);
+		const h = sweerHorizon(h0 - floorM, floorM, this.getEarthRadius() * 1000);
 		return h.dipDeg + this.getRefraction() * h.refractionRatio;
 	}
 
@@ -1504,10 +1574,19 @@ export default class ROYSPACalculator extends SPACalculator {
 		if (zenith !== 90 || this._elevationModel === 'kosherjava') {
 			return super.adjustZenith(zenith, elevation, date);
 		}
+		const radius = this.isUseApparentSolarRadius() ? this.getApparentSolarRadius(date ?? null) : this.getSolarRadius();
+		// KosherJava passes the height above the event's horizon (GeoLocation.getSunriseElevation()). Trace from the
+		// observer's real height down to that horizon instead, so the air is read at the heights it was given for.
 		// Negative elevations (e.g. Dead Sea) are treated as sea level: the horizon model needs height >= 0.
-		const heightM = Number.isFinite(elevation) ? Math.max(0, elevation) : 0;
-		const atm = this._atmosphereFor(date, this._event, this._geo, heightM);
-		return zenith + this.getApparentSolarRadius(date ?? null) + this.getHorizonDepression(heightM, atm);
+		const geo = this._geo;
+		let heightM = Number.isFinite(elevation) ? Math.max(0, elevation) : 0, floorM = 0;
+		if (geo && this._adjustForElevation) {
+			const horizonM = this._event === 'sunset' ? geo.getHorizonElevationAtSunset() : geo.getHorizonElevationAtSunrise();
+			heightM = Math.max(0, geo.getElevation());
+			floorM = Math.min(horizonM, heightM);
+		}
+		const atm = this._atmosphereFor(date, this._event, geo, heightM);
+		return zenith + radius + this.getHorizonDepression(heightM, atm, floorM);
 	}
 
 	// --------------------------------------------------------------------------------------------
