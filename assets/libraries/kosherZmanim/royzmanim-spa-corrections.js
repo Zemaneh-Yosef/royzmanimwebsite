@@ -117,8 +117,7 @@
  * 12. KosherJava's result cache: every setter here clears it, as KosherJava asks of a cacheable calculator, and
  *     sunrise / sunset are keyed also by the air the provider gives for the date and event. A provider that gets
  *     better data later, or ensembleTimes() swapping providers, can share one calculator without old times coming
- *     back. GeoLocation's horizon elevations are honoured by tracing from the observer's real height down to that
- *     horizon (so the air is read at its own heights), and setUseApparentSolarRadius(false) uses the fixed radius.
+ *     back. setUseApparentSolarRadius(false) uses the fixed radius.
  *
  * NOT ported from ChaiTables: its low-precision solar ephemeris (SPA is far better), the 6356.766 km
  * radius, the fixed 16' semidiameter, and the +/-15 s winter "inversion" cushion (a safety margin, not a
@@ -1336,8 +1335,6 @@ export default class ROYSPACalculator extends SPACalculator {
 		this._event = null;
 		/** @type {GeoLocation} */
 		this._geo = null;
-		/** whether the sunrise / sunset being solved is the elevation-adjusted one @type {boolean | null} */
-		this._adjustForElevation = null;
 		/** @type {Cache<{dip:number, refr:number}>} */
 		this._horizonCache = new Cache(256);
 		/** @type {Cache<{a:Float64Array, refr:Float64Array, rough:Uint8Array}>} */
@@ -1465,12 +1462,12 @@ export default class ROYSPACalculator extends SPACalculator {
 
 	/** @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {number} zenith @param {boolean} adjustForElevation */
 	getUTCSunrise(date, geoLocation, zenith, adjustForElevation) {
-		return this._withEvent('sunrise', geoLocation, adjustForElevation, () => super.getUTCSunrise(date, geoLocation, zenith, adjustForElevation));
+		return this._withEvent('sunrise', geoLocation, () => super.getUTCSunrise(date, geoLocation, zenith, adjustForElevation));
 	}
 
 	/** @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {number} zenith @param {boolean} adjustForElevation */
 	getUTCSunset(date, geoLocation, zenith, adjustForElevation) {
-		return this._withEvent('sunset', geoLocation, adjustForElevation, () => super.getUTCSunset(date, geoLocation, zenith, adjustForElevation));
+		return this._withEvent('sunset', geoLocation, () => super.getUTCSunset(date, geoLocation, zenith, adjustForElevation));
 	}
 
 	/**
@@ -1504,11 +1501,11 @@ export default class ROYSPACalculator extends SPACalculator {
 		return key + '|' + airKey(this._atmosphereProvider(date, event, geoLocation));
 	}
 
-	/** @param {'sunrise'|'sunset'} event @param {GeoLocation} geo @param {boolean} adjustForElevation @param {() => number} fn */
-	_withEvent(event, geo, adjustForElevation, fn) {
-		const prevE = this._event, prevG = this._geo, prevA = this._adjustForElevation;
-		this._event = event; this._geo = geo; this._adjustForElevation = adjustForElevation;
-		try { return fn(); } finally { this._event = prevE; this._geo = prevG; this._adjustForElevation = prevA; }
+	/** @param {'sunrise'|'sunset'} event @param {GeoLocation} geo @param {() => number} fn */
+	_withEvent(event, geo, fn) {
+		const prevE = this._event, prevG = this._geo;
+		this._event = event; this._geo = geo;
+		try { return fn(); } finally { this._event = prevE; this._geo = prevG; }
 	}
 
 	/**
@@ -1526,12 +1523,12 @@ export default class ROYSPACalculator extends SPACalculator {
 	}
 
 	/** @param {Medium} atm @param {number} heightM */
-	_rayTracedHorizon(atm, heightM, floorM = 0) {
+	_rayTracedHorizon(atm, heightM) {
 		const R = this.getEarthRadius() * 1000;
-		return this._horizonCache.get(atm.key + '|' + heightM + '|' + R + (floorM ? '|f' + floorM : ''), () => {
-			const dip = -atm.seaHorizon(heightM, R, floorM);
+		return this._horizonCache.get(atm.key + '|' + heightM + '|' + R, () => {
+			const dip = -atm.seaHorizon(heightM, R);
 			// nudge just above the grazing ray so the tracer does not register it as reaching the sea
-			return { dip, refr: atm.refraction(heightM, -dip + (heightM > floorM ? 1e-7 : 0), R, floorM) };
+			return { dip, refr: atm.refraction(heightM, -dip + (heightM > 0 ? 1e-7 : 0), R) };
 		});
 	}
 
@@ -1547,21 +1544,18 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * Total depression of the Sun's upper limb below the geometric horizon, excluding solar radius, degrees:
 	 * observed dip + refraction of the horizon ray. With an atmosphere it is fully ray traced; without, it
 	 * is the 34.48' constant scaled by Sweer's ratio (equals the constant at sea level).
-	 * @param {number} elevationMeters the observer's height above sea level
+	 * @param {number} elevationMeters
 	 * @param {Atmosphere | Medium | null} [atmosphere]
-	 * @param {number} [horizonElevationMeters] height of the horizon's surface above sea level (GeoLocation's horizon
-	 *   elevation), at most elevationMeters; 0 for the sea
 	 */
-	getHorizonDepression(elevationMeters, atmosphere = null, horizonElevationMeters = 0) {
+	getHorizonDepression(elevationMeters, atmosphere = null) {
 		const h0 = Math.max(0, elevationMeters);
-		const floorM = Math.min(Math.max(0, horizonElevationMeters), h0);
 		if (atmosphere) {
-			const r = this._rayTracedHorizon(mediumOf(atmosphere), h0, floorM);
+			const r = this._rayTracedHorizon(mediumOf(atmosphere), h0);
 			const total = r.dip + r.refr;
 			// never let odd weather data take sunrise / sunset away: fall back to the default model
 			if (Number.isFinite(total)) return total;
 		}
-		const h = sweerHorizon(h0 - floorM, floorM, this.getEarthRadius() * 1000);
+		const h = sweerHorizon(h0, 0, this.getEarthRadius() * 1000);
 		return h.dipDeg + this.getRefraction() * h.refractionRatio;
 	}
 
@@ -1575,18 +1569,10 @@ export default class ROYSPACalculator extends SPACalculator {
 			return super.adjustZenith(zenith, elevation, date);
 		}
 		const radius = this.isUseApparentSolarRadius() ? this.getApparentSolarRadius(date ?? null) : this.getSolarRadius();
-		// KosherJava passes the height above the event's horizon (GeoLocation.getSunriseElevation()). Trace from the
-		// observer's real height down to that horizon instead, so the air is read at the heights it was given for.
 		// Negative elevations (e.g. Dead Sea) are treated as sea level: the horizon model needs height >= 0.
-		const geo = this._geo;
-		let heightM = Number.isFinite(elevation) ? Math.max(0, elevation) : 0, floorM = 0;
-		if (geo && this._adjustForElevation) {
-			const horizonM = this._event === 'sunset' ? geo.getHorizonElevationAtSunset() : geo.getHorizonElevationAtSunrise();
-			heightM = Math.max(0, geo.getElevation());
-			floorM = Math.min(horizonM, heightM);
-		}
-		const atm = this._atmosphereFor(date, this._event, geo, heightM);
-		return zenith + radius + this.getHorizonDepression(heightM, atm, floorM);
+		const heightM = Number.isFinite(elevation) ? Math.max(0, elevation) : 0;
+		const atm = this._atmosphereFor(date, this._event, this._geo, heightM);
+		return zenith + radius + this.getHorizonDepression(heightM, atm);
 	}
 
 	// --------------------------------------------------------------------------------------------
