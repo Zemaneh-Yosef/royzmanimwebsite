@@ -75,7 +75,8 @@ function seriesOf(j, lat, lon) {
  * @param {number} latitude @param {number} longitude
  * @param {{ fetch?: typeof fetch, url?: string, extraParams?: string, start?: string, end?: string, retries?: number }} [options]
  *   start / end: ISO dates (default August 2022 .. the end of last month).
- * @returns {Promise<{ normals: HazeSeries, normalsRange: [string, string], source: string }>}
+ * @returns {Promise<{ normals: HazeSeries, normalsRange: [string, string], source: string, cell: [number, number] | null }>}
+ *   cell: the centre of the CAMS cell Open-Meteo answered from (its latitude / longitude)
  */
 export async function fetchHazeNormals(latitude, longitude, options = {}) {
 	const doFetch = options.fetch ?? globalThis.fetch;
@@ -86,7 +87,8 @@ export async function fetchHazeNormals(latitude, longitude, options = {}) {
 		+ `&hourly=aerosol_optical_depth&start_date=${start}&end_date=${end}&timeformat=unixtime&timezone=GMT`
 		+ (options.extraParams ?? '');
 	const j = await getOpenMeteoJson(doFetch, url, { retries: options.retries ?? 1 });
-	return { normals: seriesOf(j, latitude, longitude), normalsRange: [start, end], source: 'CAMS global via Open-Meteo air-quality API' };
+	return { normals: seriesOf(j, latitude, longitude), normalsRange: [start, end], source: 'CAMS global via Open-Meteo air-quality API',
+		cell: Number.isFinite(j?.latitude) && Number.isFinite(j?.longitude) ? [j.latitude, j.longitude] : null };
 }
 
 /**

@@ -15,14 +15,18 @@
  *   Worker (import from refraction-snapshot.js, NOT this file, so the forecast modules stay out of it):
  *     const provider = providerFromSnapshot(table, normals);
  *
- * IndexedDB (database DB_NAME, one key-value store), per location (the last MAX_LOCATIONS places; older
- * ones are evicted, and more of them if the browser's quota is hit):
- *   - horizon set + monthly normals: kept until evicted (they don't change for a place)
+ * IndexedDB (database DB_NAME, one key-value store), per stored place (the last MAX_LOCATIONS places; older
+ * ones are evicted, and more of them if the browser's quota is hit), each kind of data apart:
+ *   - horizon set: kept until evicted (checked against the server's terrain about once a day)
+ *   - monthly normals: kept until evicted (they don't change for a place)
  *   - forecast snapshot: the provider's results for yesterday .. +FORECAST_DAYS, stamped with when it
  *     was fetched. Fresh (< FORECAST_TTL_MS) -> used with no network at all; older but within
  *     FORECAST_MAX_AGE_MS -> shown at once while a fresh one loads (stale-while-revalidate).
  *   - haze (for Tzet by the stars' haze delay, star-nightfall.js): monthly averages + reference (refetched
- *     after HAZE_NORMALS_MAX_AGE_MS), light pollution, and the evening forecast (HAZE_TTL_MS).
+ *     after HAZE_NORMALS_MAX_AGE_MS) and the evening forecast (HAZE_TTL_MS).
+ *   - sky: the light pollution (the atlas doesn't change).
+ * A location is served by whichever stored place's data its own source would answer the same for (see "Which
+ * stored place serves a location" below), so a GPS fix a few metres from the last one downloads nothing anew.
  * Settings stay in localStorage (small, and read synchronously before the page renders). This cache used
  * to live there too (capped at 3 places by localStorage's ~5 MB); what a browser still has there is moved
  * into IndexedDB once and removed from localStorage.
@@ -36,7 +40,9 @@ import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHa
 import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
 import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
 import { fetchOpenMeteoNormals } from "../libraries/kosherZmanim/open-meteo-atmosphere.js";
-import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf, HorizonPendingError } from "../libraries/kosherZmanim/horizon-client.js";
+import { fetchNearestNormals } from "../libraries/kosherZmanim/nws-atmosphere.js";
+import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf, areaContains, HorizonPendingError } from "../libraries/kosherZmanim/horizon-client.js";
+import { chooseOpenMeteoModel } from "../libraries/kosherZmanim/open-meteo-path.js";
 import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "../libraries/kosherZmanim/open-meteo-haze.js";
 import { fetchLightPollution } from "../libraries/light-pollution-client.js";
 
@@ -69,8 +75,8 @@ const STORE = "entries";
 /** Give up on IndexedDB if opening it takes longer than this (an old Safari bug can leave it hanging). */
 const DB_OPEN_TIMEOUT_MS = 3000;
 
-/** Bump when the cached shape changes, so old entries are ignored. */
-const CACHE_VERSION = 2;
+/** Bump when the cached shape changes, so old entries are ignored (and swept). 3: each kind apart, by grid cell. */
+const CACHE_VERSION = 3;
 /**
  * The horizon data's generation on this side. The server's terrain no longer needs it: a stored horizon is
  * checked against the server's terrain for its place about once a day (TERRAIN_CHECK_MS, /v1/terrain-version)
@@ -83,6 +89,8 @@ export const TERRAIN_VERSION = "bare-earth-2"; // 2: + Jerusalem 10 m DTM
 /** How often a stored horizon is checked against the server's terrain for its place. */
 const TERRAIN_CHECK_MS = 24 * 60 * 60 * 1000;
 const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
+/** What each stored place's data cover (PlaceCells by place id): small, read to find the place serving a location. */
+const CELLS_KEY = `refraction:v${CACHE_VERSION}:cells`;
 
 // Types live in refraction-snapshot.js; aliased here so either module can be imported for them
 /** @typedef {import("./refraction-snapshot.js").AtmosphereSpec} AtmosphereSpec */
@@ -96,9 +104,9 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
 /** @typedef {import("./refraction-snapshot.js").ProviderSnapshot} ProviderSnapshot */
 /** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeData} HazeData */
 /**
- * What is stored for a place's haze.
+ * What is stored for a place's haze (its light pollution is stored apart, as the place's sky).
  * @typedef {{ normals: HazeSeries, normalsRange: [string, string], source: string, normalsFetchedAt: number,
- *             blpCdM2: number | null, forecast: HazeSeries | null, forecastFetchedAt: number | null,
+ *             forecast: HazeSeries | null, forecastFetchedAt: number | null,
  *             forecastSource?: string, aodScale?: number | null, calibratedAt?: number }} StoredHaze
  *   normals / forecast: CAMS's hourly series (open-meteo-haze.js), read at each time's own moment (hazeOn).
  *   Data stored before the series were kept (monthly averages at fixed moments) is fetched again once.
@@ -108,7 +116,10 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
 // Re-exported so main-thread code has one import
 export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./refraction-snapshot.js";
 
-/** @typedef {{ fetchedAt: number, table: ProviderSnapshot }} CachedForecast */
+/**
+ * @typedef {{ fetchedAt: number, table: ProviderSnapshot, cell?: [number, number] | null }} CachedForecast
+ *   cell: the centre of the weather model's cell Open-Meteo answered from (null: its source reported none)
+ */
 
 /**
  * @typedef {Object} CachedRefraction
@@ -139,11 +150,17 @@ export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./r
 /** @param {number} lat @param {number} lon */
 const placeId = (lat, lon) => `${lat.toFixed(5)},${lon.toFixed(5)}`;
 /** @param {string} id */
-const staticKey = (id) => `refraction:v${CACHE_VERSION}:${id}:${TERRAIN_VERSION}`;
+const horizonKey = (id) => `refraction:v${CACHE_VERSION}:${id}:horizon:${TERRAIN_VERSION}`;
 /** @param {string} id */
 const forecastKey = (id) => `refraction:v${CACHE_VERSION}:${id}:forecast`;
 /** @param {string} id */
+const normalsKey = (id) => `refraction:v${CACHE_VERSION}:${id}:normals`;
+/** @param {string} id */
 const hazeKey = (id) => `refraction:v${CACHE_VERSION}:${id}:haze`;
+/** @param {string} id */
+const skyKey = (id) => `refraction:v${CACHE_VERSION}:${id}:sky`;
+/** Ends of the keys that are current while CACHE_VERSION is (the horizon's also needs TERRAIN_VERSION). */
+const CURRENT_KINDS = [":forecast", ":normals", ":haze", ":sky", `:horizon:${TERRAIN_VERSION}`];
 /**
  * Haze of a reference place (e.g. Jerusalem's average sky, for dawn by the horizon glow): outside the place
  * index, so it never pushes out one of the user's places. Ends in ":haze", so sweepOldEntries keeps it.
@@ -160,7 +177,171 @@ const OUR_KEY = /^refraction:v\d+:/;
  */
 function isStaleKey(key) {
 	return !key.startsWith(`refraction:v${CACHE_VERSION}:`)
-		|| (!key.endsWith(":forecast") && !key.endsWith(":haze") && key !== INDEX_KEY && !key.endsWith(`:${TERRAIN_VERSION}`));
+		|| (key !== INDEX_KEY && key !== CELLS_KEY && !CURRENT_KINDS.some(end => key.endsWith(end)));
+}
+
+// ─── Which stored place serves a location ────────────────────────────────────
+//
+// A new GPS fix lands metres from the last one. Each kind of data is reused from a stored place only where its own
+// source would answer with the same data - the same cell of the same grid - so neighbouring cells never share (as the
+// Android app's RefractionRepository does):
+//
+//  - horizon:  the server builds it for the official area (neighbourhood, village, city) containing the point, so it
+//              serves every location inside that area: its outline (area.polygons, asked with outline=1) where the
+//              server sent one, else its box; the smallest area where several do. A point in no known area gets a
+//              horizon for the point itself, which serves only within GPS noise.
+//  - forecast: the weather model's cell around the observer, as Open-Meteo reported it. Several models are on
+//              projected grids (and Europe's mixes them), so a location must lie within half a cell of the reported
+//              centre: the circle inside the cell (forecastCellRadiusM).
+//  - normals:  the reanalysis cell Open-Meteo reported (ERA5-Land, 0.1 degrees; a coarser ERA5 cell holds that square too).
+//  - haze:     the CAMS cell Open-Meteo reported (0.4 degrees); a location within 0.125 degrees of its centre is in it.
+//  - sky:      the light-pollution atlas pixel the server read (its `pixel`), else computed as the server locates them.
+//
+// Data whose source reported no cell (NWS or NOAA station fallbacks, a horizon for a point in no known area) serve
+// only within GPS noise. Each kind is then fetched again for the place it came from, so it stays in the same cell.
+
+/** How far apart two fixes of the same spot can be, metres. */
+const GPS_NOISE_M = 25;
+const NORMALS_HALF_CELL_DEG = 0.05;
+const HAZE_HALF_CELL_DEG = 0.125;
+// the World Atlas grid as the refraction server reads it (zemaneh-shamayim light_pollution.py: TOP, LEFT, PX)
+const SKY_TOP = 85.0541668645001;
+const SKY_LEFT = -180.00000000000003;
+const SKY_PX = 0.008333330000000002;
+
+/** @typedef {[number, number]} Cell the reported centre of a grid cell, [lat, lon] */
+/** @typedef {{ row: number, col: number }} SkyPixel */
+/**
+ * What a stored place's data cover; a kind is present when the place has that kind stored (null: its source
+ * reported no cell, so it serves within GPS_NOISE_M only).
+ * @typedef {{ lat: number, lon: number,
+ *             horizon?: { terrain: string, bbox: [number, number, number, number] | null, outline: boolean, size: number },
+ *             forecast?: Cell | null, normals?: Cell | null, haze?: Cell | null, sky?: SkyPixel | null }} PlaceCells
+ *   horizon.bbox: the area's [south, west, north, east] (null: a horizon for a point in no known area);
+ *   outline: the stored horizon has the area's outline (area.polygons); size: the area's, to prefer the smallest.
+ */
+/** @typedef {"horizon" | "forecast" | "normals" | "haze" | "sky"} Kind */
+/** @typedef {{ lat: number, lon: number, id: string }} Spot */
+/** @typedef {Record<Kind, Spot>} Places the stored place (or the location itself) each kind comes from */
+
+/** @param {number} lat @param {number} lon @returns {Spot} */
+const spot = (lat, lon) => ({ lat, lon, id: placeId(lat, lon) });
+
+/** The atlas pixel a point is in. @param {number} lat @param {number} lon @returns {SkyPixel} */
+export function skyPixel(lat, lon) {
+	return { row: Math.floor((SKY_TOP - lat) / SKY_PX), col: Math.floor((lon - SKY_LEFT) / SKY_PX) };
+}
+
+/** Rough distance, metres (fine at these ranges). @param {number} aLat @param {number} aLon @param {number} lat @param {number} lon */
+function metres(aLat, aLon, lat, lon) {
+	const dy = (aLat - lat) * 111320;
+	const dx = (((aLon - lon + 540) % 360) - 180) * 111320 * Math.cos(lat * Math.PI / 180);
+	return Math.hypot(dx, dy);
+}
+
+/** @param {number} a @param {number} b */
+const lonDiff = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
+
+/**
+ * Half the cell of the finest model behind a place's forecast (chooseOpenMeteoModel): the circle inside it, metres.
+ * @param {number} lat @param {number} lon
+ */
+export function forecastCellRadiusM(lat, lon) {
+	const lonM = 111320 * Math.cos(lat * Math.PI / 180);
+	switch (chooseOpenMeteoModel(lat, lon)) {
+		case "best_match": return 650;                   // Europe: AROME 1.3 km
+		case "gem_seamless": return 1250;                // Canada: HRDPS 2.5 km
+		case "icon_seamless": return 0.03125 * lonM;     // Israel: ICON-EU 0.0625 degrees
+		default: return lat >= 24 && lat <= 50 && lon >= -125 && lon <= -66
+			? 1500                                       // contiguous US: HRRR 3 km
+			: 0.055 * lonM;                              // elsewhere: GFS 0.11 degrees
+	}
+}
+
+/**
+ * Whether a stored place's data of one kind are what its source would give at (lat, lon). The horizon's outline is
+ * tested apart (placesFor), as it lives in the horizon entry.
+ * @param {Kind} kind @param {PlaceCells} c @param {number} lat @param {number} lon
+ */
+function serves(kind, c, lat, lon) {
+	const near = () => metres(c.lat, c.lon, lat, lon) <= GPS_NOISE_M;
+	switch (kind) {
+		case "horizon": {
+			const b = c.horizon?.bbox;
+			return b ? lat >= b[0] && lat <= b[2] && lon >= b[1] && lon <= b[3] : near();
+		}
+		case "forecast": return c.forecast ? metres(c.forecast[0], c.forecast[1], lat, lon) <= forecastCellRadiusM(lat, lon) : near();
+		case "normals": return c.normals
+			? Math.abs(c.normals[0] - lat) <= NORMALS_HALF_CELL_DEG && lonDiff(c.normals[1], lon) <= NORMALS_HALF_CELL_DEG : near();
+		case "haze": return c.haze
+			? Math.abs(c.haze[0] - lat) <= HAZE_HALF_CELL_DEG && lonDiff(c.haze[1], lon) <= HAZE_HALF_CELL_DEG : near();
+		case "sky": {
+			const mine = c.sky ?? skyPixel(c.lat, c.lon), here = skyPixel(lat, lon);
+			return mine.row === here.row && mine.col === here.col;
+		}
+	}
+}
+
+/**
+ * Size of an area, for preferring the smallest (square degrees, longitudes scaled to the latitude): its outline's
+ * where it has one, else its box's.
+ * @param {any} area
+ */
+function areaSize(area) {
+	const b = area?.bbox;
+	const k = Array.isArray(b) ? Math.cos((b[0] + b[2]) / 2 * Math.PI / 180) : 1;
+	if (Array.isArray(area?.polygons) && area.polygons.length) {
+		let total = 0;
+		for (const rings of area.polygons) {
+			rings.forEach((/** @type {number[]} */ r, /** @type {number} */ i) => {
+				let s = 0;
+				for (let a = 0, j = r.length - 2; a < r.length; j = a, a += 2) s += r[j] * r[a + 1] - r[a] * r[j + 1];
+				total += (i === 0 ? 1 : -1) * Math.abs(s / 2);
+			});
+		}
+		if (total > 0) return total * k;
+	}
+	return Array.isArray(b) ? (b[2] - b[0]) * (b[3] - b[1]) * k : 0;
+}
+
+/** What is kept of a stored horizon to find it again. @param {any} horizon @returns {NonNullable<PlaceCells["horizon"]>} */
+function horizonCell(horizon) {
+	const area = horizon?.area;
+	const b = Array.isArray(area?.bbox) && area.bbox.length === 4 ? /** @type {[number, number, number, number]} */ (area.bbox) : null;
+	return { terrain: TERRAIN_VERSION, bbox: b, outline: !!(b && Array.isArray(area.polygons) && area.polygons.length), size: b ? areaSize(area) : 0 };
+}
+
+/**
+ * The stored place each kind of data for (lat, lon) comes from: for the horizon the smallest area containing it, for
+ * the rest the nearest place whose cell holds it; the location itself where none does.
+ * @param {number} lat @param {number} lon @returns {Promise<Places>}
+ */
+async function placesFor(lat, lon) {
+	const raw = spot(lat, lon);
+	/** @type {Record<string, PlaceCells>} */
+	const cat = (await readOne(CELLS_KEY)) ?? {};
+	const entries = Object.entries(cat);
+	/** @param {Kind} kind @returns {[string, PlaceCells][]} */
+	const hits = (kind) => entries.filter(([, c]) => c?.[kind] !== undefined && (kind !== "horizon" || c.horizon?.terrain === TERRAIN_VERSION)
+		&& serves(kind, c, lat, lon));
+	/** @param {[string, PlaceCells] | undefined} e */
+	const toSpot = (e) => e ? { lat: e[1].lat, lon: e[1].lon, id: e[0] } : raw;
+	/** @param {Kind} kind */
+	const nearest = (kind) => toSpot(hits(kind).sort(([, a], [, b]) => metres(a.lat, a.lon, lat, lon) - metres(b.lat, b.lon, lat, lon))[0]);
+
+	// horizon: in an area (its outline, read from the stored horizon where there is one), smallest first; else the
+	// nearest point horizon
+	let horizon = raw;
+	const h = hits("horizon");
+	const inAreas = h.filter(([, c]) => c.horizon?.bbox).sort(([, a], [, b]) => (a.horizon?.size ?? 0) - (b.horizon?.size ?? 0));
+	const outlines = inAreas.some(([, c]) => c.horizon?.outline) ? await readMany(inAreas.map(([id, c]) => c.horizon?.outline ? horizonKey(id) : "")) : [];
+	const area = inAreas.find(([, c], i) => !c.horizon?.outline || !outlines[i]?.horizon?.area
+		|| areaContains(outlines[i].horizon.area, lat, lon));
+	if (area) horizon = toSpot(area);
+	else horizon = toSpot(h.filter(([, c]) => !c.horizon?.bbox)
+		.sort(([, a], [, b]) => metres(a.lat, a.lon, lat, lon) - metres(b.lat, b.lon, lat, lon))[0]);
+
+	return { horizon, forecast: nearest("forecast"), normals: nearest("normals"), haze: nearest("haze"), sky: nearest("sky") };
 }
 
 /**
@@ -315,31 +496,35 @@ async function readMany(keys) {
 /** @param {string} key */
 const readOne = async (key) => (await readMany([key]))[0];
 
-/** @param {IDBObjectStore} store @param {string} id */
-function removePlace(store, id) {
-	store.delete(staticKey(id));
-	store.delete(forecastKey(id));
-	store.delete(hazeKey(id));
+/** @param {IDBObjectStore} store @param {string} id @param {Record<string, PlaceCells>} cells */
+function removePlace(store, id, cells) {
+	for (const key of [horizonKey, forecastKey, normalsKey, hazeKey, skyKey]) store.delete(key(id));
+	delete cells[id];
 }
 
 /** Writes run one after another, so two of them never update the place index from the same old copy. */
 let writeQueue = Promise.resolve();
+/** The places the location being loaded draws on (each kind may come from another): kept with the newest. */
+let inUse = /** @type {string[]} */ ([]);
 
 /**
- * Write, keeping only the last MAX_LOCATIONS places. If the quota is hit, keep fewer of the older
- * places and try again; if even this place alone doesn't fit, give up quietly (the data is used for this
+ * Write one kind of a place's data, and what it covers (`cell`, into the place's PlaceCells: undefined keeps the
+ * cell already recorded, else none), keeping only the last MAX_LOCATIONS places. If the quota is hit, keep fewer of
+ * the older places and try again; if even this place alone doesn't fit, give up quietly (the data is used for this
  * page anyway). Never rejects.
- * @param {string} id @param {string} key @param {unknown} value
+ * @param {Spot} place @param {Kind} kind @param {unknown} value @param {any} cell
  * @returns {Promise<void>}
  */
-function writeForPlace(id, key, value) {
-	const run = writeQueue.then(() => writeForPlaceNow(id, key, value)).catch(() => { /* best-effort */ });
+function writeForPlace(place, kind, value, cell) {
+	const key = { horizon: horizonKey, forecast: forecastKey, normals: normalsKey, haze: hazeKey, sky: skyKey }[kind](place.id);
+	const run = writeQueue.then(() => writeForPlaceNow(place, key, value, kind, cell)).catch(() => { /* best-effort */ });
 	writeQueue = run;
 	return run;
 }
 
-/** @param {string} id @param {string} key @param {unknown} value */
-async function writeForPlaceNow(id, key, value) {
+/** @param {Spot} place @param {string} key @param {unknown} value @param {Kind} kind @param {any} cell */
+async function writeForPlaceNow(place, key, value, kind, cell) {
+	const id = place.id;
 	const db = await openDB();
 	if (!db) return;
 
@@ -351,15 +536,23 @@ async function writeForPlaceNow(id, key, value) {
 		const done = transactionDone(tx);
 		// callbacks, not await, inside the transaction: it must not see an empty event loop turn
 		const indexReq = store.get(INDEX_KEY);
-		indexReq.onsuccess = () => {
+		const cellsReq = store.get(CELLS_KEY);
+		cellsReq.onsuccess = () => {
 			/** @type {string[]} */
 			const old = Array.isArray(indexReq.result) ? indexReq.result : [];
-			const index = [id, ...old.filter(other => other !== id)];
+			const using = inUse.filter(other => other !== id && old.includes(other));
+			const index = [id, ...using, ...old.filter(other => other !== id && !using.includes(other))];
+			/** @type {Record<string, PlaceCells>} */
+			const cells = cellsReq.result && typeof cellsReq.result === "object" ? cellsReq.result : {};
 			placesBefore = index.length;
 			for (const evicted of index.splice(keep))
-				removePlace(store, evicted);
+				removePlace(store, evicted, cells);
+			const mine = cells[id] ?? { lat: place.lat, lon: place.lon };
+			if (cell !== undefined || mine[kind] === undefined) mine[kind] = cell ?? null;
+			cells[id] = mine;
 			putValue(store, key, value);
 			store.put(index, INDEX_KEY);
+			store.put(cells, CELLS_KEY);
 		};
 		try {
 			await done;
@@ -395,29 +588,40 @@ function writeReference(key, value) {
  * @returns {Promise<CachedRefraction | null>}
  */
 export async function readCachedRefraction(lat, lon) {
-	const id = placeId(lat, lon);
-	const [stat, storedForecast, storedHaze] = await readMany([staticKey(id), forecastKey(id), hazeKey(id)]);
+	return (await readStored(lat, lon)).cached;
+}
+
+/**
+ * What is stored for a location, and the places each kind came from.
+ * @param {number} lat @param {number} lon
+ * @returns {Promise<{ places: Places, cached: CachedRefraction | null, sky: { blpCdM2: number | null } | null }>}
+ */
+async function readStored(lat, lon) {
+	const places = await placesFor(lat, lon);
+	const [stat, storedForecast, storedNormals, storedHaze, sky] = await readMany([horizonKey(places.horizon.id),
+		forecastKey(places.forecast.id), normalsKey(places.normals.id), hazeKey(places.haze.id), skyKey(places.sky.id)]);
 	/** @type {CachedForecast | null} */
 	let forecast = storedForecast;
 	if (!forecast || typeof forecast.fetchedAt !== "number" || !forecast.table
 		|| Date.now() - forecast.fetchedAt > FORECAST_MAX_AGE_MS)
 		forecast = null;
-	const haze = hazeFromStored(storedHaze);
-	if (!stat && !forecast && !haze) return null;
-	return { horizon: stat?.horizon ?? null, normals: stat?.normals ?? null, forecast, haze,
-		terrainCheckedAt: stat?.terrainCheckedAt ?? null };
+	const haze = hazeFromStored(storedHaze, sky?.blpCdM2 ?? null);
+	const normals = storedNormals?.normals ?? null;
+	if (!stat && !forecast && !haze && !normals) return { places, cached: null, sky };
+	return { places, sky, cached: { horizon: stat?.horizon ?? null, normals, forecast, haze,
+		terrainCheckedAt: stat?.terrainCheckedAt ?? null } };
 }
 
 /**
  * HazeData from what is stored (the forecast part only while it is under FORECAST_MAX_AGE_MS old).
- * @param {StoredHaze | null} st @returns {HazeData | null}
+ * @param {StoredHaze | null} st @param {number | null} blpCdM2 the light pollution (stored apart) @returns {HazeData | null}
  */
-function hazeFromStored(st) {
+function hazeFromStored(st, blpCdM2) {
 	if (!st || !st.normals?.aod?.length) return null;
 	const fresh = st.forecastFetchedAt != null && Date.now() - st.forecastFetchedAt < FORECAST_MAX_AGE_MS;
 	return {
 		normals: st.normals, normalsRange: st.normalsRange, source: st.source,
-		blpCdM2: st.blpCdM2 ?? null,
+		blpCdM2,
 		forecast: fresh ? st.forecast ?? null : null,
 		forecastFetchedAt: fresh ? st.forecastFetchedAt : null,
 		...(fresh && st.forecastSource ? { forecastSource: st.forecastSource } : {}),
@@ -442,23 +646,27 @@ async function fetchHazeCalibration(serverUrl, lat, lon, signal) {
 /**
  * Haze for a place: stored parts reused while fresh, the rest fetched. Never throws.
  * @param {number} lat @param {number} lon @param {string} serverUrl @param {string[]} notes
- * @param {{ force?: boolean, signal?: AbortSignal, reference?: boolean }} options
+ * @param {{ force?: boolean, signal?: AbortSignal, reference?: boolean, sky?: Spot,
+ *           storedSky?: { blpCdM2: number | null } | null }} options
  *   reference: a reference place (loadReferenceHaze): normals and calibration only - no forecast, no light
  *   pollution - stored outside the place index.
+ *   sky: the place the light pollution is read for and stored under (placesFor), with what it has stored.
  * @returns {Promise<HazeData | null>}
  */
 async function loadHaze(lat, lon, serverUrl, notes, options) {
-	const id = placeId(lat, lon);
-	const key = options.reference ? referenceHazeKey(id) : hazeKey(id);
+	const here = spot(lat, lon);
+	const key = options.reference ? referenceHazeKey(here.id) : hazeKey(here.id);
 	/** @type {StoredHaze | null} */
 	const st = await readOne(key);
+	const sky = options.reference ? null : options.sky ?? here;
+	const storedBlp = options.storedSky?.blpCdM2 ?? null;
 	const now = Date.now();
 	// haze stored before the hourly series were kept is fetched again once
 	const normalsOk = st && st.normals?.aod?.length && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
 	const forecastOk = options.reference || (!options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS
 		&& st.forecast !== undefined);
 	const calibrationOk = st?.calibratedAt != null && now - st.calibratedAt < HAZE_CALIBRATION_MAX_AGE_MS;
-	const [normals, fc, blp, scale] = await Promise.all([
+	const [normals, fc, lp, scale] = await Promise.all([
 		normalsOk ? null : fetchHazeNormals(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze normals: ${e.message}`); return null; }),
 		forecastOk ? null : fetchHazeForecastBoth(lat, lon)
 			.then(ev => ({ ev, src: "cams" }))
@@ -468,18 +676,24 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 				return fetchGefsHazeForecastBoth(lat, lon).then(ev => ({ ev, src: "gefs" }));
 			})
 			.catch((/** @type {Error} */ e) => { notes.push(`haze forecast (NOAA GEFS-Aerosols): ${e.message}`); return null; }),
-		options.reference || st?.blpCdM2 != null ? null : fetchLightPollution(serverUrl, lat, lon, { signal: options.signal })
-			.then(lp => lp.blpCdM2).catch((/** @type {Error} */ e) => { notes.push(`light pollution: ${e.message}`); return null; }),
+		!sky || storedBlp != null ? null : fetchLightPollution(serverUrl, sky.lat, sky.lon, { signal: options.signal })
+			.catch((/** @type {Error} */ e) => { notes.push(`light pollution: ${e.message}`); return null; }),
 		calibrationOk ? null : fetchHazeCalibration(serverUrl, lat, lon, options.signal)
 			.catch((/** @type {Error} */ e) => { notes.push(`haze calibration: ${e.message}`); return null; }),
 	]);
+	const blp = Number.isFinite(lp?.blpCdM2) ? /** @type {number} */ (lp?.blpCdM2) : null;
+	if (sky && blp != null) {
+		// the pixel the server read, else the one it would read (servers before `pixel`)
+		const px = lp?.pixel;
+		const pixel = px && Number.isInteger(px.row) && Number.isInteger(px.col) ? { row: px.row, col: px.col } : skyPixel(sky.lat, sky.lon);
+		writeForPlace(sky, "sky", { blpCdM2: blp, pixel }, pixel);
+	}
 	const base = normals ?? (st?.normals?.aod?.length ? st : null);
 	if (!base) return null;
 	/** @type {StoredHaze} */
 	const out = {
 		normals: base.normals, normalsRange: base.normalsRange, source: base.source,
 		normalsFetchedAt: normals ? now : /** @type {StoredHaze} */ (st).normalsFetchedAt,
-		blpCdM2: blp ?? st?.blpCdM2 ?? null,
 		forecast: fc?.ev ?? st?.forecast ?? null,
 		forecastFetchedAt: fc ? now : st?.forecastFetchedAt ?? null,
 		forecastSource: fc?.src ?? st?.forecastSource,
@@ -487,12 +701,13 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 		// a failed ask is retried on the next load; an answer is kept for HAZE_CALIBRATION_MAX_AGE_MS
 		calibratedAt: scale != null ? now : st?.calibratedAt,
 	};
-	if (normals || fc || blp != null || scale != null) {
-		// not awaited: the page uses `out` now, storing it can finish in the background
-		if (!options.reference) writeForPlace(id, key, out);
+	if (normals || fc || scale != null) {
+		// not awaited: the page uses `out` now, storing it can finish in the background. The haze is kept by the
+		// CAMS cell its averages came from (the forecast is asked for the same place, so it is the same cell)
+		if (!options.reference) writeForPlace(here, "haze", out, normals?.cell ?? undefined);
 		else writeReference(key, out);
 	}
-	return hazeFromStored(out);
+	return hazeFromStored(out, blp ?? storedBlp);
 }
 
 /**
@@ -516,7 +731,7 @@ export async function loadReferenceHaze(lat, lon, options = {}) {
  * @param {number} lat @param {number} lon @returns {Promise<HazeData | null>}
  */
 export async function readCachedReferenceHaze(lat, lon) {
-	return hazeFromStored(await readOne(referenceHazeKey(placeId(lat, lon))));
+	return hazeFromStored(await readOne(referenceHazeKey(placeId(lat, lon))), null);
 }
 
 /**
@@ -587,8 +802,9 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  */
 export async function loadRefraction(lat, lon, options = {}) {
 	const serverUrl = options.serverUrl ?? REFRACTION_SERVER;
-	const id = placeId(lat, lon);
-	const cached = await readCachedRefraction(lat, lon);
+	// each kind is read from, fetched for and stored under the place that serves this location for it (placesFor)
+	const { places: p, cached, sky: storedSky } = await readStored(lat, lon);
+	inUse = [...new Set(Object.values(p).map(s => s.id))];
 	const freshForecast = !options.force && cached?.forecast && forecastStaleIn(cached) > 0
 		&& (!options.humidity || snapshotHasHumidity(cached.forecast.table)) ? cached.forecast : null;
 	// normals stored without dew points are fetched again when humidity is wanted
@@ -597,7 +813,17 @@ export async function loadRefraction(lat, lon, options = {}) {
 	const notes = [];
 	/** @type {Promise<HazeData | null>} */
 	const hazeP = options.haze === false ? Promise.resolve(null)
-		: loadHaze(lat, lon, serverUrl, notes, { force: options.force, signal: options.signal });
+		: loadHaze(p.haze.lat, p.haze.lon, serverUrl, notes, { force: options.force, signal: options.signal, sky: p.sky, storedSky });
+	/** Store the normals when they were just downloaded. @param {Normals | null} normals */
+	const storeNormals = (normals) => {
+		if (normals && normals !== cached?.normals)
+			writeForPlace(p.normals, "normals", { normals }, /** @type {any} */ (normals).cell ?? undefined);
+	};
+	/** Store the horizon when it is new or was just checked. @param {Horizon | null} horizon */
+	const storeHorizon = (horizon) => {
+		if (horizon && (horizon !== cached?.horizon || terrainCheckedAt !== (cached?.terrainCheckedAt ?? null)))
+			writeForPlace(p.horizon, "horizon", { horizon, terrainCheckedAt }, horizonCell(horizon));
+	};
 
 	// The stored horizon, checked about once a day against the server's terrain for this place and
 	// downloaded again only where that changed
@@ -606,14 +832,15 @@ export async function loadRefraction(lat, lon, options = {}) {
 	/** @type {number | null} */
 	let horizonRetryS = null;
 	/** @param {string} version @returns {Promise<Horizon>} */
-	const fetchHorizon = (version) => fetchHorizonForArea(serverUrl, lat, lon, { signal: options.signal, version, moon: options.moon })
+	const fetchHorizon = (version) => fetchHorizonForArea(serverUrl, p.horizon.lat, p.horizon.lon,
+		{ signal: options.signal, version, moon: options.moon, outline: true })
 		.then(h => { terrainCheckedAt = Date.now(); return h; });
 	/** @type {Promise<Horizon | null>} */
 	const horizonP = (!stored
 		? fetchHorizon(TERRAIN_VERSION)
 		: !options.force && terrainCheckedAt !== null && Date.now() - terrainCheckedAt < TERRAIN_CHECK_MS
 			? Promise.resolve(stored)
-			: /** @type {Promise<Horizon>} */ (fetchTerrainVersion(serverUrl, lat, lon, { area: true, signal: options.signal, moon: options.moon })
+			: /** @type {Promise<Horizon>} */ (fetchTerrainVersion(serverUrl, p.horizon.lat, p.horizon.lon, { area: true, signal: options.signal, moon: options.moon })
 				.then(/** @returns {Horizon | Promise<Horizon>} */ now => {
 					if (sameTerrain(now, terrainOf(stored))) {
 						terrainCheckedAt = Date.now();
@@ -646,13 +873,14 @@ export async function loadRefraction(lat, lon, options = {}) {
 		let normals = usableNormals;
 		if (!normals) {
 			try {
-				normals = await fetchOpenMeteoNormals(lat, lon, { humidity: options.humidity });
+				normals = await fetchOpenMeteoNormals(p.normals.lat, p.normals.lon, { humidity: options.humidity });
 			} catch (e) {
 				notes.push(`normals: ${/** @type {Error} */ (e).message}`);
 			}
 		}
 		const horizon = await horizonP;
-		writeForPlace(id, staticKey(id), { horizon, normals, terrainCheckedAt });
+		storeHorizon(horizon);
+		storeNormals(normals);
 		notes.push("typical air only (the printed range runs past the forecast)");
 		return {
 			provider: chainProviders(serverPaths, providerFromNormals(normals)),
@@ -663,6 +891,16 @@ export async function loadRefraction(lat, lon, options = {}) {
 	// ── Fresh forecast in storage: no Open-Meteo request ──
 	if (freshForecast) {
 		const fromStore = providerFromSnapshot(freshForecast.table, null);
+		// the forecast's place may be another than the normals' (each kind by its own cell): normals this location has
+		// none of yet are downloaded for it now (Open-Meteo's ERA5, else NOAA's station normals, as createAutoAtmosphere)
+		/** @type {Promise<Normals | null>} */
+		const normalsP = cached?.normals ? Promise.resolve(cached.normals)
+			: fetchOpenMeteoNormals(p.normals.lat, p.normals.lon, { humidity: options.humidity })
+				.catch((/** @type {Error} */ e) => {
+					notes.push(`Open-Meteo normals: ${e.message}`);
+					return fetchNearestNormals(p.normals.lat, p.normals.lon);
+				})
+				.catch(() => null);
 		/** @type {AtmosphereProvider | null} */
 		let serverPaths = null;
 		if (options.prefetch) {
@@ -677,9 +915,9 @@ export async function loadRefraction(lat, lon, options = {}) {
 			}
 		}
 		const horizon = await horizonP;
-		const normals = cached?.normals ?? null;
-		if (horizon && (horizon !== cached?.horizon || terrainCheckedAt !== (cached?.terrainCheckedAt ?? null)))
-			writeForPlace(id, staticKey(id), { horizon, normals, terrainCheckedAt });
+		const normals = await normalsP;
+		storeHorizon(horizon);
+		storeNormals(normals);
 
 		notes.push(`forecast from storage (${Math.round((Date.now() - freshForecast.fetchedAt) / 60000)} min old)`);
 		return {
@@ -696,8 +934,9 @@ export async function loadRefraction(lat, lon, options = {}) {
 	// ── Fetch ──
 	// wait: this page already shows the stored forecast / normals while this runs (resetCalendar), and
 	// what follows needs the complete result (snapshot, normals, gotForecast)
-	const atm = await createAutoAtmosphere(lat, lon, { serverUrl, normals: usableNormals, wait: true,
-		openMeteo: options.humidity ? { humidity: true } : undefined })
+	// for the place whose forecast cell holds this location (the same cell again), normals for the normals' place
+	const atm = await createAutoAtmosphere(p.forecast.lat, p.forecast.lon, { serverUrl, normals: usableNormals, wait: true,
+		normalsAt: [p.normals.lat, p.normals.lon], openMeteo: options.humidity ? { humidity: true } : undefined })
 		.catch((/** @type {Error} */ e) => { notes.push(`atmosphere: ${e.message}`); return null; });
 	const horizon = await horizonP;
 	if (atm) notes.push(...atm.notes);
@@ -711,7 +950,8 @@ export async function loadRefraction(lat, lon, options = {}) {
 	}
 
 	const normals = atm?.normals ?? cached?.normals ?? null;
-	writeForPlace(id, staticKey(id), { horizon, normals, terrainCheckedAt });
+	storeHorizon(horizon);
+	storeNormals(normals);
 
 	const gotForecast = !!(atm?.forecast || atm?.paths?.eventCount);
 	const fetchedAt = Date.now();
@@ -719,11 +959,14 @@ export async function loadRefraction(lat, lon, options = {}) {
 	const provider = atm?.provider ?? providerFromNormals(normals) ?? (() => null);
 
 	if (gotForecast) {
+		// kept by the path model's cell Open-Meteo reported (none from NWS, Open-Meteo's single temperature or the
+		// server alone: then only within GPS noise)
+		const cell = atm?.forecastCell ?? undefined;
 		// Evaluating ~66 sunrises/sunsets takes a moment; do it after the page has rendered
 		whenIdle(() => {
 			/** @type {CachedForecast} */
-			const forecast = { fetchedAt, table: snapshotProvider(provider, null, yesterdayAt(lon), FORECAST_DAYS) };
-			writeForPlace(id, forecastKey(id), forecast);
+			const forecast = { fetchedAt, table: snapshotProvider(provider, null, yesterdayAt(p.forecast.lon), FORECAST_DAYS), cell: cell ?? null };
+			writeForPlace(p.forecast, "forecast", forecast, cell);
 		});
 	} else if (cached?.forecast) {
 		// Offline / every source failed: a stored forecast (even past its TTL) beats the normals

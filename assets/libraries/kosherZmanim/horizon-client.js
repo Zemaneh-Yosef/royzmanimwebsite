@@ -31,7 +31,8 @@
 /**
  * @typedef {{ south: number, west: number, north: number, east: number }} BoundingBox
  * @typedef {{ radiusKm?: number, bbox?: BoundingBox | [number, number, number, number], area?: boolean, gridM?: number, eyeM?: number,
- *             heightM?: number, minKm?: number, moon?: boolean, version?: string, fetch?: typeof fetch, signal?: AbortSignal }} HorizonOptions
+ *             heightM?: number, minKm?: number, moon?: boolean, outline?: boolean, version?: string, fetch?: typeof fetch,
+ *             signal?: AbortSignal }} HorizonOptions
  *   radiusKm: 0 (default) = the exact coordinates; > 0 = search vantage points within that radius
  *             (the server caps it, default 3 km), each with its own ground height + eyeM.
  *   bbox:     search every spot inside this box instead of a circle ([south, west, north, east] or an
@@ -48,6 +49,8 @@
  *   moon:     also return `moon`, the composite moonrise / moonset horizon (the Moon's wider range of
  *             directions; in an area, the spots at the server's 90th percentile of horizon height, i.e. a
  *             moonrise nearly all of the area can see). The sun's part of the answer is unchanged.
+ *   outline:  with area, also return the area's outline (`area.polygons`, see AreaInfo) - from servers that
+ *             have it; others leave it out.
  *   version:  any string, sent as &v=; the server ignores it, but a new value is a new URL, so browsers
  *             re-fetch instead of using a cached copy (horizons are cached for up to 30 days). Change it
  *             when the server's terrain data changes (fetchTerrainVersion tells when it has, per place).
@@ -78,7 +81,7 @@ export async function fetchHorizon(baseUrl, lat, lon, options = {}) {
  * @returns {Promise<TerrainVersion>}
  */
 export function fetchTerrainVersion(baseUrl, lat, lon, options = {}) {
-	const { version, ...rest } = options;
+	const { version, outline, ...rest } = options;
 	return getJson(`${baseUrl.replace(/\/+$/, '')}/v1/terrain-version?${horizonQuery(lat, lon, rest)}`, options, 'terrain version');
 }
 
@@ -161,6 +164,7 @@ function horizonQuery(lat, lon, options) {
 	if (options.heightM != null) q.set('height', String(options.heightM));
 	if (options.minKm != null) q.set('min_km', String(options.minKm));
 	if (options.moon) q.set('moon', '1');
+	if (options.outline) q.set('outline', '1');
 	if (options.version) q.set('v', options.version);
 	return q;
 }
@@ -197,8 +201,33 @@ export function fetchHorizonForArea(baseUrl, lat, lon, options = {}) {
 
 /**
  * @typedef {{ id: string, name: string, kind: string, level: number, source: string, places: string[],
- *             bbox: [number, number, number, number], radiusKm: number }} AreaInfo
+ *             bbox: [number, number, number, number], radiusKm: number, polygons?: number[][][] }} AreaInfo
+ *   bbox: [south, west, north, east].
+ *   polygons: the area's outline (asked with `outline`): polygons, each a list of rings (outer ring first, then
+ *     holes), each ring a flat [lon, lat, lon, lat, ...] list, as the server's areas.py stores them; a point is
+ *     inside by the even-odd rule over all of a polygon's rings (areaContains).
  */
+
+/**
+ * Whether a point lies in an area: inside its outline where it has one (`polygons`, as the server's areas.py
+ * tests it: even-odd over each polygon's rings), else inside its bounding box.
+ * @param {Pick<AreaInfo, 'bbox'> & { polygons?: number[][][] | null }} area @param {number} lat @param {number} lon
+ */
+export function areaContains(area, lat, lon) {
+	const b = area.bbox;
+	if (Array.isArray(b) && b.length === 4 && !(lat >= b[0] && lat <= b[2] && lon >= b[1] && lon <= b[3])) return false;
+	if (!Array.isArray(area.polygons) || !area.polygons.length) return Array.isArray(b) && b.length === 4;
+	return area.polygons.some(rings => {
+		let inside = false;
+		for (const r of rings) {
+			for (let i = 0, j = r.length - 2; i < r.length; j = i, i += 2) {
+				const xi = r[i], yi = r[i + 1], xj = r[j], yj = r[j + 1];
+				if ((yi > lat) !== (yj > lat) && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi) inside = !inside;
+			}
+		}
+		return inside;
+	});
+}
 
 /**
  * The visible point the set was computed for (radiusKm 0), as plain fields - e.g. to build the

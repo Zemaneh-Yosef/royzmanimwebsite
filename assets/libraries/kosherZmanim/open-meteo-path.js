@@ -135,8 +135,10 @@ export function sunsetAirModel(name, event, lat, lon, t, fetchedAt) {
 
 /**
  * @typedef {import('./royzmanim-spa-corrections.js').PathProfile} PathProfile
- * @typedef {{ times: number[], cols: Record<string, (number | null)[]>, elevation: number, levels: number[] }} Series
+ * @typedef {{ times: number[], cols: Record<string, (number | null)[]>, elevation: number, levels: number[],
+ *             cell: [number, number] | null }} Series
  *   levels: the pressure levels this series actually has (any value at all)
+ *   cell: the centre of the grid cell the model answered from (Open-Meteo's latitude / longitude), not the point asked
  */
 
 /**
@@ -203,6 +205,7 @@ function toSeries(json, levels = []) {
 		const has = (/** @type {string} */ k) => (cols[k] ?? []).some((/** @type {any} */ v) => v != null);
 		return {
 			times: cols.time ?? [], cols, elevation: j?.elevation,
+			cell: Number.isFinite(j?.latitude) && Number.isFinite(j?.longitude) ? [j.latitude, j.longitude] : null,
 			levels: levels.filter(p => has(`temperature_${p}hPa`) && has(`geopotential_height_${p}hPa`)),
 		};
 	});
@@ -246,6 +249,8 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 	let fetchedAt = 0;
 	/** @type {{ start: number, end: number } | null} */ let coverage = null;
 	/** @type {Error | null} */ let lastError = null;
+	/** the centre of the model's grid cell around the observer, as Open-Meteo reported it @type {[number, number] | null} */
+	let cell = null;
 
 	const refresh = async () => {
 		// two azimuths per event, at 1/4 and 3/4 of the window: every date is within ~2 deg of one
@@ -305,6 +310,7 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 		const ends = [newFc, newFb].filter(s => s.length).map(s => s[0].times);
 		fans = newFans; fc = newFc; fb = newFb; marine = newMarine; built = new Map(); usedModel = new Map();
 		fetchedAt = now;
+		cell = any[0].cell;
 		coverage = {
 			start: Math.min(...ends.map(ts => ts[0])) * 1000,
 			end: Math.max(...ends.map(ts => ts[ts.length - 1])) * 1000,
@@ -405,6 +411,8 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 		get coverage() { return coverage; },
 		/** the last problem (a failed fallback or marine request) even when the data are usable */
 		get lastError() { return lastError; },
+		/** the centre of the model's grid cell around the observer [lat, lon], as Open-Meteo reported it (null if it didn't) */
+		get cell() { return cell; },
 		/** number of points on open water (sea-surface temperature used) */
 		get seaPoints() { return marine.size; },
 		source: 'open-meteo-path',

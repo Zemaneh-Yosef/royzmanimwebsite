@@ -63,7 +63,7 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
 /**
  * @param {number} latitude @param {number} longitude
  * @param {{ forecast?: 'path' | 'nws' | 'open-meteo', serverUrl?: string, serverDays?: number, serverEnsemble?: boolean,
- *           normals?: { minC: number[], meanC: number[], heightM?: number } | null,
+ *           normals?: { minC: number[], meanC: number[], heightM?: number } | null, normalsAt?: [number, number],
  *           normalsSource?: 'open-meteo' | 'ncei', userAgent?: string, fetch?: typeof fetch,
  *           timeoutMs?: number, pathTimeoutMs?: number, wait?: boolean, interim?: boolean,
  *           onUpdate?: (atm: any, what: UpdateKind) => void,
@@ -74,6 +74,8 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
  *   serverEnsemble: also load the server's ensembles (atm.paths.members(date, event); see ensemble.js).
  *   normals: pass what a previous run returned (atm.normals): used from the first moment, and the
  *     download is skipped.
+ *   normalsAt: [lat, lon] to download the normals for, when not the place itself (e.g. a stored place whose
+ *     normals cell the caller keeps them by).
  *   userAgent: identifies the app to NWS (servers only; browsers send their own).
  *   timeoutMs: per request (default 20000). pathTimeoutMs: per path-profile request (default 60000;
  *     Open-Meteo can take 30-50 s the first time a model is asked for in a while). Each is retried once.
@@ -92,6 +94,7 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
  * atm.refresh() when the connection returns: it retries whatever failed.
  */
 export async function createAutoAtmosphere(latitude, longitude, options = {}) {
+	const latitude0 = latitude, longitude0 = longitude;
 	const baseFetch = options.fetch ?? globalThis.fetch;
 	/** fetch that gives up after `ms`, so a bad connection can't stall anything @returns {typeof fetch} */
 	const fetchWithin = (/** @type {number} */ ms) => (url, init = {}) => {
@@ -186,6 +189,7 @@ export async function createAutoAtmosphere(latitude, longitude, options = {}) {
 	// 3. normals
 	const loadNormals = async () => {
 		if (state.normals) return;
+		const [latitude, longitude] = options.normalsAt ?? [latitude0, longitude0];
 		/** @type {any} */ let n = null;
 		if (options.normalsSource === 'ncei') {
 			try { n = await fetchNearestNormals(latitude, longitude, { fetch: doFetch }); }
@@ -223,6 +227,9 @@ export async function createAutoAtmosphere(latitude, longitude, options = {}) {
 		get model() { return state.path ? { model: state.path.model, fallback: state.path.fallbackModel } : null; },
 		get normals() { return state.normals; },
 		get forecast() { return state.path ?? state.single; },
+		/** the centre of the path model's grid cell around the place [lat, lon], as Open-Meteo reported it; null when
+		 *  the path profiles are not in use (the single-temperature forecasts report no cell) */
+		get forecastCell() { return state.path?.cell ?? null; },
 		get paths() { return state.paths; },
 		/** what could not be used, for logging */
 		notes,

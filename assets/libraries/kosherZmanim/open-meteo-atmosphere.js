@@ -167,8 +167,10 @@ export async function createOpenMeteoAtmosphere(latitude, longitude, options = {
 
 /**
  * @typedef {{ sunriseC: number[], sunsetC: number[], minC: number[], meanC: number[], heightM: number,
- *             years: [number, number], source: string, sunriseDewC?: number[], sunsetDewC?: number[] }} EventNormals
+ *             years: [number, number], source: string, sunriseDewC?: number[], sunsetDewC?: number[],
+ *             cell?: [number, number] }} EventNormals
  *   sunriseC / sunsetC: average temperature (C) at the time of sunrise / sunset, January..December.
+ *   cell: the centre of the reanalysis cell the archive answered from (its latitude / longitude), when it said.
  *   minC / meanC are the same arrays under the names monthlyClimate() reads (it uses minC for sunrise
  *   and meanC for sunset), so monthlyClimate(normals) uses the event-time values directly.
  *   sunriseDewC / sunsetDewC: average dew point at those times (only with options.humidity).
@@ -223,6 +225,7 @@ export async function fetchOpenMeteoNormals(latitude, longitude, options = {}) {
 		years: [startYear, endYear],
 		source: 'Open-Meteo archive (ECMWF ERA5)',
 	};
+	if (Number.isFinite(j?.latitude) && Number.isFinite(j?.longitude)) out.cell = [j.latitude, j.longitude];
 	if (options.humidity) {
 		// dew points are a bonus: gaps leave them out rather than failing the normals
 		const dew = monthly(cleanSeries(hourlySeries(j?.hourly?.time ?? [], j?.hourly?.dew_point_2m ?? []), 'dew', 'Open-Meteo archive'));
