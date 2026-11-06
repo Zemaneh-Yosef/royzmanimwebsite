@@ -1,59 +1,37 @@
 ---
 title: Offline
 permalink: /offline
-layout: nothing
 ---
 <!-- Shown by the service worker (sw.js) when a page that was never stored is opened without a connection.
-     Stored when the worker installs, with everything it loads, so it always works offline. -->
-<style>
-	.offline-page {
-		max-width: 34rem;
-		margin: 0 auto;
-		padding: 18vh 1.25rem 2rem;
-		text-align: center;
-	}
-	.offline-page .bi-wifi-off { font-size: 3.5rem; opacity: .6; }
-	.offline-page h1 { font-size: 1.6rem; margin: 1rem 0 .5rem; }
-	.offline-page p { opacity: .8; }
-	.offline-actions { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; margin-top: 1.75rem; }
-	.offline-actions a, .offline-actions button {
-		font: inherit;
-		padding: .6rem 1.25rem;
-		border-radius: 2rem;
-		border: 1px solid currentColor;
-		background: none;
-		color: inherit;
-		text-decoration: none;
-		cursor: pointer;
-	}
-	.offline-actions .primary { background: #373E5C; border-color: #373E5C; color: #fff; }
-</style>
-
-<main class="offline-page">
-	<i class="bi bi-wifi-off" aria-hidden="true"></i>
-	<h1>
+     Stored when the worker installs, with everything it loads, so it always works offline. The layout's
+     sidebar lists the saved places, whose calendars all work offline. -->
+<section class="text-center px-3" style="padding-top: 12vh;">
+	<i class="bi bi-wifi-off d-block mb-3" style="font-size: 3.5rem; opacity: .6;" aria-hidden="true"></i>
+	<h3 class="fw-bold mb-3">
 		<span class="lang lang-he">אין חיבור לאינטרנט</span>
 		<span class="lang lang-he-Latn">You're offline</span>
 		<span class="lang lang-en">You're offline</span>
-	</h1>
-	<p>
-		<span class="lang lang-he">הדף הזה עדיין לא נשמר לשימוש ללא חיבור. לוח הזמנים זמין גם בלי חיבור.</span>
-		<span class="lang lang-he-Latn">This page hasn't been saved for offline use yet. The Zemanim calendar works without a connection.</span>
-		<span class="lang lang-en">This page hasn't been saved for offline use yet. The Zemanim calendar works without a connection.</span>
+	</h3>
+	<p class="mb-4 mx-auto" style="max-width: 34rem;">
+		<span class="lang lang-he">הדף הזה עדיין לא נשמר לשימוש ללא חיבור. לוח הזמנים, וכל המקומות השמורים שלך, זמינים גם בלי חיבור.</span>
+		<span class="lang lang-he-Latn">This page hasn't been saved for offline use yet. The Zemanim calendar, and all your saved places, work without a connection.</span>
+		<span class="lang lang-en">This page hasn't been saved for offline use yet. The Zemanim calendar, and all your saved places, work without a connection.</span>
 	</p>
-	<div class="offline-actions">
-		<a class="primary" id="offlineCalendar" href="/calendar">
+	<div class="d-flex flex-wrap gap-2 justify-content-center">
+		<a class="btn btn-primary" data-mdb-ripple-init id="offlineCalendar" href="/calendar">
+			<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
 			<span class="lang lang-he">ללוח הזמנים</span>
 			<span class="lang lang-he-Latn">Open the calendar</span>
 			<span class="lang lang-en">Open the calendar</span>
 		</a>
-		<button type="button" onclick="window.location.reload()">
+		<button type="button" class="btn btn-outline-primary" data-mdb-ripple-init onclick="window.location.reload()">
+			<i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>
 			<span class="lang lang-he">נסה שוב</span>
 			<span class="lang lang-he-Latn">Try again</span>
 			<span class="lang lang-en">Try again</span>
 		</button>
 	</div>
-</main>
+</section>
 
 <script>
 	// The last calendar opened (remembered by assets/js/pwa.js), so its location doesn't have to be chosen again
