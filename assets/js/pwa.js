@@ -34,6 +34,7 @@
 		window.addEventListener("load", function () {
 			var firstInstall = !navigator.serviceWorker.controller;
 			navigator.serviceWorker.register("/sw.js", { scope: "/" }).then(function () {
+				keepStorage();
 				if (!firstInstall || !window.performance || !performance.getEntriesByType) return;
 				// Hand the worker what this page already loaded, so it works offline right away.
 				return navigator.serviceWorker.ready.then(function (registration) {
@@ -51,6 +52,17 @@
 	var deferredPrompt = null;
 	var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)
 		|| window.navigator.standalone === true;
+
+	// Asks the browser not to clear the stored site (and with it the offline calendar) when space runs low
+	// or, in Safari, after a week without a visit. Chrome and Safari decide on their own, without asking;
+	// Firefox asks the user, so there it's only asked from the installed app.
+	function keepStorage() {
+		if (!navigator.storage || !navigator.storage.persist || !navigator.storage.persisted) return;
+		if (/Firefox\//.test(navigator.userAgent) && !standalone) return;
+		navigator.storage.persisted().then(function (persisted) {
+			if (!persisted) return navigator.storage.persist();
+		}).catch(function () { /* not allowed here: the browser keeps its usual rules */ });
+	}
 
 	function section() { return document.getElementById("pwaInstall"); }
 
