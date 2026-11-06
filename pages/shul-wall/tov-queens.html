@@ -89,7 +89,7 @@ layout: nothing
 
 	#content {
 		--polesStart: 9.5dvw;
-		--polesEnd: 10dvw;
+		--polesEnd: 9.5dvw;
 
 		background-image: linear-gradient(to bottom, black 2.5%, transparent 10%, transparent 90%, black 97.5%), url("/assets/images/shul-wall/tov-bg.png");
         background-size: cover;
@@ -112,8 +112,8 @@ layout: nothing
 		column-gap: 6rem;
 		font-size: 1.3em;
 
-		font-family: "Barlow", "Hadassah Friedlaender", var(--bs-body-font-family);
-		font-weight: 500;
+		font-family: "Spectral", "Hadassah Friedlaender", var(--bs-body-font-family);
+		font-weight: 600;
 
 		overflow: hidden;
 	}
@@ -136,7 +136,7 @@ layout: nothing
 	}
 
 	#times > * > *:first-child {
-		font-weight: bold;
+		font-weight: 800;
 	}
 
 	.timeDisplayWide {
@@ -334,6 +334,10 @@ layout: nothing
 	#weekShiur h1 {
 		margin-bottom: .75rem;
 	}
+
+	zman-schedule .list-group-item.d-flex.justify-content-between.align-items-center > div:last-child {
+		text-align: right;
+	}
 </style>
 
 <div id="content" data-current-page="1" data-page-count="4">
@@ -348,20 +352,20 @@ layout: nothing
 	<div id="weekSchedule" class="templeBG">
 		<div class="templeBGInner">
 			<h1 style="font-weight: 700;">Weekday Services</h1>
-			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="weekdayServics">
+			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 16pt; --bs-list-group-item-padding-y: .3rem;" id="weekdayServics">
 			</zman-schedule>
 		</div>
 	</div>
 	<div id="announcementsArea" class="templeBG">
 		<div class="templeBGInner">
 			<h1  style="font-weight: 700;">Announcements</h1>
-			<zman-schedule-table class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="announcements">
+			<zman-schedule-table class="list-group list-group-flush" style="line-height: 1.3; font-size: 16pt; --bs-list-group-item-padding-y: .3rem;" id="announcements">
 			</zman-schedule-table>
 		</div>
 	</div>
 	<div id="weekShiur" class="templeBG">
 		<h1 style="font-weight: 700;">Weekday Shiurim</h1>
-		<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="weekShiurCard">
+		<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 16pt; --bs-list-group-item-padding-y: .3rem;" id="weekShiurCard">
 		</zman-schedule>
 	</div>
 	<div id="shabbat" class="templeBG">
@@ -376,9 +380,9 @@ layout: nothing
 					</div>
 				</div>
 			</div>
-			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="shabbatNightSch">
+			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 16pt; --bs-list-group-item-padding-y: .3rem;" id="shabbatNightSch">
 			</zman-schedule>
-			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 1.02rem; --bs-list-group-item-padding-y: .3rem;" id="shabbatDaySch">
+			<zman-schedule class="list-group list-group-flush" style="line-height: 1.3; font-size: 16pt; --bs-list-group-item-padding-y: .3rem;" id="shabbatDaySch">
 			</zman-schedule>
 			<div class="list-group list-group-flush lh-sm">
 				<div class="list-group-item d-flex justify-content-between shabIconElm">
