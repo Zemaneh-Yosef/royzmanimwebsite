@@ -3,7 +3,8 @@
 //     node scripts/pwa/precache.mjs <built site> [<site source>]
 //
 // Starting from the pages in PAGES, it collects every same-origin file they need to run: scripts,
-// stylesheets (and the .woff2 fonts they use), icons, the manifest, their small images, the polyfills
+// stylesheets (and the .woff2 fonts and small images they use), icons, the manifest, their small images
+// (every srcset width that's small enough), the polyfills
 // _includes/polyfills.html may load, and the JavaScript modules those scripts import (statically,
 // through import() of a fixed path, as module workers via new URL("…", import.meta.url), and the
 // JSON they fetch from a fixed path). The list, and a version made from the bytes of every file on
@@ -34,7 +35,7 @@ const SKIP = ["assets/js/features/excelPrepare.js", "assets/libraries/xlsx.js"];
 const EXTRA = ["assets/libraries/kosherZmanim/hiloulah-en.json", "assets/libraries/kosherZmanim/hiloulah-he.json"];
 
 /** The pages' own <img>s up to this size are on the list; bigger ones are stored once they're shown. */
-const MAX_IMAGE_BYTES = 100 * 1024;
+const MAX_IMAGE_BYTES = 150 * 1024;
 
 const siteDir = path.resolve(process.argv[2] ?? "_site");
 const sourceDir = path.resolve(process.argv[3] ?? ".");
@@ -49,9 +50,15 @@ for (const page of PAGES) {
 	found.set(page, toUrl(page));
 	const html = await readFile(file, "utf8");
 	for (const ref of htmlReferences(html)) await add(ref, page);
+	// <img>s: src and every srcset width (_includes/image.html), each if it's small enough
 	for (const [tag] of html.matchAll(/<img\b[^>]*>/gi)) {
-		const src = tag.match(/\bsrc\s*=\s*(?:"([^"]*)"|'([^']*)')/i)?.slice(1).find((v) => v !== undefined);
+		const attr = (name) => tag.match(new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i"))?.slice(1).find((v) => v !== undefined);
+		const src = attr("src");
 		if (src) await add(src, page, true);
+		for (const candidate of (attr("srcset") ?? "").split(",")) {
+			const url = candidate.trim().split(/\s+/)[0];
+			if (url) await add(url, page, true);
+		}
 	}
 	for (const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
 		if (/\bsrc\s*=/i.test(match[1]) || !/\btype\s*=\s*["']?module/i.test(match[1])) continue;
@@ -90,7 +97,7 @@ console.log(`pwa: ${urls.length} files (${(bytes / 1024 / 1024).toFixed(1)} MB) 
  * Adds a same-origin file, and what it imports, to the list.
  * @param {string} ref as written in the page or script
  * @param {string} from the file it was written in (relative to _site)
- * @param {boolean} [isImage] an <img>, left off the list when it's over MAX_IMAGE_BYTES
+ * @param {boolean} [isImage] an image, left off the list when it's over MAX_IMAGE_BYTES
  */
 async function add(ref, from, isImage = false) {
 	const resolved = resolve(ref, from);
@@ -98,7 +105,12 @@ async function add(ref, from, isImage = false) {
 	const { name, search } = resolved;
 	if (found.has(name) || SKIP.includes(name)) return;
 	const file = path.join(siteDir, name);
-	if (!existsSync(file)) { problems.push(`${from}: "${ref}" isn't in the built site`); return; }
+	if (!existsSync(file)) {
+		// a missing image only looks broken; a missing script would break the page offline
+		if (isImage) console.warn(`pwa: ${from}: "${ref}" isn't in the built site`);
+		else problems.push(`${from}: "${ref}" isn't in the built site`);
+		return;
+	}
 	if (isImage && (await stat(file)).size > MAX_IMAGE_BYTES) return;
 	// Requested exactly as referenced (e.g. a font's "?hash"), so the stored copy is found
 	found.set(name, name.endsWith(".html") ? toUrl(name) : "/" + name + search);
@@ -107,8 +119,11 @@ async function add(ref, from, isImage = false) {
 		for (const next of moduleReferences(code, name)) await add(next, name);
 	} else if (name.endsWith(".css")) {
 		const css = await readFile(file, "utf8");
-		for (const [, , url] of css.matchAll(/url\(\s*(["']?)([^"')]+)\1\s*\)/g))
-			if (/\.woff2$/i.test(url.split(/[?#]/)[0])) await add(url, name);
+		for (const [, , url] of css.matchAll(/url\(\s*(["']?)([^"')]+)\1\s*\)/g)) {
+			const file = url.split(/[?#]/)[0];
+			if (/\.woff2$/i.test(file)) await add(url, name);
+			else if (/\.(png|jpe?g|gif|webp|avif|svg)$/i.test(file)) await add(url, name, true); // backgrounds, if small enough
+		}
 	}
 }
 
