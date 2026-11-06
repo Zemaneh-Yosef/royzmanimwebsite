@@ -22,6 +22,14 @@ the build (patterns built with `new RegExp(…)` aren't checked), and browser AP
 need a polyfill in `scripts/legacy/polyfills/` (then run `pnpm build:polyfills`).
 New workers must be started with `spawnWorker()` from `assets/js/misc/worker.js` and listed in `WORKERS`.
 
+### Offline use
+
+The build also fills in the service worker's offline file list (`scripts/pwa/precache.mjs`): the home page,
+both calendars and `/offline`, with every file they load or import from a fixed path. A file a page reaches
+some other way (a URL put together at run time) has to be added to `EXTRA` there, or it's only stored once
+it has been used. The launch screens for iOS are made by `node scripts/pwa/make-splash.mjs` (needs Playwright);
+run it again after changing the icon.
+
 ## The zmanim core (`assets/js/core/`)
 
 `core/zmanimCore.js` is the calendar without a page: the settings that change the zemanim
