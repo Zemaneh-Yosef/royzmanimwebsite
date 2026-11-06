@@ -28,8 +28,8 @@
 		<script src="/assets/js/settings/docLoadBlock.js"></script>
 		<div class="d-none d-lg-flex flex-column flex-shrink-0" id="sidebar">
 			<a href="/" id="sidebarLogo" class="link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
-				<img class="sidebar-slim-only" src="/assets/images/icon-text.png" alt="Zemaneh Yosef Icon">
-				<img class="sidebar-wide-only" src="/assets/images/logo.png" alt="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar">
+				{% include image.html name="icon-text" sizes="72px" class="sidebar-slim-only" alt="Zemaneh Yosef Icon" %}
+				{% include image.html name="logo" sizes="235px" class="sidebar-wide-only" alt="Zemaneh Yosef - Rabbi Ovadiah Yosef Calendar" %}
 			</a>
 			<ul class="nav nav-pills nav-flush flex-column sidebar-actions sidebar-slim-only">
 				<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Your Places">
@@ -112,7 +112,7 @@
 			<header class="navbar d-lg-none mb-1">
 				<div class="container-fluid">
 					<a class="navbar-brand" href="/">
-						<img id="logoNavbar" src="/assets/images/logo.png" alt="Link to the Home Page"/>
+						{% include image.html name="logo" sizes="208px" id="logoNavbar" alt="Link to the Home Page" %}
 					</a>
 					<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
 						<span class="navbar-toggler-icon"></span>
