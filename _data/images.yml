@@ -1,0 +1,18 @@
+# Images the site shows through lossless WebP copies in several widths, so each screen downloads the one
+# it needs (pixel density included). The copies are made by the build (scripts/images/build.mjs, run by
+# _plugins/images.rb) from the source file, next to it in _site as name-<width>w.webp; they aren't in the
+# repository. Put one on a page with _includes/image.html. The source stays as it is for prints and flyers.
+#
+# Widths: about 1×, 2× and 3× of each size the image is shown at, never more than the source's own width.
+logo:
+  src: /assets/images/logo.png
+  # navbar 208px, wide sidebar 235px, home page 65–85vw
+  widths: [240, 480, 720, 960, 1280, 1600, 2000]
+icon-text:
+  src: /assets/images/icon-text.png
+  # slim sidebar 72px
+  widths: [72, 144, 216]
+icon-bg:
+  src: /assets/images/icon-bg.png
+  # sidebar logo background (assets/css/style.css), up to 256px wide
+  widths: [512]

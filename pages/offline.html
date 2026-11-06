@@ -1,0 +1,46 @@
+---
+title: Offline
+permalink: /offline
+---
+<!-- Shown by the service worker (sw.js) when a page that was never stored is opened without a connection.
+     Stored when the worker installs, with everything it loads, so it always works offline. The layout's
+     sidebar lists the saved places, whose calendars all work offline. -->
+<section class="text-center px-3" style="padding-top: 12vh;">
+	<i class="bi bi-wifi-off d-block mb-3" style="font-size: 3.5rem; opacity: .6;" aria-hidden="true"></i>
+	<h3 class="fw-bold mb-3">
+		<span class="lang lang-he">אין חיבור לאינטרנט</span>
+		<span class="lang lang-he-Latn">You're offline</span>
+		<span class="lang lang-en">You're offline</span>
+	</h3>
+	<p class="mb-4 mx-auto" style="max-width: 34rem;">
+		<span class="lang lang-he">הדף הזה עדיין לא נשמר לשימוש ללא חיבור. לוח הזמנים, וכל המקומות השמורים שלך, זמינים גם בלי חיבור.</span>
+		<span class="lang lang-he-Latn">This page hasn't been saved for offline use yet. The Zemanim calendar, and all your saved places, work without a connection.</span>
+		<span class="lang lang-en">This page hasn't been saved for offline use yet. The Zemanim calendar, and all your saved places, work without a connection.</span>
+	</p>
+	<div class="d-flex flex-wrap gap-2 justify-content-center">
+		<a class="btn btn-primary" data-mdb-ripple-init id="offlineCalendar" href="/calendar">
+			<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+			<span class="lang lang-he">ללוח הזמנים</span>
+			<span class="lang lang-he-Latn">Open the calendar</span>
+			<span class="lang lang-en">Open the calendar</span>
+		</a>
+		<button type="button" class="btn btn-outline-primary" data-mdb-ripple-init onclick="window.location.reload()">
+			<i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>
+			<span class="lang lang-he">נסה שוב</span>
+			<span class="lang lang-he-Latn">Try again</span>
+			<span class="lang lang-en">Try again</span>
+		</button>
+	</div>
+</section>
+
+<script>
+	// The last calendar opened (remembered by assets/js/pwa.js), so its location doesn't have to be chosen again
+	(function () {
+		try {
+			var last = window.localStorage.getItem("pwaLastCalendar");
+			if (last) document.getElementById("offlineCalendar").href = "/calendar" + last;
+		} catch (e) { /* storage blocked: the calendar asks for the location */ }
+	})();
+	// Back online: load the page that was asked for
+	window.addEventListener("online", function () { window.location.reload(); });
+</script>

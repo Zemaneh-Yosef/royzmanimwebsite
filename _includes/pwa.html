@@ -6,5 +6,8 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 		<meta name="application-name" content="זמני יוסף" />
 		<link rel="apple-touch-icon" href="/assets/images/pwa/apple-touch-icon.png" />
+		{%- for splash in site.data.pwaSplash %}
+		<link rel="apple-touch-startup-image" media="{{ splash.media }}" href="{{ splash.href }}" />
+		{%- endfor %}
 		<link rel="icon" type="image/png" sizes="192x192" href="/assets/images/pwa/icon-192.png" />
 		<script src="/assets/js/pwa.js"></script>
