@@ -278,14 +278,14 @@ layout: null
 		<span class="lang lang-en">Terrain tiles: <bdi data-v="server"></bdi> from our server, <bdi data-v="aws"></bdi> from AWS (of <bdi data-v="total"></bdi>)</span>
 	</template>
 	<template id="msg-sunrise">
-		<span class="lang lang-he">השמש עולה בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מעל הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>° באוויר תקני)</span>.</span>
-		<span class="lang lang-he-Latn">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
-		<span class="lang lang-en">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
+		<span class="lang lang-he">השמש עולה בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מעל הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>°<span data-part="cal"> באוויר שהלוח מחשב בו</span><span data-part="std"> באוויר תקני</span>)</span>.</span>
+		<span class="lang lang-he-Latn">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up<span data-part="cal"> in the calendar's air</span><span data-part="std"> in standard air</span>)</span>.</span>
+		<span class="lang lang-en">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up<span data-part="cal"> in the calendar's air</span><span data-part="std"> in standard air</span>)</span>.</span>
 	</template>
 	<template id="msg-sunset">
-		<span class="lang lang-he">השמש שוקעת בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מאחורי הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>° באוויר תקני)</span>.</span>
-		<span class="lang lang-he-Latn">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
-		<span class="lang lang-en">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
+		<span class="lang lang-he">השמש שוקעת בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מאחורי הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>°<span data-part="cal"> באוויר שהלוח מחשב בו</span><span data-part="std"> באוויר תקני</span>)</span>.</span>
+		<span class="lang lang-he-Latn">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up<span data-part="cal"> in the calendar's air</span><span data-part="std"> in standard air</span>)</span>.</span>
+		<span class="lang lang-en">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up<span data-part="cal"> in the calendar's air</span><span data-part="std"> in standard air</span>)</span>.</span>
 	</template>
 	<template id="msg-sunNow">
 		<span class="lang lang-he"><bdi data-v="time"></bdi>: השמש בגובה <bdi data-v="alt"></bdi>°<span data-part="seen"> (נראית <bdi data-v="app"></bdi>°)</span>, בכיוון <bdi data-v="az"></bdi>°<span data-part="below"> — <bdi data-v="below"></bdi>° מתחת לאופק</span>.</span>
@@ -310,9 +310,9 @@ layout: null
 			<span class="lang lang-en">Distance: <bdi data-v="dist"></bdi> km · bearing <bdi data-v="bearing"></bdi>°</span>
 		</div>
 		<div data-part="angle">
-			<span class="lang lang-he">זווית: <bdi data-v="angle"></bdi>° (אוויר תקני)</span>
-			<span class="lang lang-he-Latn">Angle: <bdi data-v="angle"></bdi>° (standard air)</span>
-			<span class="lang lang-en">Angle: <bdi data-v="angle"></bdi>° (standard air)</span>
+			<span class="lang lang-he">זווית: <bdi data-v="angle"></bdi>° (<span data-part="cal">באוויר שהלוח מחשב בו</span><span data-part="std">אוויר תקני</span>)</span>
+			<span class="lang lang-he-Latn">Angle: <bdi data-v="angle"></bdi>° (<span data-part="cal">the calendar's air</span><span data-part="std">standard air</span>)</span>
+			<span class="lang lang-en">Angle: <bdi data-v="angle"></bdi>° (<span data-part="cal">the calendar's air</span><span data-part="std">standard air</span>)</span>
 		</div>
 		<button type="button" class="btn" data-action="look">
 			<span class="lang lang-he">הסתכלו לכאן</span>

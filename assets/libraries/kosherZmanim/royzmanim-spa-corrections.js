@@ -1688,6 +1688,64 @@ export default class ROYSPACalculator extends SPACalculator {
 	}
 
 	/**
+	 * Refraction in the air the visible sunrise / sunset of a date is computed with (the provider's for that
+	 * date and event, else the default model), for an observer: what a viewer needs to draw the Sun and the
+	 * terrain as the calculator sees them.
+	 *   apparentOf(trueDeg): where a body at that true altitude is seen
+	 *   trueOf(apparentDeg): the true altitude seen at that apparent altitude
+	 *   elevationOf(heightM, distM): the apparent elevation angle of terrain that high (above sea level) that far
+	 *     (ground distance), traced as the visible sunrise traces the horizon's points
+	 * From the sea horizon to 5 deg above it from this air's refraction table (the one the visible times use),
+	 * higher by direct traces; below the sea horizon the refraction there.
+	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation @param {'sunrise'|'sunset'} event
+	 * @param {{ heightM?: number, groundM?: number }} [observer] the eye's height above sea level (and the ground's)
+	 */
+	getRefractionFor(date, geoLocation, event, observer = {}) {
+		const ho = Number.isFinite(observer.heightM) ? /** @type {number} */ (observer.heightM) : Math.max(0, geoLocation.getElevation());
+		const floorM = ho < 0 ? Math.min(Number.isFinite(observer.groundM) ? /** @type {number} */ (observer.groundM) : ho, ho) : 0;
+		const R = this.getEarthRadius() * 1000;
+		const provided = this._atmosphereFor(date, event, geoLocation, ho);
+		const atm = provided ?? atmosphereFromSpec(ho, null);
+		// as _horizonThresholds: without a provider, the ISA trace scaled to getRefraction() at sea level
+		const scale = provided ? 1 : this.getRefraction() / this._horizonCache.get('isa0|' + R,
+			() => ({ dip: 0, refr: atm.refraction(0, 0, R) })).refr;
+		const seaAlt = atm.seaHorizon(ho, R, floorM);
+		const table = this._refractionTable(atm, ho, R, seaAlt, seaAlt + 5, floorM);
+		const A = table.a, tab = table.refr, N = A.length;
+		/** traced above the table, rounded to 0.01 deg @type {Map<number, number>} */
+		const above = new Map();
+		/** refraction (deg) at apparent altitude a @param {number} a */
+		const refr = a => {
+			if (a <= A[0]) return scale * tab[0];
+			if (a >= A[N - 1]) {
+				const k = Math.round(a * 100);
+				let v = above.get(k);
+				if (v === undefined) { v = atm.refraction(ho, k / 100, R, floorM); above.set(k, v); }
+				return scale * v;
+			}
+			let i = 0, j = N - 1;
+			while (j - i > 1) { const m = (i + j) >> 1; if (A[m] <= a) i = m; else j = m; }
+			const f = (a - A[i]) / (A[j] - A[i]), v = tab[i] + (tab[j] - tab[i]) * f;
+			return scale * (Number.isFinite(v) ? v : atm.refraction(ho, a, R, floorM));
+		};
+		const trueOf = (/** @type {number} */ a) => a - refr(a);
+		return {
+			trueOf,
+			/** @param {number} t */
+			apparentOf: t => {
+				let a = t + refr(t);
+				for (let k = 0; k < 6; k++) a += t - trueOf(a);
+				return a;
+			},
+			/** @param {number} heightM @param {number} distM */
+			elevationOf: (heightM, distM) => this._terrainRays
+				? terrainElevation(atm, ho, heightM, distM, R, floorM, this._terrainImages)
+				: geometricElevation(ho, heightM, distM, R) + terrestrialRefraction(atm, ho, heightM,
+					Math.hypot(distM, (R + heightM) * Math.cos(distM / R) - (R + ho))),
+		};
+	}
+
+	/**
 	 * getHorizonThresholds, cached: the visible sunrise for each limb option ('any', 'full', ...) needs the
 	 * same thresholds, and finding the sea horizon alone takes dozens of ray traces through a path medium.
 	 * The result depends only on the profile, the medium (its key covers the date's air), the observer's
