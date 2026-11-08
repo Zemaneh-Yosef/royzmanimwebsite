@@ -52,7 +52,7 @@ function hashProfiles(profiles) {
 }
 
 /**
- * @typedef {{ distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number }[] }} ServerProfile
+ * @typedef {{ distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number; td?: number; rh?: number; }[] }} ServerProfile
  * @typedef {{ kind: 'gefs' | 'climatology', cycle?: string, members: { member: string, weight: number, profiles: ServerProfile[] }[] }} EventEnsemble
  * @typedef {{ date: string, event: 'sunrise'|'sunset', source: string, timeUtc: string, azimuthDeg: number,
  *             profiles: ServerProfile[], ensemble?: EventEnsemble }} PathEvent

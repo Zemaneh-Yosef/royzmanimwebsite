@@ -110,13 +110,13 @@ export function surfaceProblem(spec) {
 	return null;
 }
 
-/** @typedef {{distanceKm: number, water?: number, skinC?: number, levels: [{ h: number, t: number, p: number, td?: number, rh?: number }] }} correctPath */
+/** @typedef {{distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number, td?: number, rh?: number }[] }} correctPath */
 /** @type {WeakMap<correctPath[], string | null>} */
 const checkedPaths = new WeakMap();
 /**
  * Why a path (an array of { distanceKm, water?, skinC?, levels: [{ h, t, p, td?, rh? }] } columns, h in m above sea
  * level, t in C, p in hPa) cannot be real air, or null if it can.
- * @param {correctPath} path
+ * @param {correctPath[]} path
  * @returns {string | null}
  */
 export function pathProblem(path) {
@@ -181,7 +181,7 @@ export function specProblem(spec) {
 /**
  * The temperature (C) near the ground a spec describes: the surface spec's own, or the path's column nearest the
  * observer at its lowest level. NaN if none.
- * @param {{ temperatureC: number; path?: correctPath[]}} spec
+ * @param {{ temperatureC: number;} | { path: correctPath[] }} spec
  */
 export function groundTemperature(spec) {
 	if (!spec) return NaN;

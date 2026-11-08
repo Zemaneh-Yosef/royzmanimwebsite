@@ -17,7 +17,7 @@
  * calculator is made. Cesium draws the disc itself, far beyond the horizon, so the terrain in front hides it pixel
  * by pixel, whichever part of the ridge that is.
  */
-import * as Cesium from "../libraries/cesium/index.js";
+import * as Cesium from "../libraries/cesium/cesium.js";
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { REFRACTION_SERVER, TERRAIN_VERSION, readCachedRefraction, loadRefraction } from "./refraction-data.js";
 import { ZmanimDay, zmanimListFromData, timeFormat } from "./core/zmanimCore.js";
@@ -600,7 +600,7 @@ async function main() {
 	}
 
 	/**
-	 * @param {string} ev
+	 * @param {SunEvent} ev
 	 */
 	function setEvent(ev, aim = true) {
 		event = ev;
