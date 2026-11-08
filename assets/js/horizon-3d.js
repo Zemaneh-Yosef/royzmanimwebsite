@@ -77,7 +77,14 @@ const langText = (/** @type {HTMLElement} */ el) => el.dataset[{ he: "he", "he-L
 
 // ─── Geometry ────────────────────────────────────────────────────────────────
 
-/** Great-circle destination. @returns {[number, number]} [lon, lat] */
+/**
+ * Great-circle destination.
+ * @returns {[number, number]} [lon, lat]
+ * @param {number} lat
+ * @param {number} lon
+ * @param {number} azDeg
+ * @param {number} distM
+ */
 function destination(lat, lon, azDeg, distM) {
 	const p1 = lat * D2R, l1 = lon * D2R, a = azDeg * D2R, d = distM / R_EARTH;
 	const p2 = Math.asin(Math.sin(p1) * Math.cos(d) + Math.cos(p1) * Math.sin(d) * Math.cos(a));
@@ -85,7 +92,13 @@ function destination(lat, lon, azDeg, distM) {
 	return [((l2 / D2R + 540) % 360) - 180, p2 / D2R];
 }
 
-/** Distance (m) and initial bearing (deg) from 1 to 2. */
+/**
+ * Distance (m) and initial bearing (deg) from 1 to 2.
+ * @param {number} lat1
+ * @param {number} lon1
+ * @param {number} lat2
+ * @param {number} lon2
+ */
 function inverse(lat1, lon1, lat2, lon2) {
 	const p1 = lat1 * D2R, p2 = lat2 * D2R, dl = (lon2 - lon1) * D2R;
 	const h = Math.sin((p2 - p1) / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
@@ -94,14 +107,22 @@ function inverse(lat1, lon1, lat2, lon2) {
 	return { dist, bearing: (brg / D2R + 360) % 360 };
 }
 
-/** Apparent elevation angle (deg) of a point in standard air: Earth's curvature less refraction's bending. */
+/**
+ * Apparent elevation angle (deg) of a point in standard air: Earth's curvature less refraction's bending.
+ * @param {number} observerM
+ * @param {number} heightM
+ * @param {number} distM
+ */
 function elevationAngle(observerM, heightM, distM) {
 	return Math.atan2(heightM - observerM - distM * distM * (1 - K_STANDARD) / (2 * R_EARTH), distM) / D2R;
 }
 
 // ─── The sun (only to aim the view: the calendar traces the day's air for the time itself) ─────
 
-/** Declination (rad) of the sun at a Julian day: NOAA's solar calculator (Meeus, Astronomical Algorithms ch. 25, low accuracy). */
+/**
+ * Declination (rad) of the sun at a Julian day: NOAA's solar calculator (Meeus, Astronomical Algorithms ch. 25, low accuracy).
+ * @param {number} jd
+ */
 function declination(jd) {
 	const T = (jd - 2451545) / 36525;
 	const L0 = 280.46646 + T * (36000.76983 + 0.0003032 * T);
@@ -113,7 +134,13 @@ function declination(jd) {
 	return Math.asin(Math.sin(eps) * Math.sin(lambda));
 }
 
-/** Azimuth (deg) of the sun's centre at true altitude altDeg, rising or setting; null if it never gets there. */
+/**
+ * Azimuth (deg) of the sun's centre at true altitude altDeg, rising or setting; null if it never gets there.
+ * @param {number} latDeg
+ * @param {number} decl
+ * @param {number} altDeg
+ * @param {string} event
+ */
 function sunAzimuthAt(latDeg, decl, altDeg, event) {
 	const phi = latDeg * D2R, h = altDeg * D2R;
 	const c = (Math.sin(decl) - Math.sin(phi) * Math.sin(h)) / (Math.cos(phi) * Math.cos(h));
@@ -123,9 +150,9 @@ function sunAzimuthAt(latDeg, decl, altDeg, event) {
 }
 
 /** Refraction (deg) of a body at true altitude h (deg), standard air: Sæmundsson (1986). Meant for h above about -1. */
-const refractionTrue = (h) => 1.02 / Math.tan((h + 10.3 / (h + 5.11)) * D2R) / 60;
+const refractionTrue = (/** @type {number} */ h) => 1.02 / Math.tan((h + 10.3 / (h + 5.11)) * D2R) / 60;
 /** Refraction (deg) at apparent altitude h (deg), standard air: Bennett (1982). */
-const refractionApparent = (h) => 1 / Math.tan((h + 7.31 / (h + 4.4)) * D2R) / 60;
+const refractionApparent = (/** @type {number} */ h) => 1 / Math.tan((h + 7.31 / (h + 4.4)) * D2R) / 60;
 /** The sun's centre at sunrise / sunset as the calendar's calculator takes it: refraction and the semi-diameter. */
 const SUNRISE_ALT = -(ROY_REFRACTION_ARCMIN + 16) / 60;
 /** The sun's angular radius (deg), for drawing it. */
@@ -147,12 +174,21 @@ function entryAt(spot, event, az) {
 	return bestD <= 1 ? best : null;
 }
 
-/** The horizon entry nearest an azimuth among both events' (they cover the year's sunrise and sunset directions). */
+/**
+ * The horizon entry nearest an azimuth among both events' (they cover the year's sunrise and sunset directions).
+ * @param {{ lat: number; lon: number; ground: number; height: number; sunrise: import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonPoint[]; sunset: import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonPoint[]; wins: Record<string, [number, number][]>; }} spot
+ * @param {number} az
+ */
 function entryAtAny(spot, az) {
 	return entryAt(spot, "sunrise", az) ?? entryAt(spot, "sunset", az);
 }
 
-/** The spot of a vantage set that sees lowest at this azimuth (its `wins`), else the first. @param {HorizonSet} set */
+/**
+ * The spot of a vantage set that sees lowest at this azimuth (its `wins`), else the first.
+ * @param {HorizonSet} set
+ * @param {SunEvent} event
+ * @param {number} az
+ */
 function spotFor(set, event, az) {
 	for (const p of set.points) {
 		for (const [a, b] of p.wins?.[event] ?? []) {
@@ -175,6 +211,9 @@ function spotFor(set, event, az) {
  * horizon's elevation angle there, in `air` (the calendar's: see airFor) or standard air. Two passes: the
  * horizon's angle depends on the azimuth.
  * @param {any} [air] { trueOf(apparentDeg), elevationOf(heightM, distM) }
+ * @param {{ lat: any; lon?: number; ground?: number; height: any; sunrise?: import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonPoint[]; sunset?: import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonPoint[]; wins?: Record<string, [number, number][]>; }} spot
+ * @param {string} event
+ * @param {number} decl
  */
 function sunOnHorizon(spot, event, decl, air = null) {
 	let alt = 0, az = null, entry = null;
@@ -203,9 +242,12 @@ const SKY_STOPS = /** @type {[number, string, string, number][]} */ ([
 ]);
 
 const hex = (/** @type {string} */ c) => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
-const mixHex = (a, b, f) => "#" + hex(a).map((x, i) => Math.round(x + (hex(b)[i] - x) * f).toString(16).padStart(2, "0")).join("");
+const mixHex = (/** @type {string} */ a, /** @type {string} */ b, /** @type {number} */ f) => "#" + hex(a).map((x, i) => Math.round(x + (hex(b)[i] - x) * f).toString(16).padStart(2, "0")).join("");
 
-/** The sky's colours and the ground's darkening for a depression (deg below the horizon). */
+/**
+ * The sky's colours and the ground's darkening for a depression (deg below the horizon).
+ * @param {number} depression
+ */
 function skyAt(depression) {
 	const d = Math.max(SKY_STOPS[0][0], Math.min(18, depression));
 	let i = 0;
@@ -240,7 +282,7 @@ function terrainWork() {
 				if (m.error) w?.reject(new Error(m.error)); else w?.resolve(m.heights ?? m.rgba);
 			};
 			worker.postMessage({ init: { server: REFRACTION_SERVER } });
-			const call = (msg) => new Promise((resolve, reject) => {
+			const call = (/** @type {{ heightmap?: [w: number, s: number, e: number, n: number, level: number]; hillshade?: [z: number, x: number, y: number]; }} */ msg) => new Promise((resolve, reject) => {
 				const id = next++;
 				waiting.set(id, { resolve, reject });
 				worker.postMessage({ id, ...msg });
@@ -266,7 +308,7 @@ const work = terrainWork();
 class ElevationTerrain extends Cesium.CustomHeightmapTerrainProvider {
 	constructor() {
 		const scheme = new Cesium.GeographicTilingScheme();
-		const heights = (x, y, level) => {
+		const heights = (/** @type {any} */ x, /** @type {any} */ y, /** @type {number} */ level) => {
 			const r = scheme.tileXYToRectangle(x, y, level);
 			return work.heightmap(r.west / D2R, r.south / D2R, r.east / D2R, r.north / D2R, level);
 		};
@@ -276,11 +318,21 @@ class ElevationTerrain extends Cesium.CustomHeightmapTerrainProvider {
 		});
 		this.heights = heights;
 	}
+	/**
+	 * @param {any} x
+	 * @param {any} y
+	 * @param {number} level
+	 */
 	requestTileGeometry(x, y, level) {
 		return this.heights(x, y, level).then(h => new Cesium.HeightmapTerrainData({
 			buffer: h, width: 65, height: 65, childTileMask: level < MAX_TERRAIN_LEVEL ? 15 : 0
 		}));
 	}
+	/**
+	 * @param {any} x
+	 * @param {any} y
+	 * @param {number} level
+	 */
 	getTileDataAvailable(x, y, level) {
 		return level <= MAX_TERRAIN_LEVEL;
 	}
@@ -294,6 +346,11 @@ class HillshadeImagery extends Cesium.UrlTemplateImageryProvider {
 	constructor() {
 		super({ url: "hillshade://{z}/{x}/{y}", tilingScheme: new Cesium.WebMercatorTilingScheme(), maximumLevel: SERVER_MAX_ZOOM });
 	}
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @param {number} level
+	 */
 	async requestImage(x, y, level) {
 		return createImageBitmap(new ImageData(await work.hillshade(level, x, y), 256, 256));
 	}
@@ -301,8 +358,8 @@ class HillshadeImagery extends Cesium.UrlTemplateImageryProvider {
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
-const $ = (id) => /** @type {any} */ (document.getElementById(id));
-const fmt = (x, d = 1) => x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const $ = (/** @type {string} */ id) => /** @type {any} */ (document.getElementById(id));
+const fmt = (/** @type {number} */ x, d = 1) => x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 
 async function main() {
 	for (const o of /** @type {NodeListOf<HTMLOptionElement>} */ (document.querySelectorAll("option[data-en]"))) o.textContent = langText(o);
@@ -329,7 +386,7 @@ async function main() {
 	}
 	// The server's terrain in Cesium's own format, asked for now so that it arrives while the horizon is read
 	const ownTerrain = Cesium.CesiumTerrainProvider.fromUrl(`${REFRACTION_SERVER}/v1/cesium-terrain`, { requestVertexNormals: true })
-		.then(provider => ({ provider }), error => ({ provider: null, error }));
+		.then((/** @type {any} */ provider) => ({ provider }), (/** @type {any} */ error) => ({ provider: null, error }));
 	// Back to the calendar page that opened this one, as it was (its own parameters: locationName, lat, long,
 	// elevation, timeZone, ...), only ever on this site; else the main calendar for this place
 	const backParam = q.get("back") ?? "";
@@ -503,7 +560,7 @@ async function main() {
 	const ridgePoints = scene.primitives.add(new Cesium.PointPrimitiveCollection());
 	const markPoints = scene.primitives.add(new Cesium.PointPrimitiveCollection());
 	const ORANGE = Cesium.Color.fromCssColorString("#d97706");
-	const at = (la, lo, h) => Cesium.Cartesian3.fromDegrees(lo, la, h);
+	const at = (/** @type {number} */ la, /** @type {number} */ lo, /** @type {number} */ h) => Cesium.Cartesian3.fromDegrees(lo, la, h);
 
 	function drawData() {
 		// both events' horizons: whatever can hide the sun, whichever way the view faces
@@ -542,6 +599,9 @@ async function main() {
 		return sun;
 	}
 
+	/**
+	 * @param {string} ev
+	 */
 	function setEvent(ev, aim = true) {
 		event = ev;
 		$("evSunrise").setAttribute("aria-pressed", String(ev === "sunrise"));
@@ -630,7 +690,11 @@ async function main() {
 		glide = requestAnimationFrame(step);
 	}
 
-	/** The world point `distM` (default 100 km) from the eye in a direction (azimuth, altitude in deg). */
+	/**
+	 * The world point `distM` (default 100 km) from the eye in a direction (azimuth, altitude in deg).
+	 * @param {number} azDeg
+	 * @param {number} altDeg
+	 */
 	function pointToward(azDeg, altDeg, distM = 1e5) {
 		const eye = at(spot.lat, spot.lon, eyeAltitude() + 0.5);
 		const enu = Cesium.Transforms.eastNorthUpToFixedFrame(eye);
@@ -640,7 +704,7 @@ async function main() {
 		return Cesium.Cartesian3.add(eye, Cesium.Cartesian3.multiplyByScalar(dir, distM, dir), new Cesium.Cartesian3());
 	}
 	/** A world point's place on the screen (CSS px), or undefined behind the camera. */
-	const toScreen = (p) => Cesium.SceneTransforms.worldToWindowCoordinates(scene, p);
+	const toScreen = (/** @type {any} */ p) => Cesium.SceneTransforms.worldToWindowCoordinates(scene, p);
 
 	/** The direction (azimuth, altitude in deg) a screen point looks in, in the eye view. */
 	function screenDirection(/** @type {{x: number, y: number}} */ pt) {
@@ -658,6 +722,9 @@ async function main() {
 	 * it, from 1 km (as the server's horizons) to 150 km; kept for half a second per direction.
 	 */
 	let skylineCache = { key: "", at: 0, value: /** @type {{lat: number, lon: number, h: number, distM: number} | null} */ (null) };
+	/**
+	 * @param {number} azDeg
+	 */
 	function drawnSkyline(azDeg) {
 		const key = `${spot.lat},${spot.lon},${azDeg.toFixed(2)}`;
 		const now = performance.now();
@@ -897,18 +964,18 @@ async function main() {
 		$("play").textContent = "❚❚"; $("play").setAttribute("aria-pressed", "true");
 		playing = setInterval(() => { when += 60000; showMoment(); }, 120);
 	};
-	$("date").onchange = (e) => {
+	$("date").onchange = (/** @type {{ target: { value: Temporal.PlainDateLike; }; }} */ e) => {
 		if (!e.target.value) return;
 		const z = zoned(when);
 		when = Temporal.PlainDate.from(e.target.value).toZonedDateTime({ timeZone: tz, plainTime: z.toPlainTime() }).epochMilliseconds;
 		showMoment();
 	};
-	$("time").onchange = (e) => {
+	$("time").onchange = (/** @type {{ target: { value: Temporal.PlainTimeLike; }; }} */ e) => {
 		if (!e.target.value) return;
 		when = date.toZonedDateTime({ timeZone: tz, plainTime: Temporal.PlainTime.from(e.target.value) }).epochMilliseconds;
 		showMoment();
 	};
-	$("clock").oninput = (e) => {
+	$("clock").oninput = (/** @type {{ target: { value: any; }; }} */ e) => {
 		const m = Number(e.target.value);
 		when = date.toZonedDateTime({ timeZone: tz, plainTime: { hour: Math.floor(m / 60), minute: m % 60 } }).epochMilliseconds;
 		showMoment();
@@ -917,7 +984,7 @@ async function main() {
 	$("fwd10").onclick = () => { when += 600000; showMoment(); };
 	$("now").onclick = () => { stop(); when = Date.now(); showMoment(true); };
 	$("faceSun").onclick = () => showMoment(true);
-	$("zman").onchange = (e) => {
+	$("zman").onchange = (/** @type {{ target: { value: string; }; }} */ e) => {
 		if (!e.target.value) return;
 		stop();
 		when = Number(e.target.value);
@@ -939,19 +1006,19 @@ async function main() {
 		camera.flyTo({ destination: at(la, lo, eyeAltitude() + reach * 0.5),
 			orientation: { heading: az * D2R, pitch: -35 * D2R, roll: 0 }, duration: 0.8 });
 	};
-	$("az").oninput = (e) => { az = Number(e.target.value); eyeMode = true; look(); };
+	$("az").oninput = (/** @type {{ target: { value: any; }; }} */ e) => { az = Number(e.target.value); eyeMode = true; look(); };
 	$("left").onclick = () => { az = (az - 5 + 360) % 360; eyeMode = true; look(); };
 	$("right").onclick = () => { az = (az + 5) % 360; eyeMode = true; look(); };
-	$("tilt").oninput = (e) => { tilt = Number(e.target.value); eyeMode = true; look(); };
-	$("fov").oninput = (e) => { fov = Number(e.target.value); look(); };
-	$("imagery").onchange = (e) => {
+	$("tilt").oninput = (/** @type {{ target: { value: any; }; }} */ e) => { tilt = Number(e.target.value); eyeMode = true; look(); };
+	$("fov").oninput = (/** @type {{ target: { value: any; }; }} */ e) => { fov = Number(e.target.value); look(); };
+	$("imagery").onchange = (/** @type {{ target: { value: any; }; }} */ e) => {
 		const v = e.target.value;
 		scene.imageryLayers.removeAll();
 		if (v === "sat" || v === "osm") scene.imageryLayers.addImageryProvider(imagery[v]);
 		else if (!ownFormat) scene.imageryLayers.addImageryProvider(relief ??= new HillshadeImagery());
 		darkenGround();
 	};
-	$("spot").onchange = (e) => {
+	$("spot").onchange = (/** @type {{ target: { value: any; }; }} */ e) => {
 		spot = set.points[Number(e.target.value)];
 		spotChosen = true;                       // kept when the date or event changes
 		describeWhere();
@@ -982,7 +1049,11 @@ async function main() {
 		const ray = camera.getPickRay(new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2));
 		return (ray && globe.pick(ray, scene)) || null;
 	}
-	/** Turns and tilts the view about the point it is centred on (or, over the sky, in place). */
+	/**
+	 * Turns and tilts the view about the point it is centred on (or, over the sky, in place).
+	 * @param {number} dHeading
+	 * @param {number} dPitch
+	 */
 	function orbit(dHeading, dPitch, heading = camera.heading + dHeading) {
 		const pitch = Math.max(-Math.PI / 2, Math.min(-2 * D2R, camera.pitch + dPitch));
 		const c = centrePoint();
@@ -1051,7 +1122,7 @@ async function main() {
 	};
 	/** where the last press began: from above (Cesium's own dragging), a click that ends a drag is no tap either */
 	let pressAt = { x: 0, y: 0 };
-	canvas.addEventListener("pointerdown", (e) => {
+	canvas.addEventListener("pointerdown", (/** @type {{ clientX: any; clientY: any; pointerType: string; button: number; pointerId: number; }} */ e) => {
 		pressAt = { x: e.clientX, y: e.clientY };
 		if (!eyeMode || (e.pointerType === "mouse" && e.button !== 0)) return;
 		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -1060,7 +1131,7 @@ async function main() {
 		startGrab();
 		syncHandlers();
 	});
-	canvas.addEventListener("pointermove", (e) => {
+	canvas.addEventListener("pointermove", (/** @type {{ pointerId: number; clientX: any; clientY: any; }} */ e) => {
 		if (!grab || !pointers.has(e.pointerId)) return;
 		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 		const ps = [...pointers.values()];
@@ -1082,7 +1153,7 @@ async function main() {
 	};
 	canvas.addEventListener("pointerup", release);
 	canvas.addEventListener("pointercancel", release);
-	canvas.addEventListener("wheel", (e) => {
+	canvas.addEventListener("wheel", (/** @type {{ preventDefault: () => void; deltaY: number; deltaMode: number; }} */ e) => {
 		if (!eyeMode) return;
 		e.preventDefault();
 		fov = clampFov(fov * Math.exp(e.deltaY * (e.deltaMode === 1 ? 0.05 : 0.0015)));
@@ -1101,6 +1172,8 @@ async function main() {
 	/**
 	 * Turns to face what was tapped: with `dir` (a tap in the eye view: its direction from the camera, exact) that
 	 * direction, else the ground point `g`.
+	 * @param {{ lat: any; lon: any; h: any; }} g
+	 * @param {{ az: any; alt: any; }} dir
 	 */
 	function faceGround(g, dir) {
 		if (dir) {
@@ -1118,7 +1191,7 @@ async function main() {
 	/** A single tap's popup waits a moment, so a double one can face the spot instead. */
 	let tapTimer = 0;
 	const popup = /** @type {HTMLElement} */ ($("popup"));
-	canvas.addEventListener("dblclick", (e) => {
+	canvas.addEventListener("dblclick", (/** @type {{ offsetX: any; offsetY: any; }} */ e) => {
 		clearTimeout(tapTimer);
 		const pt = { x: e.offsetX, y: e.offsetY };
 		if (eyeMode) faceGround(null, screenDirection(pt));
@@ -1130,13 +1203,16 @@ async function main() {
 				orientation: { heading: camera.heading, pitch: camera.pitch, roll: 0 }, duration: 0.5 });
 		}
 	});
-	canvas.addEventListener("click", (e) => {
+	canvas.addEventListener("click", (/** @type {{ clientX: number; clientY: number; offsetX: any; offsetY: any; }} */ e) => {
 		if (dragged || Math.hypot(e.clientX - pressAt.x, e.clientY - pressAt.y) > 3) return;
 		clearTimeout(tapTimer);
 		const pt = { x: e.offsetX, y: e.offsetY };
 		tapTimer = window.setTimeout(() => showPoint(pt), 280);
 	});
 
+	/**
+	 * @param {{ x: any; y: any; }} pt
+	 */
 	function showPoint(pt) {
 		popup.hidden = true;
 		const g = groundAt(pt);

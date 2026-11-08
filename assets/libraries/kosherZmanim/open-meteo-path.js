@@ -101,7 +101,9 @@ export const MODEL_REGIONS = [
 
 /**
  * The Open-Meteo model to use for an observer (see the header).
- * @param {number} latitude @param {number} longitude @returns {string}
+ * @param {number} latitude
+ * @param {number} longitude
+ * @returns {string}
  */
 export function chooseOpenMeteoModel(latitude, longitude) {
 	return MODEL_REGIONS.find(r => r.test(latitude, longitude))?.model ?? FALLBACK_MODEL;
@@ -118,8 +120,11 @@ const HRRR_HOURS = 48;
  * The sunset-air.js coefficients for one event's air, or null (sunrise, or a model not fitted: best_match
  * outside Europe, any other model).
  * @param {string} name the Open-Meteo model the path came from
- * @param {'sunrise'|'sunset'} event @param {number} lat @param {number} lon
- * @param {number} t the event (epoch ms) @param {number} fetchedAt when the forecast was fetched (epoch ms)
+ * @param {'sunrise'|'sunset'} event
+ * @param {number} lat
+ * @param {number} lon
+ * @param {number} t the event (epoch ms)
+ * @param {number} fetchedAt when the forecast was fetched (epoch ms)
  * @returns {string | null}
  */
 export function sunsetAirModel(name, event, lat, lon, t, fetchedAt) {

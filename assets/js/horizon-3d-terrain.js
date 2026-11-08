@@ -28,7 +28,12 @@ export function terrainSource({ server, decode, onTile = () => {} }) {
 	/** @type {Map<string, Promise<Float32Array | null>>} heights of a Mercator tile, by "z/x/y" */
 	const tiles = new Map();
 
-	/** Heights (m) of Terrarium tile z/x/y: the server's where it makes it in time, else AWS's (its sea bed at sea level). */
+	/**
+	 * Heights (m) of Terrarium tile z/x/y: the server's where it makes it in time, else AWS's (its sea bed at sea level).
+	 * @param {number} z
+	 * @param {number} x
+	 * @param {number} y
+	 */
 	function mercTile(z, x, y) {
 		const key = `${z}/${x}/${y}`;
 		let p = tiles.get(key);
@@ -70,12 +75,17 @@ export function terrainSource({ server, decode, onTile = () => {} }) {
 	/**
 	 * 65 x 65 heights over [west, south, east, north] (deg), rows north to south, from the Mercator zoom whose
 	 * pixels are about half a step of the grid at Cesium's `level`.
+	 * @param {number} west
+	 * @param {number} south
+	 * @param {number} east
+	 * @param {number} north
+	 * @param {number} level
 	 */
 	async function heightmap(west, south, east, north, level) {
 		const z = Math.max(0, Math.min(SERVER_MAX_ZOOM, level + 1));
 		const n = 2 ** z;
-		const mx = (lon) => (lon + 180) / 360 * n * 256;
-		const my = (lat) => {
+		const mx = (/** @type {number} */ lon) => (lon + 180) / 360 * n * 256;
+		const my = (/** @type {number} */ lat) => {
 			const l = Math.max(-85.05, Math.min(85.05, lat)) * D2R;
 			return (1 - Math.asinh(Math.tan(l)) / Math.PI) / 2 * n * 256;
 		};
@@ -85,7 +95,7 @@ export function terrainSource({ server, decode, onTile = () => {} }) {
 		/** @type {(Float32Array | null)[]} */
 		const got = await Promise.all([...Array(cols * (y1 - y0 + 1)).keys()].map(k =>
 			mercTile(z, (((x0 + k % cols) % n) + n) % n, Math.max(0, Math.min(n - 1, y0 + Math.floor(k / cols))))));
-		const at = (gx, gy) => {
+		const at = (/** @type {number} */ gx, /** @type {number} */ gy) => {
 			const tx = Math.max(x0, Math.min(x1, Math.floor(gx / 256))), ty = Math.max(y0, Math.min(y1, Math.floor(gy / 256)));
 			const t = got[(ty - y0) * cols + (tx - x0)];
 			if (!t) return 0;
@@ -106,7 +116,12 @@ export function terrainSource({ server, decode, onTile = () => {} }) {
 		return out;
 	}
 
-	/** Shaded relief of Mercator tile z/x/y, RGBA 256 x 256 (transparent where there are no heights). */
+	/**
+	 * Shaded relief of Mercator tile z/x/y, RGBA 256 x 256 (transparent where there are no heights).
+	 * @param {number} z
+	 * @param {number} x
+	 * @param {number} y
+	 */
 	async function hillshade(z, x, y) {
 		const out = new Uint8ClampedArray(256 * 256 * 4);
 		const h = await mercTile(z, x, y);

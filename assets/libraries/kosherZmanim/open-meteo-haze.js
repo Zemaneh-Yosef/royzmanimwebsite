@@ -62,7 +62,10 @@ const isoOf = d => d.toISOString().slice(0, 10);
 
 /**
  * An Open-Meteo hourly aerosol_optical_depth series as a HazeSeries.
- * @param {any} j @param {number} lat @param {number} lon @returns {HazeSeries}
+ * @param {any} j
+ * @param {number} lat
+ * @param {number} lon
+ * @returns {HazeSeries}
  */
 function seriesOf(j, lat, lon) {
 	const times = j?.hourly?.time ?? [], vals = j?.hourly?.aerosol_optical_depth ?? [];

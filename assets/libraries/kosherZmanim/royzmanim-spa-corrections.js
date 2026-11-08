@@ -268,7 +268,7 @@ export function vapourPressureMb(tC, dewPointC, rhPercent) {
  *   model profiles at several distances along the Sun's azimuth (see createPathAtmosphere).
  *   dewPointC / relativeHumidity (%): the air's moisture at heightM; used only with setHumidity(true).
  *   source: where one temperature came from (a weather forecast or monthly normals), for display only.
- * @typedef {{ T0: number, P0: number, nm1: (h:number)=>number, dndh: (h:number)=>number, key: string }} Atmosphere
+ * @typedef {{ T0: number, P0: number, nm1: (h:number)=>number, dndh: (h:number)=>number, both: (h:number)=>[number,number], key: string }} Atmosphere
  */
 
 /**
@@ -397,7 +397,7 @@ export function createAtmosphere(temperatureC, pressureMb, heightM, vapourMb = 0
 		nm1: h => both(h)[0],
 		dndh: h => both(h)[1],
 		/** [nm1(h), dndh(h)] from one evaluation of the state (same values) */
-		both,
+		both
 	};
 }
 

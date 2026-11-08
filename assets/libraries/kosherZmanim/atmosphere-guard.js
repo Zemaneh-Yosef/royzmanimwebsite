@@ -72,7 +72,12 @@ export function report(what) {
 /** @param {unknown} v @param {[number, number]} range */
 const within = (v, range) => typeof v === 'number' && Number.isFinite(v) && v >= range[0] && v <= range[1];
 
-/** Pressure at height h (m) carried to sea level with the air's own temperature (C), hPa. */
+/**
+ * Pressure at height h (m) carried to sea level with the air's own temperature (C), hPa.
+ * @param {number} pMb
+ * @param {number} heightM
+ * @param {number} tC
+ */
 export function seaLevelPressure(pMb, heightM, tC) {
 	return pMb * Math.exp(G * heightM / (RD * (tC + 273.15 + 0.00325 * heightM)));
 }
@@ -80,7 +85,8 @@ export function seaLevelPressure(pMb, heightM, tC) {
 /**
  * Why a surface spec ({ temperatureC, pressureMb?, heightM?, dewPointC?, relativeHumidity? }) cannot be real air,
  * or null if it can.
- * @param {any} spec @returns {string | null}
+ * @param {{temperatureC: number; pressureMb?: number, heightM?: number, dewPointC?: number, relativeHumidity?: number }} spec
+ * @returns {string | null}
  */
 export function surfaceProblem(spec) {
 	const t = spec?.temperatureC;
@@ -104,10 +110,14 @@ export function surfaceProblem(spec) {
 	return null;
 }
 
+/** @typedef {{distanceKm: number, water?: number, skinC?: number, levels: [{ h: number, t: number, p: number, td?: number, rh?: number }] }} correctPath */
+/** @type {WeakMap<correctPath[], string | null>} */
+const checkedPaths = new WeakMap();
 /**
  * Why a path (an array of { distanceKm, water?, skinC?, levels: [{ h, t, p, td?, rh? }] } columns, h in m above sea
  * level, t in C, p in hPa) cannot be real air, or null if it can.
- * @param {any} path @returns {string | null}
+ * @param {correctPath} path
+ * @returns {string | null}
  */
 export function pathProblem(path) {
 	if (!Array.isArray(path) || !path.length) return 'empty path';
@@ -116,10 +126,10 @@ export function pathProblem(path) {
 	if (r === undefined) checkedPaths.set(path, r = checkPath(path));
 	return r;
 }
-/** @type {WeakMap<any[], string | null>} */
-const checkedPaths = new WeakMap();
 
-/** @param {any[]} path @returns {string | null} */
+/**
+ * @param {correctPath[]} path
+ * @returns {string | null} */
 function checkPath(path) {
 	for (const col of path) {
 		const at = `at ${col?.distanceKm} km`;
@@ -160,7 +170,8 @@ function checkPath(path) {
 
 /**
  * Why an atmosphere spec (surface or { path }) cannot be real air, or null if it can.
- * @param {any} spec @returns {string | null}
+ * @param {any} spec
+ * @returns {string | null}
  */
 export function specProblem(spec) {
 	if (!spec || typeof spec !== 'object') return null;
@@ -170,7 +181,7 @@ export function specProblem(spec) {
 /**
  * The temperature (C) near the ground a spec describes: the surface spec's own, or the path's column nearest the
  * observer at its lowest level. NaN if none.
- * @param {any} spec
+ * @param {{ temperatureC: number; path?: correctPath[]}} spec
  */
 export function groundTemperature(spec) {
 	if (!spec) return NaN;

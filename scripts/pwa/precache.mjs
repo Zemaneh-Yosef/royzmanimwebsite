@@ -22,7 +22,7 @@ import { readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 /** Pages that work offline from the moment the worker is installed. Paths are relative to _site. */
-const PAGES = ["index.html", "calendar.html", "hazon-yosef-calendar.html", "offline.html"];
+const PAGES = ["index.html", "calendar.html", "offline.html"];
 
 /**
  * Files never put on the list, with everything they import: features that only run on request
