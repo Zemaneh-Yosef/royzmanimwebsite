@@ -40,12 +40,6 @@ layout: null
 		}
 		html, body { margin: 0; height: 100%; background: #9fc2e6; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
 		#map { position: absolute; inset: 0; }
-		/* the sun's disc, drawn where it is seen (eye view) */
-		#sunDisc {
-			position: absolute; z-index: 1; pointer-events: none; border-radius: 50%; transform: translate(-50%, -50%);
-			background: radial-gradient(circle, #fffbe8 0 55%, #ffd76a 75%, #ffb02e 100%);
-			box-shadow: 0 0 18px 6px rgba(255, 214, 102, 0.55);
-		}
 		.panel input[type=date], .panel input[type=time], .panel select { font: inherit; }
 		.panel {
 			position: absolute; top: 12px; inset-inline-start: 12px; z-index: 2;
@@ -91,7 +85,6 @@ layout: null
 <body>
 	<script src="/assets/js/settings/docLoadBlock.js"></script>
 	<div id="map" role="region" aria-label="3D terrain"></div>
-	<div id="sunDisc" aria-hidden="true" hidden></div>
 	<div id="popup" class="popup" hidden>
 		<button type="button" class="popup-close" aria-label="Close">×</button>
 		<div class="popup-body"></div>
@@ -278,14 +271,14 @@ layout: null
 		<span class="lang lang-en">Terrain tiles: <bdi data-v="server"></bdi> from our server, <bdi data-v="aws"></bdi> from AWS (of <bdi data-v="total"></bdi>)</span>
 	</template>
 	<template id="msg-sunrise">
-		<span class="lang lang-he">השמש עולה בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מעל הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>° באוויר תקני)</span>.</span>
-		<span class="lang lang-he-Latn">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
-		<span class="lang lang-en">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
+		<span class="lang lang-he">השמש עולה בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מעל הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>°<span data-part="cal"> באוויר שהלוח מחשב בו</span><span data-part="std"> באוויר תקני</span>)</span>.</span>
+		<span class="lang lang-he-Latn">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up<span data-part="cal"> in the calendar's air</span><span data-part="std"> in standard air</span>)</span>.</span>
+		<span class="lang lang-en">The sun rises at about <bdi data-v="az"></bdi>°<span data-part="over">, over terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up<span data-part="cal"> in the calendar's air</span><span data-part="std"> in standard air</span>)</span>.</span>
 	</template>
 	<template id="msg-sunset">
-		<span class="lang lang-he">השמש שוקעת בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מאחורי הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>° באוויר תקני)</span>.</span>
-		<span class="lang lang-he-Latn">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
-		<span class="lang lang-en">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up in standard air)</span>.</span>
+		<span class="lang lang-he">השמש שוקעת בכיוון <bdi data-v="az"></bdi>° בערך<span data-part="over">, מאחורי הר במרחק <bdi data-v="dist"></bdi> ק"מ בגובה <bdi data-v="height"></bdi> מ' (זווית <bdi data-v="angle"></bdi>°<span data-part="cal"> באוויר שהלוח מחשב בו</span><span data-part="std"> באוויר תקני</span>)</span>.</span>
+		<span class="lang lang-he-Latn">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up<span data-part="cal"> in the calendar's air</span><span data-part="std"> in standard air</span>)</span>.</span>
+		<span class="lang lang-en">The sun sets at about <bdi data-v="az"></bdi>°<span data-part="over">, behind terrain <bdi data-v="dist"></bdi> km away at <bdi data-v="height"></bdi> m (<bdi data-v="angle"></bdi>° up<span data-part="cal"> in the calendar's air</span><span data-part="std"> in standard air</span>)</span>.</span>
 	</template>
 	<template id="msg-sunNow">
 		<span class="lang lang-he"><bdi data-v="time"></bdi>: השמש בגובה <bdi data-v="alt"></bdi>°<span data-part="seen"> (נראית <bdi data-v="app"></bdi>°)</span>, בכיוון <bdi data-v="az"></bdi>°<span data-part="below"> — <bdi data-v="below"></bdi>° מתחת לאופק</span>.</span>
@@ -310,9 +303,9 @@ layout: null
 			<span class="lang lang-en">Distance: <bdi data-v="dist"></bdi> km · bearing <bdi data-v="bearing"></bdi>°</span>
 		</div>
 		<div data-part="angle">
-			<span class="lang lang-he">זווית: <bdi data-v="angle"></bdi>° (אוויר תקני)</span>
-			<span class="lang lang-he-Latn">Angle: <bdi data-v="angle"></bdi>° (standard air)</span>
-			<span class="lang lang-en">Angle: <bdi data-v="angle"></bdi>° (standard air)</span>
+			<span class="lang lang-he">זווית: <bdi data-v="angle"></bdi>° (<span data-part="cal">באוויר שהלוח מחשב בו</span><span data-part="std">אוויר תקני</span>)</span>
+			<span class="lang lang-he-Latn">Angle: <bdi data-v="angle"></bdi>° (<span data-part="cal">the calendar's air</span><span data-part="std">standard air</span>)</span>
+			<span class="lang lang-en">Angle: <bdi data-v="angle"></bdi>° (<span data-part="cal">the calendar's air</span><span data-part="std">standard air</span>)</span>
 		</div>
 		<button type="button" class="btn" data-action="look">
 			<span class="lang lang-he">הסתכלו לכאן</span>

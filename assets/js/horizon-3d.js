@@ -10,8 +10,12 @@
  *
  * Drawn with CesiumJS: a round Earth (the WGS84 ellipsoid), the camera exactly at the observer's eye, so a
  * ridge is drawn at its geometric angle, Earth's curvature included. What the drawing leaves out is the air's
- * bending, which raises a ridge d away by d k / 2R (standard air: k = 0.13); the sun's disc is lowered by
- * the same amount there, so it stands where it really is against that ridge.
+ * bending. The sun's disc is drawn where it is seen, and lowered by what the drawing leaves out of the ridge
+ * behind it, so it stands where it really is against that ridge: both in the air the calendar computes the
+ * visible sunrise / sunset with (its calculator's getRefractionFor: that day's weather along the path, or its
+ * standard model), so the disc touches the ridge at the calendar's time. Standard air (k = 0.13) only until the
+ * calculator is made. Cesium draws the disc itself, far beyond the horizon, so the terrain in front hides it pixel
+ * by pixel, whichever part of the ridge that is.
  */
 import * as Cesium from "../libraries/cesium/index.js";
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
@@ -168,15 +172,18 @@ function spotFor(set, event, az) {
 
 /**
  * Where today's sun meets this spot's horizon: its azimuth when the centre's apparent altitude equals the
- * horizon's elevation angle there (standard air). Two passes: the horizon's angle depends on the azimuth.
+ * horizon's elevation angle there, in `air` (the calendar's: see airFor) or standard air. Two passes: the
+ * horizon's angle depends on the azimuth.
+ * @param {any} [air] { trueOf(apparentDeg), elevationOf(heightM, distM) }
  */
-function sunOnHorizon(spot, event, decl) {
+function sunOnHorizon(spot, event, decl, air = null) {
 	let alt = 0, az = null, entry = null;
 	for (let i = 0; i < 3; i++) {
-		az = sunAzimuthAt(spot.lat, decl, alt - refractionApparent(alt), event);
+		az = sunAzimuthAt(spot.lat, decl, air ? air.trueOf(alt) : alt - refractionApparent(alt), event);
 		if (az === null) return null;
 		entry = entryAt(spot, event, az);
-		alt = entry ? elevationAngle(spot.height, entry.heightM, entry.distanceKm * 1000) : 0;
+		alt = !entry ? 0 : air ? air.elevationOf(entry.heightM, entry.distanceKm * 1000)
+			: elevationAngle(spot.height, entry.heightM, entry.distanceKm * 1000);
 	}
 	return { az, alt, entry };
 }
@@ -495,7 +502,7 @@ async function main() {
 	// ─── Markers: the server's horizon, where the sun meets it, the spots ───
 	const ridgePoints = scene.primitives.add(new Cesium.PointPrimitiveCollection());
 	const markPoints = scene.primitives.add(new Cesium.PointPrimitiveCollection());
-	const ORANGE = Cesium.Color.fromCssColorString("#d97706"), SUN = Cesium.Color.fromCssColorString("#f5b400");
+	const ORANGE = Cesium.Color.fromCssColorString("#d97706");
 	const at = (la, lo, h) => Cesium.Cartesian3.fromDegrees(lo, la, h);
 
 	function drawData() {
@@ -510,16 +517,18 @@ async function main() {
 			}
 		}
 		markPoints.removeAll();
-		const sun = Number.isFinite(spot.height) ? sunOnHorizon(spot, event, decl) : null;
+		const air = airFor(event);
+		const sun = Number.isFinite(spot.height) ? sunOnHorizon(spot, event, decl, air) : null;
 		if (sun) {
 			if (sun.entry) {
 				const [lo, la] = destination(spot.lat, spot.lon, sun.az, sun.entry.distanceKm * 1000);
-				markPoints.add({ position: at(la, lo, sun.entry.heightM + 1), pixelSize: 16, color: SUN,
-					outlineColor: Cesium.Color.fromCssColorString("#7c2d12"), outlineWidth: 2 });
+				// a ring: the sun's disc rises inside it
+				markPoints.add({ position: at(la, lo, sun.entry.heightM + 1), pixelSize: 18, color: Cesium.Color.TRANSPARENT,
+					outlineColor: Cesium.Color.fromCssColorString("#b45309"), outlineWidth: 2.5 });
 			}
 			show($("sunInfo"), event, sun.entry
 				? { az: fmt(sun.az, 1), dist: fmt(sun.entry.distanceKm, 1), height: fmt(sun.entry.heightM, 0), angle: fmt(sun.alt, 2) }
-				: { az: fmt(sun.az, 1) }, sun.entry ? [] : ["over"]);
+				: { az: fmt(sun.az, 1) }, [...(sun.entry ? [] : ["over"]), air ? "std" : "cal"]);
 		} else {
 			$("sunInfo").replaceChildren();
 		}
@@ -588,9 +597,17 @@ async function main() {
 	function sunNow() {
 		return sunAt(when);
 	}
+	/**
+	 * Apparent: in the calendar's air (airFor) for the event the sun's side of the sky belongs to, else standard air;
+	 * top / bottom: where the disc's upper and lower edges are seen (near the horizon the lower one is lifted more:
+	 * the disc is flattened).
+	 */
 	function sunAt(/** @type {number} */ ms) {
 		const [alt, sAz] = sunAltAz(ms, spot.lat, spot.lon);
-		return { alt, app: alt > -1.5 ? alt + refractionTrue(Math.max(alt, -1)) : alt, az: sAz };
+		if (alt <= -1.5) return { alt, app: alt, top: alt + SUN_RADIUS, bottom: alt - SUN_RADIUS, az: sAz };
+		const air = airFor(sAz < 180 ? "sunrise" : "sunset");
+		const seen = (/** @type {number} */ h) => air ? air.apparentOf(h) : h + refractionTrue(Math.max(h, -1));
+		return { alt, app: seen(alt), top: seen(alt + SUN_RADIUS), bottom: seen(alt - SUN_RADIUS), az: sAz };
 	}
 
 	/**
@@ -613,14 +630,14 @@ async function main() {
 		glide = requestAnimationFrame(step);
 	}
 
-	/** The world point 100 km from the eye in a direction (azimuth, altitude in deg). */
-	function pointToward(azDeg, altDeg) {
+	/** The world point `distM` (default 100 km) from the eye in a direction (azimuth, altitude in deg). */
+	function pointToward(azDeg, altDeg, distM = 1e5) {
 		const eye = at(spot.lat, spot.lon, eyeAltitude() + 0.5);
 		const enu = Cesium.Transforms.eastNorthUpToFixedFrame(eye);
 		const a = azDeg * D2R, e = altDeg * D2R;
 		const dir = Cesium.Matrix4.multiplyByPointAsVector(enu,
 			new Cesium.Cartesian3(Math.sin(a) * Math.cos(e), Math.cos(a) * Math.cos(e), Math.sin(e)), new Cesium.Cartesian3());
-		return Cesium.Cartesian3.add(eye, Cesium.Cartesian3.multiplyByScalar(dir, 1e5, dir), new Cesium.Cartesian3());
+		return Cesium.Cartesian3.add(eye, Cesium.Cartesian3.multiplyByScalar(dir, distM, dir), new Cesium.Cartesian3());
 	}
 	/** A world point's place on the screen (CSS px), or undefined behind the camera. */
 	const toScreen = (p) => Cesium.SceneTransforms.worldToWindowCoordinates(scene, p);
@@ -659,41 +676,75 @@ async function main() {
 	}
 
 	/**
-	 * Draws the sun's disc over the eye view, where it is seen (refraction included), lowered by what the drawing
-	 * leaves out of the ridge behind it (the air's bending: d k / 2R), so it stands where it really is against that
-	 * ridge (standard air); the part below the ridge is cut off. What hides it: the server's horizon there (what the
-	 * calendar computes with, and what the orange dots show), else the drawn ground.
+	 * The sun's disc as Cesium draws it: an image (the disc in its inner part, its glow around it) put in the scene
+	 * far beyond the horizon, so the terrain hides it pixel by pixel wherever the ground is in front of it - by
+	 * whichever part of the ridge, across the whole width of the disc.
+	 */
+	const SUN_IMAGE = 256, SUN_IMAGE_DISC = 48;     // px: the image, the disc's radius in it
+	const sunImage = (() => {
+		const c = document.createElement("canvas");
+		c.width = c.height = SUN_IMAGE;
+		const g = c.getContext("2d"), m = SUN_IMAGE / 2, k = SUN_IMAGE_DISC;
+		const glow = g.createRadialGradient(m, m, k * 0.9, m, m, m);
+		glow.addColorStop(0, "rgba(255, 214, 102, 0.6)");
+		glow.addColorStop(0.45, "rgba(255, 214, 102, 0.25)");
+		glow.addColorStop(1, "rgba(255, 214, 102, 0)");
+		g.fillStyle = glow;
+		g.fillRect(0, 0, SUN_IMAGE, SUN_IMAGE);
+		const disc = g.createRadialGradient(m, m, 0, m, m, k);
+		disc.addColorStop(0, "#fffbe8");
+		disc.addColorStop(0.55, "#fffbe8");
+		disc.addColorStop(0.75, "#ffd76a");
+		disc.addColorStop(1, "#ffb02e");
+		g.fillStyle = disc;
+		g.beginPath();
+		g.arc(m, m, k, 0, 2 * Math.PI);
+		g.fill();
+		return c;
+	})();
+	const sunBoard = scene.primitives.add(new Cesium.BillboardCollection({ scene })).add({
+		image: sunImage, show: false, disableDepthTestDistance: 0, position: Cesium.Cartesian3.ZERO,
+	});
+	/** Far beyond any ridge that can hide the sun (the drawn ground ends at the horizon's 150 km and more). */
+	const SUN_DISTANCE_M = 400000;
+
+	/**
+	 * Puts the sun's disc where it is seen (refraction included), lowered by what the drawing leaves out of the
+	 * ridge behind it (the ridge's elevation in the calendar's air less the straight-line angle Cesium draws it at),
+	 * so it stands where it really is against that ridge, clearing it at the calendar's time. The ridge used for
+	 * that: the server's horizon there (what the calendar computes with, and what the orange dots show), else the
+	 * drawn ground. What hides the disc is the drawn terrain itself, in front of it.
 	 */
 	function placeSun() {
-		const disc = $("sunDisc");
 		const sun = sunAt(shownWhen);
-		if (!eyeMode || sun.app < -1.5) { disc.hidden = true; return; }
+		if (!eyeMode || sun.app < -1.5) { sunBoard.show = false; return; }
 		const entry = entryAtAny(spot, sun.az);
-		let edgePoint = null, distM = 0;
+		let distM = 0, heightM = 0;
 		if (entry) {
-			const [lo, la] = destination(spot.lat, spot.lon, sun.az, entry.distanceKm * 1000);
-			edgePoint = at(la, lo, entry.heightM);
 			distM = entry.distanceKm * 1000;
+			heightM = entry.heightM;
 		} else {
 			const s = drawnSkyline(sun.az);
-			if (s) { edgePoint = at(s.lat, s.lon, s.h); distM = s.distM; }
+			if (s) { distM = s.distM; heightM = s.h; }
 		}
-		const bend = distM * K_STANDARD / (2 * R_EARTH) / D2R;
-		const c = toScreen(pointToward(sun.az, sun.app - bend));
+		const air = distM ? airFor(sun.az < 180 ? "sunrise" : "sunset") : null;
+		// the angle Cesium draws the ridge at: straight lines from the camera, the Earth's curvature only
+		const drawn = Math.atan2(heightM - (eyeAltitude() + 0.5) - distM * distM / (2 * R_EARTH), distM) / D2R;
+		const bend = !distM ? 0 : air ? air.elevationOf(heightM, distM) - drawn : distM * K_STANDARD / (2 * R_EARTH) / D2R;
+		// the disc as seen: its upper and lower edges each where the air puts them (flattened near the horizon)
 		const H = scene.canvas.clientHeight;
-		if (!c || c.x < -100 || c.x > scene.canvas.clientWidth + 100 || c.y < -100 || c.y > H + 100) { disc.hidden = true; return; }
-		const r = Math.max(5, H / 2 / Math.tan(fov / 2 * D2R) * Math.tan(SUN_RADIUS * D2R));
-		disc.hidden = false;
-		disc.style.left = `${c.x}px`;
-		disc.style.top = `${c.y}px`;
-		disc.style.width = disc.style.height = `${2 * r}px`;
-		// the ridge's edge on screen, straight below or above the sun's centre
-		const e = edgePoint && toScreen(edgePoint);
-		const hidden = e ? Math.max(0, Math.min(2 * r, c.y + r - e.y)) : 0;
-		disc.style.clipPath = hidden ? `inset(0 0 ${hidden}px 0)` : "";
-		disc.hidden = hidden >= 2 * r;
+		const pxPerDeg = H / 2 / Math.tan(fov / 2 * D2R) * D2R;
+		const r = Math.max(5, pxPerDeg * SUN_RADIUS);
+		const ry = r * Math.max(0.5, (sun.top - sun.bottom) / 2 / SUN_RADIUS);
+		const scale = SUN_IMAGE / SUN_IMAGE_DISC / 2;
+		sunBoard.position = pointToward(sun.az, (sun.top + sun.bottom) / 2 - bend, SUN_DISTANCE_M);
+		sunBoard.width = 2 * r * scale;
+		sunBoard.height = 2 * ry * scale;
+		sunBoard.show = true;
 	}
-	scene.postRender.addEventListener(placeSun);
+	// before the frame is drawn, so the disc moves with it
+	scene.preRender.addEventListener(placeSun);
+
 
 	/** The sky behind the globe: the depression's colours, the horizon's glow at the horizon line on screen. */
 	let sky = skyAt(6), skyKey = "";
@@ -764,6 +815,50 @@ async function main() {
 		});
 		$("zman").dataset.date = "";
 		fillZmanim();
+		// the sun and the ridges again, in this calculator's air
+		airs.clear();
+		drawData();
+		showMoment();
+	}
+
+	// ─── The calendar's air: the sun and the ridges as its visible sunrise / sunset see them ───
+	/** @type {Map<string, any>} */
+	const airs = new Map();
+	/**
+	 * The calendar calculator's refraction (ROYSPACalculator.getRefractionFor) for the date shown, the spot and an
+	 * event: the air its visible sunrise / sunset are computed with (that day's weather along the path where the
+	 * calendar has it, else its standard model); null before the calculator is made. Terrain elevations are kept
+	 * per point (each a ray trace).
+	 * @param {SunEvent} ev
+	 */
+	function airFor(ev) {
+		const calc = /** @type {any} */ (zmanimDay)?.zmanCalc?.astroCalc;
+		if (!calc?.getRefractionFor || !Number.isFinite(spot.height)) return null;
+		const key = `${date}|${ev}|${spot.lat},${spot.lon},${spot.height}`;
+		let air = airs.get(key);
+		if (air === undefined) {
+			try {
+				const r = calc.getRefractionFor(date, new KosherZmanim.GeoLocation("", spot.lat, spot.lon, Math.max(0, spot.height), tz),
+					ev, { heightM: spot.height, groundM: spot.ground });
+				/** @type {Map<string, number>} */
+				const seen = new Map();
+				air = {
+					...r,
+					elevationOf: (/** @type {number} */ h, /** @type {number} */ d) => {
+						const k = `${h.toFixed(1)}|${Math.round(d)}`;
+						let v = seen.get(k);
+						if (v === undefined) { v = r.elevationOf(h, d); seen.set(k, /** @type {number} */ (v)); }
+						return v;
+					},
+				};
+			} catch (e) {
+				console.warn("the calendar's air:", e);
+				air = null;
+			}
+			if (airs.size > 16) airs.clear();
+			airs.set(key, air);
+		}
+		return air;
 	}
 	/** The calendar's air, horizon and haze for this place (stored by it, else fetched), then the times with them. */
 	async function setupZmanim() {
@@ -1047,11 +1142,13 @@ async function main() {
 		const g = groundAt(pt);
 		if (!g) return;
 		const { dist, bearing } = inverse(spot.lat, spot.lon, g.lat, g.lon);
-		const angle = Number.isFinite(eyeAltitude()) ? elevationAngle(eyeAltitude(), g.h, dist) : null;
+		// its elevation in the calendar's air for the event this side of the sky belongs to, else standard air
+		const air = airFor(bearing < 180 ? "sunrise" : "sunset");
+		const angle = !Number.isFinite(eyeAltitude()) ? null : air ? air.elevationOf(g.h, dist) : elevationAngle(eyeAltitude(), g.h, dist);
 		const body = show(/** @type {HTMLElement} */ (popup.querySelector(".popup-body")), "point", {
 			lat: fmt(g.lat, 5), lon: fmt(g.lon, 5), height: fmt(g.h, 0), dist: fmt(dist / 1000, 2),
 			bearing: fmt(bearing, 1), angle: angle === null ? "" : fmt(angle, 2)
-		}, angle === null ? ["angle"] : []);
+		}, angle === null ? ["angle"] : [air ? "std" : "cal"]);
 		const dir = eyeMode ? screenDirection(pt) : null;
 		/** @type {HTMLButtonElement} */ (body.querySelector('[data-action="look"]')).onclick = () => { popup.hidden = true; faceGround(g, dir); };
 		/** @type {HTMLButtonElement} */ (body.querySelector('[data-action="stand"]')).onclick = () => {
