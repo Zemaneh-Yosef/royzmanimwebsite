@@ -187,7 +187,7 @@ function messageHandler(x) {
 	const observer = new AstronomyImp.Observer(geoLocation.getLatitude(), geoLocation.getLongitude(), geoLocation.getElevation());
 	const calc = createMoonCalc();
 	// Moonrise / moonset refraction from the same air as the sun's (falls back to calc's standard air)
-	const horizonTarget = moonHorizonTarget(refraction.provider, tz, calc.horizonTarget, geoLocation);
+	const horizonTarget = moonHorizonTarget(refraction.provider, calc.horizonTarget, geoLocation);
 
 	// Flat horizon: the same convention as the printed sun times. With elevation on, a sea-level
 	// horizon seen from the elevation (the dip included); otherwise an observer at sea level.

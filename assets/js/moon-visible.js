@@ -84,7 +84,7 @@ function litPoints(thetaDeg, phaseAngleDeg) {
  *   searchHours: how far the visible event may be from the flat one (default 6)
  */
 export function createVisibleMoon(calc, horizon, Astronomy, options) {
-	const { provider = null, timeZone, geo, flat } = options;
+	const { provider = null, geo, flat } = options;
 	const searchMs = (options.searchHours ?? 6) * 3600000;
 	const R = earthRadiusAtLatitude(horizon.lat) * 1000;
 
@@ -105,7 +105,7 @@ export function createVisibleMoon(calc, horizon, Astronomy, options) {
 	 * @param {'moonrise'|'moonset'} side @param {number} epochMs
 	 */
 	function thresholds(side, epochMs) {
-		const air = airAt(provider, timeZone, geo, epochMs, observer.height);
+		const air = airAt(provider, geo, epochMs, observer.height);
 		const T = air ? Math.round(air.temperatureC * 2) / 2 : null;
 		const P = air ? Math.round(air.pressureMb) : null;
 		const H = air ? Math.round(air.heightM) : null;

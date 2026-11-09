@@ -73,15 +73,14 @@ function pointAir(spec, observerHeightM) {
  * The air for a moon event at this moment (see the top of the file), at a known height; null when the
  * provider has nothing for that date.
  * @param {AtmosphereProvider | null | undefined} provider
- * @param {string} timeZone
- * @param {any} geo  passed through to the provider
+ * @param {import("../libraries/kosherZmanim/kosher-zmanim.js").GeoLocation} geo  passed through to the provider
  * @param {number} epochMs
  * @param {number} observerHeightM  height the air is wanted at (used for path specs and specs without heightM)
  * @returns {PointAir | null}
  */
-export function airAt(provider, timeZone, geo, epochMs, observerHeightM) {
+export function airAt(provider, geo, epochMs, observerHeightM) {
 	if (!provider) return null;
-	const local = Temporal.Instant.fromEpochMilliseconds(epochMs).toZonedDateTimeISO(timeZone);
+	const local = Temporal.Instant.fromEpochMilliseconds(epochMs).toZonedDateTimeISO(geo.getTimeZone());
 	const spec = provider(local.toPlainDate(), local.hour < 12 ? 'sunrise' : 'sunset', geo);
 	const air = spec ? pointAir(spec, observerHeightM) : null;
 	return air && Number.isFinite(air.temperatureC) && Number.isFinite(air.pressureMb) ? air : null;
@@ -119,12 +118,11 @@ function rayTracedTarget(air, latitude, groundM, metersAboveGround) {
  * The value is constant within each half-day, which is what nextMoonEvent() expects of a time-dependent target.
  *
  * @param {AtmosphereProvider | null | undefined} provider  e.g. providerFromSnapshot(table, normals)
- * @param {string} timeZone  the location's IANA time zone (decides the local date and morning / evening)
  * @param {HorizonTarget} fallback  usually calc.horizonTarget
- * @param {any} [geo]  GeoLocation, passed through to the provider (some read it)
+ * @param {import("../libraries/kosherZmanim/kosher-zmanim.js").GeoLocation} geo  GeoLocation, passed through to the provider (some read it)
  * @returns {HorizonTarget}
  */
-export function moonHorizonTarget(provider, timeZone, fallback, geo) {
+export function moonHorizonTarget(provider, fallback, geo) {
 	if (!provider) return fallback;
 	/** @type {Map<string, number>} */
 	const cache = new Map();
@@ -132,7 +130,7 @@ export function moonHorizonTarget(provider, timeZone, fallback, geo) {
 	return (/** @type {ObserverLike} */ observer, metersAboveGround = 0, /** @type {TimeLike | undefined} */ time) => {
 		if (!time) return fallback(observer, metersAboveGround, time);
 
-		const air = airAt(provider, timeZone, geo, time.date.getTime(), observer.height);
+		const air = airAt(provider, geo, time.date.getTime(), observer.height);
 		if (!air) return fallback(observer, metersAboveGround, time);
 
 		const groundM = observer.height - metersAboveGround;

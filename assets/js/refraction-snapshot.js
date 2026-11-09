@@ -18,7 +18,7 @@ import { chainProviders, monthlyClimate } from "../libraries/kosherZmanim/royzma
 
 /**
  * What ROYSPACalculator.setAtmosphereProvider accepts.
- * @typedef {(date: Temporal.PlainDate, event: SolarEvent, geo?: any) => AtmosphereSpec | null | undefined} AtmosphereProvider
+ * @typedef {(date: Temporal.PlainDate, event: SolarEvent, geo?: import('../libraries/kosherZmanim/kosher-zmanim.js').GeoLocation) => AtmosphereSpec | null | undefined} AtmosphereProvider
  */
 
 /**
