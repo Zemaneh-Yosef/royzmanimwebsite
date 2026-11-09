@@ -117,3 +117,128 @@ export function zemanimSettings(source, options = {}) {
 }
 
 /** @typedef {ReturnType<typeof zemanimSettings>} ZemanimSettings */
+
+/**
+ * The refraction settings as plain values, as a print or shul-wall config keeps them (all optional there;
+ * a missing one takes the calendar's default)
+ * @typedef {{ humidity: boolean; seaSurfaceLayer: boolean; hazeTzet: boolean; hazeMaxDelay: number | null }} RefractionSettings
+ */
+
+/**
+ * Everything the calculator takes from the settings, as plain values: ROYZmanim's ZemanimConfig without the
+ * place's refraction data (zemanimConfigFrom adds that). Plain, so a page can post it to its workers.
+ * @typedef {{
+	elevation: boolean;
+	fixedMil: boolean;
+	rtKulah: boolean;
+	candleLighting: number;
+	melakha: import("../ROYZmanim.js").ZemanimConfig['melakha'];
+	humidity: boolean;
+	seaSurfaceLayer: boolean;
+	hazeTzet: boolean;
+	hazeMaxDelayMinutes: number | null;
+  }} ZemanimOptions
+ */
+
+/**
+ * The calculator's options from the visitor's settings: what the calendar, the prints and the notifications use
+ * @param {ZemanimSettings} settings
+ * @param {boolean} inIsrael
+ * @returns {ZemanimOptions}
+ */
+export function zemanimOptions(settings, inIsrael) {
+	return {
+		elevation: settings.calendarToggle.useElevation(inIsrael),
+		// Ohr HaChaim (fixed mil) in Israel or when chosen; Amudeh Hora'ah (degrees) elsewhere
+		fixedMil: inIsrael || settings.calendarToggle.forceSunSeasonal(),
+		rtKulah: settings.calendarToggle.rtKulah(),
+		candleLighting: settings.customTimes.candleLighting(),
+		melakha: settings.customTimes.tzeithIssurMelakha(inIsrael),
+		humidity: settings.refraction.humidity(),
+		seaSurfaceLayer: settings.refraction.seaSurfaceLayer(),
+		hazeTzet: settings.refraction.hazeTzet(),
+		hazeMaxDelayMinutes: settings.refraction.hazeMaxDelay()
+	};
+}
+
+/**
+ * The same from a plain config (a weekly print's or a shul wall's JSON), whose values were read from the
+ * settings when it was made. A missing elevation or refraction value takes the calendar's default.
+ * @param {{
+	calendarToggle: { rtKulah: boolean; forceSunSeasonal: boolean; elevation?: boolean };
+	customTimes: { candleLighting: number; tzeithIssurMelakha: { minutes: number; degree?: number } };
+	refraction?: Partial<RefractionSettings>;
+  }} config
+ * @param {boolean} inIsrael
+ * @returns {ZemanimOptions}
+ */
+export function zemanimOptionsFromConfig(config, inIsrael) {
+	const refraction = config.refraction ?? {};
+	return {
+		elevation: config.calendarToggle.elevation ?? inIsrael,
+		fixedMil: inIsrael || config.calendarToggle.forceSunSeasonal,
+		rtKulah: config.calendarToggle.rtKulah,
+		candleLighting: config.customTimes.candleLighting,
+		melakha: config.customTimes.tzeithIssurMelakha,
+		humidity: refraction.humidity ?? false,
+		seaSurfaceLayer: refraction.seaSurfaceLayer ?? false,
+		hazeTzet: refraction.hazeTzet ?? true,
+		hazeMaxDelayMinutes: refraction.hazeMaxDelay === undefined ? 15 : refraction.hazeMaxDelay
+	};
+}
+
+/**
+ * The refraction settings in effect, to keep in a config that zemanimOptionsFromConfig reads later
+ * @param {ZemanimSettings} settings
+ * @returns {RefractionSettings}
+ */
+export function refractionSettings(settings) {
+	return {
+		humidity: settings.refraction.humidity(),
+		seaSurfaceLayer: settings.refraction.seaSurfaceLayer(),
+		hazeTzet: settings.refraction.hazeTzet(),
+		hazeMaxDelay: settings.refraction.hazeMaxDelay()
+	};
+}
+
+/**
+ * The options part of a calculator's configuration (without its refraction data, which can't be posted)
+ * @param {import("../ROYZmanim.js").ZemanimConfig} config
+ * @returns {ZemanimOptions}
+ */
+export function optionsOf({ elevation, fixedMil, rtKulah, candleLighting, melakha, humidity, seaSurfaceLayer, hazeTzet, hazeMaxDelayMinutes }) {
+	return { elevation, fixedMil, rtKulah, candleLighting, melakha, humidity, seaSurfaceLayer, hazeTzet, hazeMaxDelayMinutes };
+}
+
+/**
+ * The calculator's configuration: the options plus the place's refraction data (refraction-data.js; in a
+ * worker, rebuilt with providerFromSnapshot). Without data the calculator uses its standard air.
+ * @param {ZemanimOptions} options
+ * @param {{ atmosphereProvider?: import("../ROYZmanim.js").ZemanimConfig['atmosphereProvider']; horizon?: import("../ROYZmanim.js").ZemanimConfig['horizon']; haze?: import("../ROYZmanim.js").ZemanimConfig['haze'] }} [refraction]
+ * @returns {import("../ROYZmanim.js").ZemanimConfig}
+ */
+export function zemanimConfigFrom(options, refraction = {}) {
+	return {
+		...options,
+		atmosphereProvider: refraction.atmosphereProvider ?? null,
+		horizon: refraction.horizon ?? null,
+		haze: refraction.haze ?? null
+	};
+}
+
+/**
+ * The two shitot the flyers print side by side, the same for every visitor (not from the settings).
+ *  - Ohr HaChaim: Tzet Melakha 30 fixed minutes after sunset.
+ *  - Amudeh Hora'ah: 6.75° (27 minutes at Rav Ovadia's house on the equinox) rounded up to the next 5 minutes,
+ *    but never past 7.165° (30 minutes there): getTzetMelakha's "PRETTY" handling of the two entries.
+ * Each read gives a fresh object: getTzetMelakha sorts a melakha array in place.
+ */
+export const FLYER_SHITOT = Object.freeze({
+	get ohrHachaim() {
+		return { elevation: true, fixedMil: true, rtKulah: false, candleLighting: 20, melakha: { minutes: 30, degree: 7.165 } };
+	},
+	get amudehHoraah() {
+		return { elevation: false, fixedMil: false, rtKulah: true, candleLighting: 20,
+			melakha: [{ minutes: 27, degree: 6.75 }, { minutes: 30, degree: 7.165 }] };
+	}
+});

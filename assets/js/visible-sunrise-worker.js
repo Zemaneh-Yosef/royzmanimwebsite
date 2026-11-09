@@ -15,7 +15,7 @@
  */
 
 import { GeoLocation } from "../libraries/kosherZmanim/kosher-zmanim.js";
-import ROYSPACalculator from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
+import ROYSPACalculator from "./astro/royzmanim-spa-corrections.js";
 import { providerFromSnapshot } from "./refraction-snapshot.js";
 import { loadWorkerPolyfills } from "./misc/worker-polyfills.js";
 

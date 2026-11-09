@@ -8,7 +8,7 @@
 // actual average, so that under Jerusalem's average sky the Gemara's 18 minutes come out exactly.
 
 import "../assets/libraries/temporal-polyfill/global.min.js";
-import { starNightfall, eveningSunAt } from "../assets/libraries/kosherZmanim/star-nightfall.js";
+import { starNightfall, eveningSunAt } from "../assets/js/astro/star-nightfall.js";
 
 const J = { lat: 31.7780, lon: 35.2354, h: 754 };
 const TARGET_MIN = 18;

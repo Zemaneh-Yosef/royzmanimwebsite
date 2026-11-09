@@ -2,6 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
+import { buildZemanimConfig } from "../core/zmanimCore.js";
 import { preloadFlyerRefraction, refractionFor } from "./flyer-refraction.js";
 import WebsiteCalendar from "../WebsiteCalendar.js"
 import { settings } from "../settings/handler.js";
@@ -19,14 +20,7 @@ const geoLocation = new KosherZmanim.GeoLocation(...glArgs);
 const jCal = new WebsiteCalendar()
 jCal.setInIsrael(isInIsrael(settings.location.lat(), settings.location.long()))
 await preloadFlyerRefraction([geoLocation]);
-const calc = new ZemanFunctions(geoLocation, {
-	...refractionFor(geoLocation),
-	elevation: jCal.getInIsrael(),
-	fixedMil: settings.calendarToggle.forceSunSeasonal() || jCal.getInIsrael(),
-	melakha: settings.customTimes.tzeithIssurMelakha(jCal.getInIsrael()),
-	candleLighting: settings.customTimes.candleLighting(),
-	rtKulah: settings.calendarToggle.rtKulah()
-})
+const calc = new ZemanFunctions(geoLocation, buildZemanimConfig(geoLocation, settings, refractionFor(geoLocation)).config)
 
 for (const title of document.getElementsByClassName('shabbatTitleCore')) {
 	title.innerHTML = [

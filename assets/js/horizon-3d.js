@@ -22,13 +22,14 @@ import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
 import { REFRACTION_SERVER, TERRAIN_VERSION, readCachedRefraction, loadRefraction } from "./refraction-data.js";
 import { ZmanimDay, zmanimListFromData, timeFormat } from "./core/zmanimCore.js";
 import { settings } from "./settings/handler.js";
-import { fetchHorizonForArea, HorizonPendingError } from "../libraries/kosherZmanim/horizon-client.js";
-import { sunAltAz, morningSunAt, eveningSunAt } from "../libraries/kosherZmanim/star-nightfall.js";
-import { ROY_REFRACTION_ARCMIN } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
+import { fetchHorizonForArea, HorizonPendingError } from "./astro/horizon-client.js";
+import { sunAltAz, morningSunAt, eveningSunAt } from "./astro/star-nightfall.js";
+import { ROY_REFRACTION_ARCMIN } from "./astro/royzmanim-spa-corrections.js";
 import { terrainSource, SERVER_MAX_ZOOM } from "./horizon-3d-terrain.js";
+import { EARLIEST_DATE, notBeforeEarliest } from "./misc/util.js";
 
-/** @typedef {import('../libraries/kosherZmanim/royzmanim-spa-corrections.js').HorizonSet} HorizonSet */
-/** @typedef {import('../libraries/kosherZmanim/royzmanim-spa-corrections.js').HorizonSetPoint} HorizonSetPoint */
+/** @typedef {import('./astro/royzmanim-spa-corrections.js').HorizonSet} HorizonSet */
+/** @typedef {import('./astro/royzmanim-spa-corrections.js').HorizonSetPoint} HorizonSetPoint */
 /** @typedef {'sunrise' | 'sunset'} SunEvent */
 
 const R_EARTH = 6371008.8;
@@ -410,7 +411,7 @@ async function main() {
 	const zoned = (/** @type {number} */ ms) => Temporal.Instant.fromEpochMilliseconds(Math.round(ms)).toZonedDateTimeISO(tz);
 	const dateParam = q.get("date") ?? "";
 	/** @type {Temporal.PlainDate} */
-	let date = /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? Temporal.PlainDate.from(dateParam) : Temporal.Now.plainDateISO(tz);
+	let date = notBeforeEarliest(/^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? Temporal.PlainDate.from(dateParam) : Temporal.Now.plainDateISO(tz));
 	const ymd = (/** @type {Temporal.PlainDate} */ d) => ({ year: d.year, month: d.month, day: d.day });
 	/** The sun's declination at the place's noon of the date: aims the view at the day's sunrise / sunset. */
 	let decl = 0;
@@ -846,6 +847,7 @@ async function main() {
 			drawData();
 			if (moved && eyeMode) look();       // to the new spot's eye, facing the same way
 		}
+		$("date").min = EARLIEST_DATE;
 		$("date").value = date.toString();
 		$("time").value = z.toPlainTime().toString({ smallestUnit: "minute" });
 		$("clock").value = String(z.hour * 60 + z.minute);
@@ -891,7 +893,7 @@ async function main() {
 	}
 
 	// ─── The calendar's air: the sun and the ridges as its visible sunrise / sunset see them ───
-	/** @type {Map<string, ReturnType<import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").default["getRefractionFor"]>>} */
+	/** @type {Map<string, ReturnType<import("./astro/royzmanim-spa-corrections.js").default["getRefractionFor"]>>} */
 	const airs = new Map();
 	/**
 	 * The calendar calculator's refraction (ROYSPACalculator.getRefractionFor) for the date shown, the spot and an
@@ -970,7 +972,7 @@ async function main() {
 	$("date").onchange = (/** @type {{ target: { value: Temporal.PlainDateLike; }; }} */ e) => {
 		if (!e.target.value) return;
 		const z = zoned(when);
-		when = Temporal.PlainDate.from(e.target.value).toZonedDateTime({ timeZone: tz, plainTime: z.toPlainTime() }).epochMilliseconds;
+		when = notBeforeEarliest(Temporal.PlainDate.from(e.target.value)).toZonedDateTime({ timeZone: tz, plainTime: z.toPlainTime() }).epochMilliseconds;
 		showMoment();
 	};
 	$("time").onchange = (/** @type {{ target: { value: Temporal.PlainTimeLike; }; }} */ e) => {

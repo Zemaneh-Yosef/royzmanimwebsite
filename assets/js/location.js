@@ -29,11 +29,36 @@
 			"lat": number
 		}[]}} geoNamesResponse */
 
-import * as leaflet from "../libraries/leaflet/leaflet.js"
-import { settings } from "./settings/handler.js";
-import { isInIsrael, applyLocationDefaults } from "./misc/israel.js";
-/** @type {leaflet.Map} */
-let leafletInit;
+/**
+ * The location search (name, ZIP code, coordinates or GPS), shared by the zmanim site (location-site.js)
+ * and the Hazon Yosef calendar (hazon-yosef-location.js). It reads no settings: what differs between them
+ * comes from the page, through configureLocationSearch(), which the page's own module calls on import.
+ * @typedef {{
+	language: () => 'he' | 'en' | 'he-Latn',
+	onChosen: (geoLocation: { locationName: string, lat: number, long: number, elevation: number, timeZone: string }) => void
+  }} LocationSearchOptions
+ *   language: the page's language (map names, how a neutral query is searched, nearby-place names);
+ *   onChosen: what happens once a place is chosen (open the calendar there, save it, ...)
+ */
+
+/** @type {LocationSearchOptions | null} */
+let pageOptions = null;
+
+/** @param {LocationSearchOptions} options */
+export function configureLocationSearch(options) {
+	pageOptions = options;
+}
+
+function options() {
+	if (!pageOptions)
+		throw new Error("location.js: the page didn't call configureLocationSearch()");
+	return pageOptions;
+}
+
+/** The map of a place typed as coordinates @type {Promise<import("ol/Map.js").default> | null} */
+let manualMap = null;
+/** Where manualMap is centred ("lat,lng"), so only a new place redraws it */
+let manualMapAt = "";
 
 const getJSON = async (/** @type {RequestInfo | URL} */ url) => await (await fetch(url)).json();
 const geoLocation = {
@@ -51,7 +76,7 @@ let maxRows = 10;
  * 	manual: {
  * 		container: HTMLDivElement,
  * 		locationNameInput: HTMLInputElement,
- * 		timezoneSelect: HTMLSelectElement,
+ * 		timezoneSelect: HTMLSelectElement | import('@material/web/select/outlined-select.js').MdOutlinedSelect,
  * 		map: HTMLDivElement,
  *      elevationInput: HTMLInputElement
  * },
@@ -167,19 +192,19 @@ async function updateList(event) {
 		}
 
 		const [lat, lng] = q.replace('(', '').replace(')', '').split(',').map(num => parseFloat(num))
-		if (!leafletInit) {
-			leafletInit = leaflet.map(elements.manual.map, {
-				dragging: false,
-				minZoom: 16,
-				touchZoom: 'center',
-				scrollWheelZoom: 'center'
-			})
-			leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-			}).addTo(leafletInit);
+		// A new map for each place typed (the map is held on its place); keys that leave the
+		// coordinates as they were (arrows, Home/End, Shift…) keep the one shown
+		if (manualMapAt !== `${lat},${lng}`) {
+			manualMapAt = `${lat},${lng}`;
+			manualMap?.then(map => map.setTarget(undefined)).catch(() => {});
+			// map.js (and OpenLayers) only load once a map is shown
+			manualMap = import("./map.js").then(({ drawScreenMap }) =>
+				drawScreenMap(elements.manual.map, { lat, long: lng }, { lang: options().language(), zoom: 16, minZoom: 16 }));
+			manualMap.catch(err => {
+				console.warn("Location map:", err);
+				manualMapAt = ""; // try again on the next key
+			});
 		}
-
-		leafletInit.setView([lat, lng], 13);
 
 		if ((event instanceof KeyboardEvent && event.key == "Enter") || event instanceof MouseEvent) {
 			if (elements.manual.timezoneSelect.value)
@@ -224,9 +249,8 @@ async function updateList(event) {
 
 			/** @param {URLSearchParams} params */
 			const addLangIfHebrew = params => {
-				console.log(detectLanguageIntent(q));
 				if (detectLanguageIntent(q) == "english") return;
-				if (detectLanguageIntent(q) == "neutral" && settings.language() != "he") return;
+				if (detectLanguageIntent(q) == "neutral" && options().language() != "he") return;
 
 				params.set("lang", "he");
 			};
@@ -471,7 +495,7 @@ async function setLatLong(position, manual = false) {
 				'style': 'FULL'
 			});
 
-			if (settings.language() == 'he') {
+			if (options().language() == 'he') {
 				params.set("lang", "he");
 			}
 			const data = await getJSON("https://secure.geonames.org/findNearbyPlaceNameJSON?" + params);
@@ -585,11 +609,7 @@ async function getAverageElevation(lat, long) {
 }
 
 function openCalendarWithLocationInfo() {
-	applyLocationDefaults(isInIsrael(geoLocation.lat, geoLocation.long));
-
-	const typedGL = Object.entries(geoLocation).map(([key, value]) => [key, (typeof value == 'number' ? value.toString() : value)])
-	const params = new URLSearchParams(Object.fromEntries(typedGL));
-	window.location.href = "calendar?" + params.toString();
+	options().onChosen(geoLocation);
 }
 
 const networkStatus = {
@@ -598,11 +618,6 @@ const networkStatus = {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-	if (urlParams.get('modalShow') == 'tekufa') {
-		// @ts-ignore
-		window.bootstrap.Modal.getOrCreateInstance(document.getElementById("tekufaModal")).show()
-	}
-
 	if (!navigator.onLine) networkStatus.offline();
 });
 

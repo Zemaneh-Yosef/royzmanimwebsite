@@ -47,3 +47,15 @@ which imports these files at a pinned commit of this repository and runs them in
 
 Keep everything these files import free of browser-only APIs (DOM, `window`, `localStorage`): a change to the
 zmanim logic reaches notifications once the server's pin is moved to the new commit.
+
+## Our astronomy (`assets/js/astro/`) and the vendored libraries (`assets/libraries/`)
+
+`assets/js/astro/` is this site's own astronomy: the refraction and visible-sunrise corrections on top of
+kosher-zmanim's SPA calculator (`royzmanim-spa-corrections.js`), Delta-T, nutation, the weather providers,
+nightfall by the stars, and the moon (`moon.js`). Import the moon from `astro/moon.js`, not from the
+library: it sets Astronomy Engine to the same Delta-T as the sun.
+
+`assets/libraries/` holds builds made elsewhere, kept byte-for-byte (`.gitattributes`). Two come from our
+own repositories next to this one, kosher-zmanim (`../KosherZmanim`) and the moon calculator (`../moonrise`),
+and the yahrzeit data comes from `../hiloulot`. `pnpm vendor` copies them in, and refuses files with
+uncommitted changes so what the site ships always matches a commit (see `scripts/vendor.mjs`).

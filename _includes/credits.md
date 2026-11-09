@@ -22,7 +22,7 @@ Outside of our team above, we've received the official endorsement of [HaRav Yit
 #### Maps & Imagery
 
 - **© OpenStreetMap contributors:** Map data in the location modal and the 3D horizon view
-- **Stadia Maps, Stamen Terrain:** Terrain map in the printouts. © Stadia Maps © Stamen Design © OpenMapTiles © OpenStreetMap contributors
+- **[OpenFreeMap](https://openfreemap.org):** Vector map tiles for the location modal and the printouts (sharp on any screen and at any print size). © OpenFreeMap © OpenMapTiles © OpenStreetMap contributors. Without them the printouts fall back to Stadia Maps' Stamen Terrain (© Stadia Maps © Stamen Design)
 - **Sentinel-2 cloudless 2016** by [EOX IT Services GmbH](https://s2maps.eu) (contains modified Copernicus Sentinel data 2016): Satellite imagery in the 3D horizon view
 - **Terrain Tiles on AWS:** Elevation tiles for the 3D horizon view (Mapzen, from NASA SRTM and USGS data)
 - **Twemoji** (CC BY 4.0): Country flags on the flyers, via [country-flag-emoji-polyfill](https://www.npmjs.com/package/country-flag-emoji-polyfill)
@@ -65,9 +65,8 @@ Outside of our team above, we've received the official endorsement of [HaRav Yit
 - **Bootstrap:** Web Framework to make initial components
   - **[mdbootstrap](https://mdbootstrap.com/):** Implementing Google's Design Language into Bootstrap
 - **[Bootstrap Icons](https://icons.getbootstrap.com/)** (MIT): Icons on the site
-- **[Leaflet](https://leafletjs.com/):** Map library used in the location modal
 - **[CesiumJS](https://cesium.com/platform/cesiumjs/)** (Apache 2.0): The globe and terrain of the 3D horizon view
-- **[OpenLayers](https://openlayers.org/):** Map library used to draw the printout maps
+- **[OpenLayers](https://openlayers.org/):** Map library used for every map on the site (the location modal and the printouts)
 - **[gsap.js](https://gsap.com/):** Tweening library for animations in Zemanim countdowns
 - **[Astronomy Engine](https://github.com/cosinekitty/astronomy)** by Don Cross (MIT): Moonrise and moonset calculations
 - **[temporal-polyfill](https://github.com/fullcalendar/temporal-polyfill)** by Adam Shaw (MIT): Temporal API for browsers that don't have it yet
@@ -81,7 +80,6 @@ Outside of our team above, we've received the official endorsement of [HaRav Yit
 
 These libraries are not ideal, and we plan to replace them (either natively or through a rewrite) when possible. Nevertheless, here's our appreciation for them at the current moment
 
-- **[flexcal](https://github.com/dwachss/flexcal):** A jQuery(-UI) plugin to have a Hebrew-Date picker. To be replaced with a custom implementation built around KosherZmanim
 - **[Material Design Web](https://m3.material.io/develop/web):** Replace MDBootstrap's list selector, due to MDBootstrap's being paid.
 - **[pdf.js](https://mozilla.github.io/pdf.js/):** Embedded PDF viewer, because native ones either force the person to download the PDF on page-load or have issues scrolling
 - **[linkedom](https://www.npmjs.com/package/linkedom):** Used to make DOM code for Web Workers, used for the print-out calendar generator

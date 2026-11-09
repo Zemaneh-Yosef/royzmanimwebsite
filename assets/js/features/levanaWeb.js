@@ -10,11 +10,12 @@
  * print's handleSingleBL() (features/weeklyPrint/print-web-worker.js).
  */
 
-import { moonGlyphSvg } from "../../libraries/mooncalc/moonRiseSetCalc.js";
+import { moonGlyphSvg } from "../astro/moon.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
 import { spawnWorker } from "../misc/worker.js";
 import { settings } from "../settings/handler.js";
 import { loadRefraction, snapshotProvider } from "../refraction-data.js";
+import { optionsOf } from "../core/zmanimSettings.js";
 import { EN, TEXT, levanaWindow, strictLabel as levanaStrictLabel } from "./levanaWindow.js";
 
 /** @typedef {import('./weeklyPrint/moon-birkat-worker.js').MonthResult} MonthResult */
@@ -176,9 +177,8 @@ export default class LevanaCard {
 		const geo = updater.geoLocation;
 		const placeKey = `${geo.getLatitude()},${geo.getLongitude()}`;
 		const config = updater.zmanCalc.config;
-		const israel = updater.jCal.getInIsrael();
-		const elevation = config.elevation;
-		const hourCalculator = settings.calendarToggle.forceSunSeasonal() ? 'seasonal' : 'degrees';
+		// the calendar's own options, so the moon's netz / shkiya match the times on the page
+		const zemanim = optionsOf(config);
 
 		const horizon = this.moonHorizons.get(placeKey) ?? updater.refraction?.horizon ?? config.horizon ?? null;
 		const normals = updater.refraction?.normals ?? null;
@@ -187,7 +187,7 @@ export default class LevanaCard {
 		const forecastAt = updater._shownForecastAt ?? null;
 
 		const sig = [
-			placeKey, geo.getElevation(), geo.getTimeZone(), israel, elevation, hourCalculator, ctx.year, ctx.month,
+			placeKey, geo.getElevation(), geo.getTimeZone(), JSON.stringify(zemanim), ctx.year, ctx.month,
 			forecastAt, provider ? 'p' : '-', normals ? 'n' : '-',
 			horizon ? (horizon.moon ? 'moon' : 'sun') : 'none', haze?.forecastFetchedAt ?? (haze ? 'h' : '-')
 		].join('|');
@@ -209,7 +209,7 @@ export default class LevanaCard {
 			const geoCoordinates = [geo.getLocationName(), geo.getLatitude(), geo.getLongitude(), geo.getElevation(), geo.getTimeZone()];
 			return {
 				init,
-				params: { geoCoordinates, months: [{ year: ctx.year, month: ctx.month }], israel, elevation, hourCalculator }
+				params: { geoCoordinates, months: [{ year: ctx.year, month: ctx.month }], zemanim }
 			};
 		};
 

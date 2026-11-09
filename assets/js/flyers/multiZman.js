@@ -2,6 +2,8 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { ZemanFunctions, zDTFromFunc, methodNames } from "../ROYZmanim.js";
+import { FLYER_SHITOT } from "../core/zmanimSettings.js";
+import makamObj from "../makamObj.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import { settings } from "../settings/handler.js"
 import { isInIsrael } from "../misc/israel.js";
@@ -29,8 +31,8 @@ if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
 
-const ohrHachaimCal = new ZemanFunctions(fallbackGL, { elevation: true, melakha: {minutes: 30, degree: null}, rtKulah: false, fixedMil: true, candleLighting: 20 });
-const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melakha: [{minutes: 27, degree: 6.75}, {minutes: 30, degree: 7.165}], rtKulah: true, fixedMil: false, candleLighting: 20 });
+const ohrHachaimCal = new ZemanFunctions(fallbackGL, FLYER_SHITOT.ohrHachaim);
+const amudehHoraahCal = new ZemanFunctions(fallbackGL, FLYER_SHITOT.amudehHoraah);
 
 /** @type {string[]} */
 let calendars = [];
@@ -141,7 +143,6 @@ switch (document.getElementById('gridElement').getAttribute('data-flyerType')) {
 		/*if (!window.location.href.includes('usa'))
 			locales.push('fa', 'ar-u-ca-islamic-umalqura'); */
 
-		console.log(locales)
 		calendars = locales.map(loc => jCal.getDate().toLocaleString(loc, { weekday: "long", month: "long", day: "numeric", year: "numeric" }));
 		//if (!window.location.href.includes('usa'))
 		//    calendars[2] = calendars[2].replace(/0/g, '۰').replace(/1/g, '۱').replace(/2/g, '۲').replace(/3/g, '۳')
@@ -290,7 +291,6 @@ for (const d8Displ of document.querySelectorAll(['', 'Formal', 'Y', 'SY', 'S'].m
 	const d8jCal = jCal.clone();
 	d8jCal.setDate((d8Displ.hasAttribute('data-yomtov-concludes') ? concludesDate : shabbatDate)[parseInt(entryFound[1]) < 0 ? 'add' : 'subtract']({ days: Math.abs(parseInt(entryFound[1])) }));
 
-	console.log(entryFound, d8jCal.getDate().toLocaleString('en', { month: 'long', day: 'numeric', year: 'numeric' }), d8Displ)
 
 	const dateRender = entryFound[0].split(/[A-Z]/)[0];
 
@@ -490,7 +490,6 @@ for (const elem of elems) {
 						})
 
 						if (!Math.trunc(curCalcTime.until(baseCalcTime).total({ unit: "minute" })) || curCalcTime.until(baseCalcTime).total({ unit: "minute" }) < 0) {
-							console.log("new one was later, continue")
 							continue;
 						}
 
@@ -542,7 +541,6 @@ for (const sefiraElement of document.querySelectorAll('[data-sefira-backday]')) 
 }
 
 if (document.getElementById('gridElement').hasAttribute('data-hasMakam')) {
-	const makamObj = await (await fetch("/assets/js/makamObj.json")).json();
 	const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
 
 	const makam = makamIndex.getTodayMakam(jCal);

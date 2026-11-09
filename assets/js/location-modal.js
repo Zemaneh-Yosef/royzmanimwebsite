@@ -11,15 +11,14 @@
  */
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import * as leaflet from "../libraries/leaflet/leaflet.js";
-import { hazeOn } from "../libraries/kosherZmanim/star-nightfall.js";
+import { hazeOn } from "./astro/star-nightfall.js";
 import { settings, saveSetting } from "./settings/handler.js";
 import { isInIsrael, applyLocationDefaults } from "./misc/israel.js";
 
 /** @typedef {import("./refraction-snapshot.js").AtmosphereSpec} AtmosphereSpec */
 /** @typedef {import("./refraction-snapshot.js").Horizon} Horizon */
 /** @typedef {import("./refraction-snapshot.js").Normals} Normals */
-/** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeData} HazeData */
+/** @typedef {import("./astro/star-nightfall.js").HazeData} HazeData */
 
 /**
  * Text in the site's three languages. `en` falls back to `he-Latn`.
@@ -201,12 +200,12 @@ export default class LocationModal {
 		this.updater = updater;
 		/** @type {HTMLElement | null} */
 		this.root = document.getElementById("locationModal");
-		/** @type {leaflet.Map | null} */
+		/** The direction map, while the modal is open (drawn once the tiles' address is in) @type {Promise<import("ol/Map.js").default> | null} */
 		this.map = null;
 		if (!this.root) return;
 
 		const mapTab = this.root.querySelector("#locModal-direction-tab");
-		mapTab?.addEventListener("shown.bs.tab", () => this.map?.invalidateSize());
+		mapTab?.addEventListener("shown.bs.tab", () => this.map?.then(map => map.updateSize()).catch(() => {}));
 		this.root.querySelector("#locModal-technical-tab")
 			?.addEventListener("shown.bs.tab", () => this.renderTechnical());
 		this.root.querySelector("#locModal-edit-tab")
@@ -232,8 +231,9 @@ export default class LocationModal {
 
 	/** On hidden.bs.modal. */
 	close() {
-		this.map?.remove();
+		const drawing = this.map;
 		this.map = null;
+		drawing?.then(map => map.setTarget(undefined)).catch(() => {});
 	}
 
 	/**
@@ -279,25 +279,17 @@ export default class LocationModal {
 		/** @type {HTMLElement | null} */
 		const mapElem = this.root?.querySelector('[data-zfFind="locationMap"]');
 		if (!mapElem || this.map) return;
-		const here = /** @type {[number, number]} */ ([this.geo.getLatitude(), this.geo.getLongitude()]);
-
-		this.map = leaflet.map(mapElem, {
-			dragging: false,
-			minZoom: 14,
-			touchZoom: 'center',
-			scrollWheelZoom: 'center'
-		}).setView(here, 16);
-
-		leaflet.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-		}).addTo(this.map);
-
-		// Rhumb line to Har HaBayit: straight on the Mercator map
-		leaflet.polyline([here, [harHabait.getLatitude(), harHabait.getLongitude()]], { color: 'red' }).addTo(this.map);
-
-		// Accuracy halo and centre dot
-		leaflet.circle(here, { radius: 30, color: 'blue', fillColor: 'blue', fillOpacity: 0.15, weight: 0 }).addTo(this.map);
-		leaflet.circleMarker(here, { radius: 8, fillColor: 'blue', color: 'white', weight: 2, opacity: 1, fillOpacity: 1 }).addTo(this.map);
+		// The rhumb line to Har HaBayit, a 30 m accuracy halo and the centre dot
+		// map.js (and OpenLayers) only load once a map is shown
+		const drawing = import("./map.js").then(({ drawScreenMap }) => drawScreenMap(mapElem, { lat: this.geo.getLatitude(), long: this.geo.getLongitude() }, {
+			lang: settings.language(), zoom: 16, minZoom: 14, halo: 30,
+			toward: { lat: harHabait.getLatitude(), long: harHabait.getLongitude() }
+		}));
+		this.map = drawing;
+		drawing.catch(err => {
+			console.warn("Location map:", err);
+			if (this.map === drawing) this.map = null;
+		});
 	}
 
 	// ─── Tab 2: technical details ──────────────────────────────────────────

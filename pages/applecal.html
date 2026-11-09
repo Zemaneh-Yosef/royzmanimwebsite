@@ -1643,24 +1643,7 @@ APPLE OFFICIAL COLORS
 </div>
 {% endcomment %}
 
-<script src="/assets/libraries/flexcal/jquery-4.0.0.min.js"></script>
-<script src="/assets/libraries/flexcal/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/assets/libraries/flexcal/flexcal.css" />
-<link rel="stylesheet" href="/assets/libraries/flexcal/jquery-ui.min.css" />
-<script src="/assets/libraries/flexcal/jquery.textpopup.js"></script>
-<script src="/assets/libraries/flexcal/jquery.flexcal.js"></script>
-<!--All these files just to include flexcal.js for a jewish calendar popup widget-->
-
-<script>
-	document.addEventListener("DOMContentLoaded", () => {
-		for (const dateContainer of document.querySelectorAll('[data-zfFind="dateContainer"]'))
-			for (const inputField of dateContainer.getElementsByTagName("input"))
-				$(inputField).flexcal({
-					calendars: ["en", "jewish", "he-jewish"],
-					selected: "en",
-				});
-	});
-</script>
+{% include date-picker.html %}
 
 {% capture tekufaEng %}{% include zmanDescription/tekufa/english.md %}{% endcapture %}
 {% capture tekufaHeb %}{% include zmanDescription/tekufa/hebrew.md %}{% endcapture %}
@@ -1683,5 +1666,5 @@ APPLE OFFICIAL COLORS
 {% include modals/location.html %}
 {% include modals/export.html %}
 
-<link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
+<link rel="stylesheet" href="/assets/libraries/OpenLayers/ol.css" />
 <script src="/assets/js/zmanimListUpdater.js" type="module"></script>

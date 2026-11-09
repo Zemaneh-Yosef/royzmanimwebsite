@@ -2,6 +2,7 @@
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
 import { zDTFromFunc, ZemanFunctions } from "../ROYZmanim.js";
+import { FLYER_SHITOT } from "../core/zmanimSettings.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
@@ -48,9 +49,9 @@ if (document.querySelector('[data-omer-day]')) {
 }
 
 const fallbackGL = new KosherZmanim.GeoLocation("null", 0,0,0, "UTC");
-const ohrHachaimCal = new ZemanFunctions(fallbackGL, { elevation: true, melakha: {minutes: 30, degree: 7.165}, rtKulah: false, fixedMil: true, candleLighting: 20 });
+const ohrHachaimCal = new ZemanFunctions(fallbackGL, FLYER_SHITOT.ohrHachaim);
 ohrHachaimCal.setDate(jCal.getDate())
-const amudehHoraahCal = new ZemanFunctions(fallbackGL, { elevation: false, melakha: {minutes: 30, degree: 7.165}, rtKulah: true, fixedMil: false, candleLighting: 20 });
+const amudehHoraahCal = new ZemanFunctions(fallbackGL, FLYER_SHITOT.amudehHoraah);
 amudehHoraahCal.setDate(jCal.getDate());
 
 if ((jCal.getDate().dayOfWeek == 6 || jCal.isAssurBemelacha()) && !window.location.href.includes("forceShabbat")) {

@@ -8,12 +8,14 @@ import fitty from "../../libraries/fitty.js";
 import QrCode from "../../libraries/qrCode.js";
 
 import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
+import { zemanimOptions, zemanimConfigFrom } from "../core/zmanimSettings.js";
 import { loadPrintRefraction, fillVisibleSunriseTable } from "./print-refraction.js";
 
-import * as ol from "../../libraries/OpenLayers/ol.js"
+import { drawPrintMap } from "../map.js";
 import { spawnWorker } from "../misc/worker.js";
 import { isInIsrael } from "../misc/israel.js";
 import { detectJit } from "../misc/detect-jit.js";
+import { nextFrame, earliestYear } from "../misc/util.js";
 
 // paged.js lays the pages out on screen, and printing keeps that layout, so it mustn't depend on the screen.
 // Bootstrap Reboot grows h1-h4 with the window's width below 1200px (and the root font follows the browser's
@@ -99,7 +101,8 @@ if (printParam.has('lessContrast')) {
 const cal = settings.language() == 'en' ? 'iso8601' : 'hebrew';
 const dateForCal = {
 	month: (printParam.has('currentMonth') && !printParam.has('year') ? Temporal.Now.plainDateISO().withCalendar(cal).month : 1),
-	year: (printParam.has('year') ? parseInt(printParam.get('year')) : Temporal.Now.plainDateISO().withCalendar(cal).year),
+	// not before the Gregorian calendar's first whole year
+	year: Math.max(earliestYear(cal), printParam.has('year') ? parseInt(printParam.get('year')) : Temporal.Now.plainDateISO().withCalendar(cal).year),
 }
 
 if (isNaN(settings.location.lat()) && isNaN(settings.location.long())) {
@@ -187,22 +190,10 @@ if (elevation) {
 
 /** @type {HTMLElement} */
 const locationMapElem = document.querySelector('[data-zfFind="locationMap"]')
-if (locationMapElem) {
-	const stadiaSource = new ol.StadiaMaps({
-		layer: 'stamen_terrain',
-		retina: true,
-	});
-
-	new ol.Map({
-		controls: [],
-		target: locationMapElem,
-		layers: [new ol.layer.Tile({ source: stadiaSource }) ],
-		view: new ol.View({
-			center: ol.fromLonLat([geoLocation.getLongitude(), geoLocation.getLatitude()]),
-			zoom: 11
-		})
-	});
-}
+if (locationMapElem)
+	// Not awaited: the tiles load while the rest of the page is built
+	drawPrintMap(locationMapElem, [{ lat: geoLocation.getLatitude(), long: geoLocation.getLongitude() }], { lang: settings.language() })
+		.catch(err => console.warn("Print map:", err));
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];
 if (footer) {
@@ -288,20 +279,16 @@ const refractionMessage = { ...refractionRest, tableJson: JSON.stringify(refract
 const workerInit = {
 	type: "init",
 	israel: inIsrael,
-	elevation: useElevation,
+	zemanim: zemanimOptions(settings, inIsrael),
 	geoCoordinates: glArgs,
 	htmlElems: baseTable.outerHTML + (footer ? footer.outerHTML : "") + (secondSide ? secondSide.outerHTML : ""),
 	calendar: cal,
-	hourCalculator: settings.calendarToggle.forceSunSeasonal() ? "seasonal" : "degrees",
 	oneYear: plainDateForLoop.year == plainDateForLoop.with({ month: 1 }).add({ months: monthsForCal - 1 }).year,
-	rtKulah: settings.calendarToggle.rtKulah(),
 	tekufaMidpoint: settings.calendarToggle.tekufaMidpoint(),
-	tzetMelakha: settings.customTimes.tzeithIssurMelakha(inIsrael),
 	timeFormat: settings.timeFormat(),
 	lang: settings.language(),
 	// @ts-ignore
 	allShitot: listAllShitot,
-	candleTime: settings.customTimes.candleLighting(),
 	shabbatOnly: printParam.has('shabbatOnly'),
 	mergeTzet: printParam.has('mergeTzet') || useOhrHachaim,
 	pocket: location.pathname.includes('pocket')
@@ -321,16 +308,8 @@ if (fundamentalTable) {
 	if (useOhrHachaim) {
 		fundamentalTable.remove();
 	} else {
-		const zmanCalc = new ZemanFunctions(geoLocation, {
-			elevation: useElevation,
-			melakha: workerInit.tzetMelakha,
-			fixedMil: workerInit.israel || settings.calendarToggle.forceSunSeasonal(),
-			candleLighting: settings.customTimes.candleLighting(),
-			rtKulah: settings.calendarToggle.rtKulah(),
-			atmosphereProvider: refraction?.provider ?? null,
-			horizon: refraction?.horizon ?? null,
-			haze: refraction?.haze ?? null
-		});
+		const zmanCalc = new ZemanFunctions(geoLocation, zemanimConfigFrom(workerInit.zemanim,
+			{ atmosphereProvider: refraction?.provider, horizon: refraction?.horizon, haze: refraction?.haze }));
 
 		const winterSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 12 }))
 		const summerSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 6 }))
@@ -456,7 +435,6 @@ async function preparePrint() {
 	currentPage.pathname = '/calendar';
 	currentPage.hostname = 'royzmanim.com';
 	currentPage.port = '';
-	console.log(currentPage.toString());
 
 	const qrCodeDigitalView = document.getElementById('qrCodeDigitalView');
 	if (qrCodeDigitalView) {
@@ -519,7 +497,6 @@ async function preparePrint() {
 			}
 
 			if (selectedLangChild.firstChild instanceof HTMLUListElement) {
-				console.log("Detected List", selectedLangChild.firstChild);
 				const newList = selectedLangChild.firstChild.cloneNode();
 				while (selectedLangChild.firstChild.firstChild) {
 					const ogListItem = selectedLangChild.firstChild.firstChild;
@@ -580,7 +557,7 @@ async function preparePrint() {
 		document.getElementsByTagName('main')[0].setAttribute('dir', 'rtl');
 	}
 
-	await sleep();
+	await nextFrame();
 
 	// paged.js rounds on-screen positions (relative to the window) all through its page breaking, so where its
 	// pages sat moved the breaks: below the month tables and the source text, both as tall as the window's width
@@ -615,7 +592,7 @@ async function preparePrint() {
 
 	finalExplanation.style.display = "none";
 
-	await sleep();
+	await nextFrame();
 
 	for (const pagedJSPage of document.getElementsByClassName('pagedjs_page')) {
 		if (!(pagedJSPage instanceof HTMLElement))
@@ -681,18 +658,13 @@ async function preparePrint() {
 		}
 	}
 
-	await sleep();
+	await nextFrame();
 
 	if (settings.language() == 'he') {
 		Array.from(document.getElementsByClassName('pagedjs_area')).forEach(pageArea => pageArea.setAttribute('dir', 'rtl'));
-		await sleep();
+		await nextFrame();
 	}
 
 	progress.done();
 	window.print();
 }
-
-async function sleep() {
-    return new Promise(requestAnimationFrame);
-}
-

@@ -3,7 +3,7 @@
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js"
 import { he as n2heWords, he_rt as n2ruWords } from "../libraries/n2words.esm.js";
 import { zDTFromFunc } from "./ROYZmanim.js";
-import n2wordsOrdinal from './misc/n2wordsOrdinal.js';
+import { n2hebDateOrdinal } from './misc/n2wordsOrdinal.js';
 import { atmosphereSourceOf, surfaceTemperatureOf } from "./refraction-snapshot.js";
 
 /** @typedef {{ he?: string, en?: string, "he-Latn"?: string; "ru"?: string; }} langType */
@@ -148,10 +148,7 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 	}
 
 	tomorrow() {
-		const nextJewishCalendar = this.clone();
-		nextJewishCalendar.setDate(nextJewishCalendar.getDate().add({ days: 1 }))
-
-		return nextJewishCalendar
+		return this.chainDate(this.getDate().add({ days: 1 }));
 	}
 
 	shabbat() {
@@ -856,8 +853,14 @@ class WebsiteCalendar extends KosherZmanim.JewishCalendar {
 		}
 	}
 
+	/**
+	 * A copy of this calendar, of its own class (so a WebsiteLimudCalendar's clone(), chainDate(), shabbat(),
+	 * tomorrow()… are WebsiteLimudCalendars too)
+	 * @returns {this}
+	 */
 	clone() {
-		const clonedCal = new WebsiteCalendar(this.getDate())
+		const Calendar = /** @type {new (date: Temporal.PlainDate) => this} */ (this.constructor);
+		const clonedCal = new Calendar(this.getDate())
 		clonedCal.setInIsrael(this.getInIsrael())
 		clonedCal.setUseModernHolidays(this.isUseModernHolidays())
 		clonedCal.setIsMukafChoma(this.getIsMukafChoma())
@@ -1163,12 +1166,3 @@ function rangeDates(start, middle, end, inclusive=true) {
 
 	return acceptedValues.includes(Temporal.ZonedDateTime.compare(middle, start)) && acceptedValues.includes(Temporal.ZonedDateTime.compare(end, middle))
 };
-
-/**
- * @param {number} dayOfWeek
- * @param {boolean} prefixForShabbat
- */
-function n2hebDateOrdinal(dayOfWeek, prefixForShabbat=false) {
-	const numResult = (dayOfWeek + 1) % 7;
-	return (numResult == 0 ? (prefixForShabbat ? "ה" : "") + "שבת" : n2wordsOrdinal[numResult])
-}

@@ -516,24 +516,7 @@ accordian: true
 </div>
 {% endcomment %}
 
-<script src="/assets/libraries/flexcal/jquery-4.0.0.min.js"></script>
-<script src="/assets/libraries/flexcal/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/assets/libraries/flexcal/flexcal.css" />
-<link rel="stylesheet" href="/assets/libraries/flexcal/jquery-ui.min.css" />
-<script src="/assets/libraries/flexcal/jquery.textpopup.js"></script>
-<script src="/assets/libraries/flexcal/jquery.flexcal.js"></script>
-<!--All these files just to include flexcal.js for a jewish calendar popup widget-->
-
-<script>
-	document.addEventListener("DOMContentLoaded", () => {
-		for (const dateContainer of document.querySelectorAll('[data-zfFind="dateContainer"]'))
-			for (const inputField of dateContainer.getElementsByTagName("input"))
-				$(inputField).flexcal({
-					calendars: ["en", "jewish", "he-jewish"],
-					selected: "en",
-				});
-	});
-</script>
+{% include date-picker.html %}
 
 {% capture tekufaEng %}{% include zmanDescription/tekufa/english.md %}{% endcapture %}
 {% capture tekufaHeb %}{% include zmanDescription/tekufa/hebrew.md %}{% endcapture %}
@@ -555,7 +538,7 @@ accordian: true
 </div>
 {% include modals/location.html %}
 
-<link rel="stylesheet" href="/assets/libraries/leaflet/leaflet.css" />
+<link rel="stylesheet" href="/assets/libraries/OpenLayers/ol.css" />
 <script type="module">
 	// @ts-check
 	/*
@@ -596,14 +579,11 @@ accordian: true
 	 */
 	import * as KosherZmanim from "/assets/libraries/kosherZmanim/kosher-zmanim.js";
 	import { ZemanFunctions, zDTFromFunc } from "/assets/js/ROYZmanim.js";
-	import { starNightfall, eveningSunAt, sunAltAz, defaultAod, moonFromAstronomy, hazeOn } from "/assets/libraries/kosherZmanim/star-nightfall.js";
-	import { glowDepression, jerusalemAir, stationPressure, pressureAt, JERUSALEM } from "/assets/libraries/kosherZmanim/horizon-glow.js";
+	import { starNightfall, eveningSunAt, sunAltAz, defaultAod, moonFromAstronomy, hazeOn } from "/assets/js/astro/star-nightfall.js";
+	import { glowDepression, jerusalemAir, stationPressure, pressureAt, JERUSALEM } from "/assets/js/astro/horizon-glow.js";
 	import { loadReferenceHaze, readCachedReferenceHaze } from "/assets/js/refraction-data.js";
-	import { AstronomyImp } from "/assets/libraries/mooncalc/moonRiseSetCalc.js";
-	import { deltaT } from "/assets/libraries/kosherZmanim/delta-t.js";
-
-	// Delta-T from the Earth's measured rotation, as the sun calculator uses (see delta-t.js)
-	AstronomyImp.SetDeltaTFunction(ut => deltaT(ut + 2451545));
+	// moon.js sets Astronomy Engine to the Delta-T the sun calculator uses (see delta-t.js)
+	import { AstronomyImp } from "/assets/js/astro/moon.js";
 
 	/**
 	 * Dawn, and the end of the MG"A day (Rabbenu Tam) for Ḥametz, in degrees below the horizon under Jerusalem's
@@ -624,7 +604,7 @@ accordian: true
 	 * Jerusalem's average haze (CAMS's archive, read at dawn's and nightfall's degrees, AERONET-calibrated):
 	 * the sky the Gemara's 72 and 18 minutes are measured in. Read from an earlier visit's store, else loaded below;
 	 * until then dawn is plain 16.04 degrees and nightfall the standard under halakhic_calc's default sky.
-	 * @type {import("/assets/libraries/kosherZmanim/star-nightfall.js").HazeData | null}
+	 * @type {import("/assets/js/astro/star-nightfall.js").HazeData | null}
 	 */
 	let jerusalemHaze = null;
 	/** bumped when Jerusalem's haze arrives, so cached dawns are worked out again */
@@ -702,7 +682,7 @@ accordian: true
 		return cache;
 	}
 
-	/** @type {Map<string, import("/assets/libraries/kosherZmanim/star-nightfall.js").MoonSource>} */
+	/** @type {Map<string, import("/assets/js/astro/star-nightfall.js").MoonSource>} */
 	const moonSources = new Map();
 	/** @param {KosherZmanim.GeoLocation} geo */
 	function moonFor(geo) {
@@ -1071,7 +1051,7 @@ accordian: true
 
 	/**
 	 * Use Jerusalem's haze if it differs from what is in use, and redraw.
-	 * @param {import("/assets/libraries/kosherZmanim/star-nightfall.js").HazeData | null} haze
+	 * @param {import("/assets/js/astro/star-nightfall.js").HazeData | null} haze
 	 */
 	function applyJerusalemHaze(haze) {
 		if (!haze || (jerusalemHaze && JSON.stringify(haze) === JSON.stringify(jerusalemHaze)))

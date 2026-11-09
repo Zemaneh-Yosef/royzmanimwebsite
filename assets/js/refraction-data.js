@@ -31,14 +31,14 @@
  * sandboxed iframes) reads come back empty and writes do nothing, and the data is fetched each visit.
  */
 
-import { chainProviders } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
+import { chainProviders } from "./astro/royzmanim-spa-corrections.js";
 import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHasHumidity } from "./refraction-snapshot.js";
-import { createAutoAtmosphere } from "../libraries/kosherZmanim/auto-atmosphere.js";
-import { createServerPathAtmosphere } from "../libraries/kosherZmanim/path-atmosphere.js";
-import { fetchOpenMeteoNormals } from "../libraries/kosherZmanim/open-meteo-atmosphere.js";
-import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf, HorizonPendingError } from "../libraries/kosherZmanim/horizon-client.js";
-import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "../libraries/kosherZmanim/open-meteo-haze.js";
-import { fetchLightPollution } from "../libraries/light-pollution-client.js";
+import { createAutoAtmosphere } from "./astro/auto-atmosphere.js";
+import { createServerPathAtmosphere } from "./astro/path-atmosphere.js";
+import { fetchOpenMeteoNormals } from "./astro/open-meteo-atmosphere.js";
+import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf, HorizonPendingError } from "./astro/horizon-client.js";
+import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "./astro/open-meteo-haze.js";
+import { fetchLightPollution } from "./astro/light-pollution-client.js";
 
 /** Root of the refraction server; its API lives under `${REFRACTION_SERVER}/v1/...`. */
 export const REFRACTION_SERVER = "https://hanetz.royzmanim.com/selfhost";
@@ -94,7 +94,7 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
 /** @typedef {import("./refraction-snapshot.js").Horizon} Horizon */
 /** @typedef {import("./refraction-snapshot.js").Normals} Normals */
 /** @typedef {import("./refraction-snapshot.js").ProviderSnapshot} ProviderSnapshot */
-/** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeData} HazeData */
+/** @typedef {import("./astro/star-nightfall.js").HazeData} HazeData */
 /**
  * What is stored for a place's haze.
  * @typedef {{ normals: HazeSeries, normalsRange: [string, string], source: string, normalsFetchedAt: number,
@@ -103,7 +103,7 @@ const INDEX_KEY = `refraction:v${CACHE_VERSION}:index`;
  *   normals / forecast: CAMS's hourly series (open-meteo-haze.js), read at each time's own moment (hazeOn).
  *   Data stored before the series were kept (monthly averages at fixed moments) is fetched again once.
  */
-/** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeSeries} HazeSeries */
+/** @typedef {import("./astro/star-nightfall.js").HazeSeries} HazeSeries */
 
 // Re-exported so main-thread code has one import
 export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "./refraction-snapshot.js";
@@ -538,6 +538,25 @@ export function providerFromCache(cached) {
 export function forecastStaleIn(cached) {
 	if (!cached?.forecast) return 0;
 	return Math.max(0, cached.forecast.fetchedAt + FORECAST_TTL_MS - Date.now());
+}
+
+/** Floor for the next refraction check (e.g. when offline), so a failure doesn't loop. */
+export const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
+
+/**
+ * When a page showing this data should look for newer data: when its forecast turns stale (another tab may
+ * have refreshed storage by then, and then no request is made), after a TTL without a forecast (offline),
+ * or when the server said to, for a place whose first horizon it is still computing (the stored forecast
+ * is reused then, so that is one small request).
+ * @param {RefractionData} data
+ */
+export function refractionRecheckMs(data) {
+	if (data.horizonRetryS)
+		return data.horizonRetryS * 1000;
+	const staleIn = data.forecastFetchedAt !== null
+		? data.forecastFetchedAt + FORECAST_TTL_MS - Date.now()
+		: FORECAST_TTL_MS;
+	return Math.max(MIN_REFRACTION_RECHECK_MS, staleIn);
 }
 
 /** @param {number} lon */

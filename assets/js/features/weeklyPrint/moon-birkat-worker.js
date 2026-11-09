@@ -1,16 +1,11 @@
 // @ts-check
-import { createMoonCalc, AstronomyImp } from '../../../libraries/mooncalc/moonRiseSetCalc.js';
+import { createMoonCalc, AstronomyImp, moonHorizonTarget, createVisibleMoon } from '../../astro/moon.js';
 import * as KosherZmanim from '../../../libraries/kosherZmanim/kosher-zmanim.js';
 import WebsiteCalendar from '../../WebsiteCalendar.js';
 import { ZemanFunctions, zDTFromFunc } from '../../ROYZmanim.js';
 import { providerFromSnapshot } from '../../refraction-snapshot.js';
-import { moonHorizonTarget } from '../../moon-refraction.js';
-import { createVisibleMoon } from '../../moon-visible.js';
+import { zemanimConfigFrom } from '../../core/zmanimSettings.js';
 import { loadWorkerPolyfills } from '../../misc/worker-polyfills.js';
-import { deltaT } from '../../../libraries/kosherZmanim/delta-t.js';
-
-// Delta-T from the Earth's measured rotation (69.1 s in 2026) instead of Astronomy Engine's Espenak-Meeus 75.6 s
-AstronomyImp.SetDeltaTFunction(ut => deltaT(ut + 2451545));
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -111,14 +106,14 @@ function findMoonUp(events, winStart, winEnd) {
 	return { rise: nextRise, set: events.set(nextRise) };
 }
 
-/** @typedef {{geoCoordinates: [string, number, number, number, string]; months: {year: number; month: number}[]; israel: boolean; elevation: boolean; hourCalculator: "seasonal"|"degrees";}} birkatWorkerParam */
+/** @typedef {{geoCoordinates: [string, number, number, number, string]; months: {year: number; month: number}[]; zemanim: import('../../core/zmanimSettings.js').ZemanimOptions;}} birkatWorkerParam */
 
 /** Same message the weekly print workers get. @typedef {import('./print-web-worker.js').RefractionInit} RefractionInit */
 
 /**
  * Set by the RefractionInit message, which the page posts before any months.
  * Both stay null if it never comes: then the calculators use their standard-air defaults.
- * @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null, haze: import('../../../libraries/kosherZmanim/star-nightfall.js').HazeData | null }}
+ * @type {{ provider: import('../../refraction-snapshot.js').AtmosphereProvider | null, horizon: import('../../refraction-snapshot.js').Horizon | null, haze: import('../../astro/star-nightfall.js').HazeData | null }}
  */
 const refraction = { provider: null, horizon: null, haze: null };
 
@@ -191,12 +186,12 @@ function messageHandler(x) {
 
 	// Flat horizon: the same convention as the printed sun times. With elevation on, a sea-level
 	// horizon seen from the elevation (the dip included); otherwise an observer at sea level.
-	const elevationM = x.elevation ? Math.max(0, geoLocation.getElevation()) : 0;
+	const elevationM = x.zemanim.elevation ? Math.max(0, geoLocation.getElevation()) : 0;
 	const flatObserver = new AstronomyImp.Observer(geoLocation.getLatitude(), geoLocation.getLongitude(), elevationM);
 	/** @type {{mode: 'lit', limitDays: number, metersAboveGround: number, horizonTarget: ReturnType<typeof moonHorizonTarget>}} */
 	const flatOpts = { mode: 'lit', limitDays: 2, metersAboveGround: elevationM, horizonTarget };
 	const msOf = (/** @type {AstronomyImp.AstroTime | null | undefined} */ t) => t ? t.date.getTime() : null;
-	/** @type {import('../../moon-visible.js').FlatEvent} */
+	/** @type {import('../../astro/moon-visible.js').FlatEvent} */
 	const flat = (dir, at) => msOf(dir > 0
 		? calc.nextMoonRise(new Date(at), flatObserver, flatOpts)
 		: calc.nextMoonSet(new Date(at), flatObserver, flatOpts));
@@ -211,19 +206,9 @@ function messageHandler(x) {
 	const moonEvents = visible
 		? { rise: visible.nextRise, set: visible.nextSet }
 		: { rise: at => flat(1, at), set: at => flat(-1, at) };
-	const dayCalc = new ZemanFunctions(geoLocation, {
-		elevation: x.elevation,
-		fixedMil: x.israel || x.hourCalculator == "seasonal",
-		// Same atmosphere and horizon as the weekly pages, so shkiya / netz here match the printed times
-		atmosphereProvider: refraction.provider,
-		horizon: refraction.horizon,
-		haze: refraction.haze,
-
-		// Rest are unused, so we'll fill them with defaults
-		candleLighting: 0,
-		melakha: { minutes: 0, degree: 0 },
-		rtKulah: false
-	});
+	// Same options, atmosphere and horizon as the weekly pages, so shkiya / netz here match the printed times
+	const dayCalc = new ZemanFunctions(geoLocation, zemanimConfigFrom(x.zemanim,
+		{ atmosphereProvider: refraction.provider, horizon: refraction.horizon, haze: refraction.haze }));
 
 	/**
 	 * Builds one row for a night, clipped to the given limits. Returns null when the night

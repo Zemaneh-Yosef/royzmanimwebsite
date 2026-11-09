@@ -1,7 +1,7 @@
 // node _denoDebug/terrainImages.mjs HORIZON ERA5 - how often a horizon point near the sunrise azimuth has more than one image
 import "../assets/libraries/temporal-polyfill/global.min.js";
 import { readFileSync } from "node:fs";
-import { createPathAtmosphere, terrainElevation, earthRadiusAtLatitude } from "../assets/libraries/kosherZmanim/royzmanim-spa-corrections.js";
+import { createPathAtmosphere, terrainElevation, earthRadiusAtLatitude } from "../assets/js/astro/royzmanim-spa-corrections.js";
 const [hzFile, era5File] = process.argv.slice(2);
 const pt = JSON.parse(readFileSync(hzFile, "utf8")).points[0];
 const body = JSON.parse(readFileSync(era5File, "utf8"));

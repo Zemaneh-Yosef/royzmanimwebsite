@@ -2,6 +2,7 @@
 
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions } from "../ROYZmanim.js";
+import { zemanimOptionsFromConfig, zemanimConfigFrom } from "../core/zmanimSettings.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
 import { languageTag } from "../misc/language.js";
@@ -32,6 +33,7 @@ const REFRACTION_CACHE_WAIT_MS = 4000;
         candleLighting: number,
         tzeithIssurMelakha: { minutes: number, degree?: number }
     },
+    refraction?: Partial<import("../core/zmanimSettings.js").RefractionSettings>,
     schedule?: "manual" | {
         url: string;
         type: "excel" | "ini" | "json" | "toml";
@@ -72,17 +74,9 @@ function onZmanimUpdate(name, render) {
 
 /** @param {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} refraction */
 function buildZmanCalc(refraction) {
-	const calc = new ZemanFunctions(geoLocation, {
-		elevation: scheduleSettings.calendarToggle.elevation,
-		rtKulah: scheduleSettings.calendarToggle.rtKulah,
-		candleLighting: scheduleSettings.customTimes.candleLighting,
-		fixedMil: scheduleSettings.calendarToggle.forceSunSeasonal || jCal.getInIsrael(),
-		melakha: scheduleSettings.customTimes.tzeithIssurMelakha,
-		// getNetz() ray-traces the visible sunrise from the horizon (replaces the ChaiTables 'ctNetz' data)
-		atmosphereProvider: refraction.atmosphereProvider,
-		horizon: refraction.horizon,
-		haze: refraction.haze
-	});
+	// getNetz() ray-traces the visible sunrise from the horizon (replaces the ChaiTables 'ctNetz' data)
+	const calc = new ZemanFunctions(geoLocation,
+		zemanimConfigFrom(zemanimOptionsFromConfig(scheduleSettings, jCal.getInIsrael()), refraction));
 	calc.setDate(currentZDT.toPlainDate());
 	return calc;
 }

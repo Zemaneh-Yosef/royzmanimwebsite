@@ -29,12 +29,12 @@
 import {
 	createAtmosphere, rayRefraction, seaHorizonAltitude, terrestrialRefraction, geometricElevation,
 	earthRadiusAtLatitude, ROY_REFRACTION_ARCMIN
-} from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
+} from "./royzmanim-spa-corrections.js";
 import { airAt } from "./moon-refraction.js";
 
-/** @typedef {import("../libraries/kosherZmanim/horizon-client.js").MoonHorizon} MoonHorizon */
-/** @typedef {import("../libraries/kosherZmanim/horizon-client.js").MoonHorizonEntry} MoonHorizonEntry */
-/** @typedef {import("./refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
+/** @typedef {import("./horizon-client.js").MoonHorizon} MoonHorizon */
+/** @typedef {import("./horizon-client.js").MoonHorizonEntry} MoonHorizonEntry */
+/** @typedef {import("../refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
 /** @typedef {{ altCenterDeg: number, azDeg: number, semiDiameterDeg: number, thetaDeg: number, phaseAngleDeg: number }} Geometry */
 /** @typedef {{ moonGeometry: (time: Date, observer: any) => Geometry }} MoonCalcLike */
 /** @typedef {(direction: 1 | -1, epochMs: number) => number | null} FlatEvent  next flat-horizon rise (+1) / set (-1) at or after epochMs */

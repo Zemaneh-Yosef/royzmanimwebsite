@@ -12,11 +12,6 @@ layout: nothing
 <link href="/assets/fonts/sbl/stylesheet.css" rel="stylesheet">
 
 <style>
-	@keyframes scrollX {
-		0% { transform: translateX(0); }
-		100% { transform: translateX(var(--marquee-distance)); }
-	}
-
 	html {
 		/* Fluid root font-size: keeps every rem/em value (padding, gaps,
 		   radii, headings, .fs-sm...) in the same visual proportion as
@@ -498,14 +493,13 @@ layout: nothing
 <script type="module">
 	await import('/assets/js/shul-wall/scheduleOnline.js');
 	import autoSchedule from "/assets/js/shul-wall/auto-schedule.js";
-	import marqueeDuplicate from '/assets/js/shul-wall/justMarquee.js';
 	import autoscrollSchedules from '/assets/js/shul-wall/scheduleAutoscroll.js';
 
 	setTimeout(async () => {
 		await import('/assets/js/shul-wall/limud.js');
 
-		const timesElem = document.getElementById("times");
-		marqueeDuplicate(timesElem, { length: "40s", gap: "3rem" });
+		// the times along the bottom (40 seconds a loop), and any schedule too long for its box
+		autoscrollSchedules('#times', { axis: 'x', seconds: 40 });
 
 		autoscrollSchedules('zman-schedule', { gap: 0 });
 	}, 2000);

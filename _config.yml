@@ -27,3 +27,6 @@ exclude:
   - vendor/gems/
   - vendor/ruby/
   - scripts/
+  # Type declarations for the editor (jsconfig.json); browsers never load them
+  - "*.d.ts"
+  - "*.d.mts"

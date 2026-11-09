@@ -21,17 +21,19 @@ import QrCode from "../../../libraries/qrCode.js";
 import { analyzeCycle as analyzeTimeZoneCycle } from "../../../libraries/dst-transition.js";
 
 import { ZemanFunctions, zDTFromFunc } from "../../ROYZmanim.js";
+import { zemanimOptionsFromConfig, zemanimConfigFrom } from "../../core/zmanimSettings.js";
 import { loadRefraction, snapshotProvider, printNeedsTypicalAir } from "../../refraction-data.js";
 
-import * as ol from "../../../libraries/OpenLayers/ol.js"
+import { drawPrintMap } from "../../map.js";
 
-import { fetchLightPollution } from "../../../libraries/light-pollution-client.js";
+import { fetchLightPollution } from "../../astro/light-pollution-client.js";
 import MoonRender from "./moon-render.js";
 import { spawnWorker } from "../../misc/worker.js";
 import { isInIsrael } from "../../misc/israel.js";
 import { detectJit } from "../../misc/detect-jit.js";
 import { printConfig, printCalendar } from "./print-config.js";
 import { setHiloulotYear } from "./hiloulot-add.js";
+import { nextFrame } from "../../misc/util.js";
 
 const WORKER_URL = '/assets/js/features/weeklyPrint/print-web-worker.js';
 
@@ -132,6 +134,8 @@ const geoLocation = new GeoLocation(...glArgs);
 const inIsrael = config.israel ?? locations.some(loc => isInIsrael(loc.lat, loc.long));
 const useOhrHachaim = inIsrael || config.calendarToggle.forceSunSeasonal
 const useElevation = config.calendarToggle.elevation;
+/** The calculator's options, for this page and its workers */
+const zemanim = zemanimOptionsFromConfig(config, inIsrael);
 const amudehHoraahIndicators = [...document.querySelectorAll('[data-zfFind="luachAmudehHoraah"]')];
 const ohrHachaimIndicators = [...document.querySelectorAll('[data-zfFind="luachOhrHachaim"]')];
 if (useOhrHachaim) {
@@ -206,50 +210,14 @@ if (lightPol)
 		.then(result => lightPol.appendChild(document.createTextNode(result.artificialMcdM2.toFixed(2) + " mcd/m²")))
 		.catch(err => console.warn("Light pollution:", err));
 
-
 /** @type {HTMLElement} */
 const locationMapElem = document.querySelector('[data-zyFind="locationMap"]')
-if (locationMapElem) {
-	const stadiaSource = new ol.StadiaMaps({
-		layer: 'stamen_terrain',
-		retina: true,
-	});
-
-	const view = new ol.View({
-		center: ol.fromLonLat([geoLocation.getLongitude(), geoLocation.getLatitude()]),
-		zoom: 11
-	});
-	const map = new ol.Map({
-		controls: [],
-		target: locationMapElem,
-		layers: [new ol.layer.Tile({ source: stadiaSource })],
-		view
-	});
-
-	if (multiLocation) {
-		// Zoom to show every location, each marked with a dot (the bundled OpenLayers has no vector layers)
-		const points = locations.map(loc => ol.fromLonLat([loc.long, loc.lat]));
-		const extent = [
-			Math.min(...points.map(p => p[0])), Math.min(...points.map(p => p[1])),
-			Math.max(...points.map(p => p[0])), Math.max(...points.map(p => p[1]))
-		];
-		const size = [locationMapElem.clientWidth || 300, locationMapElem.clientHeight || 300];
-		view.fit(extent, { size, padding: [40, 40, 40, 40], maxZoom: 14 });
-
-		const dots = points.map(() => {
-			const dot = document.createElement("div");
-			dot.className = "locationDot";
-			locationMapElem.appendChild(dot);
-			return dot;
-		});
-		map.on('postrender', () => points.forEach((point, index) => {
-			const pixel = map.getPixelFromCoordinate(point);
-			if (!pixel) return;
-			dots[index].style.left = pixel[0] + "px";
-			dots[index].style.top = pixel[1] + "px";
-		}));
-	}
-}
+if (locationMapElem)
+	// Not awaited: the tiles load while the rest of the page is built. Several locations: all of them, each with a dot
+	drawPrintMap(locationMapElem,
+		multiLocation ? locations.map(loc => ({ lat: loc.lat, long: loc.long })) : [{ lat: geoLocation.getLatitude(), long: geoLocation.getLongitude() }],
+		{ lang: config.language })
+		.catch(err => console.warn("Print map:", err));
 
 const footer = document.getElementsByClassName("zyCalFooter")[0];
 if (footer) {
@@ -282,15 +250,12 @@ const endDate = Temporal.Now.plainDateISO()
 	.subtract({ days: 1 })
 const endDateForLoop = endDate.add({ days: 7 - (endDate.dayOfWeek % 7) })
 
-const hourCalculator = config.calendarToggle.forceSunSeasonal ? "seasonal" : "degrees";
-
 // Workers start once the refraction data is in (mRender.start below). Moon pages are for the centre.
 const mRender = new MoonRender(geoLocation, {
 	language: config.language,
 	timeFormat: config.timeFormat,
-	hourCalculator,
 	israel: inIsrael,
-	elevation: useElevation,
+	zemanim,
 }, baseDate, endDate);
 
 const weeksForLoop = baseDateForLoop.until(endDateForLoop).total({ unit: 'week', relativeTo: baseDateForLoop });
@@ -494,18 +459,14 @@ if (!timezoneTrans.hasTransition || !timezoneTrans.outlier.start) {
 const weekInit = {
 	type: "init",
 	israel: inIsrael,
-	elevation: useElevation,
+	zemanim,
 	geoCoordinates: glArgs,
 	locations: multiLocation ? locationArgs : [glArgs],
 	htmlElems: baseTable.outerHTML + secondSide.outerHTML,
 	calendar: cal,
-	hourCalculator,
-	rtKulah: config.calendarToggle.rtKulah,
 	tekufaMidpoint: config.calendarToggle.tekufaMidpoint,
-	tzetMelakha: config.customTimes.tzeithIssurMelakha,
 	timeFormat: config.timeFormat,
 	lang: config.language,
-	candleTime: config.customTimes.candleLighting,
 	addedZemanim: [...document.querySelectorAll('[data-zmanToCapture]')].map(elem => elem.getAttribute('data-zmantocapture'))
 };
 
@@ -521,16 +482,8 @@ if (fundamentalTable) {
 	if (useOhrHachaim) {
 		fundamentalTable.remove();
 	} else {
-		const zmanCalc = new ZemanFunctions(geoLocation, {
-			elevation: weekInit.elevation,
-			melakha: weekInit.tzetMelakha,
-			fixedMil: weekInit.israel || config.calendarToggle.forceSunSeasonal,
-			candleLighting: config.customTimes.candleLighting,
-			rtKulah: config.calendarToggle.rtKulah,
-			atmosphereProvider: refraction.provider,
-			horizon: refraction.horizon,
-			haze: refraction.haze
-		});
+		const zmanCalc = new ZemanFunctions(geoLocation, zemanimConfigFrom(zemanim,
+			{ atmosphereProvider: refraction.provider, horizon: refraction.horizon, haze: refraction.haze }));
 
 		const winterSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 12 }))
 		const summerSolstice = zmanCalc.chainDate(zmanCalc.coreZC.getDate().with({ day: 21, month: 6 }))
@@ -939,7 +892,7 @@ function offsetHTML(slot) {
 }
 
 async function preparePrint() {
-	await sleep();
+	await nextFrame();
 
 	const resizeElems = /** @type {HTMLElement[]} */ ([...document.getElementsByClassName('secondPageHeader')]
 		.map(elem => [elem.firstElementChild, elem.lastElementChild])
@@ -1063,7 +1016,6 @@ async function preparePrint() {
 	const qrCodeDigitalView = document.getElementById('qrCodeDigitalView');
 	if (qrCodeDigitalView) {
 		const currentPage = digitalViewURL();
-		console.log(currentPage.toString());
 		qrCodeDigitalView.setAttribute('src', QrCode.render('svg-uri', QrCode.generate(currentPage.toString())));
 	}
 }
@@ -1089,10 +1041,6 @@ function digitalViewURL() {
 	}
 
 	return url;
-}
-
-async function sleep() {
-	return new Promise(requestAnimationFrame);
 }
 
 /** @param {Temporal.Duration} duration */

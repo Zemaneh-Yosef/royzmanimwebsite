@@ -12,7 +12,12 @@ import { ZemanFunctions, methodNamesOf } from "../ROYZmanim.js";
 import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
 
-export { ZMANIM_SETTING_KEYS, settingSourceFrom, melakhaDegreeFromMinutes, zemanimSettings } from "./zmanimSettings.js";
+import { zemanimOptions, zemanimConfigFrom } from "./zmanimSettings.js";
+
+export {
+	ZMANIM_SETTING_KEYS, settingSourceFrom, melakhaDegreeFromMinutes, zemanimSettings,
+	zemanimOptions, zemanimOptionsFromConfig, zemanimConfigFrom, refractionSettings, FLYER_SHITOT
+} from "./zmanimSettings.js";
 export { leadText, notificationText, plainText, notificationTag, placeKey } from "./notificationText.js";
 /** @typedef {import("./zmanimSettings.js").ZemanimSettings} ZemanimSettings */
 /** @typedef {import("./zmanimSettings.js").SettingSource} SettingSource */
@@ -28,26 +33,7 @@ export { leadText, notificationText, plainText, notificationTag, placeKey } from
  */
 export function buildZemanimConfig(geoLocation, settings, refraction) {
 	const inIsrael = isInIsrael(geoLocation.getLatitude(), geoLocation.getLongitude());
-	// Ohr HaChaim (fixed mil) in Israel or when chosen; Amudeh Hora'ah (degrees) elsewhere
-	const fixedMil = inIsrael || settings.calendarToggle.forceSunSeasonal();
-
-	return {
-		inIsrael,
-		config: {
-			elevation: settings.calendarToggle.useElevation(inIsrael),
-			fixedMil,
-			rtKulah: settings.calendarToggle.rtKulah(),
-			candleLighting: settings.customTimes.candleLighting(),
-			melakha: settings.customTimes.tzeithIssurMelakha(inIsrael),
-			atmosphereProvider: refraction.atmosphereProvider,
-			horizon: refraction.horizon,
-			haze: refraction.haze ?? null,
-			humidity: settings.refraction.humidity(),
-			seaSurfaceLayer: settings.refraction.seaSurfaceLayer(),
-			hazeTzet: settings.refraction.hazeTzet(),
-			hazeMaxDelayMinutes: settings.refraction.hazeMaxDelay()
-		}
-	};
+	return { inIsrael, config: zemanimConfigFrom(zemanimOptions(settings, inIsrael), refraction) };
 }
 
 /** @typedef {import("../WebsiteCalendar.js").zmanInfoList} ZmanListEntry */

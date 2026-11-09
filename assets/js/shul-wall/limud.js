@@ -2,6 +2,7 @@
 
 import { jCal } from "./base.js";
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
+import makamObj from "../makamObj.js";
 
 let melakhaJCal = jCal.shabbat();
 for (const loopJCal = jCal.clone(); !loopJCal.getDate().equals(melakhaJCal.getDate()); loopJCal.forward(5, 1)) {
@@ -61,7 +62,6 @@ const mishna = KosherZmanim.MishnaYomi.getMishnaForDate(jCal, true);
 for (const mishnaYomiContainer of document.querySelectorAll('[data-zfReplace="MishnaYomi"]'))
 	mishnaYomiContainer.innerHTML = mishna || "N/A";
 
-const makamObj = await (await fetch("/assets/js/makamObj.json")).json();
 const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
 
 const makam = makamIndex.getTodayMakam(melakhaJCal);

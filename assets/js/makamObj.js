@@ -1,3 +1,4 @@
+// @ts-check
 export default {
     "makamNameMapEng": [
         "Hoseni",

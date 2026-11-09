@@ -1,0 +1,8 @@
+{%- comment -%}
+  The date picker for the buttons in a page's date boxes ([data-zfFind="dateContainer"]): picking a day sets the
+  button's date-value and fires calendarInsert, which zmanimListUpdater.js listens for.
+{%- endcomment -%}
+<script type="module">
+	import { attachDatePickers } from "/assets/js/misc/date-picker.js";
+	attachDatePickers(document.querySelectorAll('[data-zfFind="dateContainer"] input'));
+</script>

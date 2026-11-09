@@ -24,7 +24,7 @@ import { loadRefraction, snapshotProvider, printNeedsTypicalAir } from "../refra
 	tableJson?: string;
 	normals: import('../refraction-snapshot.js').Normals | null;
 	horizon: import('../refraction-snapshot.js').Horizon | null;
-	haze?: import('../../libraries/kosherZmanim/star-nightfall.js').HazeData | null;
+	haze?: import('../astro/star-nightfall.js').HazeData | null;
   }} RefractionInit */
 
 /** Holiday boxes and "next Shabbat" lookups reach a little outside the printed range. */

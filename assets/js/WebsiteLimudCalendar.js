@@ -100,27 +100,34 @@ class WebsiteLimudCalendar extends WebsiteCalendar {
 				hNum.formatHebrewNumber(dafObject.getDaf());
 		}
 
-		const dafYerushalmiObject = this.getDafYomiYerushalmi();
-		if (!dafYerushalmiObject || dafYerushalmiObject.getDaf() == 0) {
-			learning.DafYerushalmi = "N/A";
-		} else {
-			learning.DafYerushalmi = dafYerushalmiObject.getMasechta() + " " + hNum.formatHebrewNumber(dafYerushalmiObject.getDaf());
-		}
+		// A cycle on a day before it began (the calendar goes back to 1582) throws or gives nothing: "N/A"
+		const cycle = (/** @type {() => string | null | undefined} */ text) => {
+			try {
+				return text() || "N/A";
+			} catch {
+				return "N/A";
+			}
+		};
 
-		const chafetzChayimYomi = this.getChafetzChayimYomi();
-		learning.ccYomi = (chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "")) || "N/A";
+		learning.DafYerushalmi = cycle(() => {
+			const daf = this.getDafYomiYerushalmi();
+			return daf && daf.getDaf() != 0 ? daf.getMasechta() + " " + hNum.formatHebrewNumber(daf.getDaf()) : null;
+		});
+
+		learning.ccYomi = cycle(() => {
+			const chafetzChayimYomi = this.getChafetzChayimYomi();
+			return chafetzChayimYomi.title + (chafetzChayimYomi.section ? (": " + chafetzChayimYomi.section) : "");
+		});
 
 		learning.TehilimShvui = TehilimYomi.byWeek(this).map(num => num.toString()).join(' - ');
 		learning.TehilimHodshi = TehilimYomi.byDayOfMonth(this).map(met => met.toString()).join(' - ');
 
-		try {
-			learning.MishnaYomi = MishnaYomi.getMishnaForDate(this, true) || "N/A";
-		} catch (e) {
-			console.error(this.getDate(), e)
-		}
+		learning.MishnaYomi = cycle(() => MishnaYomi.getMishnaForDate(this, true));
 
-		const halacha = HalachaYomi.getDailyLearning(this)
-		learning.DailyHalacha = `${halacha[0].bookName} ${halacha.map(seg => hNum.formatHebrewNumber(seg.siman) + ":" + seg.seifim).join(", ")}`
+		learning.DailyHalacha = cycle(() => {
+			const halacha = HalachaYomi.getDailyLearning(this);
+			return halacha?.length ? `${halacha[0].bookName} ${halacha.map(seg => hNum.formatHebrewNumber(seg.siman) + ":" + seg.seifim).join(", ")}` : null;
+		});
 
 		return learning;
 	}

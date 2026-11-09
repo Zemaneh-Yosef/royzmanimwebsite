@@ -26,10 +26,10 @@
 
 import {
 	createAtmosphere, rayRefraction, seaHorizonAltitude, standardPressure, earthRadiusAtLatitude
-} from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
+} from "./royzmanim-spa-corrections.js";
 
-/** @typedef {import("./refraction-snapshot.js").AtmosphereSpec} AtmosphereSpec */
-/** @typedef {import("./refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
+/** @typedef {import("../refraction-snapshot.js").AtmosphereSpec} AtmosphereSpec */
+/** @typedef {import("../refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
 /** @typedef {{ latitude: number, height: number }} ObserverLike  astronomy-engine Observer (height = m above sea level) */
 /** @typedef {{ date: Date }} TimeLike  astronomy-engine AstroTime */
 /** @typedef {(observer: any, metersAboveGround: number, time?: any) => number} HorizonTarget */
@@ -73,7 +73,7 @@ function pointAir(spec, observerHeightM) {
  * The air for a moon event at this moment (see the top of the file), at a known height; null when the
  * provider has nothing for that date.
  * @param {AtmosphereProvider | null | undefined} provider
- * @param {import("../libraries/kosherZmanim/kosher-zmanim.js").GeoLocation} geo  passed through to the provider
+ * @param {import("../../libraries/kosherZmanim/kosher-zmanim.js").GeoLocation} geo  passed through to the provider
  * @param {number} epochMs
  * @param {number} observerHeightM  height the air is wanted at (used for path specs and specs without heightM)
  * @returns {PointAir | null}
@@ -119,7 +119,7 @@ function rayTracedTarget(air, latitude, groundM, metersAboveGround) {
  *
  * @param {AtmosphereProvider | null | undefined} provider  e.g. providerFromSnapshot(table, normals)
  * @param {HorizonTarget} fallback  usually calc.horizonTarget
- * @param {import("../libraries/kosherZmanim/kosher-zmanim.js").GeoLocation} geo  GeoLocation, passed through to the provider (some read it)
+ * @param {import("../../libraries/kosherZmanim/kosher-zmanim.js").GeoLocation} geo  GeoLocation, passed through to the provider (some read it)
  * @returns {HorizonTarget}
  */
 export function moonHorizonTarget(provider, fallback, geo) {

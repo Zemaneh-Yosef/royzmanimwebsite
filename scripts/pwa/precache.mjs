@@ -29,7 +29,9 @@ const PAGES = ["index.html", "calendar.html", "offline.html"];
  * and need a large download (the Excel export pulls in a 900 KB library). They are still stored
  * once they've been used.
  */
-const SKIP = ["assets/js/features/excelPrepare.js", "assets/libraries/xlsx.js"];
+const SKIP = ["assets/js/features/excelPrepare.js", "assets/libraries/xlsx.js",
+	// the maps (OpenLayers, 350 KB) are no use offline: their tiles come from the network
+	"assets/js/map.js"];
 
 /** Files the pages need that no fixed path points to (kosher-zmanim.js builds these URLs from its folder). */
 const EXTRA = ["assets/libraries/kosherZmanim/hiloulah-en.json", "assets/libraries/kosherZmanim/hiloulah-he.json"];

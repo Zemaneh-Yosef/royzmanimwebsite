@@ -1,33 +1,16 @@
 // @ts-check
 // taken from https://webspace.science.uu.nl/~gent0113/hebrew/hebrewyear_year.htm#tekufot
 
+/** Modified Julian Day 0 */
+const MJD_EPOCH = "1858-11-17";
+
 /**
+ * The (Gregorian) date of a Modified Julian Day. The site's dates start with the Gregorian calendar
+ * (misc/util.js EARLIEST_DATE), so there are no Julian-calendar dates to handle.
  * @param {number} mjd
  */
-function mjd2date(mjd){
-	// Meeus, _Astronomical Algorithms_ (1998), Chapter 7, modified for mjd's
-	let z = Math.floor(mjd); // integer MJD's
-
-	let a;
-	if (mjd<-100840) // assume Julian calendar
-		a = z;
-	else {           // assume Gregorian calendar
-		let centuryAdj = Math.floor((z+532784.25)/36524.25);
-		a = z+1+centuryAdj-Math.floor(centuryAdj/4);
-	}
-
-	let b = a+1102;
-	let c = Math.floor((b-122.1)/365.25);
-	let d = Math.floor(365.25*c);
-	let e = Math.floor((b-d)/30.6001);
-	const day = b-d-Math.floor(30.6001*e); // day
-	const mn = e-(e<13.5?2:14);            // month
-	const year = c+(mn>1.5?1856:1857);     // year
-
-	return Temporal.PlainDate.from({ day,
-		month: mn + 1,
-		year
-	});
+function mjd2date(mjd) {
+	return Temporal.PlainDate.from(MJD_EPOCH).add({ days: Math.floor(mjd) });
 }
 
 /**

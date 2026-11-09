@@ -40,7 +40,7 @@ const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 const ARCHIVE_URL = 'https://archive-api.open-meteo.com/v1/archive';
 
 /**
- * @typedef {(date: any, event: 'sunrise'|'sunset', geo: import('./kosher-zmanim.js').GeoLocation) => ({ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number, source?: 'forecast' } | null | undefined)} Provider
+ * @typedef {(date: any, event: 'sunrise'|'sunset', geo: import('../../libraries/kosherZmanim/kosher-zmanim.js').GeoLocation) => ({ temperatureC: number, pressureMb?: number, heightM?: number, dewPointC?: number, source?: 'forecast' } | null | undefined)} Provider
  * @typedef {{ start: number, end: number, value: number }} Interval
  */
 

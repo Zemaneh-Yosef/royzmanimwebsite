@@ -1,18 +1,18 @@
 // @ts-check
 
+/**
+ * The calendar (/calendar, /applecal, /handasi-hazeman): the shared list (zmanim-list.js), set up from the
+ * visitor's settings, and everything else on the page.
+ */
+
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import { ZemanFunctions, methodNamesOf, zDTFromFunc, seedVisiblePlaceholders, hasCachedVisibleSunrise } from "./ROYZmanim.js";
-import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
+import { zDTFromFunc } from "./ROYZmanim.js";
+import ZmanimList, { queryAllElements } from "./zmanim-list.js";
 import { settings } from "./settings/handler.js";
 import LocationModal, { isValidTimeZone } from "./location-modal.js";
-import { loadRefraction, readCachedRefraction, providerFromCache, FORECAST_TTL_MS } from "./refraction-data.js";
-import { showListLoadingAfterDelay } from "./list-loading.js";
-import VisibleSunriseClient from "./visible-sunrise-client.js";
 import { renderSolarIcons } from "./solar-icons.js";
 import { buildZemanimConfig } from "./core/zmanimCore.js";
-
-/** Floor for the next refraction check, so a clock or storage oddity can't cause a request loop. */
-const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
+import makamObj from "./makamObj.js";
 
 import exportFriendly from "./features/export.js";
 import { ZmanNotificationScheduler, plainText } from "./features/zmanNotifications.js";
@@ -23,60 +23,15 @@ const harHabait = new KosherZmanim.GeoLocation('Jerusalem, Israel', 31.778, 35.2
 
 const hiloulahIndex = new KosherZmanim.HiloulahYomiCalculator();
 
-/**
- * @typedef {Object} ZmanimDisplay
- * @property {string} function - Method name from ZemanFunctions
- * @property {boolean} yomTovInclusive - Include if Yom Tov
- * @property {boolean} luachInclusive - Include if in Hebrew calendar
- * @property {string|null} condition - Custom condition
- * @property {string|null} round - Rounding strategy
- * @property {{he: string; en: string; 'he-Latn': string}} title - Display titles
- */
+/** @typedef {import("./zmanim-list.js").ZmanimDisplay} ZmanimDisplay */
 
-export default class zmanimListUpdater {
+export default class zmanimListUpdater extends ZmanimList {
 	/**
 	 * @param {KosherZmanim.GeoLocation} geoLocation
 	 */
 	constructor(geoLocation) {
+		super(Temporal.Now.plainDateISO(geoLocation.getTimeZone()));
 		this.exportManager = new exportFriendly();
-
-		this.jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO(geoLocation.getTimeZone()));
-		this.jCal.setUseModernHolidays(true);
-
-		/** Latest full refraction data (forecast + horizon); null until the first load finishes. @type {import("./refraction-data.js").RefractionData | null} */
-		this.refraction = null;
-		/** When the forecast currently on screen was downloaded (null = normals only), to skip no-op re-renders. @type {number | null} */
-		this._shownForecastAt = null;
-		/** Bumped on every location change, so a slow load for an old location is dropped. */
-		this._refractionToken = 0;
-		/** Bumped on every resetCalendar, so a slow read of stored data for an old location is dropped. */
-		this._resetGen = 0;
-		/** Cancels the pending loading shimmer of the last resetCalendar. */
-		this._stopListLoading = () => {};
-		/** Next check for a newer forecast. @type {ReturnType<typeof setTimeout> | null} */
-		this._refractionRefresh = null;
-		/** @type {null|ReturnType<typeof setTimeout>} */
-		this.timeoutToChangeDate = null;
-		/** Cancels the idle-time precomputation of the days around the shown one. */
-		this._cancelPrewarm = () => {};
-
-		/**
-		 * Visible sunrise (terrain ray tracing, up to ~100 ms a day) runs in a worker; the netz cell shows
-		 * sea-level sunrise until it answers. null where module workers aren't available: computed inline then.
-		 * @type {VisibleSunriseClient | null}
-		 */
-		this.netzWorker = null;
-		try {
-			this.netzWorker = new VisibleSunriseClient((date) => this._onVisibleSunrise(date));
-		} catch (e) {
-			console.warn("Visible sunrise worker unavailable; computing on the main thread", e);
-		}
-
-		/** @type {null|Temporal.ZonedDateTime} */
-		this.nextUpcomingZman = null;
-
-		/** @type {null|ReturnType<typeof setTimeout>} */
-		this.nextUpcomingZmanTimeout = null;
 
 		this.midDownload = false;
 
@@ -94,37 +49,6 @@ export default class zmanimListUpdater {
 		this._boundOpenLocationModal = this.openLocationModal.bind(this);
 		this._boundCloseLocationModal = this.closeLocationModal.bind(this);
 
-		/**
-		 * The calculator class. A page can put its own rulings in place of ZY's by setting window.zemanClass to a
-		 * subclass of ZemanFunctions (in a module script before this one); without it, ZemanFunctions.
-		 * @type {typeof ZemanFunctions}
-		 */
-		// @ts-ignore
-		this.ZemanClass = window.zemanClass ?? ZemanFunctions;
-		const methodNames = methodNamesOf(this.ZemanClass);
-
-		/** @type {Record<string, ZmanimDisplay>} */
-		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
-			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), Object.freeze({
-				function: timeSlot.getAttribute('data-timeGetter'),
-				yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
-				luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
-				condition: timeSlot.getAttribute('data-condition'),
-				round: timeSlot.getAttribute('data-round'),
-				title: {
-					'he': timeSlot.querySelector('span.lang.lang-he').innerHTML,
-					'en': timeSlot.querySelector('span.lang.lang-en').innerHTML,
-					'he-Latn': timeSlot.querySelector('span.lang.lang-he-Latn').innerHTML
-				}
-			})])
-			.filter(
-				arrayEntry =>
-					arrayEntry[0] !== null
-					// @ts-ignore
-				&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
-			));
-
-		// FIX: Initialize buttons in the constructor instead of lazily inside renderDateContainer
 		this._initButtons();
 
 		/** The location modal: direction & map, technical details, editing */
@@ -144,12 +68,80 @@ export default class zmanimListUpdater {
 				})
 				.catch(e => console.error("Birkat Halevana card failed to load", e));
 
-		this._makamObjPromise = fetch("/assets/js/makamObj.json")
-			.then(res => res.json())
-			.catch(e => { console.error("Failed to load makamObj.json", e); return null; });
+		this.start(geoLocation);
+	}
 
-		/** Settles once the first location is rendered (from stored data, or without it). */
-		this.ready = this.resetCalendar(geoLocation);
+	// ─── What the shared list asks of the calendar ────────────────────────────
+
+	/**
+	 * The visitor's rulings (core/zmanimCore.js, shared with the notification server)
+	 * @param {import("./zmanim-list.js").Refraction} refraction
+	 */
+	zemanimConfig(refraction) {
+		const result = buildZemanimConfig(this.geoLocation, settings, refraction);
+
+		// which luach the rulings follow
+		const [shown, hidden] = result.config.fixedMil
+			? ['luachOhrHachaim', 'luachAmudehHoraah']
+			: ['luachAmudehHoraah', 'luachOhrHachaim'];
+		queryAllElements(`[data-zfFind="${shown}"]`).forEach((ind) => ind.style.removeProperty('display'));
+		queryAllElements(`[data-zfFind="${hidden}"]`).forEach((ind) => ind.style.display = 'none');
+
+		return result;
+	}
+
+	language() {
+		return settings.language();
+	}
+
+	refractionOptions() {
+		return { humidity: settings.refraction.humidity() };
+	}
+
+	locationShown() {
+		this._teardownLocationModal();
+		this._updateLocationDisplay();
+	}
+
+	calendarReset() {
+		this.locationModalUI.refresh({ redrawMap: true });
+		// a new setting: a subscribed place keeps what its calendar shows, and the notification server gets it
+		calendarChanged();
+	}
+
+	/** @param {boolean} changed */
+	refractionLoaded(changed) {
+		if (!changed)
+			this.levanaCard?.onRefraction(this); // it may still want the moon's horizon
+		this.locationModalUI.refresh();
+	}
+
+	/**
+	 * @param {HTMLElement} timeSlot @param {string} zmanId
+	 * @param {import("./zmanim-list.js").ZmanInfo} [info]
+	 */
+	rowRendered(timeSlot, zmanId, info) {
+		if (info && (zmanId == 'sunrise' || zmanId == 'sunset'))
+			renderSolarIcons(timeSlot, zmanId, info.solar);
+
+		if (timeSlot.hasAttribute('data-specialDropdownContent')) {
+			const description = timeSlot.querySelector('.accordianContent');
+			description.innerHTML = description.innerHTML
+				.split('${getAteretTorahSunsetOffset()}').join(settings.customTimes.tzeithIssurMelakha(this.jCal.getInIsrael()).minutes.toString())
+				.split('${getCandleLightingOffset()}').join(this.zmanCalc.coreZC.getCandleLightingOffset().toString());
+		}
+	}
+
+	/** The notifications chosen in the settings modal, for the times shown @param {[string, import("./zmanim-list.js").ZmanInfo][]} rows */
+	upcomingRows(rows) {
+		const language = settings.language();
+		this.notifier.schedule(rows.map(([zmanId, zman]) => ({
+			key: zmanId,
+			// notify by the time as it's shown: to the minute, unless seconds are displayed
+			time: 'second' in zman.dtF[1] ? zman.zDTObj : zman.zDTObj.with({ second: 0, millisecond: 0, microsecond: 0, nanosecond: 0 }),
+			title: plainText(zman.title[language] || this.zmanimList[zmanId].title[language]),
+			timeText: zman.zDTObj.toLocaleString(...zman.dtF)
+		})));
 	}
 
 	// ─── Location Modal ───────────────────────────────────────────────────────
@@ -197,162 +189,6 @@ export default class zmanimListUpdater {
 		}
 	}
 
-	// ─── Calendar Reset ───────────────────────────────────────────────────────
-
-	/**
-	 * Reset calendar for a new location. Renders as soon as what previous visits stored (forecast
-	 * snapshot, terrain horizon, monthly normals) is read; fetches a new forecast only if the stored one is
-	 * stale. For the same place (a setting changed) the data already on screen is reused, with no wait.
-	 * Never rejects. `zmanCalc` is for the new place as soon as this is called; the list is rendered when
-	 * the returned promise settles (a newer call before then takes over, and this one renders nothing).
-	 * @param {KosherZmanim.GeoLocation} [geoLocation]
-	 * @returns {Promise<void>}
-	 */
-	async resetCalendar(geoLocation = this.geoLocation) {
-		const gen = ++this._resetGen;
-		this._stopListLoading();
-		if (this.timeoutToChangeDate !== null)
-			clearTimeout(this.timeoutToChangeDate);
-		this.timeoutToChangeDate = null;
-
-		const previous = this.geoLocation;
-		const loaded = this.refraction;
-		const samePlace = loaded !== null && previous !== undefined
-			&& previous.getLatitude() === geoLocation.getLatitude() && previous.getLongitude() === geoLocation.getLongitude();
-		this.geoLocation = geoLocation;
-
-		this._teardownLocationModal();
-		if (!samePlace) {
-			// drop a load still running for the old place (it would apply the old place's data)
-			this._refractionToken++;
-			if (this._refractionRefresh !== null) {
-				clearTimeout(this._refractionRefresh);
-				this._refractionRefresh = null;
-			}
-			this.refraction = null;
-			// a calculator for the new place right away (no refraction yet), so nothing that runs while the
-			// stored data is read computes for the old place
-			this._setupZmanCalc({ atmosphereProvider: null, horizon: null, haze: null });
-		}
-		this._updateLocationDisplay();
-		this._setupLocaleFormat();
-
-		/** @type {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} */
-		let refraction;
-		if (samePlace) {
-			const data = /** @type {import("./refraction-data.js").RefractionData} */ (loaded);
-			this._shownForecastAt = data.forecastFetchedAt;
-			refraction = { atmosphereProvider: data.provider, horizon: data.horizon, haze: data.haze };
-		} else {
-			const stopLoading = this._stopListLoading = showListLoadingAfterDelay();
-			const cached = await readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
-			stopLoading();
-			if (gen !== this._resetGen)
-				return; // another location (or setting) came in while this was read
-
-			this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
-			refraction = {
-				atmosphereProvider: providerFromCache(cached),
-				horizon: cached?.horizon ?? null,
-				haze: cached?.haze ?? null
-			};
-		}
-		// same place: its visible sunrises stay on screen until the worker computes them again
-		this._setupZmanCalc(refraction, samePlace ? this.zmanCalc.config : undefined);
-		this.locationModalUI.refresh({ redrawMap: true });
-
-		this.lastData = {
-			parsha: undefined,
-			day: undefined,
-			specialDay: undefined,
-			hamah: undefined,
-			levana: undefined
-		};
-
-		this.setNextUpcomingZman();
-		this.changeDate(this.jCal.getDate());
-
-		this._loadRefraction();
-		// a new setting: a subscribed place keeps what its calendar shows, and the notification server gets it
-		calendarChanged();
-	}
-
-	/**
-	 * Get current refraction data (from storage when fresh, else the network), re-render only if it
-	 * differs from what's shown, and schedule the next check for when the forecast goes stale.
-	 * Failures are logged, never thrown: the page keeps the stored / default model.
-	 * @param {{ force?: boolean }} [options] force: download a new forecast even if the stored one is fresh
-	 *   (the location modal's "Refresh forecast")
-	 * @returns {Promise<boolean>} whether a new forecast was downloaded
-	 */
-	async _loadRefraction(options = {}) {
-		const token = ++this._refractionToken;
-		if (this._refractionRefresh !== null) {
-			clearTimeout(this._refractionRefresh);
-			this._refractionRefresh = null;
-		}
-
-		/** @type {import("./refraction-data.js").RefractionData} */
-		let data;
-		try {
-			data = await loadRefraction(this.geoLocation.getLatitude(), this.geoLocation.getLongitude(), {
-				force: options.force === true,
-				humidity: settings.refraction.humidity()
-			});
-		} catch (e) {
-			console.error("Refraction data failed to load", e);
-			return false;
-		}
-		if (token !== this._refractionToken)
-			return false; // the location changed while we were loading
-
-		if (data.notes.length)
-			console.info("Refraction:", data.notes);
-		this.refraction = data;
-
-		// Same forecast and horizon as on screen (the usual case on a reload): nothing to redo
-		const shownHaze = this.zmanCalc.config.haze ?? null;
-		const changed = data.forecastFetchedAt !== this._shownForecastAt
-			|| !!data.horizon !== !!this.zmanCalc.config.horizon
-			|| !!data.haze !== !!shownHaze
-			|| (data.haze?.forecastFetchedAt ?? null) !== (shownHaze?.forecastFetchedAt ?? null);
-		if (changed)
-			this._applyRefraction();
-		else
-			this.levanaCard?.onRefraction(this); // it may still want the moon's horizon
-		this.locationModalUI.refresh();
-
-		// Next look: when this forecast turns stale (another tab may have refreshed storage by then,
-		// in which case no request is made). Without a forecast (offline), try again after a TTL.
-		const staleIn = data.forecastFetchedAt !== null
-			? data.forecastFetchedAt + FORECAST_TTL_MS - Date.now()
-			: FORECAST_TTL_MS;
-		// a place's first horizon still being computed on the server: ask again when it says, for the horizon alone
-		// (the stored forecast is reused, so this is one small request)
-		const recheckMs = data.horizonRetryS ? data.horizonRetryS * 1000 : Math.max(MIN_REFRACTION_RECHECK_MS, staleIn);
-		this._refractionRefresh = setTimeout(() => this._loadRefraction(), recheckMs);
-		return !data.fromCache && data.forecastFetchedAt !== null;
-	}
-
-	/**
-	 * Rebuild the calculator with the latest refraction data and re-render the selected date.
-	 * @private
-	 */
-	_applyRefraction() {
-		if (!this.refraction)
-			return;
-
-		const selectedDate = this.zmanCalc.coreZC.getDate();
-		this._shownForecastAt = this.refraction.forecastFetchedAt;
-		this._setupZmanCalc({
-			atmosphereProvider: this.refraction.provider,
-			horizon: this.refraction.horizon,
-			haze: this.refraction.haze
-		}, this.zmanCalc.config);
-		this.setNextUpcomingZman();
-		this.changeDate(selectedDate);
-	}
-
 	/**
 	 * Remove modal event listeners using stable bound references
 	 * @private
@@ -375,55 +211,6 @@ export default class zmanimListUpdater {
 			locationModal.addEventListener('shown.bs.modal', this._boundOpenLocationModal);
 			locationModal.addEventListener('hidden.bs.modal', this._boundCloseLocationModal);
 		}
-	}
-
-	/**
-	 * Initialise ZemanFunctions for the current geoLocation.
-	 * @param {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} refraction
-	 * @param {import("./ROYZmanim.js").ZemanimConfig} [replacing] the config this one replaces for the SAME
-	 *   place: its visible sunrises stay on screen until the worker computes the new ones
-	 * @private
-	 */
-	_setupZmanCalc(refraction, replacing) {
-		const amudehHoraahIndicators = queryAllElements('[data-zfFind="luachAmudehHoraah"]');
-		const ohrHachaimIndicators = queryAllElements('[data-zfFind="luachOhrHachaim"]');
-
-		// the configuration itself is shared with the notification server (core/zmanimCore.js)
-		const { config, inIsrael } = buildZemanimConfig(this.geoLocation, settings, refraction);
-		this.jCal.setInIsrael(inIsrael);
-
-		if (config.fixedMil) {
-			ohrHachaimIndicators.forEach((ind) => ind.style.removeProperty('display'));
-			amudehHoraahIndicators.forEach((ind) => ind.style.display = 'none');
-		} else {
-			amudehHoraahIndicators.forEach((ind) => ind.style.removeProperty('display'));
-			ohrHachaimIndicators.forEach((ind) => ind.style.display = 'none');
-		}
-
-		if (this.netzWorker && refraction.horizon) {
-			const netzWorker = this.netzWorker;
-			config.deferVisibleSunrise = (date) => netzWorker.request(date);
-			netzWorker.configure(config, this.geoLocation);
-			seedVisiblePlaceholders(config, replacing);
-		}
-
-		this.zmanCalc = new this.ZemanClass(this.geoLocation, config);
-	}
-
-	/**
-	 * A visible sunrise arrived from the worker (already in the calculator's cache). Only the netz cell
-	 * depends on it, so a list re-render is enough; today / tomorrow also feed the "up next" marker.
-	 * @param {Temporal.PlainDate} date
-	 * @private
-	 */
-	_onVisibleSunrise(date) {
-		// marker first: updateZmanimList() draws it
-		const today = Temporal.Now.plainDateISO(this.geoLocation.getTimeZone());
-		if (date.equals(today) || date.equals(today.add({ days: 1 })))
-			this.setNextUpcomingZman();
-
-		if (date.equals(this.jCal.getDate().withCalendar("iso8601")))
-			this.updateZmanimList();
 	}
 
 	/**
@@ -509,105 +296,22 @@ export default class zmanimListUpdater {
 		this._attachLocationModal();
 	}
 
-	/**
-	 * Set up the Intl date/time format tuple for the current locale and settings.
-	 * Extracted from resetCalendar for readability.
-	 */
-	_setupLocaleFormat() {
+	/** Times in the visitor's language, 12 / 24 hours, with or without seconds */
+	timeFormat() {
 		let local = settings.language() == 'he' ? 'he' : 'en';
 		if (navigator.languages.find(lang => lang.startsWith(local)))
 			local = navigator.languages.find(lang => lang.startsWith(local));
 
-		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
-		this.dtF = [local, {
+		/** @type {import("./zmanim-list.js").TimeFormat} */
+		const dtF = [local, {
 			hourCycle: settings.timeFormat(),
 			hour: 'numeric',
 			minute: '2-digit'
 		}];
 
-		if (settings.seconds()) {
-			this.dtF[1].second = '2-digit';
-		}
-	}
-
-	// ─── Date Navigation ──────────────────────────────────────────────────────
-
-	/**
-	 * @param {Temporal.PlainDate} date
-	 * @param {boolean} internal
-	 */
-	changeDate(date, internal=false) {
-		this.zmanCalc.setDate(date);
-		this.jCal.setDate(date);
-
-		if (!internal) {
-			// re-renders (e.g. after a forecast refresh) must not stack midnight timers
-			if (this.timeoutToChangeDate !== null)
-				clearTimeout(this.timeoutToChangeDate);
-			this._cancelPrewarm();
-			this.updateZmanimList();
-			// With forecast refraction each new day costs ~100 ms of ray tracing; do the neighbours while
-			// the user reads this one, so the next / previous click is instant
-			this._cancelPrewarm = this.zmanCalc.prewarm(date);
-			// Visible sunrises for the surrounding week, queued in the worker behind the day on screen
-			if (this.netzWorker && this.zmanCalc.config.deferVisibleSunrise)
-				this.netzWorker.prefetchAround(date.withCalendar("iso8601"), 7,
-					(d) => hasCachedVisibleSunrise(this.zmanCalc.config, d));
-			if (date.equals(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()))) {
-				const tomorrow = Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
-					.add({ days: 1 }).with({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-				this.timeoutToChangeDate = setTimeout(
-					() => this.changeDate(tomorrow.toPlainDate()),
-					Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
-						.until(tomorrow)
-						.total('milliseconds')
-				);
-			} else {
-				this.timeoutToChangeDate = null;
-			}
-		}
-	}
-
-	// ─── Render: Date Container ───────────────────────────────────────────────
-
-	/**
-	 * @param {HTMLElement} [dateContainer]
-	 */
-	renderDateContainer(dateContainer) {
-		const date = this.jCal.dateRenderer(settings.language());
-
-		/** @type {(keyof date)[]} */
-		// @ts-ignore
-		const dateKeys = Object.keys(date);
-		for (const dateName of dateKeys) {
-			const dateDisplay = dateContainer.querySelector(`[data-zfReplace="${dateName}Date"]`);
-			dateDisplay.setAttribute('dir', date[dateName].dir);
-			dateDisplay.innerHTML = date[dateName].text;
-		}
-
-		const boldDateHandler = (this.jCal.getDate().equals(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()))) ? 'add' : 'remove';
-		dateContainer.classList[boldDateHandler]("text-bold");
-
-		// FIX: Date-changer buttons are now wired here per container (not behind a one-time flag)
-		// Safe to call on every render since the date used is always fresh from this.zmanCalc.
-		// Buttons are only wired once per container element via a sentinel attribute.
-		if (!dateContainer.dataset.buttonsWired) {
-			for (const dateChanger of Array.from(dateContainer.getElementsByTagName('button')).filter(btn => btn.hasAttribute('data-dateAlter'))) {
-				const days = parseInt(dateChanger.getAttribute("data-dateAlter"));
-				if (isNaN(days))
-					continue;
-
-				dateChanger.addEventListener("click", () => this.changeDate(this.zmanCalc.coreZC.getDate().add({ days })));
-			}
-
-			for (const calendarBtn of dateContainer.getElementsByTagName('input')) {
-				calendarBtn.addEventListener('calendarInsert',
-					() => this.changeDate(Temporal.PlainDate.from(calendarBtn.getAttribute("date-value")))
-				);
-			}
-
-			dateContainer.dataset.buttonsWired = "true";
-		}
+		if (settings.seconds())
+			dtF[1].second = '2-digit';
+		return dtF;
 	}
 
 	// ─── Clipboard ────────────────────────────────────────────────────────────
@@ -683,10 +387,6 @@ export default class zmanimListUpdater {
 				break;
 			}
 		}
-
-		const makamObj = await this._makamObjPromise;
-		if (!makamObj)
-			return;
 
 		const makamIndex = new KosherZmanim.Makam(makamObj.sefarimList);
 		const shabbatMakam = makamIndex.getTodayMakam(this.jCal.shabbat());
@@ -889,12 +589,10 @@ export default class zmanimListUpdater {
 		}
 	}
 
-	// ─── Render: Zmanim List (main) ───────────────────────────────────────────
+	// ─── Render: the rest of the page ─────────────────────────────────────────
 
-	updateZmanimList() {
-		for (const dateContainer of queryAllElements('[data-zfFind="dateContainer"]'))
-			this.renderDateContainer(dateContainer);
-
+	/** Everything on /calendar besides the date and the rows (zmanim-list.js draws those) */
+	renderPage() {
 		for (const fastContainer of queryAllElements('[data-zfFind="FastDays"]'))
 			this.renderFastIndex(fastContainer);
 
@@ -931,15 +629,11 @@ export default class zmanimListUpdater {
 		this._renderHallel();
 		this._renderTekufa();
 		this.levanaCard?.render(this);
-		this._renderCalendarFormatter();
 		this._renderDafYomi();
 		this._renderSeasonalPrayers();
 		this._renderShaotZmaniyot();
 
 		this.renderHiloulot();
-
-		// for pages that draw more from the same calculator (e.g. /handasi-hazeman's twilight notice)
-		document.dispatchEvent(new CustomEvent("zmanimRendered", { detail: this }));
 	}
 
 	// ─── Render: Tefilah-rule sub-renders ─────────────────────────────────────
@@ -1047,150 +741,6 @@ export default class zmanimListUpdater {
 			}
 		} else {
 			queryAllElements('[data-zfFind="Tekufa"]').forEach((tekufa) => tekufa.style.display = "none");
-		}
-	}
-
-	_renderCalendarFormatter() {
-		const zmanInfo = this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF);
-		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]')) {
-			for (const timeSlot of calendarContainer.children) {
-				if (!(timeSlot instanceof HTMLElement))
-					continue;
-
-				if (!timeSlot.hasAttribute('data-zmanid')) {
-					timeSlot.style.setProperty('display', 'none', 'important');
-					continue;
-				}
-
-				let zmanId = timeSlot.getAttribute('data-zmanid');
-				const timeDisplay = timeSlot.getElementsByClassName('timeDisplay')[0];
-				if (!(zmanId in zmanInfo)) {
-					if (!Object.keys(zmanInfo).find((value) => value.startsWith(zmanId))) {
-						timeSlot.style.setProperty('display', 'none', 'important');
-						continue;
-					}
-
-					let allRowsHidden = true;
-					let firstAlreadyGone = false;
-					let invalidShitot = 0;
-					const shitot = timeDisplay.querySelectorAll('[data-subZmanId]');
-					for (const shita of shitot) {
-						if (!(shita instanceof HTMLElement))
-							return;
-
-						const completeName = timeSlot.getAttribute('data-zmanid') + '-' + shita.getAttribute('data-subZmanId');
-
-						if (zmanInfo[completeName].display == -1) {
-							shita.style.setProperty('display', 'none', 'important');
-							continue;
-						}
-
-						if (zmanInfo[completeName].display == -2) {
-							allRowsHidden = false;
-							timeSlot.style.removeProperty("display");
-							timeDisplay.lastElementChild.innerHTML = "XX:XX";
-							continue;
-						}
-
-						/** @type {HTMLElement} */
-						// @ts-ignore
-						const upNextElem = shita.firstElementChild;
-						if (this.isNextUpcomingZman(zmanInfo[completeName].zDTObj))
-							upNextElem.style.removeProperty("display");
-						else
-							upNextElem.style.display = "none";
-
-						shita.lastElementChild.innerHTML = zmanInfo[completeName].zDTObj.toLocaleString(...zmanInfo[completeName].dtF);
-
-						const validMergeTitle = 'merge_title' in zmanInfo[completeName];
-						if (validMergeTitle && zmanInfo[completeName].merge_title.he)
-							timeSlot.querySelector('.lang-he').innerHTML = zmanInfo[completeName].merge_title.he;
-						else if (zmanInfo[completeName].title.he)
-							timeSlot.querySelector('.lang-he').innerHTML = zmanInfo[completeName].title.he;
-
-						if (validMergeTitle && zmanInfo[completeName].merge_title.en)
-							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].merge_title.en;
-						else if (zmanInfo[completeName].title.en)
-							timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[completeName].title.en;
-
-						if (validMergeTitle && zmanInfo[completeName].merge_title["he-Latn"])
-							timeSlot.querySelector('.lang-he-Latn').innerHTML = zmanInfo[completeName].merge_title["he-Latn"];
-						else if (zmanInfo[completeName].title["he-Latn"])
-							timeSlot.querySelector('.lang-he-Latn').innerHTML = zmanInfo[completeName].title["he-Latn"];
-
-						if (!zmanInfo[completeName].display) {
-							shita.style.setProperty('display', 'none', 'important');
-							invalidShitot++;
-						} else {
-							allRowsHidden = false;
-							shita.style.removeProperty('display');
-
-							if (!firstAlreadyGone) {
-								firstAlreadyGone = true;
-								shita.classList.remove("leftBorderForShita");
-
-								if (invalidShitot == 1 && shitot.length == 2)
-									shita.style.gridColumn = "span 2";
-							} else {
-								shita.classList.add("leftBorderForShita");
-								shita.style.removeProperty('grid-column');
-							}
-						}
-					}
-
-					if (allRowsHidden)
-						timeSlot.style.setProperty('display', 'none', 'important');
-					else
-						timeSlot.style.removeProperty('display');
-				} else {
-					if (zmanInfo[zmanId].display == -1) {
-						timeSlot.style.setProperty('display', 'none', 'important');
-						continue;
-					}
-
-					if (zmanInfo[zmanId].display == -2) {
-						timeSlot.style.removeProperty("display");
-						timeDisplay.lastElementChild.innerHTML = "XX:XX";
-						continue;
-					}
-
-					/** @type {HTMLElement} */
-					// @ts-ignore
-					const upNextElem = timeDisplay.firstElementChild;
-					if (this.isNextUpcomingZman(zmanInfo[zmanId].zDTObj))
-						upNextElem.style.removeProperty("display");
-					else
-						upNextElem.style.display = "none";
-
-					timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].zDTObj.toLocaleString(...zmanInfo[zmanId].dtF);
-
-					// the name's own spans: sunrise / sunset have language-switched icons in front of them
-					if (zmanInfo[zmanId].title.he)
-						timeSlot.querySelector('.accordianText > .lang-he').innerHTML = zmanInfo[zmanId].title.he;
-
-					if (zmanInfo[zmanId].title.en)
-						timeSlot.querySelector('.accordianText > .lang-en').innerHTML = zmanInfo[zmanId].title.en;
-
-					if (zmanInfo[zmanId].title["he-Latn"])
-						timeSlot.querySelector('.accordianText > .lang-he-Latn').innerHTML = zmanInfo[zmanId].title["he-Latn"];
-
-					if (zmanId == 'sunrise' || zmanId == 'sunset')
-						renderSolarIcons(timeSlot, zmanId, zmanInfo[zmanId].solar);
-
-					if (!zmanInfo[zmanId].display)
-						timeSlot.style.setProperty('display', 'none', 'important');
-					else
-						timeSlot.style.removeProperty('display');
-				}
-
-				if (timeSlot.hasAttribute('data-specialDropdownContent')) {
-					const description = timeSlot.querySelector('.accordianContent');
-					description.innerHTML = description.innerHTML
-						.split('${getAteretTorahSunsetOffset()}').join(settings.customTimes.tzeithIssurMelakha(this.jCal.getInIsrael()).minutes.toString())
-						.split('${getCandleLightingOffset()}').join(this.zmanCalc.coreZC.getCandleLightingOffset().toString());
-				}
-			}
-			calendarContainer.classList.remove("loading");
 		}
 	}
 
@@ -1316,63 +866,6 @@ export default class zmanimListUpdater {
 		});
 	}
 
-	// ─── Next Upcoming Zman ───────────────────────────────────────────────────
-
-	setNextUpcomingZman() {
-		// FIX: Clear any existing timeout before scheduling a new one to prevent accumulation
-		if (this.nextUpcomingZmanTimeout !== null) {
-			clearTimeout(this.nextUpcomingZmanTimeout);
-			this.nextUpcomingZmanTimeout = null;
-		}
-
-		/** @type {Temporal.ZonedDateTime[]} */
-		const zmanim = [];
-		/** @type {import("./features/zmanNotifications.js").ZmanOccurrence[]} */
-		const occurrences = [];
-		const currentSelectedDate = this.zmanCalc.coreZC.getDate();
-		const language = settings.language();
-
-		for (const days of [0, 1]) {
-			this.changeDate(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).add({ days }), true);
-			for (const [zmanId, zman] of Object.entries(this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF))) {
-				if (zman.display != 1)
-					continue;
-
-				zmanim.push(zman.zDTObj);
-				if (!zman.zDTObj)
-					continue;
-				occurrences.push({
-					key: zmanId,
-					// notify by the time as it's shown: to the minute, unless seconds are displayed
-					time: 'second' in zman.dtF[1] ? zman.zDTObj : zman.zDTObj.with({ second: 0, millisecond: 0, microsecond: 0, nanosecond: 0 }),
-					title: plainText(zman.title[language] || this.zmanimList[zmanId].title[language]),
-					timeText: zman.zDTObj.toLocaleString(...zman.dtF)
-				});
-			}
-		}
-
-		this.changeDate(currentSelectedDate, true);
-		this.notifier.schedule(occurrences);
-		zmanim.sort(Temporal.ZonedDateTime.compare);
-		this.nextUpcomingZman = zmanim.find(zman =>
-			Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone()).until(zman).total({ unit: "milliseconds" }) > 0
-		);
-
-		// FIX: Store the timeout ID so it can be cleared on the next call
-		this.nextUpcomingZmanTimeout = setTimeout(
-			() => { this.setNextUpcomingZman(); this.updateZmanimList(); },
-			Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
-				.until(this.nextUpcomingZman)
-				.total({ unit: "milliseconds" })
-		);
-	}
-
-	/**
-	 * @param {Temporal.ZonedDateTime} zman
-	 */
-	isNextUpcomingZman(zman) {
-		return !(this.nextUpcomingZman == null || !(zman.equals(this.nextUpcomingZman)));
-	}
 }
 
 // ─── Module Init ──────────────────────────────────────────────────────────────
@@ -1392,16 +885,3 @@ const zmanimListUpdater2 = new zmanimListUpdater(geoLocation);
 window.zmanimListUpdater2 = zmanimListUpdater2;
 // @ts-ignore
 window.KosherZmanim = KosherZmanim;
-
-// ─── Utilities ────────────────────────────────────────────────────────────────
-
-/**
- * @template {HTMLElement} [T=HTMLElement]
- * @param {string} selector
- * @returns {Array<T>}
- */
-function queryAllElements(selector) {
-	/** @type {NodeListOf<T>} */
-	const allNodes = (document.querySelectorAll(selector));
-	return [...allNodes].filter(node => node instanceof HTMLElement);
-}

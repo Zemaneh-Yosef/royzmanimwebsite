@@ -124,7 +124,7 @@
  * physical model - add your own margin on top if you want one).
  */
 
-import { SPACalculator, GeoLocation } from './kosher-zmanim.js';
+import { SPACalculator, GeoLocation } from '../../libraries/kosherZmanim/kosher-zmanim.js';
 import { nutation } from './nutation.js';
 import { EARTH_L, EARTH_B, EARTH_R } from './vsop87-earth.js';
 import { deltaT, ut1MinusUtc } from './delta-t.js';

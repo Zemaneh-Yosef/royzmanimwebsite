@@ -1,4 +1,4 @@
-// Builds the tables in assets/libraries/kosherZmanim/horizon-glow.js. Run with Node or Deno:
+// Builds the tables in assets/js/astro/horizon-glow.js. Run with Node or Deno:
 //     node _denoDebug/horizonGlowTable.mjs
 // and paste its output over the "generated" block of horizon-glow.js.
 //
@@ -13,7 +13,7 @@
 // (halakhic_calc's), at the horizon toward the Sun, between 12 and 15 degrees down (the deepest part of
 // that table).
 
-import { twilightLuminance } from "../assets/libraries/kosherZmanim/star-nightfall.js";
+import { twilightLuminance } from "../assets/js/astro/star-nightfall.js";
 
 const R = 6371, HR = 8.0, HA = 1.5, TAU_R = 0.0973, TAU_O3 = 0.027, ZO = 22, SO = 6, ZTOP = 150, D2R = Math.PI / 180;
 const ozNorm = TAU_O3 / (SO * Math.sqrt(2 * Math.PI));

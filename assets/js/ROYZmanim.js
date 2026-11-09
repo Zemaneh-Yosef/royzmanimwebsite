@@ -1,16 +1,16 @@
 // @ts-check
 
 import * as KosherZmanim from "../libraries/kosherZmanim/kosher-zmanim.js";
-import ROYSPACalculator from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
+import ROYSPACalculator from "./astro/royzmanim-spa-corrections.js";
 import { MathUtils } from "../libraries/kosherZmanim/kosher-zmanim.js";
 import TekufahCalculator from "./tekufot.js";
-import { hazeDelay, hazeOn } from "../libraries/kosherZmanim/star-nightfall.js";
+import { hazeDelay, hazeOn } from "./astro/star-nightfall.js";
 
 /** @typedef {{minutes: number | null; degree?: number | null}} melakhaTzet */
 /** @typedef {import("./refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
 /** @typedef {import("./refraction-snapshot.js").Horizon} Horizon */
 /** @typedef {import("./refraction-snapshot.js").VisibleOptions} VisibleOptions */
-/** @typedef {import("../libraries/kosherZmanim/star-nightfall.js").HazeData} HazeData */
+/** @typedef {import("./astro/star-nightfall.js").HazeData} HazeData */
 
 /**
  * @typedef {Object} ZemanimConfig
@@ -84,7 +84,7 @@ export function hasCachedVisibleSunrise(config, date) {
 /**
  * Haze delays (ms, and whether modeled or a bound) per config and ISO date, shared by every instance
  * chainDate() makes from it.
- * @type {WeakMap<ZemanimConfig, Map<string, { ms: number, status: import("../libraries/kosherZmanim/star-nightfall.js").HazeDelayStatus }>>}
+ * @type {WeakMap<ZemanimConfig, Map<string, { ms: number, status: import("./astro/star-nightfall.js").HazeDelayStatus }>>}
  */
 const hazeDelayCache = new WeakMap();
 
@@ -485,13 +485,13 @@ class ZemanimMathBase {
 	 * Whether getHazeDelay() is the star model's own difference ('modeled'), a bound with the cap standing in
 	 * ('at-least': the stars not seen under the evening's haze before the Sun is 18 degrees down; 'at-most':
 	 * not under the average haze), or neither ('unresolved': no delay applied). null when off or without data.
-	 * @returns {import("../libraries/kosherZmanim/star-nightfall.js").HazeDelayStatus | null}
+	 * @returns {import("./astro/star-nightfall.js").HazeDelayStatus | null}
 	 */
 	getHazeDelayStatus(degree = this.hazeDegree()) {
 		return this.hazeDelayEntry(degree)?.status ?? null;
 	}
 
-	/** @returns {{ ms: number, status: import("../libraries/kosherZmanim/star-nightfall.js").HazeDelayStatus } | null} */
+	/** @returns {{ ms: number, status: import("./astro/star-nightfall.js").HazeDelayStatus } | null} */
 	hazeDelayEntry(/** @type {number} */ degree) {
 		const haze = this.config.haze;
 		if (!haze || this.config.hazeTzet === false)
@@ -506,7 +506,7 @@ class ZemanimMathBase {
 		let entry = cache.get(key);
 		if (entry === undefined) {
 			const geo = this.coreZC.getGeoLocation();
-			/** @type {{ ms: number, status: import("../libraries/kosherZmanim/star-nightfall.js").HazeDelayStatus }} */
+			/** @type {{ ms: number, status: import("./astro/star-nightfall.js").HazeDelayStatus }} */
 			let d;
 			try {
 				// null where the Sun doesn't get that low for most of the year: no average to compare with, no delay
@@ -537,7 +537,7 @@ class ZemanimMathBase {
 	/**
 	 * Extra options for the star-visibility model (star-nightfall.js) behind the haze delay, for subclasses
 	 * that see the stars differently (e.g. a smaller threshold margin). None here.
-	 * @returns {Partial<import("../libraries/kosherZmanim/star-nightfall.js").NightfallOptions>}
+	 * @returns {Partial<import("./astro/star-nightfall.js").NightfallOptions>}
 	 */
 	starModelOptions() {
 		return {};

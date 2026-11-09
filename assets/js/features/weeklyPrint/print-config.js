@@ -61,6 +61,8 @@
  * @property {'he'|'en'|'he-Latn'} language
  * @property {CalendarToggle} calendarToggle
  * @property {CustomTimes} customTimes
+ * @property {Partial<import('../../core/zmanimSettings.js').RefractionSettings>} [refraction] - Refraction settings;
+ *   a missing one takes the calendar's default.
  * @property {WeeklyPrint} weeklyPrint
  * @property {LocationConfig[]} location - One or more nearby locations. With several, the zemanim are
  *   averaged across them and the visible sunrise is listed per location.
@@ -71,6 +73,7 @@
 
 import { isInIsrael } from "../../misc/israel.js";
 import { languageTag } from "../../misc/language.js";
+import { earliestYear } from "../../misc/util.js";
 
 const params = new URLSearchParams(window.location.search);
 
@@ -101,6 +104,7 @@ async function loadPrintConfig() {
  */
 async function configFromSettings() {
 	const { settings } = await import("../../settings/handler.js");
+	const { refractionSettings } = await import("../../core/zmanimSettings.js");
 
 	const lat = settings.location.lat(), long = settings.location.long();
 	if (isNaN(lat) && isNaN(long)) {
@@ -143,6 +147,7 @@ async function configFromSettings() {
 			candleLighting: settings.customTimes.candleLighting(),
 			tzeithIssurMelakha: settings.customTimes.tzeithIssurMelakha(isInIsrael(lat, long))
 		},
+		refraction: refractionSettings(settings),
 		weeklyPrint,
 		location: [{
 			name: settings.location.name(),
@@ -183,6 +188,11 @@ function normalize(config) {
 	const language = languageTag(config.language) ?? 'en';
 	const israel = config.israel ?? locations.some(loc => isInIsrael(loc.lat, loc.long));
 
+	// not before the Gregorian calendar's first whole year
+	const weeklyPrint = { ...config.weeklyPrint };
+	if (typeof weeklyPrint.year == "number")
+		weeklyPrint.year = Math.max(weeklyPrint.year, earliestYear(printCalendar({ ...config, weeklyPrint })));
+
 	return {
 		...config,
 		seconds: !!config.seconds,
@@ -200,7 +210,7 @@ function normalize(config) {
 			tzeithIssurMelakha: { minutes: 30, degree: 7.165 },
 			...config.customTimes
 		},
-		weeklyPrint: { ...config.weeklyPrint },
+		weeklyPrint,
 		location: locations,
 		title: config.title || locations.map(loc => loc.name).join(" · ")
 	};

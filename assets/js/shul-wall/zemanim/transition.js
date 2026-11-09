@@ -166,15 +166,3 @@ function render() {
 render();
 // better refraction data arrived after the first draw
 onZmanimUpdate("transition", render);
-
-/**
- * @param {string} str
- */
-function isValidJSON(str) {
-	try {
-		JSON.parse(str);
-		return true;
-	} catch (e) {
-		return false;
-	}
-}

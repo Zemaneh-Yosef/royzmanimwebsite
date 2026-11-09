@@ -7,13 +7,13 @@
  * forecast modules, lives in refraction-data.js and runs on the main thread only.
  */
 
-import { chainProviders, monthlyClimate } from "../libraries/kosherZmanim/royzmanim-spa-corrections.js";
+import { chainProviders, monthlyClimate } from "./astro/royzmanim-spa-corrections.js";
 
-/** @typedef {import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").AtmosphereSpec} AtmosphereSpec */
-/** @typedef {import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonSet} HorizonSet */
-/** @typedef {import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").VisibleOptions} VisibleOptions */
-/** @typedef {import("../libraries/kosherZmanim/horizon-client.js").AreaInfo} AreaInfo */
-/** @typedef {import("../libraries/kosherZmanim/horizon-client.js").MoonHorizon} MoonHorizon */
+/** @typedef {import("./astro/royzmanim-spa-corrections.js").AtmosphereSpec} AtmosphereSpec */
+/** @typedef {import("./astro/royzmanim-spa-corrections.js").HorizonSet} HorizonSet */
+/** @typedef {import("./astro/royzmanim-spa-corrections.js").VisibleOptions} VisibleOptions */
+/** @typedef {import("./astro/horizon-client.js").AreaInfo} AreaInfo */
+/** @typedef {import("./astro/horizon-client.js").MoonHorizon} MoonHorizon */
 /** @typedef {'sunrise'|'sunset'} SolarEvent */
 
 /**

@@ -101,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (document.getElementById('secondsShow'))
             document.getElementById('secondsShow').addEventListener('click', () => {
-                console.log('seconds show')
                 localStorage.setItem("seconds", document.getElementById("showSeconds").checked ? "true" : "false");
                 if (window.zmanimListUpdater2) {
                     window.zmanimListUpdater2.resetCalendar();
