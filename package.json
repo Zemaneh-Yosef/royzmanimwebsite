@@ -1,7 +1,8 @@
 {
 	"scripts": {
 		"build:polyfills": "node scripts/legacy/build-polyfills.mjs",
-		"transpile": "node scripts/legacy/transpile.mjs _site"
+		"transpile": "node scripts/legacy/transpile.mjs _site",
+		"vendor": "node scripts/vendor.mjs"
 	},
 	"devDependencies": {
 		"@jridgewell/remapping": "^2.3.5",
