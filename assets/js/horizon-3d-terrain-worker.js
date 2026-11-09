@@ -23,18 +23,19 @@ async function decode(blob) {
 	return ctx.getImageData(0, 0, 256, 256).data;
 }
 
+/** @param {MessageEvent<{init: { server: string; } } | ({id: number} & ({ heightmap: [w: number, s: number, e: number, n: number, level: number] } | { hillshade: [z: number, x: number, y: number] }))>} e */
 self.onmessage = async (e) => {
 	const m = e.data;
-	if (m.init) {
+	if ('init' in m) {
 		source = terrainSource({ server: m.init.server, decode, onTile: (fromServer) => self.postMessage({ tile: fromServer }) });
 		return;
 	}
 	if (!source) return;
 	try {
-		if (m.heightmap) {
+		if ('heightmap' in m) {
 			const heights = await source.heightmap(...m.heightmap);
 			self.postMessage({ id: m.id, heights }, [heights.buffer]);
-		} else if (m.hillshade) {
+		} else if ('hillshade' in m) {
 			const rgba = await source.hillshade(...m.hillshade);
 			self.postMessage({ id: m.id, rgba }, [rgba.buffer]);
 		}

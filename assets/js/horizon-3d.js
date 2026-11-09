@@ -162,7 +162,9 @@ const SUN_RADIUS = 0.2666;
 
 /**
  * The horizon entry of a spot nearest an azimuth (DEM entries only: distance and height).
- * @param {HorizonSetPoint} spot @param {SunEvent} event @param {number} az
+ * @param {HorizonSetPoint} spot
+ * @param {SunEvent} event
+ * @param {number} az
  */
 function entryAt(spot, event, az) {
 	let best = null, bestD = Infinity;
@@ -176,7 +178,7 @@ function entryAt(spot, event, az) {
 
 /**
  * The horizon entry nearest an azimuth among both events' (they cover the year's sunrise and sunset directions).
- * @param {{ lat: number; lon: number; ground: number; height: number; sunrise: import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonPoint[]; sunset: import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonPoint[]; wins: Record<string, [number, number][]>; }} spot
+ * @param {HorizonSetPoint} spot
  * @param {number} az
  */
 function entryAtAny(spot, az) {
@@ -211,8 +213,8 @@ function spotFor(set, event, az) {
  * horizon's elevation angle there, in `air` (the calendar's: see airFor) or standard air. Two passes: the
  * horizon's angle depends on the azimuth.
  * @param {any} [air] { trueOf(apparentDeg), elevationOf(heightM, distM) }
- * @param {{ lat: any; lon?: number; ground?: number; height: any; sunrise?: import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonPoint[]; sunset?: import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").HorizonPoint[]; wins?: Record<string, [number, number][]>; }} spot
- * @param {string} event
+ * @param {HorizonSetPoint} spot
+ * @param {SunEvent} event
  * @param {number} decl
  */
 function sunOnHorizon(spot, event, decl, air = null) {
@@ -308,7 +310,7 @@ const work = terrainWork();
 class ElevationTerrain extends Cesium.CustomHeightmapTerrainProvider {
 	constructor() {
 		const scheme = new Cesium.GeographicTilingScheme();
-		const heights = (/** @type {any} */ x, /** @type {any} */ y, /** @type {number} */ level) => {
+		const heights = (/** @type {number} */ x, /** @type {number} */ y, /** @type {number} */ level) => {
 			const r = scheme.tileXYToRectangle(x, y, level);
 			return work.heightmap(r.west / D2R, r.south / D2R, r.east / D2R, r.north / D2R, level);
 		};
@@ -319,8 +321,8 @@ class ElevationTerrain extends Cesium.CustomHeightmapTerrainProvider {
 		this.heights = heights;
 	}
 	/**
-	 * @param {any} x
-	 * @param {any} y
+	 * @param {number} x
+	 * @param {number} y
 	 * @param {number} level
 	 */
 	requestTileGeometry(x, y, level) {
@@ -329,8 +331,8 @@ class ElevationTerrain extends Cesium.CustomHeightmapTerrainProvider {
 		}));
 	}
 	/**
-	 * @param {any} x
-	 * @param {any} y
+	 * @param {number} x
+	 * @param {number} y
 	 * @param {number} level
 	 */
 	getTileDataAvailable(x, y, level) {
@@ -704,7 +706,7 @@ async function main() {
 		return Cesium.Cartesian3.add(eye, Cesium.Cartesian3.multiplyByScalar(dir, distM, dir), new Cesium.Cartesian3());
 	}
 	/** A world point's place on the screen (CSS px), or undefined behind the camera. */
-	const toScreen = (/** @type {any} */ p) => Cesium.SceneTransforms.worldToWindowCoordinates(scene, p);
+	const toScreen = (/** @type {Cesium.Cartesian3} */ p) => Cesium.SceneTransforms.worldToWindowCoordinates(scene, p);
 
 	/** The direction (azimuth, altitude in deg) a screen point looks in, in the eye view. */
 	function screenDirection(/** @type {{x: number, y: number}} */ pt) {
@@ -874,7 +876,7 @@ async function main() {
 	/** @type {ZmanimDay | null} */
 	let zmanimDay = null;
 	/** The calculator, with this place's refraction data when there is some (as the calendar: its plain times first). */
-	function makeZmanimDay(/** @type {any} */ refraction) {
+	function makeZmanimDay(/** @type {import('./refraction-data.js').RefractionData} */ refraction) {
 		zmanimDay = new ZmanimDay({
 			geoLocation: new KosherZmanim.GeoLocation(q.get("locationName") ?? "", lat, lon, elevation, tz),
 			settings, zmanimList: zmanimListFromData(zmanimData), refraction, date,
@@ -889,7 +891,7 @@ async function main() {
 	}
 
 	// ─── The calendar's air: the sun and the ridges as its visible sunrise / sunset see them ───
-	/** @type {Map<string, any>} */
+	/** @type {Map<string, ReturnType<import("../libraries/kosherZmanim/royzmanim-spa-corrections.js").default["getRefractionFor"]>>} */
 	const airs = new Map();
 	/**
 	 * The calendar calculator's refraction (ROYSPACalculator.getRefractionFor) for the date shown, the spot and an
@@ -899,7 +901,7 @@ async function main() {
 	 * @param {SunEvent} ev
 	 */
 	function airFor(ev) {
-		const calc = /** @type {any} */ (zmanimDay)?.zmanCalc?.astroCalc;
+		const calc = (zmanimDay)?.zmanCalc?.astroCalc;
 		if (!calc?.getRefractionFor || !Number.isFinite(spot.height)) return null;
 		const key = `${date}|${ev}|${spot.lat},${spot.lon},${spot.height}`;
 		let air = airs.get(key);
@@ -961,8 +963,9 @@ async function main() {
 	function stop() { clearInterval(playing); playing = 0; $("play").textContent = "▶"; $("play").setAttribute("aria-pressed", "false"); }
 	$("play").onclick = () => {
 		if (playing) return stop();
-		$("play").textContent = "❚❚"; $("play").setAttribute("aria-pressed", "true");
-		playing = setInterval(() => { when += 60000; showMoment(); }, 120);
+		$("play").textContent = "❚❚";
+		$("play").setAttribute("aria-pressed", "true");
+		playing = window.setInterval(() => { when += 60000; showMoment(); }, 120);
 	};
 	$("date").onchange = (/** @type {{ target: { value: Temporal.PlainDateLike; }; }} */ e) => {
 		if (!e.target.value) return;
@@ -1064,8 +1067,9 @@ async function main() {
 	/**
 	 * Google Earth's keys from above: arrows pan, Shift+arrows turn and tilt, + / - (or Page Up / Down) zoom, N faces
 	 * north, U looks straight down, R does both. True if the key was one of them.
+	 * @param {KeyboardEvent} e
 	 */
-	function aboveKey(/** @type {KeyboardEvent} */ e) {
+	function aboveKey(e) {
 		const above = camera.positionCartographic.height - (globe.getHeight(camera.positionCartographic) ?? 0);
 		const step = Math.max(20, above) * 0.15;
 		const turn = 5 * D2R, k = e.key;
@@ -1122,7 +1126,7 @@ async function main() {
 	};
 	/** where the last press began: from above (Cesium's own dragging), a click that ends a drag is no tap either */
 	let pressAt = { x: 0, y: 0 };
-	canvas.addEventListener("pointerdown", (/** @type {{ clientX: any; clientY: any; pointerType: string; button: number; pointerId: number; }} */ e) => {
+	canvas.addEventListener("pointerdown", (/** @type {PointerEvent} */ e) => {
 		pressAt = { x: e.clientX, y: e.clientY };
 		if (!eyeMode || (e.pointerType === "mouse" && e.button !== 0)) return;
 		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -1131,7 +1135,7 @@ async function main() {
 		startGrab();
 		syncHandlers();
 	});
-	canvas.addEventListener("pointermove", (/** @type {{ pointerId: number; clientX: any; clientY: any; }} */ e) => {
+	canvas.addEventListener("pointermove", (/** @type {PointerEvent} */ e) => {
 		if (!grab || !pointers.has(e.pointerId)) return;
 		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 		const ps = [...pointers.values()];
@@ -1153,7 +1157,7 @@ async function main() {
 	};
 	canvas.addEventListener("pointerup", release);
 	canvas.addEventListener("pointercancel", release);
-	canvas.addEventListener("wheel", (/** @type {{ preventDefault: () => void; deltaY: number; deltaMode: number; }} */ e) => {
+	canvas.addEventListener("wheel", (/** @type {WheelEvent} */ e) => {
 		if (!eyeMode) return;
 		e.preventDefault();
 		fov = clampFov(fov * Math.exp(e.deltaY * (e.deltaMode === 1 ? 0.05 : 0.0015)));
@@ -1172,8 +1176,8 @@ async function main() {
 	/**
 	 * Turns to face what was tapped: with `dir` (a tap in the eye view: its direction from the camera, exact) that
 	 * direction, else the ground point `g`.
-	 * @param {{ lat: any; lon: any; h: any; }} g
-	 * @param {{ az: any; alt: any; }} dir
+	 * @param {{ lat: number; lon: number; h: number; }} g
+	 * @param {{ az: number; alt: number; }} dir
 	 */
 	function faceGround(g, dir) {
 		if (dir) {
@@ -1191,7 +1195,7 @@ async function main() {
 	/** A single tap's popup waits a moment, so a double one can face the spot instead. */
 	let tapTimer = 0;
 	const popup = /** @type {HTMLElement} */ ($("popup"));
-	canvas.addEventListener("dblclick", (/** @type {{ offsetX: any; offsetY: any; }} */ e) => {
+	canvas.addEventListener("dblclick", (/** @type {MouseEvent} */ e) => {
 		clearTimeout(tapTimer);
 		const pt = { x: e.offsetX, y: e.offsetY };
 		if (eyeMode) faceGround(null, screenDirection(pt));
@@ -1203,7 +1207,7 @@ async function main() {
 				orientation: { heading: camera.heading, pitch: camera.pitch, roll: 0 }, duration: 0.5 });
 		}
 	});
-	canvas.addEventListener("click", (/** @type {{ clientX: number; clientY: number; offsetX: any; offsetY: any; }} */ e) => {
+	canvas.addEventListener("click", (/** @type {MouseEvent} */ e) => {
 		if (dragged || Math.hypot(e.clientX - pressAt.x, e.clientY - pressAt.y) > 3) return;
 		clearTimeout(tapTimer);
 		const pt = { x: e.offsetX, y: e.offsetY };
@@ -1211,7 +1215,7 @@ async function main() {
 	});
 
 	/**
-	 * @param {{ x: any; y: any; }} pt
+	 * @param {{ x: number; y: number; }} pt
 	 */
 	function showPoint(pt) {
 		popup.hidden = true;

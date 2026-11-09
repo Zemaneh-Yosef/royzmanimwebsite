@@ -366,7 +366,7 @@ class ZemanimMathBase {
 		current.dawn = this.config.fixedMil
 			? seasonalDawn
 			: !dawnOffset
-				? this.getSolarMidnight().subtract({ hours: 24 })
+				? this.coreZC.getSolarMidnight().subtract({ hours: 24 })
 				: earlier(seasonalDawn, current.sunrise.subtract(current.sunrise.since(dawnOffset)));
 
 		current.nightfall = this.seasonalAfter(current.sunset, equinox.nightfall);
@@ -379,7 +379,7 @@ class ZemanimMathBase {
 		current.tzethakokhavim = this.config.fixedMil
 			? seasonalTzet
 			: !tzetOffset
-				? this.getSolarMidnight()
+				? this.coreZC.getSolarMidnight()
 				: later(seasonalTzet, current.sunset.add(current.sunrise.since(tzetOffset)));
 
 		current.ranges.mga = current.dawn.until(current.tzethakokhavim);
