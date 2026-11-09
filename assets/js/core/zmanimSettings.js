@@ -132,7 +132,7 @@ export function zemanimSettings(source, options = {}) {
 	fixedMil: boolean;
 	rtKulah: boolean;
 	candleLighting: number;
-	melakha: import("../ROYZmanim.js").ZemanimConfig['melakha'];
+	melakha: import("./ROYZmanim.js").ZemanimConfig['melakha'];
 	humidity: boolean;
 	seaSurfaceLayer: boolean;
 	hazeTzet: boolean;
@@ -203,7 +203,7 @@ export function refractionSettings(settings) {
 
 /**
  * The options part of a calculator's configuration (without its refraction data, which can't be posted)
- * @param {import("../ROYZmanim.js").ZemanimConfig} config
+ * @param {import("./ROYZmanim.js").ZemanimConfig} config
  * @returns {ZemanimOptions}
  */
 export function optionsOf({ elevation, fixedMil, rtKulah, candleLighting, melakha, humidity, seaSurfaceLayer, hazeTzet, hazeMaxDelayMinutes }) {
@@ -214,8 +214,8 @@ export function optionsOf({ elevation, fixedMil, rtKulah, candleLighting, melakh
  * The calculator's configuration: the options plus the place's refraction data (refraction-data.js; in a
  * worker, rebuilt with providerFromSnapshot). Without data the calculator uses its standard air.
  * @param {ZemanimOptions} options
- * @param {{ atmosphereProvider?: import("../ROYZmanim.js").ZemanimConfig['atmosphereProvider']; horizon?: import("../ROYZmanim.js").ZemanimConfig['horizon']; haze?: import("../ROYZmanim.js").ZemanimConfig['haze'] }} [refraction]
- * @returns {import("../ROYZmanim.js").ZemanimConfig}
+ * @param {{ atmosphereProvider?: import("./ROYZmanim.js").ZemanimConfig['atmosphereProvider']; horizon?: import("./ROYZmanim.js").ZemanimConfig['horizon']; haze?: import("./ROYZmanim.js").ZemanimConfig['haze'] }} [refraction]
+ * @returns {import("./ROYZmanim.js").ZemanimConfig}
  */
 export function zemanimConfigFrom(options, refraction = {}) {
 	return {

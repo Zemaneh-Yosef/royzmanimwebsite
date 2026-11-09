@@ -1,11 +1,11 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
-import { zDTFromFunc, ZemanFunctions } from "../ROYZmanim.js";
+import { zDTFromFunc, ZemanFunctions } from "../core/ROYZmanim.js";
 import { FLYER_SHITOT } from "../core/zmanimSettings.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
-import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
+import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
+import { HebrewNumberFormatter } from "../core/WebsiteCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
 
 const jCal = new WebsiteLimudCalendar(Temporal.Now.plainDateISO());

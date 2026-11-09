@@ -31,7 +31,7 @@ const PAGES = ["index.html", "calendar.html", "offline.html"];
  */
 const SKIP = ["assets/js/features/excelPrepare.js", "assets/libraries/xlsx.js",
 	// the maps (OpenLayers, 350 KB) are no use offline: their tiles come from the network
-	"assets/js/map.js"];
+	"assets/js/ui/map.js"];
 
 /** Files the pages need that no fixed path points to (kosher-zmanim.js builds these URLs from its folder). */
 const EXTRA = ["assets/libraries/kosherZmanim/hiloulah-en.json", "assets/libraries/kosherZmanim/hiloulah-he.json"];

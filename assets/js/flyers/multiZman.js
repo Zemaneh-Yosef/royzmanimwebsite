@@ -1,20 +1,20 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
-import { ZemanFunctions, zDTFromFunc, methodNames } from "../ROYZmanim.js";
+import { ZemanFunctions, zDTFromFunc, methodNames } from "../core/ROYZmanim.js";
 import { FLYER_SHITOT } from "../core/zmanimSettings.js";
-import makamObj from "../makamObj.js";
+import makamObj from "../core/makamObj.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
 import { settings } from "../settings/handler.js"
 import { isInIsrael } from "../misc/israel.js";
-import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js"
+import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js"
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";
 
 import {
 	HebrewNumberFormatter, getOrdinal,
 	monthForLocale, daysForLocale
-} from "../WebsiteCalendar.js";
+} from "../core/WebsiteCalendar.js";
 import { he as n2heWords } from "../../libraries/n2words.esm.js";
 
 if (isEmojiSupported("\u{1F60A}") && !isEmojiSupported("\u{1F1E8}\u{1F1ED}")) {

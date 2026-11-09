@@ -2,7 +2,7 @@
 
 import { jCal } from "./base.js";
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import makamObj from "../makamObj.js";
+import makamObj from "../core/makamObj.js";
 
 let melakhaJCal = jCal.shabbat();
 for (const loopJCal = jCal.clone(); !loopJCal.getDate().equals(melakhaJCal.getDate()); loopJCal.forward(5, 1)) {

@@ -16,7 +16,7 @@
  */
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
+import { HebrewNumberFormatter } from "../core/WebsiteCalendar.js";
 import { EARLIEST_DATE, notBeforeEarliest } from "./util.js";
 
 /** @typedef {'gregorian' | 'hebrew-en' | 'hebrew-he'} View */

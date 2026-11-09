@@ -28,8 +28,8 @@ import {
 	createAtmosphere, rayRefraction, seaHorizonAltitude, standardPressure, earthRadiusAtLatitude
 } from "./royzmanim-spa-corrections.js";
 
-/** @typedef {import("../refraction-snapshot.js").AtmosphereSpec} AtmosphereSpec */
-/** @typedef {import("../refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
+/** @typedef {import("../core/refraction-snapshot.js").AtmosphereSpec} AtmosphereSpec */
+/** @typedef {import("../core/refraction-snapshot.js").AtmosphereProvider} AtmosphereProvider */
 /** @typedef {{ latitude: number, height: number }} ObserverLike  astronomy-engine Observer (height = m above sea level) */
 /** @typedef {{ date: Date }} TimeLike  astronomy-engine AstroTime */
 /** @typedef {(observer: any, metersAboveGround: number, time?: any) => number} HorizonTarget */

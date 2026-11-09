@@ -17,7 +17,7 @@ layout: null
 	<link rel="preconnect" href="https://hanetz.royzmanim.com" crossorigin>
 	<link rel="preconnect" href="https://tiles.maps.eox.at" crossorigin>
 	<link rel="modulepreload" href="/assets/libraries/cesium/cesium.js">
-	<link rel="modulepreload" href="/assets/js/horizon-3d.js">
+	<link rel="modulepreload" href="/assets/js/horizon-3d/index.js">
 	<link rel="stylesheet" href="/assets/css/core.css">
 	{% include polyfills.html %}
 	<style>
@@ -241,7 +241,7 @@ layout: null
 	</div>
 
 	<!--
-		Messages with numbers in them. horizon-3d.js copies one into place (show()) and fills its [data-v] slots
+		Messages with numbers in them. horizon-3d/index.js copies one into place (show()) and fills its [data-v] slots
 		with numbers and names only; a [data-part] it is told to drop is removed (an optional clause).
 	-->
 	<template id="msg-errLatLon">
@@ -320,6 +320,6 @@ layout: null
 	</template>
 	<!-- the calendar's zemanim (as /calendar lists them), for "jump to a zman" -->
 	<script id="zmanimData" type="application/json">{{ site.data.zmanim | jsonify }}</script>
-	<script type="module" src="/assets/js/horizon-3d.js"></script>
+	<script type="module" src="/assets/js/horizon-3d/index.js"></script>
 </body>
 </html>

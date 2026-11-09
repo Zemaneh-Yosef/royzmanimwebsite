@@ -3,7 +3,7 @@
 /** @import {gsap as tsGsap} from 'gsap' */
 import { gsap as jsGsap } from "../../libraries/gsap.js";
 
-import { zDTFromFunc } from "../ROYZmanim.js";
+import { zDTFromFunc } from "../core/ROYZmanim.js";
 import { scheduleSettings, zmanCalc, onZmanimUpdate } from "./base.js";
 
 if (!('timers' in window))

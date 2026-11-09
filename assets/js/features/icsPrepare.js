@@ -1,11 +1,11 @@
 // @ts-check
 
-import { getOrdinal } from "../WebsiteCalendar.js";
-import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
+import { getOrdinal } from "../core/WebsiteCalendar.js";
+import { ZemanFunctions, zDTFromFunc } from "../core/ROYZmanim.js";
 import { GeoLocation, Calendar, HiloulahYomiCalculator, Parsha } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import YihudCalendar from "../WebsiteLimudCalendar.js";
-import { providerFromSnapshot } from "../refraction-snapshot.js";
-import { HebrewNumberFormatter as hebNumFormat } from "../WebsiteCalendar.js"
+import YihudCalendar from "../core/WebsiteLimudCalendar.js";
+import { providerFromSnapshot } from "../core/refraction-snapshot.js";
+import { HebrewNumberFormatter as hebNumFormat } from "../core/WebsiteCalendar.js"
 import n2wordsOrdinal from "../misc/n2wordsOrdinal.js";
 import { he as n2heWords } from "../../libraries/n2words.esm.js";
 import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
@@ -30,7 +30,7 @@ const monViewNight = (monthView, calc) =>
  * @param {[string, number, number, number, string]} geoLocationData
  * @param {ConstructorParameters<typeof ZemanFunctions>[1]} config
  * @param {boolean} isIsrael
- * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
+ * @param {Parameters<import("../core/WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} monthView
  * @param {{ language: "he-Latn" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; fasts: Record<string, string>; tahanun: Record<string, string>; refraction?: import("./excelPrepare.js").ExportRefraction; learningTitle: Record<string, { "he-Latn": string; en: string; he: string; }>; }} funcSettings
  */

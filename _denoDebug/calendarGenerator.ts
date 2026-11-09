@@ -1,4 +1,4 @@
-import { ZemanimMathBase } from '../assets/js/ROYZmanim.js';
+import { ZemanimMathBase } from '../assets/js/core/ROYZmanim.js';
 import * as KosherZmanim from '../assets/libraries/kosherZmanim/kosher-zmanim.js'
 import { Temporal } from '../assets/libraries/kosherZmanim/kosher-zmanim.js'
 

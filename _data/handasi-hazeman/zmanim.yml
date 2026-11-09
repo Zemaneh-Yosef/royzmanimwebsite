@@ -1,5 +1,5 @@
 ---
-# Zemanim rows for /handasi-hazeman (pages/handasi-hazeman.html), read by the same zmanimListUpdater.js
+# Zemanim rows for /handasi-hazeman (pages/handasi-hazeman.html), read by the same pages/calendar.js
 # as /calendar. Every timeGetter is a method of the page's calculator class (window.zemanClass).
 - id: alot
   timeGetter: getAlotHashahar

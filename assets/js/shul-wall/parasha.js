@@ -1,7 +1,7 @@
 // @ts-check
 
-import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import { zDTFromFunc } from "../ROYZmanim.js";
+import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
+import { zDTFromFunc } from "../core/ROYZmanim.js";
 import { scheduleSettings, jCal, dtF, zmanCalc, onZmanimUpdate } from "./base.js";
 
 let melakhaJCal = jCal.shabbat();

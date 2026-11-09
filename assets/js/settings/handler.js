@@ -108,7 +108,7 @@ const settings = Object.freeze({
 		/** use the location's elevation for sunrise / sunset; on by default in Israel */
 		useElevation: zemanim.calendarToggle.useElevation,
 	},
-	/** Atmosphere-model options, edited from the location modal (assets/js/location-modal.js) */
+	/** Atmosphere-model options, edited from the location modal (assets/js/ui/location-modal.js) */
 	refraction: zemanim.refraction,
 	customTimes: zemanim.customTimes
 })

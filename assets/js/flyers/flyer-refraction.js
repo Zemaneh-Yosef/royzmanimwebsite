@@ -12,11 +12,11 @@
  * A city whose data can't be loaded falls back to the calculator's standard model (as before).
  */
 
-import { ZemanFunctions } from "../ROYZmanim.js";
-import { loadRefraction } from "../refraction-data.js";
+import { ZemanFunctions } from "../core/ROYZmanim.js";
+import { loadRefraction } from "../astro/refraction-data.js";
 
 /** @typedef {import("../../libraries/kosherZmanim/kosher-zmanim.js").GeoLocation} GeoLocation */
-/** @typedef {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon'>} PlaceRefraction */
+/** @typedef {Pick<import("../core/ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon'>} PlaceRefraction */
 
 /** @type {Map<string, PlaceRefraction>} */
 const byPlace = new Map();
@@ -26,7 +26,7 @@ const placeKey = (geo) => `${geo.getLatitude().toFixed(5)},${geo.getLongitude().
 
 /**
  * One config per (template config, place), so every calculator for a city shares the same ray-trace caches.
- * @type {WeakMap<import("../ROYZmanim.js").ZemanimConfig, Map<string, import("../ROYZmanim.js").ZemanimConfig>>}
+ * @type {WeakMap<import("../core/ROYZmanim.js").ZemanimConfig, Map<string, import("../core/ROYZmanim.js").ZemanimConfig>>}
  */
 const configs = new WeakMap();
 

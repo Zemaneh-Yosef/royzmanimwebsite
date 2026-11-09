@@ -1,10 +1,10 @@
 // @ts-check
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js"
-import { ZemanFunctions, zDTFromFunc } from "../ROYZmanim.js";
+import { ZemanFunctions, zDTFromFunc } from "../core/ROYZmanim.js";
 import { FLYER_SHITOT } from "../core/zmanimSettings.js";
 import { preloadFlyerRefraction, calcFor } from "./flyer-refraction.js";
-import WebsiteLimudCalendar from "../WebsiteCalendar.js"
+import WebsiteLimudCalendar from "../core/WebsiteCalendar.js"
 import { isInIsrael } from "../misc/israel.js";
 
 import {isEmojiSupported} from "../../libraries/is-emoji-supported.js";

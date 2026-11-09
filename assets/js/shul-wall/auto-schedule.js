@@ -1,7 +1,7 @@
 // @ts-check
 
-import WebsiteCalendar from '../WebsiteCalendar.js';
-import { zDTFromFunc } from '../ROYZmanim.js';
+import WebsiteCalendar from '../core/WebsiteCalendar.js';
+import { zDTFromFunc } from '../core/ROYZmanim.js';
 import { jCal, zmanCalc, dtF, scheduleSettings, onZmanimUpdate } from "./base.js";
 
 // better refraction data arrived after the first draw: work out every scheduled time on the page again

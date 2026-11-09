@@ -7,25 +7,25 @@
  * Birkat Halevana range, when the moon is up inside the halachic night (clipped to shkiya -> netz,
  * lechatchila tzet -> alot), with the terrain-aware moon horizon when the refraction server sent one.
  * The glyphs are the print's (moonGlyphSvg), and the begin / end / strict / early-end lines follow the
- * print's handleSingleBL() (features/weeklyPrint/print-web-worker.js).
+ * print's handleSingleBL() (print/weekly/worker.js).
  */
 
 import { moonGlyphSvg } from "../astro/moon.js";
-import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
+import { HebrewNumberFormatter } from "../core/WebsiteCalendar.js";
 import { spawnWorker } from "../misc/worker.js";
 import { settings } from "../settings/handler.js";
-import { loadRefraction, snapshotProvider } from "../refraction-data.js";
+import { loadRefraction, snapshotProvider } from "../astro/refraction-data.js";
 import { optionsOf } from "../core/zmanimSettings.js";
 import { EN, TEXT, levanaWindow, strictLabel as levanaStrictLabel } from "./levanaWindow.js";
 
-/** @typedef {import('./weeklyPrint/moon-birkat-worker.js').MonthResult} MonthResult */
-/** @typedef {import('./weeklyPrint/moon-birkat-worker.js').BirkatRow} BirkatRow */
-/** @typedef {import('./weeklyPrint/moon-birkat-worker.js').MoonEvent} MoonEvent */
-/** @typedef {import('./weeklyPrint/print-web-worker.js').RefractionInit} RefractionInit */
-/** @typedef {import('../zmanimListUpdater.js').default} ZmanimListUpdater */
+/** @typedef {import('../print/weekly/moon-birkat-worker.js').MonthResult} MonthResult */
+/** @typedef {import('../print/weekly/moon-birkat-worker.js').BirkatRow} BirkatRow */
+/** @typedef {import('../print/weekly/moon-birkat-worker.js').MoonEvent} MoonEvent */
+/** @typedef {import('../print/weekly/worker.js').RefractionInit} RefractionInit */
+/** @typedef {import('../pages/calendar.js').default} ZmanimListUpdater */
 /** @typedef {import('./levanaWindow.js').Lang} Lang */
 
-const WORKER_URL = '/assets/js/features/weeklyPrint/moon-birkat-worker.js';
+const WORKER_URL = '/assets/js/print/weekly/moon-birkat-worker.js';
 const GLYPH_SIZE = 40;
 /** Results kept per location / month / refraction state; a page visit rarely needs more than a few. */
 const MAX_CACHED = 12;
@@ -49,7 +49,7 @@ export default class LevanaCard {
 	/** The signature the card is showing (or waiting for). */
 	shownSig = '';
 
-	/** Moon horizon fetched by this card, per place ("lat,lon"). @type {Map<string, import('../refraction-snapshot.js').Horizon | null>} */
+	/** Moon horizon fetched by this card, per place ("lat,lon"). @type {Map<string, import('../core/refraction-snapshot.js').Horizon | null>} */
 	moonHorizons = new Map();
 
 	/** Places whose moon horizon fetch already started. @type {Set<string>} */
@@ -218,7 +218,7 @@ export default class LevanaCard {
 
 	/**
 	 * @param {string} sig
-	 * @param {() => { init: RefractionInit | null, params: import('./weeklyPrint/moon-birkat-worker.js').birkatWorkerParam }} run
+	 * @param {() => { init: RefractionInit | null, params: import('../print/weekly/moon-birkat-worker.js').birkatWorkerParam }} run
 	 */
 	startCompute(sig, run) {
 		/** @type {{ result?: MonthResult, error?: unknown, promise: Promise<MonthResult> }} */

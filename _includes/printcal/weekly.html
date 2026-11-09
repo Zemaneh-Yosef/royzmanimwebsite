@@ -1806,10 +1806,10 @@
 	</div>
 </div>
 
-<script src="/assets/js/features/weeklyPrint/print-export-weekly.js" type="module"></script>
-<script src="/assets/js/features/weeklyPrint/hiloulot-add.js" type="module"></script>
+<script src="/assets/js/print/weekly/export.js" type="module"></script>
+<script src="/assets/js/print/weekly/hiloulot-add.js" type="module"></script>
 <script type="module">
-	import { printConfig } from "/assets/js/features/weeklyPrint/print-config.js";
+	import { printConfig } from "/assets/js/print/weekly/config.js";
 	if ((await printConfig).language == 'en') {
 		const style = document.createElement('style');
 		document.head.appendChild(style);

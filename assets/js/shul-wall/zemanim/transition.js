@@ -1,6 +1,6 @@
 // @ts-check
 
-import { methodNames } from "../../ROYZmanim.js";
+import { methodNames } from "../../core/ROYZmanim.js";
 import { reload } from "../reload.js";
 import { currentZDT, jCal, zmanCalc, dtF, onZmanimUpdate } from "../base.js";
 
@@ -13,7 +13,7 @@ const langList = calList.getAttribute('data-langPull').split(' ')
 
 /**
  * @param {Element} timeSlot
- * @returns {[string, import('../../WebsiteCalendar.js').zmanInfoList]}
+ * @returns {[string, import('../../core/WebsiteCalendar.js').zmanInfoList]}
  */
 function zmanListToFormat (timeSlot) {
 	/** @type {"degrees" | "seasonal"} */

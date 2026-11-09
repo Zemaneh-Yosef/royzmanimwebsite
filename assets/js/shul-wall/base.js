@@ -1,12 +1,12 @@
 // @ts-check
 
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import { ZemanFunctions } from "../ROYZmanim.js";
+import { ZemanFunctions } from "../core/ROYZmanim.js";
 import { zemanimOptionsFromConfig, zemanimConfigFrom } from "../core/zmanimSettings.js";
-import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
 import { languageTag } from "../misc/language.js";
-import { loadRefraction, readCachedRefraction, providerFromCache } from "../refraction-data.js";
+import { loadRefraction, readCachedRefraction, providerFromCache } from "../astro/refraction-data.js";
 
 /** How long reading the stored refraction data may take before the page goes on without it. */
 const REFRACTION_CACHE_WAIT_MS = 4000;
@@ -72,7 +72,7 @@ function onZmanimUpdate(name, render) {
 	zmanimListeners.set(name, render);
 }
 
-/** @param {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} refraction */
+/** @param {Pick<import("../core/ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} refraction */
 function buildZmanCalc(refraction) {
 	// getNetz() ray-traces the visible sunrise from the horizon (replaces the ChaiTables 'ctNetz' data)
 	const calc = new ZemanFunctions(geoLocation,
@@ -109,7 +109,7 @@ async function refreshBase(configText = document.getElementById("zy-scheduleScre
 	// fills the store (IndexedDB) for the next load.
 	const generation = ++baseGeneration;
 	const lat = geoLocation.getLatitude(), lon = geoLocation.getLongitude();
-	/** @type {import("../refraction-data.js").CachedRefraction | null} */
+	/** @type {import("../astro/refraction-data.js").CachedRefraction | null} */
 	const cachedRefraction = await Promise.race([
 		readCachedRefraction(lat, lon).catch(() => null),
 		new Promise((resolve) => setTimeout(() => resolve(null), REFRACTION_CACHE_WAIT_MS))

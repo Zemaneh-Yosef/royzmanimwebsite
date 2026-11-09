@@ -1,8 +1,8 @@
 // @ts-check
 
 import { JewishDate } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import { zDTFromFunc } from "../ROYZmanim.js";
+import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
+import { zDTFromFunc } from "../core/ROYZmanim.js";
 import { scheduleSettings, geoLocation, jCal, zmanCalc, dtF, onZmanimUpdate } from "./base.js";
 
 /** @param {HTMLElement} [fastContainer] */
@@ -263,7 +263,7 @@ function renderSidebar() {
 
 	/** @param {HTMLElement} [tefilahRuleContainer] */
 	function renderSeasonalRules(tefilahRuleContainer) {
-		/** @type {import('../WebsiteCalendar.js').default} */
+		/** @type {import('../core/WebsiteCalendar.js').default} */
 		let calForRules = jCal;
 		if (jCal.getDate().equals(Temporal.Now.plainDateISO(geoLocation.getTimeZone()))
 			&& Temporal.ZonedDateTime.compare(zmanCalc.getTzet(), Temporal.Now.zonedDateTimeISO(geoLocation.getTimeZone())) < 1) {

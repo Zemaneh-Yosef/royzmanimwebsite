@@ -542,7 +542,7 @@ accordian: true
 <script type="module">
 	// @ts-check
 	/*
-	 * This page's rulings: a subclass of ZY's ZemanFunctions, handed to zmanimListUpdater.js through
+	 * This page's rulings: a subclass of ZY's ZemanFunctions, handed to pages/calendar.js through
 	 * window.zemanClass (this module runs before it: module scripts run in document order).
 	 *
 	 * Dawn and nightfall each start from the Gemara's minutes in Jerusalem - 72 before sunrise, 18 after sunset -
@@ -578,10 +578,10 @@ accordian: true
 	 *  Candle lighting / Tzet Shabbat / fast ends   sunset / nightfall
 	 */
 	import * as KosherZmanim from "/assets/libraries/kosherZmanim/kosher-zmanim.js";
-	import { ZemanFunctions, zDTFromFunc } from "/assets/js/ROYZmanim.js";
+	import { ZemanFunctions, zDTFromFunc } from "/assets/js/core/ROYZmanim.js";
 	import { starNightfall, eveningSunAt, sunAltAz, defaultAod, moonFromAstronomy, hazeOn } from "/assets/js/astro/star-nightfall.js";
 	import { glowDepression, jerusalemAir, stationPressure, pressureAt, JERUSALEM } from "/assets/js/astro/horizon-glow.js";
-	import { loadReferenceHaze, readCachedReferenceHaze } from "/assets/js/refraction-data.js";
+	import { loadReferenceHaze, readCachedReferenceHaze } from "/assets/js/astro/refraction-data.js";
 	// moon.js sets Astronomy Engine to the Delta-T the sun calculator uses (see delta-t.js)
 	import { AstronomyImp } from "/assets/js/astro/moon.js";
 
@@ -728,12 +728,12 @@ accordian: true
 	}
 
 	class HandasiHazemanFunctions extends ZemanFunctions {
-		/** zmanimListUpdater.js leaves Rabbenu Tam off the fast cards */
+		/** pages/calendar.js leaves Rabbenu Tam off the fast cards */
 		static hideRT = true;
 
 		/**
 		 * @param {KosherZmanim.GeoLocation} geoLocation
-		 * @param {import("/assets/js/ROYZmanim.js").ZemanimConfig} config
+		 * @param {import("/assets/js/core/ROYZmanim.js").ZemanimConfig} config
 		 * @param {Temporal.PlainDate} [initialDate]
 		 */
 		constructor(geoLocation, config, initialDate) {
@@ -1072,7 +1072,7 @@ accordian: true
 
 	// Jerusalem's average haze: what an earlier visit stored first (a quick IndexedDB read), then (re)load
 	// it - from storage when fresh, else Open-Meteo - and redraw if it changed. Not awaited: window.zemanClass
-	// must be set before zmanimListUpdater.js runs; until the haze arrives dawn is plain 16.04 degrees.
+	// must be set before pages/calendar.js runs; until the haze arrives dawn is plain 16.04 degrees.
 	readCachedReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude)
 		.then(applyJerusalemHaze)
 		.then(() => loadReferenceHaze(JERUSALEM.latitude, JERUSALEM.longitude))
@@ -1176,4 +1176,4 @@ accordian: true
 		}, true);
 	}
 </script>
-<script src="/assets/js/zmanimListUpdater.js" type="module"></script>
+<script src="/assets/js/pages/calendar.js" type="module"></script>

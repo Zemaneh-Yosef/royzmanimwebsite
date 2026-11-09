@@ -1,7 +1,7 @@
 // @ts-check
 
 import * as KosherZmanim from "../../../libraries/kosherZmanim/kosher-zmanim.js";
-import { methodNames } from "../../ROYZmanim.js";
+import { methodNames } from "../../core/ROYZmanim.js";
 import { reload } from "../reload.js";
 import { jCal, zmanCalc, dtF, scheduleSettings, onZmanimUpdate } from "../base.js";
 

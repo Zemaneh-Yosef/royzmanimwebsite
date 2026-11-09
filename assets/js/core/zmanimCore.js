@@ -1,15 +1,15 @@
 // @ts-check
 
 // The zmanim calendar without a page: everything that decides which zemanim a day has and at what time,
-// with no DOM, no localStorage and no window. The calendar (zmanimListUpdater.js, settings/handler.js)
+// with no DOM, no localStorage and no window. The calendar (pages/calendar.js, settings/handler.js)
 // runs on it, and so does the notification server (Zemaneh-Yosef/website-notif), which imports these files
 // at a pinned commit of this repository. Keep it free of browser-only APIs: the server runs it in Deno.
 //
 // Needs a global Temporal (the site's polyfill: assets/libraries/temporal-polyfill/global.min.js).
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import { ZemanFunctions, methodNamesOf } from "../ROYZmanim.js";
-import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
+import { ZemanFunctions, methodNamesOf } from "./ROYZmanim.js";
+import WebsiteLimudCalendar from "./WebsiteLimudCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
 
 import { zemanimOptions, zemanimConfigFrom } from "./zmanimSettings.js";
@@ -27,16 +27,16 @@ export { leadText, notificationText, plainText, notificationTag, placeKey } from
  * The calculator's configuration for a place, as the calendar builds it
  * @param {KosherZmanim.GeoLocation} geoLocation
  * @param {ZemanimSettings} settings
- * @param {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} refraction
+ * @param {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} refraction
  *   from refraction-data.js (loadRefraction / readCachedRefraction); all null = none
- * @returns {{ config: import("../ROYZmanim.js").ZemanimConfig; inIsrael: boolean }}
+ * @returns {{ config: import("./ROYZmanim.js").ZemanimConfig; inIsrael: boolean }}
  */
 export function buildZemanimConfig(geoLocation, settings, refraction) {
 	const inIsrael = isInIsrael(geoLocation.getLatitude(), geoLocation.getLongitude());
 	return { inIsrael, config: zemanimConfigFrom(zemanimOptions(settings, inIsrael), refraction) };
 }
 
-/** @typedef {import("../WebsiteCalendar.js").zmanInfoList} ZmanListEntry */
+/** @typedef {import("./WebsiteCalendar.js").zmanInfoList} ZmanListEntry */
 
 /**
  * The calendar's list of zemanim from `_data/zmanim.yml`: one entry per shita ("latestShma-mga") or per
@@ -108,7 +108,7 @@ export class ZmanimDay {
 	 * @param {ZemanimSettings} options.settings
 	 * @param {Record<string, Readonly<ZmanListEntry>>} options.zmanimList
 	 * @param {[string, Intl.DateTimeFormatOptions]} options.dtF
-	 * @param {Pick<import("../ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} [options.refraction]
+	 * @param {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} [options.refraction]
 	 * @param {Temporal.PlainDate} [options.date] default today at the place
 	 * @param {typeof ZemanFunctions} [options.ZemanClass]
 	 */
