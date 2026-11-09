@@ -876,7 +876,7 @@ async function main() {
 	/** @type {ZmanimDay | null} */
 	let zmanimDay = null;
 	/** The calculator, with this place's refraction data when there is some (as the calendar: its plain times first). */
-	function makeZmanimDay(/** @type {import('./refraction-data.js').RefractionData} */ refraction) {
+	function makeZmanimDay(/** @type {Pick<import("./ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} */ refraction) {
 		zmanimDay = new ZmanimDay({
 			geoLocation: new KosherZmanim.GeoLocation(q.get("locationName") ?? "", lat, lon, elevation, tz),
 			settings, zmanimList: zmanimListFromData(zmanimData), refraction, date,
