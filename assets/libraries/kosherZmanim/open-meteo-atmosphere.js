@@ -22,9 +22,14 @@
  * sunset (sunriseDewC / sunsetDewC, which monthlyClimate() passes on). Twice the archive download.
  *
  * Normals: from Open-Meteo's historical archive (ECMWF ERA5 reanalysis), the average temperature at
- * the time of sunrise and at the time of sunset in each month over the last `years` full years. That is
- * closer to what refraction needs than the monthly-minimum / monthly-mean rule (ChaiTables', and NOAA
- * station normals), which only approximates the temperature at those times.
+ * the time of sunrise and at the time of sunset in each month over the last `years` full years. The
+ * advantage over the monthly-minimum / monthly-mean rule (ChaiTables', and NOAA station normals) is the
+ * time, not the place: that rule ran 1-3.6 C cold in every month at eight US, Israeli and Jordanian
+ * stations, even taken from each station's own observations (2019-23). ERA5 is a ~28 km grid whose
+ * ground can sit hundreds of metres off the real one (245 m at the Dead Sea's south end, 434 m at
+ * Eilat); Open-Meteo moves its air to its own 90 m terrain and returns that height, which the
+ * calculator uses. At those stations it was 0-2.6 C off on average (worst month 4.5 C), about as far
+ * as the rule; each C moves sunrise or sunset by about 1 s.
  *
  * Terms: the free API is for non-commercial use (no ads or subscriptions), up to 10,000 calls a day,
  * 5,000 an hour and 600 a minute per client; heavy requests (many variables or long periods) count
