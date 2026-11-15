@@ -160,7 +160,7 @@ export default class ZmanimList {
 		return 'he';
 	}
 
-	/** Options for loading the weather (refraction-data.js) @returns {{ humidity?: boolean }} */
+	/** Options for loading the weather (refraction-data.js) @returns {{ humidity?: boolean, seaSurface?: boolean }} */
 	refractionOptions() {
 		return {};
 	}

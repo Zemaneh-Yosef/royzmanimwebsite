@@ -19,10 +19,12 @@
  * ones are evicted, and more of them if the browser's quota is hit):
  *   - horizon set + monthly normals: kept until evicted (they don't change for a place)
  *   - forecast snapshot: the provider's results for yesterday .. +FORECAST_DAYS, stamped with when it
- *     was fetched. Fresh (< FORECAST_TTL_MS) -> used with no network at all; older but within
- *     FORECAST_MAX_AGE_MS -> shown at once while a fresh one loads (stale-while-revalidate).
+ *     was fetched. Current (no model behind it has published a newer run since: model-runs.js) -> used
+ *     with no forecast download; older but within FORECAST_MAX_AGE_MS -> shown at once while a new one
+ *     loads (stale-while-revalidate).
  *   - haze (for Tzet by the stars' haze delay, star-nightfall.js): monthly averages + reference (refetched
- *     after HAZE_NORMALS_MAX_AGE_MS), light pollution, and the evening forecast (HAZE_TTL_MS).
+ *     after HAZE_NORMALS_MAX_AGE_MS), light pollution, and the evening forecast (again when CAMS has a
+ *     newer run).
  * Settings stay in localStorage (small, and read synchronously before the page renders). This cache used
  * to live there too (capped at 3 places by localStorage's ~5 MB); what a browser still has there is moved
  * into IndexedDB once and removed from localStorage.
@@ -32,10 +34,11 @@
  */
 
 import { chainProviders } from "./royzmanim-spa-corrections.js";
-import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHasHumidity } from "../core/refraction-snapshot.js";
+import { providerFromNormals, providerFromSnapshot, snapshotProvider, snapshotHasHumidity, snapshotLacksSeaTemperature } from "../core/refraction-snapshot.js";
 import { createAutoAtmosphere } from "./auto-atmosphere.js";
 import { createServerPathAtmosphere } from "./path-atmosphere.js";
-import { fetchOpenMeteoNormals } from "./open-meteo-atmosphere.js";
+import { fetchOpenMeteoNormals, openMeteoBlockedUntil } from "./open-meteo-atmosphere.js";
+import { forecastDomains, hazeDomains, runState } from "./model-runs.js";
 import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf, HorizonPendingError } from "./horizon-client.js";
 import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "./open-meteo-haze.js";
 import { fetchLightPollution } from "./light-pollution-client.js";
@@ -43,7 +46,10 @@ import { fetchLightPollution } from "./light-pollution-client.js";
 /** Root of the refraction server; its API lives under `${REFRACTION_SERVER}/v1/...`. */
 export const REFRACTION_SERVER = "https://hanetz.royzmanim.com/selfhost";
 
-/** A forecast younger than this is used as-is: no request. Weather models update every 1-6 h. */
+/**
+ * A forecast younger than this is used as-is when Open-Meteo's record of the models' runs can't be read
+ * (model-runs.js; otherwise a forecast is old exactly when a newer run is out). Weather models update every 1-6 h.
+ */
 export const FORECAST_TTL_MS = 3 * 60 * 60 * 1000;
 /** Older than TTL but younger than this: shown immediately while a fresh forecast loads. */
 export const FORECAST_MAX_AGE_MS = 48 * 60 * 60 * 1000;
@@ -51,7 +57,7 @@ export const FORECAST_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 const FORECAST_DAYS = 33;
 /** Days, from today, that the day's own weather reaches (Open-Meteo's forecast). */
 export const FORECAST_REACH_DAYS = 16;
-/** The haze forecast (CAMS, two runs a day) is fetched again after this. */
+/** The haze forecast (CAMS, two runs a day) is fetched again after this when CAMS's runs can't be read. */
 export const HAZE_TTL_MS = 6 * 60 * 60 * 1000;
 /** The server's AERONET calibration factor is asked again after this. */
 const HAZE_CALIBRATION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
@@ -132,6 +138,9 @@ export { providerFromNormals, snapshotProvider, providerFromSnapshot } from "../
  * @property {string[]} notes               what could not be loaded, for logging
  * @property {number | null} [horizonRetryS] the server is still computing this place's first horizon: ask
  *   again in this many seconds (the data is otherwise complete, with the stored horizon or none)
+ * @property {number | null} [nextCheckAt] when the next model run (forecast or haze) is due (epoch ms); null =
+ *   unknown (refractionRecheckMs then uses FORECAST_TTL_MS)
+ * @property {number | null} [retryAt] Open-Meteo answered "too many requests": ask again after this (epoch ms)
  */
 
 // ─── IndexedDB plumbing ──────────────────────────────────────────────────────
@@ -442,9 +451,10 @@ async function fetchHazeCalibration(serverUrl, lat, lon, signal) {
 /**
  * Haze for a place: stored parts reused while fresh, the rest fetched. Never throws.
  * @param {number} lat @param {number} lon @param {string} serverUrl @param {string[]} notes
- * @param {{ force?: boolean, signal?: AbortSignal, reference?: boolean }} options
+ * @param {{ force?: boolean, signal?: AbortSignal, reference?: boolean, schedule?: { at: number } }} options
  *   reference: a reference place (loadReferenceHaze): normals and calibration only - no forecast, no light
  *   pollution - stored outside the place index.
+ *   schedule: lowered to when the haze forecast's next run is due.
  * @returns {Promise<HazeData | null>}
  */
 async function loadHaze(lat, lon, serverUrl, notes, options) {
@@ -455,8 +465,11 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 	const now = Date.now();
 	// haze stored before the hourly series were kept is fetched again once
 	const normalsOk = st && st.normals?.aod?.length && now - (st.normalsFetchedAt ?? 0) < HAZE_NORMALS_MAX_AGE_MS;
-	const forecastOk = options.reference || (!options.force && st?.forecastFetchedAt != null && now - st.forecastFetchedAt < HAZE_TTL_MS
-		&& st.forecast !== undefined);
+	// CAMS's forecast: again once CAMS has a newer run (NOAA's stand-in: after HAZE_TTL_MS)
+	const runs = options.reference || st?.forecastFetchedAt == null ? null
+		: st.forecastSource === "gefs" ? { current: now - st.forecastFetchedAt < HAZE_TTL_MS, nextCheckAt: st.forecastFetchedAt + HAZE_TTL_MS }
+		: await runState(hazeDomains(lat, lon), st.forecastFetchedAt, HAZE_TTL_MS);
+	const forecastOk = options.reference || (!options.force && runs?.current === true && st?.forecast !== undefined);
 	const calibrationOk = st?.calibratedAt != null && now - st.calibratedAt < HAZE_CALIBRATION_MAX_AGE_MS;
 	const [normals, fc, blp, scale] = await Promise.all([
 		normalsOk ? null : fetchHazeNormals(lat, lon).catch((/** @type {Error} */ e) => { notes.push(`haze normals: ${e.message}`); return null; }),
@@ -487,6 +500,11 @@ async function loadHaze(lat, lon, serverUrl, notes, options) {
 		// a failed ask is retried on the next load; an answer is kept for HAZE_CALIBRATION_MAX_AGE_MS
 		calibratedAt: scale != null ? now : st?.calibratedAt,
 	};
+	if (options.schedule && !options.reference) {
+		const next = fc ? (fc.src === "gefs" ? { nextCheckAt: now + HAZE_TTL_MS } : await runState(hazeDomains(lat, lon), now, HAZE_TTL_MS))
+			: forecastOk ? runs : null;
+		if (next) options.schedule.at = Math.min(options.schedule.at, next.nextCheckAt);
+	}
 	if (normals || fc || blp != null || scale != null) {
 		// not awaited: the page uses `out` now, storing it can finish in the background
 		if (!options.reference) writeForPlace(id, key, out);
@@ -531,28 +549,25 @@ export function providerFromCache(cached) {
 	return providerFromNormals(cached.normals);
 }
 
-/**
- * Milliseconds until the stored forecast for a place should be re-fetched (0 = now / no forecast).
- * @param {CachedRefraction | null | undefined} cached
- */
-export function forecastStaleIn(cached) {
-	if (!cached?.forecast) return 0;
-	return Math.max(0, cached.forecast.fetchedAt + FORECAST_TTL_MS - Date.now());
-}
-
 /** Floor for the next refraction check (e.g. when offline), so a failure doesn't loop. */
 export const MIN_REFRACTION_RECHECK_MS = 60 * 1000;
 
 /**
- * When a page showing this data should look for newer data: when its forecast turns stale (another tab may
- * have refreshed storage by then, and then no request is made), after a TTL without a forecast (offline),
- * or when the server said to, for a place whose first horizon it is still computing (the stored forecast
- * is reused then, so that is one small request).
+ * When a page showing this data should look for newer data: when the next model run behind its forecast or
+ * haze is due (another tab may have downloaded it by then, and then no request is made), after a TTL without
+ * a forecast (offline), when Open-Meteo said to wait (Retry-After), or when the server said to, for a place
+ * whose first horizon it is still computing (the stored forecast is reused then, so that is one small request).
  * @param {RefractionData} data
  */
 export function refractionRecheckMs(data) {
-	if (data.horizonRetryS)
-		return data.horizonRetryS * 1000;
+	const now = Date.now();
+	const waits = [];
+	if (data.retryAt) waits.push(data.retryAt - now);
+	if (data.horizonRetryS) waits.push(data.horizonRetryS * 1000);
+	if (waits.length)
+		return Math.max(MIN_REFRACTION_RECHECK_MS, Math.min(...waits));
+	if (data.nextCheckAt)
+		return Math.max(MIN_REFRACTION_RECHECK_MS, data.nextCheckAt - now);
 	const staleIn = data.forecastFetchedAt !== null
 		? data.forecastFetchedAt + FORECAST_TTL_MS - Date.now()
 		: FORECAST_TTL_MS;
@@ -587,11 +602,11 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  * Load everything for one spot. Main thread only (uses fetch and, when available, IndexedDB).
  * Never throws for network failures: missing pieces come back null and are listed in `notes`.
  *
- * With a fresh stored forecast (< FORECAST_TTL_MS) no forecast request is made at all.
+ * With a current stored forecast (no newer model run out since it was fetched) no forecast request is made.
  *
  * @param {number} lat @param {number} lon
  * @param {{ serverUrl?: string, prefetch?: { from: Temporal.PlainDate, days: number }, force?: boolean, moon?: boolean,
- *           signal?: AbortSignal, humidity?: boolean, haze?: boolean, typical?: boolean }} [options]
+ *           signal?: AbortSignal, humidity?: boolean, haze?: boolean, typical?: boolean, seaSurface?: boolean }} [options]
  *   prefetch: also load the server's climatology for this range (e.g. a yearly print). Only the server
  *     is asked for it: a fresh stored forecast still saves the Open-Meteo download.
  *   force: ignore the stored forecast and fetch.
@@ -602,21 +617,43 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  *   haze: load the haze data (default true; false skips it and `haze` comes back null).
  *   typical: typical air only - the server's climatology, then the monthly normals - with no forecast, for a
  *     print that runs past the forecast (printNeedsTypicalAir), so all its days use the same kind of air.
+ *   seaSurface: also fetch sea-surface temperatures (for ZemanimConfig.seaSurfaceLayer). A stored forecast
+ *     with water but without them is fetched again.
  * @returns {Promise<RefractionData>}
  */
 export async function loadRefraction(lat, lon, options = {}) {
+	const schedule = { at: Infinity };
+	const data = await loadRefractionNow(lat, lon, options, schedule);
+	if (data.forecastFetchedAt !== null) {
+		// the records were just read for this, so this is no request
+		const runs = await runState(forecastDomains(lat, lon), data.forecastFetchedAt, FORECAST_TTL_MS);
+		schedule.at = Math.min(schedule.at, runs.nextCheckAt);
+	}
+	return { ...data, nextCheckAt: Number.isFinite(schedule.at) ? schedule.at : null, retryAt: openMeteoBlockedUntil() || null };
+}
+
+/**
+ * loadRefraction without the schedule.
+ * @param {number} lat @param {number} lon @param {Parameters<typeof loadRefraction>[2] & {}} options
+ * @param {{ at: number }} schedule lowered to when the haze forecast's next run is due
+ * @returns {Promise<RefractionData>}
+ */
+async function loadRefractionNow(lat, lon, options, schedule) {
 	const serverUrl = options.serverUrl ?? REFRACTION_SERVER;
 	const id = placeId(lat, lon);
 	const cached = await readCachedRefraction(lat, lon);
-	const freshForecast = !options.force && cached?.forecast && forecastStaleIn(cached) > 0
-		&& (!options.humidity || snapshotHasHumidity(cached.forecast.table)) ? cached.forecast : null;
+	const runs = !options.force && cached?.forecast
+		? await runState(forecastDomains(lat, lon), cached.forecast.fetchedAt, FORECAST_TTL_MS) : null;
+	const freshForecast = cached?.forecast && runs?.current
+		&& (!options.humidity || snapshotHasHumidity(cached.forecast.table))
+		&& (!options.seaSurface || !snapshotLacksSeaTemperature(cached.forecast.table)) ? cached.forecast : null;
 	// normals stored without dew points are fetched again when humidity is wanted
 	const usableNormals = options.humidity && cached?.normals && !cached.normals.sunriseDewC ? null : cached?.normals ?? null;
 	/** @type {string[]} */
 	const notes = [];
 	/** @type {Promise<HazeData | null>} */
 	const hazeP = options.haze === false ? Promise.resolve(null)
-		: loadHaze(lat, lon, serverUrl, notes, { force: options.force, signal: options.signal });
+		: loadHaze(lat, lon, serverUrl, notes, { force: options.force, signal: options.signal, schedule });
 
 	// The stored horizon, checked about once a day against the server's terrain for this place and
 	// downloaded again only where that changed
@@ -716,7 +753,7 @@ export async function loadRefraction(lat, lon, options = {}) {
 	// wait: this page already shows the stored forecast / normals while this runs (resetCalendar), and
 	// what follows needs the complete result (snapshot, normals, gotForecast)
 	const atm = await createAutoAtmosphere(lat, lon, { serverUrl, normals: usableNormals, wait: true,
-		openMeteo: options.humidity ? { humidity: true } : undefined })
+		openMeteo: { humidity: !!options.humidity, seaSurfaceTemperature: !!options.seaSurface } })
 		.catch((/** @type {Error} */ e) => { notes.push(`atmosphere: ${e.message}`); return null; });
 	const horizon = await horizonP;
 	if (atm) notes.push(...atm.notes);

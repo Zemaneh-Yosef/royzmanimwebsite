@@ -68,7 +68,8 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
  *           timeoutMs?: number, pathTimeoutMs?: number, wait?: boolean, interim?: boolean,
  *           onUpdate?: (atm: any, what: UpdateKind) => void,
  *           openMeteo?: { forecastUrl?: string, archiveUrl?: string, marineUrl?: string, extraParams?: string,
- *                         models?: string, fallbackModel?: string | null, humidity?: boolean } }} [options]
+ *                         models?: string, fallbackModel?: string | null, humidity?: boolean,
+ *                         seaSurfaceTemperature?: boolean } }} [options]
  *   forecast: 'path' (default) as above; 'nws' / 'open-meteo' force a single-temperature forecast.
  *   serverDays: days of server profiles to load at start (default 31; more with atm.paths.prefetch).
  *   serverEnsemble: also load the server's ensembles (atm.paths.members(date, event); see ensemble.js).

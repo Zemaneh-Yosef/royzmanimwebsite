@@ -556,56 +556,21 @@ function showError(error) {
 }
 
 /**
+ * Ground height (m, never below 0) from the refraction server's terrain (the heights its horizons use), else
+ * the AWS Terrain Tiles; 0 if neither answers.
  * @param {number} lat
- * @param {number} long  
+ * @param {number} long
  */
 async function getAverageElevation(lat, long) {
-	//we make 3 JSON requests to get the elevation data from the 3 different sources on geonames.org and we average the results
-	//whichever is the last one to return will be the one to sum up and divide by the number of elevations to get the average
-
-	const params = new URLSearchParams({
-		'lat': lat.toString(),
-		'lng': long.toString(),
-		'username': 'Elyahu41'
-	});
-
-	/** @type {() => Promise<number>} */
-	const srtm3 = async () => {
-		try {
-			const data = await getJSON("https://secure.geonames.org/srtm3JSON?" + params.toString());
-			return data.srtm3;
-		} catch (e) {
-			console.error("Error with strm3JSON elevation request");
-			console.error(e);
-		}
+	try {
+		const [{ fetchGroundHeight }, { REFRACTION_SERVER }] = await Promise.all([
+			import("../astro/ground-height.js"), import("../astro/refraction-data.js")]);
+		const h = await fetchGroundHeight(REFRACTION_SERVER, lat, long);
+		return Number.isFinite(h) ? Math.max(0, parseFloat(h.toFixed(2))) : 0;
+	} catch (e) {
+		console.error("Ground height lookup failed", e);
+		return 0;
 	}
-
-	/** @type {() => Promise<number>} */
-	const astergdem = async () => {
-		try {
-			const data2 = await getJSON("https://secure.geonames.org/astergdemJSON?" + params.toString());
-			return data2.astergdem;
-		} catch (e) {
-			console.error("Error with astergdemJSON elevation request");
-			console.error(e);
-		}
-	}
-
-	/** @type {() => Promise<number>} */
-	const gtopo30 = async () => {
-		try {
-			const data3 = await getJSON("https://secure.geonames.org/gtopo30JSON?" + params.toString());
-			return data3.gtopo30;
-		} catch (e) {
-			console.error("Error with gtopo30JSON elevation request");
-			console.error(e);
-		}
-	}
-
-	const elevations = (await Promise.all([astergdem(), srtm3(), gtopo30()])).filter(Boolean).filter(num => num > 0)
-	const equation = parseFloat((elevations.length ? elevations.reduce((p, c) => p + c, 0) / elevations.length : 0).toFixed(2));
-
-	return Math.max(equation, 0);
 }
 
 function openCalendarWithLocationInfo() {

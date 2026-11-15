@@ -62,37 +62,100 @@ function hourlySeries(times, values) {
 }
 
 /**
+ * What Open-Meteo last said about this browser's quota (its X-RateLimit-* headers; the forecast API sends them,
+ * the marine and air-quality APIs don't). The headers cover the per-minute window only (600 calls); the hourly
+ * (5,000) and daily (10,000) limits answer 429 with a Retry-After when reached.
+ */
+const quota = { remaining: NaN, resetAt: 0, blockedUntil: 0 };
+
+/**
+ * Calls left in the current per-minute window as far as known: Infinity when no answer has said (none yet, or
+ * the window it spoke of has ended), 0 while a Retry-After is running.
+ */
+export function openMeteoCallsLeft() {
+	const now = Date.now();
+	if (quota.blockedUntil > now) return 0;
+	return Number.isFinite(quota.remaining) && quota.resetAt > now ? quota.remaining : Infinity;
+}
+
+/** When Open-Meteo's last 429 said to ask again (epoch ms), or 0 once that has passed. */
+export function openMeteoBlockedUntil() {
+	return quota.blockedUntil > Date.now() ? quota.blockedUntil : 0;
+}
+
+/** Retry-After at most this long is waited out within the request; a longer one fails it (see OpenMeteoRateLimitError). */
+const MAX_INLINE_WAIT_S = 30;
+
+/** Open-Meteo answered 429 (over a limit): ask again after `retryAfterS` seconds. */
+export class OpenMeteoRateLimitError extends Error {
+	/** @param {string} message @param {number} retryAfterS */
+	constructor(message, retryAfterS) {
+		super(message);
+		this.name = 'OpenMeteoRateLimitError';
+		this.retryAfterS = retryAfterS;
+	}
+}
+
+/** @param {Response} r */
+function noteQuota(r) {
+	const h = (/** @type {string} */ k) => r.headers?.get?.(k);
+	const remaining = Number(h('x-ratelimit-remaining')), reset = Number(h('x-ratelimit-reset'));
+	if (h('x-ratelimit-remaining') != null && Number.isFinite(remaining)) {
+		quota.remaining = remaining;
+		// x-ratelimit-reset: seconds until the window resets
+		quota.resetAt = Date.now() + (Number.isFinite(reset) ? reset : 60) * 1000;
+	}
+}
+
+/**
  * GET a JSON response from Open-Meteo, with clear errors and retries for passing trouble.
  *
  * Open-Meteo sometimes answers a heavy request with HTTP 200 and a plain-text body ("Unexpected error
  * while streaming data: timeoutReached"), typically the first time a model is asked for in a while;
  * the same request usually succeeds seconds later. That, a timeout (the fetch's AbortSignal), a
- * network error, HTTP 429 and HTTP 5xx are retried `retries` times; HTTP 4xx (a bad request, a
- * location outside a model) is not.
+ * network error and HTTP 5xx are retried `retries` times; HTTP 4xx (a bad request, a location outside a
+ * model) is not. HTTP 429 (a limit reached) is retried after its Retry-After when that is short
+ * (MAX_INLINE_WAIT_S); a longer one throws OpenMeteoRateLimitError, and until it has passed every request
+ * fails at once with the same error instead of spending more of the quota.
  * @param {typeof fetch} doFetch @param {string} url
  * @param {{ retries?: number, retryDelayMs?: number }} [options] retries default 1, delay default 2000 ms
  */
 export async function getOpenMeteoJson(doFetch, url, options = {}) {
 	const retries = options.retries ?? 1, delay = options.retryDelayMs ?? 2000;
 	for (let attempt = 0; ; attempt++) {
+		const blocked = openMeteoBlockedUntil();
+		if (blocked) throw new OpenMeteoRateLimitError('Open-Meteo limit reached (waiting for its Retry-After)',
+			Math.ceil((blocked - Date.now()) / 1000));
 		/** @type {boolean} */ let retryable = true;
+		/** @type {number} ms to wait before the retry */ let wait = delay * (attempt + 1);
 		try {
 			const r = await doFetch(url);
+			noteQuota(r);
 			const text = await r.text();
+			if (r.status === 429) {
+				const after = Number(r.headers?.get?.('retry-after'));
+				const s = Number.isFinite(after) && after > 0 ? after : 60;
+				if (s > MAX_INLINE_WAIT_S || attempt >= retries) {
+					quota.blockedUntil = Date.now() + s * 1000;
+					throw new OpenMeteoRateLimitError(`Open-Meteo limit reached (HTTP 429; ask again in ${s} s)`, s);
+				}
+				wait = s * 1000;
+				throw new Error('Open-Meteo limit reached (HTTP 429)');
+			}
 			/** @type {any} */ let j;
 			try { j = JSON.parse(text); }
 			catch {
-				retryable = r.ok || r.status === 429 || r.status >= 500;
+				retryable = r.ok || r.status >= 500;
 				throw new Error(`Open-Meteo request failed (HTTP ${r.status}: ${text.trim().slice(0, 120) || 'empty response'})`);
 			}
 			if (!r.ok || j?.error) {
-				retryable = r.status === 429 || r.status >= 500;
+				retryable = r.status >= 500;
 				throw new Error(`Open-Meteo request failed (HTTP ${r.status}${j?.reason ? `: ${j.reason}` : ''})`);
 			}
 			return j;
 		} catch (e) {
-			if (!retryable || attempt >= retries || globalThis.navigator?.onLine === false) throw e;
-			await new Promise(res => setTimeout(res, delay * (attempt + 1)));
+			if (e instanceof OpenMeteoRateLimitError || !retryable || attempt >= retries || globalThis.navigator?.onLine === false) throw e;
+			await new Promise(res => setTimeout(res, wait));
 		}
 	}
 }

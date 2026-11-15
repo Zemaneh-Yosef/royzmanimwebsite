@@ -95,7 +95,7 @@ export default class zmanimListUpdater extends ZmanimList {
 	}
 
 	refractionOptions() {
-		return { humidity: settings.refraction.humidity() };
+		return { humidity: settings.refraction.humidity(), seaSurface: settings.refraction.seaSurfaceLayer() };
 	}
 
 	locationShown() {

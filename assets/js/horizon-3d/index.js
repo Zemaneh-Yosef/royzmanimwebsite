@@ -935,7 +935,7 @@ async function main() {
 	async function setupZmanim() {
 		if (!zmanimDay) makeZmanimDay(undefined);
 		try {
-			const r = await loadRefraction(lat, lon, { humidity: settings.refraction.humidity() });
+			const r = await loadRefraction(lat, lon, { humidity: settings.refraction.humidity(), seaSurface: settings.refraction.seaSurfaceLayer() });
 			makeZmanimDay({ atmosphereProvider: r.provider, horizon: r.horizon, haze: r.haze });
 		} catch (e) {
 			console.warn("refraction data:", e);       // the calendar's fallback too: the plain times

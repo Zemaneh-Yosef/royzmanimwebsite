@@ -37,15 +37,16 @@
  * level, for a calculator with setHumidity(true) (water vapour in the refractivity; at most a few
  * seconds). About 50% more data per refresh, so ask for it only when it is used.
  *
- * Cost per refresh: two or three requests (forecast for 33 points from the chosen model and from GFS,
- * marine for the sea points); 2-4 MB of JSON (less with compression), roughly 70-140 "calls" of
+ * Cost per refresh: one or two forecast requests for 33 points (the chosen model; GFS only for the days after
+ * where the chosen model may have ended), plus marine for the sea points when sea temperatures are asked for
+ * (options.seaSurfaceTemperature); 1-3 MB of JSON (less with compression), roughly 70-110 "calls" of
  * Open-Meteo's free quota of 10,000 a day per user. A model Open-Meteo has not served for a while can
  * take 30-50 s to answer the first time (seen live); give the request a long timeout (60 s) and run
  * it in the background (auto-atmosphere.js does both). Terms: non-commercial use; credit
  * "Weather data by Open-Meteo.com" (CC BY 4.0).
  */
 
-import { getOpenMeteoJson } from './open-meteo-atmosphere.js';
+import { getOpenMeteoJson, openMeteoCallsLeft } from './open-meteo-atmosphere.js';
 import { correctSunsetPath } from './sunset-air.js';
 
 const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
@@ -61,6 +62,18 @@ export const DEFAULT_LEVELS_MB = [1000, 975, 950, 925, 900, 850, 800, 700];
 export const GEM_LEVELS_MB = [1015, 1000, 985, 970, 950, 925, 900, 875, 850, 800, 700];
 /** Model used where the chosen one ends: consistent at every level for 16 days, everywhere. */
 export const FALLBACK_MODEL = 'gfs_seamless';
+/**
+ * How far ahead of now each chosen model reaches at the least (its run length, less its update interval and the
+ * hours until a run is out): the fallback model is asked only for the days from a day before this on. ICON runs
+ * 180 h every 6 h (out ~4 h later), GEM's GDPS 240 h every 12 h (~6 h later). Seen: ICON 171 h, GEM 232 h ahead.
+ * A model not listed gets the fallback's whole range.
+ */
+const REACH_HOURS = /** @type {Record<string, number>} */ ({ icon_seamless: 160, gem_seamless: 216 });
+/** Calls kept in hand when deciding whether the sea temperatures can be asked for at once (see refresh). */
+const QUOTA_MARGIN = 100;
+
+/** @param {number} ms @returns {string} the UTC date, YYYY-MM-DD */
+const utcDate = (ms) => new Date(ms).toISOString().slice(0, 10);
 
 /**
  * Canada, as a rough outline (lon, lat): the US border to within ~20 km, then the Arctic and the
@@ -218,7 +231,7 @@ function toSeries(json, levels = []) {
  * @param {{ days?: number, distancesKm?: number[], levelsMb?: number[], fetch?: typeof fetch,
  *           forecastUrl?: string, marineUrl?: string, extraParams?: string, models?: string,
  *           fallbackModel?: string | null, retries?: number, humidity?: boolean,
- *           sunsetAirCorrection?: boolean }} [options]
+ *           sunsetAirCorrection?: boolean, seaSurfaceTemperature?: boolean }} [options]
  *   days: forecast days (default 16, Open-Meteo's maximum).
  *   models: 'auto' (default: chooseOpenMeteoModel), 'best_match', or one Open-Meteo model name.
  *   fallbackModel: used where the chosen model ends (default 'gfs_seamless'; null = none).
@@ -228,6 +241,10 @@ function toSeries(json, levels = []) {
  *   forecastUrl / marineUrl / extraParams: e.g. a paid endpoint and "&apikey=...".
  *   sunsetAirCorrection: correct sunset air from a model sunset-air.js has coefficients for (default true;
  *   see sunsetAirModel).
+ *   seaSurfaceTemperature: also fetch the sea-surface temperature of the points on open water (Open-Meteo's
+ *   marine API), for the sea surface layer (ROYSPACalculator.setSeaSurfaceLayer; default false). Without it
+ *   those points are still marked `water` (from their height: the 90 m terrain model puts the sea at 0 m),
+ *   which is all the rest of the calculator needs.
  */
 export async function createOpenMeteoPathAtmosphere(latitude, longitude, options = {}) {
 	const doFetch = options.fetch ?? globalThis.fetch;
@@ -245,6 +262,7 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 	/** @type {Series[]} chosen model */ let fc = [];
 	/** @type {Series[]} fallback model (empty if none / failed) */ let fb = [];
 	/** @type {Map<number, Series>} marine series by point index */ let marine = new Map();
+	/** @type {Set<number>} indices of the points on open water */ let water = new Set();
 	/** @type {Map<string, { path: PathProfile[], key: string } | null>} */ let built = new Map();
 	/** @type {Map<string, string>} model used per event */ let usedModel = new Map();
 	let stamp = '';
@@ -271,44 +289,86 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 			}
 		}
 		const lats = pts.map(p => p[0].toFixed(4)).join(','), lons = pts.map(p => p[1].toFixed(4)).join(',');
-		const fetchModel = async (/** @type {string} */ m) => {
+		/** @param {string} m @param {{ start: number, end: number } | null} [range] dates (epoch ms; default the whole window) */
+		const fetchModel = async (m, range = null) => {
 			const lv = levelsFor(m);
 			const hourly = ['temperature_2m', 'surface_pressure',
 				...lv.map(p => `temperature_${p}hPa`), ...lv.map(p => `geopotential_height_${p}hPa`),
 				...(options.humidity ? ['dew_point_2m', ...lv.map(p => `relative_humidity_${p}hPa`)] : [])];
+			const when = range ? `&start_date=${utcDate(range.start)}&end_date=${utcDate(range.end)}`
+				: `&past_days=1&forecast_days=${days}`;
 			const url = `${options.forecastUrl ?? FORECAST_URL}?latitude=${lats}&longitude=${lons}`
-				+ `&hourly=${hourly.join(',')}&past_days=1&forecast_days=${days}&timeformat=unixtime&timezone=GMT`
+				+ `&hourly=${hourly.join(',')}${when}&timeformat=unixtime&timezone=GMT`
 				+ '&cell_selection=nearest' + (m === 'best_match' ? '' : `&models=${m}`) + (options.extraParams ?? '');
 			const s = toSeries(await getOpenMeteoJson(doFetch, url, json), lv);
 			if (s.length !== pts.length) throw new Error(`Open-Meteo returned ${s.length} locations, expected ${pts.length}`);
 			if (!s[0].times.length) throw new Error(`Open-Meteo returned no hourly data for ${m}`);
 			return s;
 		};
-		// both at once; either alone is still usable
-		const [a, b] = await Promise.allSettled([fetchModel(model), fbModel ? fetchModel(fbModel) : Promise.resolve([])]);
+		/** @param {number[]} idx points @returns {Promise<Map<number, Series>>} sea-surface temperature by point index */
+		const fetchMarine = async (idx) => {
+			const murl = `${options.marineUrl ?? MARINE_URL}?latitude=${idx.map(i => pts[i][0].toFixed(4)).join(',')}`
+				+ `&longitude=${idx.map(i => pts[i][1].toFixed(4)).join(',')}`
+				+ `&hourly=sea_surface_temperature&past_days=1&forecast_days=${Math.min(days, 8)}&timeformat=unixtime&timezone=GMT`
+				+ (options.extraParams ?? '');
+			const ms = toSeries(await getOpenMeteoJson(doFetch, murl, json));
+			/** @type {Map<number, Series>} */
+			const out = new Map();
+			idx.forEach((i, k) => {
+				if (ms[k]?.times.length && (ms[k].cols.sea_surface_temperature ?? []).some((/** @type {any} */ v) => v != null))
+					out.set(i, ms[k]);
+			});
+			return out;
+		};
+
+		// The fallback only where the chosen model may have ended: from a day before its least reach on
+		const reach = REACH_HOURS[model];
+		const fbRange = fbModel && reach ? { start: now + (reach - 24) * 3600000, end: t0 + span - 86400000 } : null;
+		// Sea temperatures for every point at once (land points come back empty) when the minute's quota clearly
+		// allows it, else afterwards for the sea points alone (finding them takes the forecast's heights).
+		// A request costs points x (variables / 10, at least 1) x (days / 14, at least 1) calls.
+		const cost = (/** @type {string} */ m, /** @type {number} */ d) => {
+			const vars = 2 + levelsFor(m).length * (options.humidity ? 3 : 2) + (options.humidity ? 1 : 0);
+			return pts.length * Math.max(1, vars / 10) * Math.max(1, d / 14);
+		};
+		const forecastCost = cost(model, days + 1)
+			+ (fbModel ? cost(fbModel, fbRange ? (fbRange.end - fbRange.start) / 86400000 + 1 : days + 1) : 0);
+		const marineAtOnce = !!options.seaSurfaceTemperature && openMeteoCallsLeft() >= forecastCost + pts.length + QUOTA_MARGIN;
+
+		const [a, b, c] = await Promise.allSettled([
+			fetchModel(model),
+			fbModel ? fetchModel(fbModel, fbRange) : Promise.resolve([]),
+			marineAtOnce ? fetchMarine(pts.map((_, i) => i)) : Promise.resolve(null),
+		]);
 		if (a.status === 'rejected' && (b.status === 'rejected' || !fbModel)) throw a.reason;
 		const newFc = a.status === 'fulfilled' ? a.value : [];
-		const newFb = b.status === 'fulfilled' ? b.value : [];
+		let newFb = b.status === 'fulfilled' ? b.value : [];
 		lastError = a.status === 'rejected' ? a.reason : b.status === 'rejected' ? b.reason : null;
+		// the chosen model failed, or ended before the fallback's days begin: the fallback's whole range after all
+		if (fbModel && fbRange && (!newFc.length || newFc[0].times[newFc[0].times.length - 1] * 1000 < fbRange.start)) {
+			try {
+				newFb = await fetchModel(fbModel);
+			} catch (e) {
+				lastError = /** @type {Error} */ (e);
+				if (!newFc.length) throw e;
+			}
+		}
 		const any = newFc.length ? newFc : newFb;
 
-		// sea-surface temperature where the 90 m terrain model puts the point at sea level (open water)
-		const sea = pts.map((_, i) => i).filter(i => any[i].elevation === 0);
-		const newMarine = new Map();
-		if (sea.length) {
+		// open water: where the 90 m terrain model puts the point at sea level
+		const newWater = new Set(pts.map((_, i) => i).filter(i => any[i].elevation === 0));
+		/** @type {Map<number, Series>} */
+		let newMarine = new Map();
+		if (options.seaSurfaceTemperature && newWater.size) {
 			try {
-				const murl = `${options.marineUrl ?? MARINE_URL}?latitude=${sea.map(i => pts[i][0].toFixed(4)).join(',')}`
-					+ `&longitude=${sea.map(i => pts[i][1].toFixed(4)).join(',')}`
-					+ `&hourly=sea_surface_temperature&past_days=1&forecast_days=${Math.min(days, 8)}&timeformat=unixtime&timezone=GMT`
-					+ (options.extraParams ?? '');
-				const ms = toSeries(await getOpenMeteoJson(doFetch, murl, json));
-				sea.forEach((i, k) => { if (ms[k]?.times.length) newMarine.set(i, ms[k]); });
+				if (c.status === 'rejected') throw c.reason;
+				newMarine = c.value ?? await fetchMarine([...newWater]);
 			} catch (e) {
 				lastError = /** @type {Error} */ (e);                // keep going without water temperatures
 			}
 		}
 		const ends = [newFc, newFb].filter(s => s.length).map(s => s[0].times);
-		fans = newFans; fc = newFc; fb = newFb; marine = newMarine; built = new Map(); usedModel = new Map();
+		fans = newFans; fc = newFc; fb = newFb; marine = newMarine; water = newWater; built = new Map(); usedModel = new Map();
 		fetchedAt = now;
 		coverage = {
 			start: Math.min(...ends.map(ts => ts[0])) * 1000,
@@ -358,10 +418,11 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 		}
 		/** @type {PathProfile} */
 		const prof = { distanceKm, levels: lv };
-		const m = marine.get(i);
-		if (m) {
-			const sst = sstAt(m, t);
-			if (Number.isFinite(sst)) { prof.water = true; prof.skinC = sst; }
+		if (water.has(i)) {
+			prof.water = true;
+			const m = marine.get(i);
+			const sst = m ? sstAt(m, t) : NaN;
+			if (Number.isFinite(sst)) prof.skinC = sst;
 		}
 		return prof;
 	};
@@ -410,8 +471,12 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 		get coverage() { return coverage; },
 		/** the last problem (a failed fallback or marine request) even when the data are usable */
 		get lastError() { return lastError; },
-		/** number of points on open water (sea-surface temperature used) */
-		get seaPoints() { return marine.size; },
+		/** number of points on open water */
+		get seaPoints() { return water.size; },
+		/** number of those with a sea-surface temperature (options.seaSurfaceTemperature) */
+		get seaTemperaturePoints() { return marine.size; },
+		/** whether sea-surface temperatures were asked for */
+		seaSurfaceTemperature: !!options.seaSurfaceTemperature,
 		source: 'open-meteo-path',
 		/** whether dew point / relative humidity were asked for */
 		humidity: !!options.humidity,

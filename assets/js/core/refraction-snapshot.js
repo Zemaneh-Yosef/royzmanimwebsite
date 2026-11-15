@@ -87,6 +87,17 @@ export function snapshotHasHumidity(table) {
 }
 
 /**
+ * Whether a snapshot has open water without a sea-surface temperature (fetched without them: see
+ * loadRefraction's seaSurface).
+ * @param {ProviderSnapshot | null | undefined} table
+ */
+export function snapshotLacksSeaTemperature(table) {
+	for (const spec of Object.values(table ?? {}))
+		if ("path" in spec && spec.path.some(p => p.water && !Number.isFinite(p.skinC))) return true;
+	return false;
+}
+
+/**
  * Rebuild a provider inside a worker from a snapshot, falling back to the normals for dates outside it.
  * @param {ProviderSnapshot | null | undefined} table
  * @param {Normals | null | undefined} normals

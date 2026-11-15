@@ -272,7 +272,8 @@ export default class LevanaCard {
 		loadRefraction(geo.getLatitude(), geo.getLongitude(), {
 			moon: true,
 			haze: false,
-			humidity: settings.refraction.humidity()
+			humidity: settings.refraction.humidity(),
+			seaSurface: settings.refraction.seaSurfaceLayer()
 		}).then(data => {
 			if (!data.horizon?.moon) return;
 			this.moonHorizons.set(placeKey, data.horizon);
