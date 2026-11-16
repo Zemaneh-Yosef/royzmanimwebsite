@@ -1717,9 +1717,30 @@ export default class ROYSPACalculator extends SPACalculator {
 				this._atmosphereProvider = provider;
 			}
 			if (Number.isFinite(t)) {
-				const az0 = this._sunTrue(t / 86400000 + JD_UNIX_EPOCH, geo)[1];
-				const near = pts.filter(p => (p.wins?.[event] ?? []).some(([lo, hi]) =>
-					((az0 - (lo - 3)) % 360 + 360) % 360 <= ((hi + 3 - (lo - 3)) % 360 + 360) % 360));
+				// Over a high horizon the Sun is first (last) seen well past that direction, along its slanted path:
+				// the directions it passes until it stands above the highest of the set's horizons (geometric)
+				const R = this.getEarthRadius() * 1000;
+				let top = -Infinity;
+				for (const p of pts)
+					for (const e of /** @type {DemHorizonPoint[]} */ (p[event]))
+						if ('distanceKm' in e) top = Math.max(top, geometricElevation(p.height, e.heightM, e.distanceKm * 1000, R));
+				const dir = event === 'sunrise' ? 1 : -1, jd0 = t / 86400000 + JD_UNIX_EPOCH;
+				/** @type {[number, number]} */
+				const span = [Infinity, -Infinity];
+				for (let k = 0; k <= 90; k++) {                  // 2-minute steps, up to 3 hours
+					const [alt, az] = this._sunTrue(jd0 + dir * k * 2 / 1440, geo);
+					// unwrapped around the first direction, so a span across north stays one span
+					const a = k === 0 ? az : span[0] === Infinity ? az : az + 360 * Math.round((span[0] - az) / 360);
+					span[0] = Math.min(span[0], a); span[1] = Math.max(span[1], a);
+					if (alt > top + 1) break;
+				}
+				const near = pts.filter(p => (p.wins?.[event] ?? []).some(([lo, hi]) => {
+					const w = ((hi - lo) % 360 + 360) % 360 + 6;              // the window, 3 deg spare each side
+					const from = lo - 3;
+					// the window meets the span when either end of one lies inside the other
+					const inside = (/** @type {number} */ a) => ((a - from) % 360 + 360) % 360 <= w;
+					return inside(span[0]) || inside(span[1]) || ((from - span[0]) % 360 + 360) % 360 <= span[1] - span[0];
+				}));
 				if (near.length) pts = near;
 			}
 		}

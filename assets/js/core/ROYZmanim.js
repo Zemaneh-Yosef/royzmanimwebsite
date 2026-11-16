@@ -359,28 +359,27 @@ class ZemanimMathBase {
 
 		current.hatzoth = this.coreZC.getSunTransit();
 
-		// Dawn: the equinox offset in seasonal time before sunrise, and with degrees never later than the
-		// Sun at 8.5 degrees below the horizon (the longer of the two offsets)
+		// Dawn: the equinox offset in seasonal time before sunrise, and with degrees never after the Sun is 8.5
+		// degrees below the horizon (the earlier of the two). Tzet HaKokhavim below is its mirror image.
 		const seasonalDawn = this.seasonalBefore(current.sunrise, equinox.dawn);
 		const dawnOffset = this.config.fixedMil ? null : this.coreZC.getSunriseOffsetByDegrees(98.5);
 		current.dawn = this.config.fixedMil
 			? seasonalDawn
 			: !dawnOffset
 				? this.coreZC.getSolarMidnight().subtract({ hours: 24 })
-				: earlier(seasonalDawn, current.sunrise.subtract(current.sunrise.since(dawnOffset)));
+				: earlier(seasonalDawn, dawnOffset);
 
 		current.nightfall = this.seasonalAfter(current.sunset, equinox.nightfall);
 
-		// Tzet HaKokhavim: the equinox offset in seasonal time after sunset, with degrees the longer of that and
-		// the second offset. NOTE: that second offset is measured from sunrise to the evening's 8.5 degrees, so
-		// it is negative and the seasonal offset always applies (kept as it was; probably meant from sunset)
+		// Tzet HaKokhavim: the equinox offset (72 minutes at the equinox) in seasonal time after sunset, and with
+		// degrees never before the Sun is 8.5 degrees below the horizon (the later of the two): dawn's mirror image.
 		const seasonalTzet = this.seasonalAfter(current.sunset, equinox.TzetHakokhavim);
 		const tzetOffset = this.config.fixedMil ? null : this.coreZC.getSunsetOffsetByDegrees(98.5);
 		current.tzethakokhavim = this.config.fixedMil
 			? seasonalTzet
 			: !tzetOffset
 				? this.coreZC.getSolarMidnight()
-				: later(seasonalTzet, current.sunset.add(current.sunrise.since(tzetOffset)));
+				: later(seasonalTzet, tzetOffset);
 
 		current.ranges.mga = current.dawn.until(current.tzethakokhavim);
 	}
@@ -707,9 +706,9 @@ class ZemanFunctions extends ZemanimMathBase {
 			.fromEpochMilliseconds(Math.round(ms))
 			.toZonedDateTimeISO(this.coreZC.getGeoLocation().getTimeZone());
 
-		// Same sanity check as with the ChaiTables data: a result more than an hour off is a bad profile
-		if (Math.abs(visible.until(this.timeRange.current.sunrise).total('hour')) > 1)
-			return seaLevel;
+		// No cap on how far it may be from sunrise: below a high horizon it is legitimately later (Gibraltar's town,
+		// under the Rock, by up to two hours). A horizon that can't be the place's terrain is refused when it is
+		// loaded (horizonProblem in atmosphere-guard.js), and then there is no visible sunrise to show.
 
 		return this.visibleSunriseIsEstimate
 			? { time: visible, isVisual: true, estimated: true }

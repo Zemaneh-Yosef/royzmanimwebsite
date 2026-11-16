@@ -45,6 +45,7 @@ import { fetchNearestNormals } from "./nws-atmosphere.js";
 import { forecastDomains, hazeDomains, runState } from "./model-runs.js";
 import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf, areaContains, HorizonPendingError } from "./horizon-client.js";
 import { chooseOpenMeteoModel } from "./open-meteo-path.js";
+import { horizonProblem, report } from "./atmosphere-guard.js";
 import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "./open-meteo-haze.js";
 import { fetchLightPollution } from "./light-pollution-client.js";
 
@@ -600,6 +601,19 @@ export async function readCachedRefraction(lat, lon) {
 }
 
 /**
+ * The horizon if it can be this location's terrain (horizonProblem), else null, reported once.
+ * @template T @param {T | null} horizon @param {number} lat @param {number} lon @param {string} source
+ * @returns {T | null}
+ */
+function guardHorizon(horizon, lat, lon, source) {
+	if (!horizon) return null;
+	const why = horizonProblem(horizon, lat, lon);
+	if (!why) return horizon;
+	report(`${source}: ${why}`, "terrain horizon");
+	return null;
+}
+
+/**
  * What is stored for a location, and the places each kind came from.
  * @param {number} lat @param {number} lon
  * @returns {Promise<{ places: Places, cached: CachedRefraction | null, sky: { blpCdM2: number | null } | null }>}
@@ -616,7 +630,9 @@ async function readStored(lat, lon) {
 	const haze = hazeFromStored(storedHaze, sky?.blpCdM2 ?? null);
 	const normals = storedNormals?.normals ?? null;
 	if (!stat && !forecast && !haze && !normals) return { places, cached: null, sky };
-	return { places, sky, cached: { horizon: stat?.horizon ?? null, normals, forecast, haze,
+	// a damaged stored horizon, or another place's (atmosphere-guard.js), is not used: downloaded again
+	const horizon = guardHorizon(stat?.horizon ?? null, lat, lon, "stored horizon");
+	return { places, sky, cached: { horizon, normals, forecast, haze,
 		terrainCheckedAt: stat?.terrainCheckedAt ?? null } };
 }
 
@@ -889,7 +905,12 @@ async function loadRefractionNow(lat, lon, options, schedule) {
 	/** @param {string} version @returns {Promise<Horizon>} */
 	const fetchHorizon = (version) => fetchHorizonForArea(serverUrl, p.horizon.lat, p.horizon.lon,
 		{ signal: options.signal, version, moon: options.moon, outline: true })
-		.then(h => { terrainCheckedAt = Date.now(); return h; });
+		.then(h => {
+			// a horizon that can't be this place's terrain (atmosphere-guard.js): the stored one, else none
+			if (!guardHorizon(h, lat, lon, "server horizon")) throw new Error("refused (not this place's terrain)");
+			terrainCheckedAt = Date.now();
+			return h;
+		});
 	/** @type {Promise<Horizon | null>} */
 	const horizonP = (!stored
 		? fetchHorizon(TERRAIN_VERSION)

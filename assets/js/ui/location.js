@@ -219,7 +219,7 @@ async function updateList(event) {
 				params.coords.altitude = parseFloat(elements.manual.elevationInput.value);
 			}
 
-			await setLatLong(params, !elements.manual.timezoneSelect.value);
+			await setLatLong(params, !elements.manual.timezoneSelect.value, true);
 			openCalendarWithLocationInfo();
 		}
 	} else {
@@ -482,9 +482,11 @@ function getLocation() {
 }
 
 /**
- * @param {Omit<GeolocationPosition, 'coords'|'toJSON'> & { coords: Partial<GeolocationCoordinates>}} position 
+ * @param {Omit<GeolocationPosition, 'coords'|'toJSON'> & { coords: Partial<GeolocationCoordinates>}} position
+ * @param {boolean} [manual] look the time zone up from the place
+ * @param {boolean} [typed] the visitor typed these coordinates (and maybe a height, kept as given)
  */
-async function setLatLong(position, manual = false) {
+async function setLatLong(position, manual = false, typed = false) {
 	let location;
 	if (!geoLocation.locationName || !geoLocation.timeZone) {
 		try {
@@ -531,11 +533,13 @@ async function setLatLong(position, manual = false) {
 	geoLocation.lat = position.coords.latitude
 	geoLocation.long = position.coords.longitude
 
-	if ('altitude' in position.coords && position.coords.altitude !== null && 'altitudeAccuracy' in position.coords && position.coords.altitudeAccuracy) {
-		geoLocation.elevation = position.coords.altitude
-	} else {
+	// A height the visitor typed (manual entry) is kept. A device's GPS altitude is not used: it is often tens of
+	// metres off, can be below zero near the sea, and is height above the ellipsoid on many phones, not above sea
+	// level. The ground height comes from the same terrain the visible sunrise is computed on.
+	if (typed && Number.isFinite(position.coords.altitude))
+		geoLocation.elevation = Math.max(0, /** @type {number} */ (position.coords.altitude));
+	else
 		geoLocation.elevation = await getAverageElevation(position.coords.latitude, position.coords.longitude);
-	}
 }
 
 /**

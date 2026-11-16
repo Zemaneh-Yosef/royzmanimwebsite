@@ -29,6 +29,15 @@
  *   lowest 15 m in weather models; polar snow, ~25 C in the lowest few hundred metres).
  *   These were checked against 15,427 Bet Dagan radiosondes (1990-2025: only their recorded errors are
  *   refused) and ~150,000 ERA5 columns over the Middle East (none refused).
+ * The terrain horizon the visible sunrise is computed over (horizonProblem) gets the same treatment, stored or
+ * downloaded: a refused horizon is not used (a stored one is downloaded again; without one the zmanim use the
+ * sea-level sunrise, as anywhere the server has no horizon for). It must be this location's - its area contains
+ * it, or its points lie within 5 km of it (the server searches up to 3 km) - and real ground:
+ *   observer and terrain heights   the ground limits above (an observer up to 1,000 m higher: a tower, a plane)
+ *   terrain distances              more than 0 and at most 500 km (the server looks 150 km out)
+ *   terrain angles                 at most 60 deg above the observer's eye level, by geometry alone. The highest
+ *                                  skylines the server finds are ~20 deg (the Rock over Gibraltar's town); a
+ *                                  cliff 1,000 m high a kilometre away, the nearest terrain counted, is 45 deg.
  * And two checks against jumps:
  *   a forecast more than 45 C from the place's normal for that day is refused (the largest anomaly on record,
  *   Antarctica in March 2022, was ~39 C);
@@ -55,18 +64,22 @@ export const LIMITS = Object.freeze({
 	spikeC: 15,
 	spikeMb: 10,
 	profileMaxKm: 1000,
+	observerAboveGroundM: 1000,
+	horizonMaxKm: 500,
+	horizonMaxDeg: 60,
+	horizonPlaceKm: 5,
 });
 
 const RD = 287.05, G = 9.80665;
 
 /** Each refusal is reported once (console.warn), so a bad source shows up in the console without flooding it. */
 const reported = new Set();
-/** @param {string} what */
-export function report(what) {
+/** @param {string} what @param {string} [kind] */
+export function report(what, kind = 'weather data') {
 	if (reported.has(what)) return;
 	reported.add(what);
 	if (reported.size > 200) reported.clear();
-	globalThis.console?.warn?.(`weather data refused: ${what}`);
+	globalThis.console?.warn?.(`${kind} refused: ${what}`);
 }
 
 /** @param {unknown} v @param {[number, number]} range */
@@ -214,6 +227,96 @@ export function cleanSeries(series, kind, source = 'forecast') {
 		return !lone;
 	});
 	return out;
+}
+
+const EARTH_M = 6371000, KM_PER_DEG = 111.195;
+
+/** @type {WeakMap<object, string | null>} */
+const checkedHorizons = new WeakMap();
+/**
+ * Why a horizon set from the server (horizon-client.js) cannot be this location's terrain, or null if it can
+ * (see the header). Checked once per set and location.
+ * @param {any} set @param {number} lat @param {number} lon
+ * @returns {string | null}
+ */
+export function horizonProblem(set, lat, lon) {
+	if (!set || typeof set !== 'object') return 'not a horizon';
+	let byPlace = /** @type {any} */ (checkedHorizons.get(set));
+	if (!byPlace) checkedHorizons.set(set, byPlace = new Map());
+	const key = `${lat},${lon}`;
+	let r = byPlace.get(key);
+	if (r === undefined) byPlace.set(key, r = checkHorizon(set, lat, lon));
+	return r;
+}
+
+/** @param {any} set @param {number} lat @param {number} lon @returns {string | null} */
+function checkHorizon(set, lat, lon) {
+	const points = set.points;
+	if (!Array.isArray(points) || !points.length) return 'no points';
+	const placeDeg = LIMITS.horizonPlaceKm / KM_PER_DEG;
+	const b = set.area?.bbox;
+	// in an area: the location inside its box, the points too (the vantage grid, 100 m, may reach a little past
+	// it); elsewhere the points around the location
+	const box = Array.isArray(b) && b.length === 4 && b.every(Number.isFinite) ? b : null;
+	if (box) {
+		const m = 1 / KM_PER_DEG, cos = Math.max(0.01, Math.cos(lat * Math.PI / 180));
+		if (!(lat >= box[0] - m && lat <= box[2] + m && lon >= box[1] - m / cos && lon <= box[3] + m / cos))
+			return `area ${set.area.name ?? set.area.id ?? ''} [${box}] does not contain ${lat}, ${lon}`;
+	}
+	for (const p of points) {
+		if (!within(p?.lat, [-90, 90]) || !within(p?.lon, [-180, 180])) return `observer at ${p?.lat}, ${p?.lon}`;
+		if (box) {
+			const m = 1 / KM_PER_DEG, cos = Math.max(0.01, Math.cos(p.lat * Math.PI / 180));
+			if (!(p.lat >= box[0] - m && p.lat <= box[2] + m && p.lon >= box[1] - m / cos && p.lon <= box[3] + m / cos))
+				return `observer at ${p.lat}, ${p.lon}, outside its area`;
+		} else {
+			const dy = p.lat - lat, dx = (((p.lon - lon) % 360 + 540) % 360 - 180) * Math.cos(lat * Math.PI / 180);
+			if (Math.hypot(dx, dy) > placeDeg) return `observer at ${p.lat}, ${p.lon}, more than ${LIMITS.horizonPlaceKm} km from ${lat}, ${lon}`;
+		}
+		const ground = p.ground ?? p.height;
+		if (!within(ground, /** @type {[number, number]} */ (LIMITS.groundM))) return `ground ${ground} m at ${p.lat}, ${p.lon}`;
+		if (!within(p.height, [LIMITS.groundM[0], LIMITS.groundM[1] + LIMITS.observerAboveGroundM]))
+			return `observer ${p.height} m at ${p.lat}, ${p.lon}`;
+		for (const event of ['sunrise', 'sunset']) {
+			const entries = p[event];
+			if (entries == null) continue;
+			if (!Array.isArray(entries)) return `${event} horizon at ${p.lat}, ${p.lon}`;
+			for (const e of entries) {
+				if (!within(e?.azimuthDeg, [-360, 720])) return `${event} azimuth ${e?.azimuthDeg}`;
+				// a measured horizon (an apparent angle) instead of terrain
+				if (e.distanceKm === undefined && 'elevationDeg' in e) {
+					if (!within(e.elevationDeg, [-90, LIMITS.horizonMaxDeg])) return `${event} horizon ${e.elevationDeg} deg at ${e.azimuthDeg}`;
+					continue;
+				}
+				const why = terrainPointProblem(p.height, e.distanceKm, e.heightM)
+					?? (Array.isArray(e.alternates) ? e.alternates.map(([d, h]) => terrainPointProblem(p.height, d, h)).find(x => x) : null)
+					?? (e.floorM != null && !within(e.floorM, /** @type {[number, number]} */ (LIMITS.groundM)) ? `floor ${e.floorM} m` : null);
+				if (why) return `${event} horizon at ${e.azimuthDeg} deg from ${p.lat}, ${p.lon}: ${why}`;
+			}
+		}
+	}
+	// the composite moon horizon: each direction seen from its own spot's eye (observerM)
+	for (const event of ['moonrise', 'moonset']) {
+		const entries = set.moon?.[event];
+		if (!Array.isArray(entries)) continue;
+		for (const e of entries) {
+			if (!within(e?.observerM, [LIMITS.groundM[0], LIMITS.groundM[1] + LIMITS.observerAboveGroundM])) return `${event} observer ${e?.observerM} m`;
+			const why = terrainPointProblem(e.observerM, e.distanceKm, e.heightM);
+			if (why) return `${event} horizon at ${e.azimuthDeg} deg: ${why}`;
+		}
+	}
+	return null;
+}
+
+/** Why a terrain point (km, m) seen from an eye at eyeM cannot be real ground, or null. @param {number} eyeM @param {unknown} km @param {unknown} hM */
+function terrainPointProblem(eyeM, km, hM) {
+	if (!within(km, [0, LIMITS.horizonMaxKm]) || km === 0) return `distance ${km} km`;
+	if (!within(hM, /** @type {[number, number]} */ (LIMITS.groundM))) return `terrain ${hM} m`;
+	// geometric angle above the eye's level, the Earth's curvature included
+	const d = /** @type {number} */ (km) * 1000, th = d / EARTH_M;
+	const r1 = EARTH_M + eyeM, r2 = EARTH_M + /** @type {number} */ (hM);
+	const deg = Math.atan2(r2 * Math.cos(th) - r1, r2 * Math.sin(th)) * 180 / Math.PI;
+	return deg > LIMITS.horizonMaxDeg ? `${hM} m at ${km} km is ${deg.toFixed(1)} deg up` : null;
 }
 
 /** An aerosol optical depth if it can be real, else null. @param {unknown} v */

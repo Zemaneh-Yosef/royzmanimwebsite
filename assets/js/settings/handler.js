@@ -60,7 +60,8 @@ const settings = Object.freeze({
 		name: () => settingsURLOverride("locationName"),
 		lat: () => parseFloat(settingsURLOverride("lat")),
 		long: () => parseFloat(settingsURLOverride("long")),
-		elevation: () => parseFloat(settingsURLOverride("elevation")) || 0,
+		// never below 0: KosherJava's GeoLocation refuses it (an old link or a hand-edited URL would stop the page)
+		elevation: () => Math.max(0, parseFloat(settingsURLOverride("elevation")) || 0),
 		timezone: () => {
 			if (settingsURLOverride("timeZone")) {
 				if (!Intl.supportedValuesOf('timeZone').includes(settingsURLOverride("timeZone"))

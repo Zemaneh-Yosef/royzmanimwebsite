@@ -619,6 +619,8 @@ export default class LocationModal {
 				error = { he: "קו האורך חייב להיות בין ‎-180 ל-180.", "he-Latn": "Longitude must be between -180 and 180." };
 			else if (!Number.isFinite(elevation))
 				error = { he: "הגובה אינו מספר.", "he-Latn": "Elevation is not a number." };
+			else if (elevation < 0)
+				error = { he: "הגובה אינו יכול להיות מתחת לפני הים.", "he-Latn": "Elevation cannot be below sea level." };
 			else if (!isValidTimeZone(timeZone))
 				error = { he: "אזור הזמן אינו מוכר.", "he-Latn": "Unknown timezone." };
 
