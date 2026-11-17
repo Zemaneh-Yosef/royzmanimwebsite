@@ -1,0 +1,4922 @@
+[
+ {
+  "name": "Jerusalem, Jaffa Rd",
+  "lat": 31.7833,
+  "lon": 35.2167,
+  "tz": "Asia/Jerusalem",
+  "ground": 798.8,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 136.3,
+     "Mar/Sep": 85.4,
+     "Jun": 86.6
+    },
+    "sunset": {
+     "Dec": 776.9,
+     "Mar/Sep": 800.3,
+     "Jun": 800.3
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 141.0,
+     "Mar/Sep": 118.5,
+     "Jun": 210.5
+    },
+    "sunset": {
+     "Dec": 777.0,
+     "Mar/Sep": 800.3,
+     "Jun": 800.3
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 141.0,
+     "Mar/Sep": 163.8,
+     "Jun": 236.1
+    },
+    "sunset": {
+     "Dec": 777.9,
+     "Mar/Sep": 800.3,
+     "Jun": 800.3
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 144.3,
+     "Mar/Sep": 228.8,
+     "Jun": 248.0
+    },
+    "sunset": {
+     "Dec": 777.9,
+     "Mar/Sep": 800.3,
+     "Jun": 800.3
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 168.3,
+     "Mar/Sep": 289.1,
+     "Jun": 285.4
+    },
+    "sunset": {
+     "Dec": 777.9,
+     "Mar/Sep": 800.3,
+     "Jun": 800.3
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 205.5,
+     "Mar/Sep": 297.1,
+     "Jun": 297.1
+    },
+    "sunset": {
+     "Dec": 800.1,
+     "Mar/Sep": 800.3,
+     "Jun": 800.3
+    }
+   }
+  }
+ },
+ {
+  "name": "Haifa, Carmel Centre",
+  "lat": 32.803,
+  "lon": 34.987,
+  "tz": "Asia/Jerusalem",
+  "ground": 283.2,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0.6,
+     "Mar/Sep": 49.3,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 284.8,
+     "Mar/Sep": 284.8,
+     "Jun": 284.8
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 28.9,
+     "Mar/Sep": 51.0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 284.8,
+     "Mar/Sep": 284.8,
+     "Jun": 284.8
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 40.0,
+     "Mar/Sep": 52.1,
+     "Jun": 4.2
+    },
+    "sunset": {
+     "Dec": 284.8,
+     "Mar/Sep": 284.8,
+     "Jun": 284.8
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 48.3,
+     "Mar/Sep": 53.4,
+     "Jun": 9.7
+    },
+    "sunset": {
+     "Dec": 284.8,
+     "Mar/Sep": 284.8,
+     "Jun": 284.8
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 54.2,
+     "Mar/Sep": 55.4,
+     "Jun": 12.7
+    },
+    "sunset": {
+     "Dec": 284.8,
+     "Mar/Sep": 284.8,
+     "Jun": 284.8
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 59.5,
+     "Mar/Sep": 58.5,
+     "Jun": 12.8
+    },
+    "sunset": {
+     "Dec": 284.8,
+     "Mar/Sep": 284.8,
+     "Jun": 284.8
+    }
+   }
+  }
+ },
+ {
+  "name": "Tel Aviv, Dizengoff Sq.",
+  "lat": 32.0778,
+  "lon": 34.7741,
+  "tz": "Asia/Jerusalem",
+  "ground": 12.9,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 14.6,
+     "Mar/Sep": 14.6,
+     "Jun": 14.6
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 14.6,
+     "Mar/Sep": 14.6,
+     "Jun": 14.6
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 14.6,
+     "Mar/Sep": 14.6,
+     "Jun": 14.6
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 12.0,
+     "Mar/Sep": 7.1,
+     "Jun": 14.6
+    },
+    "sunset": {
+     "Dec": 14.6,
+     "Mar/Sep": 14.6,
+     "Jun": 14.6
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 14.6,
+     "Mar/Sep": 8.5,
+     "Jun": 14.6
+    },
+    "sunset": {
+     "Dec": 14.6,
+     "Mar/Sep": 14.6,
+     "Jun": 14.6
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 14.6,
+     "Mar/Sep": 10.1,
+     "Jun": 14.6
+    },
+    "sunset": {
+     "Dec": 14.6,
+     "Mar/Sep": 14.6,
+     "Jun": 14.6
+    }
+   }
+  }
+ },
+ {
+  "name": "Beit Shemesh",
+  "lat": 31.747,
+  "lon": 34.988,
+  "tz": "Asia/Jerusalem",
+  "ground": 264.5,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0.1,
+     "Mar/Sep": 0.1,
+     "Jun": 3.9
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 16.8
+    },
+    "sunset": {
+     "Dec": 145.1,
+     "Mar/Sep": 266.1,
+     "Jun": 266.1
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 4.8,
+     "Mar/Sep": 0,
+     "Jun": 31.5
+    },
+    "sunset": {
+     "Dec": 210.6,
+     "Mar/Sep": 266.1,
+     "Jun": 266.1
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 5.1,
+     "Mar/Sep": 0.8,
+     "Jun": 36.0
+    },
+    "sunset": {
+     "Dec": 234.0,
+     "Mar/Sep": 266.1,
+     "Jun": 266.1
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 10.6,
+     "Mar/Sep": 9.1,
+     "Jun": 40.5
+    },
+    "sunset": {
+     "Dec": 264.9,
+     "Mar/Sep": 266.1,
+     "Jun": 266.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 15.6,
+     "Mar/Sep": 9.8,
+     "Jun": 41.0
+    },
+    "sunset": {
+     "Dec": 266.1,
+     "Mar/Sep": 266.1,
+     "Jun": 266.1
+    }
+   }
+  }
+ },
+ {
+  "name": "Safed",
+  "lat": 32.965,
+  "lon": 35.496,
+  "tz": "Asia/Jerusalem",
+  "ground": 777.2,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 93.4,
+     "Mar/Sep": 102.4,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 778.7,
+     "Mar/Sep": 778.7,
+     "Jun": 562.4
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 117.5,
+     "Mar/Sep": 135.9,
+     "Jun": 31.5
+    },
+    "sunset": {
+     "Dec": 778.7,
+     "Mar/Sep": 778.7,
+     "Jun": 778.7
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 160.9,
+     "Mar/Sep": 167.3,
+     "Jun": 107.2
+    },
+    "sunset": {
+     "Dec": 778.7,
+     "Mar/Sep": 778.7,
+     "Jun": 778.7
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 180.5,
+     "Mar/Sep": 195.8,
+     "Jun": 153.6
+    },
+    "sunset": {
+     "Dec": 778.7,
+     "Mar/Sep": 778.7,
+     "Jun": 778.7
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 206.3,
+     "Mar/Sep": 195.8,
+     "Jun": 180.8
+    },
+    "sunset": {
+     "Dec": 778.7,
+     "Mar/Sep": 778.7,
+     "Jun": 778.7
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 220.6,
+     "Mar/Sep": 196.7,
+     "Jun": 183.4
+    },
+    "sunset": {
+     "Dec": 778.7,
+     "Mar/Sep": 778.7,
+     "Jun": 778.7
+    }
+   }
+  }
+ },
+ {
+  "name": "Katzrin",
+  "lat": 32.993,
+  "lon": 35.69,
+  "tz": "Asia/Jerusalem",
+  "ground": 320.5,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 149.1,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 293.5,
+     "Mar/Sep": 275.5,
+     "Jun": 276.7
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 322.1,
+     "Mar/Sep": 322.1,
+     "Jun": 285.9
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 322.1,
+     "Mar/Sep": 322.1,
+     "Jun": 322.1
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 322.1,
+     "Mar/Sep": 322.1,
+     "Jun": 322.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 322.1,
+     "Mar/Sep": 322.1,
+     "Jun": 322.1
+    }
+   }
+  }
+ },
+ {
+  "name": "Tiberias, lakeside",
+  "lat": 32.788,
+  "lon": 35.542,
+  "tz": "Asia/Jerusalem",
+  "ground": -203.2,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "Ariel",
+  "lat": 32.105,
+  "lon": 35.175,
+  "tz": "Asia/Jerusalem",
+  "ground": 563.6,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 12.7,
+     "Mar/Sep": 15.3,
+     "Jun": 14.3
+    },
+    "sunset": {
+     "Dec": 565.1,
+     "Mar/Sep": 565.1,
+     "Jun": 565.1
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 19.6,
+     "Mar/Sep": 56.6,
+     "Jun": 82.3
+    },
+    "sunset": {
+     "Dec": 565.1,
+     "Mar/Sep": 565.1,
+     "Jun": 565.1
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 35.0,
+     "Mar/Sep": 69.1,
+     "Jun": 106.5
+    },
+    "sunset": {
+     "Dec": 565.1,
+     "Mar/Sep": 565.1,
+     "Jun": 565.1
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 64.6,
+     "Mar/Sep": 75.6,
+     "Jun": 118.7
+    },
+    "sunset": {
+     "Dec": 565.1,
+     "Mar/Sep": 565.1,
+     "Jun": 565.1
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 98.3,
+     "Mar/Sep": 90.4,
+     "Jun": 124.4
+    },
+    "sunset": {
+     "Dec": 565.1,
+     "Mar/Sep": 565.1,
+     "Jun": 565.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 101.0,
+     "Mar/Sep": 93.3,
+     "Jun": 134.1
+    },
+    "sunset": {
+     "Dec": 565.1,
+     "Mar/Sep": 565.1,
+     "Jun": 565.1
+    }
+   }
+  }
+ },
+ {
+  "name": "Bnei Brak",
+  "lat": 32.083,
+  "lon": 34.833,
+  "tz": "Asia/Jerusalem",
+  "ground": 46.0,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 47.7,
+     "Mar/Sep": 47.7,
+     "Jun": 47.7
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 47.7,
+     "Mar/Sep": 47.7,
+     "Jun": 47.7
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 1.4,
+     "Mar/Sep": 1.8,
+     "Jun": 15.9
+    },
+    "sunset": {
+     "Dec": 47.7,
+     "Mar/Sep": 47.7,
+     "Jun": 47.7
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 6.9,
+     "Mar/Sep": 3.2,
+     "Jun": 20.3
+    },
+    "sunset": {
+     "Dec": 47.7,
+     "Mar/Sep": 47.7,
+     "Jun": 47.7
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 14.7,
+     "Mar/Sep": 3.3,
+     "Jun": 23.0
+    },
+    "sunset": {
+     "Dec": 47.7,
+     "Mar/Sep": 47.7,
+     "Jun": 47.7
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 15.5,
+     "Mar/Sep": 3.3,
+     "Jun": 26.9
+    },
+    "sunset": {
+     "Dec": 47.7,
+     "Mar/Sep": 47.7,
+     "Jun": 47.7
+    }
+   }
+  }
+ },
+ {
+  "name": "Modi'in",
+  "lat": 31.898,
+  "lon": 35.01,
+  "tz": "Asia/Jerusalem",
+  "ground": 229.9,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 218.4,
+     "Mar/Sep": 231.5,
+     "Jun": 231.5
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 20.0
+    },
+    "sunset": {
+     "Dec": 218.7,
+     "Mar/Sep": 231.5,
+     "Jun": 231.5
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 2.2,
+     "Mar/Sep": 0,
+     "Jun": 27.8
+    },
+    "sunset": {
+     "Dec": 218.7,
+     "Mar/Sep": 231.5,
+     "Jun": 231.5
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 9.5,
+     "Mar/Sep": 0.3,
+     "Jun": 28.3
+    },
+    "sunset": {
+     "Dec": 218.7,
+     "Mar/Sep": 231.5,
+     "Jun": 231.5
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 12.3,
+     "Mar/Sep": 4.0,
+     "Jun": 28.3
+    },
+    "sunset": {
+     "Dec": 231.5,
+     "Mar/Sep": 231.5,
+     "Jun": 231.5
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 12.3,
+     "Mar/Sep": 4.9,
+     "Jun": 28.3
+    },
+    "sunset": {
+     "Dec": 231.5,
+     "Mar/Sep": 231.5,
+     "Jun": 231.5
+    }
+   }
+  }
+ },
+ {
+  "name": "Beitar Illit",
+  "lat": 31.698,
+  "lon": 35.115,
+  "tz": "Asia/Jerusalem",
+  "ground": 660.8,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 61.2,
+     "Mar/Sep": 38.9,
+     "Jun": 49.1
+    },
+    "sunset": {
+     "Dec": 611.0,
+     "Mar/Sep": 662.3,
+     "Jun": 662.3
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 74.8,
+     "Mar/Sep": 61.3,
+     "Jun": 115.4
+    },
+    "sunset": {
+     "Dec": 612.8,
+     "Mar/Sep": 662.3,
+     "Jun": 662.3
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 75.4,
+     "Mar/Sep": 79.8,
+     "Jun": 145.3
+    },
+    "sunset": {
+     "Dec": 612.8,
+     "Mar/Sep": 662.3,
+     "Jun": 662.3
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 78.4,
+     "Mar/Sep": 118.1,
+     "Jun": 154.2
+    },
+    "sunset": {
+     "Dec": 612.8,
+     "Mar/Sep": 662.3,
+     "Jun": 662.3
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 81.0,
+     "Mar/Sep": 164.4,
+     "Jun": 186.6
+    },
+    "sunset": {
+     "Dec": 612.8,
+     "Mar/Sep": 662.3,
+     "Jun": 662.3
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 122.1,
+     "Mar/Sep": 169.5,
+     "Jun": 192.6
+    },
+    "sunset": {
+     "Dec": 637.8,
+     "Mar/Sep": 662.3,
+     "Jun": 662.3
+    }
+   }
+  }
+ },
+ {
+  "name": "Efrat",
+  "lat": 31.655,
+  "lon": 35.15,
+  "tz": "Asia/Jerusalem",
+  "ground": 921.6,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 208.4,
+     "Mar/Sep": 217.8,
+     "Jun": 177.9
+    },
+    "sunset": {
+     "Dec": 869.3,
+     "Mar/Sep": 923.0,
+     "Jun": 923.0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 211.9,
+     "Mar/Sep": 229.4,
+     "Jun": 263.7
+    },
+    "sunset": {
+     "Dec": 870.5,
+     "Mar/Sep": 923.0,
+     "Jun": 923.0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 215.0,
+     "Mar/Sep": 265.0,
+     "Jun": 308.3
+    },
+    "sunset": {
+     "Dec": 870.5,
+     "Mar/Sep": 923.0,
+     "Jun": 923.0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 217.5,
+     "Mar/Sep": 318.2,
+     "Jun": 360.0
+    },
+    "sunset": {
+     "Dec": 870.6,
+     "Mar/Sep": 923.0,
+     "Jun": 923.0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 231.2,
+     "Mar/Sep": 365.2,
+     "Jun": 403.7
+    },
+    "sunset": {
+     "Dec": 873.5,
+     "Mar/Sep": 923.0,
+     "Jun": 923.0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 283.0,
+     "Mar/Sep": 392.8,
+     "Jun": 420.8
+    },
+    "sunset": {
+     "Dec": 873.5,
+     "Mar/Sep": 923.0,
+     "Jun": 923.0
+    }
+   }
+  }
+ },
+ {
+  "name": "Ma'ale Adumim",
+  "lat": 31.777,
+  "lon": 35.3,
+  "tz": "Asia/Jerusalem",
+  "ground": 478.7,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0.2,
+     "Mar/Sep": 0,
+     "Jun": 6.8
+    },
+    "sunset": {
+     "Dec": 162.9,
+     "Mar/Sep": 353.7,
+     "Jun": 470.2
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 2.4,
+     "Mar/Sep": 0,
+     "Jun": 17.3
+    },
+    "sunset": {
+     "Dec": 325.2,
+     "Mar/Sep": 480.3,
+     "Jun": 480.3
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 9.4,
+     "Mar/Sep": 2.0,
+     "Jun": 18.8
+    },
+    "sunset": {
+     "Dec": 406.1,
+     "Mar/Sep": 480.3,
+     "Jun": 480.3
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 14.5,
+     "Mar/Sep": 19.3,
+     "Jun": 34.3
+    },
+    "sunset": {
+     "Dec": 435.0,
+     "Mar/Sep": 480.3,
+     "Jun": 480.3
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 27.3,
+     "Mar/Sep": 19.5,
+     "Jun": 35.2
+    },
+    "sunset": {
+     "Dec": 480.3,
+     "Mar/Sep": 480.3,
+     "Jun": 480.3
+    }
+   }
+  }
+ },
+ {
+  "name": "Kiryat Arba",
+  "lat": 31.535,
+  "lon": 35.12,
+  "tz": "Asia/Jerusalem",
+  "ground": 935.4,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 155.7,
+     "Mar/Sep": 236.5,
+     "Jun": 182.6
+    },
+    "sunset": {
+     "Dec": 847.9,
+     "Mar/Sep": 936.8,
+     "Jun": 936.8
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 191.1,
+     "Mar/Sep": 251.1,
+     "Jun": 249.0
+    },
+    "sunset": {
+     "Dec": 851.8,
+     "Mar/Sep": 936.8,
+     "Jun": 936.8
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 206.4,
+     "Mar/Sep": 251.1,
+     "Jun": 295.3
+    },
+    "sunset": {
+     "Dec": 852.3,
+     "Mar/Sep": 936.8,
+     "Jun": 936.8
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 207.9,
+     "Mar/Sep": 271.4,
+     "Jun": 369.9
+    },
+    "sunset": {
+     "Dec": 854.7,
+     "Mar/Sep": 936.8,
+     "Jun": 936.8
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 224.9,
+     "Mar/Sep": 303.7,
+     "Jun": 429.5
+    },
+    "sunset": {
+     "Dec": 854.7,
+     "Mar/Sep": 936.8,
+     "Jun": 936.8
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 258.7,
+     "Mar/Sep": 341.3,
+     "Jun": 434.4
+    },
+    "sunset": {
+     "Dec": 856.7,
+     "Mar/Sep": 936.8,
+     "Jun": 936.8
+    }
+   }
+  }
+ },
+ {
+  "name": "Arad",
+  "lat": 31.259,
+  "lon": 35.214,
+  "tz": "Asia/Jerusalem",
+  "ground": 605.9,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 47.7
+    },
+    "sunset": {
+     "Dec": 246.3,
+     "Mar/Sep": 318.7,
+     "Jun": 42.7
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 1.6,
+     "Mar/Sep": 0.1,
+     "Jun": 49.3
+    },
+    "sunset": {
+     "Dec": 344.9,
+     "Mar/Sep": 431.4,
+     "Jun": 340.8
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 3.0,
+     "Mar/Sep": 6.6,
+     "Jun": 49.3
+    },
+    "sunset": {
+     "Dec": 366.1,
+     "Mar/Sep": 508.4,
+     "Jun": 545.4
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 4.4,
+     "Mar/Sep": 11.4,
+     "Jun": 91.5
+    },
+    "sunset": {
+     "Dec": 400.8,
+     "Mar/Sep": 528.6,
+     "Jun": 596.7
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 4.8,
+     "Mar/Sep": 17.1,
+     "Jun": 128.7
+    },
+    "sunset": {
+     "Dec": 443.0,
+     "Mar/Sep": 540.5,
+     "Jun": 607.4
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 7.3,
+     "Mar/Sep": 44.9,
+     "Jun": 131.4
+    },
+    "sunset": {
+     "Dec": 469.2,
+     "Mar/Sep": 558.7,
+     "Jun": 607.4
+    }
+   }
+  }
+ },
+ {
+  "name": "Be'er Sheva",
+  "lat": 31.252,
+  "lon": 34.7915,
+  "tz": "Asia/Jerusalem",
+  "ground": 283.9,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 111.3,
+     "Mar/Sep": 195.5,
+     "Jun": 275.2
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 114.4,
+     "Mar/Sep": 215.3,
+     "Jun": 275.2
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 1.7,
+     "Mar/Sep": 7.6,
+     "Jun": 40.5
+    },
+    "sunset": {
+     "Dec": 116.4,
+     "Mar/Sep": 224.4,
+     "Jun": 275.2
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 1.7,
+     "Mar/Sep": 13.2,
+     "Jun": 57.8
+    },
+    "sunset": {
+     "Dec": 141.5,
+     "Mar/Sep": 226.1,
+     "Jun": 275.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 3.2,
+     "Mar/Sep": 16.5,
+     "Jun": 88.9
+    },
+    "sunset": {
+     "Dec": 163.5,
+     "Mar/Sep": 231.3,
+     "Jun": 285.5
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 3.7,
+     "Mar/Sep": 20.0,
+     "Jun": 90.5
+    },
+    "sunset": {
+     "Dec": 185.2,
+     "Mar/Sep": 248.2,
+     "Jun": 285.5
+    }
+   }
+  }
+ },
+ {
+  "name": "Mitzpe Ramon",
+  "lat": 30.61,
+  "lon": 34.8,
+  "tz": "Asia/Jerusalem",
+  "ground": 858.3,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 1.9,
+     "Mar/Sep": 18.1,
+     "Jun": 146.2
+    },
+    "sunset": {
+     "Dec": 153.9,
+     "Mar/Sep": 259.6,
+     "Jun": 788.3
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 21.8,
+     "Mar/Sep": 44.4,
+     "Jun": 204.9
+    },
+    "sunset": {
+     "Dec": 550.7,
+     "Mar/Sep": 658.7,
+     "Jun": 788.3
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 59.8,
+     "Mar/Sep": 72.0,
+     "Jun": 221.7
+    },
+    "sunset": {
+     "Dec": 550.7,
+     "Mar/Sep": 671.2,
+     "Jun": 789.5
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 82.6,
+     "Mar/Sep": 92.0,
+     "Jun": 234.3
+    },
+    "sunset": {
+     "Dec": 550.7,
+     "Mar/Sep": 679.6,
+     "Jun": 792.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 83.2,
+     "Mar/Sep": 100.0,
+     "Jun": 238.1
+    },
+    "sunset": {
+     "Dec": 550.7,
+     "Mar/Sep": 689.5,
+     "Jun": 792.6
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 96.6,
+     "Mar/Sep": 105.8,
+     "Jun": 289.1
+    },
+    "sunset": {
+     "Dec": 550.7,
+     "Mar/Sep": 689.9,
+     "Jun": 792.6
+    }
+   }
+  }
+ },
+ {
+  "name": "Denver, State Capitol",
+  "lat": 39.73925,
+  "lon": -104.9848,
+  "tz": "America/Denver",
+  "ground": 1608.7,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "Denver, City Hall",
+  "lat": 39.7392,
+  "lon": -104.9903,
+  "tz": "America/Denver",
+  "ground": 1596.9,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "Los Angeles, downtown",
+  "lat": 34.0522,
+  "lon": -118.2437,
+  "tz": "America/Los_Angeles",
+  "ground": 88.3,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0.0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 65.3,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 3.6,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 74.8,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 15.1,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 73.7,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 16.1,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 73.7,
+     "Mar/Sep": 2.4,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 16.2,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 76.5,
+     "Mar/Sep": 25.9,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 17.9,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 90.0,
+     "Mar/Sep": 28.5,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "Los Angeles, Pico-Robertson",
+  "lat": 34.0553,
+  "lon": -118.3846,
+  "tz": "America/Los_Angeles",
+  "ground": 43.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "NYC, Midwood",
+  "lat": 40.6092,
+  "lon": -73.9683,
+  "tz": "America/New_York",
+  "ground": 8.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 9.7,
+     "Mar/Sep": 9.7,
+     "Jun": 5.3
+    },
+    "sunset": {
+     "Dec": 9.2,
+     "Mar/Sep": 7.3,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 9.7,
+     "Mar/Sep": 9.7,
+     "Jun": 9.7
+    },
+    "sunset": {
+     "Dec": 9.7,
+     "Mar/Sep": 7.3,
+     "Jun": 0.1
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 9.7,
+     "Mar/Sep": 9.7,
+     "Jun": 9.7
+    },
+    "sunset": {
+     "Dec": 9.7,
+     "Mar/Sep": 7.8,
+     "Jun": 0.9
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 9.7,
+     "Mar/Sep": 9.7,
+     "Jun": 9.7
+    },
+    "sunset": {
+     "Dec": 9.7,
+     "Mar/Sep": 7.8,
+     "Jun": 3.6
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 9.7,
+     "Mar/Sep": 9.7,
+     "Jun": 9.7
+    },
+    "sunset": {
+     "Dec": 9.7,
+     "Mar/Sep": 8.2,
+     "Jun": 3.9
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 9.7,
+     "Mar/Sep": 9.7,
+     "Jun": 9.7
+    },
+    "sunset": {
+     "Dec": 9.7,
+     "Mar/Sep": 8.2,
+     "Jun": 4.0
+    }
+   }
+  }
+ },
+ {
+  "name": "Monsey, Route 59",
+  "lat": 41.1112,
+  "lon": -74.0688,
+  "tz": "America/New_York",
+  "ground": 167.9,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 154.7,
+     "Mar/Sep": 58.2,
+     "Jun": 42.3
+    },
+    "sunset": {
+     "Dec": 7.3,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 169.5,
+     "Mar/Sep": 79.4,
+     "Jun": 47.6
+    },
+    "sunset": {
+     "Dec": 24.8,
+     "Mar/Sep": 21.3,
+     "Jun": 11.0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 169.5,
+     "Mar/Sep": 134.2,
+     "Jun": 73.3
+    },
+    "sunset": {
+     "Dec": 30.8,
+     "Mar/Sep": 24.8,
+     "Jun": 11.2
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 169.5,
+     "Mar/Sep": 146.7,
+     "Jun": 106.6
+    },
+    "sunset": {
+     "Dec": 53.2,
+     "Mar/Sep": 38.4,
+     "Jun": 11.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 169.5,
+     "Mar/Sep": 164.2,
+     "Jun": 124.1
+    },
+    "sunset": {
+     "Dec": 58.9,
+     "Mar/Sep": 46.0,
+     "Jun": 12.6
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 169.5,
+     "Mar/Sep": 168.7,
+     "Jun": 131.4
+    },
+    "sunset": {
+     "Dec": 62.6,
+     "Mar/Sep": 49.4,
+     "Jun": 16.8
+    }
+   }
+  }
+ },
+ {
+  "name": "Monsey, Viola",
+  "lat": 41.1185,
+  "lon": -74.087,
+  "tz": "America/New_York",
+  "ground": 191.1,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 173.8,
+     "Mar/Sep": 91.9,
+     "Jun": 66.2
+    },
+    "sunset": {
+     "Dec": 6.7,
+     "Mar/Sep": 0.1,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 192.8,
+     "Mar/Sep": 100.6,
+     "Jun": 75.7
+    },
+    "sunset": {
+     "Dec": 32.2,
+     "Mar/Sep": 29.3,
+     "Jun": 18.2
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 192.8,
+     "Mar/Sep": 147.3,
+     "Jun": 80.8
+    },
+    "sunset": {
+     "Dec": 45.8,
+     "Mar/Sep": 44.4,
+     "Jun": 18.2
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 192.8,
+     "Mar/Sep": 168.4,
+     "Jun": 115.4
+    },
+    "sunset": {
+     "Dec": 75.9,
+     "Mar/Sep": 55.3,
+     "Jun": 18.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 192.8,
+     "Mar/Sep": 177.3,
+     "Jun": 138.6
+    },
+    "sunset": {
+     "Dec": 75.9,
+     "Mar/Sep": 60.8,
+     "Jun": 18.2
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 192.8,
+     "Mar/Sep": 192.2,
+     "Jun": 166.8
+    },
+    "sunset": {
+     "Dec": 77.8,
+     "Mar/Sep": 61.5,
+     "Jun": 19.9
+    }
+   }
+  }
+ },
+ {
+  "name": "Staten Island, Todt Hill",
+  "lat": 40.5975,
+  "lon": -74.11,
+  "tz": "America/New_York",
+  "ground": 95.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 96.7,
+     "Mar/Sep": 96.4,
+     "Jun": 82.4
+    },
+    "sunset": {
+     "Dec": 70.1,
+     "Mar/Sep": 37.2,
+     "Jun": 1.4
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 96.7,
+     "Mar/Sep": 96.7,
+     "Jun": 96.7
+    },
+    "sunset": {
+     "Dec": 74.6,
+     "Mar/Sep": 55.6,
+     "Jun": 8.9
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 96.7,
+     "Mar/Sep": 96.7,
+     "Jun": 96.7
+    },
+    "sunset": {
+     "Dec": 80.8,
+     "Mar/Sep": 53.9,
+     "Jun": 12.8
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 96.7,
+     "Mar/Sep": 96.7,
+     "Jun": 96.7
+    },
+    "sunset": {
+     "Dec": 80.8,
+     "Mar/Sep": 55.6,
+     "Jun": 25.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 96.7,
+     "Mar/Sep": 96.7,
+     "Jun": 96.7
+    },
+    "sunset": {
+     "Dec": 80.8,
+     "Mar/Sep": 58.9,
+     "Jun": 30.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 96.7,
+     "Mar/Sep": 96.7,
+     "Jun": 96.7
+    },
+    "sunset": {
+     "Dec": 80.8,
+     "Mar/Sep": 61.6,
+     "Jun": 30.1
+    }
+   }
+  }
+ },
+ {
+  "name": "Staten Island, Willowbrook",
+  "lat": 40.603,
+  "lon": -74.1385,
+  "tz": "America/New_York",
+  "ground": 41.6,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 43.3,
+     "Mar/Sep": 43.3,
+     "Jun": 40.3
+    },
+    "sunset": {
+     "Dec": 22.8,
+     "Mar/Sep": 11.5,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 43.3,
+     "Mar/Sep": 43.3,
+     "Jun": 43.1
+    },
+    "sunset": {
+     "Dec": 27.0,
+     "Mar/Sep": 20.9,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 43.3,
+     "Mar/Sep": 43.3,
+     "Jun": 43.3
+    },
+    "sunset": {
+     "Dec": 27.0,
+     "Mar/Sep": 21.0,
+     "Jun": 0.6
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 43.3,
+     "Mar/Sep": 43.3,
+     "Jun": 43.3
+    },
+    "sunset": {
+     "Dec": 27.0,
+     "Mar/Sep": 19.7,
+     "Jun": 4.0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 43.3,
+     "Mar/Sep": 43.3,
+     "Jun": 43.3
+    },
+    "sunset": {
+     "Dec": 27.0,
+     "Mar/Sep": 22.5,
+     "Jun": 5.0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 43.3,
+     "Mar/Sep": 43.3,
+     "Jun": 43.3
+    },
+    "sunset": {
+     "Dec": 27.0,
+     "Mar/Sep": 22.5,
+     "Jun": 5.2
+    }
+   }
+  }
+ },
+ {
+  "name": "Staten Island, St. George",
+  "lat": 40.6437,
+  "lon": -74.0768,
+  "tz": "America/New_York",
+  "ground": 13.7,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 15.4,
+     "Mar/Sep": 13.6,
+     "Jun": 10.4
+    },
+    "sunset": {
+     "Dec": 10.9,
+     "Mar/Sep": 0.0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 15.4,
+     "Mar/Sep": 15.4,
+     "Jun": 14.6
+    },
+    "sunset": {
+     "Dec": 11.4,
+     "Mar/Sep": 2.2,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 15.4,
+     "Mar/Sep": 15.4,
+     "Jun": 15.3
+    },
+    "sunset": {
+     "Dec": 11.4,
+     "Mar/Sep": 2.3,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 15.4,
+     "Mar/Sep": 15.4,
+     "Jun": 15.4
+    },
+    "sunset": {
+     "Dec": 11.5,
+     "Mar/Sep": 3.8,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 15.4,
+     "Mar/Sep": 15.4,
+     "Jun": 15.4
+    },
+    "sunset": {
+     "Dec": 11.5,
+     "Mar/Sep": 3.8,
+     "Jun": 0.3
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 15.4,
+     "Mar/Sep": 15.4,
+     "Jun": 15.4
+    },
+    "sunset": {
+     "Dec": 11.9,
+     "Mar/Sep": 3.8,
+     "Jun": 1.0
+    }
+   }
+  }
+ },
+ {
+  "name": "Staten Island, Great Kills",
+  "lat": 40.554,
+  "lon": -74.151,
+  "tz": "America/New_York",
+  "ground": 17.5,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 19.2,
+     "Mar/Sep": 18.8,
+     "Jun": 17.4
+    },
+    "sunset": {
+     "Dec": 8.0,
+     "Mar/Sep": 4.0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 19.2,
+     "Mar/Sep": 19.2,
+     "Jun": 19.2
+    },
+    "sunset": {
+     "Dec": 8.6,
+     "Mar/Sep": 4.0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 19.2,
+     "Mar/Sep": 19.2,
+     "Jun": 19.2
+    },
+    "sunset": {
+     "Dec": 8.8,
+     "Mar/Sep": 4.0,
+     "Jun": 0.7
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 19.2,
+     "Mar/Sep": 19.2,
+     "Jun": 19.2
+    },
+    "sunset": {
+     "Dec": 9.5,
+     "Mar/Sep": 4.9,
+     "Jun": 1.7
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 19.2,
+     "Mar/Sep": 19.2,
+     "Jun": 19.2
+    },
+    "sunset": {
+     "Dec": 10.0,
+     "Mar/Sep": 4.9,
+     "Jun": 3.6
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 19.2,
+     "Mar/Sep": 19.2,
+     "Jun": 19.2
+    },
+    "sunset": {
+     "Dec": 11.8,
+     "Mar/Sep": 4.0,
+     "Jun": 3.8
+    }
+   }
+  }
+ },
+ {
+  "name": "Lakewood, NJ",
+  "lat": 40.0821,
+  "lon": -74.2097,
+  "tz": "America/New_York",
+  "ground": 15.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0.0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 14.3,
+     "Mar/Sep": 12.8,
+     "Jun": 10.8
+    },
+    "sunset": {
+     "Dec": 9.8,
+     "Mar/Sep": 9.8,
+     "Jun": 10.7
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 14.9,
+     "Mar/Sep": 13.3,
+     "Jun": 12.1
+    },
+    "sunset": {
+     "Dec": 10.7,
+     "Mar/Sep": 10.7,
+     "Jun": 10.7
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 16.7,
+     "Mar/Sep": 16.7,
+     "Jun": 16.7
+    },
+    "sunset": {
+     "Dec": 13.6,
+     "Mar/Sep": 10.7,
+     "Jun": 10.7
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 16.7,
+     "Mar/Sep": 16.7,
+     "Jun": 16.7
+    },
+    "sunset": {
+     "Dec": 16.3,
+     "Mar/Sep": 13.7,
+     "Jun": 12.6
+    }
+   }
+  }
+ },
+ {
+  "name": "Baltimore, Park Heights",
+  "lat": 39.364,
+  "lon": -76.7,
+  "tz": "America/New_York",
+  "ground": 131.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 47.2,
+     "Mar/Sep": 23.5,
+     "Jun": 16.4
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 47.2,
+     "Mar/Sep": 43.8,
+     "Jun": 19.3
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 110.0,
+     "Mar/Sep": 43.8,
+     "Jun": 26.1
+    },
+    "sunset": {
+     "Dec": 12.5,
+     "Mar/Sep": 4.4,
+     "Jun": 4.4
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 132.7,
+     "Mar/Sep": 57.4,
+     "Jun": 26.1
+    },
+    "sunset": {
+     "Dec": 34.1,
+     "Mar/Sep": 17.7,
+     "Jun": 17.5
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 132.7,
+     "Mar/Sep": 73.7,
+     "Jun": 30.1
+    },
+    "sunset": {
+     "Dec": 37.2,
+     "Mar/Sep": 30.1,
+     "Jun": 30.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 132.7,
+     "Mar/Sep": 73.7,
+     "Jun": 36.6
+    },
+    "sunset": {
+     "Dec": 37.2,
+     "Mar/Sep": 34.7,
+     "Jun": 30.2
+    }
+   }
+  }
+ },
+ {
+  "name": "Chicago, West Rogers Park",
+  "lat": 42.0,
+  "lon": -87.699,
+  "tz": "America/Chicago",
+  "ground": 181.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 1.2,
+     "Mar/Sep": 2.7,
+     "Jun": 1.8
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 1.8,
+     "Mar/Sep": 2.7,
+     "Jun": 2.5
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 5.9,
+     "Mar/Sep": 7.7,
+     "Jun": 6.5
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 7.7,
+     "Mar/Sep": 7.7,
+     "Jun": 7.5
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 7.7,
+     "Mar/Sep": 7.7,
+     "Jun": 7.5
+    },
+    "sunset": {
+     "Dec": 0.8,
+     "Mar/Sep": 0,
+     "Jun": 0.0
+    }
+   }
+  }
+ },
+ {
+  "name": "Miami Beach",
+  "lat": 25.807,
+  "lon": -80.13,
+  "tz": "America/New_York",
+  "ground": 1.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 2.7,
+     "Mar/Sep": 2.7,
+     "Jun": 2.7
+    },
+    "sunset": {
+     "Dec": 1.1,
+     "Mar/Sep": 1.0,
+     "Jun": 0.8
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 2.7,
+     "Mar/Sep": 2.7,
+     "Jun": 2.7
+    },
+    "sunset": {
+     "Dec": 1.7,
+     "Mar/Sep": 1.7,
+     "Jun": 1.7
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 2.7,
+     "Mar/Sep": 2.7,
+     "Jun": 2.7
+    },
+    "sunset": {
+     "Dec": 1.9,
+     "Mar/Sep": 1.7,
+     "Jun": 1.7
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 2.7,
+     "Mar/Sep": 2.7,
+     "Jun": 2.7
+    },
+    "sunset": {
+     "Dec": 2.2,
+     "Mar/Sep": 1.7,
+     "Jun": 1.7
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 2.7,
+     "Mar/Sep": 2.7,
+     "Jun": 2.7
+    },
+    "sunset": {
+     "Dec": 2.7,
+     "Mar/Sep": 2.1,
+     "Jun": 1.9
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 2.7,
+     "Mar/Sep": 2.7,
+     "Jun": 2.7
+    },
+    "sunset": {
+     "Dec": 2.7,
+     "Mar/Sep": 2.7,
+     "Jun": 2.7
+    }
+   }
+  }
+ },
+ {
+  "name": "Boston, Brookline",
+  "lat": 42.3318,
+  "lon": -71.1212,
+  "tz": "America/New_York",
+  "ground": 8.6,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "Cleveland Heights",
+  "lat": 41.52,
+  "lon": -81.556,
+  "tz": "America/New_York",
+  "ground": 286.2,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 16.8
+    },
+    "sunset": {
+     "Dec": 47.5,
+     "Mar/Sep": 113.7,
+     "Jun": 114.2
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 35.7
+    },
+    "sunset": {
+     "Dec": 50.3,
+     "Mar/Sep": 113.9,
+     "Jun": 114.2
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 18.6,
+     "Mar/Sep": 32.9,
+     "Jun": 39.7
+    },
+    "sunset": {
+     "Dec": 51.0,
+     "Mar/Sep": 114.2,
+     "Jun": 114.2
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 22.6,
+     "Mar/Sep": 35.1,
+     "Jun": 40.1
+    },
+    "sunset": {
+     "Dec": 52.0,
+     "Mar/Sep": 114.2,
+     "Jun": 114.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 24.1,
+     "Mar/Sep": 35.1,
+     "Jun": 40.1
+    },
+    "sunset": {
+     "Dec": 53.7,
+     "Mar/Sep": 114.2,
+     "Jun": 114.2
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 27.0,
+     "Mar/Sep": 37.1,
+     "Jun": 40.1
+    },
+    "sunset": {
+     "Dec": 56.2,
+     "Mar/Sep": 114.2,
+     "Jun": 114.2
+    }
+   }
+  }
+ },
+ {
+  "name": "Toronto, Bathurst St.",
+  "lat": 43.719,
+  "lon": -79.429,
+  "tz": "America/Toronto",
+  "ground": 180.2,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 108.5,
+     "Mar/Sep": 87.0,
+     "Jun": 10.2
+    },
+    "sunset": {
+     "Dec": 8.8,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 108.5,
+     "Mar/Sep": 102.1,
+     "Jun": 18.4
+    },
+    "sunset": {
+     "Dec": 11.6,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 108.5,
+     "Mar/Sep": 108.5,
+     "Jun": 20.2
+    },
+    "sunset": {
+     "Dec": 13.3,
+     "Mar/Sep": 0,
+     "Jun": 0.1
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 108.5,
+     "Mar/Sep": 108.5,
+     "Jun": 22.5
+    },
+    "sunset": {
+     "Dec": 13.5,
+     "Mar/Sep": 0,
+     "Jun": 0.6
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 108.5,
+     "Mar/Sep": 108.5,
+     "Jun": 26.7
+    },
+    "sunset": {
+     "Dec": 14.7,
+     "Mar/Sep": 0.0,
+     "Jun": 1.8
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 108.5,
+     "Mar/Sep": 108.5,
+     "Jun": 31.7
+    },
+    "sunset": {
+     "Dec": 14.8,
+     "Mar/Sep": 0.4,
+     "Jun": 2.5
+    }
+   }
+  }
+ },
+ {
+  "name": "Montreal, Outremont",
+  "lat": 45.519,
+  "lon": -73.607,
+  "tz": "America/Toronto",
+  "ground": 74.2,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 41.6,
+     "Mar/Sep": 45.7,
+     "Jun": 57.0
+    },
+    "sunset": {
+     "Dec": 42.0,
+     "Mar/Sep": 39.7,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 43.7,
+     "Mar/Sep": 45.7,
+     "Jun": 59.2
+    },
+    "sunset": {
+     "Dec": 42.8,
+     "Mar/Sep": 46.6,
+     "Jun": 1.2
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 46.7,
+     "Mar/Sep": 45.7,
+     "Jun": 60.5
+    },
+    "sunset": {
+     "Dec": 43.5,
+     "Mar/Sep": 48.6,
+     "Jun": 2.1
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 47.2,
+     "Mar/Sep": 45.7,
+     "Jun": 61.0
+    },
+    "sunset": {
+     "Dec": 43.6,
+     "Mar/Sep": 53.6,
+     "Jun": 2.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 48.9,
+     "Mar/Sep": 45.7,
+     "Jun": 61.3
+    },
+    "sunset": {
+     "Dec": 43.7,
+     "Mar/Sep": 53.6,
+     "Jun": 2.8
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 48.9,
+     "Mar/Sep": 46.6,
+     "Jun": 61.3
+    },
+    "sunset": {
+     "Dec": 43.7,
+     "Mar/Sep": 53.6,
+     "Jun": 3.0
+    }
+   }
+  }
+ },
+ {
+  "name": "London, Stamford Hill",
+  "lat": 51.57,
+  "lon": -0.073,
+  "tz": "Europe/London",
+  "ground": 32.4,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 5.5,
+     "Mar/Sep": 13.7,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 21.7,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 11.1,
+     "Mar/Sep": 14.2,
+     "Jun": 0.9
+    },
+    "sunset": {
+     "Dec": 23.0,
+     "Mar/Sep": 0.0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 21.3,
+     "Mar/Sep": 16.6,
+     "Jun": 9.0
+    },
+    "sunset": {
+     "Dec": 23.0,
+     "Mar/Sep": 2.1,
+     "Jun": 0.0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 29.5,
+     "Mar/Sep": 26.1,
+     "Jun": 19.2
+    },
+    "sunset": {
+     "Dec": 23.0,
+     "Mar/Sep": 10.0,
+     "Jun": 8.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 30.1,
+     "Mar/Sep": 30.1,
+     "Jun": 23.3
+    },
+    "sunset": {
+     "Dec": 23.0,
+     "Mar/Sep": 13.0,
+     "Jun": 10.9
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 30.1,
+     "Mar/Sep": 30.1,
+     "Jun": 25.6
+    },
+    "sunset": {
+     "Dec": 23.0,
+     "Mar/Sep": 14.4,
+     "Jun": 13.3
+    }
+   }
+  }
+ },
+ {
+  "name": "Manchester, Broughton Park",
+  "lat": 53.511,
+  "lon": -2.26,
+  "tz": "Europe/London",
+  "ground": 70.1,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 36.1,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 40.3,
+     "Mar/Sep": 28.0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0.8,
+     "Mar/Sep": 3.4,
+     "Jun": 2.9
+    },
+    "sunset": {
+     "Dec": 42.3,
+     "Mar/Sep": 52.2,
+     "Jun": 3.2
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 27.4,
+     "Mar/Sep": 22.8,
+     "Jun": 11.9
+    },
+    "sunset": {
+     "Dec": 50.1,
+     "Mar/Sep": 53.7,
+     "Jun": 20.1
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 40.0,
+     "Mar/Sep": 41.4,
+     "Jun": 54.1
+    },
+    "sunset": {
+     "Dec": 52.7,
+     "Mar/Sep": 58.7,
+     "Jun": 55.3
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 41.4,
+     "Mar/Sep": 49.3,
+     "Jun": 59.0
+    },
+    "sunset": {
+     "Dec": 53.7,
+     "Mar/Sep": 62.3,
+     "Jun": 66.3
+    }
+   }
+  }
+ },
+ {
+  "name": "Paris, 19th arr.",
+  "lat": 48.88,
+  "lon": 2.383,
+  "tz": "Europe/Paris",
+  "ground": 82.2,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 1.7,
+     "Mar/Sep": 3.5,
+     "Jun": 6.7
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 4.2,
+     "Jun": 13.3
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 7.3,
+     "Mar/Sep": 9.7,
+     "Jun": 18.9
+    },
+    "sunset": {
+     "Dec": 1.0,
+     "Mar/Sep": 4.5,
+     "Jun": 17.7
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 25.0,
+     "Mar/Sep": 20.8,
+     "Jun": 25.0
+    },
+    "sunset": {
+     "Dec": 2.6,
+     "Mar/Sep": 5.1,
+     "Jun": 25.6
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 27.6,
+     "Mar/Sep": 26.0,
+     "Jun": 26.5
+    },
+    "sunset": {
+     "Dec": 4.4,
+     "Mar/Sep": 8.4,
+     "Jun": 30.0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 27.6,
+     "Mar/Sep": 26.0,
+     "Jun": 27.6
+    },
+    "sunset": {
+     "Dec": 5.6,
+     "Mar/Sep": 9.9,
+     "Jun": 46.9
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 29.5,
+     "Mar/Sep": 26.0,
+     "Jun": 28.6
+    },
+    "sunset": {
+     "Dec": 6.6,
+     "Mar/Sep": 12.7,
+     "Jun": 47.6
+    }
+   }
+  }
+ },
+ {
+  "name": "Antwerp",
+  "lat": 51.215,
+  "lon": 4.421,
+  "tz": "Europe/Brussels",
+  "ground": 6.1,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 1.9,
+     "Mar/Sep": 1.2,
+     "Jun": 0.7
+    },
+    "sunset": {
+     "Dec": 3.3,
+     "Mar/Sep": 3.7,
+     "Jun": 4.1
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 2.2,
+     "Mar/Sep": 1.9,
+     "Jun": 2.1
+    },
+    "sunset": {
+     "Dec": 3.4,
+     "Mar/Sep": 4.8,
+     "Jun": 4.1
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 2.2,
+     "Mar/Sep": 1.9,
+     "Jun": 2.2
+    },
+    "sunset": {
+     "Dec": 3.9,
+     "Mar/Sep": 4.8,
+     "Jun": 4.1
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 2.2,
+     "Mar/Sep": 1.9,
+     "Jun": 2.8
+    },
+    "sunset": {
+     "Dec": 3.9,
+     "Mar/Sep": 4.8,
+     "Jun": 5.0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 2.2,
+     "Mar/Sep": 2.2,
+     "Jun": 2.8
+    },
+    "sunset": {
+     "Dec": 4.9,
+     "Mar/Sep": 5.2,
+     "Jun": 5.0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 2.8,
+     "Mar/Sep": 2.2,
+     "Jun": 3.0
+    },
+    "sunset": {
+     "Dec": 5.0,
+     "Mar/Sep": 5.2,
+     "Jun": 5.4
+    }
+   }
+  }
+ },
+ {
+  "name": "Moscow",
+  "lat": 55.7558,
+  "lon": 37.6173,
+  "tz": "Europe/Moscow",
+  "ground": 143.9,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 7.0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 13.4,
+     "Mar/Sep": 1.4,
+     "Jun": 1.1
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0.0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 14.5,
+     "Mar/Sep": 1.4,
+     "Jun": 1.4
+    },
+    "sunset": {
+     "Dec": 0.1,
+     "Mar/Sep": 0.0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 14.8,
+     "Mar/Sep": 5.1,
+     "Jun": 4.3
+    },
+    "sunset": {
+     "Dec": 0.5,
+     "Mar/Sep": 0.0,
+     "Jun": 0.1
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 15.1,
+     "Mar/Sep": 13.5,
+     "Jun": 13.5
+    },
+    "sunset": {
+     "Dec": 0.5,
+     "Mar/Sep": 0.0,
+     "Jun": 0.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 16.5,
+     "Mar/Sep": 16.5,
+     "Jun": 15.8
+    },
+    "sunset": {
+     "Dec": 0.5,
+     "Mar/Sep": 0.2,
+     "Jun": 0.5
+    }
+   }
+  }
+ },
+ {
+  "name": "Buenos Aires, Once",
+  "lat": -34.609,
+  "lon": -58.406,
+  "tz": "America/Argentina/Buenos_Aires",
+  "ground": 19.1,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 20.5,
+     "Mar/Sep": 20.8,
+     "Jun": 20.8
+    },
+    "sunset": {
+     "Dec": 8.5,
+     "Mar/Sep": 9.0,
+     "Jun": 9.0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 20.7,
+     "Mar/Sep": 20.8,
+     "Jun": 20.8
+    },
+    "sunset": {
+     "Dec": 10.2,
+     "Mar/Sep": 9.9,
+     "Jun": 10.9
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 20.7,
+     "Mar/Sep": 20.8,
+     "Jun": 20.8
+    },
+    "sunset": {
+     "Dec": 10.3,
+     "Mar/Sep": 10.4,
+     "Jun": 12.9
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 20.7,
+     "Mar/Sep": 20.8,
+     "Jun": 20.8
+    },
+    "sunset": {
+     "Dec": 10.4,
+     "Mar/Sep": 10.5,
+     "Jun": 14.8
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 20.7,
+     "Mar/Sep": 20.8,
+     "Jun": 20.8
+    },
+    "sunset": {
+     "Dec": 11.4,
+     "Mar/Sep": 12.3,
+     "Jun": 16.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 20.7,
+     "Mar/Sep": 20.8,
+     "Jun": 20.8
+    },
+    "sunset": {
+     "Dec": 11.5,
+     "Mar/Sep": 12.3,
+     "Jun": 16.3
+    }
+   }
+  }
+ },
+ {
+  "name": "São Paulo, Higienópolis",
+  "lat": -23.544,
+  "lon": -46.656,
+  "tz": "America/Sao_Paulo",
+  "ground": 778.1,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 4.3,
+     "Mar/Sep": 9.7,
+     "Jun": 21.1
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0.0,
+     "Jun": 25.7
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 33.6,
+     "Mar/Sep": 33.6,
+     "Jun": 28.5
+    },
+    "sunset": {
+     "Dec": 15.3,
+     "Mar/Sep": 14.8,
+     "Jun": 36.0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 49.3,
+     "Mar/Sep": 49.3,
+     "Jun": 47.5
+    },
+    "sunset": {
+     "Dec": 49.3,
+     "Mar/Sep": 49.3,
+     "Jun": 49.3
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 49.3,
+     "Mar/Sep": 49.3,
+     "Jun": 49.3
+    },
+    "sunset": {
+     "Dec": 49.3,
+     "Mar/Sep": 49.3,
+     "Jun": 49.3
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 123.7,
+     "Mar/Sep": 122.1,
+     "Jun": 121.5
+    },
+    "sunset": {
+     "Dec": 121.5,
+     "Mar/Sep": 121.5,
+     "Jun": 121.5
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 174.4,
+     "Mar/Sep": 172.8,
+     "Jun": 172.8
+    },
+    "sunset": {
+     "Dec": 176.6,
+     "Mar/Sep": 172.8,
+     "Jun": 172.8
+    }
+   }
+  }
+ },
+ {
+  "name": "Mexico City, Polanco",
+  "lat": 19.433,
+  "lon": -99.196,
+  "tz": "America/Mexico_City",
+  "ground": 2263.9,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 5.1,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 37.7,
+     "Mar/Sep": 7.8,
+     "Jun": 2.6
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 41.2,
+     "Mar/Sep": 33.8,
+     "Jun": 25.0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 41.5,
+     "Mar/Sep": 41.5,
+     "Jun": 41.5
+    },
+    "sunset": {
+     "Dec": 3.5,
+     "Mar/Sep": 0.0,
+     "Jun": 0.0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 52.9,
+     "Mar/Sep": 52.9,
+     "Jun": 52.9
+    },
+    "sunset": {
+     "Dec": 59.6,
+     "Mar/Sep": 56.0,
+     "Jun": 54.0
+    }
+   }
+  }
+ },
+ {
+  "name": "Johannesburg, Glenhazel",
+  "lat": -26.138,
+  "lon": 28.099,
+  "tz": "Africa/Johannesburg",
+  "ground": 1627.5,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 19.6,
+     "Mar/Sep": 19.5,
+     "Jun": 23.3
+    },
+    "sunset": {
+     "Dec": 22.7,
+     "Mar/Sep": 23.8,
+     "Jun": 128.8
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 53.9,
+     "Mar/Sep": 53.9,
+     "Jun": 53.9
+    },
+    "sunset": {
+     "Dec": 65.9,
+     "Mar/Sep": 65.9,
+     "Jun": 156.9
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 73.1,
+     "Mar/Sep": 73.1,
+     "Jun": 107.5
+    },
+    "sunset": {
+     "Dec": 154.9,
+     "Mar/Sep": 154.9,
+     "Jun": 191.4
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 85.9,
+     "Mar/Sep": 99.0,
+     "Jun": 141.8
+    },
+    "sunset": {
+     "Dec": 193.3,
+     "Mar/Sep": 193.3,
+     "Jun": 224.2
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 102.1,
+     "Mar/Sep": 108.8,
+     "Jun": 163.6
+    },
+    "sunset": {
+     "Dec": 199.5,
+     "Mar/Sep": 204.2,
+     "Jun": 277.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 120.2,
+     "Mar/Sep": 131.4,
+     "Jun": 167.0
+    },
+    "sunset": {
+     "Dec": 203.3,
+     "Mar/Sep": 214.8,
+     "Jun": 303.6
+    }
+   }
+  }
+ },
+ {
+  "name": "Melbourne, Caulfield",
+  "lat": -37.877,
+  "lon": 145.023,
+  "tz": "Australia/Melbourne",
+  "ground": 37.9,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 39.6,
+     "Mar/Sep": 8.7,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 39.6,
+     "Mar/Sep": 12.0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0.2,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 39.6,
+     "Mar/Sep": 16.9,
+     "Jun": 0.0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 2.1,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 39.6,
+     "Mar/Sep": 17.7,
+     "Jun": 0.3
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 2.2,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 39.6,
+     "Mar/Sep": 17.7,
+     "Jun": 0.4
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 5.4,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 39.6,
+     "Mar/Sep": 17.7,
+     "Jun": 0.2
+    }
+   }
+  }
+ },
+ {
+  "name": "Sydney, Bondi",
+  "lat": -33.891,
+  "lon": 151.26,
+  "tz": "Australia/Sydney",
+  "ground": 79.7,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 81.4,
+     "Mar/Sep": 81.4,
+     "Jun": 81.4
+    },
+    "sunset": {
+     "Dec": 0.2,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 81.4,
+     "Mar/Sep": 81.4,
+     "Jun": 81.4
+    },
+    "sunset": {
+     "Dec": 8.3,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 81.4,
+     "Mar/Sep": 81.4,
+     "Jun": 81.4
+    },
+    "sunset": {
+     "Dec": 26.3,
+     "Mar/Sep": 0.6,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 81.4,
+     "Mar/Sep": 81.4,
+     "Jun": 81.4
+    },
+    "sunset": {
+     "Dec": 27.5,
+     "Mar/Sep": 12.4,
+     "Jun": 1.6
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 81.4,
+     "Mar/Sep": 81.4,
+     "Jun": 81.4
+    },
+    "sunset": {
+     "Dec": 27.5,
+     "Mar/Sep": 16.7,
+     "Jun": 8.7
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 81.4,
+     "Mar/Sep": 81.4,
+     "Jun": 81.4
+    },
+    "sunset": {
+     "Dec": 36.7,
+     "Mar/Sep": 24.9,
+     "Jun": 11.6
+    }
+   }
+  }
+ },
+ {
+  "name": "Jericho",
+  "lat": 31.8611,
+  "lon": 35.46,
+  "tz": "Asia/Jerusalem",
+  "ground": -256.2,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "Dead Sea, Ein Bokek",
+  "lat": 31.2,
+  "lon": 35.3625,
+  "tz": "Asia/Jerusalem",
+  "ground": -378.7,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "Masada (summit)",
+  "lat": 31.3156,
+  "lon": 35.3536,
+  "tz": "Asia/Jerusalem",
+  "ground": 42.2,
+  "israel": true,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 5.6,
+     "Mar/Sep": 8.0,
+     "Jun": 30.4
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 22.5,
+     "Mar/Sep": 43.8,
+     "Jun": 43.8
+    }
+   }
+  }
+ },
+ {
+  "name": "South Fallsburg (Catskills)",
+  "lat": 41.72,
+  "lon": -74.64,
+  "tz": "America/New_York",
+  "ground": 385.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 54.6,
+     "Mar/Sep": 43.4,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 112.8,
+     "Mar/Sep": 105.4,
+     "Jun": 46.9
+    },
+    "sunset": {
+     "Dec": 36.6,
+     "Mar/Sep": 22.5,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 124.9,
+     "Mar/Sep": 105.4,
+     "Jun": 48.7
+    },
+    "sunset": {
+     "Dec": 45.4,
+     "Mar/Sep": 34.9,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 125.1,
+     "Mar/Sep": 106.0,
+     "Jun": 55.2
+    },
+    "sunset": {
+     "Dec": 45.4,
+     "Mar/Sep": 34.9,
+     "Jun": 7.6
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 125.1,
+     "Mar/Sep": 105.4,
+     "Jun": 55.2
+    },
+    "sunset": {
+     "Dec": 47.8,
+     "Mar/Sep": 34.9,
+     "Jun": 34.9
+    }
+   }
+  }
+ },
+ {
+  "name": "Salt Lake City",
+  "lat": 40.76,
+  "lon": -111.89,
+  "tz": "America/Denver",
+  "ground": 1299.0,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 10.9,
+     "Jun": 15.9
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 10.9,
+     "Jun": 15.9
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0.0,
+     "Mar/Sep": 10.9,
+     "Jun": 15.9
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0.4,
+     "Mar/Sep": 12.0,
+     "Jun": 16.0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 2.2,
+     "Mar/Sep": 12.0,
+     "Jun": 16.0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 2.2,
+     "Mar/Sep": 12.0,
+     "Jun": 15.9
+    }
+   }
+  }
+ },
+ {
+  "name": "Bogota",
+  "lat": 4.65,
+  "lon": -74.08,
+  "tz": "America/Bogota",
+  "ground": 2551.2,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0.5,
+     "Jun": 0.6
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 4.6,
+     "Mar/Sep": 1.0,
+     "Jun": 0.4
+    },
+    "sunset": {
+     "Dec": 12.3,
+     "Mar/Sep": 10.7,
+     "Jun": 9.0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 117.5,
+     "Mar/Sep": 53.6,
+     "Jun": 53.2
+    },
+    "sunset": {
+     "Dec": 658.1,
+     "Mar/Sep": 186.5,
+     "Jun": 77.9
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 1009.2,
+     "Mar/Sep": 809.0,
+     "Jun": 660.8
+    },
+    "sunset": {
+     "Dec": 1565.2,
+     "Mar/Sep": 1361.3,
+     "Jun": 1394.3
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 1054.6,
+     "Mar/Sep": 959.9,
+     "Jun": 941.9
+    },
+    "sunset": {
+     "Dec": 1665.0,
+     "Mar/Sep": 1661.6,
+     "Jun": 1661.6
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 2514.5,
+     "Mar/Sep": 2141.7,
+     "Jun": 1318.1
+    },
+    "sunset": {
+     "Dec": 1696.5,
+     "Mar/Sep": 1672.2,
+     "Jun": 1672.2
+    }
+   }
+  }
+ },
+ {
+  "name": "Quito",
+  "lat": -0.18,
+  "lon": -78.47,
+  "tz": "America/Guayaquil",
+  "ground": 2902.5,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 55.1,
+     "Mar/Sep": 57.3,
+     "Jun": 57.3
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0.0
+    },
+    "sunset": {
+     "Dec": 1354.3,
+     "Mar/Sep": 2092.6,
+     "Jun": 2920.9
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 330.5,
+     "Mar/Sep": 590.5,
+     "Jun": 693.5
+    },
+    "sunset": {
+     "Dec": 1570.0,
+     "Mar/Sep": 2585.9,
+     "Jun": 3087.3
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 643.1,
+     "Mar/Sep": 919.6,
+     "Jun": 967.5
+    },
+    "sunset": {
+     "Dec": 1949.3,
+     "Mar/Sep": 3039.0,
+     "Jun": 3093.1
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 1094.2,
+     "Mar/Sep": 1315.4,
+     "Jun": 1358.0
+    },
+    "sunset": {
+     "Dec": 2751.2,
+     "Mar/Sep": 3068.3,
+     "Jun": 3094.3
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 1403.8,
+     "Mar/Sep": 1394.3,
+     "Jun": 1453.7
+    },
+    "sunset": {
+     "Dec": 3092.6,
+     "Mar/Sep": 3083.2,
+     "Jun": 3094.4
+    }
+   }
+  }
+ },
+ {
+  "name": "La Paz",
+  "lat": -16.5,
+  "lon": -68.13,
+  "tz": "America/La_Paz",
+  "ground": 3588.9,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   }
+  }
+ },
+ {
+  "name": "Caracas",
+  "lat": 10.5,
+  "lon": -66.92,
+  "tz": "America/Caracas",
+  "ground": 891.7,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 639.9,
+     "Mar/Sep": 893.1,
+     "Jun": 893.1
+    },
+    "sunset": {
+     "Dec": 300.0,
+     "Mar/Sep": 357.8,
+     "Jun": 893.1
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 685.1,
+     "Mar/Sep": 893.1,
+     "Jun": 893.1
+    },
+    "sunset": {
+     "Dec": 461.7,
+     "Mar/Sep": 559.3,
+     "Jun": 893.1
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 749.0,
+     "Mar/Sep": 893.1,
+     "Jun": 893.1
+    },
+    "sunset": {
+     "Dec": 534.9,
+     "Mar/Sep": 627.6,
+     "Jun": 893.1
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 783.8,
+     "Mar/Sep": 893.1,
+     "Jun": 893.1
+    },
+    "sunset": {
+     "Dec": 682.1,
+     "Mar/Sep": 788.4,
+     "Jun": 893.1
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 785.3,
+     "Mar/Sep": 893.1,
+     "Jun": 893.1
+    },
+    "sunset": {
+     "Dec": 756.1,
+     "Mar/Sep": 893.1,
+     "Jun": 893.1
+    }
+   }
+  }
+ },
+ {
+  "name": "Addis Ababa",
+  "lat": 9.03,
+  "lon": 38.74,
+  "tz": "Africa/Addis_Ababa",
+  "ground": 2439.1,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 93.6,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 69.7,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 168.5,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 273.7,
+     "Mar/Sep": 15.6,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 322.4,
+     "Mar/Sep": 35.5,
+     "Jun": 1.8
+    },
+    "sunset": {
+     "Dec": 387.4,
+     "Mar/Sep": 387.4,
+     "Jun": 389.8
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 705.6,
+     "Mar/Sep": 596.2,
+     "Jun": 469.4
+    },
+    "sunset": {
+     "Dec": 393.6,
+     "Mar/Sep": 393.6,
+     "Jun": 393.6
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 880.6,
+     "Mar/Sep": 847.9,
+     "Jun": 801.0
+    },
+    "sunset": {
+     "Dec": 420.5,
+     "Mar/Sep": 420.5,
+     "Jun": 420.7
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 924.9,
+     "Mar/Sep": 901.0,
+     "Jun": 827.5
+    },
+    "sunset": {
+     "Dec": 603.6,
+     "Mar/Sep": 603.6,
+     "Jun": 607.4
+    }
+   }
+  }
+ },
+ {
+  "name": "Asmara",
+  "lat": 15.33,
+  "lon": 38.93,
+  "tz": "Africa/Asmara",
+  "ground": 2336.8,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 1114.4,
+     "Mar/Sep": 1112.2,
+     "Jun": 2411.8
+    },
+    "sunset": {
+     "Dec": 243.0,
+     "Mar/Sep": 215.7,
+     "Jun": 244.4
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 1521.7,
+     "Mar/Sep": 2457.3,
+     "Jun": 2457.3
+    },
+    "sunset": {
+     "Dec": 1223.2,
+     "Mar/Sep": 1411.1,
+     "Jun": 1472.8
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 1567.2,
+     "Mar/Sep": 2457.3,
+     "Jun": 2457.3
+    },
+    "sunset": {
+     "Dec": 1384.2,
+     "Mar/Sep": 1683.0,
+     "Jun": 1746.8
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 1583.8,
+     "Mar/Sep": 2457.3,
+     "Jun": 2457.3
+    },
+    "sunset": {
+     "Dec": 1418.4,
+     "Mar/Sep": 1683.0,
+     "Jun": 1759.9
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 1596.5,
+     "Mar/Sep": 2457.3,
+     "Jun": 2457.3
+    },
+    "sunset": {
+     "Dec": 1421.1,
+     "Mar/Sep": 1683.6,
+     "Jun": 1767.8
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 1596.5,
+     "Mar/Sep": 2457.3,
+     "Jun": 2457.3
+    },
+    "sunset": {
+     "Dec": 1427.1,
+     "Mar/Sep": 1683.6,
+     "Jun": 1795.4
+    }
+   }
+  }
+ },
+ {
+  "name": "Sana'a",
+  "lat": 15.37,
+  "lon": 44.19,
+  "tz": "Asia/Aden",
+  "ground": 2255.7,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 6.6,
+     "Mar/Sep": 6.6,
+     "Jun": 6.6
+    },
+    "sunset": {
+     "Dec": 63.7,
+     "Mar/Sep": 64.1,
+     "Jun": 55.6
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 177.5,
+     "Mar/Sep": 179.5,
+     "Jun": 183.9
+    },
+    "sunset": {
+     "Dec": 235.1,
+     "Mar/Sep": 224.9,
+     "Jun": 220.5
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 432.7,
+     "Mar/Sep": 383.6,
+     "Jun": 346.2
+    },
+    "sunset": {
+     "Dec": 586.4,
+     "Mar/Sep": 510.9,
+     "Jun": 399.5
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 786.7,
+     "Mar/Sep": 869.9,
+     "Jun": 802.3
+    },
+    "sunset": {
+     "Dec": 1712.2,
+     "Mar/Sep": 1377.7,
+     "Jun": 1062.6
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 786.7,
+     "Mar/Sep": 1050.4,
+     "Jun": 1169.4
+    },
+    "sunset": {
+     "Dec": 2015.6,
+     "Mar/Sep": 1953.4,
+     "Jun": 1697.3
+    }
+   }
+  }
+ },
+ {
+  "name": "Tehran",
+  "lat": 35.7,
+  "lon": 51.42,
+  "tz": "Asia/Tehran",
+  "ground": 1183.6,
+  "israel": false,
+  "hAboveBase": {
+   "20": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 76.3,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "40": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 87.1,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "60": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 90.5,
+     "Mar/Sep": 0,
+     "Jun": 0
+    }
+   },
+   "80": {
+    "sunrise": {
+     "Dec": 0,
+     "Mar/Sep": 0,
+     "Jun": 0
+    },
+    "sunset": {
+     "Dec": 95.4,
+     "Mar/Sep": 1.5,
+     "Jun": 0
+    }
+   },
+   "100": {
+    "sunrise": {
+     "Dec": 91.2,
+     "Mar/Sep": 80.2,
+     "Jun": 82.9
+    },
+    "sunset": {
+     "Dec": 95.8,
+     "Mar/Sep": 50.2,
+     "Jun": 50.2
+    }
+   },
+   "120": {
+    "sunrise": {
+     "Dec": 258.2,
+     "Mar/Sep": 258.2,
+     "Jun": 258.2
+    },
+    "sunset": {
+     "Dec": 94.3,
+     "Mar/Sep": 59.9,
+     "Jun": 60.8
+    }
+   }
+  }
+ }
+]

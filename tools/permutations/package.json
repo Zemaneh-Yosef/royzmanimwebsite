@@ -1,0 +1,8 @@
+{
+	"name": "royzmanim-permutation-test",
+	"private": true,
+	"type": "module",
+	"description": "Replays the site's own weather and refraction code over many places under every combination of the open decisions.",
+	"scripts": { "fetch": "node fetch.mjs", "run": "node run.mjs", "quick": "node run.mjs --quick" },
+	"dependencies": { "temporal-polyfill": "1.0.8" }
+}
