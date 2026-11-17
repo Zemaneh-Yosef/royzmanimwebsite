@@ -160,7 +160,7 @@ html:not(.sidebar-wide) #sidebar .sidebar-label {
 #sidebarLogo {
 	display: block;
 	flex-shrink: 0;
-	background-image: url(/assets/images/icon-bg.png);
+	background-image: url(/assets/images/icon-bg-512w.webp); /* made by the build: _data/images.yml */
 	background-position: center;
 	background-size: 100%;
 	padding: .25rem;

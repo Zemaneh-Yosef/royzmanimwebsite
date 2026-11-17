@@ -1,0 +1,4 @@
+# Vendored builds are kept byte-for-byte as their projects produce them. Without this, Git on Windows
+# (core.autocrlf) rewrites their line endings on checkout, which also changes the newlines inside the
+# libraries' template strings.
+assets/libraries/** -text

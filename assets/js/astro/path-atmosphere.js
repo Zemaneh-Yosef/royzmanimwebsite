@@ -1,0 +1,187 @@
+// @ts-check
+/**
+ * path-atmosphere.js
+ *
+ * Atmosphere provider backed by your refraction-server: temperature profiles along the sunrise /
+ * sunset direction for any date. Each event comes from the best source the server has for it:
+ *   "forecast"          the latest GFS run (about 7 days ahead)
+ *   "climatology-gfs"   typical profiles from the server's own archive of past GFS runs
+ *   "climatology-ncep"  typical profiles from NOAA's 1991-2020 reanalysis (until the archive fills in)
+ *
+ *     import ROYSPACalculator, { chainProviders, monthlyClimate } from "./royzmanim-spa-corrections.js";
+ *     import { createServerPathAtmosphere } from "./path-atmosphere.js";
+ *
+ *     const paths = await createServerPathAtmosphere("https://your-vps.example/refraction", lat, lon);
+ *     calc.setAtmosphereProvider(chainProviders(paths.provider, monthlyClimate(normals)));
+ *
+ *     await paths.prefetch(Temporal.PlainDate.from("2027-01-01"), 365);   // e.g. before a yearly calendar
+ *     paths.sourceOf(date, "sunrise");                                     // "forecast", "climatology-gfs", ...
+ *     await paths.refresh();                                               // e.g. every few hours
+ *
+ * The provider is synchronous, so dates must be fetched (constructor range or prefetch) before the
+ * calculator asks for them; dates not fetched return null and the next provider in the chain is used.
+ * The profiles are for the requested lat/lon. Use one instance per location.
+ *
+ * With { ensemble: true } the server also sends, per event, the ensemble it has (see ensemble.js):
+ * every GEFS member for a forecast date (how sure the forecast is), or for a date from its climatology a
+ * few representative variations of the air (whose weighted mean time is the typical sunrise, rather than
+ * the sunrise of the typical air). paths.members(date, event) gives them as providers:
+ *
+ *     const paths = await createServerPathAtmosphere(url, lat, lon, { ensemble: true });
+ *     const r = ensembleTimes(calc, paths.members(date, 'sunrise'), () => calc.getVisibleSunrise(date, geo, horizon));
+ *     r.mean; r.sd; r.quantile(0.9);      // epoch ms; the provider set on calc is restored afterwards
+ *
+ * Sunset air from GFS (the forecast, GEFS members, and the climatology built from GFS runs) has its lowest
+ * 200 m corrected (sunset-air.js) unless { sunsetAirCorrection: false }; NOAA's reanalysis climatology
+ * ("climatology-ncep") is left as it is.
+ */
+
+import { correctSunsetPath } from './sunset-air.js';
+import { pathProblem, report } from './atmosphere-guard.js';
+
+/**
+ * Short hash of an event's profiles. The calculator caches traces by the air's key, so a key must change when the
+ * air does.
+ * @param {unknown} profiles
+ */
+function hashProfiles(profiles) {
+	const s = JSON.stringify(profiles);
+	let h = 5381;
+	for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+	return (h >>> 0).toString(36);
+}
+
+/**
+ * @typedef {{ distanceKm: number, water?: boolean, skinC?: number, levels: { h: number, t: number, p: number; td?: number; rh?: number; }[] }} ServerProfile
+ * @typedef {{ kind: 'gefs' | 'climatology', cycle?: string, members: { member: string, weight: number, profiles: ServerProfile[] }[] }} EventEnsemble
+ * @typedef {{ date: string, event: 'sunrise'|'sunset', source: string, timeUtc: string, azimuthDeg: number,
+ *             profiles: ServerProfile[], ensemble?: EventEnsemble }} PathEvent
+ */
+
+/**
+ * @param {string} baseUrl e.g. "https://example.org/refraction" (the server's /v1/... lives under it)
+ * @param {number} latitude
+ * @param {number} longitude
+ * @param {{ days?: number, fetch?: typeof fetch, throwOnError?: boolean, ensemble?: boolean, typical?: boolean,
+ *           sunsetAirCorrection?: boolean }} [options]
+ *   days: how many days to load at start, from yesterday (default 31; at most the server's limit).
+ *   throwOnError: default false - a failed request leaves those dates empty (the provider returns null
+ *   and the next provider in the chain is used) instead of throwing.
+ *   ensemble: also load each event's ensemble (larger answers: ~7x for climatology, ~11x for GEFS days).
+ *   typical: typical air (climatology) for every date, the forecast's included (a printed calendar that runs
+ *   past the forecast, so that its days have no step where the forecast ends).
+ *   sunsetAirCorrection: correct GFS air at sunset (default true; see the header).
+ */
+export async function createServerPathAtmosphere(baseUrl, latitude, longitude, options = {}) {
+	const doFetch = options.fetch ?? globalThis.fetch;
+	const root = `${baseUrl.replace(/\/+$/, '')}/v1/path-profiles?lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}`
+		+ (options.ensemble ? '&ensemble=1' : '') + (options.typical ? '&typical=1' : '');
+	/** @type {Map<string, { path: any[], key: string, source: string, ensemble?: EventEnsemble }>} */
+	const byKey = new Map();
+	const correct = options.sunsetAirCorrection ?? true;
+	/** the model whose sunset correction applies to an event's air, or null @param {PathEvent} e */
+	const airModel = e => correct && e.event === 'sunset' && (e.source === 'forecast' || e.source === 'climatology-gfs') ? 'gfs' : null;
+	/** @type {string | null} */
+	let cycle = null;
+	/** @type {Error | null} */
+	let lastError = null;
+	/** ranges loaded so far, re-requested by refresh() @type {{ from: string, days: number }[]} */
+	const ranges = [];
+
+	/** @param {string} from YYYY-MM-DD @param {number} days */
+	const load = async (from, days) => {
+		try {
+			const r = await doFetch(`${root}&from=${from}&days=${days}`);
+			if (!r.ok) throw new Error(`refraction server: HTTP ${r.status}`);
+			const json = await r.json();
+			for (const e of /** @type {PathEvent[]} */ (json.events ?? [])) {
+				if (!e.profiles?.length) continue;
+				// a forecast is named by its run; the climatology grows under the same name, so its key carries its values
+				const tag = e.source === 'forecast' ? json.cycle : `${e.source}#${hashProfiles(e.profiles)}`;
+				const m = airModel(e);
+				const fix = (/** @type {ServerProfile[]} */ path) => m ? correctSunsetPath(path, m) : path;
+				// air no atmosphere can have (atmosphere-guard.js) is left out: the next provider answers that event
+				const path = fix(e.profiles), problem = pathProblem(path);
+				if (problem) { report(`refraction server, ${e.date} ${e.event} (${e.source}): ${problem}`); byKey.delete(`${e.date}|${e.event}`); continue; }
+				let ensemble = e.ensemble && m
+					? { ...e.ensemble, members: e.ensemble.members.map(x => ({ ...x, profiles: fix(x.profiles) })) }
+					: e.ensemble;
+				if (ensemble?.members?.length) {
+					const members = ensemble.members.filter(x => {
+						const why = pathProblem(x.profiles);
+						if (why) report(`refraction server, ${e.date} ${e.event} member ${x.member}: ${why}`);
+						return !why;
+					});
+					ensemble = members.length ? { ...ensemble, members } : undefined;
+				}
+				byKey.set(`${e.date}|${e.event}`, {
+					path, source: e.source, ensemble,
+					key: `srv|${tag}|${latitude},${longitude}|${e.date}|${e.event}${m ? `|air-${m}1` : ''}`,
+				});
+			}
+			if (json.cycle) cycle = json.cycle;
+			lastError = null;
+		} catch (err) {
+			lastError = /** @type {Error} */ (err);
+			if (options.throwOnError) throw err;
+		}
+	};
+
+	/** @param {string} from @param {number} days */
+	const loadRange = async (from, days) => {
+		const start = new Date(from + 'T00:00:00Z').getTime();
+		for (let k = 0; k < days; k += 120) {
+			await load(new Date(start + k * 86400000).toISOString().slice(0, 10), Math.min(120, days - k));
+		}
+	};
+
+	const yesterday = new Date(Date.now() - 86400000 + longitude / 15 * 3600000).toISOString().slice(0, 10);
+	ranges.push({ from: yesterday, days: options.days ?? 31 });
+	await loadRange(yesterday, options.days ?? 31);
+
+	/** @param {Temporal.PlainDate} date  @param {'sunrise'|'sunset'} event */
+	const provider = (date, event) => {
+		const e = byKey.get(`${date.toString()}|${event}`);
+		return e ? { path: e.path, key: e.key } : null;
+	};
+
+	return {
+		provider,
+		/**
+		 * The event's ensemble as providers (each answers this date and event with its member's air, and
+		 * any other with the main profiles), or [] when the server sent none (ensemble option off, or none
+		 * for this date). For ensembleTimes() in ensemble.js.
+		 * @param {Temporal.PlainDate} date @param {'sunrise'|'sunset'} event
+		 * @returns {{ member: string, weight: number, kind: string, provider: (d: Temporal.PlainDate, ev: 'sunrise'|'sunset') => any }[]}
+		 */
+		members(date, event) {
+			const e = byKey.get(`${date.toString()}|${event}`);
+			if (!e?.ensemble?.members?.length) return [];
+			const ds = date.toString(), kind = e.ensemble.kind;
+			return e.ensemble.members.map(m => ({
+				member: m.member, weight: m.weight, kind,
+				provider: (/** @type {Temporal.PlainDate} */ d, /** @type {'sunrise'|'sunset'} */ ev) =>
+					d.toString() === ds && ev === event ? { path: m.profiles, key: `${e.key}|${m.member}` } : provider(d, ev),
+			}));
+		},
+		/**
+		 * Load a date range (e.g. a whole year before printing a calendar). Requests are split into
+		 * chunks of up to 120 days.
+		 * @param {Temporal.PlainDate} fromDate or "YYYY-MM-DD" @param {number} days
+		 */
+		async prefetch(fromDate, days) {
+			const from = fromDate.toString();
+			ranges.push({ from, days });
+			await loadRange(from, days);
+		},
+		/** Re-request everything loaded so far (picks up new forecasts and a growing climatology). */
+		async refresh() {
+			for (const r of [...ranges]) await loadRange(r.from, r.days);
+		},
+		/** @param {Temporal.PlainDate} date @param {'sunrise'|'sunset'} event */
+		sourceOf: (date, event) => byKey.get(`${date.toString()}|${event}`)?.source ?? null,
+		get cycle() { return cycle; },
+		get lastError() { return lastError; },
+		get eventCount() { return byKey.size; },
+	};
+}

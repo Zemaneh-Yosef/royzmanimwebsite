@@ -1,14 +1,14 @@
 // @ts-check
 
-import { ZemanFunctions } from "../ROYZmanim.js";
+import { ZemanFunctions } from "../core/ROYZmanim.js";
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import WebsiteLimudCalendar from "../WebsiteLimudCalendar.js";
-import { providerFromSnapshot } from "../refraction-snapshot.js";
+import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
+import { providerFromSnapshot } from "../core/refraction-snapshot.js";
 import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
 
 /**
  * Refraction data for an export worker (see workerCalcInputs in export.js).
- * @typedef {{ table: import("../refraction-snapshot.js").ProviderSnapshot, normals: import("../refraction-snapshot.js").Normals | null }} ExportRefraction
+ * @typedef {{ table: import("../core/refraction-snapshot.js").ProviderSnapshot, normals: import("../core/refraction-snapshot.js").Normals | null }} ExportRefraction
  */
 
 /** @typedef {T[keyof T]} ValueOf<T> */
@@ -21,7 +21,7 @@ import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
  * @param {[string, number, number, number, string]} geoLocationData
  * @param {ConstructorParameters<typeof ZemanFunctions>[1]} config
  * @param {boolean} isIsrael
- * @param {Parameters<import("../WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
+ * @param {Parameters<import("../core/WebsiteCalendar.js").default["getZmanimInfo"]>[2]} zmanList
  * @param {boolean} isTimelyView
  * @param {string[]} selectedLimudim
  * @param {{ language: "he-Latn" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; refraction?: ExportRefraction }} funcSettings

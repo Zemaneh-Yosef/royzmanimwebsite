@@ -7,24 +7,25 @@
  * Birkat Halevana range, when the moon is up inside the halachic night (clipped to shkiya -> netz,
  * lechatchila tzet -> alot), with the terrain-aware moon horizon when the refraction server sent one.
  * The glyphs are the print's (moonGlyphSvg), and the begin / end / strict / early-end lines follow the
- * print's handleSingleBL() (features/weeklyPrint/print-web-worker.js).
+ * print's handleSingleBL() (print/weekly/worker.js).
  */
 
-import { moonGlyphSvg } from "../../libraries/mooncalc/moonRiseSetCalc.js";
-import { HebrewNumberFormatter } from "../WebsiteCalendar.js";
+import { moonGlyphSvg } from "../astro/moon.js";
+import { HebrewNumberFormatter } from "../core/WebsiteCalendar.js";
 import { spawnWorker } from "../misc/worker.js";
 import { settings } from "../settings/handler.js";
-import { loadRefraction, snapshotProvider } from "../refraction-data.js";
+import { loadRefraction, snapshotProvider } from "../astro/refraction-data.js";
+import { optionsOf } from "../core/zmanimSettings.js";
 import { EN, TEXT, levanaWindow, strictLabel as levanaStrictLabel } from "./levanaWindow.js";
 
-/** @typedef {import('./weeklyPrint/moon-birkat-worker.js').MonthResult} MonthResult */
-/** @typedef {import('./weeklyPrint/moon-birkat-worker.js').BirkatRow} BirkatRow */
-/** @typedef {import('./weeklyPrint/moon-birkat-worker.js').MoonEvent} MoonEvent */
-/** @typedef {import('./weeklyPrint/print-web-worker.js').RefractionInit} RefractionInit */
-/** @typedef {import('../zmanimListUpdater.js').default} ZmanimListUpdater */
+/** @typedef {import('../print/weekly/moon-birkat-worker.js').MonthResult} MonthResult */
+/** @typedef {import('../print/weekly/moon-birkat-worker.js').BirkatRow} BirkatRow */
+/** @typedef {import('../print/weekly/moon-birkat-worker.js').MoonEvent} MoonEvent */
+/** @typedef {import('../print/weekly/worker.js').RefractionInit} RefractionInit */
+/** @typedef {import('../pages/calendar.js').default} ZmanimListUpdater */
 /** @typedef {import('./levanaWindow.js').Lang} Lang */
 
-const WORKER_URL = '/assets/js/features/weeklyPrint/moon-birkat-worker.js';
+const WORKER_URL = '/assets/js/print/weekly/moon-birkat-worker.js';
 const GLYPH_SIZE = 40;
 /** Results kept per location / month / refraction state; a page visit rarely needs more than a few. */
 const MAX_CACHED = 12;
@@ -48,7 +49,7 @@ export default class LevanaCard {
 	/** The signature the card is showing (or waiting for). */
 	shownSig = '';
 
-	/** Moon horizon fetched by this card, per place ("lat,lon"). @type {Map<string, import('../refraction-snapshot.js').Horizon | null>} */
+	/** Moon horizon fetched by this card, per place ("lat,lon"). @type {Map<string, import('../core/refraction-snapshot.js').Horizon | null>} */
 	moonHorizons = new Map();
 
 	/** Places whose moon horizon fetch already started. @type {Set<string>} */
@@ -176,9 +177,8 @@ export default class LevanaCard {
 		const geo = updater.geoLocation;
 		const placeKey = `${geo.getLatitude()},${geo.getLongitude()}`;
 		const config = updater.zmanCalc.config;
-		const israel = updater.jCal.getInIsrael();
-		const elevation = config.elevation;
-		const hourCalculator = settings.calendarToggle.forceSunSeasonal() ? 'seasonal' : 'degrees';
+		// the calendar's own options, so the moon's netz / shkiya match the times on the page
+		const zemanim = optionsOf(config);
 
 		const horizon = this.moonHorizons.get(placeKey) ?? updater.refraction?.horizon ?? config.horizon ?? null;
 		const normals = updater.refraction?.normals ?? null;
@@ -187,7 +187,7 @@ export default class LevanaCard {
 		const forecastAt = updater._shownForecastAt ?? null;
 
 		const sig = [
-			placeKey, geo.getElevation(), geo.getTimeZone(), israel, elevation, hourCalculator, ctx.year, ctx.month,
+			placeKey, geo.getElevation(), geo.getTimeZone(), JSON.stringify(zemanim), ctx.year, ctx.month,
 			forecastAt, provider ? 'p' : '-', normals ? 'n' : '-',
 			horizon ? (horizon.moon ? 'moon' : 'sun') : 'none', haze?.forecastFetchedAt ?? (haze ? 'h' : '-')
 		].join('|');
@@ -209,7 +209,7 @@ export default class LevanaCard {
 			const geoCoordinates = [geo.getLocationName(), geo.getLatitude(), geo.getLongitude(), geo.getElevation(), geo.getTimeZone()];
 			return {
 				init,
-				params: { geoCoordinates, months: [{ year: ctx.year, month: ctx.month }], israel, elevation, hourCalculator }
+				params: { geoCoordinates, months: [{ year: ctx.year, month: ctx.month }], zemanim }
 			};
 		};
 
@@ -218,7 +218,7 @@ export default class LevanaCard {
 
 	/**
 	 * @param {string} sig
-	 * @param {() => { init: RefractionInit | null, params: import('./weeklyPrint/moon-birkat-worker.js').birkatWorkerParam }} run
+	 * @param {() => { init: RefractionInit | null, params: import('../print/weekly/moon-birkat-worker.js').birkatWorkerParam }} run
 	 */
 	startCompute(sig, run) {
 		/** @type {{ result?: MonthResult, error?: unknown, promise: Promise<MonthResult> }} */
@@ -272,7 +272,8 @@ export default class LevanaCard {
 		loadRefraction(geo.getLatitude(), geo.getLongitude(), {
 			moon: true,
 			haze: false,
-			humidity: settings.refraction.humidity()
+			humidity: settings.refraction.humidity(),
+			seaSurface: settings.refraction.seaSurfaceLayer()
 		}).then(data => {
 			if (!data.horizon?.moon) return;
 			this.moonHorizons.set(placeKey, data.horizon);

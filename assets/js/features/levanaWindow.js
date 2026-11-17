@@ -63,8 +63,8 @@ export const TEXT = {
 
 /**
  * The Birkat Halevana window of jCal's Hebrew month.
- * @param {import('../WebsiteCalendar.js').default} jCal
- * @param {import('../ROYZmanim.js').ZemanFunctions} zmanCalc
+ * @param {import('../core/WebsiteCalendar.js').default} jCal
+ * @param {import('../core/ROYZmanim.js').ZemanFunctions} zmanCalc
  * @returns {LevanaWindow}
  */
 export function levanaWindow(jCal, zmanCalc) {

@@ -1,5 +1,7 @@
 // @ts-check
 
+import { nextFrame } from "../misc/util.js";
+
 const RETRY_FIRST_MS = 15000;
 const RETRY_MAX_MS = 15 * 60 * 1000;
 
@@ -59,7 +61,7 @@ export async function reload() {
 		// If reload() didn't navigate away within 6s, assume we're in a WebView
 		// that doesn't support location.reload() and fall through to manual DOM swap.
 		await waitFor(6000);
-		await sleep();
+		await nextFrame();
 
 		const pageText = await pageFetch.text();
 		const newDoc = new DOMParser().parseFromString(pageText, "text/html");
@@ -152,6 +154,3 @@ export async function fetchOk(url) {
 
 /** @param {number} delay  */
 function waitFor (delay) { return new Promise(resolve => setTimeout(resolve, delay)) }
-async function sleep() {
-	return new Promise(requestAnimationFrame);
-}

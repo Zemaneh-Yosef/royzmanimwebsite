@@ -25,7 +25,7 @@
 
 import "../assets/libraries/temporal-polyfill/global.min.js";
 import { readFileSync, writeFileSync } from "node:fs";
-import ROYSPACalculator, { monthlyClimate } from "../assets/libraries/kosherZmanim/royzmanim-spa-corrections.js";
+import ROYSPACalculator, { monthlyClimate } from "../assets/js/astro/royzmanim-spa-corrections.js";
 import { GeoLocation } from "../assets/libraries/kosherZmanim/kosher-zmanim.js";
 
 const args = parseArgs(process.argv.slice(2));

@@ -1,6 +1,6 @@
 // @ts-check
 
-import { methodNames } from "../ROYZmanim.js";
+import { methodNames } from "../core/ROYZmanim.js";
 import autoSchedule from "./auto-schedule.js";
 
 const STYLED_SPAN_RE = /^<span data-zy-inserted-style style="([^"]*)">([\s\S]*)<\/span>$/;

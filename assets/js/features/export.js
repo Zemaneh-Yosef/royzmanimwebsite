@@ -1,10 +1,10 @@
 // @ts-check
 
 import { settings } from "../settings/handler.js";
-import WebsiteCalendar from "../WebsiteCalendar.js";
-import TekufahCalculator from "../tekufot.js";
-import { snapshotProvider } from "../refraction-snapshot.js";
-import { loadRefraction, printNeedsTypicalAir } from "../refraction-data.js";
+import WebsiteCalendar from "../core/WebsiteCalendar.js";
+import TekufahCalculator from "../core/tekufot.js";
+import { snapshotProvider } from "../core/refraction-snapshot.js";
+import { loadRefraction, printNeedsTypicalAir } from "../astro/refraction-data.js";
 import { spawnWorker } from "../misc/worker.js";
 
 /**
@@ -14,9 +14,9 @@ import { spawnWorker } from "../misc/worker.js";
  * The terrain horizon is plain data and stays in the config, so the workers compute the same visible
  * sunrise as the page. An export that runs past the forecast (as a year does) uses typical air on every day,
  * as the prints do, so its times have no step where the forecast ends.
- * @param {import('../zmanimListUpdater.js').default} zmanLister
+ * @param {import('../pages/calendar.js').default} zmanLister
  * @param {[number, number, number, string]} firstDateParams the first month's PlainDate constructor arguments
- * @returns {Promise<{ config: import("../ROYZmanim.js").ZemanimConfig, refraction: import("./excelPrepare.js").ExportRefraction }>}
+ * @returns {Promise<{ config: import("../core/ROYZmanim.js").ZemanimConfig, refraction: import("./excelPrepare.js").ExportRefraction }>}
  */
 async function workerCalcInputs(zmanLister, firstDateParams) {
 	const { atmosphereProvider, deferVisibleSunrise: _deferred, ...config } = zmanLister.zmanCalc.config;
@@ -49,7 +49,7 @@ export default class exportFriendly {
 		this.midDownload = false;
 	}
 
-	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
+	/** @param {import('../pages/calendar.js').default} zmanLister  */
 	async handleICS(zmanLister) {
 		if (this.midDownload)
 			return;
@@ -257,7 +257,7 @@ export default class exportFriendly {
 		return [...setFromValues].map(value => JSON.parse(value));
 	}
 
-	/** @param {import('../zmanimListUpdater.js').default} zmanLister  */
+	/** @param {import('../pages/calendar.js').default} zmanLister  */
 	async handleExcel(zmanLister) {
 		if (this.midDownload)
 			return;

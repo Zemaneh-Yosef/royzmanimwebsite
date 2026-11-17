@@ -25,12 +25,12 @@ export const LEAVE_AS_IS = ["assets/libraries/pdfviewer/", "assets/libraries/ces
  * also writes a self-contained "*.classic.js" copy for browsers without module workers.
  */
 export const WORKERS = [
-	"assets/js/visible-sunrise-worker.js",
+	"assets/js/astro/visible-sunrise-worker.js",
 	"assets/js/features/icsPrepare.js",
 	"assets/js/features/excelPrepare.js",
-	"assets/js/features/print-web-worker.js",
-	"assets/js/features/weeklyPrint/print-web-worker.js",
-	"assets/js/features/weeklyPrint/moon-birkat-worker.js"
+	"assets/js/print/monthly/worker.js",
+	"assets/js/print/weekly/worker.js",
+	"assets/js/print/weekly/moon-birkat-worker.js"
 ];
 
 /** Loaded by every classic worker before its own code (only old browsers get classic workers). */

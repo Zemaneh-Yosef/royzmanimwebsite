@@ -39,6 +39,22 @@
             "purpose": "maskable"
         }
     ],
+    "screenshots": [
+        {
+            "src": "/assets/images/pwa/screenshots/calendar-narrow.png",
+            "sizes": "824x1784",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "The Zemanim of the day in Jerusalem"
+        },
+        {
+            "src": "/assets/images/pwa/screenshots/calendar-wide.png",
+            "sizes": "1280x800",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "The Zemanim of the day in Jerusalem"
+        }
+    ],
     "related_applications": [
         {
             "platform":"itunes",
