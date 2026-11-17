@@ -55,6 +55,53 @@ function options() {
 	return pageOptions;
 }
 
+/** Degrees, then optional minutes and seconds, each with its mark (ASCII and typographic alike, '' for seconds too) */
+const ANGLE = String.raw`([+-]?\d+(?:\.\d+)?)\s*[°º˚]?\s*(?:(\d+(?:\.\d+)?)\s*['′‘’]\s*)?(?:(\d+(?:\.\d+)?)\s*(?:"|″|“|”|''|′′|’’)\s*)?`;
+/** One coordinate, its hemisphere before or after it (8 groups: hemisphere, angle | angle, hemisphere) */
+const COORDINATE = String.raw`(?:([NSEW])\s*${ANGLE}|${ANGLE}([NSEW])?)`;
+const COORDINATE_PAIR = new RegExp(String.raw`^\(?\s*${COORDINATE}\s*[,;]?\s*${COORDINATE}\s*\)?$`, "i");
+
+/**
+ * Coordinates typed into the search, or null when the text isn't a pair of them. Takes decimal degrees,
+ * "(31.778, 35.235)", "31.778, 35.235" or "31.778 35.235", and degrees, minutes and seconds with
+ * hemispheres, as maps copy them: 36°08'38.50"N 5°20'20.22"W (or 36°08.64'N, N36°08'38.5" W5°20'20.2" ...).
+ * Longitude first is accepted when the hemispheres say so.
+ * @param {string} text
+ * @returns {{ lat: number, lng: number } | null}
+ */
+export function parseCoordinates(text) {
+	const m = text.trim().match(COORDINATE_PAIR);
+	if (!m) return null;
+
+	/** @param {(string | undefined)[]} c the 8 groups of COORDINATE */
+	const read = (c) => {
+		const [deg, min, sec] = c[0] ? c.slice(1, 4) : c.slice(4, 7);
+		if (deg === undefined) return null;
+		const hemisphere = (c[0] || c[7] || "").toUpperCase();
+		if (hemisphere && /^[+-]/.test(deg)) return null;
+		const minutes = min ? parseFloat(min) : 0, seconds = sec ? parseFloat(sec) : 0;
+		if (minutes >= 60 || seconds >= 60) return null;
+		// minutes and seconds count only on whole degrees (and seconds only on whole minutes)
+		if ((min || sec) && deg.includes(".")) return null;
+		if (sec && min?.includes(".")) return null;
+		const magnitude = Math.abs(parseFloat(deg)) + minutes / 60 + seconds / 3600;
+		const negative = hemisphere ? hemisphere == "S" || hemisphere == "W" : deg.startsWith("-");
+		return { value: negative ? -magnitude : magnitude, hemisphere };
+	};
+	const first = read(m.slice(1, 9)), second = read(m.slice(9, 17));
+	if (!first || !second) return null;
+
+	const isLng = (/** @type {string} */ h) => h == "E" || h == "W";
+	const isLat = (/** @type {string} */ h) => h == "N" || h == "S";
+	// A hemisphere given on one side only, or both on the same axis, is a typo, not a place
+	if (!!first.hemisphere != !!second.hemisphere) return null;
+	if (first.hemisphere && isLat(first.hemisphere) == isLat(second.hemisphere)) return null;
+	const [lat, lng] = isLng(first.hemisphere) ? [second.value, first.value] : [first.value, second.value];
+
+	if (!(Math.abs(lat) <= 90 && Math.abs(lng) <= 180)) return null;
+	return { lat, lng };
+}
+
 /** The map of a place typed as coordinates @type {Promise<import("ol/Map.js").default> | null} */
 let manualMap = null;
 /** Where manualMap is centred ("lat,lng"), so only a new place redraws it */
@@ -184,14 +231,14 @@ async function updateList(event) {
 		return;
 	}
 
-	if (q.startsWith("(") && q.endsWith(")") && q.split('').filter(x => x == ',').length == 1 && q.split(',').length == 2
-		&& q.replace('(', '').replace(')', '').replaceAll(' ', '').split(',').every(val => !isNaN(val) && !isNaN(parseFloat(val)))) {
+	const typedCoordinates = parseCoordinates(q);
+	if (typedCoordinates) {
 		if (elements.manual.container.classList.contains('d-none')) {
 			elements.manual.container.classList.remove('d-none');
 			requestAnimationFrame(() => elements.manual[navigator.onLine ? 'map' : 'timezoneSelect'].scrollIntoView());
 		}
 
-		const [lat, lng] = q.replace('(', '').replace(')', '').split(',').map(num => parseFloat(num))
+		const { lat, lng } = typedCoordinates;
 		// A new map for each place typed (the map is held on its place); keys that leave the
 		// coordinates as they were (arrows, Home/End, Shift…) keep the one shown
 		if (manualMapAt !== `${lat},${lng}`) {
