@@ -482,14 +482,17 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 				.reduce((b, f) => Math.abs(f.az - az) < Math.abs(b.az - az) ? f : b);
 			// the whole path from one model: the chosen one if it is complete and real air (atmosphere-guard.js), else the
 			// fallback's; best_match not past its reach, where its levels come from another model than its ground air
-			const until = MIXED_AFTER_REACH.has(model) && fbModel ? fetchedAt + REACH_HOURS[model] * 3600000 : Infinity;
+			// (only when the fallback's forecast is in hand: should its request fail, best_match stays, the guard deciding)
+			const until = MIXED_AFTER_REACH.has(model) && fb.length ? fetchedAt + REACH_HOURS[model] * 3600000 : Infinity;
 			for (const [series, name, end] of /** @type {[Series[], string, number][]} */ ([[fc, model, until], [fb, fbModel ?? '', Infinity]])) {
 				if (!series.length || t > end) continue;
 				const path = fan.idx.map((i, n) => profileFrom(series[i], i, t, dists[n]));
-				if (path.every(Boolean) && !pathProblem(/** @type {PathProfile[]} */ (path))) {
+				if (path.every(Boolean)) {
 					const air = (options.sunsetAirCorrection ?? true) ? sunsetAirModel(name, event, latitude, longitude, t, fetchedAt) : null;
+					const final = air ? correctSunsetPath(/** @type {PathProfile[]} */ (path), air) : /** @type {PathProfile[]} */ (path);
+					if (pathProblem(final)) continue;                // as the calculator would refuse it: the next model's
 					res = {
-						path: air ? correctSunsetPath(/** @type {PathProfile[]} */ (path), air) : /** @type {PathProfile[]} */ (path),
+						path: final,
 						key: `om|${name}|${stamp}|${k}${options.humidity ? '|h' : ''}${air ? `|air-${air}1` : ''}`,
 					};
 					usedModel.set(k, name);

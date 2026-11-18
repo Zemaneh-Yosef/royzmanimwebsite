@@ -56,6 +56,8 @@ export const SUNSET_AIR_COEFFICIENTS = {
 };
 
 const G0 = 9.80665, R_DRY = 287.05;
+/** Model levels closer than this (m) above the highest corrected level are left out (they add nothing there). */
+const NEAR_LEVEL_GAP_M = 15;
 
 /** @param {number[]} zs ascending @param {number[]} ts @param {number} z */
 function interp(zs, ts, z) {
@@ -90,7 +92,10 @@ export function correctSunsetColumn(prof, model) {
 		const p = prev.p * Math.exp(-G0 * (z - prev.h) / (R_DRY * ((t + prev.t) / 2 + 273.15)));
 		out.push({ h: z, t, p });
 	});
-	for (const l of levels) if (l.h - ground > top + 3) out.push(l);
+	// the model's levels above: not one within NEAR_LEVEL_GAP_M of the 200 m level just set, whose pressure is worked out
+	// from the 2 m air and could otherwise come out lower than that of a level a few metres above it (seen: 899.98 hPa at
+	// 1006 m under 900 hPa at 1008 m, and the calculator refused the sunset)
+	for (const l of levels) if (l.h - (ground + 2 + top) > NEAR_LEVEL_GAP_M) out.push(l);
 	return { ...prof, levels: out };
 }
 
