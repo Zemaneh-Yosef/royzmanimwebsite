@@ -14,7 +14,7 @@ import { moonGlyphSvg } from "../astro/moon.js";
 import { HebrewNumberFormatter } from "../core/WebsiteCalendar.js";
 import { spawnWorker } from "../misc/worker.js";
 import { settings } from "../settings/handler.js";
-import { loadRefraction, snapshotProvider } from "../astro/refraction-data.js";
+import { loadRefraction, snapshotProvider, MIN_REFRACTION_RECHECK_MS } from "../astro/refraction-data.js";
 import { optionsOf } from "../core/zmanimSettings.js";
 import { EN, TEXT, levanaWindow, strictLabel as levanaStrictLabel } from "./levanaWindow.js";
 
@@ -275,7 +275,15 @@ export default class LevanaCard {
 			humidity: settings.refraction.humidity(),
 			seaSurface: settings.refraction.seaSurfaceLayer()
 		}).then(data => {
-			if (!data.horizon?.moon) return;
+			if (!data.horizon?.moon) {
+				// the server is still computing this place's horizon: ask again when it says to
+				if (data.horizonRetryS)
+					setTimeout(() => {
+						this.moonHorizonRequested.delete(placeKey);
+						if (this.updater) this.maybeFetchMoonHorizon(this.updater);
+					}, Math.max(MIN_REFRACTION_RECHECK_MS, data.horizonRetryS * 1000));
+				return;
+			}
 			this.moonHorizons.set(placeKey, data.horizon);
 			if (this.updater) this.render(this.updater);
 		}).catch(e => console.warn('Moon horizon unavailable; using the flat horizon', e));

@@ -968,7 +968,7 @@ async function loadRefractionNow(lat, lon, options, schedule) {
 					}
 					notes.push("terrain changed here: horizon downloaded again");
 					// a new URL, so the browser's cached copy of the old one isn't used
-					return fetchHorizon(`${TERRAIN_VERSION}.${now.layers ?? "-"}.${now.fine ?? "-"}`);
+					return fetchHorizon(`${TERRAIN_VERSION}.${now.layers ?? "-"}.${now.fine ?? "-"}.${now.algo ?? 1}`);
 				})))
 		// a stored (or sun-only) horizon beats none when a new one can't be had; checked again next time
 		.catch((/** @type {Error} */ e) => {
