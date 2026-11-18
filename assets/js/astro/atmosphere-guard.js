@@ -70,6 +70,8 @@ export const LIMITS = Object.freeze({
 	horizonPlaceKm: 5,
 });
 
+import { envelopeAt } from './climate-envelope.js';
+
 const RD = 287.05, G = 9.80665;
 
 /** Each refusal is reported once (console.warn), so a bad source shows up in the console without flooding it. */
@@ -202,6 +204,42 @@ export function groundTemperature(spec) {
 	let best = null;
 	for (const col of spec.path ?? []) if (!best || col.distanceKm < best.distanceKm) best = col;
 	return best?.levels?.[0]?.t ?? NaN;
+}
+
+/**
+ * The height (m) of the temperature groundTemperature() reads: the surface spec's heightM, or the lowest level
+ * of the path's column nearest the observer; else the observer's. 0 if none.
+ * @param {any} spec @param {any} [geo]
+ */
+export function groundHeight(spec, geo) {
+	let h = NaN;
+	if (spec && 'path' in spec) {
+		let best = null;
+		for (const col of spec.path ?? []) if (!best || col.distanceKm < best.distanceKm) best = col;
+		h = best?.levels?.[0]?.h;
+	} else h = spec?.heightM;
+	if (!Number.isFinite(h)) h = geo?.getElevation?.();
+	return Number.isFinite(h) ? h : 0;
+}
+
+/**
+ * Why a spec's ground temperature is too far from the place's climate to be real air, or null. The reference is the
+ * place's normal for the date when there is one (normalC: within maxAnomalyC of it), else the refraction server's
+ * climate envelope for the place (climate-envelope.js) at the spec's height: more than maxAnomalyC outside the
+ * month's whole range. With neither, nothing is checked.
+ * @param {any} spec @param {{ month: number }} date @param {any} geo @param {number} [normalC]
+ * @returns {string | null}
+ */
+export function anomalyProblem(spec, date, geo, normalC = NaN) {
+	const here = groundTemperature(spec);
+	if (!Number.isFinite(here)) return null;
+	if (Number.isFinite(normalC))
+		return Math.abs(here - normalC) > LIMITS.maxAnomalyC ? `${here} C against a normal of ${normalC.toFixed(1)} C` : null;
+	const h = groundHeight(spec, geo);
+	const range = envelopeAt(geo?.getLatitude?.(), geo?.getLongitude?.(), date?.month, h);
+	if (!range) return null;
+	return here < range[0] - LIMITS.maxAnomalyC || here > range[1] + LIMITS.maxAnomalyC
+		? `${here} C at ${h.toFixed(0)} m, outside this place's climate (${range[0].toFixed(0)}..${range[1].toFixed(0)} C)` : null;
 }
 
 /**

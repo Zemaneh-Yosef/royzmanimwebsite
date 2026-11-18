@@ -145,7 +145,7 @@ import { SPACalculator, GeoLocation } from '../../libraries/kosherZmanim/kosher-
 import { nutation } from './nutation.js';
 import { EARTH_L, EARTH_B, EARTH_R } from './vsop87-earth.js';
 import { deltaT, ut1MinusUtc } from './delta-t.js';
-import { specProblem, groundTemperature, LIMITS, report } from './atmosphere-guard.js';
+import { specProblem, groundTemperature, anomalyProblem, report } from './atmosphere-guard.js';
 
 export const ROY_REFRACTION_ARCMIN = 34.478885263888294;
 
@@ -1266,12 +1266,11 @@ export function chainProviders(...providers) {
 			if (!spec) continue;
 			const problem = specProblem(spec);
 			if (problem) { report(`${/** @type {any} */ (spec).source ?? 'provider'} for ${date} ${event}: ${problem}`); continue; }
-			if (climate && p !== climate) {
-				const normal = groundTemperature(climate(date, event, geo)), here = groundTemperature(spec);
-				if (Number.isFinite(normal) && Number.isFinite(here) && Math.abs(here - normal) > LIMITS.maxAnomalyC) {
-					report(`${/** @type {any} */ (spec).source ?? 'provider'} for ${date} ${event}: ${here} C against a normal of ${normal.toFixed(1)} C`);
-					continue;
-				}
+			if (p !== climate) {
+				// the place's normal when the chain has one, else the server's climate envelope for the place
+				const normal = climate ? groundTemperature(climate(date, event, geo)) : NaN;
+				const anomaly = anomalyProblem(spec, date, geo, normal);
+				if (anomaly) { report(`${/** @type {any} */ (spec).source ?? 'provider'} for ${date} ${event}: ${anomaly}`); continue; }
 			}
 			return spec;
 		}
@@ -1548,7 +1547,8 @@ export default class ROYSPACalculator extends SPACalculator {
 		if (!this._atmosphereProvider || !date || !event) return null;
 		const spec = this._atmosphereProvider(date, event, geo);
 		// air no atmosphere can have (atmosphere-guard.js): the standard model instead
-		const problem = specProblem(spec);
+		// a provider set without chainProviders gets the envelope check too (never tighter than the normal's)
+		const problem = specProblem(spec) ?? (spec ? anomalyProblem(spec, date, geo) : null);
 		if (problem) { report(`${date} ${event}: ${problem}`); return null; }
 		return spec ? atmosphereFromSpec(heightM, spec, this._seaSurfaceLayer, this._humidity, geo?.getLatitude?.()) : null;
 	}

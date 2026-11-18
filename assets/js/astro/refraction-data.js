@@ -46,6 +46,7 @@ import { forecastDomains, hazeDomains, runState } from "./model-runs.js";
 import { fetchHorizonForArea, fetchTerrainVersion, sameTerrain, terrainOf, areaContains, HorizonPendingError } from "./horizon-client.js";
 import { chooseOpenMeteoModel } from "./open-meteo-path.js";
 import { horizonProblem, report } from "./atmosphere-guard.js";
+import { envelopeCellId, isClimateEnvelope, setClimateEnvelope } from "./climate-envelope.js";
 import { fetchHazeNormals, fetchHazeForecastBoth, fetchGefsHazeForecastBoth } from "./open-meteo-haze.js";
 import { fetchLightPollution } from "./light-pollution-client.js";
 
@@ -169,13 +170,21 @@ const hazeKey = (id) => `refraction:v${CACHE_VERSION}:${id}:haze`;
 /** @param {string} id */
 const skyKey = (id) => `refraction:v${CACHE_VERSION}:${id}:sky`;
 /** Ends of the keys that are current while CACHE_VERSION is (the horizon's also needs TERRAIN_VERSION). */
-const CURRENT_KINDS = [":forecast", ":normals", ":haze", ":sky", `:horizon:${TERRAIN_VERSION}`];
+const CURRENT_KINDS = [":forecast", ":normals", ":haze", ":sky", ":climate", `:horizon:${TERRAIN_VERSION}`];
 /**
  * Haze of a reference place (e.g. Jerusalem's average sky, for dawn by the horizon glow): outside the place
  * index, so it never pushes out one of the user's places. Ends in ":haze", so sweepOldEntries keeps it.
  * @param {string} id
  */
 const referenceHazeKey = (id) => `refraction:v${CACHE_VERSION}:reference:${id}:haze`;
+/**
+ * The refraction server's climate envelope for a 5 degree cell (/v1/climate-envelope): outside the place index, like
+ * the reference haze; ends in ":climate", so sweepOldEntries keeps it.
+ * @param {string} cell
+ */
+const climateKey = (cell) => `refraction:v${CACHE_VERSION}:reference:${cell}:climate`;
+/** The envelope comes from 30-year means: fetched again after this. */
+const CLIMATE_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 /** Keys this module ever wrote, in any version (localStorage before, IndexedDB now). */
 const OUR_KEY = /^refraction:v\d+:/;
 
@@ -668,6 +677,37 @@ async function fetchHazeCalibration(serverUrl, lat, lon, signal) {
 }
 
 /**
+ * Load the refraction server's climate envelope for a place into climate-envelope.js, where the guardrails' anomaly
+ * check reads it when the place's monthly normals didn't download: the stored one at once, fetched (and stored)
+ * when missing or older than CLIMATE_MAX_AGE_MS. Never throws.
+ * @param {string} serverUrl @param {number} lat @param {number} lon @param {AbortSignal} [signal]
+ * @returns {Promise<string | null>} a note when the download failed
+ */
+async function loadClimateEnvelope(serverUrl, lat, lon, signal) {
+	try {
+		const key = climateKey(envelopeCellId(lat, lon));
+		/** @type {{ fetchedAt: number, envelope: import("./climate-envelope.js").ClimateEnvelope } | null} */
+		const st = await readOne(key);
+		if (st && isClimateEnvelope(st.envelope)) {
+			setClimateEnvelope(st.envelope);
+			if (Date.now() - st.fetchedAt < CLIMATE_MAX_AGE_MS) return null;
+		}
+		const timeout = typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
+		const r = await fetch(`${serverUrl}/v1/climate-envelope?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`,
+			{ signal: signal && timeout && AbortSignal.any ? AbortSignal.any([signal, timeout]) : signal ?? timeout });
+		if (r.status === 404) return null;             // the server has no data for this place
+		if (!r.ok) throw new Error(`HTTP ${r.status}`);
+		const envelope = await r.json();
+		if (!isClimateEnvelope(envelope)) throw new Error("unusable answer");
+		setClimateEnvelope(envelope);
+		writeReference(key, { fetchedAt: Date.now(), envelope });
+		return null;
+	} catch (e) {
+		return `climate envelope: ${/** @type {Error} */ (e).message}`;
+	}
+}
+
+/**
  * Haze for a place: stored parts reused while fresh, the rest fetched. Never throws.
  * @param {number} lat @param {number} lon @param {string} serverUrl @param {string[]} notes
  * @param {{ force?: boolean, signal?: AbortSignal, reference?: boolean, schedule?: { at: number }, sky?: Spot,
@@ -853,7 +893,11 @@ const whenIdle = (fn) => (typeof requestIdleCallback === "function" ? requestIdl
  */
 export async function loadRefraction(lat, lon, options = {}) {
 	const schedule = { at: Infinity };
+	// alongside the rest; in place before the provider is used (the guardrails read it then)
+	const envelopeP = loadClimateEnvelope(options.serverUrl ?? REFRACTION_SERVER, lat, lon, options.signal);
 	const data = await loadRefractionNow(lat, lon, options, schedule);
+	const envelopeNote = await envelopeP;
+	if (envelopeNote) data.notes.push(envelopeNote);
 	if (data.forecastFetchedAt !== null) {
 		// the records were just read for this, so this is no request
 		const runs = await runState(forecastDomains(lat, lon), data.forecastFetchedAt, FORECAST_TTL_MS);
