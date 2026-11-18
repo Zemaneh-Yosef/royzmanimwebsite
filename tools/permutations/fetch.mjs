@@ -63,6 +63,8 @@ for (const p of todo) {
 			const s = await createServerPathAtmosphere(SERVER, p.lat, p.lon, { days: 31, fetch: f });
 			await s.prefetch(Temporal.PlainDate.from(new Date(fetchedAt).toISOString().slice(0, 10)), SERVER_DAYS);
 			if (!s.lastError && s.eventCount > 0) return;
+			// 404: the place is outside the server's regions (the site then goes from the forecast straight to the normals)
+			if (/HTTP 404/.test(s.lastError?.message ?? '')) throw new Error('outside the server\'s regions (as on the site: forecast, then normals)');
 			if (k >= 5) throw s.lastError ?? new Error('no profiles for this place');
 			log(`  server: ${s.lastError?.message ?? 'no profiles yet'}; asking again in 60 s`); await sleep(60);
 		}
