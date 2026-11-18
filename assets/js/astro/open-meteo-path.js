@@ -3,7 +3,8 @@
  * open-meteo-path.js
  *
  * The air along the whole line of sight, straight from the browser: for each sunrise and sunset in
- * the next 16 days, model temperature profiles (2 m plus pressure levels up to 700 mb, ~3 km) at
+ * the next 16 days, model temperature profiles (2 m plus pressure levels up to 700 mb, ~3 km; 500 mb, ~5.6 km, over
+ * high ground) at
  * 0, 10, 25, 50, 100, 150, 200, 300 and 400 km along the Sun's direction, with the sea-surface
  * temperature where the path crosses the sea. Worldwide, no API key, no server: Open-Meteo
  * (open-meteo.com) serves the latest runs of the national weather models.
@@ -21,11 +22,14 @@
  *   Israel and its neighbours  icon_seamless (DWD ICON-EU 7 km to ~5 days, ICON global to ~7.5)
  *   Canada                     gem_seamless (Canada's GEM: HRDPS 2.5 km ~2 days, RDPS 10 km ~4,
  *                              global 15 km to 10; extra levels 1015 / 985 / 970 / 875 mb)
- *   Europe                     best_match (Open-Meteo's European models; not yet checked level by level)
+ *   Europe                     best_match (Open-Meteo's European models) to ~6.5 days: after that it mixes
+ *                              models between the ground air and the levels (checked live, November 2026)
  *   everywhere else            gfs_seamless (NOAA HRRR 3 km where it reaches, ~2.3 days, then GFS;
  *                              in the US this is exactly what best_match returns)
- * Where the chosen model ends (or lacks a level for an event), the whole path for that event comes
- * from gfs_seamless instead, which reaches 16 days: never a mix within one sunrise or sunset.
+ * Where the chosen model ends (or lacks a level for an event, or its column for the event is not real air by
+ * atmosphere-guard.js), the whole path for that event comes from gfs_seamless instead, which reaches 16 days:
+ * never a mix within one sunrise or sunset. Where the paths cross ground above HIGH_GROUND_M, 600 and 500 mb are
+ * asked for too, so no column there is left with its 2 m air alone.
  * Override with options.models (one Open-Meteo model name, 'best_match', or 'auto').
  * Sunset air has its lowest 200 m corrected with the coefficients for the model it came from (sunset-air.js;
  * sunsetAirModel says which).
@@ -48,6 +52,7 @@
 
 import { getOpenMeteoJson, openMeteoCallsLeft } from './open-meteo-atmosphere.js';
 import { correctSunsetPath } from './sunset-air.js';
+import { pathProblem } from './atmosphere-guard.js';
 
 const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 const MARINE_URL = 'https://marine-api.open-meteo.com/v1/marine';
@@ -60,6 +65,16 @@ export const DEFAULT_DISTANCES_KM = [0, 10, 25, 50, 100, 150, 200, 300, 400];
 export const DEFAULT_LEVELS_MB = [1000, 975, 950, 925, 900, 850, 800, 700];
 /** Canada's GEM has no 975 mb level but more near the ground, where dawn inversions sit. */
 export const GEM_LEVELS_MB = [1015, 1000, 985, 970, 950, 925, 900, 875, 850, 800, 700];
+/** Added where the ground along the paths is high (HIGH_GROUND_M): ~4.2 and ~5.6 km. */
+export const HIGH_LEVELS_MB = [600, 500];
+/**
+ * Ground (m, any point of a place's paths) above which the columns also get HIGH_LEVELS_MB. The 700 mb layer is at
+ * ~2.8-3.2 km, so a column on ground near or above it had only its 2 m air, and the calculator refused the whole
+ * event (seen in the permutation test, November 2026: Bogota, Quito and La Paz at every sunrise and sunset, Sana'a's
+ * sunsets, Denver's sunsets over the Rockies, Salt Lake City's sunrises). Asked for once a place shows such ground
+ * (costing one more request then) and at every refresh after.
+ */
+export const HIGH_GROUND_M = 2000;
 /** Model used where the chosen one ends: consistent at every level for 16 days, everywhere. */
 export const FALLBACK_MODEL = 'gfs_seamless';
 /**
@@ -68,7 +83,14 @@ export const FALLBACK_MODEL = 'gfs_seamless';
  * 180 h every 6 h (out ~4 h later), GEM's GDPS 240 h every 12 h (~6 h later). Seen: ICON 171 h, GEM 232 h ahead.
  * A model not listed gets the fallback's whole range.
  */
-const REACH_HOURS = /** @type {Record<string, number>} */ ({ icon_seamless: 160, gem_seamless: 216 });
+const REACH_HOURS = /** @type {Record<string, number>} */ ({ icon_seamless: 160, gem_seamless: 216, best_match: 160 });
+/**
+ * best_match (Europe) keeps one model at every level only while DWD's ICON runs. Checked live (November 2026): from
+ * ~day 7 its surface pressure and pressure levels came from different models at Paris and Moscow, their heights
+ * 50-160 m apart (London, Manchester and Antwerp stayed consistent). Past REACH_HOURS.best_match its air is not used:
+ * the fallback's is.
+ */
+const MIXED_AFTER_REACH = new Set(['best_match']);
 /** Calls kept in hand when deciding whether the sea temperatures can be asked for at once (see refresh). */
 const QUOTA_MARGIN = 100;
 
@@ -254,10 +276,12 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 	const days = Math.max(1, Math.min(options.days ?? 16, 16));
 	const dists = options.distancesKm ?? DEFAULT_DISTANCES_KM;
 	const model = !options.models || options.models === 'auto' ? chooseOpenMeteoModel(latitude, longitude) : options.models;
-	// best_match always reaches 16 days, so it needs no fallback (and gets none)
 	const fallback = options.fallbackModel === undefined ? FALLBACK_MODEL : options.fallbackModel;
-	const fbModel = fallback && fallback !== model && model !== 'best_match' ? fallback : null;
-	const levelsFor = (/** @type {string} */ m) => options.levelsMb ?? (/^(cmc_)?gem/.test(m) ? GEM_LEVELS_MB : DEFAULT_LEVELS_MB);
+	const fbModel = fallback && fallback !== model ? fallback : null;
+	/** the paths cross ground above HIGH_GROUND_M: ask for HIGH_LEVELS_MB too */
+	let high = false;
+	const levelsFor = (/** @type {string} */ m) => options.levelsMb
+		?? [...(/^(cmc_)?gem/.test(m) ? GEM_LEVELS_MB : DEFAULT_LEVELS_MB), ...(high ? HIGH_LEVELS_MB : [])];
 	const json = { retries: options.retries ?? 1 };
 
 	/** @type {{ event: 'sunrise'|'sunset', az: number, idx: number[] }[]} fans of points by azimuth */
@@ -346,17 +370,30 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 			marineAtOnce ? fetchMarine(pts.map((_, i) => i)) : Promise.resolve(null),
 		]);
 		if (a.status === 'rejected' && (b.status === 'rejected' || !fbModel)) throw a.reason;
-		const newFc = a.status === 'fulfilled' ? a.value : [];
+		let newFc = a.status === 'fulfilled' ? a.value : [];
 		let newFb = b.status === 'fulfilled' ? b.value : [];
+		let fbWhole = false;
 		lastError = a.status === 'rejected' ? a.reason : b.status === 'rejected' ? b.reason : null;
 		// the chosen model failed, or ended before the fallback's days begin: the fallback's whole range after all
 		if (fbModel && fbRange && (!newFc.length || newFc[0].times[newFc[0].times.length - 1] * 1000 < fbRange.start)) {
 			try {
 				newFb = await fetchModel(fbModel);
+				fbWhole = true;
 			} catch (e) {
 				lastError = /** @type {Error} */ (e);
 				if (!newFc.length) throw e;
 			}
+		}
+		// high ground: the same requests again with the levels above 700 mb (once; later refreshes ask for them at once).
+		// Should that fail, the columns without them stay: the events on that ground are refused as before.
+		if (!high && !options.levelsMb && [...newFc, ...newFb].some(s => s.elevation > HIGH_GROUND_M)) {
+			high = true;
+			const [a2, b2] = await Promise.allSettled([
+				newFc.length ? fetchModel(model) : Promise.resolve(newFc),
+				newFb.length && fbModel ? fetchModel(fbModel, fbWhole ? null : fbRange) : Promise.resolve(newFb),
+			]);
+			if (a2.status === 'fulfilled') newFc = a2.value; else lastError = a2.reason;
+			if (b2.status === 'fulfilled') newFb = b2.value; else lastError = b2.reason;
 		}
 		const any = newFc.length ? newFc : newFb;
 
@@ -443,11 +480,13 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 			const az = eventAzimuth(latitude, t, event);
 			const fan = fans.filter(f => f.event === event)
 				.reduce((b, f) => Math.abs(f.az - az) < Math.abs(b.az - az) ? f : b);
-			// the whole path from one model: the chosen one if it is complete, else the fallback
-			for (const [series, name] of /** @type {[Series[], string][]} */ ([[fc, model], [fb, fbModel ?? '']])) {
-				if (!series.length) continue;
+			// the whole path from one model: the chosen one if it is complete and real air (atmosphere-guard.js), else the
+			// fallback's; best_match not past its reach, where its levels come from another model than its ground air
+			const until = MIXED_AFTER_REACH.has(model) && fbModel ? fetchedAt + REACH_HOURS[model] * 3600000 : Infinity;
+			for (const [series, name, end] of /** @type {[Series[], string, number][]} */ ([[fc, model, until], [fb, fbModel ?? '', Infinity]])) {
+				if (!series.length || t > end) continue;
 				const path = fan.idx.map((i, n) => profileFrom(series[i], i, t, dists[n]));
-				if (path.every(Boolean)) {
+				if (path.every(Boolean) && !pathProblem(/** @type {PathProfile[]} */ (path))) {
 					const air = (options.sunsetAirCorrection ?? true) ? sunsetAirModel(name, event, latitude, longitude, t, fetchedAt) : null;
 					res = {
 						path: air ? correctSunsetPath(/** @type {PathProfile[]} */ (path), air) : /** @type {PathProfile[]} */ (path),

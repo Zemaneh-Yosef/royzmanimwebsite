@@ -41,7 +41,9 @@ weather is frozen: every setting is later compared on the same forecast.
 - **Open-Meteo's free limit** is 10,000 calls a day and 5,000 an hour, and each place costs a few hundred.
   So all 60 places won't fit in one day. When the limit is reached, the script waits as long as Open-Meteo says
   and carries on, so you can leave it running overnight. Israeli places go first.
-- You can stop it at any time (Ctrl+C) and run it again: finished places are skipped. `node fetch.mjs --refetch`
+- You can stop it at any time (Ctrl+C) and run it again: finished places are skipped, unless the site's code has
+  since changed what it downloads for them (a new model or more pressure levels). Those are found by replaying
+  the saved data and are downloaded again by themselves. `node fetch.mjs --refetch`
   downloads them again; `node fetch.mjs Jerusalem Denver` only fetches places whose names start with those words.
 
 ### Step 2: `node run.mjs` (offline)

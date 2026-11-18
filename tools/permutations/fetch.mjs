@@ -32,6 +32,28 @@ async function withLimits(/** @type {string} */ what, /** @type {() => Promise<a
 	throw new Error(`${what}: still over Open-Meteo's limit; run again later`);
 }
 
+/**
+ * Which of a place's saved sources don't replay through the site's current code (the clock set to when they were
+ * fetched, as run.mjs does). A change to the site that asks for other data (new levels, another model) shows here.
+ * @returns {Promise<string[]>}
+ */
+async function notReplaying(/** @type {any} */ p, /** @type {string} */ id, /** @type {Record<string, boolean>} */ ok, /** @type {number} */ fetchedAt) {
+	setClock(fetchedAt);
+	const rf = replayFetch(id), bad = [];
+	const tries = {
+		path: () => createOpenMeteoPathAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO, retries: 0 }),
+		single: () => createOpenMeteoAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO, retries: 0 }),
+		nws: () => createNwsAtmosphere(p.lat, p.lon, { fetch: rf, userAgent: USER_AGENT }),
+		normals: () => fetchOpenMeteoNormals(p.lat, p.lon, { fetch: rf, ...NORMALS_OPTIONS, retries: 0 }),
+		server: async () => { const s = await createServerPathAtmosphere(SERVER, p.lat, p.lon, { days: 31, fetch: rf, throwOnError: true });
+			await s.prefetch(Temporal.PlainDate.from(new Date(fetchedAt).toISOString().slice(0, 10)), SERVER_DAYS); },
+		horizon: () => fetchHorizonForArea(SERVER, p.lat, p.lon, { fetch: rf }),
+	};
+	for (const [k, fn] of Object.entries(tries)) if (ok[k]) { try { await fn(); } catch (e) { bad.push(`${k} (${String(e?.message).slice(0, 100)})`); } }
+	setClock(null);
+	return bad;
+}
+
 const todo = PLACES.filter(p => !only.length || only.some(o => p.name.toLowerCase().startsWith(o.toLowerCase())));
 let n = 0, fetched = 0;
 const t0 = Date.now();
@@ -40,7 +62,12 @@ for (const p of todo) {
 	n++;
 	const id = slug(p.name);
 	const old = readManifest(id);
-	if (old?.complete && !refetch) { log(`${n}/${todo.length} ${p.name}: already done`); continue; }
+	if (old?.complete && !refetch) {
+		// done before: fetched again only if the site's code now asks for something else
+		const stale = await notReplaying(p, id, old.ok, old.fetchedAt);
+		if (!stale.length) { log(`${n}/${todo.length} ${p.name}: already done`); continue; }
+		log(`${n}/${todo.length} ${p.name}: the site's code now asks for other data (${stale.map(b => b.split(' ')[0]).join(', ')}); fetching again`);
+	}
 	const el = (Date.now() - t0) / 1000, left = todo.length - n + 1;
 	log(`${n}/${todo.length} ${p.name}  [${'#'.repeat(Math.round((n - 1) / todo.length * 20)).padEnd(20, '.')}] ${mmss(el)} elapsed${fetched ? `, ~${mmss(el / fetched * left)} left` : ''}`);
 	const f = recordingFetch(id);
@@ -81,20 +108,9 @@ for (const p of todo) {
 	}, false);
 
 
-	// check at once that everything saved replays (the clock set to when it was fetched, as run.mjs does)
-	setClock(fetchedAt);
-	const rf = replayFetch(id), bad = [];
-	const tries = {
-		path: () => createOpenMeteoPathAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO }),
-		single: () => createOpenMeteoAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO }),
-		nws: () => createNwsAtmosphere(p.lat, p.lon, { fetch: rf, userAgent: USER_AGENT }),
-		normals: () => fetchOpenMeteoNormals(p.lat, p.lon, { fetch: rf, ...NORMALS_OPTIONS }),
-		server: async () => { const s = await createServerPathAtmosphere(SERVER, p.lat, p.lon, { days: 31, fetch: rf, throwOnError: true });
-			await s.prefetch(Temporal.PlainDate.from(new Date(fetchedAt).toISOString().slice(0, 10)), SERVER_DAYS); },
-		horizon: () => fetchHorizonForArea(SERVER, p.lat, p.lon, { fetch: rf }),
-	};
-	for (const [k, fn] of Object.entries(tries)) if (m.ok[k]) { try { await fn(); } catch (e) { bad.push(`${k} (${e.message.slice(0, 100)})`); m.ok[k] = false; } }
-	setClock(null);
+	// check at once that everything saved replays
+	const bad = await notReplaying(p, id, m.ok, fetchedAt);
+	for (const b of bad) m.ok[b.split(' ')[0]] = false;
 	if (bad.length) { m.notes.push(`does not replay: ${bad.join('; ')}`); log(`  WARNING, saved but does not replay: ${bad.join('; ')}`); }
 	fetched++;
 	m.complete = !m.failed && !skipOM;
