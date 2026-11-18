@@ -6,7 +6,7 @@ import { zemanimOptionsFromConfig, zemanimConfigFrom } from "../core/zmanimSetti
 import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
 import { languageTag } from "../misc/language.js";
-import { loadRefraction, readCachedRefraction, providerFromCache } from "../astro/refraction-data.js";
+import { loadRefraction, readCachedRefraction, providerFromCache, MIN_REFRACTION_RECHECK_MS } from "../astro/refraction-data.js";
 
 /** How long reading the stored refraction data may take before the page goes on without it. */
 const REFRACTION_CACHE_WAIT_MS = 4000;
@@ -120,7 +120,8 @@ async function refreshBase(configText = document.getElementById("zy-scheduleScre
 		haze: cachedRefraction?.haze ?? null
 	});
 
-	loadRefraction(lat, lon)
+	// asked again while the server is still computing this place's first horizon (horizonRetryS)
+	const loadFresh = () => loadRefraction(lat, lon)
 		.then((fresh) => {
 			if (fresh.notes.length)
 				console.info("Refraction:", fresh.notes);
@@ -134,8 +135,12 @@ async function refreshBase(configText = document.getElementById("zy-scheduleScre
 					console.error("Redrawing with the new refraction data failed", e);
 				}
 			}
+			if (fresh.horizonRetryS)
+				setTimeout(() => { if (generation === baseGeneration) loadFresh(); },
+					Math.max(MIN_REFRACTION_RECHECK_MS, fresh.horizonRetryS * 1000));
 		})
 		.catch((e) => console.error("Refraction data failed to load", e));
+	loadFresh();
 
 	dtF = [scheduleSettings.language == 'he' ? 'he' : 'en', {
 		hourCycle: scheduleSettings.timeFormat,
