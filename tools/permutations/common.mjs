@@ -48,7 +48,14 @@ export function recordingFetch(place) {
 		const url = String(input);
 		const headers = { ...(init.headers ?? {}) };
 		if (url.includes('weather.gov')) headers['User-Agent'] = USER_AGENT;
-		const r = await fetch(url, { ...init, headers });
+		let r;
+		try { r = await fetch(url, { ...init, headers }); }
+		catch (e) {
+			// a failed request is saved too (a later success at the same URL replaces it), so replay meets the same failure
+			// the site met instead of an unknown URL
+			writeFileSync(fileOf(place, url), JSON.stringify({ url, error: String(e?.cause?.message ?? e?.message ?? e) }));
+			throw e;
+		}
 		const body = await r.text();
 		const h = {};
 		for (const k of KEEP) { const v = r.headers.get(k); if (v != null) h[k] = v; }
@@ -64,7 +71,8 @@ export function replayFetch(place) {
 		const url = String(input);
 		const f = fileOf(place, url);
 		if (!existsSync(f)) throw new TypeError(`not recorded: ${url.slice(0, 140)}`);
-		const { status, headers, body } = JSON.parse(readFileSync(f, 'utf8'));
+		const { status, headers, body, error } = JSON.parse(readFileSync(f, 'utf8'));
+		if (error !== undefined) throw new TypeError(`failed when fetched: ${error}`);
 		return new Response(body, { status, headers });
 	};
 }

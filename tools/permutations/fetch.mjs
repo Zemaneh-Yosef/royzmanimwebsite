@@ -41,7 +41,11 @@ async function notReplaying(/** @type {any} */ p, /** @type {string} */ id, /** 
 	setClock(fetchedAt);
 	const rf = replayFetch(id), bad = [];
 	const tries = {
-		path: () => createOpenMeteoPathAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO, retries: 0 }),
+		// the path forecast keeps going without a request it can't get (lastError): one not saved means the code changed
+		path: async () => {
+			const a = await createOpenMeteoPathAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO, retries: 0 });
+			if (/not recorded/.test(String(a.lastError?.message))) throw a.lastError;
+		},
 		single: () => createOpenMeteoAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO, retries: 0 }),
 		nws: () => createNwsAtmosphere(p.lat, p.lon, { fetch: rf, userAgent: USER_AGENT }),
 		normals: () => fetchOpenMeteoNormals(p.lat, p.lon, { fetch: rf, ...NORMALS_OPTIONS, retries: 0 }),

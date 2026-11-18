@@ -16,6 +16,7 @@ async function computePlace(/** @type {any} */ p, /** @type {boolean} */ quick, 
 	setClock(m.fetchedAt);
 	const rf = replayFetch(id);
 	const path = m.ok.path ? await safe(() => createOpenMeteoPathAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO })) : null;
+	const partial = /not recorded/.test(String(path?.lastError?.message)) ? ['path (partly: fetch again)'] : [];
 	const single = m.ok.single ? await safe(() => createOpenMeteoAtmosphere(p.lat, p.lon, { fetch: rf, ...OPEN_METEO })) : null;
 	const nws = m.ok.nws ? await safe(() => createNwsAtmosphere(p.lat, p.lon, { fetch: rf, userAgent: USER_AGENT })) : null;
 	const normals = m.ok.normals ? await safe(() => fetchOpenMeteoNormals(p.lat, p.lon, { fetch: rf, ...NORMALS_OPTIONS })) : null;
@@ -31,7 +32,7 @@ async function computePlace(/** @type {any} */ p, /** @type {boolean} */ quick, 
 		server: server?.provider ?? null, normals: normals ? monthlyClimate(normals) : null, standard: null,
 	};
 	const have = Object.entries({ path, single, nws, normals, server, horizon }).filter(([, v]) => v).map(([k]) => k);
-	const missing = Object.entries(m.ok).filter(([k, v]) => v && !have.includes(k)).map(([k]) => k);
+	const missing = [...Object.entries(m.ok).filter(([k, v]) => v && !have.includes(k)).map(([k]) => k), ...partial];
 
 	const eye = Math.max(p.ground, 0);
 	const dates = datesFor(localDate(m.fetchedAt, p.tz), quick);
