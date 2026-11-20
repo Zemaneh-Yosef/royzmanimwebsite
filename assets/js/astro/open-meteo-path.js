@@ -22,15 +22,21 @@
  *   Israel and its neighbours  icon_seamless (DWD ICON-EU 7 km to ~5 days, ICON global to ~7.5)
  *   Canada                     gem_seamless (Canada's GEM: HRDPS 2.5 km ~2 days, RDPS 10 km ~4,
  *                              global 15 km to 10; extra levels 1015 / 985 / 970 / 875 mb)
- *   Europe                     best_match (Open-Meteo's European models) to ~6.5 days: after that it mixes
- *                              models between the ground air and the levels (checked live, November 2026)
+ *   Europe                     icon_seamless (ICON-D2 2 km ~2.2 days in central Europe, ICON-EU 7 km to ~5,
+ *                              ICON global to ~7.5; levels 1000 / 975 / 950 / 925 / 900 / 850). Europe had used
+ *                              best_match, but only as a leftover default, never chosen on evidence. Checked live
+ *                              (20 November 2026, 26 places), best_match mixed models between the 2 m air and the
+ *                              levels from day 0 in places (KNMI or DMI 2 m air on ICON, ECMWF or GFS levels:
+ *                              Antwerp, Amsterdam, Warsaw, Budapest, Reykjavik) and from ~day 5 across most of the
+ *                              continent (ECMWF 2 m air on GFS levels)
  *   everywhere else            gfs_seamless (NOAA HRRR 3 km where it reaches, ~2.3 days, then GFS;
  *                              in the US this is exactly what best_match returns)
  * Where the chosen model ends (or lacks a level for an event, or its column for the event is not real air by
  * atmosphere-guard.js), the whole path for that event comes from gfs_seamless instead, which reaches 16 days:
  * never a mix within one sunrise or sunset. Where the paths cross ground above HIGH_GROUND_M, 600 and 500 mb are
  * asked for too, so no column there is left with its 2 m air alone.
- * Override with options.models (one Open-Meteo model name, 'best_match', or 'auto').
+ * Override with options.models (one Open-Meteo model name, or 'auto'; 'best_match' also goes through but mixes models
+ * between the 2 m air and the levels, so it is not recommended).
  * Sunset air has its lowest 200 m corrected with the coefficients for the model it came from (sunset-air.js;
  * sunsetAirModel says which).
  *
@@ -83,14 +89,7 @@ export const FALLBACK_MODEL = 'gfs_seamless';
  * 180 h every 6 h (out ~4 h later), GEM's GDPS 240 h every 12 h (~6 h later). Seen: ICON 171 h, GEM 232 h ahead.
  * A model not listed gets the fallback's whole range.
  */
-const REACH_HOURS = /** @type {Record<string, number>} */ ({ icon_seamless: 160, gem_seamless: 216, best_match: 160 });
-/**
- * best_match (Europe) keeps one model at every level only while DWD's ICON runs. Checked live (November 2026): from
- * ~day 7 its surface pressure and pressure levels came from different models at Paris and Moscow, their heights
- * 50-160 m apart (London, Manchester and Antwerp stayed consistent). Past REACH_HOURS.best_match its air is not used:
- * the fallback's is.
- */
-const MIXED_AFTER_REACH = new Set(['best_match']);
+const REACH_HOURS = /** @type {Record<string, number>} */ ({ icon_seamless: 160, gem_seamless: 216 });
 /** Calls kept in hand when deciding whether the sea temperatures can be asked for at once (see refresh). */
 const QUOTA_MARGIN = 100;
 
@@ -131,7 +130,7 @@ function inPolygon(lat, lon, poly) {
 export const MODEL_REGIONS = [
 	{ name: 'Israel and neighbours', model: 'icon_seamless', test: (lat, lon) => lat >= 29 && lat <= 34.8 && lon >= 33 && lon <= 36.8 },
 	{ name: 'Canada', model: 'gem_seamless', test: (lat, lon) => inPolygon(lat, lon, CANADA) },
-	{ name: 'Europe (ICON-EU area)', model: 'best_match', test: (lat, lon) => lat >= 29.5 && lat <= 70.5 && lon >= -23.5 && lon <= 62.5 },
+	{ name: 'Europe (ICON-EU area)', model: 'icon_seamless', test: (lat, lon) => lat >= 29.5 && lat <= 70.5 && lon >= -23.5 && lon <= 62.5 },
 ];
 
 /**
@@ -152,8 +151,8 @@ const HRRR_BOX = { south: 21, north: 53, west: -135, east: -60 };
 const HRRR_HOURS = 48;
 
 /**
- * The sunset-air.js coefficients for one event's air, or null (sunrise, or a model not fitted: best_match
- * outside Europe, any other model).
+ * The sunset-air.js coefficients for one event's air, or null (sunrise, or a model not fitted: a forced best_match,
+ * any other model).
  * @param {string} name the Open-Meteo model the path came from
  * @param {'sunrise'|'sunset'} event
  * @param {number} lat
@@ -167,7 +166,6 @@ export function sunsetAirModel(name, event, lat, lon, t, fetchedAt) {
 	if (name === 'gfs_global' || name === 'gfs025') return 'gfs';
 	if (name === 'icon_seamless') return 'icon';
 	if (name === 'gem_seamless') return 'gem';
-	if (name === 'best_match') return chooseOpenMeteoModel(lat, lon) === 'best_match' ? 'europe' : null;   // fitted in Europe only
 	if (name !== 'gfs_seamless') return null;
 	const hrrr = lat >= HRRR_BOX.south && lat <= HRRR_BOX.north && lon >= HRRR_BOX.west && lon <= HRRR_BOX.east;
 	return hrrr && t < fetchedAt + HRRR_HOURS * 3600000 ? 'hrrr' : 'gfs';
@@ -258,7 +256,9 @@ function toSeries(json, levels = []) {
  *           fallbackModel?: string | null, retries?: number, humidity?: boolean,
  *           sunsetAirCorrection?: boolean, seaSurfaceTemperature?: boolean }} [options]
  *   days: forecast days (default 16, Open-Meteo's maximum).
- *   models: 'auto' (default: chooseOpenMeteoModel), 'best_match', or one Open-Meteo model name.
+ *   models: 'auto' (default: chooseOpenMeteoModel) or one Open-Meteo model name. A model not in REACH_HOURS
+ *   (a forced 'best_match', say, which mixes models and is not recommended) is used wherever its columns are
+ *   complete and real air; the fallback's whole range is fetched for the rest.
  *   fallbackModel: used where the chosen model ends (default 'gfs_seamless'; null = none).
  *   levelsMb: pressure levels (default GEM_LEVELS_MB for GEM, else DEFAULT_LEVELS_MB).
  *   retries: retries of a failed request (default 1; see getOpenMeteoJson).
@@ -481,11 +481,9 @@ export async function createOpenMeteoPathAtmosphere(latitude, longitude, options
 			const fan = fans.filter(f => f.event === event)
 				.reduce((b, f) => Math.abs(f.az - az) < Math.abs(b.az - az) ? f : b);
 			// the whole path from one model: the chosen one if it is complete and real air (atmosphere-guard.js), else the
-			// fallback's; best_match not past its reach, where its levels come from another model than its ground air
-			// (only when the fallback's forecast is in hand: should its request fail, best_match stays, the guard deciding)
-			const until = MIXED_AFTER_REACH.has(model) && fb.length ? fetchedAt + REACH_HOURS[model] * 3600000 : Infinity;
-			for (const [series, name, end] of /** @type {[Series[], string, number][]} */ ([[fc, model, until], [fb, fbModel ?? '', Infinity]])) {
-				if (!series.length || t > end) continue;
+			// fallback's
+			for (const [series, name] of /** @type {[Series[], string][]} */ ([[fc, model], [fb, fbModel ?? '']])) {
+				if (!series.length) continue;
 				const path = fan.idx.map((i, n) => profileFrom(series[i], i, t, dists[n]));
 				if (path.every(Boolean)) {
 					const air = (options.sunsetAirCorrection ?? true) ? sunsetAirModel(name, event, latitude, longitude, t, fetchedAt) : null;

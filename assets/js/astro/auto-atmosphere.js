@@ -85,7 +85,7 @@ import { createServerPathAtmosphere } from './path-atmosphere.js';
  *     already render from stored data while this loads (as refraction-data.js does).
  *   interim: also fetch the single-temperature forecast right away, to stand in while the path
  *     profiles load (default: true, or false with wait - then it is fetched only if the paths fail).
- *   openMeteo.models: 'auto' (default, by place), 'best_match', or a model name; see open-meteo-path.js.
+ *   openMeteo.models: 'auto' (default, by place), or a model name ('best_match' mixes models: not recommended); see open-meteo-path.js.
  *   openMeteo.humidity: also fetch dew points / relative humidity from Open-Meteo (forecasts and normals),
  *     for a calculator with setHumidity(true). Default false. The server's profiles and NOAA's carry none,
  *     so dates they cover stay dry. Saved normals without dew points are still used as they are.

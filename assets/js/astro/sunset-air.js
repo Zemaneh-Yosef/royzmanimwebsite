@@ -31,11 +31,10 @@
  *           0.64 / 0.95 / 1.28 / 1.56 K -> 0.51 / 0.78 / 1.02 / 1.22 K; bias +0.18 / +0.29 / +0.47 / +0.59 K
  *   gem     gem_seamless: 3,869 soundings, 30 Canadian stations.
  *           0.99 / 1.31 / 1.77 / 2.52 K -> 0.86 / 1.14 / 1.54 / 2.33 K; bias +0.06 / +0.13 / +0.20 / +0.04 K
- *   europe  best_match in Europe: 3,212 soundings, 31 stations.
- *           0.62 / 0.85 / 1.12 / 1.38 K -> 0.57 / 0.79 / 1.02 / 1.31 K; bias +0.08 / +0.14 / +0.27 / +0.35 K
  *   icon    icon_seamless: 3,509 soundings, 36 stations in ICON-EU's area (Europe to the Middle East).
  *           0.73 / 0.96 / 1.20 / 1.44 K -> 0.69 / 0.92 / 1.18 / 1.48 K; bias +0.07 / +0.12 / +0.22 / +0.25 K.
  *           Worse at 200 m, so there ICON's own air is kept (a = 0, b = 1): corrected to 100 m only.
+ * The 'europe' coefficients (best_match in Europe) were removed on 20 November 2026: fitted on best_match columns, which mix models.
  * A model is corrected only where the fit improved every height it sets.
  * The correction is linear, so it is equally right for a column averaged over many days (a climatology
  * built from the same model).
@@ -51,7 +50,6 @@ export const SUNSET_AIR_COEFFICIENTS = {
 	gfs: [[-0.0912, 0.2659], [-0.2151, 0.2745], [-0.4609, 0.2952], [-0.7808, 0.4320]],
 	hrrr: [[-0.0852, 0.1820], [-0.1953, 0.2460], [-0.4746, 0.2834], [-0.9834, 0.3164]],
 	gem: [[0.1108, 0.2327], [0.0916, 0.3088], [0.0216, 0.3605], [0.0511, 0.5056]],
-	europe: [[-0.0254, 0.4030], [-0.0859, 0.4995], [-0.2510, 0.5751], [-0.3897, 0.7766]],
 	icon: [[0.0029, 0.4891], [-0.0435, 0.6260], [-0.1806, 0.7552], [0, 1]],
 };
 

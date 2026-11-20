@@ -181,11 +181,12 @@ reset(); await load(...P0);
 got(await load(...at(...P0, rf - 100, 0)), "forecast", 0, "inside the forecast cell");
 got(await load(...at(...P0, 0, rf + 100)), "forecast", 1, "outside the forecast cell");
 // the other regions' radii
-assert.equal(forecastCellRadiusM(48.85, 2.35), 650);                // Europe (best_match)
+assert.ok(Math.abs(forecastCellRadiusM(48.85, 2.35) - 0.01 * 111320 * Math.cos(48.85 * Math.PI / 180)) < 1); // central Europe (icon_seamless, ICON-D2)
+assert.ok(Math.abs(forecastCellRadiusM(64.1, -21.9) - 0.03125 * 111320 * Math.cos(64.1 * Math.PI / 180)) < 1); // Reykjavik (icon_seamless, ICON-EU)
 assert.equal(forecastCellRadiusM(45.5, -73.6), 1250);               // Canada (gem_seamless)
 assert.equal(forecastCellRadiusM(40.7, -74.0), 1500);               // contiguous US (gfs_seamless, HRRR)
 assert.ok(Math.abs(forecastCellRadiusM(-33.9, 151.2) - 0.055 * 111320 * Math.cos(-33.9 * Math.PI / 180)) < 1); // elsewhere
-checks += 5;
+checks += 6;
 
 // ── 4. normals: within 0.05 degrees of the reanalysis cell's centre ──
 reset(); await load(...P0);

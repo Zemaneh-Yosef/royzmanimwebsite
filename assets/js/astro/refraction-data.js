@@ -209,7 +209,7 @@ function isStaleKey(key) {
 //              server sent one, else its box; the smallest area where several do. A point in no known area gets a
 //              horizon for the point itself, which serves only within GPS noise.
 //  - forecast: the weather model's cell around the observer, as Open-Meteo reported it. Several models are on
-//              projected grids (and Europe's mixes them), so a location must lie within half a cell of the reported
+//              projected grids, so a location must lie within half a cell of the reported
 //              centre: the circle inside the cell (forecastCellRadiusM).
 //  - normals:  the reanalysis cell Open-Meteo reported (ERA5-Land, 0.1 degrees; a coarser ERA5 cell holds that square too).
 //  - haze:     the CAMS cell Open-Meteo reported (0.4 degrees); a location within 0.125 degrees of its centre is in it.
@@ -267,9 +267,11 @@ const lonDiff = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
 export function forecastCellRadiusM(lat, lon) {
 	const lonM = 111320 * Math.cos(lat * Math.PI / 180);
 	switch (chooseOpenMeteoModel(lat, lon)) {
-		case "best_match": return 650;                   // Europe: AROME 1.3 km
 		case "gem_seamless": return 1250;                // Canada: HRDPS 2.5 km
-		case "icon_seamless": return 0.03125 * lonM;     // Israel: ICON-EU 0.0625 degrees
+		case "icon_seamless":                            // Europe and Israel
+			return lat >= 43.18 && lat <= 58.08 && lon >= -3.94 && lon <= 20.34
+				? 0.01 * lonM                            // central Europe: ICON-D2 0.02 degrees
+				: 0.03125 * lonM;                        // elsewhere: ICON-EU 0.0625 degrees
 		default: return lat >= 24 && lat <= 50 && lon >= -125 && lon <= -66
 			? 1500                                       // contiguous US: HRRR 3 km
 			: 0.055 * lonM;                              // elsewhere: GFS 0.11 degrees

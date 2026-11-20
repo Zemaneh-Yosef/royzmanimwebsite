@@ -53,9 +53,7 @@ export function forecastDomains(lat, lon) {
 		names.push('cmc_gem_gdps', 'cmc_gem_rdps');
 		if (inBox(lat, lon, 39.6, 75, -152, -40.7)) names.push('cmc_gem_hrdps');
 	}
-	// best_match in Europe: Open-Meteo's European mix is mostly DWD's ICON family, then GFS
-	else if (model === 'best_match') icon();
-	// GFS: the chosen model, the fallback where the chosen one ends, or (best_match) Open-Meteo's own later days
+	// GFS: the chosen model, or the fallback where the chosen one ends
 	names.push('ncep_gfs013', 'ncep_gfs025');
 	return [...new Set(names)].map(domain => ({ host: FORECAST_DATA, domain }));
 }
