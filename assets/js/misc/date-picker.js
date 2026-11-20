@@ -149,15 +149,18 @@ let closeOpen = null;
 /**
  * Adds the picker to a button
  * @param {HTMLElement} button
+ * @param {{ container?: HTMLElement }} [options] container: where the popup goes instead of <body>, for a button
+ *   inside a Bootstrap modal (the modal pulls the focus back from anything outside it). The container must be
+ *   positioned (a modal's .modal-content is); Escape then closes only the picker, not the modal.
  */
-export function attachDatePicker(button) {
+export function attachDatePicker(button, options = {}) {
 	if (button.dataset.datePicker) return;
 	button.dataset.datePicker = "on";
 	button.setAttribute("aria-haspopup", "dialog");
 	button.setAttribute("aria-expanded", "false");
 	button.addEventListener("click", () => {
 		if (button.getAttribute("aria-expanded") == "true") closeOpen?.();
-		else open(button);
+		else open(button, options.container);
 	});
 }
 
@@ -170,8 +173,8 @@ export function attachDatePickers(buttons) {
 		attachDatePicker(button);
 }
 
-/** @param {HTMLElement} button */
-function open(button) {
+/** @param {HTMLElement} button @param {HTMLElement} [container] */
+function open(button, container) {
 	closeOpen?.();
 	addStyle();
 
@@ -209,7 +212,7 @@ function open(button) {
 	grid.className = "zy-dp-grid";
 	grid.setAttribute("role", "grid");
 	popup.append(views, head, grid);
-	document.body.appendChild(popup);
+	(container ?? document.body).appendChild(popup);
 
 	function render() {
 		const text = labels(view);
@@ -351,6 +354,14 @@ function open(button) {
 		const rect = button.getBoundingClientRect();
 		const width = popup.offsetWidth;
 		const gutter = 16;
+		if (container) {
+			// the container is positioned: the popup is placed in its own box
+			const box = container.getBoundingClientRect();
+			const start = popup.dir == "rtl" ? rect.right - width : rect.left;
+			popup.style.left = `${Math.min(Math.max(start - box.left, 4), box.width - width - 4)}px`;
+			popup.style.top = `${rect.bottom - box.top + 4}px`;
+			return;
+		}
 		const start = popup.dir == "rtl" ? rect.right - width : rect.left;
 		const left = Math.min(Math.max(start, gutter), document.documentElement.clientWidth - width - gutter);
 		popup.style.left = `${left + window.scrollX}px`;
@@ -364,14 +375,17 @@ function open(button) {
 	};
 	/** @param {KeyboardEvent} event */
 	const escape = event => {
-		if (event.key == "Escape") { close(); button.focus(); }
+		if (event.key == "Escape") {
+			if (container) event.stopPropagation();
+			close(); button.focus();
+		}
 	};
 
 	function close() {
 		popup.remove();
 		button.setAttribute("aria-expanded", "false");
 		document.removeEventListener("pointerdown", outside, true);
-		document.removeEventListener("keydown", escape);
+		document.removeEventListener("keydown", escape, true);
 		window.removeEventListener("resize", close);
 		closeOpen = null;
 	}
@@ -380,7 +394,7 @@ function open(button) {
 	place();
 	button.setAttribute("aria-expanded", "true");
 	document.addEventListener("pointerdown", outside, true);
-	document.addEventListener("keydown", escape);
+	document.addEventListener("keydown", escape, true);
 	window.addEventListener("resize", close);
 	closeOpen = close;
 	focusDay();

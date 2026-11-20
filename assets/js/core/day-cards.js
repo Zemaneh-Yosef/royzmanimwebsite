@@ -30,6 +30,9 @@ import { roundsUp } from "./WebsiteCalendar.js";
  * @property {Temporal.PlainTime} [hallelBefore] first days of Pesaḥ: the Hallel of the night ends by midnight
  * @property {{ month: { he: string; en: string }; days: Temporal.PlainDate[] }} [roshHodesh] Shabbat Mevarchim:
  *   the month announced, and its Rosh Ḥodesh days (one or two, in order)
+ * @property {{ date: Temporal.PlainDate; start: Temporal.ZonedDateTime; end: Temporal.ZonedDateTime }[]} [icsDays] the
+ *   Jewish days of the occasion as a digital calendar shows them, each from its candle lighting (or the
+ *   Shabbat or Yom Tov's start) to where the next begins, in order; the printouts and Hazon Yosef don't use it
  */
 
 /**
@@ -218,6 +221,25 @@ function inOrder(card) {
 }
 
 /**
+ * Sets a holiday card's icsDays from the times it lists. A candle lighting on a date (one lit from an
+ * existing flame after Shabbat, or after nightfall of a second night, included) starts the next day; each day
+ * ends where the next starts, and the last at the last day's tzetMelakha. A last day with no tzetMelakha
+ * (a Friday whose Shabbat isn't in the card) gets no end, so it is left out rather than guessed.
+ * @param {DayCard} card
+ */
+function withIcsDays(card) {
+	const entries = [...card.datesToZman].sort(([a], [b]) => Temporal.PlainDate.compare(a, b));
+	const starts = entries.filter(([, times]) => times.candleLighting).map(([date, times]) => ({ date: date.add({ days: 1 }), start: times.candleLighting }));
+	const closing = entries[entries.length - 1][1].tzetMelakha;
+
+	card.icsDays = starts.flatMap((day, index) => {
+		const end = index + 1 < starts.length ? starts[index + 1].start : closing;
+		return end ? [{ date: day.date, start: day.start, end }] : [];
+	});
+	return card;
+}
+
+/**
  * Erev Pesaḥ (bedika, the ḥametz deadlines) through the first days
  * @param {CardContext} ctx
  * @returns {DayCard}
@@ -293,7 +315,7 @@ export function pesachFirstDays(ctx) {
 	}
 
 	card.hallelBefore = hatzotTime;
-	return inOrder(card);
+	return withIcsDays(inOrder(card));
 }
 
 /**
@@ -306,7 +328,7 @@ export function yomKippur(ctx) {
 	const ykDate = ctx.jCal.chainYomTovIndex(WebsiteLimudCalendar.YOM_KIPPUR).getDate();
 	const erev = ykDate.subtract({ days: 1 });
 
-	return {
+	return withIcsDays({
 		id: cardId("yomKippur", erev),
 		ytI: WebsiteLimudCalendar.YOM_KIPPUR,
 		title: nameOf(ctx, WebsiteLimudCalendar.YOM_KIPPUR),
@@ -319,7 +341,7 @@ export function yomKippur(ctx) {
 			tzetMelakha: t.havdalah(ykDate, 'earlier'),
 			rabbenuTam: t.rt(ykDate)
 		}]])
-	};
+	});
 }
 
 /**
@@ -387,7 +409,7 @@ export function shavuot(ctx) {
 		}
 	}
 
-	return inOrder(card);
+	return withIcsDays(inOrder(card));
 }
 
 /**
@@ -432,7 +454,7 @@ export function roshHashana(ctx) {
 		card.datesToZman.set(secondDay, { tzetMelakha: t.havdalah(secondDay) });
 	}
 
-	return inOrder(card);
+	return withIcsDays(inOrder(card));
 }
 
 /**
@@ -475,7 +497,7 @@ export function sukkot(ctx) {
 		}
 	}
 
-	return inOrder(card);
+	return withIcsDays(inOrder(card));
 }
 
 /**
@@ -518,7 +540,7 @@ export function sheminiAtzeret(ctx) {
 		}
 	}
 
-	return inOrder(card);
+	return withIcsDays(inOrder(card));
 }
 
 /**
@@ -557,7 +579,7 @@ export function pesachLastDays(ctx) {
 		card.datesToZman.set(yomTovDate, { tzetMelakha: t.havdalah(yomTovDate), rabbenuTam: t.rt(yomTovDate) });
 	}
 
-	return inOrder(card);
+	return withIcsDays(inOrder(card));
 }
 
 /** The builders holidayKind() names */
@@ -574,7 +596,7 @@ export function fast(ctx, fastJCal) {
 	const taanitDay = fastJCal.getDate();
 	const index = fastJCal.getYomTovIndex();
 
-	return {
+	const card = {
 		id: cardId("fast", taanitDay),
 		ytI: index,
 		title: (holidayNames(fastJCal.getInIsrael())[index] ?? fastNames[index])[ctx.lang],
@@ -589,6 +611,9 @@ export function fast(ctx, fastJCal) {
 				fastEnds: t.round(t.zc(taanitDay).getTzetHumra(), 'later')
 			}]])
 	};
+
+	const days = [...card.datesToZman.values()];
+	return { ...card, icsDays: [{ date: taanitDay, start: days[0].fastStarts, end: days[days.length - 1].fastEnds }] };
 }
 
 /**
@@ -618,6 +643,7 @@ export function shabbat(ctx) {
 			[shabbatDate, { tzetMelakha: t.havdalah(shabbatDate), rabbenuTam: t.rt(shabbatDate) }]
 		])
 	};
+	card.icsDays = [{ date: shabbatDate, start: card.datesToZman.get(friday).candleLighting, end: card.datesToZman.get(shabbatDate).tzetMelakha }];
 
 	if (shabbatJCal.isShabbosMevorchim()) {
 		const nextMonth = shabbatJCal.chainDate(shabbatDate.add({ weeks: 2 }));

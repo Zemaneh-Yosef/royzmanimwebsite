@@ -163,6 +163,8 @@ export default class zmanimListUpdater extends ZmanimList {
 	 * @private
 	 */
 	_initButtons() {
+		this.exportManager.bindModal(this);
+
 		const downloadBtn = document.getElementById('downloadModalBtn');
 		if (downloadBtn) {
 			downloadBtn.addEventListener('click', async () => {

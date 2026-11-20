@@ -16,8 +16,12 @@ import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
  * @typedef {{ DATE: import("../../libraries/xlsx.js").CellObject } & Record<string, import("../../libraries/xlsx.js").CellObject>} SpreadsheetRow
  */
 
+/** @typedef {Parameters<typeof spreadSheetExport> extends [any, any, ...infer Rest] ? Rest : never} SharedParams the parameters after the dates, the same for every chunk of a range */
+
 /**
- * @param {ConstructorParameters<typeof Temporal.PlainDate>} plainDateParams
+ * The rows for `dayCount` days from the start date.
+ * @param {ConstructorParameters<typeof Temporal.PlainDate>} plainDateParams the first day
+ * @param {number} dayCount how many days to go through
  * @param {[string, number, number, number, string]} geoLocationData
  * @param {ConstructorParameters<typeof ZemanFunctions>[1]} config
  * @param {boolean} isIsrael
@@ -26,7 +30,7 @@ import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
  * @param {string[]} selectedLimudim
  * @param {{ language: "he-Latn" | "en" | "he"; timeFormat: "h11" | "h12" | "h23" | "h24"; seconds: boolean; refraction?: ExportRefraction }} funcSettings
  */
-export default function spreadSheetExport(plainDateParams, geoLocationData, config, isIsrael, zmanList, isTimelyView, selectedLimudim, funcSettings) {
+export default function spreadSheetExport(plainDateParams, dayCount, geoLocationData, config, isIsrael, zmanList, isTimelyView, selectedLimudim, funcSettings) {
 	const baseDate = new Temporal.PlainDate(...plainDateParams)
 	const geoLocation = new GeoLocation(...geoLocationData);
 
@@ -48,7 +52,7 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 	/** @type {{ zemanim: SpreadsheetRow[]; limudim: SpreadsheetRow[]}} */
 	const events = { zemanim: [], limudim: [] };
 
-	for (let index = 1; index <= jCal.getDate().daysInMonth; index++) {
+	for (let index = 0; index < dayCount; index++) {
 		const isoDate = new Date(`${jCal.getDate().year}-${String(jCal.getDate().month).padStart(2, "0")}-${String(jCal.getDate().day).padStart(2, "0")}`);
 		const baseRow = [
 			['DATE', { t: "d", v: isoDate, f: `=DATE(${jCal.getDate().year}, ${jCal.getDate().month}, ${jCal.getDate().day})`, z: "yyyy-mm-dd" }],
@@ -81,12 +85,33 @@ export default function spreadSheetExport(plainDateParams, geoLocationData, conf
 	return events;
 }
 
-if ("WorkerGlobalScope" in globalThis)
+// The page (export.js) posts the refraction and the constant parameters once per worker, then a
+// [startDateParams, dayCount] for every task. A message that is a whole parameter list still works.
+if ("WorkerGlobalScope" in globalThis) {
+	/** @type {ExportRefraction | undefined} */
+	let refraction;
+	/** @type {any[] | undefined} geoLocationData, config, isIsrael, zmanList, isTimelyView, selectedLimudim, funcSettings */
+	let constants;
+
 	addEventListener('message', async (message) => {
+		const data = message.data;
+		if (data?.type === 'refraction') {
+			refraction = { table: data.tableJson ? JSON.parse(data.tableJson) : data.table, normals: data.normals ?? null };
+			return;
+		}
+		if (data?.type === 'init') {
+			constants = data.params;
+			return;
+		}
+
 		try {
 			await loadWorkerPolyfills();
-			postMessage(spreadSheetExport.apply(spreadSheetExport, message.data))
+			if (!constants)
+				return postMessage(spreadSheetExport.apply(spreadSheetExport, data));
+			const [geo, config, isIsrael, zmanList, isTimelyView, selectedLimudim, funcSettings] = constants;
+			postMessage(spreadSheetExport(data[0], data[1], geo, config, isIsrael, zmanList, isTimelyView, selectedLimudim, { ...funcSettings, refraction }))
 		} catch (error) {
 			postMessage({ error: String(error?.stack ?? error) })
 		}
 	})
+}

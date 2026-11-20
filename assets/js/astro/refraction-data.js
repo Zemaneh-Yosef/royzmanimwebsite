@@ -847,7 +847,7 @@ export function refractionRecheckMs(data) {
 }
 
 /** @param {number} lon */
-function yesterdayAt(lon) {
+export function yesterdayAt(lon) {
 	// local date at this longitude, minus a day (the forecast/server ranges start yesterday too)
 	// Temporal (natively, unlike some polyfills) requires a whole number of milliseconds
 	return Temporal.Instant.fromEpochMilliseconds(Math.round(Date.now() + lon / 15 * 3600000))
@@ -861,8 +861,15 @@ function yesterdayAt(lon) {
  * @param {Temporal.PlainDate} last last printed date (any calendar) @param {number} lon
  */
 export function printNeedsTypicalAir(last, lon) {
-	const lastForecastDay = yesterdayAt(lon).add({ days: FORECAST_REACH_DAYS });
-	return Temporal.PlainDate.compare(last.withCalendar("iso8601"), lastForecastDay) > 0;
+	return Temporal.PlainDate.compare(last.withCalendar("iso8601"), lastForecastDay(lon)) > 0;
+}
+
+/**
+ * The last day the weather forecast reaches at this longitude (ISO).
+ * @param {number} lon
+ */
+export function lastForecastDay(lon) {
+	return yesterdayAt(lon).add({ days: FORECAST_REACH_DAYS });
 }
 
 /** requestIdleCallback where it exists, else a short timeout. @param {() => void} fn */

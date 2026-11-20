@@ -55,7 +55,7 @@ layout: nothing
 		border-bottom-right-radius: 3.5rem;
 		border: 2px solid #d8a736;
 		border-top: none;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		box-shadow: 0 5px 8px rgba(0,0,0,1); /* not a drop-shadow filter: that re-renders every frame over animated content */
 	}
 
 	#topBar > * {
@@ -99,7 +99,7 @@ layout: nothing
 		gap: 1.75rem;
 		font-size: .8rem;
 
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		box-shadow: 0 5px 8px rgba(0,0,0,1); /* not a drop-shadow filter: that re-renders every frame over animated content */
 	}
 
 	#dataGrid > *:not(.wideView):not(:nth-child(2)) {
@@ -216,7 +216,7 @@ layout: nothing
 		color: #30344F;
 		font-size: 1.5rem;
 
-		filter: drop-shadow(0px 5px 4px white);
+		text-shadow: 0 5px 8px white;
 	}
 
 	.zmanTitleText {
@@ -232,7 +232,7 @@ layout: nothing
 	[data-zfFind="calendarFormatter"] .card {
 		--bs-border-color: #d8a736;
 		line-height: 1.3;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.2));
+		box-shadow: 0 5px 8px rgba(0,0,0,.2);
 	}
 
 	[data-parasha] {

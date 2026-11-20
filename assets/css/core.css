@@ -40,6 +40,7 @@ body.lang-en .lang:not(.lang-en) {
 	background-repeat: no-repeat;
 	background-position: left -40px top 0;
 	animation: zy-list-shine 1s ease infinite;
+	will-change: transform; /* own layer: each frame repaints only the stripe, not the list under it */
 	border-radius: inherit;
 	pointer-events: none;
 	z-index: 2;

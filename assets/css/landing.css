@@ -11,43 +11,55 @@ img#heroImage {
     aspect-ratio: 1622 / 882;
 }
 
+/*
+ * The logo shrinks as the page scrolls. Only its transform changes: the box stays at the starting
+ * size and is moved and scaled, so the compositor runs it without re-laying-out or re-blurring the
+ * shadow each frame (the shadow shrinks with the logo). --logo-end-scale (end width / start width)
+ * is set by landing.js, since CSS cannot divide 16em by 65vw.
+ */
 @keyframes logoShrink {
     from {
-        width: 65vw;
-        top: 5.5em;
+        transform: translate(-50%, 0) scale(1);
     }
     40% {
-        top: 0.5em;
+        transform: translate(-50%, -5em) scale(calc(1 - .4 * (1 - var(--logo-end-scale, 1))));
     }
     to {
-        width: 16em;
-        top: 0.5em;
+        transform: translate(-50%, -5em) scale(var(--logo-end-scale, 1));
     }
 }
 
 img#logo {
+    --logo-start-width: 65vw;
+    --logo-end-width: 16em; /* read by landing.js */
     position: fixed;
     left: 50%;
-    transform: translateX(-50%);
+    top: 5.5em;
+    width: var(--logo-start-width);
+    transform-origin: top center;
+    will-change: transform;
     z-index: 1500;
     filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.8));
     object-fit: contain;
 
-    /* Modern browsers */
-    animation: logoShrink linear both;
-    animation-timeline: scroll();
-    animation-range: 0px 400px;
-
-    /* Safari fallback */
-    width: calc(65vw - (65vw - 12em) * var(--scroll-ratio, 0));
-    top: calc(5.5em - 5em * var(--scroll-ratio, 0));
+    /* Safari fallback: landing.js sets --scroll-ratio while scrolling */
+    transform: translate(-50%, calc(-5em * var(--scroll-ratio, 0))) scale(calc(1 - (1 - var(--logo-end-scale, 1)) * var(--scroll-ratio, 0)));
 }
 
 @supports (animation-timeline: scroll()) {
     img#logo {
-        width: unset;
-        top: unset;
+        animation: logoShrink linear both;
+        animation-timeline: scroll();
+        animation-range: 0px 400px;
     }
+}
+
+/* mobile menu open: a fixed small logo at the top */
+img#logo.nav-open {
+    animation: none;
+    top: .5em;
+    width: 30vw;
+    transform: translateX(-50%);
 }
 
 #fakeLogo {
@@ -67,17 +79,16 @@ img#logo {
 @media (max-width: 991.98px) {
     @keyframes logoShrink {
         from {
-            width: 85vw;
-            top: 5.5em;
+            transform: translate(-50%, 0) scale(1);
         }
         to {
-            width: 10em;
-            top: 0.5em;
+            transform: translate(-50%, -5em) scale(var(--logo-end-scale, 1));
         }
     }
 
     img#logo {
-        width: calc(85vw - (85vw - 10em) * var(--scroll-ratio, 0));
+        --logo-start-width: 85vw;
+        --logo-end-width: 10em;
     }
 
     #fakeLogo {

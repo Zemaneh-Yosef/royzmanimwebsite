@@ -46,7 +46,16 @@ layout: nothing
 		align-items: center;
 		font-size: 1.3rem;
 		font-weight: 500;
+	}
+
+	/* The shadow sits on the static parts, not on #topBar itself: the clock's blinking
+	   colon would re-render the whole bar's drop-shadow filter on every blink. */
+	#topBar > :not(#clock) {
 		filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 1));
+	}
+
+	#topBar > #clock {
+		text-shadow: 0 5px 8px rgba(0, 0, 0, 1);
 	}
 
 	#topBar > *:not(:nth-child(2)) {

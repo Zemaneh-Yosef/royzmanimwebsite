@@ -34,6 +34,7 @@
 	background-position: left -40px top 0;
 	-webkit-animation: shine 1s ease infinite;
 					animation: shine 1s ease infinite;
+	will-change: transform; /* own layer: each frame repaints only the stripe, not the list under it */
 	z-index: 2;
 	opacity: .25;
 }

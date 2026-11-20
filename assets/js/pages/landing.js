@@ -4,6 +4,20 @@ const navBarElem     = document.getElementById('mainNav');
 const navBarCollapse = document.getElementById('navbarResponsive');
 const logo           = document.getElementById('logo');
 
+// The logo shrinks by transform only (landing.css); it needs the end size as a scale of the start size.
+function setLogoEndScale() {
+    if (!logo || logo.classList.contains('nav-open')) return;
+    const style = getComputedStyle(logo);
+    const endWidth = style.getPropertyValue('--logo-end-width').trim(); // "16em"
+    const endPx = parseFloat(endWidth) * (endWidth.endsWith('rem')
+        ? parseFloat(getComputedStyle(document.documentElement).fontSize)
+        : endWidth.endsWith('em') ? parseFloat(style.fontSize) : 1);
+    if (logo.offsetWidth && endPx)
+        logo.style.setProperty('--logo-end-scale', (endPx / logo.offsetWidth).toString());
+}
+setLogoEndScale();
+window.addEventListener('resize', setLogoEndScale, { passive: true });
+
 // Safari fallback — set --scroll-ratio for browsers without animation-timeline support
 const supportsScrollTimeline = CSS.supports('animation-timeline', 'scroll()');
 
@@ -38,14 +52,13 @@ document.querySelectorAll('#navbarResponsive .nav-link').forEach(link => {
 
 // Override logo size when mobile nav is open
 navBarCollapse.addEventListener('show.bs.collapse', () => {
-    logo.style.width = '30vw';
-    logo.style.top   = '.5em';
+    logo.classList.add('nav-open');
     navBarElem.classList.add('navbar-landing-shrink');
     navBarElem.classList.remove('navbar-landing-expand');
 });
 navBarCollapse.addEventListener('hide.bs.collapse', () => {
-    logo.style.removeProperty('width');
-    logo.style.removeProperty('top');
+    logo.classList.remove('nav-open');
+    setLogoEndScale();
     if (window.scrollY <= 80) {
         navBarElem.classList.remove('navbar-landing-shrink');
         navBarElem.classList.add('navbar-landing-expand');

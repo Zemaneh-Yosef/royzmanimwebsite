@@ -12,7 +12,7 @@
 /** @typedef {{ icon: string, sunrise: Tri, sunset: Tri }} KindText */
 
 /** @type {Record<SolarInfo['kind'], KindText>} */
-const KINDS = {
+export const KINDS = {
 	'sea-level': {
 		icon: "bi-water",
 		sunrise: { he: "הנץ בגובה פני הים (ללא פני השטח)", "he-Latn": "Sea-level sunrise (no terrain)" },
@@ -36,7 +36,7 @@ const KINDS = {
 };
 
 /** @type {Record<SolarInfo['air'], { icon: string, text: Tri }>} */
-const AIRS = {
+export const AIRS = {
 	'forecast-path': {
 		icon: "bi-cloud-sun-fill",
 		text: { he: "תחזית מזג אוויר לאורך קו הראייה", "he-Latn": "Weather forecast along the line of sight" }
@@ -60,7 +60,7 @@ const AIRS = {
 };
 
 /** @type {(keyof Tri)[]} */
-const LANGS = ["he", "he-Latn", "en"];
+export const LANGS = ["he", "he-Latn", "en"];
 
 /** @param {Tri} t @param {keyof Tri} lang */
 const inLang = (t, lang) => t[lang] ?? t["he-Latn"];
@@ -69,7 +69,7 @@ const inLang = (t, lang) => t[lang] ?? t["he-Latn"];
  * One icon per language (the page shows the one in its language), so the tooltip is in that language too.
  * @param {string} icon @param {Tri} text
  */
-function icon(icon, text) {
+export function icon(icon, text) {
 	const frag = document.createDocumentFragment();
 	for (const lang of LANGS) {
 		const i = document.createElement("i");
@@ -83,7 +83,7 @@ function icon(icon, text) {
 }
 
 /** @param {Tri} t */
-function tri(t) {
+export function tri(t) {
 	const frag = document.createDocumentFragment();
 	for (const lang of LANGS) {
 		const span = document.createElement("span");
