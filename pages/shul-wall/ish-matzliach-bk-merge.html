@@ -55,7 +55,7 @@ layout: nothing
 		border-bottom-right-radius: 3.5rem;
 		border: 2px solid #d8a736;
 		border-top: none;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		box-shadow: 0 5px 8px rgba(0,0,0,1); /* was a drop-shadow filter: re-rendered every frame over the animated subtree */
 	}
 
 	#topBar > * {
@@ -99,7 +99,7 @@ layout: nothing
 		gap: 1.75rem;
 		font-size: .8rem;
 
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,1));
+		box-shadow: 0 5px 8px rgba(0,0,0,1); /* was a drop-shadow filter: re-rendered every frame over the animated subtree */
 	}
 
 	#dataGrid > *:not(.wideView):not(:nth-child(2)) {
@@ -216,7 +216,7 @@ layout: nothing
 		color: #30344F;
 		font-size: 1.5rem;
 
-		filter: drop-shadow(0px 5px 4px white);
+		text-shadow: 0 5px 8px white;
 	}
 
 	.zmanTitleText {
@@ -232,7 +232,7 @@ layout: nothing
 	[data-zfFind="calendarFormatter"] .card {
 		--bs-border-color: #d8a736;
 		line-height: 1.3;
-		filter: drop-shadow(0px 5px 4px rgba(0,0,0,.2));
+		box-shadow: 0 5px 8px rgba(0,0,0,.2);
 	}
 
 	[data-parasha] {
@@ -491,7 +491,11 @@ layout: nothing
 		const carousel = document.getElementById('ishMatzliachSlide');
 		carousel.firstElementChild.innerHTML = flyerURLs
 			.map((url, index) =>
-				`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="10000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100"></div>`)
+				`<div class="carousel-item ${index == 0 ? "active" : ''}" data-bs-interval="10000"><img src="${url.replace('./', 'https://zemaneh-yosef.github.io/extras/')}" class="d-block w-100" decoding="async" ${index == 0 ? '' : 'loading="lazy"'}></div>`)
 			.join('');
 	});
+
+	// Nothing animates while the page is hidden (AbleSign in the background, screen off).
+	document.addEventListener('visibilitychange', () =>
+		document.documentElement.classList.toggle('page-hidden', document.hidden));
 </script>

@@ -3,11 +3,13 @@
   position: relative;
   overflow: hidden;
   user-select: none;
+  contain: layout paint; /* the moving lists repaint only inside this box */
 }
 
 .marquee__content {
   min-width: 100%;
   animation: scroll var(--length, 10s) linear infinite;
+  will-change: transform; /* own compositor layer, only the transform changes per frame */
 }
 
 .marqueeHorizontal {
@@ -22,6 +24,7 @@
   flex-shrink: 0;
   justify-content: space-around;
   animation: scrollX var(--length, 10s) linear infinite;
+  will-change: transform; /* own compositor layer, only the transform changes per frame */
 }
 
 @keyframes scroll {
@@ -40,4 +43,8 @@
   to {
     transform: translateX(-100%);
   }
+}
+.page-hidden .marquee__content,
+.page-hidden .blink {
+  animation-play-state: paused;
 }
