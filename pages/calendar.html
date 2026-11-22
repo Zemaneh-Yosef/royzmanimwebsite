@@ -343,15 +343,153 @@ accordian: true
 	<div id="levana" data-zfFind="LevanaCard">
 		<div class="card mt-2 mt-lg-0" style="display: none;">
 			<div class="card-header text-center">
-				<h5 class="mb-0" data-zfReplace="levanaTitle"></h5>
-				<small class="levanaMolad" data-zfReplace="levanaMolad"></small>
+				<h5 class="mb-0">
+					<span class="lang lang-he">ברכת הלבנה - חודש <span data-zfReplace="levanaMonth-he"></span></span>
+					<span class="lang lang-he-Latn">Birkath Ha'Levana - Ḥodesh <span data-zfReplace="levanaMonth-he-Latn"></span></span>
+					<span class="lang lang-en">Blessing of the Moon - Month of <span data-zfReplace="levanaMonth-en"></span></span>
+				</h5>
+				<small class="levanaMolad">
+					<span class="lang lang-he">מולד</span>
+					<span class="lang lang-he-Latn">Molad</span>
+					<span class="lang lang-en">Molad</span>: <span data-zfReplace="levanaMolad"></span>
+				</small>
 			</div>
 			<div class="levanaBody">
 				<div class="levanaMoon">
-					<div class="levanaTonight" data-zfFind="levanaTonight"></div>
-					<div class="levanaNightInfo" data-zfFind="levanaNightInfo"></div>
+					<div class="levanaTonight" data-zfFind="levanaTonight">
+						<div class="levanaGlyph" data-zfReplace="levanaGlyph"></div>
+						<div class="levanaTimes">
+							<div class="levanaCover" data-levanaCover="both">
+								<span class="levanaTime">
+									<span class="lang lang-he" title="זורחת">↑</span><span class="lang lang-he-Latn" title="Rises">↑</span><span class="lang lang-en" title="Rises">↑</span>
+									<span data-zfReplace="levanaRise"></span>
+								</span>
+								<span class="levanaTime">
+									<span class="lang lang-he" title="שוקעת">↓</span><span class="lang lang-he-Latn" title="Sets">↓</span><span class="lang lang-en" title="Sets">↓</span>
+									<span data-zfReplace="levanaSet"></span>
+								</span>
+							</div>
+							<div class="levanaCover" data-levanaCover="from">
+								<span class="levanaTimeLabel">
+									<span class="lang lang-he">נראית משעה</span>
+									<span class="lang lang-he-Latn">Visible from</span>
+									<span class="lang lang-en">Visible from</span>
+								</span>
+								<span class="levanaTime" data-zfReplace="levanaFrom"></span>
+							</div>
+							<div class="levanaCover" data-levanaCover="until">
+								<span class="levanaTimeLabel">
+									<span class="lang lang-he">נראית עד</span>
+									<span class="lang lang-he-Latn">Visible until</span>
+									<span class="lang lang-en">Visible until</span>
+								</span>
+								<span class="levanaTime" data-zfReplace="levanaUntil"></span>
+							</div>
+							<div class="levanaCover" data-levanaCover="all">
+								<span class="levanaTime">
+									<span class="lang lang-he">נראית כל הלילה</span>
+									<span class="lang lang-he-Latn">Visible all night</span>
+									<span class="lang lang-en">Visible all night</span>
+								</span>
+							</div>
+						</div>
+						<!-- Tonight's moon is first a quick estimate on this page; the worker's exact times replace it -->
+						<span class="levanaEstimateMark" data-zfFind="levanaEstimateMark" style="display: none;">
+							<i class="bi bi-hourglass-split lang lang-he" role="img" title="הערכה – הזמנים המדויקים יוצגו בעוד רגע" aria-label="הערכה – הזמנים המדויקים יוצגו בעוד רגע"></i>
+							<i class="bi bi-hourglass-split lang lang-he-Latn" role="img" title="Approximate – exact times in a moment" aria-label="Approximate – exact times in a moment"></i>
+							<i class="bi bi-hourglass-split lang lang-en" role="img" title="Approximate – exact times in a moment" aria-label="Approximate – exact times in a moment"></i>
+						</span>
+						<div class="levanaTags" data-zfFind="levanaTags">
+							<span class="badge text-bg-warning" data-zfFind="levanaLastNight" style="display: none;">
+								<span class="lang lang-he">לילה אחרון</span>
+								<span class="lang lang-he-Latn">Last night</span>
+								<span class="lang lang-en">Last night</span>
+							</span>
+							<span class="levanaTag" data-zfFind="levanaTwilight" style="display: none;">
+								<span class="lang lang-he" title="בין השמשות בלבד: הלבנה נראית רק בין השקיעה לצאת הכוכבים, או בין עלות השחר להנץ.">בין השמשות בלבד</span>
+								<span class="lang lang-he-Latn" title="Twilight only: the moon is up only between Sheqi'a and Tzet, or between Alot and Hanetz.">Twilight only</span>
+								<span class="lang lang-en" title="Twilight only: the moon is up only between sunset and nightfall, or between dawn and sunrise.">Twilight only</span>
+							</span>
+							<span class="levanaTag" data-zfFind="levanaStrictTag" style="display: none;">
+								<span data-levanaKind="strict">
+									<span class="lang lang-he">סוף לחומרא</span>
+									<span class="lang lang-he-Latn">Strict</span>
+									<span class="lang lang-en">Strict</span>
+								</span>
+								<span data-levanaKind="rema">
+									<span class="lang lang-he">סוף לרמ״א</span>
+									<span class="lang lang-he-Latn">Rema</span>
+									<span class="lang lang-en">Rema</span>
+								</span>:
+								<span class="lang lang-he">עד</span>
+								<span class="lang lang-he-Latn">until</span>
+								<span class="lang lang-en">until</span>
+								<span data-zfReplace="levanaStrictUntil"></span>
+							</span>
+						</div>
+						<p class="levanaMessage mb-0" data-zfFind="levanaFailed" style="display: none;">
+							<span class="lang lang-he">לא ניתן לחשב את זמני הלבנה.</span>
+							<span class="lang lang-he-Latn">The moon times could not be calculated.</span>
+							<span class="lang lang-en">The moon times could not be calculated.</span>
+						</p>
+					</div>
+					<div class="levanaNightInfo" data-zfFind="levanaNightInfo">
+						<div class="levanaWait" data-zfFind="levanaWait" style="display: none;">
+							<span class="lang lang-he">מומלץ להמתין עד</span>
+							<span class="lang lang-he-Latn">Recommended to wait until</span>
+							<span class="lang lang-en">Recommended to wait until</span>
+							<b data-zfReplace="levanaWaitTime"></b>
+						</div>
+						<div class="levanaRange">
+							<span class="levanaTimeLabel">
+								<span class="lang lang-he">צאת הכוכבים – עלות השחר</span>
+								<span class="lang lang-he-Latn">Tzet – Alot</span>
+								<span class="lang lang-en">Nightfall – dawn</span>
+							</span>
+							<span><span data-zfReplace="levanaTzet"></span> – <span data-zfReplace="levanaAlot"></span></span>
+						</div>
+					</div>
 				</div>
-				<ul class="list-group list-group-flush levanaTimesList" data-zfFind="levanaTimes"></ul>
+				<ul class="list-group list-group-flush levanaTimesList" data-zfFind="levanaTimes">
+					<li class="list-group-item" data-zfFind="levanaRowEnd">
+						<span class="levanaLabel">
+							<span class="lang lang-he">סוף</span>
+							<span class="lang lang-he-Latn">End</span>
+							<span class="lang lang-en">End</span>
+						</span>
+						<span class="levanaValue" data-zfFind="levanaEndValue"><span data-zfReplace="levanaEnd"></span> <s class="levanaStruck small">(<span data-zfReplace="levanaEndStretch"></span>)</s></span>
+					</li>
+					<li class="list-group-item levanaRec" data-zfFind="levanaRowStrict">
+						<span class="levanaLabel">
+							<span data-levanaKind="strict">
+								<span class="lang lang-he">סוף לחומרא</span>
+								<span class="lang lang-he-Latn">Strict</span>
+								<span class="lang lang-en">Strict</span>
+							</span>
+							<span data-levanaKind="rema">
+								<span class="lang lang-he">סוף לרמ״א</span>
+								<span class="lang lang-he-Latn">Rema</span>
+								<span class="lang lang-en">Rema</span>
+							</span>
+						</span>
+						<span class="levanaValue" data-zfFind="levanaStrictValue" data-zfReplace="levanaStrict"></span>
+					</li>
+					<li class="list-group-item" data-zfFind="levanaRowEarly" style="display: none;">
+						<span class="levanaLabel">
+							<span data-levanaEarly="shabbat">
+								<span class="lang lang-he">סוף מוקדם (מפני שבת)</span>
+								<span class="lang lang-he-Latn">Early End (Shabbat)</span>
+								<span class="lang lang-en">Early End (Shabbat)</span>
+							</span>
+							<span data-levanaEarly="yomtov">
+								<span class="lang lang-he">סוף מוקדם (מפני יום טוב)</span>
+								<span class="lang lang-he-Latn">Early End (Yom Tov)</span>
+								<span class="lang lang-en">Early End (Yom Tov)</span>
+							</span>
+						</span>
+						<span class="levanaValue"><span data-zfReplace="levanaEarlyEnd"></span> <s class="levanaStruck small">(<span data-zfReplace="levanaEarlyStretch"></span>)</s></span>
+					</li>
+				</ul>
 			</div>
 		</div>
 	</div>

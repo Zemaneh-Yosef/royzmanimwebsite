@@ -4,6 +4,7 @@ import * as KosherZmanim from "../../../libraries/kosherZmanim/kosher-zmanim.js"
 import { methodNames } from "../../core/ROYZmanim.js";
 import { reload } from "../reload.js";
 import { jCal, zmanCalc, dtF, scheduleSettings, onZmanimUpdate } from "../base.js";
+import { readRows, wallTitles, fillRow } from "../../ui/zmanim-rows.js";
 
 if (!('timers' in window))
 	// @ts-ignore
@@ -11,68 +12,20 @@ if (!('timers' in window))
 
 export default class zmanimListUpdater {
 	constructor() {
-		/** @type {null|Temporal.ZonedDateTime} */
-		this.nextUpcomingZman = null;
-
 		/** @type {null|NodeJS.Timeout} */ // It's not node but whatever
 		this.countdownToNextDay = null;
 
 		/** @type {Parameters<typeof jCal.getZmanimInfo>[2]} */
-		this.zmanimList = Object.fromEntries(Array.from(document.querySelector('[data-zfFind="calendarFormatter"]').children)
-			.map(timeSlot => [timeSlot.getAttribute('data-zmanid'), Object.freeze({
-				function: timeSlot.getAttribute('data-timeGetter'),
-				yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
-				luachInclusive: timeSlot.getAttribute('data-luachInclusive'),
-				condition: timeSlot.getAttribute('data-condition'),
-				round: timeSlot.getAttribute('data-round'),
-				title: Object.fromEntries(['he', 'en', 'he-Latn', 'ru'].map(lang => {
-					if (!timeSlot.querySelector(`span.langTV.lang-${lang}`))
-						return null;
-
-					return [lang, timeSlot.querySelector(`span.langTV.lang-${lang}`).innerHTML];
-				}).filter(Boolean))
-			})])
-			.filter(
-				arrayEntry =>
-					arrayEntry[0] !== null
-					// @ts-ignore
-				&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
-			));
+		// @ts-ignore
+		this.zmanimList = readRows(document.querySelector('[data-zfFind="calendarFormatter"]').children, { methodNames, titles: wallTitles });
 
 		this.resetCalendar();
 	}
 
 	resetCalendar() {
 		this.timeoutToChangeDate = null;
-
-		this.setNextUpcomingZman();
 		this.changeDate(jCal.getDate())
 	}
-
-    setNextUpcomingZman() {
-        /** @type {Temporal.ZonedDateTime[]} */
-        const zmanim = [];
-        const currentSelectedDate = Temporal.Now.plainDateISO(scheduleSettings.location.timezone);
-
-        for (const days of [0, 1]) {
-            this.changeDate(Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).toPlainDate().add({ days }), true);
-            zmanim.push(
-                ...Object.values(jCal.getZmanimInfo(false,zmanCalc,this.zmanimList, dtF))
-                    .filter(obj => obj.display == 1)
-                    .map(time => time.zDTObj)
-            );
-        }
-
-        this.changeDate(currentSelectedDate, true); //reset the date to the current date
-        zmanim.sort(Temporal.ZonedDateTime.compare);
-        this.nextUpcomingZman = zmanim.find(zman => Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(zman).total({ unit: "milliseconds" }) > 0)
-
-        // @ts-ignore
-        window.timers.spotlightNextZman = setTimeout(() => {
-            this.setNextUpcomingZman();
-            this.updateZmanimList()
-        }, Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone).until(this.nextUpcomingZman).total({ unit: "milliseconds" }));
-    }
 
 	/**
 	 * @param {Temporal.PlainDate} date
@@ -95,30 +48,50 @@ export default class zmanimListUpdater {
 		}
 	}
 
+	/**
+	 * Which list is up, by the time of day:
+	 *  - "today": today's zemanim, until chatzot hayom
+	 *  - "blend": today's afternoon first, then tonight's chatzot, then (under a divider) tomorrow's morning
+	 *  - "tomorrow": tomorrow's zemanim, after the day's last zman
+	 * The cards stay where the page put them (morning, the wide chatzot card, afternoon); the blend only
+	 * reorders them with CSS `order` and fills the morning cards from tomorrow.
+	 */
 	updateZmanimList() {
-        const lastZmanEntry = Object.entries(this.zmanimList).at(-1);
-        /** @type {Temporal.ZonedDateTime} */
-        // @ts-ignore
-        const lastZman = zmanCalc.chainDate(Temporal.Now.plainDateISO(scheduleSettings.location.timezone))[lastZmanEntry[1].function]();
+		const tz = scheduleSettings.location.timezone;
+		const now = Temporal.Now.zonedDateTimeISO(tz);
+		const today = now.toPlainDate();
+		const todayCalc = zmanCalc.chainDate(today);
 
-        let todOrTomJCal, todOrTomZmanCalc;
-        if (lastZman.since(Temporal.Now.zonedDateTimeISO(scheduleSettings.location.timezone)).total('nanoseconds') < 0) {
-            todOrTomJCal = jCal.tomorrow();
-            todOrTomZmanCalc = zmanCalc.tomorrow();
-            document.querySelector('[data-zfFind="whichZemanimDay"]').innerHTML =
-                `<span class="langTV lang-he">זמנים של מחר</span>
-                <span class="langTV lang-en">Tomorrow's Zemanim</span>`;
-        } else {
-            todOrTomJCal = jCal;
-            todOrTomZmanCalc = zmanCalc;
-            document.querySelector('[data-zfFind="whichZemanimDay"]').innerHTML =
-                `<span class="langTV lang-he">זמנים של היום</span>
-                <span class="langTV lang-en">Today's Zemanim</span>`;
-        }
-		const zmanInfo = todOrTomJCal.getZmanimInfo(false, todOrTomZmanCalc, this.zmanimList, dtF);
+		const lastZmanEntry = Object.entries(this.zmanimList).at(-1);
+		/** @type {Temporal.ZonedDateTime} */
+		// @ts-ignore
+		const lastZman = todayCalc[lastZmanEntry[1].function]();
+		/** @type {Temporal.ZonedDateTime} */
+		const hatzot = todayCalc.getHatzoth();
+
+		/** @type {"today" | "blend" | "tomorrow"} */
+		const mode = Temporal.ZonedDateTime.compare(now, lastZman) >= 0 ? "tomorrow"
+			: Temporal.ZonedDateTime.compare(now, hatzot) >= 0 ? "blend"
+			: "today";
+
+		document.querySelector('[data-zfFind="whichZemanimDay"]').innerHTML = mode == "tomorrow"
+			? `<span class="langTV lang-he">זמנים של מחר</span>
+				<span class="langTV lang-en">Tomorrow's Zemanim</span>`
+			: `<span class="langTV lang-he">זמנים של היום</span>
+				<span class="langTV lang-en">Today's Zemanim</span>`;
+
+		const todayInfo = jCal.getZmanimInfo(false, zmanCalc, this.zmanimList, dtF);
+		const tomorrowInfo = jCal.tomorrow().getZmanimInfo(false, zmanCalc.tomorrow(), this.zmanimList, dtF);
+
 		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]')) {
+			if (!(calendarContainer instanceof HTMLElement))
+				continue;
+			const divider = this.blendDivider(calendarContainer);
+			divider.style.display = mode == "blend" ? "" : "none";
+
+			let afterHatzot = false;
 			for (const timeSlot of calendarContainer.children) {
-				if (!(timeSlot instanceof HTMLElement))
+				if (!(timeSlot instanceof HTMLElement) || timeSlot === divider)
 					continue;
 
 				if (!timeSlot.hasAttribute('data-zmanid')) {
@@ -126,47 +99,83 @@ export default class zmanimListUpdater {
 					continue;
 				}
 
-				let zmanId = timeSlot.getAttribute('data-zmanid');
-				if (!(zmanId in zmanInfo) || zmanInfo[zmanId].display == -1) {
-					timeSlot.style.setProperty('display', 'none', 'important');
+				const zmanId = timeSlot.getAttribute('data-zmanid');
+				const isHatzot = zmanId == 'hatzot';
+				const morning = !afterHatzot && !isHatzot;
+				if (isHatzot)
+					afterHatzot = true;
+
+				if (mode != "blend") {
+					timeSlot.style.removeProperty('order');
+					this.renderSlot(timeSlot, (mode == "tomorrow" ? tomorrowInfo : todayInfo)[zmanId]);
 					continue;
 				}
 
-				const timeDisplay = timeSlot.getElementsByClassName('timeDisplay')[0]
-				if (zmanInfo[zmanId].display == -2) {
-					timeSlot.style.removeProperty("display");
-					timeDisplay.lastElementChild.innerHTML = "XX:XX"
-					continue;
-				}
-
-				timeDisplay.lastElementChild.innerHTML = zmanInfo[zmanId].zDTObj.toLocaleString(...zmanInfo[zmanId].dtF)
-
-                if (zmanInfo[zmanId].title.he)
-                    timeSlot.querySelector('.lang-he').innerHTML = zmanInfo[zmanId].title.he
-
-                if (zmanInfo[zmanId].title.en)
-                    timeSlot.querySelector('.lang-en').innerHTML = zmanInfo[zmanId].title.en
-
-                if (zmanInfo[zmanId].title["he-Latn"])
-                    timeSlot.querySelector('.lang-he-Latn').innerHTML = zmanInfo[zmanId].title["he-Latn"];
-
-				// Calculate but hide! Can be derived via Inspect Element
-				if (!zmanInfo[zmanId].display)
-					timeSlot.style.setProperty('display', 'none', 'important');
-				else {
-					timeSlot.style.removeProperty('display')
-				}
+				// blend: afternoon (1), tonight's chatzot (2), the divider (3), tomorrow's morning (4)
+				timeSlot.style.order = morning ? "4" : isHatzot ? "2" : "1";
+				if (isHatzot)
+					this.renderSlot(timeSlot, todayInfo[zmanId], todayCalc.getSolarMidnight());
+				else
+					this.renderSlot(timeSlot, (morning ? tomorrowInfo : todayInfo)[zmanId]);
 			}
 			calendarContainer.classList.remove("loading")
 		}
+
+		// Reload when each zman passes (as the other walls do), so the schedules and flyers stay current. Draw
+		// first, so the list is right even while the reload waits for the network.
+		const upcoming = [...Object.values(todayInfo), ...Object.values(tomorrowInfo)]
+			.filter(info => info.display == 1 && info.zDTObj && Temporal.ZonedDateTime.compare(info.zDTObj, now) > 0)
+			.map(info => info.zDTObj)
+			.sort(Temporal.ZonedDateTime.compare);
+		// @ts-ignore
+		clearTimeout(window.timers.spotlightNextZman);
+		if (upcoming.length)
+			// @ts-ignore
+			window.timers.spotlightNextZman = setTimeout(async () => {
+				this.updateZmanimList();
+				await reload();
+			}, now.until(upcoming[0]).total('milliseconds') + 1000);
 	}
 
 	/**
-	 * @param {Temporal.ZonedDateTime} zman
+	 * The line between today's afternoon and tomorrow's morning in the blend, labelled like the list's
+	 * heading. Made once, from the heading, so it takes each page's own look.
+	 * @param {HTMLElement} calendarContainer
 	 */
-	isNextUpcomingZman(zman) {
-		return !(this.nextUpcomingZman == null || !(zman.equals(this.nextUpcomingZman)))
-	};
+	blendDivider(calendarContainer) {
+		/** @type {HTMLElement | null} */
+		let divider = calendarContainer.querySelector(':scope > [data-zfFind="blendDivider"]');
+		if (divider)
+			return divider;
+
+		divider = document.createElement('div');
+		divider.setAttribute('data-zfFind', 'blendDivider');
+		divider.style.gridColumn = '1 / -1';
+		divider.style.order = '3';
+		divider.appendChild(document.createElement('hr'));
+		const heading = /** @type {HTMLElement} */ (document.querySelector('[data-zfFind="whichZemanimDay"]').cloneNode(false));
+		heading.removeAttribute('data-zfFind');
+		heading.innerHTML = `<span class="langTV lang-he">זמנים של מחר</span>
+			<span class="langTV lang-en">Tomorrow's Zemanim</span>`;
+		divider.appendChild(heading);
+		calendarContainer.appendChild(divider);
+		return divider;
+	}
+
+	/**
+	 * @param {HTMLElement} timeSlot
+	 * @param {ReturnType<typeof jCal.getZmanimInfo>[string] | undefined} info
+	 * @param {Temporal.ZonedDateTime} [time] shown instead of the row's own time (tonight's chatzot)
+	 */
+	renderSlot(timeSlot, info, time) {
+		fillRow(timeSlot, info, (slot, title) => {
+			for (const lang of /** @type {const} */ (['he', 'en', 'he-Latn'])) {
+				const titleElem = slot.querySelector(`.lang-${lang}`);
+				if (title[lang] && titleElem)
+					titleElem.innerHTML = title[lang];
+			}
+		}, time);
+	}
 }
 
 const zmanimListUpdater2 = new zmanimListUpdater()

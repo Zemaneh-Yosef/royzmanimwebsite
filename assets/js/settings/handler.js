@@ -204,6 +204,7 @@ function handleLanguage(zmanimLanguage = settings.language(), save=false) {
 
 	if (save)
 		localStorage.setItem("zmanimLanguage", zmanimLanguage)
+
 }
 
 /**
@@ -226,4 +227,13 @@ function saveSetting(key, value) {
 	}
 }
 
-export {settings, handleLanguage, saveSetting}
+/**
+ * Tell the page a setting was changed (by the visitor, after it is saved): the page decides what to redraw.
+ * Pages showing a fixed calendar (Hazon Yosef) simply don't listen.
+ * @param {"zmanimLanguage" | "timeFormat" | "seconds" | "useElevation"} key
+ */
+function announceSettingChange(key) {
+	document.dispatchEvent(new CustomEvent("zmanimsettingchange", { detail: { key } }));
+}
+
+export {settings, handleLanguage, saveSetting, announceSettingChange}

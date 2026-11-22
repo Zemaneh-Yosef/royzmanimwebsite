@@ -1,18 +1,20 @@
 // @ts-check
 
-import { JewishDate } from "../../libraries/kosherZmanim/kosher-zmanim.js";
-import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
-import { zDTFromFunc } from "../core/ROYZmanim.js";
+import { fastDayInfo } from "../core/fastDays.js";
+import { mourningInfo, tachanunChoice, calendarForRules } from "../core/dayRules.js";
+import { nextTekufaInfo, tekufaMonthNames } from "../core/tekufot.js";
 import { scheduleSettings, geoLocation, jCal, zmanCalc, dtF, onZmanimUpdate } from "./base.js";
 
 /** @param {HTMLElement} [fastContainer] */
 function renderFastIndex(fastContainer) {
-	const todayFast = jCal.isTaanis() || jCal.isTaanisBechoros();
-	if (!todayFast && !jCal.tomorrow().isTaanis() && !jCal.tomorrow().isTaanisBechoros()) {
+	const fast = fastDayInfo(jCal, zmanCalc);
+	if (!fast) {
 		fastContainer.style.display = "none";
 		return;
 	}
 	fastContainer.style.removeProperty("display");
+
+	const todayFast = fast.isToday;
 
 	/**
 	 * @param {Element} contElem
@@ -31,14 +33,10 @@ function renderFastIndex(fastContainer) {
 			});
 	}
 
-	const fastJCal = jCal.isTaanis() || jCal.isTaanisBechoros() ? jCal : jCal.tomorrow();
-	const fastCalc = zmanCalc.chainDate(fastJCal.getDate());
 	const nameElements = [...fastContainer.getElementsByTagName("h5")];
 	nameElements.forEach(element => element.style.display = "none");
 
-	const ourFast = nameElements.find(fastElm =>
-		fastElm.getAttribute("data-zfFind") == (fastJCal.isTaanisBechoros() ? 0 : fastJCal.getYomTovIndex()).toString()
-	);
+	const ourFast = nameElements.find(fastElm => fastElm.getAttribute("data-zfFind") == fast.nameIndex.toString());
 	hideErev(ourFast);
 	ourFast.style.removeProperty("display");
 
@@ -48,7 +46,7 @@ function renderFastIndex(fastContainer) {
 		oneDay: fastContainer.querySelector('[data-zfFind="oneDayTimes"]')
 	};
 
-	if ([WebsiteLimudCalendar.TISHA_BEAV, WebsiteLimudCalendar.YOM_KIPPUR].includes(fastJCal.getYomTovIndex())) {
+	if (fast.multiDay) {
 		timeList.oneDay.style.display = "none";
 		timeList.multiDay.style.removeProperty("display");
 
@@ -58,21 +56,14 @@ function renderFastIndex(fastContainer) {
 			erevTzom.lastChild.remove();
 		}
 
-		const erevCalc = zmanCalc.chainDate(fastJCal.getDate().subtract({ days: 1 }));
-		const timeOnErev =
-			(fastJCal.getYomTovIndex() == WebsiteLimudCalendar.YOM_KIPPUR ? erevCalc.getCandleLighting() : erevCalc.getShkiya())
-		erevTzom.appendChild(document.createTextNode(timeOnErev.toLocaleString(...dtF)));
+		erevTzom.appendChild(document.createTextNode(fast.startErev.toLocaleString(...dtF)));
 
 		const yomTzom = timeList.multiDay.lastElementChild;
 		hideErev(yomTzom, true);
 		if (yomTzom.lastChild.nodeType == Node.TEXT_NODE)
 			yomTzom.lastChild.remove();
 
-		if (fastJCal.isYomKippur()) {
-			yomTzom.appendChild(document.createTextNode(zDTFromFunc(fastCalc.getTzetMelakha()).toLocaleString(...dtF)));
-		} else {
-			yomTzom.appendChild(document.createTextNode(fastCalc.getTzetHumra().toLocaleString(...dtF)))
-		}
+		yomTzom.appendChild(document.createTextNode(fast.end.toLocaleString(...dtF)));
 	} else {
 		timeList.multiDay.style.display = "none";
 		timeList.oneDay.style.removeProperty("display")
@@ -81,14 +72,15 @@ function renderFastIndex(fastContainer) {
 		}
 
 		timeList.oneDay.appendChild(document.createTextNode(
-			fastCalc.getAlotHashahar().toLocaleString(...dtF) + ' - ' + fastCalc.getTzetHumra().toLocaleString(...dtF)
+			fast.startDay.toLocaleString(...dtF) + ' - ' + fast.end.toLocaleString(...dtF)
 		))
 	}
 }
 
 /** @param {HTMLElement} [mourningDiv] */
 function writeMourningPeriod(mourningDiv) {
-	if (!jCal.isMourningPeriod()) {
+	const mourning = mourningInfo(jCal);
+	if (!mourning) {
 		mourningDiv.style.display = "none";
 		return;
 	}
@@ -99,7 +91,7 @@ function writeMourningPeriod(mourningDiv) {
 
 	/** @type {HTMLElement} */
 	const threeWeeks = mourningDiv.querySelector('[data-zfFind="ThreeWeeksHeader"]');
-	if (jCal.getDayOfOmer() !== -1) {
+	if (mourning.kind == 'omer') {
 		sefirathHaomer.style.removeProperty("display");
 		threeWeeks.style.display = "none";
 
@@ -108,18 +100,18 @@ function writeMourningPeriod(mourningDiv) {
 			.map(elem => [Array.from(elem.classList)[1].replace('lang-', ''), elem]));
 
 		for (const [lang, elem] of Object.entries(eachLang)) {
-			const finalDayAdjust = (jCal.tomorrow().getDayOfOmer() == -1 ? "add" : "remove")
+			const finalDayAdjust = (mourning.lastOmerDay ? "add" : "remove")
 			elem.lastElementChild.classList[finalDayAdjust]("d-none");
 			elem.lastElementChild.previousElementSibling.classList[finalDayAdjust]("mb-0")
 
 			for (const completeCount of elem.querySelectorAll('[data-zfReplace="completeCount"]')) {
-				const jCalOmer = (completeCount.getAttribute('data-omerDay') == 'tomorrow' ? jCal.tomorrow() : jCal)
+				const jCalOmer = (completeCount.getAttribute('data-omerDay') == 'tomorrow' ? mourning.tomorrow : mourning.today)
 				// @ts-ignore
 				completeCount.innerHTML = jCalOmer.getOmerInfo().title[lang].mainCount
 			}
 
 			for (const indCount of elem.querySelectorAll('[data-zfReplace="indCount"]')) {
-				const jCalOmer = (indCount.getAttribute('data-omerDay') == 'tomorrow' ? jCal.tomorrow() : jCal)
+				const jCalOmer = (indCount.getAttribute('data-omerDay') == 'tomorrow' ? mourning.tomorrow : mourning.today)
 				if (jCalOmer.getDayOfOmer() >= 7) {
 					indCount.parentElement.style.removeProperty("display");
 					// @ts-ignore
@@ -132,7 +124,7 @@ function writeMourningPeriod(mourningDiv) {
 
 		/** @type {HTMLElement} */
 		const omerRules = mourningDiv.querySelector('[data-zfFind="omerRules"]')
-		if (Object.values(jCal.mourningHalachot()).every(elem => elem == false)) {
+		if (!mourning.showOmerRules) {
 			omerRules.style.display = "none"
 		} else {
 			omerRules.style.removeProperty("display");
@@ -148,12 +140,12 @@ function writeMourningPeriod(mourningDiv) {
 		/** @type {HTMLElement[]} */
 		const weekOfText = Array.from(threeWeeks.querySelectorAll('[data-zfFind="weekOf"]'));
 
-		if (jCal.isShvuaShechalBo()) {
+		if (mourning.threeWeeksPhase == 'weekOf') {
 			weekOfText.forEach((elem) => elem.style.removeProperty("display"));
 
 			([nineDaysText, threeWeeksText]).flat()
 				.forEach((elem) => elem.style.display = "none")
-		} else if (jCal.getJewishMonth() == WebsiteLimudCalendar.AV) {
+		} else if (mourning.threeWeeksPhase == 'nineDays') {
 			nineDaysText.forEach((elem) => elem.style.removeProperty("display"));
 
 			([weekOfText, threeWeeksText]).flat()
@@ -166,7 +158,7 @@ function writeMourningPeriod(mourningDiv) {
 		}
 	}
 
-	for (const [key, value] of Object.entries(jCal.mourningHalachot())) {
+	for (const [key, value] of Object.entries(mourning.halachot)) {
 		mourningDiv.querySelectorAll(`[data-zfFind="${key}"]`)
 			.forEach((halachaIndex) => {
 				if (!(halachaIndex instanceof HTMLElement))
@@ -263,12 +255,7 @@ function renderSidebar() {
 
 	/** @param {HTMLElement} [tefilahRuleContainer] */
 	function renderSeasonalRules(tefilahRuleContainer) {
-		/** @type {import('../core/WebsiteCalendar.js').default} */
-		let calForRules = jCal;
-		if (jCal.getDate().equals(Temporal.Now.plainDateISO(geoLocation.getTimeZone()))
-			&& Temporal.ZonedDateTime.compare(zmanCalc.getTzet(), Temporal.Now.zonedDateTimeISO(geoLocation.getTimeZone())) < 1) {
-			calForRules = jCal.tomorrow();
-		}
+		const calForRules = calendarForRules(jCal, zmanCalc, geoLocation.getTimeZone());
 		const seasonalRules = [
 			calForRules.tefilahRules().amidah.mechayehHametim,
 			calForRules.tefilahRules().amidah.mevarechHashanim
@@ -277,17 +264,14 @@ function renderSidebar() {
 		tefilahRuleContainer.querySelector('[data-zfReplace="SeasonalPrayers"]').innerHTML = seasonalRules.filter(Boolean).join(" / ");
 	}
 
+	const tachanunId = tachanunChoice(jCal);
 	queryAllElements('[data-zfReplace="Tachanun"]').forEach((tachanun) => {
-		if (jCal.isYomTovAssurBemelacha()) {
+		if (tachanunId === null) {
 			tachanun.style.display = "none";
 			return;
 		}
 
 		tachanun.style.removeProperty("display");
-		let tachanunId = jCal.tefilahRules().tachanun;
-		if (jCal.getDayOfWeek() == 7) {
-			tachanunId = Math.min(tachanunId + 3, 4)
-		}
 
 		for (const tachanunDiv of tachanun.children) {
 			if (!(tachanunDiv instanceof HTMLElement))
@@ -311,50 +295,33 @@ function renderSidebar() {
 		}
 	})
 
-	const tekufaDate = zmanCalc.nextTekufa(scheduleSettings.calendarToggle.tekufaMidpoint !== "hatzoth");
-	if (jCal.getDate().toZonedDateTime(geoLocation.getTimeZone()).until(tekufaDate).total('days') < 1) {
+	const tekufa = nextTekufaInfo(zmanCalc, scheduleSettings.calendarToggle.tekufaMidpoint !== "hatzoth");
+	if (tekufa && jCal.getDate().toZonedDateTime(geoLocation.getTimeZone()).until(tekufa.exact).total('days') < 1) {
 		/** @type {[string | string[], options?: Intl.DateTimeFormatOptions]} */
 		const tekufaTF = [dtF[0], { ...dtF[1] }]
 		delete tekufaTF[1].second
 
-		const nextTekufaJDate = [1, 4, 7, 10]
-			.map(month => new JewishDate(jCal.getJewishYear(), month, 15))
-			.sort((jDateA, jDateB) => {
-				const durationA = jCal.getDate().until(jDateA.getDate())
-				const durationB = jCal.getDate().until(jDateB.getDate())
+		const nextTekufotNames = tekufaMonthNames(jCal)
 
-				return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'))
-			})[0]
-
-		/** @type {{en: string; he: string}} */
-		// @ts-ignore
-		const nextTekufotNames = ['en', 'he']
-			.map(locale => [locale, nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' })])
-			.reduce(function (obj, [key, val]) {
-				//@ts-ignore
-				obj[key] = val
-				return obj
-			}, {})
-
-		for (let tekufa of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
-			if (!(tekufa instanceof HTMLElement))
+		for (let tekufaElem of document.querySelectorAll('[data-zfFind="Tekufa"]')) {
+			if (!(tekufaElem instanceof HTMLElement))
 				continue;
 
-			tekufa.style.removeProperty("display");
+			tekufaElem.style.removeProperty("display");
 
-			Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaTime"]'))
-				.forEach(element => element.innerHTML = tekufaDate.round("minute").toLocaleString(...tekufaTF));
-			Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaFastTime"]'))
+			Array.from(tekufaElem.querySelectorAll('[data-zfReplace="tekufaTime"]'))
+				.forEach(element => element.innerHTML = tekufa.time.toLocaleString(...tekufaTF));
+			Array.from(tekufaElem.querySelectorAll('[data-zfReplace="tekufaFastTime"]'))
 				.forEach(element => element.innerHTML =
 					[
-						tekufaDate.round("minute").subtract({ minutes: 30 }).toLocaleString(...tekufaTF),
-						tekufaDate.round("minute").add({ minutes: 30 }).toLocaleString(...tekufaTF),
+						tekufa.fastStart.toLocaleString(...tekufaTF),
+						tekufa.fastEnd.toLocaleString(...tekufaTF),
 					].join('-')
 				);
 
-			Array.from(tekufa.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
+			Array.from(tekufaElem.querySelectorAll('[data-zfReplace="tekufaName-en"]'))
 				.forEach(element => element.innerHTML = nextTekufotNames.en);
-			tekufa.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
+			tekufaElem.querySelector('[data-zfReplace="tekufaName-hb"]').innerHTML = nextTekufotNames.he;
 		}
 	} else {
 		queryAllElements('[data-zfFind="Tekufa"]').forEach((tekufa) => tekufa.style.display = "none")

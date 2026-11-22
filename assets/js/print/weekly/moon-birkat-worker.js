@@ -6,22 +6,9 @@ import { ZemanFunctions, zDTFromFunc } from '../../core/ROYZmanim.js';
 import { providerFromSnapshot } from '../../core/refraction-snapshot.js';
 import { zemanimConfigFrom } from '../../core/zmanimSettings.js';
 import { loadWorkerPolyfills } from '../../misc/worker-polyfills.js';
+import { clip, nightMoon } from '../../astro/moon-coverage.js';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/**
- * Clips [start, end] (epoch ms) to [minStart, maxEnd]. Returns null if the result is empty.
- * @param {number} start
- * @param {number} end
- * @param {number} minStart
- * @param {number} maxEnd
- * @returns {[number, number] | null}
- */
-function clip(start, end, minStart, maxEnd) {
-	const s = Math.max(start, minStart);
-	const e = Math.min(end, maxEnd);
-	return s < e ? [s, e] : null;
-}
+/** @typedef {import('../../astro/moon-coverage.js').MoonEvents} MoonEvents */
 
 /**
  * Captures what the glyph needs at the instant of a moon rise/set.
@@ -34,76 +21,6 @@ function describeMoonEvent(calc, observer, ms) {
 	if (ms === null) return null;
 	const g = calc.moonGeometry(new Date(ms), observer);
 	return { ms: Math.round(ms), thetaDeg: g.thetaDeg, phaseAngleDeg: g.phaseAngleDeg };
-}
-
-/**
- * How the moon covers the night window [winStart, winEnd) (epoch ms).
- *  'both'  - rises and sets inside the window
- *  'from'  - rises inside the window, still up when it ends
- *  'until' - already up when the window opens, sets inside it
- *  'all'   - up for the whole window
- * @param {{rise: number | null, set: number | null}} moon
- * @param {number} winStart
- * @param {number} winEnd
- * @returns {'both'|'from'|'until'|'all'}
- */
-function classifyCoverage(moon, winStart, winEnd) {
-	const within = (/** @type {number | null} */ t) => t !== null && t >= winStart && t < winEnd;
-	const riseIn = within(moon.rise), setIn = within(moon.set);
-	if (riseIn && setIn) return 'both';
-	if (riseIn) return 'from';
-	if (setIn) return 'until';
-	return 'all';
-}
-
-/**
- * Next moonrise / moonset at or after an instant (epoch ms), or null if none within the search horizon.
- * @typedef {{ rise: (epochMs: number) => number | null, set: (epochMs: number) => number | null }} MoonEvents
- */
-
-/**
- * Finds the moon-up interval (rise -> set) that overlaps the window [winStart, winEnd], in epoch ms.
- *
- * The moon may already be up when the window opens (e.g. it rose in the afternoon and is still up
- * after tzet, which is the normal case around the full moon), so the search is NOT anchored to a
- * civil day. Rules:
- *  - Moon already up at winStart: interval is [the rise before winStart, the next set].
- *  - Moon not up at winStart: interval is [the next rise, the set after it], but only if that rise
- *    occurs before winEnd. Otherwise the moon is not in the sky at any point of the window -> null.
- *
- * `events` decides what rise / set mean: visible over the terrain when there is a moon horizon, else
- * the lit limb on the flat horizon (see messageHandler).
- * rise or set is null only if none is found within the search horizon.
- *
- * @param {MoonEvents} events
- * @param {number} winStart
- * @param {number} winEnd
- * @returns {{rise: number | null, set: number | null} | null}
- */
-function findMoonUp(events, winStart, winEnd) {
-	const nextRise = events.rise(winStart);
-	const nextSet = events.set(winStart);
-
-	// A set that comes before the next rise means the moon is currently up.
-	// (Condition is inlined, not stored in a boolean, so TS narrows nextSet to number inside.)
-	if (nextSet !== null && (nextRise === null || nextSet < nextRise)) {
-		// Walk forward from 2 days back to find the last rise before that set.
-		let rise = null;
-		let cursor = winStart - 2 * DAY_MS;
-		for (let i = 0; i < 4; i++) {
-			const r = events.rise(cursor);
-			if (r === null || r >= nextSet) break;
-			rise = r;
-			cursor = r + 60 * 1000;
-		}
-		return { rise, set: nextSet };
-	}
-
-	if (nextRise === null || nextRise >= winEnd)
-		return null;
-
-	// The set that completes THIS rise's arc, searched from the rise itself.
-	return { rise: nextRise, set: events.set(nextRise) };
 }
 
 /** @typedef {{geoCoordinates: [string, number, number, number, string]; months: {year: number; month: number}[]; zemanim: import('../../core/zmanimSettings.js').ZemanimOptions;}} birkatWorkerParam */
@@ -230,14 +147,12 @@ function messageHandler(x) {
 			return null;
 
 		// Moon-up interval overlapping the bediavad window. None -> skip the night entirely.
-		const moon = findMoonUp(moonEvents, bediavad[0], bediavad[1]);
-		if (!moon)
+		const night = nightMoon(moonEvents, bediavad, lechatchila);
+		if (!night)
 			return null;
-
-		// Bediavad-only: the moon is not up at any point of the lechatchila range.
+		const { moon, coverage, bediavadOnly } = night;
 		const moonRise = moon.rise ?? -Infinity;
 		const moonSet = moon.set ?? Infinity;
-		const moonInLechatchila = lechatchila !== null && moonRise < lechatchila[1] && moonSet > lechatchila[0];
 
 		/** @type {Record<string, RowMark>} */
 		const marks = {};
@@ -254,7 +169,6 @@ function messageHandler(x) {
 			}
 		}
 
-		const coverage = classifyCoverage(moon, bediavad[0], bediavad[1]);
 		const midMs = Math.round(bediavad[0] + (bediavad[1] - bediavad[0]) / 2);
 
 		// Middle of the part of the window where the moon is actually up.
@@ -272,7 +186,7 @@ function messageHandler(x) {
 				set:  coverage === 'both' || coverage === 'until' ? describeMoonEvent(calc, observer, moon.set) : null,
 				mid:  coverage === 'all' ? describeMoonEvent(calc, observer, midMs) : null
 			},
-			bediavadOnly: !moonInLechatchila,
+			bediavadOnly,
 			...(Object.keys(marks).length ? { marks } : {}),
 			...(peak ? { peak } : {})
 		};
@@ -360,23 +274,41 @@ function messageHandler(x) {
 	});
 }
 
-addEventListener('message', async (/** @type {MessageEvent<birkatWorkerParam | RefractionInit>} */ message) => {
+/**
+ * One message of this worker's protocol (the print pages' and the shared worker's alike): a RefractionInit is
+ * stored and answers nothing (undefined; it takes effect synchronously, before any later month); the months
+ * message answers the MonthResult list, or { error } if it failed.
+ * @param {birkatWorkerParam | RefractionInit} data
+ * @returns {Promise<MonthResult[] | { error: string } | undefined>}
+ */
+export async function runBirkatMessage(data) {
 	// Handled before any await, so it is in place before the first month runs
-	if ('type' in message.data && message.data.type === 'refraction') {
-		refraction.provider = providerFromSnapshot(message.data.table, message.data.normals);
-		refraction.horizon = message.data.horizon;
-		refraction.haze = message.data.haze ?? null;
-		return;
+	if ('type' in data && data.type === 'refraction') {
+		refraction.provider = providerFromSnapshot(data.table, data.normals);
+		refraction.horizon = data.horizon;
+		refraction.haze = data.haze ?? null;
+		return undefined;
 	}
 
 	try {
 		await loadWorkerPolyfills();
-		postMessage(messageHandler(/** @type {birkatWorkerParam} */ (message.data)));
+		return messageHandler(/** @type {birkatWorkerParam} */ (data));
 	} catch (err) {
 		console.error('moon-birkat-worker failed:', err);
 		// Throwing inside an async listener only causes an unhandled rejection in the worker,
 		// which never reaches the page's 'error' listener. Report back explicitly instead,
 		// so the page knows this worker is done and can still build the early pages.
-		postMessage({ error: String(err) });
+		return { error: String(err) };
 	}
-});
+}
+
+// Standalone worker (the print pages start this file directly). When visible-horizon-worker.js runs this as
+// one of its jobs it sets `visibleHorizonHost` first and does the messaging itself. A flag rather than
+// import.meta.url, which the classic build rewrites to the source URL, not the bundle's.
+if ('WorkerGlobalScope' in globalThis && !('document' in globalThis) && !('visibleHorizonHost' in globalThis)) {
+	addEventListener('message', async (/** @type {MessageEvent<birkatWorkerParam | RefractionInit>} */ message) => {
+		const answer = await runBirkatMessage(message.data);
+		if (answer !== undefined)
+			postMessage(answer);
+	});
+}

@@ -1,0 +1,8 @@
+{%- comment -%}
+	Module scripts of a TV page, emitted in the order given.
+	Parameter: list = comma-separated names of files under /assets/js/shul-wall/ without ".js",
+	           e.g. {% include shul-wall/scripts.html list="date-and-time,reset,zemanim/transition" %}
+{%- endcomment -%}
+{% assign names = include.list | split: "," %}
+{% for name in names %}<script type="module" src="/assets/js/shul-wall/{{ name | strip }}.js"></script>
+{% endfor %}

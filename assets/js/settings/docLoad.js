@@ -1,4 +1,4 @@
-import { handleLanguage, settings, saveSetting } from "./handler.js";
+import { handleLanguage, settings, saveSetting, announceSettingChange } from "./handler.js";
 import { isInIsrael } from "../misc/israel.js";
 import { Input, Ripple, initMDB } from "../../libraries/mdbootstrap/mdb.js"
 import { scheduleSync } from "../features/pushNotifications.js";
@@ -77,34 +77,26 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('elevationToggle').addEventListener('click', () => {
                 saveSetting("useElevation", document.getElementById("elevationOn").checked ? "true" : "false");
                 scheduleSync();
-                if (window.zmanimListUpdater2) {
-                    window.zmanimListUpdater2.resetCalendar();
-                }
+                announceSettingChange("useElevation");
             })
         }
 
         document.getElementById('languageSelector').addEventListener('click', () => {
             handleLanguage(document.getElementById('hebrew').checked ? 'he' : (document.getElementById('enet').checked ? 'he-Latn' : 'en'), true);
             scheduleSync();
-            if (window.zmanimListUpdater2) {
-                window.zmanimListUpdater2.resetCalendar();
-            }
+            announceSettingChange("zmanimLanguage");
         })
 
         document.getElementById('timeFormatter').addEventListener('click', () => {
             localStorage.setItem("timeFormat", document.getElementById("24h").checked ? "h23" : "h12");
             scheduleSync();
-            if (window.zmanimListUpdater2) {
-                window.zmanimListUpdater2.resetCalendar();
-            }
+            announceSettingChange("timeFormat");
         })
 
         if (document.getElementById('secondsShow'))
             document.getElementById('secondsShow').addEventListener('click', () => {
                 localStorage.setItem("seconds", document.getElementById("showSeconds").checked ? "true" : "false");
-                if (window.zmanimListUpdater2) {
-                    window.zmanimListUpdater2.resetCalendar();
-                }
+                announceSettingChange("seconds");
             })
     }
 })

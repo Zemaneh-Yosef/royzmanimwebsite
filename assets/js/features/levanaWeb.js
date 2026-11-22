@@ -3,20 +3,27 @@
 /**
  * Birkat Halevana card for the web calendar (/calendar).
  *
- * The same pieces the weekly print uses: moon-birkat-worker.js computes, for every night of the month's
- * Birkat Halevana range, when the moon is up inside the halachic night (clipped to shkiya -> netz,
+ * The card's elements and labels are in pages/calendar.html (one span per language, the page shows the one
+ * in its language); this fills in the values and shows or hides rows.
+ *
+ * Like the zmanim list, it shows what it can at once and refines it later: the month's dates come from the
+ * main thread, tonight's moon first from the small estimate (astro/moon-estimate.js, marked as approximate),
+ * then from moon-birkat-worker.js (the one the weekly print uses), which computes, for every night of the
+ * month's Birkat Halevana range, when the moon is up inside the halachic night (clipped to shkiya -> netz,
  * lechatchila tzet -> alot), with the terrain-aware moon horizon when the refraction server sent one.
  * The glyphs are the print's (moonGlyphSvg), and the begin / end / strict / early-end lines follow the
  * print's handleSingleBL() (print/weekly/worker.js).
  */
 
-import { moonGlyphSvg } from "../astro/moon.js";
+import { moonGlyphSvg } from "../astro/moon-glyph.js";
+import { clip, nightMoon } from "../astro/moon-coverage.js";
+import { estimatedMoonEvents, estimatedMoonLook } from "../astro/moon-estimate.js";
 import { HebrewNumberFormatter } from "../core/WebsiteCalendar.js";
-import { spawnWorker } from "../misc/worker.js";
+import { requestMoon } from "../astro/visible-horizon-client.js";
 import { settings } from "../settings/handler.js";
 import { loadRefraction, snapshotProvider, MIN_REFRACTION_RECHECK_MS } from "../astro/refraction-data.js";
 import { optionsOf } from "../core/zmanimSettings.js";
-import { EN, TEXT, levanaWindow, strictLabel as levanaStrictLabel } from "./levanaWindow.js";
+import { levanaWindow, strictKind } from "./levanaWindow.js";
 
 /** @typedef {import('../print/weekly/moon-birkat-worker.js').MonthResult} MonthResult */
 /** @typedef {import('../print/weekly/moon-birkat-worker.js').BirkatRow} BirkatRow */
@@ -24,19 +31,23 @@ import { EN, TEXT, levanaWindow, strictLabel as levanaStrictLabel } from "./leva
 /** @typedef {import('../print/weekly/worker.js').RefractionInit} RefractionInit */
 /** @typedef {import('../pages/calendar.js').default} ZmanimListUpdater */
 /** @typedef {import('./levanaWindow.js').Lang} Lang */
+/** What the card needs of a night's moon: the worker's row, or the estimate's. @typedef {Pick<BirkatRow, 'coverage' | 'events' | 'bediavadOnly' | 'marks'>} TonightRow */
 
-const WORKER_URL = '/assets/js/print/weekly/moon-birkat-worker.js';
 const GLYPH_SIZE = 40;
 /** Results kept per location / month / refraction state; a page visit rarely needs more than a few. */
 const MAX_CACHED = 12;
+/** The card's labels in the markup, one span per language: the month name is filled in each. @type {Lang[]} */
+const LANGS = ['he', 'he-Latn', 'en'];
 
 /**
  * @typedef {Object} TonightContext
  * @property {string} monthName
  * @property {number} tonightDay                     Hebrew day the night beginning this evening belongs to
  * @property {boolean} lastNight                     tonight is the last night
+ * @property {number} tonightShkiya                  sunset this evening
  * @property {number} tonightTzet                    nightfall this evening
  * @property {number} tonightAlot                    dawn the next morning
+ * @property {number} tonightNetz                    sunrise the next morning
  */
 /** @typedef {import('./levanaWindow.js').LevanaWindow & TonightContext} MonthContext */
 
@@ -48,6 +59,9 @@ export default class LevanaCard {
 
 	/** The signature the card is showing (or waiting for). */
 	shownSig = '';
+
+	/** Which night (place, month, day) the moon slot shows exact worker data for; '' when it shows the estimate. */
+	exactNight = '';
 
 	/** Moon horizon fetched by this card, per place ("lat,lon"). @type {Map<string, import('../core/refraction-snapshot.js').Horizon | null>} */
 	moonHorizons = new Map();
@@ -75,44 +89,45 @@ export default class LevanaCard {
 		if (!ctx) {
 			this.setVisible(false);
 			this.shownSig = '';
+			this.exactNight = '';
 			return;
 		}
 
 		const lang = /** @type {Lang} */ (settings.language());
-		const t = TEXT[lang] ?? EN;
-
-		/** @type {HTMLElement} */ (this.root.querySelector('[data-zfReplace="levanaTitle"]')).textContent =
-			t.title(ctx.monthName);
-		/** @type {HTMLElement} */ (this.root.querySelector('[data-zfReplace="levanaMolad"]')).textContent =
-			`${t.molad}: ${this.formatDateTime(ctx.molad, lang, updater, ctx.month)}`;
+		this.renderHeader(ctx, lang, updater);
 		this.renderTimes(ctx, lang, updater);
-		this.renderNightInfo(ctx, lang, updater);
+		this.renderNightInfo(ctx, updater);
 		this.maybeFetchMoonHorizon(updater);
 
-		const { sig, run } = this.prepareCompute(ctx, updater);
+		const { sig, run, placeKey, moonKey } = this.prepareCompute(ctx, updater);
 		this.shownSig = sig;
+		const nightKey = `${placeKey}|${ctx.year}-${ctx.month}-${ctx.tonightDay}`;
 
 		const cached = this.results.get(sig);
 		if (cached?.result) {
 			// No moon during the valid part of tonight: nothing to say tonight, so no card
-			this.setVisible(this.renderTonight(ctx, cached.result, lang, updater));
+			const row = cached.result.rows.find(r => r.jewishDay === ctx.tonightDay) ?? null;
+			const visible = this.renderTonight(ctx, row, 'exact', updater);
+			this.exactNight = visible ? nightKey : '';
+			this.setVisible(visible);
 			return;
 		}
 		if (cached?.error) {
-			// the dates still hold; only the moon is missing
-			this.renderMessage(t.failed);
-			this.setVisible(true);
+			// the dates still hold; only the exact moon is missing
+			this.exactNight = '';
+			this.setVisible(this.renderTonight(ctx, this.estimateRow(ctx, updater), 'failed', updater));
 			return;
 		}
 
-		// Whether tonight gets a card depends on the moon, so the card waits for it. A refined version
-		// of the night already on screen (e.g. after a forecast refresh) keeps it showing meanwhile.
-		const stillSameNight = this.root.style.display !== 'none'
-			&& this.root.querySelector(`[data-levana-night="${ctx.year}-${ctx.month}-${ctx.tonightDay}"]`);
-		if (!stillSameNight)
-			this.setVisible(false);
+		// The estimate right away. A refined version of the night already on screen (e.g. after a forecast
+		// refresh) keeps showing meanwhile instead of stepping back to it.
+		const stillSameNight = this.exactNight === nightKey && /** @type {HTMLElement} */ (this.root.firstElementChild).style.display !== 'none';
+		if (!stillSameNight) {
+			this.exactNight = '';
+			this.setVisible(this.renderTonight(ctx, this.estimateRow(ctx, updater), 'estimate', updater));
+		}
 
-		const entry = cached ?? this.startCompute(sig, run);
+		const entry = cached ?? this.startCompute(sig, moonKey, run);
 		entry.promise.then(() => {
 			if (this.shownSig === sig && this.updater) this.render(this.updater);
 		}, () => {
@@ -160,8 +175,49 @@ export default class LevanaCard {
 		const tonightAlot = zc(selected.add({ days: 1 })).getAlotHashahar().epochMilliseconds;
 
 		return {
-			...win, tonightDay, lastNight, tonightTzet, tonightAlot,
+			...win, tonightDay, lastNight, tonightShkiya: tonightStart, tonightTzet, tonightAlot, tonightNetz: tonightEnd,
 			monthName: settings.language() == 'he' ? win.monthNames.he : win.monthNames.en
+		};
+	}
+
+	// ─── Tonight's moon, estimated (main thread, cheap) ─────────────────────
+
+	/**
+	 * Tonight's row the way the worker would build it (same windows, same coverage rules), from the quick moon
+	 * estimate. Null when the moon isn't up during the part of tonight Birkat Halevana can be said in.
+	 * @param {MonthContext} ctx
+	 * @param {ZmanimListUpdater} updater
+	 * @returns {TonightRow | null}
+	 */
+	estimateRow(ctx, updater) {
+		if (!(ctx.tonightDay >= 1 && ctx.tonightDay <= 15))
+			return null;
+		const lat = updater.geoLocation.getLatitude(), lon = updater.geoLocation.getLongitude();
+		const start = ctx.start.epochMilliseconds;
+		// as in moon-birkat-worker.js: shkiya -> netz and tzet -> alot, from the start (7 days after the molad) to the 15th
+		const bediavad = clip(ctx.tonightShkiya, ctx.tonightNetz, start, ctx.endStretch.epochMilliseconds);
+		if (!bediavad)
+			return null;
+		const lechatchila = clip(ctx.tonightTzet, ctx.tonightAlot, start, ctx.endIkar.epochMilliseconds);
+		const night = nightMoon(estimatedMoonEvents(lat, lon), bediavad, lechatchila);
+		if (!night)
+			return null;
+
+		const { moon, coverage, bediavadOnly } = night;
+		const look = (/** @type {number | null} */ ms) => ms === null ? null : estimatedMoonLook(ms, lat, lon);
+		const strictMs = ctx.endStrict.epochMilliseconds;
+		return {
+			coverage,
+			events: {
+				rise: coverage === 'both' || coverage === 'from' ? look(moon.rise) : null,
+				set: coverage === 'both' || coverage === 'until' ? look(moon.set) : null,
+				mid: coverage === 'all' ? look(Math.round(bediavad[0] + (bediavad[1] - bediavad[0]) / 2)) : null
+			},
+			bediavadOnly,
+			// the strict end falls inside tonight (the worker puts it on the row it falls in)
+			...(strictMs >= ctx.tonightShkiya && strictMs < ctx.tonightNetz
+				? { marks: { endStrict: { time: strictMs, position: strictMs < ctx.tonightTzet ? 'shkiyaToTzet' : strictMs < ctx.tonightAlot ? 'lechatchila' : 'alotToNetz' } } }
+				: {})
 		};
 	}
 
@@ -213,40 +269,40 @@ export default class LevanaCard {
 			};
 		};
 
-		return { sig, run };
+		// a newer request for the same place and month replaces one still waiting in the shared worker's queue
+		const moonKey = `${placeKey}|${ctx.year}-${ctx.month}`;
+
+		return { sig, run, placeKey, moonKey };
 	}
 
 	/**
+	 * Runs the month in the page's shared worker (astro/visible-horizon-client.js).
 	 * @param {string} sig
+	 * @param {string} moonKey place + year + month: a newer request with the same key replaces one still waiting
 	 * @param {() => { init: RefractionInit | null, params: import('../print/weekly/moon-birkat-worker.js').birkatWorkerParam }} run
 	 */
-	startCompute(sig, run) {
+	startCompute(sig, moonKey, run) {
 		/** @type {{ result?: MonthResult, error?: unknown, promise: Promise<MonthResult> }} */
 		const entry = { promise: Promise.resolve(/** @type {any} */ (null)) };
 		entry.promise = new Promise((resolve, reject) => {
-			let worker;
 			try {
 				const { init, params } = run();
-				worker = spawnWorker(WORKER_URL);
-				worker.addEventListener('message', ({ data }) => {
-					worker.terminate();
-					if (Array.isArray(data) && data[0]) resolve(data[0]);
-					else reject(new Error(data?.error ?? 'No result'));
-				});
-				worker.addEventListener('error', err => {
-					worker.terminate();
-					reject(err);
-				});
-				if (init) worker.postMessage(init);
-				worker.postMessage(params);
+				requestMoon(moonKey, init, params).then(resolve, reject);
 			} catch (e) {
-				worker?.terminate();
 				reject(e);
 			}
 		});
 		entry.promise.then(
 			result => { entry.result = result; },
-			error => { entry.error = error; console.error('Birkat Halevana moon worker failed:', error); }
+			error => {
+				// replaced before it ran (the forecast arrived): not a failure, just forget it
+				if (/** @type {any} */ (error)?.superseded) {
+					if (this.results.get(sig) === entry) this.results.delete(sig);
+					return;
+				}
+				entry.error = error;
+				console.error('Birkat Halevana moon worker failed:', error);
+			}
 		);
 
 		this.results.set(sig, entry);
@@ -289,7 +345,42 @@ export default class LevanaCard {
 		}).catch(e => console.warn('Moon horizon unavailable; using the flat horizon', e));
 	}
 
-	// ─── Rendering ──────────────────────────────────────────────────────────
+	// ─── Rendering (values into the markup) ─────────────────────────────────
+
+	/** @param {string} name  a [data-zfFind] element of the card */
+	find(name) {
+		return /** @type {HTMLElement} */ (this.root.querySelector(`[data-zfFind="${name}"]`));
+	}
+
+	/**
+	 * Sets every [data-zfReplace] element of that name (the markup repeats a value for each language where needed).
+	 * @param {string} name
+	 * @param {string} text
+	 */
+	replace(name, text) {
+		for (const el of this.root.querySelectorAll(`[data-zfReplace="${name}"]`))
+			el.textContent = text;
+	}
+
+	/**
+	 * @param {Element | null} el
+	 * @param {boolean} visible
+	 */
+	show(el, visible) {
+		if (!el) return;
+		if (visible) /** @type {HTMLElement} */ (el).style.removeProperty('display');
+		else /** @type {HTMLElement} */ (el).style.display = 'none';
+	}
+
+	/**
+	 * Shows the one variant out of several in the markup (e.g. data-levanaKind="strict" | "rema").
+	 * @param {string} attribute
+	 * @param {string} value
+	 */
+	showVariant(attribute, value) {
+		for (const el of this.root.querySelectorAll(`[${attribute}]`))
+			this.show(el, el.getAttribute(attribute) === value);
+	}
 
 	/** @param {ZmanimListUpdater} updater */
 	formats(updater) {
@@ -307,54 +398,55 @@ export default class LevanaCard {
 	}
 
 	/**
+	 * Title (the month's name in each language's span) and the molad.
+	 * @param {MonthContext} ctx
+	 * @param {Lang} lang
+	 * @param {ZmanimListUpdater} updater
+	 */
+	renderHeader(ctx, lang, updater) {
+		for (const l of LANGS)
+			this.replace(`levanaMonth-${l}`, l == 'he' ? ctx.monthNames.he : ctx.monthNames.en);
+		this.replace('levanaMolad', this.formatDateTime(ctx.molad, lang, updater, ctx.month));
+	}
+
+	/**
+	 * The end rows: the regular end and the strict / Rema end, and the early end when the 15th is Shabbat
+	 * or Yom Tov (it replaces the regular end, and sometimes Rema too: those are struck).
 	 * @param {MonthContext} ctx
 	 * @param {Lang} lang
 	 * @param {ZmanimListUpdater} updater
 	 */
 	renderTimes(ctx, lang, updater) {
-		const t = TEXT[lang] ?? EN;
 		const f = this.formats(updater);
 		const fmt = (/** @type {Temporal.ZonedDateTime} */ z) => this.formatDateTime(z, lang, updater, ctx.month);
-		const list = /** @type {HTMLElement} */ (this.root.querySelector('[data-zfFind="levanaTimes"]'));
-
-		/** @type {string[]} */
-		const items = [];
-		const li = (/** @type {string} */ html, cls = '') => items.push(`<li class="list-group-item${cls ? ' ' + cls : ''}">${html}</li>`);
-		const row = (/** @type {string} */ label, /** @type {string} */ value) =>
-			`<span class="levanaLabel">${label}</span><span class="levanaValue">${value}</span>`;
-		const struck = (/** @type {string} */ s) => `<s class="levanaStruck">${s}</s>`;
+		const stretch = (/** @type {Temporal.ZonedDateTime} */ z) => z.toLocaleString(f.locale, f.time);
 
 		// The start isn't a row: on a day view it only matters when it falls inside tonight (renderNightInfo)
-		const endMain = `${fmt(ctx.endIkar)} <s class="levanaStruck small">(${ctx.endStretch.toLocaleString(f.locale, f.time)})</s>`;
-		const strictLabel = this.strictLabel(ctx, t);
-		const earlyLabel = t.earlyEnd(ctx.fifteenthIsShabbat);
-		const earlyEnd = `${fmt(ctx.endEarlyIkar)} <s class="levanaStruck small">(${ctx.endEarlyStretch.toLocaleString(f.locale, f.time)})</s>`;
+		this.replace('levanaEnd', fmt(ctx.endIkar));
+		this.replace('levanaEndStretch', stretch(ctx.endStretch));
+		this.replace('levanaStrict', fmt(ctx.endStrict));
+		this.replace('levanaEarlyEnd', fmt(ctx.endEarlyIkar));
+		this.replace('levanaEarlyStretch', stretch(ctx.endEarlyStretch));
+		this.showVariant('data-levanaKind', strictKind(ctx));
+		this.showVariant('data-levanaEarly', ctx.fifteenthIsShabbat ? 'shabbat' : 'yomtov');
 
-		if (!ctx.useEarlyTimes) {
-			li(row(t.ends, endMain));
-			li(row(strictLabel, fmt(ctx.endStrict)), 'levanaRec');
-		} else if (Temporal.ZonedDateTime.compare(ctx.endStrict, ctx.endEarlyIkar) < 0) {
-			// Rema is earlier than the early end: the regular end is struck, the early end replaces it
-			li(row(t.ends, struck(endMain)));
-			li(row(earlyLabel, earlyEnd));
-			li(row(strictLabel, fmt(ctx.endStrict)), 'levanaRec');
-		} else {
-			// Rema is later than the early end: both the regular end and Rema are struck
-			li(row(t.ends, struck(endMain)));
-			li(row(strictLabel, struck(fmt(ctx.endStrict))), 'levanaRec');
-			li(row(earlyLabel, earlyEnd));
-		}
-
-		list.innerHTML = items.join('');
-	}
-
-	/**
-	 * "Rema" when the half-way-between-moladot end is later than the regular end, else "Strict".
-	 * @param {MonthContext} ctx
-	 * @param {typeof EN} t
-	 */
-	strictLabel(ctx, t) {
-		return levanaStrictLabel(ctx, t);
+		const rows = {
+			end: this.find('levanaRowEnd'),
+			strict: this.find('levanaRowStrict'),
+			early: this.find('levanaRowEarly')
+		};
+		/** Rema is earlier than the early end: the early end replaces the regular end. Later: it replaces Rema as well. */
+		const remaEarlier = Temporal.ZonedDateTime.compare(ctx.endStrict, ctx.endEarlyIkar) < 0;
+		this.show(rows.early, ctx.useEarlyTimes);
+		this.find('levanaEndValue').classList.toggle('levanaStruck', ctx.useEarlyTimes);
+		this.find('levanaStrictValue').classList.toggle('levanaStruck', ctx.useEarlyTimes && !remaEarlier);
+		// the list is a flex column: the order the rows read in
+		rows.end.style.order = '0';
+		rows.strict.style.order = ctx.useEarlyTimes && remaEarlier ? '2' : '1';
+		rows.early.style.order = ctx.useEarlyTimes && remaEarlier ? '1' : '2';
+		const visible = Object.values(rows).filter(r => r.style.display !== 'none').sort((a, b) => +a.style.order - +b.style.order);
+		for (const r of Object.values(rows))
+			r.classList.toggle('levanaLast', r === visible[visible.length - 1]);
 	}
 
 	/**
@@ -391,20 +483,15 @@ export default class LevanaCard {
 	/**
 	 * Under tonight's moon: the wait for the start when it falls inside tonight, and tonight's range.
 	 * @param {MonthContext} ctx
-	 * @param {Lang} lang
 	 * @param {ZmanimListUpdater} updater
 	 */
-	renderNightInfo(ctx, lang, updater) {
-		const t = TEXT[lang] ?? EN;
-		const box = /** @type {HTMLElement} */ (this.root.querySelector('[data-zfFind="levanaNightInfo"]'));
+	renderNightInfo(ctx, updater) {
 		const time = (/** @type {number} */ ms) => this.time(ms, updater);
-
-		let html = '';
-		if (ctx.validFromMs > ctx.tonightTzet)
-			html += `<div class="levanaWait">${t.wait} <b>${time(ctx.validFromMs)}</b></div>`;
-		html += `<div class="levanaRange"><span class="levanaTimeLabel">${t.nightRange}</span>`
-			+ `<span>${time(ctx.tonightTzet)} – ${time(ctx.tonightAlot)}</span></div>`;
-		box.innerHTML = html;
+		const wait = ctx.validFromMs > ctx.tonightTzet;
+		this.show(this.find('levanaWait'), wait);
+		if (wait) this.replace('levanaWaitTime', time(ctx.validFromMs));
+		this.replace('levanaTzet', time(ctx.tonightTzet));
+		this.replace('levanaAlot', time(ctx.tonightAlot));
 	}
 
 	/**
@@ -418,80 +505,70 @@ export default class LevanaCard {
 
 	/** @param {boolean} visible */
 	setVisible(visible) {
-		if (visible) this.root.firstElementChild.style.removeProperty('display');
-		else this.root.firstElementChild.style.display = 'none';
-	}
-
-	/** @param {string} text */
-	renderMessage(text) {
-		const box = /** @type {HTMLElement} */ (this.root.querySelector('[data-zfFind="levanaTonight"]'));
-		box.removeAttribute('data-levana-night');
-		box.innerHTML = `<p class="levanaMessage mb-0">${text}</p>`;
+		this.show(this.root.firstElementChild, visible);
 	}
 
 	/**
 	 * Tonight's moon only: the night that begins on the selected date's evening. The next night's
-	 * moon is on the next day's page. Returns false when the moon isn't up during the part of tonight
-	 * Birkat Halevana can be said in (e.g. it sets before the start): that day gets no card.
+	 * moon is on the next day's page. Returns false when there is nothing to show: the moon isn't up
+	 * during the part of tonight Birkat Halevana can be said in (e.g. it sets before the start), so that day gets no card.
 	 * @param {MonthContext} ctx
-	 * @param {MonthResult} result
-	 * @param {Lang} lang
+	 * @param {TonightRow | null} row
+	 * @param {'exact' | 'estimate' | 'failed'} mode  'exact': the worker's row; 'estimate': the estimate's row, marked
+	 *   approximate; 'failed': the estimate's row (if any) and a note that the worker failed
 	 * @param {ZmanimListUpdater} updater
 	 */
-	renderTonight(ctx, result, lang, updater) {
-		const t = TEXT[lang] ?? EN;
-		const box = /** @type {HTMLElement} */ (this.root.querySelector('[data-zfFind="levanaTonight"]'));
-		const tonightDay = /** @type {number} */ (ctx.tonightDay);
-		const row = result.rows.find(r => r.jewishDay === tonightDay);
-		if (!row) {
-			box.removeAttribute('data-levana-night');
-			box.innerHTML = '';
+	renderTonight(ctx, row, mode, updater) {
+		const box = this.find('levanaTonight');
+		const failed = mode == 'failed';
+		const estimated = mode != 'exact';
+		this.show(this.find('levanaFailed'), failed);
+		if (!row && !failed)
 			return false;
-		}
-		box.setAttribute('data-levana-night', `${ctx.year}-${ctx.month}-${tonightDay}`);
 
+		box.classList.toggle('levanaEstimate', estimated && !!row);
+		this.show(this.find('levanaEstimateMark'), estimated && !!row);
 		const time = (/** @type {number} */ ms) => this.time(ms, updater);
-		const { rise, set, mid } = row.events;
-		/** @type {MoonEvent | null} */
-		let glyphEvent;
-		let horizon = false;
-		let label;
-		let times;
-		switch (row.coverage) {
-			case 'both':
-				glyphEvent = rise; label = 'Moon in the night sky';
-				times = `<span class="levanaTime" title="${t.rises}">↑ ${time(/** @type {MoonEvent} */ (rise).ms)}</span>`
-					+ `<span class="levanaTime" title="${t.sets}">↓ ${time(/** @type {MoonEvent} */ (set).ms)}</span>`;
-				break;
-			case 'from':
-				glyphEvent = rise; horizon = true; label = 'Moon at rise';
-				times = `<span class="levanaTimeLabel">${t.from}</span><span class="levanaTime">${time(/** @type {MoonEvent} */ (rise).ms)}</span>`;
-				break;
-			case 'until':
-				glyphEvent = set; horizon = true; label = 'Moon at set';
-				times = `<span class="levanaTimeLabel">${t.until}</span><span class="levanaTime">${time(/** @type {MoonEvent} */ (set).ms)}</span>`;
-				break;
-			default:
-				glyphEvent = mid; label = 'Moon in the night sky';
-				times = `<span class="levanaTime">${t.all}</span>`;
-		}
 
-		const glyph = glyphEvent
+		/** @type {MoonEvent | null} */
+		let glyphEvent = null;
+		let horizon = false;
+		let label = 'Moon in the night sky';
+		for (const el of this.root.querySelectorAll('[data-levanaCover]'))
+			this.show(el, !!row && el.getAttribute('data-levanaCover') === row.coverage);
+		if (row) {
+			const { rise, set, mid } = row.events;
+			switch (row.coverage) {
+				case 'both':
+					glyphEvent = rise;
+					this.replace('levanaRise', time(/** @type {MoonEvent} */ (rise).ms));
+					this.replace('levanaSet', time(/** @type {MoonEvent} */ (set).ms));
+					break;
+				case 'from':
+					glyphEvent = rise; horizon = true; label = 'Moon at rise';
+					this.replace('levanaFrom', time(/** @type {MoonEvent} */ (rise).ms));
+					break;
+				case 'until':
+					glyphEvent = set; horizon = true; label = 'Moon at set';
+					this.replace('levanaUntil', time(/** @type {MoonEvent} */ (set).ms));
+					break;
+				default:
+					glyphEvent = mid;
+			}
+		}
+		const glyph = /** @type {HTMLElement} */ (this.root.querySelector('[data-zfReplace="levanaGlyph"]'));
+		this.show(glyph, !!glyphEvent);
+		glyph.innerHTML = glyphEvent
 			? moonGlyphSvg(glyphEvent.thetaDeg, glyphEvent.phaseAngleDeg, { size: GLYPH_SIZE, horizon, label })
 			: '';
 
-		const strictLabel = this.strictLabel(ctx, t);
-
-		/** @type {string[]} */
-		const tags = [];
-		if (ctx.lastNight) tags.push(`<span class="badge text-bg-warning">${t.lastNight}</span>`);
-		if (row.bediavadOnly) tags.push(`<span class="levanaTag" title="${t.twilightNote}">${t.twilight}</span>`);
-		if (row.marks?.endStrict && row.marks.endStrict.position !== 'day')
-			tags.push(`<span class="levanaTag">${strictLabel}: ${t.upTo} ${time(row.marks.endStrict.time)}</span>`);
-
-		box.innerHTML = `<div class="levanaGlyph">${glyph}</div>`
-			+ `<div class="levanaTimes">${times}</div>`
-			+ (tags.length ? `<div class="levanaTags">${tags.join('')}</div>` : '');
+		const strictMark = row?.marks?.endStrict;
+		const showStrict = !!strictMark && strictMark.position !== 'day';
+		if (strictMark && showStrict) this.replace('levanaStrictUntil', time(strictMark.time));
+		this.show(this.find('levanaLastNight'), ctx.lastNight && !!row);
+		this.show(this.find('levanaTwilight'), !!row?.bediavadOnly);
+		this.show(this.find('levanaStrictTag'), showStrict);
+		this.show(this.find('levanaTags'), !!row && (ctx.lastNight || row.bediavadOnly || showStrict));
 		return true;
 	}
 }
