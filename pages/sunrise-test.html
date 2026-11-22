@@ -1,0 +1,133 @@
+---
+permalink: /sunrise-test
+---
+
+<noscript>
+	<h1>This page requires JavaScript</h1>
+</noscript>
+
+<style>
+	#sunriseTest { max-width: 1100px; margin: 0 auto; padding: .5rem; }
+	#sunriseTest .stControls { display: grid; gap: .5rem; grid-template-columns: auto 1fr auto; align-items: center; }
+	#sunriseTest .stCustom { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+	#sunriseTest .stDate { display: grid; gap: .5rem; grid-template-columns: auto 1fr auto; align-items: center; text-align: center; }
+	#sunriseTest table { font-variant-numeric: tabular-nums; }
+	#sunriseTest th.stCol, #sunriseTest td.stTime { text-align: center; white-space: nowrap; }
+	#sunriseTest td.stTime .stDiff { display: block; font-size: .75em; }
+	#sunriseTest td.stTime.stChanged { background: var(--bs-warning-bg-subtle); }
+	#sunriseTest tr.stSection th { background: var(--bs-secondary-bg); font-weight: 600; }
+	#sunriseTest .stColNote { display: block; font-weight: normal; font-size: .75em; color: var(--bs-secondary-color); white-space: normal; }
+	#sunriseTest thead th { position: sticky; top: 0; background: var(--bs-body-bg); z-index: 1; }
+</style>
+
+<div id="sunriseTest">
+	<h2 class="text-center mt-2">
+		<span class="lang lang-en">Sunrise test: three ways side by side</span>
+		<span class="lang lang-he-Latn">Sunrise test: three ways side by side</span>
+		<span class="lang lang-he">בדיקת הנץ: שלוש שיטות זו לצד זו</span>
+	</h2>
+	<p class="text-center small mb-2">
+		<span class="lang lang-en lang-he-Latn">The calendar's zemanim for one place and day, with your settings, computed three ways. Cells that differ from "elevation on" are highlighted, with the difference (later +, earlier −).</span>
+		<span class="lang lang-he">זמני הלוח למקום ויום אחד, לפי ההגדרות שלך, בשלוש דרכים. תאים השונים מ"גובה מופעל" מודגשים, עם ההפרש (מאוחר +, מוקדם −).</span>
+	</p>
+
+	<!-- the place: above the three columns -->
+	<div class="card mb-2">
+		<div class="card-body">
+			<div class="stControls">
+				<button type="button" class="btn btn-outline-primary" id="stPrevPlace" title="Previous place">
+					<i class="bi bi-chevron-left"></i>
+				</button>
+				<select id="stPlace" class="form-select" aria-label="Place"></select>
+				<button type="button" class="btn btn-outline-primary" id="stNextPlace" title="Next place">
+					<i class="bi bi-chevron-right"></i>
+				</button>
+			</div>
+			<div class="stCustom mt-2 d-none" id="stCustom">
+				<input class="form-control" id="stName" placeholder="Name" aria-label="Name">
+				<input class="form-control" id="stLat" type="number" step="any" placeholder="Latitude" aria-label="Latitude">
+				<input class="form-control" id="stLon" type="number" step="any" placeholder="Longitude" aria-label="Longitude">
+				<input class="form-control" id="stElev" type="number" step="any" min="0" placeholder="Elevation (m)" aria-label="Elevation (m)">
+				<input class="form-control" id="stTz" list="stTzList" placeholder="Time zone" aria-label="Time zone">
+				<datalist id="stTzList"></datalist>
+				<button type="button" class="btn btn-primary" id="stApply">
+					<span class="lang lang-en lang-he-Latn">Show</span><span class="lang lang-he">הצג</span>
+				</button>
+			</div>
+			<p class="small mb-0 mt-2" id="stPlaceInfo"></p>
+		</div>
+	</div>
+
+	<!-- the date -->
+	<div class="card mb-2">
+		<div class="card-body stDate">
+			<button type="button" class="btn btn-outline-primary" data-days="-1" title="Previous day"><i class="bi bi-arrow-left"></i></button>
+			<div>
+				<h5 class="mb-1" id="stPrimaryDate"></h5>
+				<div class="small" id="stSecondaryDate"></div>
+				<div class="d-flex justify-content-center gap-2 mt-1">
+					<input type="date" class="form-control form-control-sm" id="stDate" style="max-width: 11rem;" aria-label="Date">
+					<button type="button" class="btn btn-sm btn-outline-secondary" id="stToday">
+						<span class="lang lang-en lang-he-Latn">Today</span><span class="lang lang-he">היום</span>
+					</button>
+				</div>
+			</div>
+			<button type="button" class="btn btn-outline-primary" data-days="1" title="Next day"><i class="bi bi-arrow-right"></i></button>
+		</div>
+	</div>
+
+	<details class="mb-2 small">
+		<summary>
+			<span class="lang lang-en lang-he-Latn">Options</span><span class="lang lang-he">אפשרויות</span>
+		</summary>
+		<div class="d-flex flex-wrap gap-3 align-items-center mt-2">
+			<label class="form-check">
+				<input class="form-check-input" type="checkbox" id="stSeconds" checked>
+				<span class="lang lang-en lang-he-Latn">Show seconds</span><span class="lang lang-he">הצג שניות</span>
+			</label>
+			<label class="d-flex gap-2 align-items-center flex-fill">
+				<span class="lang lang-en lang-he-Latn">Server</span><span class="lang lang-he">שרת</span>
+				<input class="form-control form-control-sm" id="stServer" aria-label="Server">
+			</label>
+			<button type="button" class="btn btn-sm btn-outline-secondary" id="stReload">
+				<span class="lang lang-en lang-he-Latn">Download the weather and horizon again</span><span class="lang lang-he">הורד שוב מזג אוויר ואופק</span>
+			</button>
+		</div>
+		<p class="mt-2 mb-0">
+			<span class="lang lang-en lang-he-Latn">The new way needs a horizon with base candidates, which only a server running the base-level change (zemaneh-shamayim PR #18) sends. Without them it falls back to today's default (elevation on in Israel, off abroad), and says so above its column.</span>
+			<span class="lang lang-he">השיטה החדשה צריכה אופק עם נקודות בסיס, שרק שרת עם שינוי הבסיס (zemaneh-shamayim PR #18) שולח. בלעדיהן היא חוזרת לברירת המחדל של היום (גובה מופעל בארץ, כבוי בחו"ל), וכותבת זאת מעל העמודה שלה.</span>
+		</p>
+	</details>
+
+	<p class="small text-center mb-2" id="stStatus"></p>
+
+	<div class="table-responsive">
+		<table class="table table-sm table-bordered align-middle w-100">
+			<thead>
+				<tr>
+					<th scope="col"></th>
+					<th scope="col" class="stCol">
+						<span class="lang lang-en lang-he-Latn">Elevation on</span><span class="lang lang-he">גובה מופעל</span>
+						<span class="stColNote"><span class="lang lang-en lang-he-Latn">old way</span><span class="lang lang-he">השיטה הישנה</span></span>
+						<span class="stColNote" data-col-note="0"></span>
+					</th>
+					<th scope="col" class="stCol">
+						<span class="lang lang-en lang-he-Latn">Elevation off</span><span class="lang lang-he">גובה כבוי</span>
+						<span class="stColNote"><span class="lang lang-en lang-he-Latn">old way</span><span class="lang lang-he">השיטה הישנה</span></span>
+						<span class="stColNote" data-col-note="1"></span>
+					</th>
+					<th scope="col" class="stCol">
+						<span class="lang lang-en lang-he-Latn">New way</span><span class="lang lang-he">השיטה החדשה</span>
+						<span class="stColNote"><span class="lang lang-en lang-he-Latn">base level</span><span class="lang lang-he">גובה מעל הבסיס</span></span>
+						<span class="stColNote" data-col-note="2"></span>
+					</th>
+				</tr>
+			</thead>
+			<tbody id="stRows"></tbody>
+		</table>
+	</div>
+</div>
+
+<script id="zmanimData" type="application/json">{{ site.data.zmanim | jsonify }}</script>
+<script id="sunriseTestPlaces" type="application/json">{{ site.data.sunriseTestPlaces | jsonify }}</script>
+<script src="/assets/js/pages/sunrise-test.js" type="module"></script>
