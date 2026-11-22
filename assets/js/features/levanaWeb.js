@@ -150,7 +150,7 @@ export default class LevanaCard {
 		// Tonight: the selected date's sunset to the next sunrise
 		const selected = jCal.getDate().withCalendar('iso8601');
 		const tonightStart = zc(selected).getShkiya().epochMilliseconds;
-		const tonightEnd = zc(selected.add({ days: 1 })).timeRange.current.sunrise.epochMilliseconds;
+		const tonightEnd = zc(selected.add({ days: 1 })).timeRange.current.listedSunrise.epochMilliseconds;
 		if (tonightStart >= effectiveEndMs || tonightEnd <= validFromMs)
 			return null;
 		const tonightCal = jCal.chainDate(selected.add({ days: 1 }));

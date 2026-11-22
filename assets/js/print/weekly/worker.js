@@ -1118,11 +1118,11 @@ function messageHandler(x) {
 		const useEarlyTimes = blCal.isAssurBemelacha();
 		const blTimes = {
 			start: jCal.getTchilasZmanKidushLevana7Days().withTimeZone(geoLocation.getTimeZone()),
-			endStretch: zc(blCal.getDate()).timeRange.current.sunrise,
+			endStretch: zc(blCal.getDate()).timeRange.current.listedSunrise,
 			endIkar: zc(blCal.getDate()).getAlotHashahar(),
 			endStrict: jCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(geoLocation.getTimeZone()),
 			endEarlyIkar: zc(blCal.getDate().subtract({ days: 1 })).getAlotHashahar(),
-			endEarlyStretch: zc(blCal.getDate().subtract({ days: 1 })).timeRange.current.sunrise
+			endEarlyStretch: zc(blCal.getDate().subtract({ days: 1 })).timeRange.current.listedSunrise
 		}
 
 		// Determine effective end (later of endStretch or endStrict)

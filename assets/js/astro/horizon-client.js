@@ -90,7 +90,7 @@ export function fetchTerrainVersion(baseUrl, lat, lon, options = {}) {
  * without terrain.layers), `fine` the fine near-range terrain's version where it covers the place (null where
  * it doesn't, or is off). Both change only when the server's terrain there changes. `algo`: the version of the
  * server's horizon algorithm (2 from October 2026: alternate points; absent from older servers and horizons: 1).
- * @typedef {{ fine: string | null, layers: string | null, algo?: number | null }} TerrainVersion
+ * @typedef {{ fine: string | null, layers: string | null, algo?: number | null, base?: string | null }} TerrainVersion
  */
 
 /**
@@ -101,13 +101,13 @@ export function fetchTerrainVersion(baseUrl, lat, lon, options = {}) {
 export function terrainOf(set) {
 	const fine = set?.terrain?.fine;
 	return { fine: fine ? (fine.version ?? fine.signature ?? null) : null, layers: set?.terrain?.layers ?? null,
-		algo: set?.terrain?.algo ?? 1 };
+		algo: set?.terrain?.algo ?? 1, base: set?.terrain?.base ?? null };
 }
 
 /** @param {TerrainVersion} a @param {TerrainVersion} b */
 export function sameTerrain(a, b) {
 	return (a.fine ?? null) === (b.fine ?? null) && (a.layers ?? null) === (b.layers ?? null)
-		&& (a.algo ?? 1) === (b.algo ?? 1);
+		&& (a.algo ?? 1) === (b.algo ?? 1) && (a.base ?? null) === (b.base ?? null);
 }
 
 /**
