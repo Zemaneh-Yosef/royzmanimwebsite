@@ -201,7 +201,7 @@ function messageHandler(x) {
 		// --- Global limits (these bound the loop and clip the ranges) ---
 		const start3 = monthCal.getTchilasZmanKidushLevana3Days().withTimeZone(tz).epochMilliseconds; // law: 3 days after the molad
 		const start = monthCal.getTchilasZmanKidushLevana7Days().withTimeZone(tz).epochMilliseconds;   // custom: 7 days after the molad
-		const endStretch = at15.timeRange.current.sunrise.epochMilliseconds; // bediavad end: sunrise of the 15th
+		const endStretch = at15.timeRange.current.listedSunrise.epochMilliseconds; // bediavad end: sunrise of the 15th
 		const endIkar = at15.getAlotHashahar().epochMilliseconds;             // lechatchila end: alot of the 15th
 
 		// --- Marks only (NOT loop bounds): reported on the row they fall in ---
@@ -209,7 +209,7 @@ function messageHandler(x) {
 		const markTimes = {
 			endStrict: monthCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(tz).epochMilliseconds,
 			endEarlyIkar: atEve15.getAlotHashahar().epochMilliseconds,
-			endEarlyStretch: atEve15.timeRange.current.sunrise.epochMilliseconds
+			endEarlyStretch: atEve15.timeRange.current.listedSunrise.epochMilliseconds
 		};
 		/** @type {Set<string>} */
 		const placedMarks = new Set();

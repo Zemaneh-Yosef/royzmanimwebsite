@@ -135,6 +135,12 @@
  *     so observers below sea level are still treated as at sea level (9).
  *     A provider's air without a heightM is taken at the observer's real height, not at the height above
  *     the base: before, a temperature with no height was put near sea level, at sea-level pressure.
+ * 14. The base level itself (getBaseLevel, getBaseLevelFromSet): from the refraction server's baseCandidates,
+ *     the land the horizon lies on with the mountains removed (its terrain_base.py: hills narrower than 80 km
+ *     removed, dips narrower than 5 km filled), the calculator traces each candidate as the visible sunrise
+ *     traces a horizon point, takes the one seen highest as the horizon, and returns the height of the level
+ *     surface whose horizon is seen at that same angle in the same air. ROYZmanim.js passes it to KosherJava's
+ *     horizon setters (baseLevelDay there).
  *
  * NOT ported from ChaiTables: its low-precision solar ephemeris (SPA is far better), the 6356.766 km
  * radius, the fixed 16' semidiameter, and the +/-15 s winter "inversion" cushion (a safety margin, not a
@@ -1886,6 +1892,80 @@ export default class ROYSPACalculator extends SPACalculator {
 				: geometricElevation(ho, heightM, distM, R) + terrestrialRefraction(atm, ho, heightM,
 					Math.hypot(distM, (R + heightM) * Math.cos(distM / R) - (R + ho))),
 		};
+	}
+
+	/**
+	 * The base level of an elevated sunrise or sunset (KosherJava's horizonElevationAtSunrise / AtSunset): the
+	 * height of the level surface whose horizon is seen as low as the land the horizon lies on, without the
+	 * mountains, in the same air the visible sunrise reads. The land comes from the server as candidate points
+	 * (its baseCandidates: the mountain-free surface's points that can be the horizon in some air); each is
+	 * traced as the visible sunrise traces a horizon point (getRefractionFor's elevationOf), the one seen highest
+	 * is the horizon, and its apparent altitude is matched by the grazing ray over a level surface (the medium's
+	 * seaHorizon with that surface as its floor). With the eye and the base at their real heights, KosherJava's
+	 * elevated sunrise over that base (header, item 13) then comes when the Sun clears that horizon.
+	 * A horizon at or above eye level gives no adjustment: the base is the eye itself.
+	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation the spot; its elevation is the eye
+	 * @param {[number, number][]} candidates [distance km, height m]
+	 * @param {'sunrise'|'sunset'} event
+	 * @param {{ heightM?: number, groundM?: number }} [observer] the eye's height above sea level (and the ground's)
+	 * @returns {{ baseM: number, aboveM: number, horizonKm: number, apparentDeg: number } | null}
+	 */
+	getBaseLevel(date, geoLocation, candidates, event, observer = {}) {
+		if (!candidates || !candidates.length) return null;
+		const ho = Number.isFinite(observer.heightM) ? /** @type {number} */ (observer.heightM) : geoLocation.getElevation();
+		const refr = this.getRefractionFor(date, geoLocation, event, { heightM: ho, groundM: observer.groundM });
+		let best = -Infinity, at = NaN;
+		for (const [dKm, z] of candidates) {
+			const e = refr.elevationOf(z, dKm * 1000);
+			if (e > best) { best = e; at = dKm; }
+		}
+		if (!Number.isFinite(best)) return null;
+		if (best >= 0) return { baseM: ho, aboveM: 0, horizonKm: at, apparentDeg: best };
+		const R = this.getEarthRadius() * 1000;
+		const atm = this._atmosphereFor(date, event, geoLocation, ho) ?? atmosphereFromSpec(ho, null);
+		/** apparent altitude of the ray grazing a level surface b metres above sea level @param {number} b */
+		const seen = b => atm.seaHorizon(ho, R, b);
+		// a level surface at a point's own height is seen at or above that point, so the base is no higher than
+		// the lowest candidate; lower it until its horizon is seen below the land's
+		let lo = Math.min(...candidates.map(c => c[1])), hi = ho;
+		for (let step = 50; seen(lo) > best && step < 40000; step *= 2) lo -= step;
+		while (hi - lo > 0.05) {
+			const m = (lo + hi) / 2;
+			if (seen(m) > best) hi = m; else lo = m;
+		}
+		const baseM = (lo + hi) / 2;
+		return { baseM, aboveM: ho - baseM, horizonKm: at, apparentDeg: best };
+	}
+
+	/**
+	 * getBaseLevel for a horizon set from the server: at each of its points, the entry nearest the Sun's
+	 * azimuth (within 1 degree) that carries baseCandidates, seen from that point at its own height. In an area
+	 * (several vantage points) the one standing highest above its base wins: the earliest elevated sunrise, the
+	 * latest sunset, as the visible sunrise takes the earliest among them (the report's Decision 6).
+	 * null when no point has candidates there (an older server, a place with no bare-earth terrain, an override
+	 * with no base): the caller keeps its last good base.
+	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation (its time zone is used)
+	 * @param {HorizonSet} set @param {'sunrise'|'sunset'} event @param {number} azimuthDeg the Sun's at sea-level sunrise / sunset
+	 * @returns {{ baseM: number, aboveM: number, eyeM: number, groundM: number, horizonKm: number, apparentDeg: number } | null}
+	 */
+	getBaseLevelFromSet(date, geoLocation, set, event, azimuthDeg) {
+		/** @type {ReturnType<ROYSPACalculator['getBaseLevelFromSet']>} */
+		let pick = null;
+		for (const p of set?.points ?? []) {
+			/** @type {any} */ let e = null;
+			let gap = 1;
+			for (const q of /** @type {any[]} */ (p[event] ?? [])) {
+				if (!q.baseCandidates) continue;
+				const g = Math.abs((((q.azimuthDeg - azimuthDeg) % 360) + 540) % 360 - 180);
+				if (g <= gap) { gap = g; e = q; }
+			}
+			if (!e) continue;
+			const spot = new GeoLocation('base', p.lat, p.lon, Math.max(0, p.height), geoLocation.getTimeZone());
+			const b = this.getBaseLevel(date, spot, e.baseCandidates, event, { heightM: p.height, groundM: p.ground });
+			if (b && (!pick || b.aboveM > pick.aboveM))
+				pick = { ...b, eyeM: p.height, groundM: /** @type {any} */ (p).groundM ?? p.ground };
+		}
+		return pick;
 	}
 
 	/**

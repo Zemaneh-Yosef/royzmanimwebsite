@@ -66,6 +66,9 @@ export function zemanimSettings(source, options = {}) {
 		forceSunSeasonal: () => withDefault("forceSunSeasonal") == "true",
 		/** use the location's elevation for sunrise / sunset; on by default in Israel */
 		useElevation: (/** @type {boolean} */ inIsrael) => withDefault("useElevation", inIsrael.toString()) == "true",
+		/** measure the elevated sunrise and sunset from the land the horizon lies on (the base level), wherever the
+		 * horizon carries it, in Israel and outside it; on by default. useElevation applies where it doesn't */
+		useBaseLevel: () => withDefault("useBaseLevel", "true") == "true",
 	});
 
 	const refraction = Object.freeze({
@@ -129,6 +132,7 @@ export function zemanimSettings(source, options = {}) {
  * place's refraction data (zemanimConfigFrom adds that). Plain, so a page can post it to its workers.
  * @typedef {{
 	elevation: boolean;
+	baseLevel: boolean;
 	fixedMil: boolean;
 	rtKulah: boolean;
 	candleLighting: number;
@@ -149,6 +153,7 @@ export function zemanimSettings(source, options = {}) {
 export function zemanimOptions(settings, inIsrael) {
 	return {
 		elevation: settings.calendarToggle.useElevation(inIsrael),
+		baseLevel: settings.calendarToggle.useBaseLevel(),
 		// Ohr HaChaim (fixed mil) in Israel or when chosen; Amudeh Hora'ah (degrees) elsewhere
 		fixedMil: inIsrael || settings.calendarToggle.forceSunSeasonal(),
 		rtKulah: settings.calendarToggle.rtKulah(),
@@ -165,7 +170,7 @@ export function zemanimOptions(settings, inIsrael) {
  * The same from a plain config (a weekly print's or a shul wall's JSON), whose values were read from the
  * settings when it was made. A missing elevation or refraction value takes the calendar's default.
  * @param {{
-	calendarToggle: { rtKulah: boolean; forceSunSeasonal: boolean; elevation?: boolean };
+	calendarToggle: { rtKulah: boolean; forceSunSeasonal: boolean; elevation?: boolean; baseLevel?: boolean };
 	customTimes: { candleLighting: number; tzeithIssurMelakha: { minutes: number; degree?: number } };
 	refraction?: Partial<RefractionSettings>;
   }} config
@@ -176,6 +181,7 @@ export function zemanimOptionsFromConfig(config, inIsrael) {
 	const refraction = config.refraction ?? {};
 	return {
 		elevation: config.calendarToggle.elevation ?? inIsrael,
+		baseLevel: config.calendarToggle.baseLevel ?? true,
 		fixedMil: inIsrael || config.calendarToggle.forceSunSeasonal,
 		rtKulah: config.calendarToggle.rtKulah,
 		candleLighting: config.customTimes.candleLighting,
@@ -206,8 +212,8 @@ export function refractionSettings(settings) {
  * @param {import("./ROYZmanim.js").ZemanimConfig} config
  * @returns {ZemanimOptions}
  */
-export function optionsOf({ elevation, fixedMil, rtKulah, candleLighting, melakha, humidity, seaSurfaceLayer, hazeTzet, hazeMaxDelayMinutes }) {
-	return { elevation, fixedMil, rtKulah, candleLighting, melakha, humidity, seaSurfaceLayer, hazeTzet, hazeMaxDelayMinutes };
+export function optionsOf({ elevation, baseLevel, fixedMil, rtKulah, candleLighting, melakha, humidity, seaSurfaceLayer, hazeTzet, hazeMaxDelayMinutes }) {
+	return { elevation, baseLevel, fixedMil, rtKulah, candleLighting, melakha, humidity, seaSurfaceLayer, hazeTzet, hazeMaxDelayMinutes };
 }
 
 /**

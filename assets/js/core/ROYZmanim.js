@@ -23,6 +23,10 @@ import { hazeDelay, hazeOn } from "../astro/star-nightfall.js";
  *   null / omitted = the calculator's default 34.48' model
  * @property {Horizon | null} [horizon] terrain horizon set from the refraction server; enables the visible
  *   sunrise in getNetz(). null / omitted = getNetz() returns sea-level sunrise
+ * @property {boolean} [baseLevel] measure the elevated sunrise and sunset from the land the horizon lies on,
+ *   without the mountains (the base level), wherever the horizon set carries it (the server's baseCandidates),
+ *   in Israel and outside it; `elevation` then doesn't apply. Default true. Without base candidates (or false)
+ *   the times are as before: `elevation` decides between the height above sea level and sea level
  * @property {VisibleOptions} [visibleOptions] passed to getVisibleSunrise (e.g. { limb: 'top' })
  * @property {boolean} [humidity] include water vapour in the refraction where the atmosphere data carry
  *   humidity (ROYSPACalculator.setHumidity; at most a few seconds). Off unless set; load the data with
@@ -49,6 +53,12 @@ import { hazeDelay, hazeOn } from "../astro/star-nightfall.js";
  * @type {WeakMap<ZemanimConfig, Map<string, number>>}
  */
 const visibleSunriseCache = new WeakMap();
+
+/**
+ * Base levels per config (as visibleSunriseCache): key date|event|lat|lon -> getBaseLevelFromSet's answer
+ * @type {WeakMap<ZemanimConfig, Map<string, ReturnType<ROYSPACalculator['getBaseLevelFromSet']>>>}
+ */
+const baseLevelCache = new WeakMap();
 
 /** @param {ZemanimConfig} config */
 function visibleCacheFor(config) {
@@ -230,6 +240,9 @@ class ZemanimMathBase {
 			current: {
 				dawn: Temporal.ZonedDateTime;
 				sunrise: Temporal.ZonedDateTime;
+				listedSunrise: Temporal.ZonedDateTime;
+				listedSunset: Temporal.ZonedDateTime;
+				base: { sunrise: number; sunset: number; hoursFrom: 'sunrise' | 'sunset' } | null;
 				hatzoth: Temporal.ZonedDateTime;
 				sunset: Temporal.ZonedDateTime;
 				nightfall: Temporal.ZonedDateTime;
@@ -252,7 +265,10 @@ class ZemanimMathBase {
 			},
 			current: {
 				dawn: null,
-				sunrise: null,
+				sunrise: null, // the hours' sunrise (see setDate); the listed one is listedSunrise
+				listedSunrise: null,
+				listedSunset: null,
+				base: null,
 				hatzoth: null, // used for Minha Gedola
 				sunset: null,
 				nightfall: null,
@@ -353,8 +369,20 @@ class ZemanimMathBase {
 		this.tekufaCalc.setYear(this.coreZC.getDate().withCalendar("hebrew").year)
 
 		const { current, equinox } = this.timeRange;
-		current.sunrise = (this.coreZC.isUseElevation() ? this.coreZC.getSunrise() : this.coreZC.getSeaLevelSunrise());
-		current.sunset = (this.coreZC.isUseElevation() ? this.coreZC.getSunset() : this.coreZC.getSeaLevelSunset());
+		const day = this.baseLevelDay();
+		if (day) {
+			// the listed pair over each event's own base; the hours' pair at one angle, the lower Sun's, at both
+			// ends (only for counting the hours: one of its ends isn't a listed time)
+			[current.listedSunrise, current.listedSunset] = day.listed;
+			[current.sunrise, current.sunset] = day.hours;
+			current.base = day.base;
+		} else {
+			current.sunrise = (this.coreZC.isUseElevation() ? this.coreZC.getSunrise() : this.coreZC.getSeaLevelSunrise());
+			current.sunset = (this.coreZC.isUseElevation() ? this.coreZC.getSunset() : this.coreZC.getSeaLevelSunset());
+			current.listedSunrise = current.sunrise;
+			current.listedSunset = current.sunset;
+			current.base = null;
+		}
 		current.ranges.gra = current.sunrise.until(current.sunset);
 
 		current.hatzoth = this.coreZC.getSunTransit();
@@ -382,6 +410,76 @@ class ZemanimMathBase {
 				: later(seasonalTzet, tzetOffset);
 
 		current.ranges.mga = current.dawn.until(current.tzethakokhavim);
+	}
+
+	/**
+	 * The day's base levels (ZemanimConfig.baseLevel) and the times they give, or null to count as before: no
+	 * horizon set, no base candidates in it for the day's sunrise or sunset direction, or baseLevel false.
+	 *  - listed: the elevated sunrise over the sunrise's base and the elevated sunset over the sunset's, each
+	 *    from the eye of the vantage point that sees lowest there (ROYSPACalculator.getBaseLevelFromSet);
+	 *  - hours: the pair the seasonal hours are counted from. The two bases put the Sun at different angles below
+	 *    the horizontal at the two listed times; the hours take the lower Sun's angle at both ends (the
+	 *    longer of the two days with one base at both ends), so the day is centred on hatzot with equal hours,
+	 *    as a sea-level day is. Dawn and nightfall keep their equinox counts (found at sea level,
+	 *    durationOfEquinoxDegreeSeasonalHour), counted from this pair.
+	 * KosherJava takes no negative heights but uses only the difference, so an eye or base below sea level
+	 * raises both by the same amount.
+	 * @returns {{ listed: [Temporal.ZonedDateTime, Temporal.ZonedDateTime], hours: [Temporal.ZonedDateTime, Temporal.ZonedDateTime],
+	 *   base: { sunrise: number, sunset: number, hoursFrom: 'sunrise' | 'sunset' } } | null}
+	 */
+	baseLevelDay() {
+		const horizon = this.config.horizon;
+		if (!horizon || this.config.baseLevel === false) return null;
+		const geo = this.coreZC.getGeoLocation();
+		const date = this.coreZC.getDate().withCalendar("iso8601");
+		let cache = baseLevelCache.get(this.config);
+		if (!cache) {
+			cache = new Map();
+			baseLevelCache.set(this.config, cache);
+		}
+		/** @param {'sunrise'|'sunset'} event */
+		const levelOf = event => {
+			const key = [date.toString(), event, geo.getLatitude(), geo.getLongitude()].join('|');
+			if (!cache.has(key)) {
+				const t = event === 'sunrise' ? this.coreZC.getSeaLevelSunrise() : this.coreZC.getSeaLevelSunset();
+				let level = null;
+				if (t) {
+					try {
+						const az = this.astroCalc.getSolarAzimuth(t.toInstant(), geo);
+						level = this.astroCalc.getBaseLevelFromSet(date, geo, /** @type {any} */ (horizon), event, az);
+					} catch (e) {
+						console.error("Base level failed", e);
+					}
+				}
+				cache.set(key, level);
+			}
+			return cache.get(key);
+		};
+		const rise = levelOf('sunrise'), set = levelOf('sunset');
+		if (!rise || !set) return null;
+		/** the elevated time of one event with the eye and the base given @param {'sunrise'|'sunset'} event @param {number} eyeM @param {number} baseM */
+		const at = (event, eyeM, baseM) => {
+			const lift = Math.max(0, -Math.min(eyeM, baseM));
+			const g = new KosherZmanim.GeoLocation(geo.getLocationName(), geo.getLatitude(), geo.getLongitude(), eyeM + lift, geo.getTimeZone());
+			g.setHorizonElevationAtSunrise(Math.min(baseM, eyeM) + lift);
+			g.setHorizonElevationAtSunset(Math.min(baseM, eyeM) + lift);
+			const zc = new KosherZmanim.ZmanimCalendar(g);
+			zc.setAstronomicalCalculator(this.astroCalc);
+			zc.setUseElevation(true);
+			zc.setDate(this.coreZC.getDate());
+			return event === 'sunrise' ? zc.getSunrise() : zc.getSunset();
+		};
+		const listed = /** @type {[Temporal.ZonedDateTime, Temporal.ZonedDateTime]} */ ([at('sunrise', rise.eyeM, rise.baseM), at('sunset', set.eyeM, set.baseM)]);
+		if (!listed[0] || !listed[1]) return null;
+		const byRise = [listed[0], at('sunset', rise.eyeM, rise.baseM)];
+		const bySet = [at('sunrise', set.eyeM, set.baseM), listed[1]];
+		const length = (/** @type {Temporal.ZonedDateTime[]} */ d) => d[0] && d[1] ? d[1].epochMilliseconds - d[0].epochMilliseconds : -Infinity;
+		const fromSet = length(bySet) > length(byRise);
+		return {
+			listed,
+			hours: /** @type {[Temporal.ZonedDateTime, Temporal.ZonedDateTime]} */ (fromSet ? bySet : byRise),
+			base: { sunrise: rise.baseM, sunset: set.baseM, hoursFrom: fromSet ? 'sunset' : 'sunrise' }
+		};
 	}
 
 	/**
@@ -825,11 +923,20 @@ class ZemanFunctions extends ZemanimMathBase {
 	}
 
 	getCandleLighting() {
-		return this.timeRange.current.sunset.subtract({ minutes: this.config.candleLighting })
+		return this.timeRange.current.listedSunset.subtract({ minutes: this.config.candleLighting })
 	}
 
+	/** The listed sunset: the elevated sunset over its own base (with a base level), else as before. */
 	getShkiya() {
-		return this.timeRange.current.sunset;
+		return this.timeRange.current.listedSunset;
+	}
+
+	/**
+	 * The elevated sunrise over its own base (with a base level), else the sunrise the hours start from.
+	 * With a base level the hours may start before it (see baseLevelDay).
+	 */
+	getElevatedSunrise() {
+		return this.timeRange.current.listedSunrise;
 	}
 
 	getTzet() {
@@ -838,7 +945,7 @@ class ZemanFunctions extends ZemanimMathBase {
 
 	getTzetHumra() {
 		return this.config.fixedMil
-			? this.timeRange.current.sunset.add({ minutes: 20 })
+			? this.timeRange.current.listedSunset.add({ minutes: 20 })
 			: this.seasonalAfter(this.timeRange.current.sunset, this.timeRange.equinox.stringentNightfall);
 	}
 
@@ -870,7 +977,7 @@ class ZemanFunctions extends ZemanimMathBase {
 		if ((this.config.fixedMil && ((!Array.isArray(humraConf) && humraConf.minutes !== null) || (Array.isArray(humraConf) && humraConf.some(conf => conf.minutes !== null))))
 		 || (!this.config.fixedMil && ((!Array.isArray(humraConf) && humraConf.degree == null) || (Array.isArray(humraConf) && humraConf.every(conf => conf.degree == null))))) {
 			let humraObj = Array.isArray(humraConf) ? humraConf.sort((humraObjA, humraObjB) => humraObjB.minutes - humraObjA.minutes)[0] : humraConf;
-			return { time: this.timeRange.current.sunset.add({ minutes: humraObj.minutes }), minutes: humraObj.minutes };
+			return { time: this.timeRange.current.listedSunset.add({ minutes: humraObj.minutes }), minutes: humraObj.minutes };
 		}
 
 		if (!Array.isArray(humraConf) || humraConf.length == 1) {
@@ -900,7 +1007,7 @@ class ZemanFunctions extends ZemanimMathBase {
 				else
 					degreeTzet = this.withHazeDelay(degreeTzet, lenientDegree.degree);
 
-				const sortedEntries = [degreeTzet, this.timeRange.current.sunset.add({ minutes: stringentFixed.minutes })]
+				const sortedEntries = [degreeTzet, this.timeRange.current.listedSunset.add({ minutes: stringentFixed.minutes })]
 					.sort(Temporal.ZonedDateTime.compare);
 
 				return sortedEntries[multiHandle == "LENIENT" ? 0 : sortedEntries.length - 1];
@@ -943,7 +1050,7 @@ class ZemanFunctions extends ZemanimMathBase {
 	getTzetRT() {
 		const rtTimes = [
 			this.timeRange.current.tzethakokhavim,
-			this.timeRange.current.sunset.add({ minutes: 72 })
+			this.timeRange.current.listedSunset.add({ minutes: 72 })
 		];
 
 		if (this.config.rtKulah)

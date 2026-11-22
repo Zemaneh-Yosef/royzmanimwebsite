@@ -101,10 +101,10 @@ export function levanaWindow(jCal, zmanCalc) {
 		start,
 		recommendedStart,
 		endIkar,
-		endStretch: zc(date15).timeRange.current.sunrise,
+		endStretch: zc(date15).timeRange.current.listedSunrise,
 		endStrict: monthCal.getSofZmanKidushLevanaBetweenMoldos().withTimeZone(tz),
 		endEarlyIkar,
-		endEarlyStretch: zc(date15.subtract({ days: 1 })).timeRange.current.sunrise,
+		endEarlyStretch: zc(date15.subtract({ days: 1 })).timeRange.current.listedSunrise,
 		useEarlyTimes,
 		effectiveEndMs
 	};
