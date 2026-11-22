@@ -1,6 +1,8 @@
 // @ts-check
 // taken from https://webspace.science.uu.nl/~gent0113/hebrew/hebrewyear_year.htm#tekufot
 
+import { JewishDate } from "../../libraries/kosherZmanim/kosher-zmanim.js";
+
 /** Modified Julian Day 0 */
 const MJD_EPOCH = "1858-11-17";
 
@@ -78,4 +80,52 @@ export default class TekufahCalculator {
 	calculateTekufotRAda() {
 		return this.calculateTekufot(235/19 * (29 + 13753/25920), 2051826);
 	}
+}
+
+/**
+ * @typedef {Object} TekufaInfo
+ * @property {Temporal.ZonedDateTime} exact       the next tekufa, as calculated
+ * @property {Temporal.ZonedDateTime} time        exact, rounded to the minute
+ * @property {Temporal.ZonedDateTime} fastStart   half an hour before time (water is not drunk from then)
+ * @property {Temporal.ZonedDateTime} fastEnd     half an hour after time
+ */
+
+/**
+ * The next tekufa after zmanCalc's day, with the half-hour window around it. Whether to show it is up to the caller.
+ * @param {import('./ROYZmanim.js').ZemanFunctions} zmanCalc
+ * @param {boolean} fixedClock  see ZemanimMathBase.nextTekufa
+ * @returns {TekufaInfo | null}
+ */
+export function nextTekufaInfo(zmanCalc, fixedClock) {
+	const exact = zmanCalc.nextTekufa(fixedClock);
+	if (!exact)
+		return null;
+
+	const time = exact.round('minute');
+	return {
+		exact, time,
+		fastStart: time.subtract({ minutes: 30 }),
+		fastEnd: time.add({ minutes: 30 })
+	};
+}
+
+/**
+ * The names of the tekufa's month (Nisan, Tammuz, Tishrei or Tevet: the 15th that is nearest to the day),
+ * in English and Hebrew.
+ * @param {import('./WebsiteCalendar.js').default} jCal
+ * @returns {{en: string; he: string}}
+ */
+export function tekufaMonthNames(jCal) {
+	const nextTekufaJDate = [1, 4, 7, 10]
+		.map(month => new JewishDate(jCal.getJewishYear(), month, 15))
+		.sort((jDateA, jDateB) => {
+			const durationA = jCal.getDate().until(jDateA.getDate());
+			const durationB = jCal.getDate().until(jDateB.getDate());
+
+			return Math.abs(durationA.total('days')) - Math.abs(durationB.total('days'));
+		})[0];
+
+	const monthName = (/** @type {string} */ locale) =>
+		nextTekufaJDate.getDate().toLocaleString(locale + '-u-ca-hebrew', { month: 'long' });
+	return { en: monthName('en'), he: monthName('he') };
 }

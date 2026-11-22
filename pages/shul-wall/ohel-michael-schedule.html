@@ -333,10 +333,7 @@ layout: nothing
 		}
 	}
 </script>
-<script type="module" src="/assets/js/shul-wall/reset.js"></script>
-<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
-<script type="module" src="/assets/js/shul-wall/scheduleOnline.js"></script>
-<script type="module" src="/assets/js/shul-wall/replaceBackday.js"></script>
+{% include shul-wall/scripts.html list="reset,parasha,scheduleOnline,replaceBackday" %}
 <script type="module">
 	import {loadTomlSchedule} from '/assets/js/shul-wall/scheduleOnline.js';
 

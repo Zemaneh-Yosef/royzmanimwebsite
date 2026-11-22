@@ -1,23 +1,23 @@
 // @ts-check
 /**
- * visible-sunrise-worker.js — computes visible sunrises off the main thread for the web page
- * (see visible-sunrise-client.js). Imports only the calculator and the worker-safe snapshot helpers.
+ * visible-sunrise-worker.js — the visible-sunrise job of the shared worker (visible-horizon-worker.js, started
+ * by visible-horizon-client.js). It is no worker entry point itself: it exports createSunriseJob(), which the
+ * host runs. Imports only the calculator and the worker-safe snapshot helpers.
  *
- * Protocol (all plain data):
+ * Messages (job: 'sunrise', plus `slot`, the VisibleSunriseClient they belong to; all plain data):
  *   → { type: 'init', gen, geo: [name, lat, lon, elevation, tz], horizon, visibleOptions, humidity, seaSurfaceLayer }
  *   → { type: 'compute', gen, date: 'YYYY-MM-DD', table, priority }   table: ProviderSnapshot around that date
  *   → { type: 'bump', gen, date, priority }                           raise a queued date's priority
- *   ← { gen, date, ms }                                               ms: epoch ms, NaN = not seen / failed
+ *   → { type: 'drop' }                                                forget the slot
+ *   ← { job: 'sunrise', slot, gen, date, ms }                         ms: epoch ms, NaN = not seen / failed
  *
- * Requests are queued, not handled in arrival order: the lowest `priority` goes first (0 = the day on
- * screen, k = k days away, for prefetching), and among equals the most recent request - so after quick
- * clicks through the days, the day the user stopped on is computed next instead of waiting its turn.
+ * Ordering is the host's queue: the lowest `priority` goes first (0 = the day on screen, k = k days away, for
+ * prefetching), and among equals the most recent request.
  */
 
 import { GeoLocation } from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import ROYSPACalculator from "./royzmanim-spa-corrections.js";
 import { providerFromSnapshot } from "../core/refraction-snapshot.js";
-import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
 
 /** @typedef {import("../core/refraction-snapshot.js").Horizon} Horizon */
 /** @typedef {import("../core/refraction-snapshot.js").ProviderSnapshot} ProviderSnapshot */
@@ -26,8 +26,10 @@ import { loadWorkerPolyfills } from "../misc/worker-polyfills.js";
 /** @typedef {{ type: 'init', gen: number, geo: [string, number, number, number, string], horizon: Horizon, visibleOptions?: VisibleOptions, humidity?: boolean, seaSurfaceLayer?: boolean }} InitMessage */
 /** @typedef {{ type: 'compute', gen: number, date: string, table: ProviderSnapshot, priority?: number }} ComputeMessage */
 /** @typedef {{ type: 'bump', gen: number, date: string, priority: number }} BumpMessage */
-/** @typedef {InitMessage | ComputeMessage | BumpMessage} WorkerMessage */
+/** @typedef {{ type: 'drop' }} DropMessage  forget this slot's config (its client is gone) */
+/** @typedef {(InitMessage | ComputeMessage | BumpMessage | DropMessage) & { job: 'sunrise', slot: number }} SunriseMessage */
 /** @typedef {{ gen: number, date: string, ms: number }} ResultMessage */
+/** @typedef {ResultMessage & { job: 'sunrise', slot: number }} SunriseAnswer */
 
 /**
  * The computation, separate from the message plumbing so it can be tested without a Worker.
@@ -78,80 +80,51 @@ export function createVisibleSunriseEngine() {
 }
 
 /**
- * Priority queue in front of the engine. `post` sends a result; `defer` schedules the next step (a macrotask,
- * so messages that arrived during a computation are queued - and can overtake - before the next one starts).
- * @param {ReturnType<typeof createVisibleSunriseEngine>} engine
- * @param {(result: ResultMessage) => void} post
- * @param {(fn: () => void) => void} [defer]
- * @param {() => Promise<void>} [ready] resolves once computing is possible (e.g. the Temporal polyfill is loaded)
+ * The sunrise job for the shared worker (visible-horizon-worker.js): one engine per client slot, and its
+ * messages turned into entries of the host's queue. `post` sends an answer to the page.
+ *
+ * Messages carry `slot` (which VisibleSunriseClient they belong to); an init for a slot clears what that slot
+ * had queued, since it was for the old config. A repeat compute for a date still waiting only raises its
+ * priority (and shares its specs), like a bump.
+ * @param {(answer: SunriseAnswer) => void} post
  */
-export function createVisibleSunriseQueue(engine, post, defer = (fn) => setTimeout(fn, 0), ready = async () => {}) {
-	/** @type {Map<string, { msg: ComputeMessage, priority: number, seq: number }>} */
-	const queue = new Map();
-	let seq = 0;
-	let scheduled = false;
-	let busy = false;
-
-	const schedule = () => {
-		if (scheduled || busy || !queue.size) return;
-		scheduled = true;
-		defer(step);
-	};
-
-	const step = async () => {
-		scheduled = false;
-		if (busy || !queue.size) return;
-		busy = true;
-		try {
-			await ready();
-			/** @type {string | null} */
-			let bestKey = null;
-			for (const [key, item] of queue) {
-				const best = bestKey === null ? null : queue.get(bestKey);
-				if (!best || item.priority < best.priority || (item.priority === best.priority && item.seq > best.seq))
-					bestKey = key;
-			}
-			if (bestKey === null) return;
-			const item = /** @type {{ msg: ComputeMessage }} */ (queue.get(bestKey));
-			queue.delete(bestKey);
-			const result = engine.compute(item.msg);
-			if (result) post(result);
-		} finally {
-			busy = false;
-			schedule();
-		}
-	};
+export function createSunriseJob(post) {
+	/** @type {Map<number, ReturnType<typeof createVisibleSunriseEngine>>} */
+	const engines = new Map();
+	const keyOf = (/** @type {number} */ slot, /** @type {string} */ date) => `sunrise:${slot}:${date}`;
 
 	return {
-		/** @param {WorkerMessage} msg */
-		receive(msg) {
+		/**
+		 * @param {SunriseMessage} msg
+		 * @param {import("./visible-horizon-worker.js").HorizonQueue} queue
+		 */
+		receive(msg, queue) {
+			const slot = msg.slot;
 			if (msg.type === "init") {
-				engine.init(msg);                          // synchronous: in place before any later compute
-				queue.clear();                             // everything queued was for the old config
+				let engine = engines.get(slot);
+				if (!engine) engines.set(slot, engine = createVisibleSunriseEngine());
+				engine.init(msg);                                          // synchronous: in place before any later compute
+				queue.removeWhere((key) => key.startsWith(`sunrise:${slot}:`));   // everything queued was for the old config
 				return;
 			}
-			if (msg.gen !== engine.gen) return;           // stale
-			const existing = queue.get(msg.date);
-			if (msg.type === "bump") {
-				if (existing) {
-					existing.priority = Math.min(existing.priority, msg.priority);
-					existing.seq = ++seq;
-				}
-			} else if (existing) {
-				engine.addSpecs(msg.table);
-				existing.priority = Math.min(existing.priority, msg.priority ?? 0);
-				existing.seq = ++seq;
-			} else {
-				queue.set(msg.date, { msg, priority: msg.priority ?? 0, seq: ++seq });
+			if (msg.type === "drop") {
+				engines.delete(slot);
+				queue.removeWhere((key) => key.startsWith(`sunrise:${slot}:`));
+				return;
 			}
-			schedule();
-		},
-		get size() { return queue.size; }
+			const engine = engines.get(slot);
+			if (!engine || msg.gen !== engine.gen) return;                // stale
+			const key = keyOf(slot, msg.date);
+			if (msg.type === "bump") {
+				queue.raise(key, msg.priority);
+			} else if (queue.raise(key, msg.priority ?? 0)) {
+				engine.addSpecs(msg.table);
+			} else {
+				queue.add(key, msg.priority ?? 0, () => {
+					const result = engine.compute(msg);
+					if (result) post({ job: "sunrise", slot, ...result });
+				});
+			}
+		}
 	};
-}
-
-// Worker wiring (skipped when this module is imported for tests)
-if ("WorkerGlobalScope" in globalThis && !("document" in globalThis)) {
-	const queue = createVisibleSunriseQueue(createVisibleSunriseEngine(), (r) => postMessage(r), undefined, loadWorkerPolyfills);
-	addEventListener("message", (/** @type {MessageEvent<WorkerMessage>} */ event) => queue.receive(event.data));
 }

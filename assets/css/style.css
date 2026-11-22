@@ -445,6 +445,10 @@ li[data-zfFind="FastDays"] h5 {
 .levanaTimesList .levanaRec .levanaLabel { font-weight: 400; }
 .levanaTimesList .levanaValue { text-align: end; }
 .levanaStruck { opacity: .7; }
+/* the whole value struck (the <s> inside already is) */
+span.levanaStruck { text-decoration: line-through; }
+/* the rows are always in the markup; the last one showing has no rule under it */
+.levanaTimesList > .list-group-item.levanaLast { border-bottom-width: 0; }
 .levanaStruck.small { font-size: .8em; }
 
 .levanaMolad { color: var(--bs-secondary-color); }
@@ -476,6 +480,10 @@ li[data-zfFind="FastDays"] h5 {
 .levanaGlyph { height: 48px; line-height: 0; }
 .levanaGlyph svg { width: 48px; height: 48px; }
 .levanaTimes { display: flex; flex-direction: column; font-size: .85rem; }
+.levanaCover { display: flex; flex-direction: column; }
+/* Tonight's moon is the page's quick estimate until the worker's exact times arrive */
+.levanaEstimate .levanaGlyph, .levanaEstimate .levanaTimes { opacity: .75; }
+.levanaEstimateMark { color: var(--bs-secondary-color); font-size: .75rem; line-height: 1; }
 .levanaTimeLabel { font-size: .72rem; color: var(--bs-secondary-color); }
 .levanaTime { white-space: nowrap; font-weight: 600; }
 .levanaTags { display: flex; flex-direction: column; align-items: center; gap: .15rem; font-size: .68rem; }

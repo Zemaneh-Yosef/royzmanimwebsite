@@ -3,6 +3,7 @@
 import { methodNames } from "../../core/ROYZmanim.js";
 import { reload } from "../reload.js";
 import { currentZDT, jCal, zmanCalc, dtF, onZmanimUpdate } from "../base.js";
+import { readRows, wallTitles } from "../../ui/zmanim-rows.js";
 
 if (!('timers' in window))
 	// @ts-ignore
@@ -11,45 +12,9 @@ if (!('timers' in window))
 const calList = document.querySelector('[data-zfFind="calendarFormatter"]')
 const langList = calList.getAttribute('data-langPull').split(' ')
 
-/**
- * @param {Element} timeSlot
- * @returns {[string, import('../../core/WebsiteCalendar.js').zmanInfoList]}
- */
-function zmanListToFormat (timeSlot) {
-	/** @type {"degrees" | "seasonal"} */
-	//@ts-ignore
-	const luach = timeSlot.getAttribute('data-luachInclusive');
-
-	/** @type {"earlier"|"later"|"exact"} */
-	// @ts-ignore
-	const round = timeSlot.getAttribute('data-round');
-
-	return [
-		timeSlot.getAttribute('data-zmanid'),
-		Object.freeze({
-			function: timeSlot.getAttribute('data-timeGetter'),
-			yomTovInclusive: timeSlot.getAttribute('data-yomTovInclusive'),
-			luachInclusive: luach,
-			condition: timeSlot.getAttribute('data-condition'),
-			title: Object.fromEntries(['he', 'en', 'he-Latn', 'ru'].map(lang => {
-				if (!timeSlot.querySelector(`span.langTV.lang-${lang}`))
-					return null;
-
-				return [lang, timeSlot.querySelector(`span.langTV.lang-${lang}`).innerHTML];
-			}).filter(Boolean)),
-			round,
-		})
-	]
-}
-
-const zmanimList = Object.fromEntries(Array.from(calList.children)
-	.map(timeSlot => zmanListToFormat(timeSlot))
-	.filter(
-		arrayEntry =>
-			arrayEntry[0] !== null
-			// @ts-ignore
-		&& (arrayEntry[0] == 'candleLighting' || (arrayEntry[1].function && methodNames.includes(arrayEntry[1].function)))
-	))
+/** @type {Record<string, import('../../core/WebsiteCalendar.js').zmanInfoList>} */
+// @ts-ignore
+const zmanimList = readRows(calList.children, { methodNames, titles: wallTitles })
 
 /** Draws the upcoming zemanim, and sets the page to reload once the first of them passes. Safe to run again. */
 function render() {

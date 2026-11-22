@@ -6,7 +6,7 @@ import { zemanimOptionsFromConfig, zemanimConfigFrom } from "../core/zmanimSetti
 import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
 import { isInIsrael } from "../misc/israel.js";
 import { languageTag } from "../misc/language.js";
-import { loadRefraction, readCachedRefraction, providerFromCache, MIN_REFRACTION_RECHECK_MS } from "../astro/refraction-data.js";
+import { readStoredRefraction, refractionFromStored, refractionFromData, loadFreshRefraction, horizonRetryMs } from "../astro/place-refraction.js";
 
 /** How long reading the stored refraction data may take before the page goes on without it. */
 const REFRACTION_CACHE_WAIT_MS = 4000;
@@ -72,7 +72,7 @@ function onZmanimUpdate(name, render) {
 	zmanimListeners.set(name, render);
 }
 
-/** @param {Pick<import("../core/ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} refraction */
+/** @param {import("../astro/place-refraction.js").Refraction} refraction */
 function buildZmanCalc(refraction) {
 	// getNetz() ray-traces the visible sunrise from the horizon (replaces the ChaiTables 'ctNetz' data)
 	const calc = new ZemanFunctions(geoLocation,
@@ -109,37 +109,30 @@ async function refreshBase(configText = document.getElementById("zy-scheduleScre
 	// fills the store (IndexedDB) for the next load.
 	const generation = ++baseGeneration;
 	const lat = geoLocation.getLatitude(), lon = geoLocation.getLongitude();
-	/** @type {import("../astro/refraction-data.js").CachedRefraction | null} */
-	const cachedRefraction = await Promise.race([
-		readCachedRefraction(lat, lon).catch(() => null),
-		new Promise((resolve) => setTimeout(() => resolve(null), REFRACTION_CACHE_WAIT_MS))
-	]);
-	zmanCalc = buildZmanCalc({
-		atmosphereProvider: providerFromCache(cachedRefraction),
-		horizon: cachedRefraction?.horizon ?? null,
-		haze: cachedRefraction?.haze ?? null
-	});
+	zmanCalc = buildZmanCalc(refractionFromStored(await readStoredRefraction(lat, lon, REFRACTION_CACHE_WAIT_MS)));
 
 	// asked again while the server is still computing this place's first horizon (horizonRetryS)
-	const loadFresh = () => loadRefraction(lat, lon)
-		.then((fresh) => {
-			if (fresh.notes.length)
-				console.info("Refraction:", fresh.notes);
-			if (generation !== baseGeneration)
-				return;
-			zmanCalc = buildZmanCalc({ atmosphereProvider: fresh.provider, horizon: fresh.horizon, haze: fresh.haze });
-			for (const render of zmanimListeners.values()) {
-				try {
-					render();
-				} catch (e) {
-					console.error("Redrawing with the new refraction data failed", e);
-				}
+	const loadFresh = async () => {
+		const fresh = await loadFreshRefraction(lat, lon, {}, () => generation === baseGeneration);
+		if (!fresh)
+			return;
+		try {
+			zmanCalc = buildZmanCalc(refractionFromData(fresh));
+		} catch (e) {
+			console.error("Refraction data failed to load", e);
+			return;
+		}
+		for (const render of zmanimListeners.values()) {
+			try {
+				render();
+			} catch (e) {
+				console.error("Redrawing with the new refraction data failed", e);
 			}
-			if (fresh.horizonRetryS)
-				setTimeout(() => { if (generation === baseGeneration) loadFresh(); },
-					Math.max(MIN_REFRACTION_RECHECK_MS, fresh.horizonRetryS * 1000));
-		})
-		.catch((e) => console.error("Refraction data failed to load", e));
+		}
+		const retryMs = horizonRetryMs(fresh);
+		if (retryMs !== null)
+			setTimeout(() => { if (generation === baseGeneration) loadFresh(); }, retryMs);
+	};
 	loadFresh();
 
 	dtF = [scheduleSettings.language == 'he' ? 'he' : 'en', {

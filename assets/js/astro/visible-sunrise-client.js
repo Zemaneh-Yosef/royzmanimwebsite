@@ -1,6 +1,7 @@
 // @ts-check
 /**
- * visible-sunrise-client.js — main-thread side of visible-sunrise-worker.js.
+ * visible-sunrise-client.js — main-thread side of the visible-sunrise job (visible-sunrise-worker.js), a thin
+ * wrapper over the page's shared worker (visible-horizon-client.js).
  *
  * Plug it into a ZemanFunctions config:
  *     const config = { ...settings, atmosphereProvider, horizon };
@@ -13,23 +14,20 @@
 
 import { setCachedVisibleSunrise } from "../core/ROYZmanim.js";
 import { snapshotProvider } from "../core/refraction-snapshot.js";
-import { spawnWorker } from "../misc/worker.js";
+import { registerSunriseSlot } from "./visible-horizon-client.js";
 
 /** @typedef {import("../core/ROYZmanim.js").ZemanimConfig} ZemanimConfig */
-/** @typedef {import("./visible-sunrise-worker.js").ResultMessage} ResultMessage */
 
 /** @param {Temporal.PlainDate} date */
 const isoKey = (date) => date.withCalendar("iso8601").toString({ calendarName: "never" });
 
 export default class VisibleSunriseClient {
 	/**
+	 * Throws where the worker can't be started (the caller then computes on the main thread).
 	 * @param {(date: Temporal.PlainDate) => void} onResult called on the main thread after a result is cached
-	 * @param {() => Worker} [createWorker] override for tests
 	 */
-	constructor(onResult, createWorker = () => spawnWorker(new URL("./visible-sunrise-worker.js", import.meta.url))) {
+	constructor(onResult) {
 		this.onResult = onResult;
-		/** @type {Worker} */
-		this.worker = createWorker();
 		/** bumped by configure(); results from an older config are ignored */
 		this.gen = 0;
 		/** @type {ZemanimConfig | null} */
@@ -41,16 +39,18 @@ export default class VisibleSunriseClient {
 		/** the date last asked for as "needed now", so repeated asks in one render don't each send a bump */
 		this.lastNow = "";
 
-		this.worker.addEventListener("message", (/** @type {MessageEvent<ResultMessage>} */ event) => {
-			const { gen, date, ms } = event.data;
-			if (gen !== this.gen || !this.config)
-				return;
-			this.pending.delete(date);
-			const plainDate = Temporal.PlainDate.from(date);
-			setCachedVisibleSunrise(this.config, plainDate, ms);
-			this.onResult(plainDate);
+		this.slot = registerSunriseSlot({
+			onAnswer: ({ gen, date, ms }) => {
+				if (gen !== this.gen || !this.config)
+					return;
+				this.pending.delete(date);
+				const plainDate = Temporal.PlainDate.from(date);
+				setCachedVisibleSunrise(this.config, plainDate, ms);
+				this.onResult(plainDate);
+			},
+			pendingCount: () => this.pending.size,
+			onWorkerLost: () => { this.pending.clear(); }
 		});
-		this.worker.addEventListener("error", (e) => console.error("Visible sunrise worker failed", e));
 	}
 
 	/**
@@ -64,7 +64,7 @@ export default class VisibleSunriseClient {
 		this.pending.clear();
 		if (!config.horizon)
 			return;
-		this.worker.postMessage({
+		this._send({
 			type: "init",
 			gen: this.gen,
 			geo: [geoLocation.getLocationName() ?? "", geoLocation.getLatitude(), geoLocation.getLongitude(),
@@ -93,7 +93,7 @@ export default class VisibleSunriseClient {
 			// asked for as "now" since) - not on every repeated ask within the same render
 			if (priority < asked || (priority === 0 && key !== this.lastNow)) {
 				this.pending.set(key, Math.min(asked, priority));
-				this.worker.postMessage({ type: "bump", gen: this.gen, date: key, priority });
+				this._send({ type: "bump", gen: this.gen, date: key, priority });
 				if (priority === 0) this.lastNow = key;
 			}
 			return;
@@ -105,7 +105,7 @@ export default class VisibleSunriseClient {
 		const table = config.atmosphereProvider
 			? snapshotProvider(config.atmosphereProvider, this.geo, date.subtract({ days: 1 }), 3)
 			: {};
-		this.worker.postMessage({ type: "compute", gen: this.gen, date: key, table, priority });
+		this._send({ type: "compute", gen: this.gen, date: key, table, priority });
 	}
 
 	/**
@@ -122,7 +122,20 @@ export default class VisibleSunriseClient {
 					this.request(d, k);
 	}
 
+	/** Gives up this client's place in the shared worker (which keeps running for others until it is idle). */
 	terminate() {
-		this.worker.terminate();
+		this.pending.clear();
+		this.slot.release();
+	}
+
+	/** @param {Record<string, any>} message */
+	_send(message) {
+		try {
+			this.slot.send(message);
+		} catch (e) {
+			// worker unavailable or crashed: nothing will answer these, so don't wait for them
+			console.warn("Visible sunrise worker unavailable", e);
+			this.pending.clear();
+		}
 	}
 }

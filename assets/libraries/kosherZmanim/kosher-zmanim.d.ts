@@ -5332,14 +5332,15 @@ type HiloulahObj = {
   name: string;
   src: string;
 }[];
+type HiloulahLanguage = 'en' | 'he';
 export declare class HiloulahYomiCalculator {
   private folderWithHiloulotJSON;
-  private initPromise;
-  private hiloulot_en;
-  private hiloulot_he;
+  private loaders;
+  private hiloulot;
   constructor(dir?: string);
-  init(): Promise<void>;
-  getHiloulah(jewishCalendar: JewishDate): Promise<{
+  private load;
+  init(languages?: HiloulahLanguage[]): Promise<void>;
+  getHiloulah(jewishCalendar: JewishDate, languages?: HiloulahLanguage[]): Promise<{
     en: HiloulahObj;
     he: HiloulahObj;
   }>;

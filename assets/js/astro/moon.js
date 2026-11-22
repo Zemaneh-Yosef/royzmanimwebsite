@@ -10,7 +10,8 @@
  *    (moon-visible.js) take the same air and horizon as the sun.
  */
 
-import { createMoonCalc, moonGlyphSvg, AstronomyImp } from "../../libraries/mooncalc/moonRiseSetCalc.js";
+import { createMoonCalc, AstronomyImp } from "../../libraries/mooncalc/moonRiseSetCalc.js";
+import { moonGlyphSvg } from "./moon-glyph.js";
 import { deltaT } from "./delta-t.js";
 
 AstronomyImp.SetDeltaTFunction(ut => deltaT(ut + 2451545));

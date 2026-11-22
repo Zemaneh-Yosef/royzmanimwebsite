@@ -15,7 +15,9 @@
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { ZemanFunctions, methodNamesOf, seedVisiblePlaceholders, hasCachedVisibleSunrise } from "../core/ROYZmanim.js";
 import WebsiteLimudCalendar from "../core/WebsiteLimudCalendar.js";
-import { loadRefraction, readCachedRefraction, providerFromCache, refractionRecheckMs } from "../astro/refraction-data.js";
+import { refractionRecheckMs } from "../astro/refraction-data.js";
+import { readStoredRefraction, refractionFromStored, refractionFromData, loadFreshRefraction } from "../astro/place-refraction.js";
+import { readRows, siteTitles, fillRow } from "./zmanim-rows.js";
 import { notBeforeEarliest, atNextDay } from "../misc/util.js";
 import { showListLoadingAfterDelay } from "./list-loading.js";
 import VisibleSunriseClient from "../astro/visible-sunrise-client.js";
@@ -32,7 +34,7 @@ import VisibleSunriseClient from "../astro/visible-sunrise-client.js";
  * @property {boolean} [ignoreNextUpcoming] - never marked "up next"
  */
 
-/** @typedef {Pick<import("../core/ROYZmanim.js").ZemanimConfig, 'atmosphereProvider' | 'horizon' | 'haze'>} Refraction */
+/** @typedef {import("../astro/place-refraction.js").Refraction} Refraction */
 /** @typedef {[string | string[], options?: Intl.DateTimeFormatOptions]} TimeFormat */
 /** @typedef {ReturnType<WebsiteLimudCalendar['getZmanimInfo']>[string]} ZmanInfo */
 
@@ -73,6 +75,15 @@ export default class ZmanimList {
 		this.nextUpcomingZman = null;
 		/** @type {null|ReturnType<typeof setTimeout>} */
 		this.nextUpcomingZmanTimeout = null;
+		/** Today's and tomorrow's times that can be "up next", sorted (setNextUpcomingZman) @type {Temporal.ZonedDateTime[]} */
+		this._upcoming = [];
+		/** The day `_upcoming` was worked out on @type {Temporal.PlainDate | null} */
+		this._upcomingFor = null;
+		/**
+		 * The "up next" markers of the last render, so the marker can move when a zman passes without a re-render
+		 * @type {[HTMLElement, string, ZmanInfo][]}
+		 */
+		this._upNextMarks = [];
 
 		/** Text shown last (parasha, day…), to skip rewriting what hasn't changed @type {Record<string, string | undefined>} */
 		this.lastData = {};
@@ -100,32 +111,8 @@ export default class ZmanimList {
 
 		/** The rows, from every [data-zfFind="calendarFormatter"] on the page @type {Record<string, ZmanimDisplay>} */
 		this.zmanimList = {};
-		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]')) {
-			for (const timeSlot of calendarContainer.children) {
-				const id = timeSlot.getAttribute('data-zmanid');
-				const getter = timeSlot.getAttribute('data-timeGetter');
-				if (id === null || !(id == 'candleLighting' || (getter && methodNames.includes(getter))))
-					continue;
-
-				// one name (Hazon Yosef), or one per language
-				const single = timeSlot.querySelector('.zmanTitleText');
-				this.zmanimList[id] = Object.freeze({
-					function: getter,
-					yomTovInclusive: /** @type {any} */ (timeSlot.getAttribute('data-yomTovInclusive')),
-					luachInclusive: /** @type {any} */ (timeSlot.getAttribute('data-luachInclusive')),
-					condition: timeSlot.getAttribute('data-condition'),
-					round: timeSlot.getAttribute('data-round'),
-					title: single
-						? { he: single.innerHTML, en: "", 'he-Latn': "" }
-						: {
-							he: timeSlot.querySelector('span.lang.lang-he')?.innerHTML ?? "",
-							en: timeSlot.querySelector('span.lang.lang-en')?.innerHTML ?? "",
-							'he-Latn': timeSlot.querySelector('span.lang.lang-he-Latn')?.innerHTML ?? ""
-						},
-					ignoreNextUpcoming: timeSlot.hasAttribute('data-ignoreNextUpcoming')
-				});
-			}
-		}
+		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]'))
+			Object.assign(this.zmanimList, readRows(calendarContainer.children, { methodNames, titles: siteTitles }));
 	}
 
 	/**
@@ -256,20 +243,16 @@ export default class ZmanimList {
 		if (samePlace) {
 			const data = /** @type {import("../astro/refraction-data.js").RefractionData} */ (loaded);
 			this._shownForecastAt = data.forecastFetchedAt;
-			refraction = { atmosphereProvider: data.provider, horizon: data.horizon, haze: data.haze };
+			refraction = refractionFromData(data);
 		} else {
 			const stopLoading = this._stopListLoading = showListLoadingAfterDelay();
-			const cached = await readCachedRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
+			const cached = await readStoredRefraction(geoLocation.getLatitude(), geoLocation.getLongitude());
 			stopLoading();
 			if (gen !== this._resetGen)
 				return; // another location (or setting) came in while this was read
 
 			this._shownForecastAt = cached?.forecast?.fetchedAt ?? null;
-			refraction = {
-				atmosphereProvider: providerFromCache(cached),
-				horizon: cached?.horizon ?? null,
-				haze: cached?.haze ?? null
-			};
+			refraction = refractionFromStored(cached);
 		}
 		// same place: its visible sunrises stay on screen until the worker computes them again
 		this._setupZmanCalc(refraction, samePlace ? this.zmanCalc.config : undefined);
@@ -297,22 +280,14 @@ export default class ZmanimList {
 			this._refractionRefresh = null;
 		}
 
-		/** @type {import("../astro/refraction-data.js").RefractionData} */
-		let data;
-		try {
-			data = await loadRefraction(this.geoLocation.getLatitude(), this.geoLocation.getLongitude(), {
-				...this.refractionOptions(),
-				force: options.force === true
-			});
-		} catch (e) {
-			console.error("Refraction data failed to load", e);
+		// null: failed, or the location changed while we were loading
+		const data = await loadFreshRefraction(this.geoLocation.getLatitude(), this.geoLocation.getLongitude(), {
+			...this.refractionOptions(),
+			force: options.force === true
+		}, () => token === this._refractionToken);
+		if (!data)
 			return false;
-		}
-		if (token !== this._refractionToken)
-			return false; // the location changed while we were loading
 
-		if (data.notes.length)
-			console.info("Refraction:", data.notes);
 		this.refraction = data;
 
 		// Same forecast and horizon as on screen (the usual case on a reload): nothing to redo
@@ -339,11 +314,7 @@ export default class ZmanimList {
 
 		const selectedDate = this.zmanCalc.coreZC.getDate();
 		this._shownForecastAt = this.refraction.forecastFetchedAt;
-		this._setupZmanCalc({
-			atmosphereProvider: this.refraction.provider,
-			horizon: this.refraction.horizon,
-			haze: this.refraction.haze
-		}, this.zmanCalc.config);
+		this._setupZmanCalc(refractionFromData(this.refraction), this.zmanCalc.config);
 		this.setNextUpcomingZman();
 		this.changeDate(selectedDate);
 	}
@@ -493,6 +464,7 @@ export default class ZmanimList {
 
 	_renderCalendarFormatter() {
 		const zmanInfo = this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF);
+		this._upNextMarks = [];
 		for (const calendarContainer of document.querySelectorAll('[data-zfFind="calendarFormatter"]')) {
 			for (const timeSlot of calendarContainer.children) {
 				if (!(timeSlot instanceof HTMLElement))
@@ -538,10 +510,8 @@ export default class ZmanimList {
 						/** @type {HTMLElement} */
 						// @ts-ignore
 						const upNextElem = shita.firstElementChild;
-						if (this.isUpNext(completeName, info))
-							upNextElem.style.removeProperty("display");
-						else
-							upNextElem.style.display = "none";
+						this._upNextMarks.push([upNextElem, completeName, info]);
+						this._showUpNext(upNextElem, completeName, info);
 
 						shita.lastElementChild.innerHTML = info.zDTObj.toLocaleString(...info.dtF);
 
@@ -580,36 +550,17 @@ export default class ZmanimList {
 					this.rowRendered(timeSlot, zmanId);
 				} else {
 					const info = zmanInfo[zmanId];
-					if (info.display == -1) {
-						timeSlot.style.setProperty('display', 'none', 'important');
+					// the name's own spans: sunrise / sunset have language-switched icons in front of them
+					if (!fillRow(timeSlot, info, (slot, title) => this._setRowTitle(slot, title, '.accordianText > ')))
 						continue;
-					}
-
-					if (info.display == -2) {
-						timeSlot.style.removeProperty("display");
-						timeDisplay.lastElementChild.innerHTML = "XX:XX";
-						continue;
-					}
 
 					if (!this.zmanimList[zmanId]?.ignoreNextUpcoming) {
 						/** @type {HTMLElement} */
 						// @ts-ignore
 						const upNextElem = timeDisplay.firstElementChild;
-						if (this.isUpNext(zmanId, info))
-							upNextElem.style.removeProperty("display");
-						else
-							upNextElem.style.display = "none";
+						this._upNextMarks.push([upNextElem, zmanId, info]);
+						this._showUpNext(upNextElem, zmanId, info);
 					}
-
-					timeDisplay.lastElementChild.innerHTML = info.zDTObj.toLocaleString(...info.dtF);
-
-					// the name's own spans: sunrise / sunset have language-switched icons in front of them
-					this._setRowTitle(timeSlot, info.title, '.accordianText > ');
-
-					if (!info.display)
-						timeSlot.style.setProperty('display', 'none', 'important');
-					else
-						timeSlot.style.removeProperty('display');
 
 					this.rowRendered(timeSlot, zmanId, info);
 				}
@@ -620,44 +571,72 @@ export default class ZmanimList {
 
 	// ─── Next Upcoming Zman ───────────────────────────────────────────────────
 
+	/**
+	 * Work out today's and tomorrow's times that can be "up next" (and hand the rows to the notifications),
+	 * then mark the next one. Call it whenever the times change (place, settings, refraction, a visible
+	 * sunrise); a zman passing only moves the marker (_upcomingPassed).
+	 */
 	setNextUpcomingZman() {
-		if (this.nextUpcomingZmanTimeout !== null) {
-			clearTimeout(this.nextUpcomingZmanTimeout);
-			this.nextUpcomingZmanTimeout = null;
-		}
-
 		/** @type {Temporal.ZonedDateTime[]} */
 		const zmanim = [];
 		/** @type {[string, ZmanInfo][]} */
 		const rows = [];
 		// the calendar has the date shown (a calculator just set up for a place starts on today)
 		const currentSelectedDate = this.jCal.getDate().withCalendar("iso8601");
+		const today = Temporal.Now.plainDateISO(this.geoLocation.getTimeZone());
 
 		for (const days of [0, 1]) {
-			this.changeDate(Temporal.Now.plainDateISO(this.geoLocation.getTimeZone()).add({ days }), true);
+			this.changeDate(today.add({ days }), true);
 			for (const [zmanId, zman] of Object.entries(this.jCal.getZmanimInfo(false, this.zmanCalc, this.zmanimList, this.dtF))) {
 				if (zman.display != 1)
 					continue;
-				zmanim.push(zman.zDTObj);
-				if (zman.zDTObj)
+				if (zman.zDTObj) {
+					zmanim.push(zman.zDTObj);
 					rows.push([zmanId, zman]);
+				}
 			}
 			zmanim.push(...this.upcomingExtras());
 		}
 
 		this.changeDate(currentSelectedDate, true);
 		this.upcomingRows(rows);
-		zmanim.sort(Temporal.ZonedDateTime.compare);
-		const now = Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone());
-		this.nextUpcomingZman = zmanim.find(zman => now.until(zman).total({ unit: "milliseconds" }) > 0) ?? null;
+		this._upcoming = zmanim.filter(Boolean).sort(Temporal.ZonedDateTime.compare);
+		this._upcomingFor = today;
+		this._scheduleUpcoming();
+	}
 
+	/** Point nextUpcomingZman at the first of `_upcoming` still ahead, and wake up when it passes */
+	_scheduleUpcoming() {
+		if (this.nextUpcomingZmanTimeout !== null) {
+			clearTimeout(this.nextUpcomingZmanTimeout);
+			this.nextUpcomingZmanTimeout = null;
+		}
+
+		const now = Temporal.Now.instant();
+		this.nextUpcomingZman = this._upcoming.find(zman => Temporal.Instant.compare(zman.toInstant(), now) > 0) ?? null;
 		if (this.nextUpcomingZman)
-			this.nextUpcomingZmanTimeout = setTimeout(
-				() => { this.setNextUpcomingZman(); this.updateZmanimList(); },
-				Temporal.Now.zonedDateTimeISO(this.geoLocation.getTimeZone())
-					.until(this.nextUpcomingZman)
-					.total({ unit: "milliseconds" })
-			);
+			this.nextUpcomingZmanTimeout = setTimeout(() => this._upcomingPassed(),
+				now.until(this.nextUpcomingZman.toInstant()).total({ unit: "milliseconds" }));
+	}
+
+	/** The marked zman passed: move the marker to the next one. A new day works the list out again. */
+	_upcomingPassed() {
+		const today = Temporal.Now.plainDateISO(this.geoLocation.getTimeZone());
+		if (this._upcomingFor && !today.equals(this._upcomingFor))
+			this.setNextUpcomingZman();
+		else
+			this._scheduleUpcoming();
+
+		for (const [upNextElem, zmanId, info] of this._upNextMarks)
+			this._showUpNext(upNextElem, zmanId, info);
+	}
+
+	/** @param {HTMLElement} upNextElem @param {string} zmanId @param {ZmanInfo} info */
+	_showUpNext(upNextElem, zmanId, info) {
+		if (this.isUpNext(zmanId, info))
+			upNextElem.style.removeProperty("display");
+		else
+			upNextElem.style.display = "none";
 	}
 
 	/**

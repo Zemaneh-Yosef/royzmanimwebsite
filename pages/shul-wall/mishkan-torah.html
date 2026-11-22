@@ -421,13 +421,7 @@ layout: nothing
 		}
 	}
 </script>
-<script type="module" src="/assets/js/shul-wall/date-and-time.js"></script>
-<script type="module" src="/assets/js/shul-wall/reset.js"></script>
-<script type="module" src="/assets/js/shul-wall/parasha.js"></script>
-<script type="module" src="/assets/js/shul-wall/zemanim/transition.js"></script>
-<script type="module" src="/assets/js/shul-wall/sidebar.js"></script>
-<script type="module" src="/assets/js/shul-wall/pageFlip.js"></script>
-<script type="module" src="/assets/js/shul-wall/limud.js"></script>
+{% include shul-wall/scripts.html list="date-and-time,reset,parasha,zemanim/transition,sidebar,pageFlip,limud" %}
 <script type="module">
 	import {loadIniSchedule} from '/assets/js/shul-wall/scheduleOnline.js';
 	import { keepTrying } from '/assets/js/shul-wall/reload.js';

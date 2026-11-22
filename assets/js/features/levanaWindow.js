@@ -111,10 +111,19 @@ export function levanaWindow(jCal, zmanCalc) {
 }
 
 /**
+ * 'rema' when the half-way-between-moladot end is later than the regular end, else 'strict'.
+ * @param {LevanaWindow} win
+ * @returns {'rema' | 'strict'}
+ */
+export function strictKind(win) {
+	return Temporal.ZonedDateTime.compare(win.endStrict, win.endIkar) > 0 ? 'rema' : 'strict';
+}
+
+/**
  * "Rema" when the half-way-between-moladot end is later than the regular end, else "Strict".
  * @param {LevanaWindow} win
  * @param {typeof EN} t
  */
 export function strictLabel(win, t) {
-	return Temporal.ZonedDateTime.compare(win.endStrict, win.endIkar) > 0 ? t.rema : t.strict;
+	return t[strictKind(win)];
 }
