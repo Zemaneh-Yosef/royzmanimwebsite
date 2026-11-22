@@ -1,0 +1,482 @@
+[
+ {
+  "name": "Jerusalem, Jaffa Rd",
+  "lat": 31.7833,
+  "lon": 35.2167,
+  "tz": "Asia/Jerusalem",
+  "elevation": 799,
+  "israel": true
+ },
+ {
+  "name": "Haifa, Carmel Centre",
+  "lat": 32.803,
+  "lon": 34.987,
+  "tz": "Asia/Jerusalem",
+  "elevation": 283,
+  "israel": true
+ },
+ {
+  "name": "Tel Aviv, Dizengoff Sq.",
+  "lat": 32.0778,
+  "lon": 34.7741,
+  "tz": "Asia/Jerusalem",
+  "elevation": 13,
+  "israel": true
+ },
+ {
+  "name": "Beit Shemesh",
+  "lat": 31.747,
+  "lon": 34.988,
+  "tz": "Asia/Jerusalem",
+  "elevation": 264,
+  "israel": true
+ },
+ {
+  "name": "Safed",
+  "lat": 32.965,
+  "lon": 35.496,
+  "tz": "Asia/Jerusalem",
+  "elevation": 777,
+  "israel": true
+ },
+ {
+  "name": "Katzrin",
+  "lat": 32.993,
+  "lon": 35.69,
+  "tz": "Asia/Jerusalem",
+  "elevation": 320,
+  "israel": true
+ },
+ {
+  "name": "Tiberias, lakeside",
+  "lat": 32.788,
+  "lon": 35.542,
+  "tz": "Asia/Jerusalem",
+  "elevation": 0,
+  "israel": true
+ },
+ {
+  "name": "Ariel",
+  "lat": 32.105,
+  "lon": 35.175,
+  "tz": "Asia/Jerusalem",
+  "elevation": 564,
+  "israel": true
+ },
+ {
+  "name": "Bnei Brak",
+  "lat": 32.083,
+  "lon": 34.833,
+  "tz": "Asia/Jerusalem",
+  "elevation": 46,
+  "israel": true
+ },
+ {
+  "name": "Modi'in",
+  "lat": 31.898,
+  "lon": 35.01,
+  "tz": "Asia/Jerusalem",
+  "elevation": 230,
+  "israel": true
+ },
+ {
+  "name": "Beitar Illit",
+  "lat": 31.698,
+  "lon": 35.115,
+  "tz": "Asia/Jerusalem",
+  "elevation": 661,
+  "israel": true
+ },
+ {
+  "name": "Efrat",
+  "lat": 31.655,
+  "lon": 35.15,
+  "tz": "Asia/Jerusalem",
+  "elevation": 922,
+  "israel": true
+ },
+ {
+  "name": "Ma'ale Adumim",
+  "lat": 31.777,
+  "lon": 35.3,
+  "tz": "Asia/Jerusalem",
+  "elevation": 479,
+  "israel": true
+ },
+ {
+  "name": "Kiryat Arba",
+  "lat": 31.535,
+  "lon": 35.12,
+  "tz": "Asia/Jerusalem",
+  "elevation": 935,
+  "israel": true
+ },
+ {
+  "name": "Arad",
+  "lat": 31.259,
+  "lon": 35.214,
+  "tz": "Asia/Jerusalem",
+  "elevation": 606,
+  "israel": true
+ },
+ {
+  "name": "Be'er Sheva",
+  "lat": 31.252,
+  "lon": 34.7915,
+  "tz": "Asia/Jerusalem",
+  "elevation": 284,
+  "israel": true
+ },
+ {
+  "name": "Mitzpe Ramon",
+  "lat": 30.61,
+  "lon": 34.8,
+  "tz": "Asia/Jerusalem",
+  "elevation": 858,
+  "israel": true
+ },
+ {
+  "name": "Denver, State Capitol",
+  "lat": 39.73925,
+  "lon": -104.9848,
+  "tz": "America/Denver",
+  "elevation": 1609,
+  "israel": false
+ },
+ {
+  "name": "Denver, City Hall",
+  "lat": 39.7392,
+  "lon": -104.9903,
+  "tz": "America/Denver",
+  "elevation": 1597,
+  "israel": false
+ },
+ {
+  "name": "Los Angeles, downtown",
+  "lat": 34.0522,
+  "lon": -118.2437,
+  "tz": "America/Los_Angeles",
+  "elevation": 88,
+  "israel": false
+ },
+ {
+  "name": "Los Angeles, Pico-Robertson",
+  "lat": 34.0553,
+  "lon": -118.3846,
+  "tz": "America/Los_Angeles",
+  "elevation": 43,
+  "israel": false
+ },
+ {
+  "name": "NYC, Midwood",
+  "lat": 40.6092,
+  "lon": -73.9683,
+  "tz": "America/New_York",
+  "elevation": 8,
+  "israel": false
+ },
+ {
+  "name": "Monsey, Route 59",
+  "lat": 41.1112,
+  "lon": -74.0688,
+  "tz": "America/New_York",
+  "elevation": 168,
+  "israel": false
+ },
+ {
+  "name": "Monsey, Viola",
+  "lat": 41.1185,
+  "lon": -74.087,
+  "tz": "America/New_York",
+  "elevation": 191,
+  "israel": false
+ },
+ {
+  "name": "Staten Island, Todt Hill",
+  "lat": 40.5975,
+  "lon": -74.11,
+  "tz": "America/New_York",
+  "elevation": 95,
+  "israel": false
+ },
+ {
+  "name": "Staten Island, Willowbrook",
+  "lat": 40.603,
+  "lon": -74.1385,
+  "tz": "America/New_York",
+  "elevation": 42,
+  "israel": false
+ },
+ {
+  "name": "Staten Island, St. George",
+  "lat": 40.6437,
+  "lon": -74.0768,
+  "tz": "America/New_York",
+  "elevation": 14,
+  "israel": false
+ },
+ {
+  "name": "Staten Island, Great Kills",
+  "lat": 40.554,
+  "lon": -74.151,
+  "tz": "America/New_York",
+  "elevation": 18,
+  "israel": false
+ },
+ {
+  "name": "Lakewood, NJ",
+  "lat": 40.0821,
+  "lon": -74.2097,
+  "tz": "America/New_York",
+  "elevation": 15,
+  "israel": false
+ },
+ {
+  "name": "Baltimore, Park Heights",
+  "lat": 39.364,
+  "lon": -76.7,
+  "tz": "America/New_York",
+  "elevation": 131,
+  "israel": false
+ },
+ {
+  "name": "Chicago, West Rogers Park",
+  "lat": 42.0,
+  "lon": -87.699,
+  "tz": "America/Chicago",
+  "elevation": 181,
+  "israel": false
+ },
+ {
+  "name": "Miami Beach",
+  "lat": 25.807,
+  "lon": -80.13,
+  "tz": "America/New_York",
+  "elevation": 1,
+  "israel": false
+ },
+ {
+  "name": "Boston, Brookline",
+  "lat": 42.3318,
+  "lon": -71.1212,
+  "tz": "America/New_York",
+  "elevation": 9,
+  "israel": false
+ },
+ {
+  "name": "Cleveland Heights",
+  "lat": 41.52,
+  "lon": -81.556,
+  "tz": "America/New_York",
+  "elevation": 286,
+  "israel": false
+ },
+ {
+  "name": "Toronto, Bathurst St.",
+  "lat": 43.719,
+  "lon": -79.429,
+  "tz": "America/Toronto",
+  "elevation": 180,
+  "israel": false
+ },
+ {
+  "name": "Montreal, Outremont",
+  "lat": 45.519,
+  "lon": -73.607,
+  "tz": "America/Toronto",
+  "elevation": 74,
+  "israel": false
+ },
+ {
+  "name": "London, Stamford Hill",
+  "lat": 51.57,
+  "lon": -0.073,
+  "tz": "Europe/London",
+  "elevation": 32,
+  "israel": false
+ },
+ {
+  "name": "Manchester, Broughton Park",
+  "lat": 53.511,
+  "lon": -2.26,
+  "tz": "Europe/London",
+  "elevation": 70,
+  "israel": false
+ },
+ {
+  "name": "Paris, 19th arr.",
+  "lat": 48.88,
+  "lon": 2.383,
+  "tz": "Europe/Paris",
+  "elevation": 82,
+  "israel": false
+ },
+ {
+  "name": "Antwerp",
+  "lat": 51.215,
+  "lon": 4.421,
+  "tz": "Europe/Brussels",
+  "elevation": 6,
+  "israel": false
+ },
+ {
+  "name": "Moscow",
+  "lat": 55.7558,
+  "lon": 37.6173,
+  "tz": "Europe/Moscow",
+  "elevation": 144,
+  "israel": false
+ },
+ {
+  "name": "Buenos Aires, Once",
+  "lat": -34.609,
+  "lon": -58.406,
+  "tz": "America/Argentina/Buenos_Aires",
+  "elevation": 19,
+  "israel": false
+ },
+ {
+  "name": "São Paulo, Higienópolis",
+  "lat": -23.544,
+  "lon": -46.656,
+  "tz": "America/Sao_Paulo",
+  "elevation": 778,
+  "israel": false
+ },
+ {
+  "name": "Mexico City, Polanco",
+  "lat": 19.433,
+  "lon": -99.196,
+  "tz": "America/Mexico_City",
+  "elevation": 2264,
+  "israel": false
+ },
+ {
+  "name": "Johannesburg, Glenhazel",
+  "lat": -26.138,
+  "lon": 28.099,
+  "tz": "Africa/Johannesburg",
+  "elevation": 1628,
+  "israel": false
+ },
+ {
+  "name": "Melbourne, Caulfield",
+  "lat": -37.877,
+  "lon": 145.023,
+  "tz": "Australia/Melbourne",
+  "elevation": 38,
+  "israel": false
+ },
+ {
+  "name": "Sydney, Bondi",
+  "lat": -33.891,
+  "lon": 151.26,
+  "tz": "Australia/Sydney",
+  "elevation": 80,
+  "israel": false
+ },
+ {
+  "name": "Jericho",
+  "lat": 31.8611,
+  "lon": 35.46,
+  "tz": "Asia/Jerusalem",
+  "elevation": 0,
+  "israel": true
+ },
+ {
+  "name": "Dead Sea, Ein Bokek",
+  "lat": 31.2,
+  "lon": 35.3625,
+  "tz": "Asia/Jerusalem",
+  "elevation": 0,
+  "israel": true
+ },
+ {
+  "name": "Masada (summit)",
+  "lat": 31.3156,
+  "lon": 35.3536,
+  "tz": "Asia/Jerusalem",
+  "elevation": 42,
+  "israel": true
+ },
+ {
+  "name": "South Fallsburg (Catskills)",
+  "lat": 41.72,
+  "lon": -74.64,
+  "tz": "America/New_York",
+  "elevation": 385,
+  "israel": false
+ },
+ {
+  "name": "Salt Lake City",
+  "lat": 40.76,
+  "lon": -111.89,
+  "tz": "America/Denver",
+  "elevation": 1299,
+  "israel": false
+ },
+ {
+  "name": "Bogota",
+  "lat": 4.65,
+  "lon": -74.08,
+  "tz": "America/Bogota",
+  "elevation": 2551,
+  "israel": false
+ },
+ {
+  "name": "Quito",
+  "lat": -0.18,
+  "lon": -78.47,
+  "tz": "America/Guayaquil",
+  "elevation": 2902,
+  "israel": false
+ },
+ {
+  "name": "La Paz",
+  "lat": -16.5,
+  "lon": -68.13,
+  "tz": "America/La_Paz",
+  "elevation": 3589,
+  "israel": false
+ },
+ {
+  "name": "Caracas",
+  "lat": 10.5,
+  "lon": -66.92,
+  "tz": "America/Caracas",
+  "elevation": 892,
+  "israel": false
+ },
+ {
+  "name": "Addis Ababa",
+  "lat": 9.03,
+  "lon": 38.74,
+  "tz": "Africa/Addis_Ababa",
+  "elevation": 2439,
+  "israel": false
+ },
+ {
+  "name": "Asmara",
+  "lat": 15.33,
+  "lon": 38.93,
+  "tz": "Africa/Asmara",
+  "elevation": 2337,
+  "israel": false
+ },
+ {
+  "name": "Sana'a",
+  "lat": 15.37,
+  "lon": 44.19,
+  "tz": "Asia/Aden",
+  "elevation": 2256,
+  "israel": false
+ },
+ {
+  "name": "Tehran",
+  "lat": 35.7,
+  "lon": 51.42,
+  "tz": "Asia/Tehran",
+  "elevation": 1184,
+  "israel": false
+ }
+]

@@ -108,6 +108,8 @@ const settings = Object.freeze({
 		forceSunSeasonal: zemanim.calendarToggle.forceSunSeasonal,
 		/** use the location's elevation for sunrise / sunset; on by default in Israel */
 		useElevation: zemanim.calendarToggle.useElevation,
+		/** measure the elevated sunrise and sunset from the land the horizon lies on (the server's base level) */
+		useBaseLevel: zemanim.calendarToggle.useBaseLevel,
 	},
 	/** Atmosphere-model options, edited from the location modal (assets/js/ui/location-modal.js) */
 	refraction: zemanim.refraction,
