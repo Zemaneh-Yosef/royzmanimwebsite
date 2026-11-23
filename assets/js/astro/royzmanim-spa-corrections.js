@@ -1950,7 +1950,8 @@ export default class ROYSPACalculator extends SPACalculator {
 	 * Sun's azimuth, within 1 degree), from that point's own position and eye, the ones the server chose the
 	 * candidates for (from a lower eye the sea horizon is nearer than the nearest candidate, which then reads a
 	 * little below sea level). The person's eye is then measured from that base, so with the base at sea level
-	 * the times are the elevated ones at the person's height.
+	 * the times are the elevated ones at the person's height. A place kept at 0 m whose nearest vantage point
+	 * is below sea level takes that point's height as its eye (the site keeps no negative heights).
 	 * null when no point has candidates there (an older server, a place with no bare-earth terrain, an override
 	 * with no base): the caller counts as before.
 	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation the person's place (the eye at its elevation)
@@ -1979,7 +1980,10 @@ export default class ROYSPACalculator extends SPACalculator {
 		const spot = new GeoLocation('base', point.lat, point.lon, Math.max(0, point.height), geoLocation.getTimeZone());
 		const b = this.getBaseLevel(date, spot, entry.baseCandidates, event, { heightM: point.height, groundM: point.ground });
 		if (!b) return null;
-		const eyeM = geoLocation.getElevation();
+		// the site keeps no height below sea level (KosherJava refuses one), so a place at 0 may be far below it,
+		// as on the Dead Sea's shore (-390 m): there the land's own height, the nearest vantage point's, is the eye.
+		// Measured from 0 instead, the eye would stand hundreds of metres above a base the cliffs around it tower over
+		const eyeM = geoLocation.getElevation() <= 0 && point.height < 0 ? point.height : geoLocation.getElevation();
 		return { ...b, eyeM, aboveM: Math.max(0, eyeM - b.baseM), fromKm: nearest };
 	}
 
