@@ -7,7 +7,7 @@
  *  - elevation off (the old way): sea-level sunrise and sunset;
  *  - the new way: heights measured from the land the horizon lies on (the server's base candidates,
  *    ZemanimConfig.baseLevel), with the seasonal hours at one angle, the lower Sun's, at both ends. Where the
- *    horizon has no base candidates it falls back to the visitor's elevation setting, as the calendar does.
+ *    horizon has no base candidates it falls back to the site's default for the place (on in Israel, off abroad).
  * Everything else (rulings, weather, horizon, time format) follows the visitor's settings, through the same
  * calculator as /calendar (core/zmanimCore.js ZmanimDay) and its list (_data/zmanim.yml, embedded in the page).
  * The place comes from a list (the 60 places of the elevation report, _data/sunriseTestPlaces.json), the
@@ -44,13 +44,14 @@ const PRESETS = json("sunriseTestPlaces");
 
 /**
  * The three columns: what each forces in the visitor's settings. The new way's fallback (no base candidates) is
- * the visitor's own elevation setting, as on the calendar.
+ * the site's default for the place (elevation on in Israel, off abroad), not the visitor's own elevation setting:
+ * a saved one applies to every place.
  * @type {{ id: string, elevation: (inIsrael: boolean) => boolean, baseLevel: boolean }[]}
  */
 const METHODS = [
 	{ id: "on", elevation: () => true, baseLevel: false },
 	{ id: "off", elevation: () => false, baseLevel: false },
-	{ id: "new", elevation: (inIsrael) => settings.calendarToggle.useElevation(inIsrael), baseLevel: true }
+	{ id: "new", elevation: (inIsrael) => inIsrael, baseLevel: true }
 ];
 
 /** The visitor's settings with one column's elevation and base level @param {typeof METHODS[number]} m */
@@ -468,13 +469,15 @@ function colNotes(attr, newNote) {
 }
 
 /**
- * The column the others are compared with: what the calendar shows today at this place, the visitor's
- * elevation setting (by default on in Israel, off abroad): 0 elevation on, 1 elevation off
+ * The column the others are compared with: what the calendar shows today at the place shown, by the site's
+ * default (elevation on in Israel, off abroad): 0 elevation on, 1 elevation off. Not the visitor's own
+ * elevation setting: a saved one applies to every place, so one chosen for a calendar abroad would compare
+ * Jerusalem with sea level.
  */
 function refIndex() {
 	const place = state.place;
 	if (!place) return 0;
-	return settings.calendarToggle.useElevation(isInIsrael(place.lat, place.lon)) ? 0 : 1;
+	return isInIsrael(place.lat, place.lon) ? 0 : 1;
 }
 
 /** A section heading across the table @param {HTMLElement} tbody @param {string | Node} content */
