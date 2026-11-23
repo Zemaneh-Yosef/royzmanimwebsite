@@ -139,8 +139,9 @@
  *     the land the horizon lies on with the mountains removed (its terrain_base.py: hills narrower than 80 km
  *     removed, dips narrower than 5 km filled), the calculator traces each candidate as the visible sunrise
  *     traces a horizon point, takes the one seen highest as the horizon, and returns the height of the level
- *     surface whose horizon is seen at that same angle in the same air. ROYZmanim.js passes it to KosherJava's
- *     horizon setters (baseLevelDay there).
+ *     surface whose horizon is seen at that same angle in the same air. The eye is the person's own place and
+ *     height; the candidates come from the area's vantage point nearest it. ROYZmanim.js passes it to
+ *     KosherJava's horizon setters (baseLevelDay there).
  *
  * NOT ported from ChaiTables: its low-precision solar ephemeris (SPA is far better), the 6356.766 km
  * radius, the fixed 16' semidiameter, and the +/-15 s winter "inversion" cushion (a safety margin, not a
@@ -1938,19 +1939,22 @@ export default class ROYSPACalculator extends SPACalculator {
 	}
 
 	/**
-	 * getBaseLevel for a horizon set from the server: at each of its points, the entry nearest the Sun's
-	 * azimuth (within 1 degree) that carries baseCandidates, seen from that point at its own height. In an area
-	 * (several vantage points) the one standing highest above its base wins: the earliest elevated sunrise, the
-	 * latest sunset, as the visible sunrise takes the earliest among them (the report's Decision 6).
+	 * getBaseLevel for a horizon set from the server, seen from the person's own place and height (geoLocation:
+	 * its elevation is the eye), as the elevated sunrise without a base is: the base candidates come from the
+	 * set's point nearest that place that carries them in the Sun's direction (its entry nearest the Sun's
+	 * azimuth, within 1 degree). The area's vantage points only supply the land; their own heights aren't
+	 * used, so with the base at sea level the times are the elevated ones at the person's height.
 	 * null when no point has candidates there (an older server, a place with no bare-earth terrain, an override
-	 * with no base): the caller keeps its last good base.
-	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation (its time zone is used)
+	 * with no base): the caller counts as before.
+	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation the person's place (the eye at its elevation)
 	 * @param {HorizonSet} set @param {'sunrise'|'sunset'} event @param {number} azimuthDeg the Sun's at sea-level sunrise / sunset
-	 * @returns {{ baseM: number, aboveM: number, eyeM: number, groundM: number, horizonKm: number, apparentDeg: number } | null}
+	 * @returns {{ baseM: number, aboveM: number, eyeM: number, horizonKm: number, apparentDeg: number, fromKm: number } | null}
 	 */
 	getBaseLevelFromSet(date, geoLocation, set, event, azimuthDeg) {
-		/** @type {ReturnType<ROYSPACalculator['getBaseLevelFromSet']>} */
-		let pick = null;
+		const lat = geoLocation.getLatitude(), lon = geoLocation.getLongitude();
+		const kx = Math.cos(lat * Math.PI / 180);
+		/** @type {any} */ let entry = null;
+		let nearest = Infinity;
 		for (const p of set?.points ?? []) {
 			/** @type {any} */ let e = null;
 			let gap = 1;
@@ -1960,12 +1964,13 @@ export default class ROYSPACalculator extends SPACalculator {
 				if (g <= gap) { gap = g; e = q; }
 			}
 			if (!e) continue;
-			const spot = new GeoLocation('base', p.lat, p.lon, Math.max(0, p.height), geoLocation.getTimeZone());
-			const b = this.getBaseLevel(date, spot, e.baseCandidates, event, { heightM: p.height, groundM: p.ground });
-			if (b && (!pick || b.aboveM > pick.aboveM))
-				pick = { ...b, eyeM: p.height, groundM: /** @type {any} */ (p).groundM ?? p.ground };
+			const km = Math.hypot((p.lat - lat) * 111.19, (p.lon - lon) * 111.19 * kx);
+			if (km < nearest) { nearest = km; entry = e; }
 		}
-		return pick;
+		if (!entry) return null;
+		const eyeM = geoLocation.getElevation();
+		const b = this.getBaseLevel(date, geoLocation, entry.baseCandidates, event, { heightM: eyeM });
+		return b && { ...b, eyeM, fromKm: nearest };
 	}
 
 	/**

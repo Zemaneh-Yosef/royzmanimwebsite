@@ -56,7 +56,7 @@ import { hazeDelay, hazeOn } from "../astro/star-nightfall.js";
 const visibleSunriseCache = new WeakMap();
 
 /**
- * Base levels per config (as visibleSunriseCache): key date|event|lat|lon -> getBaseLevelFromSet's answer
+ * Base levels per config (as visibleSunriseCache): key date|event|lat|lon|elevation -> getBaseLevelFromSet's answer
  * @type {WeakMap<ZemanimConfig, Map<string, ReturnType<ROYSPACalculator['getBaseLevelFromSet']>>>}
  */
 const baseLevelCache = new WeakMap();
@@ -417,7 +417,8 @@ class ZemanimMathBase {
 	 * The day's base levels (ZemanimConfig.baseLevel) and the times they give, or null to count as before: no
 	 * horizon set, no base candidates in it for the day's sunrise or sunset direction, or baseLevel not true.
 	 *  - listed: the elevated sunrise over the sunrise's base and the elevated sunset over the sunset's, each
-	 *    from the eye of the vantage point that sees lowest there (ROYSPACalculator.getBaseLevelFromSet);
+	 *    from the person's own place and height, over the land of the area's vantage point nearest it
+	 *    (ROYSPACalculator.getBaseLevelFromSet), so with a base at sea level they are the elevated times;
 	 *  - hours: the pair the seasonal hours are counted from. The two bases put the Sun at different angles below
 	 *    the horizontal at the two listed times; the hours take the lower Sun's angle at both ends (the
 	 *    longer of the two days with one base at both ends), so the day is centred on hatzot with equal hours,
@@ -440,7 +441,7 @@ class ZemanimMathBase {
 		}
 		/** @param {'sunrise'|'sunset'} event */
 		const levelOf = event => {
-			const key = [date.toString(), event, geo.getLatitude(), geo.getLongitude()].join('|');
+			const key = [date.toString(), event, geo.getLatitude(), geo.getLongitude(), geo.getElevation()].join('|');
 			if (!cache.has(key)) {
 				const t = event === 'sunrise' ? this.coreZC.getSeaLevelSunrise() : this.coreZC.getSeaLevelSunset();
 				let level = null;
