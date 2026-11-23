@@ -25,7 +25,8 @@ import { hazeDelay, hazeOn } from "../astro/star-nightfall.js";
  *   sunrise in getNetz(). null / omitted = getNetz() returns sea-level sunrise
  * @property {boolean} [baseLevel] measure the elevated sunrise and sunset from the land the horizon lies on,
  *   without the mountains (the base level), wherever the horizon set carries it (the server's baseCandidates),
- *   in Israel and outside it; `elevation` then doesn't apply. Default true. Without base candidates (or false)
+ *   in Israel and outside it; `elevation` then doesn't apply. Off unless true (only /sunrise-test sets it, for now).
+ *   Without base candidates (or not true)
  *   the times are as before: `elevation` decides between the height above sea level and sea level
  * @property {VisibleOptions} [visibleOptions] passed to getVisibleSunrise (e.g. { limb: 'top' })
  * @property {boolean} [humidity] include water vapour in the refraction where the atmosphere data carry
@@ -414,7 +415,7 @@ class ZemanimMathBase {
 
 	/**
 	 * The day's base levels (ZemanimConfig.baseLevel) and the times they give, or null to count as before: no
-	 * horizon set, no base candidates in it for the day's sunrise or sunset direction, or baseLevel false.
+	 * horizon set, no base candidates in it for the day's sunrise or sunset direction, or baseLevel not true.
 	 *  - listed: the elevated sunrise over the sunrise's base and the elevated sunset over the sunset's, each
 	 *    from the eye of the vantage point that sees lowest there (ROYSPACalculator.getBaseLevelFromSet);
 	 *  - hours: the pair the seasonal hours are counted from. The two bases put the Sun at different angles below
@@ -429,7 +430,7 @@ class ZemanimMathBase {
 	 */
 	baseLevelDay() {
 		const horizon = this.config.horizon;
-		if (!horizon || this.config.baseLevel === false) return null;
+		if (!horizon || this.config.baseLevel !== true) return null;
 		const geo = this.coreZC.getGeoLocation();
 		const date = this.coreZC.getDate().withCalendar("iso8601");
 		let cache = baseLevelCache.get(this.config);

@@ -67,8 +67,10 @@ export function zemanimSettings(source, options = {}) {
 		/** use the location's elevation for sunrise / sunset; on by default in Israel */
 		useElevation: (/** @type {boolean} */ inIsrael) => withDefault("useElevation", inIsrael.toString()) == "true",
 		/** measure the elevated sunrise and sunset from the land the horizon lies on (the base level), wherever the
-		 * horizon carries it, in Israel and outside it; on by default. useElevation applies where it doesn't */
-		useBaseLevel: () => withDefault("useBaseLevel", "true") == "true",
+		 * horizon carries it; useElevation applies where it doesn't. Off everywhere for now, and not a setting a
+		 * visitor can turn on: only the /sunrise-test page uses it (it overrides this), until it joins the elevation
+		 * setting */
+		useBaseLevel: () => false,
 	});
 
 	const refraction = Object.freeze({
@@ -181,7 +183,7 @@ export function zemanimOptionsFromConfig(config, inIsrael) {
 	const refraction = config.refraction ?? {};
 	return {
 		elevation: config.calendarToggle.elevation ?? inIsrael,
-		baseLevel: config.calendarToggle.baseLevel ?? true,
+		baseLevel: config.calendarToggle.baseLevel ?? false,
 		fixedMil: inIsrael || config.calendarToggle.forceSunSeasonal,
 		rtKulah: config.calendarToggle.rtKulah,
 		candleLighting: config.customTimes.candleLighting,

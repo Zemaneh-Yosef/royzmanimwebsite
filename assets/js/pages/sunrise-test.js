@@ -12,6 +12,11 @@
  * calculator as /calendar (core/zmanimCore.js ZmanimDay) and its list (_data/zmanim.yml, embedded in the page).
  * The place comes from a list (the 60 places of the elevation report, _data/sunriseTestPlaces.json), the
  * calendar's own place, or typed coordinates; it is kept in this page's URL (p, ll, d), never in the settings.
+ * Two tabs: one day (every zman), and through the year (tab=year, y): the equinoxes and solstices, and the
+ * smallest, largest and average gap between each two ways at sunrise and sunset over every day of the year.
+ *
+ * The base level is off everywhere else on the site (zmanimSettings useBaseLevel, ZemanimConfig.baseLevel):
+ * this page is the only one that turns it on, for its third column.
  */
 
 import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
@@ -70,6 +75,16 @@ const state = {
 	refractionKind: "none",
 	/** @type {ZmanimDay[]} */
 	days: [],
+	/** @type {KosherZmanim.GeoLocation | null} */
+	geo: null,
+	/** "day" | "year" */
+	tab: url.searchParams.get("tab") == "year" ? "year" : "day",
+	/** @type {number | null} the year tab's (Gregorian) year */
+	year: parseInt(url.searchParams.get("y") ?? "") || null,
+	/** the year tab needs scanning again (a new place, data, year or settings) */
+	yearDirty: true,
+	/** bumped on every year scan, so an old one stops */
+	yearToken: 0,
 	/** bumped on every place change, so a slow load for an old place is dropped */
 	token: 0
 };
@@ -227,12 +242,21 @@ function build() {
 		status(tr("That place can't be used: ", "אי אפשר להשתמש במקום הזה: ") + e);
 		return;
 	}
+	state.geo = geo;
+	state.days = makeDays(geo);
+	state.yearDirty = true;
+	render();
+	if (state.tab == "year")
+		scanYear();
+}
+
+/** One calculator per column, with the data in hand @param {KosherZmanim.GeoLocation} geo */
+function makeDays(geo) {
 	const dtF = timeFormat({ language: lang(), hourCycle: settings.timeFormat(), seconds: state.seconds });
-	state.days = METHODS.map(m => new ZmanimDay({
+	return METHODS.map(m => new ZmanimDay({
 		geoLocation: geo, settings: /** @type {any} */ (settingsFor(m)), zmanimList, dtF,
 		refraction: state.refraction, date: /** @type {Temporal.PlainDate} */ (state.date)
 	}));
-	render();
 }
 
 // ─── Render ───────────────────────────────────────────────────────────────────
@@ -272,20 +296,12 @@ function render() {
 	/** @type {HTMLInputElement} */ ($("stDate")).value = date.toString();
 
 	// what each column measured from
-	const place = /** @type {Place} */ (state.place);
 	const base = days[2].zmanCalc.timeRange.current.base;
-	const notes = [
-		tr(`height ${place.elevation} m above sea level`, `גובה ${place.elevation} מ' מעל פני הים`),
-		tr("sea level", "פני הים"),
-		base
-			? tr(`base: sunrise ${base.sunrise.toFixed(0)} m, sunset ${base.sunset.toFixed(0)} m; hours from the ${base.hoursFrom}'s angle`,
-				`בסיס: הנץ ${base.sunrise.toFixed(0)} מ', שקיעה ${base.sunset.toFixed(0)} מ'; השעות לפי זווית ה${base.hoursFrom == "sunrise" ? "הנץ" : "שקיעה"}`)
-			: tr(`no base from the server: falls back to elevation ${days[2].config.elevation ? "on" : "off"}`,
-				`אין בסיס מהשרת: חוזר לגובה ${days[2].config.elevation ? "מופעל" : "כבוי"}`)
-	];
-	document.querySelectorAll("[data-col-note]").forEach(el => {
-		el.textContent = notes[parseInt(/** @type {string} */ (el.getAttribute("data-col-note")))];
-	});
+	colNotes("data-col-note", base
+		? tr(`base: sunrise ${base.sunrise.toFixed(0)} m, sunset ${base.sunset.toFixed(0)} m; hours from the ${base.hoursFrom}'s angle`,
+			`בסיס: הנץ ${base.sunrise.toFixed(0)} מ', שקיעה ${base.sunset.toFixed(0)} מ'; השעות לפי זווית ה${base.hoursFrom == "sunrise" ? "הנץ" : "שקיעה"}`)
+		: tr(`no base from the server: falls back to elevation ${days[2].config.elevation ? "on" : "off"}`,
+			`אין בסיס מהשרת: חוזר לגובה ${days[2].config.elevation ? "מופעל" : "כבוי"}`));
 
 	const kind = {
 		none: tr("No weather data yet: standard air, no horizon.", "אין עדיין נתוני מזג אוויר: אוויר תקני, בלי אופק."),
@@ -298,6 +314,7 @@ function render() {
 			: tr(" The horizon has no base candidates (the server doesn't send them yet).", " באופק אין נקודות בסיס (השרת עוד לא שולח אותן)."))
 		: "";
 	status(kind + horizon);
+	if (state.tab != "day") return;
 
 	// the rows: every zman of the calendar's list shown in at least one column, in the list's order
 	const infos = days.map(d => d.zemanim());
@@ -320,12 +337,44 @@ function render() {
 	th.textContent = tr("Behind the times", "מאחורי הזמנים");
 	section.append(th);
 	tbody.append(section);
+	addTimeRangeRows(days, tbody);
+}
+
+/** The listed and hours' sunrise and sunset, and the seasonal hour @param {ZmanimDay[]} days @param {HTMLElement} tbody */
+function addTimeRangeRows(days, tbody) {
 	const cur = days.map(d => d.zmanCalc.timeRange.current);
-	addRow(tr("Listed sunrise", "הנץ המוצג"), cur.map(c => c.listedSunrise));
-	addRow(tr("Sunrise the hours count from", "הנץ שממנו נמנות השעות"), cur.map(c => c.sunrise));
-	addRow(tr("Listed sunset", "השקיעה המוצגת"), cur.map(c => c.listedSunset));
-	addRow(tr("Sunset the hours count from", "השקיעה שעד אליה נמנות השעות"), cur.map(c => c.sunset));
-	addRow(tr("Seasonal hour (GRA)", 'שעה זמנית (גר"א)'), cur.map(c => c.ranges.gra), "duration");
+	addRow(tr("Listed sunrise", "הנץ המוצג"), cur.map(c => c.listedSunrise), "time", tbody);
+	addRow(tr("Sunrise the hours count from", "הנץ שממנו נמנות השעות"), cur.map(c => c.sunrise), "time", tbody);
+	addRow(tr("Listed sunset", "השקיעה המוצגת"), cur.map(c => c.listedSunset), "time", tbody);
+	addRow(tr("Sunset the hours count from", "השקיעה שעד אליה נמנות השעות"), cur.map(c => c.sunset), "time", tbody);
+	addRow(tr("Seasonal hour (GRA)", 'שעה זמנית (גר"א)'), cur.map(c => c.ranges.gra), "duration", tbody);
+}
+
+/**
+ * The notes over the three columns: what each measured from
+ * @param {string} attr the table's note attribute @param {string} newNote the new way's
+ */
+function colNotes(attr, newNote) {
+	const place = /** @type {Place} */ (state.place);
+	const notes = [
+		tr(`height ${place.elevation} m above sea level`, `גובה ${place.elevation} מ' מעל פני הים`),
+		tr("sea level", "פני הים"),
+		newNote
+	];
+	document.querySelectorAll(`[${attr}]`).forEach(el => {
+		el.textContent = notes[parseInt(/** @type {string} */ (el.getAttribute(attr)))];
+	});
+}
+
+/** A section heading across the table @param {HTMLElement} tbody @param {string | Node} content */
+function addSection(tbody, content) {
+	const row = document.createElement("tr");
+	row.className = "stSection";
+	const th = document.createElement("th");
+	th.colSpan = 4;
+	th.append(content);
+	row.append(th);
+	tbody.append(row);
 }
 
 /**
@@ -333,8 +382,9 @@ function render() {
  * @param {string} name
  * @param {(Temporal.ZonedDateTime | Temporal.Duration | null)[]} values
  * @param {"time" | "duration"} [kind]
+ * @param {HTMLElement} [tbody]
  */
-function addRow(name, values, kind = "time") {
+function addRow(name, values, kind = "time", tbody = $("stRows")) {
 	const tr_ = document.createElement("tr");
 	const th = document.createElement("th");
 	th.scope = "row";
@@ -366,13 +416,210 @@ function addRow(name, values, kind = "time") {
 		}
 		tr_.append(td);
 	});
-	$("stRows").append(tr_);
+	tbody.append(tr_);
 }
 
 /** A twelfth of a day's length, as h:mm:ss @param {Temporal.Duration} day */
 function hms(day) {
 	const s = Math.round(day.total("seconds") / 12);
 	return `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+}
+
+// ─── Through the year ─────────────────────────────────────────────────────────
+
+/**
+ * The Sun's apparent longitude in degrees at a moment (Meeus, Astronomical Algorithms ch. 25, low precision:
+ * about 0.01°, a quarter of an hour of the Sun's motion), to find the day of an equinox or solstice
+ * @param {number} ms milliseconds since the epoch
+ */
+function sunLongitude(ms) {
+	const T = (ms / 86400000 + 2440587.5 - 2451545) / 36525;
+	const rad = Math.PI / 180;
+	const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+	const M = (357.52911 + 35999.05029 * T - 0.0001537 * T * T) * rad;
+	const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M) + (0.019993 - 0.000101 * T) * Math.sin(2 * M)
+		+ 0.000289 * Math.sin(3 * M);
+	const omega = (125.04 - 1934.136 * T) * rad;
+	return ((L0 + C - 0.00569 - 0.00478 * Math.sin(omega)) % 360 + 360) % 360;
+}
+
+/**
+ * The year's equinoxes and solstices: the day, in the place's time zone, in which the Sun's longitude passes
+ * 0°, 90°, 180° and 270°
+ * @param {number} year @param {string} tz
+ * @returns {{ en: string, he: string, date: Temporal.PlainDate }[]}
+ */
+function keyDays(year, tz) {
+	const first = Temporal.PlainDate.from({ year, month: 1, day: 1 });
+	const at = (/** @type {number} */ i) => first.add({ days: i });
+	const lon = (/** @type {number} */ i) => sunLongitude(at(i).toZonedDateTime({ timeZone: tz }).epochMilliseconds);
+	/** the day whose start is before the Sun reaches deg and whose end after it @param {number} deg */
+	const dayOf = (deg) => {
+		for (let i = 0; i < first.daysInYear; i++) {
+			const a = (lon(i) - deg + 540) % 360 - 180, b = (lon(i + 1) - deg + 540) % 360 - 180;
+			if (a < 0 && b >= 0) return at(i);
+		}
+		return first;
+	};
+	return [
+		{ en: "March equinox", he: "תקופת ניסן", date: dayOf(0) },
+		{ en: "June solstice", he: "תקופת תמוז", date: dayOf(90) },
+		{ en: "September equinox", he: "תקופת תשרי", date: dayOf(180) },
+		{ en: "December solstice", he: "תקופת טבת", date: dayOf(270) }
+	];
+}
+
+/** A link that shows a day in the one-day tab @param {Temporal.PlainDate} date @param {string} [label] */
+function dayLink(date, label) {
+	const a = document.createElement("a");
+	a.href = "#";
+	a.className = "stDay";
+	a.textContent = label ?? date.toLocaleString(lang() == "he" ? "he" : "en", { day: "numeric", month: "short", year: "numeric" });
+	a.addEventListener("click", (e) => {
+		e.preventDefault();
+		state.date = date;
+		setTab("day");
+	});
+	return a;
+}
+
+const yearBox = /** @type {HTMLInputElement} */ ($("stYear"));
+
+/**
+ * Work out every day of the year three ways (a few days at a time, so the page stays live), then show the
+ * equinoxes and solstices and the gaps between the ways
+ */
+async function scanYear() {
+	const place = state.place;
+	if (!place || !state.geo) return;
+	if (!state.year)
+		state.year = (state.date ?? Temporal.Now.plainDateISO(place.tz)).year;
+	yearBox.value = String(state.year);
+	saveUrl();
+	const token = ++state.yearToken;
+	state.yearDirty = false;
+	const year = state.year;
+
+	// calculators of their own, so the one-day tab's keep their date
+	const days = makeDays(state.geo);
+	const first = Temporal.PlainDate.from({ year, month: 1, day: 1 });
+	const n = first.daysInYear;
+	/** seconds since the epoch of each column's listed sunrise and sunset, NaN where there is none */
+	const rise = METHODS.map(() => new Float64Array(n).fill(NaN));
+	const set = METHODS.map(() => new Float64Array(n).fill(NaN));
+	let withBase = 0;
+
+	$("stKeyRows").replaceChildren();
+	$("stExtremeRows").replaceChildren();
+	for (let i = 0; i < n; i++) {
+		if (i % 10 == 0) {
+			$("stYearStatus").textContent = tr(`Working out ${year}: ${Math.round(100 * i / n)}%…`, `מחשב את ${year}: ${Math.round(100 * i / n)}%…`);
+			await new Promise(r => setTimeout(r, 0));
+			if (token !== state.yearToken) return;
+		}
+		const date = first.add({ days: i });
+		days.forEach((d, m) => {
+			try {
+				d.setDate(date);
+				const cur = d.zmanCalc.timeRange.current;
+				if (cur.listedSunrise) rise[m][i] = cur.listedSunrise.epochMilliseconds / 1000;
+				if (cur.listedSunset) set[m][i] = cur.listedSunset.epochMilliseconds / 1000;
+				if (m == 2 && cur.base) withBase++;
+			} catch { /* no sunrise or sunset that day (polar): left out */ }
+		});
+	}
+	if (token !== state.yearToken) return;
+
+	$("stYearStatus").textContent = withBase
+		? tr(`The new way had a base level on ${withBase} of the year's ${n} days; on the rest it fell back.`,
+			`לשיטה החדשה היה גובה בסיס ב-${withBase} מתוך ${n} ימי השנה; בשאר חזרה לברירת המחדל.`)
+		: tr(`The new way had no base level on any day (the server sent no base candidates): it fell back to elevation ${days[2].config.elevation ? "on" : "off"} all year.`,
+			`לשיטה החדשה לא היה גובה בסיס באף יום (השרת לא שלח נקודות בסיס): היא חזרה לגובה ${days[2].config.elevation ? "מופעל" : "כבוי"} כל השנה.`);
+	colNotes("data-col-note-y", withBase
+		? tr(`base level on ${withBase} of ${n} days`, `גובה בסיס ב-${withBase} מתוך ${n} ימים`)
+		: tr(`no base: elevation ${days[2].config.elevation ? "on" : "off"}`, `אין בסיס: גובה ${days[2].config.elevation ? "מופעל" : "כבוי"}`));
+
+	// the equinoxes and solstices
+	const keyRows = $("stKeyRows");
+	for (const k of keyDays(year, place.tz)) {
+		days.forEach(d => d.setDate(k.date));
+		const label = document.createElement("span");
+		label.append(tr(k.en, k.he) + " · ", dayLink(k.date));
+		addSection(keyRows, label);
+		const cur = days.map(d => d.zmanCalc.timeRange.current);
+		addRow(tr("Sunrise", "הנץ"), cur.map(c => c.listedSunrise ?? null), "time", keyRows);
+		addRow(tr("Sunset", "שקיעה"), cur.map(c => c.listedSunset ?? null), "time", keyRows);
+		addRow(tr("Seasonal hour (GRA)", 'שעה זמנית (גר"א)'), cur.map(c => c.ranges?.gra ?? null), "duration", keyRows);
+	}
+
+	// the gaps between each two ways
+	const names = [tr("elevation on", "גובה מופעל"), tr("elevation off", "גובה כבוי"), tr("the new way", "השיטה החדשה")];
+	const pairs = [[1, 0], [2, 0], [2, 1]];
+	const ext = $("stExtremeRows");
+	for (const [event, series] of /** @type {[string, Float64Array[]][]} */ ([[tr("Sunrise", "הנץ"), rise], [tr("Sunset", "שקיעה"), set]])) {
+		addSection(ext, event);
+		for (const [a, b] of pairs) {
+			let lo = Infinity, hi = -Infinity, loAt = -1, hiAt = -1, sum = 0, count = 0;
+			for (let i = 0; i < n; i++) {
+				const g = series[a][i] - series[b][i];
+				if (!Number.isFinite(g)) continue;
+				sum += g; count++;
+				if (g < lo) { lo = g; loAt = i; }
+				if (g > hi) { hi = g; hiAt = i; }
+			}
+			const row = document.createElement("tr");
+			const th = document.createElement("th");
+			th.scope = "row";
+			th.textContent = `${names[a]} − ${names[b]}`;
+			row.append(th);
+			/** @param {number} g @param {number} at */
+			const cell = (g, at) => {
+				const td = document.createElement("td");
+				td.className = "stTime";
+				if (at < 0) { td.textContent = "—"; return td; }
+				const v = document.createElement("span");
+				v.dir = "ltr";
+				v.textContent = signed(g);
+				td.append(v);
+				if (Math.abs(g) >= 0.5) td.classList.add("stChanged");
+				const when = document.createElement("span");
+				when.className = "stDiff";
+				when.append(dayLink(first.add({ days: at })));
+				td.append(when);
+				return td;
+			};
+			const mean = document.createElement("td");
+			mean.className = "stTime";
+			const mv = document.createElement("span");
+			mv.dir = "ltr";
+			mv.textContent = count ? signed(sum / count) : "—";
+			mean.append(mv);
+			row.append(cell(lo, loAt), cell(hi, hiAt), mean);
+			ext.append(row);
+		}
+	}
+}
+
+/** Show a tab @param {"day" | "year"} tab */
+function setTab(tab) {
+	state.tab = tab;
+	showTab();
+	saveUrl();
+	render();
+	if (tab == "year" && state.yearDirty)
+		scanYear();
+}
+
+/** Mark the chosen tab and show its pane */
+function showTab() {
+	const tab = state.tab;
+	document.querySelectorAll("#sunriseTest [data-st-tab]").forEach(b => {
+		const on = b.getAttribute("data-st-tab") == tab;
+		b.classList.toggle("active", on);
+		b.setAttribute("aria-selected", String(on));
+	});
+	document.querySelectorAll("#sunriseTest [data-st-pane]").forEach(p =>
+		p.classList.toggle("d-none", p.getAttribute("data-st-pane") != tab));
 }
 
 // ─── URL ──────────────────────────────────────────────────────────────────────
@@ -388,6 +635,8 @@ function saveUrl() {
 		u.searchParams.set("p", PRESETS[parseInt(v)].name);
 	}
 	if (state.date) u.searchParams.set("d", state.date.toString());
+	if (state.tab == "year") u.searchParams.set("tab", "year"); else u.searchParams.delete("tab");
+	if (state.year && state.tab == "year") u.searchParams.set("y", String(state.year)); else u.searchParams.delete("y");
 	if (state.seconds) u.searchParams.delete("sec"); else u.searchParams.set("sec", "0");
 	if (state.server != REFRACTION_SERVER) u.searchParams.set("srv", state.server); else u.searchParams.delete("srv");
 	history.replaceState(history.state, "", u);
@@ -417,6 +666,19 @@ function fromUrl() {
 
 fillSelect();
 fromUrl();
+
+for (const b of document.querySelectorAll("#sunriseTest [data-st-tab]"))
+	b.addEventListener("click", () => setTab(/** @type {"day" | "year"} */ (b.getAttribute("data-st-tab"))));
+for (const b of document.querySelectorAll("#sunriseTest [data-years]"))
+	b.addEventListener("click", () => {
+		state.year = (state.year ?? Temporal.Now.plainDateISO().year) + parseInt(/** @type {string} */ (b.getAttribute("data-years")));
+		scanYear();
+	});
+yearBox.addEventListener("change", () => {
+	const y = parseInt(yearBox.value);
+	if (y >= 1900 && y <= 2200) { state.year = y; scanYear(); }
+});
+showTab();
 
 select.addEventListener("change", onSelect);
 $("stPrevPlace").addEventListener("click", () => stepPlace(-1));

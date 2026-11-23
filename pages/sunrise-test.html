@@ -18,6 +18,8 @@ permalink: /sunrise-test
 	#sunriseTest tr.stSection th { background: var(--bs-secondary-bg); font-weight: 600; }
 	#sunriseTest .stColNote { display: block; font-weight: normal; font-size: .75em; color: var(--bs-secondary-color); white-space: normal; }
 	#sunriseTest thead th { position: sticky; top: 0; background: var(--bs-body-bg); z-index: 1; }
+	#sunriseTest a.stDay { white-space: nowrap; }
+	#sunriseTest .nav-tabs .nav-link { cursor: pointer; }
 </style>
 
 <div id="sunriseTest">
@@ -27,8 +29,8 @@ permalink: /sunrise-test
 		<span class="lang lang-he">בדיקת הנץ: שלוש שיטות זו לצד זו</span>
 	</h2>
 	<p class="text-center small mb-2">
-		<span class="lang lang-en lang-he-Latn">The calendar's zemanim for one place and day, with your settings, computed three ways. Cells that differ from "elevation on" are highlighted, with the difference (later +, earlier −).</span>
-		<span class="lang lang-he">זמני הלוח למקום ויום אחד, לפי ההגדרות שלך, בשלוש דרכים. תאים השונים מ"גובה מופעל" מודגשים, עם ההפרש (מאוחר +, מוקדם −).</span>
+		<span class="lang lang-en lang-he-Latn">The calendar's zemanim for one place, with your settings, computed three ways: for one day, or through a whole year. Cells that differ from "elevation on" are highlighted, with the difference (later +, earlier −).</span>
+		<span class="lang lang-he">זמני הלוח למקום אחד, לפי ההגדרות שלך, בשלוש דרכים: ליום אחד, או לאורך שנה שלמה. תאים השונים מ"גובה מופעל" מודגשים, עם ההפרש (מאוחר +, מוקדם −).</span>
 	</p>
 
 	<!-- the place: above the three columns -->
@@ -58,24 +60,6 @@ permalink: /sunrise-test
 		</div>
 	</div>
 
-	<!-- the date -->
-	<div class="card mb-2">
-		<div class="card-body stDate">
-			<button type="button" class="btn btn-outline-primary" data-days="-1" title="Previous day"><i class="bi bi-arrow-left"></i></button>
-			<div>
-				<h5 class="mb-1" id="stPrimaryDate"></h5>
-				<div class="small" id="stSecondaryDate"></div>
-				<div class="d-flex justify-content-center gap-2 mt-1">
-					<input type="date" class="form-control form-control-sm" id="stDate" style="max-width: 11rem;" aria-label="Date">
-					<button type="button" class="btn btn-sm btn-outline-secondary" id="stToday">
-						<span class="lang lang-en lang-he-Latn">Today</span><span class="lang lang-he">היום</span>
-					</button>
-				</div>
-			</div>
-			<button type="button" class="btn btn-outline-primary" data-days="1" title="Next day"><i class="bi bi-arrow-right"></i></button>
-		</div>
-	</div>
-
 	<details class="mb-2 small">
 		<summary>
 			<span class="lang lang-en lang-he-Latn">Options</span><span class="lang lang-he">אפשרויות</span>
@@ -101,30 +85,131 @@ permalink: /sunrise-test
 
 	<p class="small text-center mb-2" id="stStatus"></p>
 
-	<div class="table-responsive">
-		<table class="table table-sm table-bordered align-middle w-100">
-			<thead>
-				<tr>
-					<th scope="col"></th>
-					<th scope="col" class="stCol">
-						<span class="lang lang-en lang-he-Latn">Elevation on</span><span class="lang lang-he">גובה מופעל</span>
-						<span class="stColNote"><span class="lang lang-en lang-he-Latn">old way</span><span class="lang lang-he">השיטה הישנה</span></span>
-						<span class="stColNote" data-col-note="0"></span>
-					</th>
-					<th scope="col" class="stCol">
-						<span class="lang lang-en lang-he-Latn">Elevation off</span><span class="lang lang-he">גובה כבוי</span>
-						<span class="stColNote"><span class="lang lang-en lang-he-Latn">old way</span><span class="lang lang-he">השיטה הישנה</span></span>
-						<span class="stColNote" data-col-note="1"></span>
-					</th>
-					<th scope="col" class="stCol">
-						<span class="lang lang-en lang-he-Latn">New way</span><span class="lang lang-he">השיטה החדשה</span>
-						<span class="stColNote"><span class="lang lang-en lang-he-Latn">base level</span><span class="lang lang-he">גובה מעל הבסיס</span></span>
-						<span class="stColNote" data-col-note="2"></span>
-					</th>
-				</tr>
-			</thead>
-			<tbody id="stRows"></tbody>
-		</table>
+	<ul class="nav nav-tabs mb-2" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button type="button" class="nav-link active" role="tab" data-st-tab="day" aria-selected="true">
+				<span class="lang lang-en lang-he-Latn">One day</span><span class="lang lang-he">יום אחד</span>
+			</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button type="button" class="nav-link" role="tab" data-st-tab="year" aria-selected="false">
+				<span class="lang lang-en lang-he-Latn">Through the year: equinoxes, solstices, extremes</span><span class="lang lang-he">לאורך השנה: תקופות וקצוות</span>
+			</button>
+		</li>
+	</ul>
+
+	<div data-st-pane="day">
+		<!-- the date -->
+		<div class="card mb-2">
+			<div class="card-body stDate">
+				<button type="button" class="btn btn-outline-primary" data-days="-1" title="Previous day"><i class="bi bi-arrow-left"></i></button>
+				<div>
+					<h5 class="mb-1" id="stPrimaryDate"></h5>
+					<div class="small" id="stSecondaryDate"></div>
+					<div class="d-flex justify-content-center gap-2 mt-1">
+						<input type="date" class="form-control form-control-sm" id="stDate" style="max-width: 11rem;" aria-label="Date">
+						<button type="button" class="btn btn-sm btn-outline-secondary" id="stToday">
+							<span class="lang lang-en lang-he-Latn">Today</span><span class="lang lang-he">היום</span>
+						</button>
+					</div>
+				</div>
+				<button type="button" class="btn btn-outline-primary" data-days="1" title="Next day"><i class="bi bi-arrow-right"></i></button>
+			</div>
+		</div>
+
+		<div class="table-responsive">
+			<table class="table table-sm table-bordered align-middle w-100">
+				<thead>
+					<tr>
+						<th scope="col"></th>
+						<th scope="col" class="stCol">
+							<span class="lang lang-en lang-he-Latn">Elevation on</span><span class="lang lang-he">גובה מופעל</span>
+							<span class="stColNote"><span class="lang lang-en lang-he-Latn">old way</span><span class="lang lang-he">השיטה הישנה</span></span>
+							<span class="stColNote" data-col-note="0"></span>
+						</th>
+						<th scope="col" class="stCol">
+							<span class="lang lang-en lang-he-Latn">Elevation off</span><span class="lang lang-he">גובה כבוי</span>
+							<span class="stColNote"><span class="lang lang-en lang-he-Latn">old way</span><span class="lang lang-he">השיטה הישנה</span></span>
+							<span class="stColNote" data-col-note="1"></span>
+						</th>
+						<th scope="col" class="stCol">
+							<span class="lang lang-en lang-he-Latn">New way</span><span class="lang lang-he">השיטה החדשה</span>
+							<span class="stColNote"><span class="lang lang-en lang-he-Latn">base level</span><span class="lang lang-he">גובה מעל הבסיס</span></span>
+							<span class="stColNote" data-col-note="2"></span>
+						</th>
+					</tr>
+				</thead>
+				<tbody id="stRows"></tbody>
+			</table>
+		</div>
+	</div>
+
+	<div data-st-pane="year" class="d-none">
+		<div class="card mb-2">
+			<div class="card-body stDate">
+				<button type="button" class="btn btn-outline-primary" data-years="-1" title="Previous year"><i class="bi bi-arrow-left"></i></button>
+				<div class="d-flex justify-content-center align-items-center gap-2">
+					<label for="stYear" class="mb-0"><span class="lang lang-en lang-he-Latn">Year</span><span class="lang lang-he">שנה</span></label>
+					<input type="number" class="form-control form-control-sm" id="stYear" style="max-width: 7rem;" min="1900" max="2200">
+				</div>
+				<button type="button" class="btn btn-outline-primary" data-years="1" title="Next year"><i class="bi bi-arrow-right"></i></button>
+			</div>
+		</div>
+		<p class="small text-center mb-2" id="stYearStatus"></p>
+
+		<h5 class="mt-3">
+			<span class="lang lang-en lang-he-Latn">The equinoxes and solstices</span><span class="lang lang-he">התקופות: שוויון היום והלילה, היום הארוך והקצר</span>
+		</h5>
+		<p class="small mb-1">
+			<span class="lang lang-en lang-he-Latn">The listed sunrise and sunset and the seasonal hour on each. Click a day to see all its zemanim.</span>
+			<span class="lang lang-he">הנץ והשקיעה המוצגים והשעה הזמנית בכל אחד מהם. לחיצה על יום מציגה את כל זמניו.</span>
+		</p>
+		<div class="table-responsive">
+			<table class="table table-sm table-bordered align-middle w-100">
+				<thead>
+					<tr>
+						<th scope="col"></th>
+						<th scope="col" class="stCol">
+							<span class="lang lang-en lang-he-Latn">Elevation on</span><span class="lang lang-he">גובה מופעל</span>
+							<span class="stColNote"><span class="lang lang-en lang-he-Latn">old way</span><span class="lang lang-he">השיטה הישנה</span></span>
+							<span class="stColNote" data-col-note-y="0"></span>
+						</th>
+						<th scope="col" class="stCol">
+							<span class="lang lang-en lang-he-Latn">Elevation off</span><span class="lang lang-he">גובה כבוי</span>
+							<span class="stColNote"><span class="lang lang-en lang-he-Latn">old way</span><span class="lang lang-he">השיטה הישנה</span></span>
+							<span class="stColNote" data-col-note-y="1"></span>
+						</th>
+						<th scope="col" class="stCol">
+							<span class="lang lang-en lang-he-Latn">New way</span><span class="lang lang-he">השיטה החדשה</span>
+							<span class="stColNote"><span class="lang lang-en lang-he-Latn">base level</span><span class="lang lang-he">גובה מעל הבסיס</span></span>
+							<span class="stColNote" data-col-note-y="2"></span>
+						</th>
+					</tr>
+				</thead>
+				<tbody id="stKeyRows"></tbody>
+			</table>
+		</div>
+
+		<h5 class="mt-3">
+			<span class="lang lang-en lang-he-Latn">The biggest differences over the year</span><span class="lang lang-he">ההפרשים הגדולים ביותר במשך השנה</span>
+		</h5>
+		<p class="small mb-1">
+			<span class="lang lang-en lang-he-Latn">For every day of the year, how far apart two of the ways put the listed sunrise and sunset (later +, earlier −): the smallest and largest difference, with their days, and the average. Click a day to see it.</span>
+			<span class="lang lang-he">לכל יום בשנה, כמה רחוקות שתי שיטות זו מזו בהנץ ובשקיעה המוצגים (מאוחר +, מוקדם −): ההפרש הקטן והגדול ביותר, עם ימיהם, והממוצע. לחיצה על יום מציגה אותו.</span>
+		</p>
+		<div class="table-responsive">
+			<table class="table table-sm table-bordered align-middle w-100">
+				<thead>
+					<tr>
+						<th scope="col"></th>
+						<th scope="col" class="stCol"><span class="lang lang-en lang-he-Latn">Smallest</span><span class="lang lang-he">הקטן ביותר</span></th>
+						<th scope="col" class="stCol"><span class="lang lang-en lang-he-Latn">Largest</span><span class="lang lang-he">הגדול ביותר</span></th>
+						<th scope="col" class="stCol"><span class="lang lang-en lang-he-Latn">Average</span><span class="lang lang-he">ממוצע</span></th>
+					</tr>
+				</thead>
+				<tbody id="stExtremeRows"></tbody>
+			</table>
+		</div>
 	</div>
 </div>
 
