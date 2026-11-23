@@ -1939,11 +1939,13 @@ export default class ROYSPACalculator extends SPACalculator {
 	}
 
 	/**
-	 * getBaseLevel for a horizon set from the server, seen from the person's own place and height (geoLocation:
-	 * its elevation is the eye), as the elevated sunrise without a base is: the base candidates come from the
-	 * set's point nearest that place that carries them in the Sun's direction (its entry nearest the Sun's
-	 * azimuth, within 1 degree). The area's vantage points only supply the land; their own heights aren't
-	 * used, so with the base at sea level the times are the elevated ones at the person's height.
+	 * getBaseLevel for a horizon set from the server, for the person's own place and height (geoLocation: its
+	 * elevation is the eye), as the elevated sunrise without a base is. The base is the land's: it is found at
+	 * the set's point nearest that place that carries candidates in the Sun's direction (its entry nearest the
+	 * Sun's azimuth, within 1 degree), from that point's own position and eye, the ones the server chose the
+	 * candidates for (from a lower eye the sea horizon is nearer than the nearest candidate, which then reads a
+	 * little below sea level). The person's eye is then measured from that base, so with the base at sea level
+	 * the times are the elevated ones at the person's height.
 	 * null when no point has candidates there (an older server, a place with no bare-earth terrain, an override
 	 * with no base): the caller counts as before.
 	 * @param {Temporal.PlainDate} date @param {GeoLocation} geoLocation the person's place (the eye at its elevation)
@@ -1954,6 +1956,7 @@ export default class ROYSPACalculator extends SPACalculator {
 		const lat = geoLocation.getLatitude(), lon = geoLocation.getLongitude();
 		const kx = Math.cos(lat * Math.PI / 180);
 		/** @type {any} */ let entry = null;
+		/** @type {any} */ let point = null;
 		let nearest = Infinity;
 		for (const p of set?.points ?? []) {
 			/** @type {any} */ let e = null;
@@ -1965,12 +1968,14 @@ export default class ROYSPACalculator extends SPACalculator {
 			}
 			if (!e) continue;
 			const km = Math.hypot((p.lat - lat) * 111.19, (p.lon - lon) * 111.19 * kx);
-			if (km < nearest) { nearest = km; entry = e; }
+			if (km < nearest) { nearest = km; entry = e; point = p; }
 		}
 		if (!entry) return null;
+		const spot = new GeoLocation('base', point.lat, point.lon, Math.max(0, point.height), geoLocation.getTimeZone());
+		const b = this.getBaseLevel(date, spot, entry.baseCandidates, event, { heightM: point.height, groundM: point.ground });
+		if (!b) return null;
 		const eyeM = geoLocation.getElevation();
-		const b = this.getBaseLevel(date, geoLocation, entry.baseCandidates, event, { heightM: eyeM });
-		return b && { ...b, eyeM, fromKm: nearest };
+		return { ...b, eyeM, aboveM: Math.max(0, eyeM - b.baseM), fromKm: nearest };
 	}
 
 	/**
