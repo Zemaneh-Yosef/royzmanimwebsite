@@ -73,8 +73,23 @@ permalink: /sunrise-test
 				<span class="lang lang-en lang-he-Latn">Server</span><span class="lang lang-he">שרת</span>
 				<input class="form-control form-control-sm" id="stServer" aria-label="Server">
 			</label>
-			<button type="button" class="btn btn-sm btn-outline-secondary" id="stReload">
-				<span class="lang lang-en lang-he-Latn">Download the weather and horizon again</span><span class="lang lang-he">הורד שוב מזג אוויר ואופק</span>
+		</div>
+		<div class="d-flex flex-wrap gap-3 align-items-center mt-2">
+			<label class="form-check mb-0">
+				<input class="form-check-input" type="checkbox" id="stUseHorizon" checked>
+				<span class="lang lang-en lang-he-Latn">Use the horizon (terrain)</span><span class="lang lang-he">השתמש באופק (פני השטח)</span>
+			</label>
+			<button type="button" class="btn btn-sm btn-outline-secondary" id="stReloadHorizon">
+				<span class="lang lang-en lang-he-Latn">Download the horizon again</span><span class="lang lang-he">הורד שוב את האופק</span>
+			</button>
+		</div>
+		<div class="d-flex flex-wrap gap-3 align-items-center mt-2">
+			<label class="form-check mb-0">
+				<input class="form-check-input" type="checkbox" id="stUseWeather">
+				<span class="lang lang-en lang-he-Latn">Use the weather (downloaded only while this is ticked)</span><span class="lang lang-he">השתמש במזג האוויר (נטען רק כשזה מסומן)</span>
+			</label>
+			<button type="button" class="btn btn-sm btn-outline-secondary" id="stReloadWeather">
+				<span class="lang lang-en lang-he-Latn">Download the weather again</span><span class="lang lang-he">הורד שוב את מזג האוויר</span>
 			</button>
 		</div>
 		<p class="mt-2 mb-0">
@@ -83,7 +98,7 @@ permalink: /sunrise-test
 		</p>
 	</details>
 
-	<p class="small text-center mb-2" id="stStatus"></p>
+	<div class="small mb-2" id="stStatus"></div>
 
 	<ul class="nav nav-tabs mb-2" role="tablist">
 		<li class="nav-item" role="presentation">

@@ -15,6 +15,11 @@
  * Two tabs: one day (every zman), and through the year (tab=year, y): the equinoxes and solstices, and the
  * smallest, largest and average gap between each two ways at sunrise and sunset over every day of the year.
  *
+ * The horizon (the refraction server's, for the place's official area) is loaded at once, and asked for again
+ * while the server is still computing it; the weather (Open-Meteo and the server's forecasts) only when the
+ * visitor ticks it (wx=1), so stepping through places doesn't send Open-Meteo a burst of requests. Without it
+ * the air is the calculator's standard air. Either can be left out (hz=0, wx unticked) to see its share.
+ *
  * The base level is off everywhere else on the site (zmanimSettings useBaseLevel, ZemanimConfig.baseLevel):
  * this page is the only one that turns it on, for its third column.
  */
@@ -23,8 +28,9 @@ import * as KosherZmanim from "../../libraries/kosherZmanim/kosher-zmanim.js";
 import { settings } from "../settings/handler.js";
 import { ZmanimDay, zmanimListFromData, timeFormat } from "../core/zmanimCore.js";
 import { isInIsrael } from "../misc/israel.js";
-import { readStoredRefraction, refractionFromStored, refractionFromData, loadFreshRefraction } from "../astro/place-refraction.js";
-import { REFRACTION_SERVER } from "../astro/refraction-data.js";
+import { loadFreshRefraction } from "../astro/place-refraction.js";
+import { REFRACTION_SERVER, TERRAIN_VERSION } from "../astro/refraction-data.js";
+import { fetchHorizonForArea, fetchTerrainVersion, HorizonPendingError } from "../astro/horizon-client.js";
 
 /** @typedef {{ name: string, lat: number, lon: number, elevation: number, tz: string }} Place */
 /** @typedef {import("../astro/place-refraction.js").Refraction} Refraction */
@@ -69,10 +75,22 @@ const state = {
 	date: null,
 	seconds: url.searchParams.get("sec") !== "0",
 	server: url.searchParams.get("srv") || REFRACTION_SERVER,
-	/** @type {Refraction} */
+	/** @type {Refraction} what the calculators are built with (the parts below that are in use) */
 	refraction: { atmosphereProvider: null, horizon: null, haze: null },
-	/** what the refraction is: "none" | "stored" | "fresh" | "failed" */
-	refractionKind: "none",
+	useHorizon: url.searchParams.get("hz") !== "0",
+	useWeather: url.searchParams.get("wx") === "1",
+	/** @type {Refraction['horizon']} */
+	horizon: null,
+	/** "off" | "loading" | "pending" (the server is computing it) | "ok" | "failed" */
+	horizonState: "off",
+	/** the error, or how long until it is asked for again */
+	horizonNote: "",
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	horizonRetry: undefined,
+	/** @type {Pick<Refraction, 'atmosphereProvider' | 'haze'> | null} */
+	weather: null,
+	/** "off" | "loading" | "ok" | "failed" */
+	weatherState: "off",
 	/** @type {ZmanimDay[]} */
 	days: [],
 	/** @type {KosherZmanim.GeoLocation | null} */
@@ -201,34 +219,70 @@ async function showPlace(place) {
 	facts.textContent = `${place.lat.toFixed(4)}, ${place.lon.toFixed(4)} · ${place.elevation} m · ${place.tz}`;
 	$("stPlaceInfo").replaceChildren(facts, " · " + (inIsrael ? tr("in Israel", "בארץ ישראל") : tr("outside Israel", 'בחו"ל')));
 
-	// at once without weather, then what is stored, then a fresh download
-	state.refraction = { atmosphereProvider: null, horizon: null, haze: null };
-	state.refractionKind = "none";
+	// at once in standard air without a horizon, then with each part as it comes
+	clearTimeout(state.horizonRetry);
+	state.horizon = null;
+	state.weather = null;
+	state.horizonState = state.weatherState = "off";
 	build();
-	const cached = await readStoredRefraction(place.lat, place.lon, 3000);
-	if (token !== state.token) return;
-	if (cached) {
-		state.refraction = refractionFromStored(cached);
-		state.refractionKind = "stored";
-		build();
-	}
-	await reload(false, token);
+	loadHorizon(false);
+	loadWeather(false);
 }
 
-/** Download the place's weather and horizon (from storage when fresh) @param {boolean} force @param {number} [token] */
-async function reload(force, token = state.token) {
-	const place = state.place;
-	if (!place) return;
-	status(tr("Loading the weather and the horizon…", "טוען מזג אוויר ואופק…"));
+/**
+ * The place's horizon from the refraction server: its terrain version first, so the address changes (and no
+ * cached copy is used) when the server's terrain or base settings change. A place the server is still
+ * computing is asked for again when it says.
+ * @param {boolean} force past any cached copy
+ */
+async function loadHorizon(force) {
+	clearTimeout(state.horizonRetry);
+	const place = state.place, token = state.token;
+	if (!place || !state.useHorizon) return;
+	state.horizonState = "loading";
+	showStatus();
+	try {
+		const now = await fetchTerrainVersion(state.server, place.lat, place.lon, { area: true });
+		const version = `${TERRAIN_VERSION}.${now.layers ?? "-"}.${now.fine ?? "-"}.${now.algo ?? 1}.${now.base ?? "-"}`
+			+ (force ? `.${Date.now()}` : "");
+		const horizon = await fetchHorizonForArea(state.server, place.lat, place.lon, { outline: true, version });
+		if (token !== state.token) return;
+		state.horizon = horizon;
+		state.horizonState = "ok";
+	} catch (e) {
+		if (token !== state.token) return;
+		if (e instanceof HorizonPendingError) {
+			const s = Math.max(5, Math.round(e.retryAfterS || 15));
+			state.horizonState = "pending";
+			state.horizonNote = String(s);
+			state.horizonRetry = setTimeout(() => { if (token === state.token) loadHorizon(false); }, s * 1000);
+			showStatus();
+			return;
+		}
+		state.horizonState = "failed";
+		state.horizonNote = /** @type {Error} */ (e).message;
+	}
+	build();
+}
+
+/**
+ * The place's weather (from storage when still current, else downloaded), only when the visitor asked for it
+ * @param {boolean} force download even if the stored forecast is current
+ */
+async function loadWeather(force) {
+	const place = state.place, token = state.token;
+	if (!place || !state.useWeather) return;
+	state.weatherState = "loading";
+	showStatus();
 	const data = await loadFreshRefraction(place.lat, place.lon,
 		{ serverUrl: state.server, force, humidity: settings.refraction.humidity(), seaSurface: settings.refraction.seaSurfaceLayer() },
 		() => token === state.token);
 	if (token !== state.token) return;
 	if (data) {
-		state.refraction = refractionFromData(data);
-		state.refractionKind = "fresh";
-	} else if (state.refractionKind == "none")
-		state.refractionKind = "failed";
+		state.weather = { atmosphereProvider: data.provider, haze: data.haze };
+		state.weatherState = "ok";
+	} else
+		state.weatherState = "failed";
 	build();
 }
 
@@ -242,6 +296,11 @@ function build() {
 		status(tr("That place can't be used: ", "אי אפשר להשתמש במקום הזה: ") + e);
 		return;
 	}
+	state.refraction = {
+		atmosphereProvider: state.useWeather ? state.weather?.atmosphereProvider ?? null : null,
+		horizon: state.useHorizon ? state.horizon : null,
+		haze: state.useWeather ? state.weather?.haze ?? null : null
+	};
 	state.geo = geo;
 	state.days = makeDays(geo);
 	state.yearDirty = true;
@@ -272,6 +331,54 @@ function hasBaseCandidates() {
 	return !!h?.points?.some((/** @type {any} */ p) => ["sunrise", "sunset"].some(s => p[s]?.some((/** @type {any} */ e) => e.baseCandidates)));
 }
 
+/** What the horizon says about the base level, in words */
+function horizonBase() {
+	const h = /** @type {any} */ (state.refraction.horizon);
+	if (!h) return "";
+	if (hasBaseCandidates()) return tr("with base candidates", "עם נקודות בסיס");
+	const statuses = [...new Set((h.points ?? []).map((/** @type {any} */ p) => p.base?.status).filter(Boolean))];
+	if (!statuses.length)
+		return tr("without base candidates (this server doesn't send them)", "בלי נקודות בסיס (השרת הזה לא שולח אותן)");
+	return tr(`without base candidates (the server: ${statuses.join(", ")})`, `בלי נקודות בסיס (השרת: ${statuses.join(", ")})`);
+}
+
+/** Why the new way has no base, for the notes over its column */
+function noBaseReason() {
+	if (!state.useHorizon) return tr("the horizon is turned off", "האופק כבוי");
+	if (!state.refraction.horizon)
+		return state.horizonState == "pending" || state.horizonState == "loading"
+			? tr("the horizon hasn't arrived yet", "האופק עוד לא הגיע")
+			: tr("no horizon", "אין אופק");
+	if (!hasBaseCandidates()) return tr("the horizon has no base candidates", "באופק אין נקודות בסיס");
+	return tr("no candidates in the Sun's direction", "אין נקודות בסיס בכיוון השמש");
+}
+
+/** The horizon's and the weather's state, each on its own line */
+function showStatus() {
+	const horizon = {
+		off: tr("off: no visible sunrise, no base level", "כבוי: בלי הנץ הנראה ובלי גובה בסיס"),
+		loading: tr("loading…", "טוען…"),
+		pending: tr(`the server is still computing this place's horizon (its first request); asking again in ${state.horizonNote} s…`,
+			`השרת עוד מחשב את האופק של המקום הזה (בקשה ראשונה); שואל שוב בעוד ${state.horizonNote} שניות…`),
+		ok: tr("loaded, ", "נטען, ") + horizonBase(),
+		failed: tr(`couldn't be loaded (${state.horizonNote})`, `לא ניתן לטעון (${state.horizonNote})`)
+	}[state.useHorizon ? state.horizonState : "off"];
+	const weather = {
+		off: tr("standard air (tick \"Use the weather\" under Options to load it)", "אוויר תקני (סמן \"השתמש במזג האוויר\" באפשרויות כדי לטעון)"),
+		loading: tr("loading…", "טוען…"),
+		ok: tr("loaded", "נטען"),
+		failed: tr("couldn't be loaded: standard air", "לא ניתן לטעון: אוויר תקני")
+	}[state.useWeather ? state.weatherState : "off"];
+	const line = (/** @type {string} */ name, /** @type {string} */ text) => {
+		const div = document.createElement("div");
+		const b = document.createElement("b");
+		b.textContent = name + ": ";
+		div.append(b, text);
+		return div;
+	};
+	$("stStatus").replaceChildren(line(tr("Horizon", "אופק"), horizon), line(tr("Weather", "מזג אוויר"), weather));
+}
+
 /** "+2:33" / "−0:05" @param {number} seconds */
 function signed(seconds) {
 	const s = Math.round(Math.abs(seconds));
@@ -300,20 +407,10 @@ function render() {
 	colNotes("data-col-note", base
 		? tr(`base: sunrise ${base.sunrise.toFixed(0)} m, sunset ${base.sunset.toFixed(0)} m; hours from the ${base.hoursFrom}'s angle`,
 			`בסיס: הנץ ${base.sunrise.toFixed(0)} מ', שקיעה ${base.sunset.toFixed(0)} מ'; השעות לפי זווית ה${base.hoursFrom == "sunrise" ? "הנץ" : "שקיעה"}`)
-		: tr(`no base from the server: falls back to elevation ${days[2].config.elevation ? "on" : "off"}`,
-			`אין בסיס מהשרת: חוזר לגובה ${days[2].config.elevation ? "מופעל" : "כבוי"}`));
+		: tr(`no base (${noBaseReason()}): falls back to elevation ${days[2].config.elevation ? "on" : "off"}`,
+			`אין בסיס (${noBaseReason()}): חוזר לגובה ${days[2].config.elevation ? "מופעל" : "כבוי"}`));
 
-	const kind = {
-		none: tr("No weather data yet: standard air, no horizon.", "אין עדיין נתוני מזג אוויר: אוויר תקני, בלי אופק."),
-		stored: tr("Stored weather and horizon; checking for newer…", "מזג אוויר ואופק שמורים; בודק אם יש חדשים…"),
-		fresh: tr("Weather and horizon loaded.", "מזג האוויר והאופק נטענו."),
-		failed: tr("The weather and horizon couldn't be loaded: standard air, no horizon.", "לא ניתן לטעון מזג אוויר ואופק: אוויר תקני, בלי אופק.")
-	}[state.refractionKind];
-	const horizon = state.refraction.horizon
-		? (hasBaseCandidates() ? tr(" The horizon has base candidates.", " באופק יש נקודות בסיס.")
-			: tr(" The horizon has no base candidates (the server doesn't send them yet).", " באופק אין נקודות בסיס (השרת עוד לא שולח אותן)."))
-		: "";
-	status(kind + horizon);
+	showStatus();
 	if (state.tab != "day") return;
 
 	// the rows: every zman of the calendar's list shown in at least one column, in the list's order
@@ -533,8 +630,8 @@ async function scanYear() {
 	$("stYearStatus").textContent = withBase
 		? tr(`The new way had a base level on ${withBase} of the year's ${n} days; on the rest it fell back.`,
 			`לשיטה החדשה היה גובה בסיס ב-${withBase} מתוך ${n} ימי השנה; בשאר חזרה לברירת המחדל.`)
-		: tr(`The new way had no base level on any day (the server sent no base candidates): it fell back to elevation ${days[2].config.elevation ? "on" : "off"} all year.`,
-			`לשיטה החדשה לא היה גובה בסיס באף יום (השרת לא שלח נקודות בסיס): היא חזרה לגובה ${days[2].config.elevation ? "מופעל" : "כבוי"} כל השנה.`);
+		: tr(`The new way had no base level on any day (${noBaseReason()}): it fell back to elevation ${days[2].config.elevation ? "on" : "off"} all year.`,
+			`לשיטה החדשה לא היה גובה בסיס באף יום (${noBaseReason()}): היא חזרה לגובה ${days[2].config.elevation ? "מופעל" : "כבוי"} כל השנה.`);
 	colNotes("data-col-note-y", withBase
 		? tr(`base level on ${withBase} of ${n} days`, `גובה בסיס ב-${withBase} מתוך ${n} ימים`)
 		: tr(`no base: elevation ${days[2].config.elevation ? "on" : "off"}`, `אין בסיס: גובה ${days[2].config.elevation ? "מופעל" : "כבוי"}`));
@@ -639,6 +736,8 @@ function saveUrl() {
 	if (state.year && state.tab == "year") u.searchParams.set("y", String(state.year)); else u.searchParams.delete("y");
 	if (state.seconds) u.searchParams.delete("sec"); else u.searchParams.set("sec", "0");
 	if (state.server != REFRACTION_SERVER) u.searchParams.set("srv", state.server); else u.searchParams.delete("srv");
+	if (state.useHorizon) u.searchParams.delete("hz"); else u.searchParams.set("hz", "0");
+	if (state.useWeather) u.searchParams.set("wx", "1"); else u.searchParams.delete("wx");
 	history.replaceState(history.state, "", u);
 }
 
@@ -724,9 +823,32 @@ serverBox.addEventListener("change", () => {
 	state.server = serverBox.value.trim().replace(/\/+$/, "") || REFRACTION_SERVER;
 	serverBox.value = state.server;
 	saveUrl();
-	reload(true);
+	state.horizon = null;
+	state.weather = null;
+	build();
+	loadHorizon(false);
+	loadWeather(false);
 });
-$("stReload").addEventListener("click", () => reload(true));
+
+const horizonBox = /** @type {HTMLInputElement} */ ($("stUseHorizon"));
+horizonBox.checked = state.useHorizon;
+horizonBox.addEventListener("change", () => {
+	state.useHorizon = horizonBox.checked;
+	saveUrl();
+	if (state.useHorizon && !state.horizon) loadHorizon(false);
+	else clearTimeout(state.horizonRetry);
+	build();
+});
+const weatherBox = /** @type {HTMLInputElement} */ ($("stUseWeather"));
+weatherBox.checked = state.useWeather;
+weatherBox.addEventListener("change", () => {
+	state.useWeather = weatherBox.checked;
+	saveUrl();
+	if (state.useWeather && !state.weather) loadWeather(false);
+	build();
+});
+$("stReloadHorizon").addEventListener("click", () => { if (state.useHorizon) loadHorizon(true); });
+$("stReloadWeather").addEventListener("click", () => { if (state.useWeather) loadWeather(true); });
 
 // the visitor changed the language or time format in the settings modal
 document.addEventListener("zmanimsettingchange", () => {
