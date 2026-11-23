@@ -1915,10 +1915,10 @@ export default class ROYSPACalculator extends SPACalculator {
 		if (!candidates || !candidates.length) return null;
 		const ho = Number.isFinite(observer.heightM) ? /** @type {number} */ (observer.heightM) : geoLocation.getElevation();
 		const refr = this.getRefractionFor(date, geoLocation, event, { heightM: ho, groundM: observer.groundM });
-		let best = -Infinity, at = NaN;
+		let best = -Infinity, at = NaN, atZ = NaN;
 		for (const [dKm, z] of candidates) {
 			const e = refr.elevationOf(z, dKm * 1000);
-			if (e > best) { best = e; at = dKm; }
+			if (e > best) { best = e; at = dKm; atZ = z; }
 		}
 		if (!Number.isFinite(best)) return null;
 		if (best >= 0) return { baseM: ho, aboveM: 0, horizonKm: at, apparentDeg: best };
@@ -1934,7 +1934,12 @@ export default class ROYSPACalculator extends SPACalculator {
 			const m = (lo + hi) / 2;
 			if (seen(m) > best) hi = m; else lo = m;
 		}
-		const baseM = (lo + hi) / 2;
+		let baseM = (lo + hi) / 2;
+		// within a metre below the land that is the horizon: that land's own level. Only the candidates' spacing
+		// (every 0.5-2 km, so the one seen highest can sit just short of its level's own horizon) and the search's
+		// 5 cm leave a gap that small; a real dip below it (a valley between the eye and a plateau) is tens of
+		// metres or more. Over the sea this gives 0 exactly, so a base at sea level is the elevated time itself.
+		if (baseM < atZ && atZ - baseM < 1) baseM = atZ;
 		return { baseM, aboveM: ho - baseM, horizonKm: at, apparentDeg: best };
 	}
 
