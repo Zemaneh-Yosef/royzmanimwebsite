@@ -458,9 +458,23 @@ function colNotes(attr, newNote) {
 		tr("sea level", "פני הים"),
 		newNote
 	];
+	const ref = refIndex();
+	notes[ref] += tr(" · today's calendar: the others are compared with it", " · הלוח של היום: האחרות מושוות אליה");
 	document.querySelectorAll(`[${attr}]`).forEach(el => {
-		el.textContent = notes[parseInt(/** @type {string} */ (el.getAttribute(attr)))];
+		const i = parseInt(/** @type {string} */ (el.getAttribute(attr)));
+		el.textContent = notes[i];
+		el.closest("th")?.classList.toggle("stRef", i == ref);
 	});
+}
+
+/**
+ * The column the others are compared with: what the calendar shows today at this place, the visitor's
+ * elevation setting (by default on in Israel, off abroad): 0 elevation on, 1 elevation off
+ */
+function refIndex() {
+	const place = state.place;
+	if (!place) return 0;
+	return settings.calendarToggle.useElevation(isInIsrael(place.lat, place.lon)) ? 0 : 1;
 }
 
 /** A section heading across the table @param {HTMLElement} tbody @param {string | Node} content */
@@ -475,7 +489,7 @@ function addSection(tbody, content) {
 }
 
 /**
- * A row: its name and the three columns, the second and third marked where they differ from the first
+ * A row: its name and the three columns, the others marked where they differ from today's calendar (refIndex)
  * @param {string} name
  * @param {(Temporal.ZonedDateTime | Temporal.Duration | null)[]} values
  * @param {"time" | "duration"} [kind]
@@ -498,8 +512,8 @@ function addRow(name, values, kind = "time", tbody = $("stRows")) {
 			td.textContent = "—";
 		} else {
 			td.textContent = kind == "duration" ? hms(/** @type {Temporal.Duration} */ (v)) : fmt(/** @type {Temporal.ZonedDateTime} */ (v));
-			const first = values[0];
-			if (i > 0 && first) {
+			const ref = refIndex(), first = values[ref];
+			if (i != ref && first) {
 				const diff = seconds(v) - seconds(first);
 				if (Math.abs(diff) >= 0.5) {
 					td.classList.add("stChanged");
@@ -651,7 +665,9 @@ async function scanYear() {
 
 	// the gaps between each two ways
 	const names = [tr("elevation on", "גובה מופעל"), tr("elevation off", "גובה כבוי"), tr("the new way", "השיטה החדשה")];
-	const pairs = [[1, 0], [2, 0], [2, 1]];
+	// each against today's calendar, then the new way against the other old way
+	const ref = refIndex(), other = 1 - ref;
+	const pairs = [[2, ref], [other, ref], [2, other]];
 	const ext = $("stExtremeRows");
 	for (const [event, series] of /** @type {[string, Float64Array[]][]} */ ([[tr("Sunrise", "הנץ"), rise], [tr("Sunset", "שקיעה"), set]])) {
 		addSection(ext, event);
